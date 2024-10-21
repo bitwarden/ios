@@ -4,12 +4,12 @@ import Networking
 /// API response model for the identity token request.
 ///
 struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
-    static var decoder = JSONDecoder.pascalOrSnakeCaseDecoder
+    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Account Properties
 
     /// Whether the app needs to force a password reset.
-    let forcePasswordReset: Bool
+    @DefaultFalse var forcePasswordReset: Bool
 
     /// The type of KDF algorithm to use.
     let kdf: KdfType
@@ -25,6 +25,9 @@ struct IdentityTokenResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
 
     /// The user's key.
     let key: String?
+
+    /// The user's key connector URL.
+    let keyConnectorUrl: String?
 
     /// Policies related to the user's master password.
     let masterPasswordPolicy: MasterPasswordPolicyResponseModel?

@@ -54,11 +54,17 @@ public class AppProcessor {
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - appModule: The root module to use to create sub-coordinators.
+    ///   - debugDidEnterBackground: A closure that is called in debug builds for testing after the
+    ///     processor finishes its work when the app enters the background.
+    ///   - debugWillEnterForeground: A closure that is called in debug builds for testing after the
+    ///     processor finishes its work when the app enters the foreground.
     ///   - services: The services used by the app.
     ///
     public init(
         appExtensionDelegate: AppExtensionDelegate? = nil,
         appModule: AppModule,
+        debugDidEnterBackground: (() -> Void)? = nil,
+        debugWillEnterForeground: (() -> Void)? = nil,
         services: ServiceContainer
     ) {
         self.appExtensionDelegate = appExtensionDelegate
@@ -70,13 +76,17 @@ public class AppProcessor {
 
         startEventTimer()
 
-        UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
+        UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Bundle.main.preferredLocalizations.first
         UI.applyDefaultAppearances()
 
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
                 await checkAccountsForTimeout()
+                await completeAutofillAccountSetupIfEnabled()
+                #if DEBUG
+                debugWillEnterForeground?()
+                #endif
             }
         }
 
@@ -91,6 +101,9 @@ public class AppProcessor {
                 } catch {
                     services.errorReporter.log(error: error)
                 }
+                #if DEBUG
+                debugDidEnterBackground?()
+                #endif
             }
         }
     }
@@ -102,20 +115,19 @@ public class AppProcessor {
     /// - Parameter url: The deep link URL to handle.
     ///
     public func openUrl(_ url: URL) async {
-        guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
-            coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            return
+        var route = await getBitwardenUrlRoute(url: url)
+        if route == nil {
+            route = await getOtpAuthUrlRoute(url: url)
         }
+        guard let route else { return }
 
-        let vaultItemSelectionRoute = AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
-        guard let userId = try? await services.stateService.getActiveAccountId(),
-              !services.vaultTimeoutService.isLocked(userId: userId),
-              await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false
-        else {
-            await coordinator?.handleEvent(.setAuthCompletionRoute(vaultItemSelectionRoute))
-            return
+        if let userId = try? await services.stateService.getActiveAccountId(),
+           !services.vaultTimeoutService.isLocked(userId: userId),
+           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
+            coordinator?.navigate(to: route)
+        } else {
+            await coordinator?.handleEvent(.setAuthCompletionRoute(route))
         }
-        coordinator?.navigate(to: vaultItemSelectionRoute)
     }
 
     /// Starts the application flow by navigating the user to the first flow.
@@ -125,12 +137,14 @@ public class AppProcessor {
     ///   - initialRoute: The initial route to navigate to. If `nil` this, will navigate to the
     ///     unlock or landing auth route based on if there's an active account. Defaults to `nil`.
     ///   - navigator: The object that will be used to navigate between routes.
+    ///   - splashWindow: The splash window to use to set the app's theme.
     ///   - window: The window to use to set the app's theme.
     ///
     public func start(
         appContext: AppContext,
         initialRoute: AppRoute? = nil,
         navigator: RootNavigator,
+        splashWindow: UIWindow? = nil,
         window: UIWindow?
     ) async {
         let coordinator = appModule.makeAppCoordinator(appContext: appContext, navigator: navigator)
@@ -140,6 +154,7 @@ public class AppProcessor {
         Task {
             for await appTheme in await services.stateService.appThemePublisher().values {
                 navigator.appTheme = appTheme
+                splashWindow?.overrideUserInterfaceStyle = appTheme.userInterfaceStyle
                 window?.overrideUserInterfaceStyle = appTheme.userInterfaceStyle
             }
         }
@@ -147,6 +162,7 @@ public class AppProcessor {
         await services.migrationService.performMigrations()
         await services.environmentService.loadURLsForActiveAccount()
         _ = await services.configService.getConfig()
+        await completeAutofillAccountSetupIfEnabled()
 
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
@@ -160,14 +176,16 @@ public class AppProcessor {
     /// - Parameter incomingURL: The URL handled from AppLinks.
     ///
     public func handleAppLinks(incomingURL: URL) {
-        guard let sanatizedUrl = URL(string: incomingURL.absoluteString.replacingOccurrences(of: "/#/", with: "/")),
-              let components = URLComponents(url: sanatizedUrl, resolvingAgainstBaseURL: true) else {
+        guard let sanitizedUrl = URL(
+            string: incomingURL.absoluteString.replacingOccurrences(of: "/redirect-connector.html#", with: "/")
+        ),
+            let components = URLComponents(url: sanitizedUrl, resolvingAgainstBaseURL: true) else {
             return
         }
 
         // Check for specific URL components that you need.
         guard let params = components.queryItems,
-              let host = components.host else {
+              components.host != nil else {
             services.errorReporter.log(error: AppProcessorError.appLinksInvalidURL)
             return
         }
@@ -188,8 +206,7 @@ public class AppProcessor {
             AuthRoute.completeRegistrationFromAppLink(
                 emailVerificationToken: verificationToken,
                 userEmail: email,
-                fromEmail: Bool(fromEmail) ?? true,
-                region: host.contains(RegionType.europe.baseUrlDescription) ? .europe : .unitedStates
+                fromEmail: Bool(fromEmail) ?? true
             )))
     }
 
@@ -256,6 +273,11 @@ public class AppProcessor {
         coordinator?.showAlert(alert)
     }
 
+    /// Show the debug menu.
+    public func showDebugMenu() {
+        coordinator?.navigate(to: .debugMenu)
+    }
+
     // MARK: Notification Methods
 
     /// Called when the app has registered for push notifications.
@@ -294,7 +316,9 @@ public class AppProcessor {
             notificationTapped: notificationTapped
         )
     }
+}
 
+extension AppProcessor {
     // MARK: Private Methods
 
     /// Checks if any accounts have timed out.
@@ -317,7 +341,7 @@ public class AppProcessor {
                         case .lock:
                             await services.vaultTimeoutService.lockVault(userId: userId)
                         case .logout, .none:
-                            try await services.authRepository.logout(userId: userId)
+                            try await services.authRepository.logout(userId: userId, userInitiated: false)
                         }
                     }
                 }
@@ -327,6 +351,62 @@ public class AppProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// If the native create account feature flag and the autofill extension are enabled, this marks
+    /// any user's autofill account setup completed. This should be called on app startup.
+    ///
+    private func completeAutofillAccountSetupIfEnabled() async {
+        // Don't mark the user's progress as complete in the extension, otherwise the app may not
+        // see that the user's progress needs to be updated to publish new values to subscribers.
+        guard appExtensionDelegate?.isInAppExtension != true,
+              await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
+              await services.autofillCredentialService.isAutofillCredentialsEnabled()
+        else { return }
+        do {
+            let accounts = try await services.stateService.getAccounts()
+            for account in accounts {
+                let userId = account.profile.userId
+                guard let progress = await services.stateService.getAccountSetupAutofill(userId: userId),
+                      progress != .complete
+                else { continue }
+                try await services.stateService.setAccountSetupAutofill(.complete, userId: userId)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Attempt to create an `AppRoute` from an "bitwarden://" url.
+    ///
+    /// - Parameter url: The Bitwarden URL received by the app.
+    /// - Returns: an `AppRoute` if one was successfully built from the URL passed in, `nil` if not.
+    ///
+    private func getBitwardenUrlRoute(url: URL) async -> AppRoute? {
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
+              let scheme = components.scheme,
+              scheme.isBitwardenAppScheme,
+              components.host == "settings",
+              components.path == "/account_security"
+        else { return nil }
+
+        return AppRoute.tab(.settings(.accountSecurity))
+    }
+
+    /// Attempt to create an `AppRoute` from an "otpauth://" url.
+    ///
+    /// - Parameter url: The OTPAuth URL received by the app.
+    /// - Returns: an `AppRoute` if one was successfully built from the URL passed in, `nil` if not.
+    ///
+    private func getOtpAuthUrlRoute(url: URL) async -> AppRoute? {
+        guard let scheme = url.scheme, scheme.isOtpAuthScheme else { return nil }
+
+        guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
+            coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            return nil
+        }
+
+        return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
     }
 
     /// Starts timer to send organization events regularly
@@ -355,7 +435,7 @@ public class AppProcessor {
             services.application?.endBackgroundTask(taskId)
             backgroundTaskId = nil
         }
-        backgroundTaskId = services.application?.beginBackgroundTask(
+        backgroundTaskId = services.application?.startBackgroundTask(
             withName: "SendEventBackgroundTask",
             expirationHandler: { [weak self] in
                 if let backgroundTaskId = self?.backgroundTaskId {
@@ -426,10 +506,18 @@ extension AppProcessor: NotificationServiceDelegate {
 // MARK: - SyncServiceDelegate
 
 extension AppProcessor: SyncServiceDelegate {
+    func removeMasterPassword(organizationName: String) {
+        // Don't show the remove master password screen if running in an app extension.
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+
+        coordinator?.hideLoadingOverlay()
+        coordinator?.navigate(to: .auth(.removeMasterPassword(organizationName: organizationName)))
+    }
+
     func securityStampChanged(userId: String) async {
         // Log the user out if their security stamp changes.
         coordinator?.hideLoadingOverlay()
-        try? await services.authRepository.logout(userId: userId)
+        try? await services.authRepository.logout(userId: userId, userInitiated: false)
         await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
     }
 

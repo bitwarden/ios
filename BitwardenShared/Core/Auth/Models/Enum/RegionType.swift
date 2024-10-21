@@ -1,7 +1,7 @@
 // MARK: - RegionType
 
 /// A region that the user can select when creating or signing into their account.
-public enum RegionType: CaseIterable {
+public enum RegionType: CaseIterable, Sendable {
     /// The United States region.
     case unitedStates
 
@@ -38,6 +38,15 @@ public enum RegionType: CaseIterable {
             return .defaultUS
         case .selfHosted:
             return nil
+        }
+    }
+
+    /// The name to be used by the error reporter.
+    var errorReporterName: String {
+        switch self {
+        case .europe: return "EU"
+        case .selfHosted: return "Self-Hosted"
+        case .unitedStates: return "US"
         }
     }
 }

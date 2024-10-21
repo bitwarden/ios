@@ -16,7 +16,7 @@ struct FoldersView: View {
         VStack(alignment: .leading, spacing: 16) {
             if store.state.folders.isEmpty {
                 empty
-                    .background(Color(asset: Asset.Colors.backgroundSecondary))
+                    .background(Color(asset: Asset.Colors.backgroundPrimary))
             } else {
                 folders
                     .scrollView()
@@ -25,6 +25,11 @@ struct FoldersView: View {
         .navigationBar(title: Localizations.folders, titleDisplayMode: .inline)
         .toolbar {
             addToolbarItem {
+                store.send(.add)
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
                 store.send(.add)
             }
         }
@@ -73,5 +78,26 @@ struct FoldersView: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
     }
 }
+
+#if DEBUG
+#Preview {
+    FoldersView(
+        store: Store(
+            processor: StateProcessor(
+                state: .init(
+                    folders: (1 ... 12).map { id in
+                        .init(
+                            id: String(id),
+                            name: "Test Folder",
+                            revisionDate: .now
+                        )
+                    }
+                )
+            )
+        )
+    )
+}
+#endif

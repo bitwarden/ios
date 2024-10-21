@@ -41,6 +41,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasAuthAPIService
         & HasAuthRepository
         & HasAuthService
+        & HasAutofillCredentialService
         & HasBiometricsRepository
         & HasCaptchaService
         & HasClientService
@@ -48,7 +49,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasDeviceAPIService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasGeneratorRepository
         & HasNFCReaderService
+        & HasNotificationCenterService
         & HasOrganizationAPIService
         & HasPolicyService
         & HasSettingsRepository
@@ -98,8 +101,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        delegate: AuthCoordinatorDelegate,
-        rootNavigator: RootNavigator,
+        delegate: AuthCoordinatorDelegate?,
+        rootNavigator: RootNavigator?,
         router: AnyRouter<AuthEvent, AuthRoute>,
         services: Services,
         stackNavigator: StackNavigator
@@ -116,6 +119,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     func navigate(to route: AuthRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
+        case .autofillSetup:
+            showAutoFillSetup()
         case let .captcha(url, callbackUrlScheme):
             showCaptcha(
                 url: url,
@@ -136,32 +141,38 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case let .completeRegistration(emailVerificationToken, userEmail):
             showCompleteRegistration(
                 emailVerificationToken: emailVerificationToken,
-                userEmail: userEmail,
-                region: nil
+                userEmail: userEmail
             )
-        case let .completeRegistrationFromAppLink(emailVerificationToken, userEmail, fromEmail, region):
+        case let .completeRegistrationFromAppLink(emailVerificationToken, userEmail, fromEmail):
             // Coming from an AppLink clear the current stack
             stackNavigator?.dismiss {
                 self.showLanding()
                 self.showCompleteRegistration(
                     emailVerificationToken: emailVerificationToken,
                     userEmail: userEmail,
-                    fromEmail: fromEmail,
-                    region: region
+                    fromEmail: fromEmail
                 )
             }
         case .createAccount:
             showCreateAccount()
         case .startRegistration:
             showStartRegistration(delegate: context as? StartRegistrationDelegate)
+        case .startRegistrationFromExpiredLink:
+            showStartRegistrationFromExpiredLink()
         case .dismiss:
-            stackNavigator?.dismiss()
+            if stackNavigator?.isPresenting == false {
+                stackNavigator?.pop()
+            } else {
+                stackNavigator?.dismiss()
+            }
         case .dismissPresented:
-            stackNavigator?.rootViewController?.presentedViewController?.dismiss(animated: true)
+            stackNavigator?.rootViewController?.topmostViewController().dismiss(animated: true)
         case let .dismissWithAction(onDismiss):
             stackNavigator?.dismiss(animated: true, completion: {
                 onDismiss?.action()
             })
+        case .expiredLink:
+            showExpiredLink()
         case let .duoAuthenticationFlow(authURL):
             showDuo2FA(authURL: authURL, delegate: context as? DuoAuthenticationFlowDelegate)
         case let .enterpriseSingleSignOn(email):
@@ -170,14 +181,24 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showIntroCarousel()
         case .landing:
             showLanding()
-        case let .login(username):
-            showLogin(username)
+        case let .landingSoftLoggedOut(email):
+            showLanding(email: email)
+        case let .login(username, isNewAccount):
+            showLogin(username, isNewAccount: isNewAccount)
         case let .showLoginDecryptionOptions(organizationIdentifier):
             showLoginDecryptionOptions(organizationIdentifier)
         case let .loginWithDevice(email, type, isAuthenticated):
             showLoginWithDevice(email: email, type: type, isAuthenticated: isAuthenticated)
+        case .masterPasswordGenerator:
+            showMasterPasswordGenerator(delegate: context as? MasterPasswordUpdateDelegate)
+        case .masterPasswordGuidance:
+            showMasterPasswordGuidance(delegate: context as? MasterPasswordUpdateDelegate)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
+        case .preventAccountLock:
+            showPreventAccountLock()
+        case let .removeMasterPassword(organizationName):
+            showRemoveMasterPassword(organizationName: organizationName)
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .setMasterPassword(organizationIdentifier):
@@ -220,6 +241,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
                 didSwitchAccountAutomatically: didSwitch
             )
+        case let .vaultUnlockSetup(accountSetupFlow):
+            showVaultUnlockSetup(accountSetupFlow: accountSetupFlow)
         }
     }
 
@@ -245,6 +268,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             throw StateServiceError.noActiveAccount
         }
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
+    }
+
+    /// Shows the password autofill screen.
+    ///
+    private func showAutoFillSetup() {
+        let processor = PasswordAutoFillProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: .init(mode: .onboarding)
+        )
+
+        let view = PasswordAutoFillView(store: Store(processor: processor))
+        stackNavigator?.replace(view)
     }
 
     /// Shows the captcha screen.
@@ -317,8 +353,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showCompleteRegistration(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool = false,
-        region: RegionType?
+        fromEmail: Bool = false
     ) {
         let view = CompleteRegistrationView(
             store: Store(
@@ -328,7 +363,6 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     state: CompleteRegistrationState(
                         emailVerificationToken: emailVerificationToken,
                         fromEmail: fromEmail,
-                        region: region,
                         userEmail: userEmail
                     )
                 )
@@ -381,6 +415,22 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         session.start()
     }
 
+    /// Shows the expired link screen.
+    ///
+    private func showExpiredLink() {
+        let view = ExpiredLinkView(
+            store: Store(
+                processor: ExpiredLinkProcessor(
+                    coordinator: asAnyCoordinator(),
+                    state: ExpiredLinkState()
+                )
+            )
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        navController.isModalInPresentation = true
+        stackNavigator?.present(navController)
+    }
+
     /// Shows the enterprise single sign-on screen.
     ///
     /// - Parameter email: The user's email address.
@@ -403,6 +453,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showIntroCarousel() {
         let processor = IntroCarouselProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: IntroCarouselState()
         )
         let view = IntroCarouselView(store: Store(processor: processor))
@@ -412,13 +463,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
 
     /// Shows the landing screen.
     ///
-    private func showLanding() {
+    /// - Parameter email: The user's email to populate. Defaults to `nil` which will populate the
+    ///     remembered email, if it exists.
+    ///
+    private func showLanding(email: String? = nil) {
         guard let stackNavigator else { return }
         if stackNavigator.popToRoot(animated: UI.animated).isEmpty {
             let processor = LandingProcessor(
                 coordinator: asAnyCoordinator(),
                 services: services,
-                state: LandingState()
+                state: LandingState(
+                    email: email ?? "",
+                    isRememberMeOn: email != nil
+                )
             )
             let store = Store(processor: processor)
             let view = LandingView(store: store)
@@ -430,9 +487,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the login screen. If the create account flow is being presented it will be dismissed
     /// and the login screen will be pushed
     ///
-    /// - Parameter username: The user's username.
+    /// - Parameters:
+    ///   - username: The user's username.
+    ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
-    private func showLogin(_ username: String) {
+    private func showLogin(_ username: String, isNewAccount: Bool) {
         guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
@@ -441,6 +500,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
 
         let state = LoginState(
+            isNewAccount: isNewAccount,
             serverURLString: environmentUrls.webVaultURL.host ?? "",
             username: username
         )
@@ -505,6 +565,40 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         }
     }
 
+    /// Shows the generate master password screen.
+    ///
+    private func showMasterPasswordGenerator(delegate: MasterPasswordUpdateDelegate?) {
+        let processor = MasterPasswordGeneratorProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate,
+            services: services
+        )
+        let store = Store(processor: processor)
+        let view = MasterPasswordGeneratorView(store: store)
+        let viewController = UIHostingController(rootView: view)
+
+        let topmostViewController = stackNavigator?.rootViewController?.topmostViewController()
+        topmostViewController?.navigationItem.backButtonTitle = Localizations.back
+        topmostViewController?.navigationController?.push(
+            viewController,
+            animated: true
+        )
+    }
+
+    /// Shows the master password guidance screen.
+    ///
+    private func showMasterPasswordGuidance(delegate: MasterPasswordUpdateDelegate?) {
+        let processor = MasterPasswordGuidanceProcessor(
+            coordinator: asAnyCoordinator(),
+            delegate: delegate
+        )
+        let store = Store(processor: processor)
+        let view = MasterPasswordGuidanceView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the master password hint screen for the provided username.
     ///
     /// - Parameter username: The username to get the password hint for.
@@ -520,6 +614,33 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the prevent account lock screen.
+    ///
+    private func showPreventAccountLock() {
+        let processor = PreventAccountLockProcessor(coordinator: asAnyCoordinator())
+        let store = Store(processor: processor)
+        let view = PreventAccountLockView(store: store)
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the remove master password screen.
+    ///
+    /// - Parameter organizationName: The organization's name.
+    ///
+    private func showRemoveMasterPassword(organizationName: String) {
+        let processor = RemoveMasterPasswordProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: RemoveMasterPasswordState(
+                organizationName: organizationName
+            )
+        )
+        let view = RemoveMasterPasswordView(store: Store(processor: processor))
+        stackNavigator?.push(view)
     }
 
     /// Shows the self-hosted settings view.
@@ -637,6 +758,24 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         stackNavigator?.present(navController)
     }
 
+    /// Shows the start registration screen from expired link screen.
+    ///
+    public func showStartRegistrationFromExpiredLink() {
+        guard let stackNavigator else { return }
+        stackNavigator.dismiss {
+            let processor = LandingProcessor(
+                coordinator: self.asAnyCoordinator(),
+                services: self.services,
+                state: LandingState()
+            )
+            let store = Store(processor: processor)
+            let view = LandingView(store: store)
+            stackNavigator.setNavigationBarHidden(false, animated: false)
+            stackNavigator.replace(view, animated: false)
+            self.showStartRegistration(delegate: processor as StartRegistrationDelegate)
+        }
+    }
+
     /// Show the two factor authentication view.
     ///
     /// - Parameters:
@@ -711,7 +850,28 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator?.replace(view, animated: animated)
         if didSwitchAccountAutomatically {
-            processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
+            processor.state.toast = Toast(title: Localizations.accountSwitchedAutomatically)
+        }
+    }
+
+    /// Shows the vault unlock setup screen.
+    ///
+    /// - Parameter accountSetupFlow: The account setup flow that the user is in.
+    ///
+    func showVaultUnlockSetup(accountSetupFlow: AccountSetupFlow) {
+        let processor = VaultUnlockSetupProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultUnlockSetupState(accountSetupFlow: accountSetupFlow),
+            vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
+        )
+        let view = VaultUnlockSetupView(store: Store(processor: processor))
+        switch accountSetupFlow {
+        case .createAccount:
+            stackNavigator?.replace(view)
+        case .settings:
+            let viewController = UIHostingController(rootView: view)
+            stackNavigator?.push(viewController, navigationTitle: Localizations.setUpUnlock)
         }
     }
 
@@ -742,8 +902,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 )
             )
             platformKeyRequest.allowedCredentials.append(ASAuthorizationPlatformPublicKeyCredentialDescriptor(
-                credentialID: credentialId)
-            )
+                credentialID: credentialId
+            ))
         }
 
         let authController = ASAuthorizationController(authorizationRequests: [securityKeyRequest, platformKeyRequest])
@@ -803,7 +963,7 @@ extension AuthCoordinator: ASWebAuthenticationPresentationContextProviding {
 // MARK: ASAuthorizationControllerPresentationContextProviding
 
 extension AuthCoordinator: ASAuthorizationControllerPresentationContextProviding {
-    func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+    func presentationAnchor(for _: ASAuthorizationController) -> ASPresentationAnchor {
         stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }
@@ -829,7 +989,7 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
 
     /// Handle ASAuthorization flow where the attestation did complete with success
     func authorizationController(
-        controller: ASAuthorizationController,
+        controller _: ASAuthorizationController,
         didCompleteWithAuthorization authorization: ASAuthorization
     ) {
         if let credential = authorization.credential as? ASAuthorizationPublicKeyCredentialAssertion {
@@ -861,7 +1021,7 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
     }
 
     /// Handle errors during the creation of the attestation
-    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+    func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
         webAuthnFlowDelegate?.webAuthnErrored(error: error)
     }
 } // swiftlint:disable:this file_length

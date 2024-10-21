@@ -17,9 +17,9 @@ class ExtensionSetupCoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         stackNavigator = MockStackNavigator()
-
         subject = ExtensionSetupCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
+            services: ServiceContainer.withMocks(),
             stackNavigator: stackNavigator
         )
     }
@@ -35,6 +35,7 @@ class ExtensionSetupCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.extensionActivation` replaces the stack navigator's stack with the
     /// extension activation view.
+    @MainActor
     func test_navigateTo_extensionActivation() throws {
         subject.navigate(to: .extensionActivation(type: .autofillExtension))
 

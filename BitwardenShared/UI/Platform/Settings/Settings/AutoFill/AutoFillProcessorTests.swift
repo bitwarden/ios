@@ -5,9 +5,11 @@ import XCTest
 class AutoFillProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
+    var stateService: MockStateService!
     var subject: AutoFillProcessor!
 
     // MARK: Setup and Teardown
@@ -15,15 +17,19 @@ class AutoFillProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
+        stateService = MockStateService()
 
         subject = AutoFillProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
-                settingsRepository: settingsRepository
+                settingsRepository: settingsRepository,
+                stateService: stateService
             ),
             state: AutoFillState()
         )
@@ -32,15 +38,40 @@ class AutoFillProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
+        stateService = nil
         subject = nil
     }
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.dismissSetUpAutofillActionCard` sets the user's vault autofill setup
+    /// progress to complete.
+    @MainActor
+    func test_perform_dismissSetUpAutofillActionCard() async {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupAutofill["1"] = .setUpLater
+
+        await subject.perform(.dismissSetUpAutofillActionCard)
+
+        XCTAssertEqual(stateService.accountSetupAutofill["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.dismissSetUpAutofillActionCard` logs an error and shows an alert if an
+    /// error occurs.
+    @MainActor
+    func test_perform_dismissSetUpAutofillActionCard_error() async {
+        await subject.perform(.dismissSetUpAutofillActionCard)
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
     /// `perform(_:)` with `.fetchSettingValues` fetches the setting values to display and updates the state.
+    @MainActor
     func test_perform_fetchSettingValues() async {
         settingsRepository.getDefaultUriMatchTypeResult = .success(.exact)
         settingsRepository.getDisableAutoTotpCopyResult = .success(false)
@@ -56,6 +87,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.fetchSettingValues` logs an error and shows an alert if fetching the values fails.
+    @MainActor
     func test_perform_fetchSettingValues_error() async {
         settingsRepository.getDisableAutoTotpCopyResult = .failure(StateServiceError.noActiveAccount)
 
@@ -65,13 +97,56 @@ class AutoFillProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, StateServiceError.noActiveAccount)
     }
 
+    /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
+    @MainActor
+    func test_perform_streamSettingsBadge() {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamSettingsBadge)
+        }
+        defer { task.cancel() }
+
+        let badgeState = SettingsBadgeState.fixture(vaultUnlockSetupProgress: .setUpLater)
+        stateService.settingsBadgeSubject.send(badgeState)
+        waitFor { subject.state.badgeState == badgeState }
+
+        XCTAssertEqual(subject.state.badgeState, badgeState)
+    }
+
+    /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
+    @MainActor
+    func test_perform_streamSettingsBadge_error() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+
+        await subject.perform(.streamSettingsBadge)
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `perform(_:)` with `.streamSettingsBadge` doesn't load the badge state if the create account
+    /// feature flag is disabled.
+    @MainActor
+    func test_perform_streamSettingsBadge_nativeCreateAccountFlowDisabled() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        stateService.activeAccount = .fixture()
+        stateService.settingsBadgeSubject.send(.fixture())
+
+        await subject.perform(.streamSettingsBadge)
+
+        XCTAssertNil(subject.state.badgeState)
+    }
+
     /// `receive(_:)` with `.appExtensionTapped` navigates to the app extension view.
+    @MainActor
     func test_receive_appExtensionTapped() {
         subject.receive(.appExtensionTapped)
         XCTAssertEqual(coordinator.routes.last, .appExtension)
     }
 
     /// `.receive(_:)` with `.defaultUriMatchTypeChanged` updates the state's default URI match type value.
+    @MainActor
     func test_receive_defaultUriMatchTypeChanged() {
         subject.receive(.defaultUriMatchTypeChanged(.host))
 
@@ -81,12 +156,23 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.passwordAutoFillTapped` navigates to the password autofill view.
+    @MainActor
     func test_receive_passwordAutoFillTapped() {
         subject.receive(.passwordAutoFillTapped)
         XCTAssertEqual(coordinator.routes.last, .passwordAutoFill)
     }
 
+    /// `receive(_:)` with `showSetUpAutofill(:)` has the coordinator navigate to the password
+    /// autofill screen.
+    @MainActor
+    func test_receive_showSetUpAutofill() throws {
+        subject.receive(.showSetUpAutofill)
+
+        XCTAssertEqual(coordinator.routes, [.passwordAutoFill])
+    }
+
     /// `.receive(_:)` with  `.toggleCopyTOTPToggle` updates the state.
+    @MainActor
     func test_receive_toggleCopyTOTPToggle() throws {
         subject.state.isCopyTOTPToggleOn = false
         subject.receive(.toggleCopyTOTPToggle(true))
@@ -97,6 +183,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// Updating the default URI match type value logs an error and shows an alert if it fails.
+    @MainActor
     func test_updateDefaultUriMatchType_error() {
         settingsRepository.updateDefaultUriMatchTypeResult = .failure(StateServiceError.noActiveAccount)
 
@@ -108,6 +195,7 @@ class AutoFillProcessorTests: BitwardenTestCase {
     }
 
     /// Updating the disable auto-copy TOTP value logs an error and shows an alert if it fails.
+    @MainActor
     func test_updateDisableAutoTotpCopy_error() {
         settingsRepository.updateDisableAutoTotpCopyResult = .failure(StateServiceError.noActiveAccount)
 

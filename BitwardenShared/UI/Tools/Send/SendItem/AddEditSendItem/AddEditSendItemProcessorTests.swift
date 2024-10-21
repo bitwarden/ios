@@ -46,6 +46,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `sendListItemRow(copyLinkPressed())` uses the send repository to generate
     /// a url and copies it to the clipboard.
+    @MainActor
     func test_perform_copyLinkPressed() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
@@ -55,13 +56,14 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
         XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.sendLink)
+            subject.state.toast,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
         )
     }
 
     /// `perform(_:)` with `sendListItemRow(deletePressed())` uses the send repository to delete the
     /// send.
+    @MainActor
     func test_perform_deletePressed() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
@@ -78,6 +80,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
+    @MainActor
     func test_perform_deletePressed_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
@@ -101,6 +104,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `loadData` loads the policy data for the view.
+    @MainActor
     func test_perform_loadData_policies() async {
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isSendDisabled)
@@ -119,6 +123,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `loadData` loads the correct maximum access count in the TextField.
+    @MainActor
     func test_perform_loadData_maximumAccessCountUpdates() async {
         subject.state.maximumAccessCount = 42
         await subject.perform(.loadData)
@@ -131,6 +136,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
+    @MainActor
     func test_perform_removePassword_success() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
@@ -145,11 +151,12 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             coordinator.loadingOverlaysShown.last?.title,
             Localizations.removingSendPassword
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendPasswordRemoved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
+    @MainActor
     func test_perform_sendListItemRow_removePassword_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
@@ -169,11 +176,12 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             coordinator.loadingOverlaysShown.last?.title,
             Localizations.removingSendPassword
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendPasswordRemoved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
 
     /// `perform(_:)` with `shareLinkPressed` uses the send repository to generate a url and
     /// navigates to the `.share` route.
+    @MainActor
     func test_perform_shareLinkPressed() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
@@ -185,6 +193,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `fileSelectionCompleted()` updates the state with the new file values.
+    @MainActor
     func test_fileSelectionCompleted() {
         let data = Data("data".utf8)
         subject.fileSelectionCompleted(fileName: "exampleFile.txt", data: data)
@@ -193,6 +202,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` and valid input saves the item.
+    @MainActor
     func test_perform_savePressed_add_validated_success() async {
         subject.state.name = "Name"
         subject.state.type = .text
@@ -216,6 +226,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.
+    @MainActor
     func test_perform_savePressed_add_validated_error() async throws {
         subject.state.name = "Name"
         subject.state.type = .text
@@ -245,6 +256,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` and no name shows a validation alert.
+    @MainActor
     func test_perform_savePressed_add_noName() async {
         subject.state.name = ""
         await subject.perform(.savePressed)
@@ -257,6 +269,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` and no premium shows a validation alert.
+    @MainActor
     func test_perform_savePressed_add_file_noPremium() async {
         sendRepository.doesActivateAccountHavePremiumResult = .success(false)
         subject.state.name = "Name"
@@ -273,6 +286,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` and an unverified email shows a validation alert.
+    @MainActor
     func test_perform_savePressed_add_file_noVerifiedEmail() async {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(false)
@@ -290,6 +304,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` and no file data shows a validation alert.
+    @MainActor
     func test_perform_savePressed_add_file_noFileData() async {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
@@ -308,6 +323,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` and no file name shows a validation alert.
+    @MainActor
     func test_perform_savePressed_add_file_noFileName() async {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
@@ -326,6 +342,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` and file data that is too large shows a validation alert.
+    @MainActor
     func test_perform_savePressed_add_file_fileDataTooLarge() async {
         sendRepository.doesActivateAccountHavePremiumResult = .success(true)
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
@@ -348,6 +365,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.savePressed` and valid input in the share extension saves the item and
     /// copies the share link to the clipboard.
+    @MainActor
     func test_perform_savePressed_shareExtension_validated_success() async {
         subject.state.mode = .shareExtension(.empty())
         subject.state.name = "Name"
@@ -376,8 +394,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
         XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.sendLink)
+            subject.state.toast,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
         )
 
         subject.receive(.toastShown(nil))
@@ -386,6 +404,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` while editing and valid input updates the item.
+    @MainActor
     func test_perform_savePressed_edit_validated_success() async {
         subject.state.mode = .edit
         subject.state.name = "Name"
@@ -411,6 +430,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `perform(_:)` with `.savePressed` while editing and valid input and http failure shows an
     /// alert.
+    @MainActor
     func test_perform_savePressed_edit_validated_error() async throws {
         subject.state.mode = .edit
         subject.state.name = "Name"
@@ -441,6 +461,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `perform(_:)` with `.savePressed` while editing and invalid input shows a validation alert.
+    @MainActor
     func test_perform_savePressed_edit_unvalidated() async {
         subject.state.mode = .edit
         subject.state.name = ""
@@ -454,6 +475,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.chooseFilePressed` navigates to the document browser.
+    @MainActor
     func test_receive_chooseFilePressed() async throws {
         subject.receive(.chooseFilePressed)
 
@@ -473,6 +495,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.clearExpirationDatePressed` removes the expiration date.
+    @MainActor
     func test_receive_clearExpirationDatePressed() {
         subject.state.customExpirationDate = Date(year: 2023, month: 11, day: 5)
         subject.receive(.clearExpirationDatePressed)
@@ -481,6 +504,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.customDeletionDateChanged` updates the custom deletion date.
+    @MainActor
     func test_receive_customDeletionDateChanged() {
         subject.state.customDeletionDate = Date(year: 2000, month: 5, day: 5)
         subject.receive(.customDeletionDateChanged(Date(year: 2023, month: 11, day: 5)))
@@ -489,6 +513,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.customExpirationDateChanged` updates the custom expiration date.
+    @MainActor
     func test_receive_customExpirationDateChanged() {
         subject.state.customExpirationDate = Date(year: 2000, month: 5, day: 5)
         subject.receive(.customExpirationDateChanged(Date(year: 2023, month: 11, day: 5)))
@@ -497,6 +522,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.deactivateThisSendChanged` updates the deactivate this send toggle.
+    @MainActor
     func test_receive_deactivateThisSendChanged() {
         subject.state.isDeactivateThisSendOn = false
         subject.receive(.deactivateThisSendChanged(true))
@@ -505,6 +531,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.deletionDateChanged` updates the deletion date.
+    @MainActor
     func test_receive_deletionDateChanged() {
         subject.state.deletionDate = .sevenDays
         subject.receive(.deletionDateChanged(.thirtyDays))
@@ -513,6 +540,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.dismissPressed` navigates to the dismiss route.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
 
@@ -520,6 +548,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.expirationDateChanged` updates the expiration date.
+    @MainActor
     func test_receive_expirationDateChanged() {
         subject.state.expirationDate = .sevenDays
         subject.receive(.expirationDateChanged(.thirtyDays))
@@ -528,6 +557,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.hideMyEmailChanged` updates the hide my email toggle.
+    @MainActor
     func test_receive_hideMyEmailChanged() {
         subject.state.isHideMyEmailOn = false
         subject.receive(.hideMyEmailChanged(true))
@@ -536,6 +566,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.hideTextByDefaultChanged` updates the hide text by default toggle.
+    @MainActor
     func test_receive_hideTextByDefaultChanged() {
         subject.state.isHideTextByDefaultOn = false
         subject.receive(.hideTextByDefaultChanged(true))
@@ -544,6 +575,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.maximumAccessCountChanged` updates the maximum access count.
+    @MainActor
     func test_receive_maximumAccessCountChanged() {
         subject.state.maximumAccessCount = 0
         subject.receive(.maximumAccessCountStepperChanged(42))
@@ -553,6 +585,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
+    @MainActor
     func test_receive_maximumAccessCountTextChanged() {
         subject.state.maximumAccessCountText = "0"
         subject.receive(.maximumAccessCountTextFieldChanged("32"))
@@ -562,6 +595,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
+    @MainActor
     func test_receive_maximumAccessCountTextChanged_zeroToEmptyState() {
         subject.state.maximumAccessCountText = "0"
         subject.receive(.maximumAccessCountTextFieldChanged(""))
@@ -571,6 +605,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
+    @MainActor
     func test_receive_maximumAccessCountTextChanged_emptyToZeroState() {
         subject.state.maximumAccessCountText = ""
         subject.receive(.maximumAccessCountTextFieldChanged("0"))
@@ -580,6 +615,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.nameChanged` updates the name.
+    @MainActor
     func test_receive_nameChanged() {
         subject.state.name = ""
         subject.receive(.nameChanged("Name"))
@@ -588,6 +624,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.notesChanged` updates the notes.
+    @MainActor
     func test_receive_notesChanged() {
         subject.state.notes = ""
         subject.receive(.notesChanged("Notes"))
@@ -596,6 +633,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.optionsPressed` expands and collapses the options.
+    @MainActor
     func test_receive_optionsPressed() {
         subject.state.isOptionsExpanded = false
         subject.receive(.optionsPressed)
@@ -606,6 +644,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.passwordChanged` updates the password.
+    @MainActor
     func test_receive_passwordChanged() {
         subject.state.password = ""
         subject.receive(.passwordChanged("password"))
@@ -614,6 +653,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.passwordVisibleChanged` updates the password visibility.
+    @MainActor
     func test_receive_passwordVisibleChanged() {
         subject.state.isPasswordVisible = false
         subject.receive(.passwordVisibleChanged(true))
@@ -622,6 +662,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.textChanged` updates the text.
+    @MainActor
     func test_receive_textChanged() {
         subject.state.text = ""
         subject.receive(.textChanged("Text"))
@@ -630,6 +671,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.typeChanged` and premium access updates the type.
+    @MainActor
     func test_receive_typeChanged_hasPremium() {
         subject.state.hasPremium = true
         subject.state.type = .text
@@ -639,13 +681,15 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.
+    @MainActor
     func test_receive_toastShown() {
-        subject.state.toast = Toast(text: "toasty")
+        subject.state.toast = Toast(title: "toasty")
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
     }
 
     /// `receive(_:)` with `.typeChanged` and no premium access does not update the type.
+    @MainActor
     func test_receive_typeChanged_notHasPremium() {
         subject.state.hasPremium = false
         subject.state.type = .text

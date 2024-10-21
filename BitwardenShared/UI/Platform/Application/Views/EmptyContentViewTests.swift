@@ -12,14 +12,14 @@ final class EmptyContentViewTests: BitwardenTestCase {
         struct SnapshotView: View {
             var body: some View {
                 EmptyContentView(
-                    image: Asset.Images.openSource.swiftUIImage,
+                    image: Asset.Images.items.swiftUIImage,
                     text: Localizations.thereAreNoItemsInYourVaultThatMatchX("Bitwarden")
                 ) {
                     Button {} label: {
                         Label { Text(Localizations.addItem) } icon: {
                             Asset.Images.plus.swiftUIImage
                                 .imageStyle(.accessoryIcon(
-                                    color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                    color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                     scaleWithFont: true
                                 ))
                         }
@@ -28,6 +28,6 @@ final class EmptyContentViewTests: BitwardenTestCase {
             }
         }
 
-        assertSnapshots(matching: SnapshotView(), as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: SnapshotView(), as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

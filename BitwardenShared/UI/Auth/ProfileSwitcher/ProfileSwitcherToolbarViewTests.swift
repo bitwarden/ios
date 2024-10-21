@@ -45,6 +45,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
     }
 
     /// Tapping the view dispatches the `.requestedProfileSwitcher` effect.
+    @MainActor
     func test_tap_currentAccount() async throws {
         let view = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.account)
         try await view.tap()
@@ -57,16 +58,18 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
+    @MainActor
     func test_snapshot_empty() {
         processor.state = .empty()
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Empty State"
             ),
             as: .portrait(heightMultiple: 0.1)
         )
     }
 
+    @MainActor
     func test_snapshot_noActive() {
         processor.state = .init(
             accounts: [ProfileSwitcherItem.anneAccount],
@@ -75,7 +78,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "No Active Account"
             ),
             as: .portrait(heightMultiple: 0.1)
@@ -84,24 +87,23 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
 
     func test_snapshot_singleAccount() {
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Single Account"
             ),
             as: .portrait(heightMultiple: 0.1)
         )
     }
 
+    @MainActor
     func test_snapshot_multi() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: .blue,
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -109,24 +111,23 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Multi Account"
             ),
             as: .portrait(heightMultiple: 0.1)
         )
     }
 
+    @MainActor
     func test_snapshot_profileIconColor_black() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: Color(hex: "000000"),
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -134,24 +135,23 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Black Icon Color"
             ),
             as: .portrait(heightMultiple: 0.1)
         )
     }
 
+    @MainActor
     func test_snapshot_profileIconColor_blue() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: Color(hex: "16cbfc"),
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -159,24 +159,23 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Blue Icon Color"
             ),
             as: .portrait(heightMultiple: 0.1)
         )
     }
 
+    @MainActor
     func test_snapshot_profileIconColor_white() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: Color(hex: "ffffff"),
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -184,24 +183,23 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "White Icon Color"
             ),
             as: .portrait(heightMultiple: 0.1)
         )
     }
 
+    @MainActor
     func test_snapshot_profileIconColor_yellow() {
         processor.state = .init(
             accounts: [
                 ProfileSwitcherItem.anneAccount,
-                ProfileSwitcherItem(
+                ProfileSwitcherItem.fixture(
                     color: Color(hex: "fcff41"),
-                    email: "",
                     isUnlocked: true,
                     userId: "123",
-                    userInitials: "OW",
-                    webVault: ""
+                    userInitials: "OW"
                 ),
             ],
             activeAccountId: "123",
@@ -209,7 +207,7 @@ final class ProfileSwitcherToolbarViewTests: BitwardenTestCase {
             isVisible: true
         )
         assertSnapshot(
-            matching: snapshotSubject(
+            of: snapshotSubject(
                 title: "Yellow Icon Color"
             ),
             as: .portrait(heightMultiple: 0.1)

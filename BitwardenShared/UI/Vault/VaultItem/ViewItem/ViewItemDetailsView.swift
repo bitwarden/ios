@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: - ViewItemDetailsView
 
 /// A view for displaying the contents of a Vault item details.
-struct ViewItemDetailsView: View {
+struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     // MARK: Private Properties
 
     @Environment(\.openURL) private var openURL
@@ -70,7 +70,7 @@ struct ViewItemDetailsView: View {
                         .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     } else {
                         BitwardenField(title: customField.name) {
@@ -169,6 +169,15 @@ struct ViewItemDetailsView: View {
                 )
             case .secureNote:
                 EmptyView()
+            case .sshKey:
+                ViewSSHKeyItemView(
+                    showCopyButtons: true,
+                    store: store.child(
+                        state: { _ in store.state.sshKeyState },
+                        mapAction: { .sshKeyItemAction($0) },
+                        mapEffect: nil
+                    )
+                )
             }
         }
     }
@@ -202,9 +211,9 @@ struct ViewItemDetailsView: View {
                             store.send(.passwordHistoryPressed)
                         } label: {
                             Text("\(passwordHistoryCount)")
-                                .underline(color: Asset.Colors.primaryBitwarden.swiftUIColor)
+                                .underline(color: Asset.Colors.textInteraction.swiftUIColor)
                         }
-                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                         .id("passwordHistoryButton")
                     }
                     .accessibilityLabel(Localizations.passwordHistory + ": \(passwordHistoryCount)")
@@ -280,7 +289,7 @@ struct ViewItemDetailsView: View {
                     store.send(.downloadAttachment(attachment))
                 } label: {
                     Image(asset: Asset.Images.download)
-                        .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
+                        .imageStyle(.rowIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.download)
             }
@@ -291,7 +300,7 @@ struct ViewItemDetailsView: View {
                     .padding(.leading, 16)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("CipherAttachment")
     }

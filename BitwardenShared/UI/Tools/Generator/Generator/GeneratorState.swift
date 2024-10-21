@@ -4,7 +4,7 @@
 
 /// The type of value to generate.
 ///
-public enum GeneratorType: CaseIterable, Equatable, Menuable {
+public enum GeneratorType: CaseIterable, Equatable, Menuable, Sendable {
     /// Generate a password or passphrase.
     case password
 
@@ -192,7 +192,7 @@ struct GeneratorState: Equatable {
         case .username:
             valueCopied = Localizations.username
         }
-        toast = Toast(text: Localizations.valueHasBeenCopied(valueCopied))
+        toast = Toast(title: Localizations.valueHasBeenCopied(valueCopied))
     }
 }
 

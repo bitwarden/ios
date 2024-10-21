@@ -217,6 +217,46 @@ extension Alert {
         )
     }
 
+    /// An alert confirming that the user wants to finish setting up autofill later in settings.
+    ///
+    /// - Parameter action: The action taken when the user taps on Confirm to finish setting up
+    ///     autofill later in settings.
+    /// - Returns: An alert confirming that the user wants to finish setting up autofill let in settings.
+    ///
+    static func setUpAutoFillLater(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.turnOnAutoFillLaterQuestion,
+            message: Localizations.youCanReturnToCompleteThisStepAnytimeInSettings,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.confirm, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
+
+    /// An alert confirming that the user wants to finish setting up their vault unlock methods
+    /// later in settings.
+    ///
+    /// - Parameter action: The action taken when the user taps on Confirm to finish setting up
+    ///     their vault unlock methods later in settings.
+    /// - Returns: An alert confirming that the user wants to finish setting up their vault unlock
+    ///     methods later in settings.
+    ///
+    static func setUpUnlockMethodLater(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.setUpLaterQuestion,
+            message: Localizations.youCanFinishSetupUnlockAnytimeDescriptionLong,
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.confirm, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
+
     /// An alert asking the user if they want to switch to the already existing account when adding
     /// a new account.
     ///
@@ -233,27 +273,6 @@ extension Alert {
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
-            ]
-        )
-    }
-
-    /// An alert notifying the user that they have unassigned ciphers.
-    ///
-    /// - Parameters:
-    ///   - action: The action taken if the user acknowledges.
-    /// - Returns: An alert notififying the user that they have unassigned ciphers.
-    ///
-    static func unassignedCiphers(
-        _ action: @escaping () async -> Void
-    ) -> Alert {
-        Alert(
-            title: Localizations.notice,
-            message: Localizations.organizationUnassignedItemsMessageUSEUDescriptionLong,
-            alertActions: [
-                AlertAction(title: Localizations.remindMeLater, style: .default),
-                AlertAction(title: Localizations.ok, style: .default) { _ in
-                    await action()
-                },
             ]
         )
     }

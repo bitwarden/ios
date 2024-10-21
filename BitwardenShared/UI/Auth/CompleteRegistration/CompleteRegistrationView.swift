@@ -8,24 +8,44 @@ struct CompleteRegistrationView: View {
     // MARK: Properties
 
     /// The store used to render the view.
-    @ObservedObject var store: Store<CompleteRegistrationState, CompleteRegistrationAction, CompleteRegistrationEffect>
+    @ObservedObject var store: Store<
+        CompleteRegistrationState,
+        CompleteRegistrationAction,
+        CompleteRegistrationEffect
+    >
 
     // MARK: View
 
     var body: some View {
         VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(LocalizedStringKey(store.state.headelineTextBoldEmail))
-                    .tint(Asset.Colors.textPrimary.swiftUIColor)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .styleGuide(.callout)
-                    .padding(.bottom, 16)
+            if store.state.nativeCreateAccountFeatureFlag {
+                PageHeaderView(
+                    image: Asset.Images.lock,
+                    title: Localizations.chooseYourMasterPassword,
+                    message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe
+                )
+                .padding(.top, 40)
+
+                learnMoreSection
+                    .padding(.vertical, 16)
 
                 passwordField
-                    .padding(.bottom, 8)
 
                 passwordStrengthIndicator
+            } else {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(LocalizedStringKey(store.state.headelineTextBoldEmail))
+                        .tint(Asset.Colors.textPrimary.swiftUIColor)
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .multilineTextAlignment(.leading)
+                        .styleGuide(.callout)
+                        .padding(.bottom, 16)
+
+                    passwordField
+                        .padding(.bottom, 8)
+
+                    passwordStrengthIndicator
+                }
             }
 
             retypePassword
@@ -40,7 +60,12 @@ struct CompleteRegistrationView: View {
             }
         }
         .animation(.default, value: store.state.passwordStrengthScore)
-        .navigationBar(title: Localizations.setPassword, titleDisplayMode: .inline)
+        .navigationBar(
+            title: store.state.nativeCreateAccountFeatureFlag ?
+                Localizations.createAccount :
+                Localizations.setPassword,
+            titleDisplayMode: .inline
+        )
         .scrollView()
         .toolbar {
             cancelToolbarItem {
@@ -72,10 +97,41 @@ struct CompleteRegistrationView: View {
         .id(ViewIdentifier.CompleteRegistration.checkBreaches)
     }
 
+    /// The section where the user can learn more about passwords.
+    private var learnMoreSection: some View {
+        HStack(alignment: .center, spacing: 16) {
+            Image(decorative: Asset.Images.questionRound)
+                .resizable()
+                .frame(width: 24, height: 24)
+                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+
+            VStack(alignment: .leading, spacing: 0) {
+                Text(Localizations.whatMakesAPasswordStrong)
+                    .styleGuide(.body, weight: .semibold)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+
+                Button {
+                    store.send(.learnMoreTapped)
+                } label: {
+                    Text(Localizations.learnMore)
+                        .styleGuide(.subheadline)
+                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(16)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+
     /// The text fields for the user's email and password.
     private var passwordField: some View {
         BitwardenTextField(
-            title: Localizations.masterPassword,
+            title: store.state.nativeCreateAccountFeatureFlag
+                ? Localizations.masterPasswordRequired
+                : Localizations.masterPassword,
             text: store.binding(
                 get: \.passwordText,
                 send: CompleteRegistrationAction.passwordTextChanged
@@ -102,35 +158,63 @@ struct CompleteRegistrationView: View {
                 accessibilityIdentifier: "MasterPasswordHintLabel"
             )
 
-            Text(Localizations.masterPasswordHintDescription)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .styleGuide(.footnote)
+            if store.state.nativeCreateAccountFeatureFlag {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
+                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                        .styleGuide(.footnote)
+
+                    Button {
+                        store.send(.preventAccountLockTapped)
+                    } label: {
+                        Text(Localizations.learnAboutWaysToPreventAccountLockout)
+                            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                            .styleGuide(.footnote, weight: .bold)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+            } else {
+                Text(Localizations.masterPasswordHintDescription)
+                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                    .styleGuide(.footnote)
+            }
         }
     }
 
     /// The password strength indicator.
     private var passwordStrengthIndicator: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Group {
-                Text(Localizations.important + ": ").bold() +
-                    Text(Localizations.yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(
-                        Constants.minimumPasswordCharacters)
-                    )
-            }
-            .styleGuide(.footnote)
-            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-            .padding(.bottom, 16)
+            if store.state.nativeCreateAccountFeatureFlag {
+                PasswordStrengthIndicator(
+                    passwordStrengthScore: store.state.passwordStrengthScore,
+                    passwordTextCount: store.state.passwordText.count,
+                    requiredTextCount: store.state.requiredPasswordCount,
+                    nativeCreateAccountFlow: store.state.nativeCreateAccountFeatureFlag
+                )
+            } else {
+                Group {
+                    Text(Localizations.important + ": ").bold() +
+                        Text(Localizations.yourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum(
+                            Constants.minimumPasswordCharacters)
+                        )
+                }
+                .styleGuide(.footnote)
+                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .padding(.bottom, 16)
 
-            PasswordStrengthIndicator(
-                passwordStrengthScore: store.state.passwordStrengthScore
-            )
+                PasswordStrengthIndicator(
+                    passwordStrengthScore: store.state.passwordStrengthScore
+                )
+            }
         }
     }
 
     /// The text field for re-typing the master password.
     private var retypePassword: some View {
         BitwardenTextField(
-            title: Localizations.retypeMasterPassword,
+            title: store.state.nativeCreateAccountFeatureFlag ?
+                Localizations.retypeMasterPasswordRequired :
+                Localizations.retypeMasterPassword,
             text: store.binding(
                 get: \.retypePasswordText,
                 send: CompleteRegistrationAction.retypePasswordTextChanged
@@ -152,10 +236,15 @@ struct CompleteRegistrationView: View {
                 await store.perform(.completeRegistration)
             }
         } label: {
-            Text(Localizations.createAccount)
+            if store.state.nativeCreateAccountFeatureFlag {
+                Text(Localizations.continue)
+            } else {
+                Text(Localizations.createAccount)
+            }
         }
         .accessibilityIdentifier("CreateAccountButton")
         .buttonStyle(.primary())
+        .disabled(!store.state.continueButtonEnabled)
     }
 }
 
@@ -166,6 +255,7 @@ struct CompleteRegistrationView: View {
     CompleteRegistrationView(store: Store(processor: StateProcessor(
         state: CompleteRegistrationState(
             emailVerificationToken: "emailVerificationToken",
+            nativeCreateAccountFeatureFlag: true,
             userEmail: "example@bitwarden.com"
         ))))
 }

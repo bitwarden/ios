@@ -76,6 +76,20 @@ extension View {
         }
     }
 
+    /// Conditionally applies the given transform if the given condition evaluates to `true`.
+    /// - Parameters:
+    ///   - condition: The condition to evaluate.
+    ///   - transform: The transform to apply to the source `View`.
+    /// - Returns: Either the original `View` or the modified `View` if the condition is `true`.
+    @ViewBuilder
+    func `if`<Content: View>(_ condition: @autoclosure () -> Bool, transform: (Self) -> Content) -> some View {
+        if condition() {
+            transform(self)
+        } else {
+            self
+        }
+    }
+
     /// Applies a custom navigation bar title and title display mode to a view.
     ///
     /// - Parameters:
@@ -96,11 +110,75 @@ extension View {
 
     /// Applies the `ScrollViewModifier` to a view.
     ///
-    /// - Parameter addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
+    /// - Parameters:
+    ///   - addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
+    ///   - backgroundColor: The background color to apply to the scroll view. Defaults to `backgroundPrimary`.
     ///
     /// - Returns: A view within a `ScrollView`.
     ///
-    func scrollView(addVerticalPadding: Bool = true) -> some View {
-        modifier(ScrollViewModifier(addVerticalPadding: addVerticalPadding))
+    func scrollView(
+        addVerticalPadding: Bool = true,
+        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor
+    ) -> some View {
+        modifier(ScrollViewModifier(
+            addVerticalPadding: addVerticalPadding,
+            backgroundColor: backgroundColor
+        ))
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured for adding an item.
+    ///
+    func addItemFloatingActionButton(
+        hidden: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        floatingActionButton(
+            hidden: hidden,
+            image: Asset.Images.plus.swiftUIImage,
+            action: action
+        )
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured for adding an item.
+    ///
+    func editItemFloatingActionButton(
+        hidden: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        floatingActionButton(
+            hidden: hidden,
+            image: Asset.Images.pencil.swiftUIImage,
+            action: action
+        )
+        .accessibilityLabel(Localizations.edit)
+        .accessibilityIdentifier("EditItemFloatingActionButton")
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display within the button.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured with the specified image and action.
+    ///
+    func floatingActionButton(
+        hidden: Bool = false,
+        image: Image,
+        action: @escaping () -> Void
+    ) -> some View {
+        FloatingActionButton(
+            image: image,
+            action: action
+        )
+        .padding([.trailing, .bottom], 16)
+        .hidden(hidden)
     }
 }

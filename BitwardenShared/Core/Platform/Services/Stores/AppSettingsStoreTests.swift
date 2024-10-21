@@ -38,6 +38,54 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     // MARK: Tests
 
+    /// `accountSetupAutofill(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupAutofill_isInitiallyNil() {
+        XCTAssertNil(subject.accountSetupAutofill(userId: "-1"))
+    }
+
+    /// `accountSetupAutofill(userId:)` can be used to get the user's progress for autofill setup.
+    func test_accountSetupAutofill_withValue() {
+        subject.setAccountSetupAutofill(.setUpLater, userId: "1")
+        subject.setAccountSetupAutofill(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupAutofill(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupAutofill(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_2"), 2)
+    }
+
+    /// `accountSetupImportLogins(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupImportLogins_isInitiallyNil() {
+        XCTAssertNil(subject.accountSetupImportLogins(userId: "-1"))
+    }
+
+    /// `accountSetupImportLogins(userId:)` can be used to get the user's progress for import logins setup.
+    func test_accountSetupImportLogins_withValue() {
+        subject.setAccountSetupImportLogins(.setUpLater, userId: "1")
+        subject.setAccountSetupImportLogins(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupImportLogins(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupImportLogins(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupImportLogins_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupImportLogins_2"), 2)
+    }
+
+    /// `accountSetupVaultUnlock(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupVaultUnlock_isInitiallyFalse() {
+        XCTAssertNil(subject.accountSetupVaultUnlock(userId: "-1"))
+    }
+
+    /// `accountSetupVaultUnlock(userId:)` can be used to get the user's progress for vault unlock setup.
+    func test_accountSetupVaultUnlock_withValue() {
+        subject.setAccountSetupVaultUnlock(.setUpLater, userId: "1")
+        subject.setAccountSetupVaultUnlock(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupVaultUnlock(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupVaultUnlock(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupVaultUnlock_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupVaultUnlock_2"), 2)
+    }
+
     /// `addSitePromptShown` returns `false` if there isn't a previously stored value.
     func test_addSitePromptShown_isInitiallyFalse() {
         XCTAssertFalse(subject.addSitePromptShown)
@@ -120,42 +168,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.appTheme = nil
         XCTAssertNil(subject.appTheme)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
-    }
-
-    /// `biometricIntegrityState` returns nil if there is no previous value.
-    func test_biometricIntegrityState_isInitiallyNil() {
-        XCTAssertNil(subject.biometricIntegrityState(userId: "-1"))
-    }
-
-    /// `biometricIntegrityState` returns nil if there is no previous value.
-    func test_biometricIntegrityState_withValue() {
-        subject.setBiometricIntegrityState("state1", userId: "0")
-        subject.setBiometricIntegrityState("state2", userId: "1")
-
-        XCTAssertEqual("state1", subject.biometricIntegrityState(userId: "0"))
-        XCTAssertEqual("state2", subject.biometricIntegrityState(userId: "1"))
-
-        subject.setBiometricIntegrityState("state3", userId: "0")
-        subject.setBiometricIntegrityState("state4", userId: "1")
-
-        XCTAssertEqual("state3", subject.biometricIntegrityState(userId: "0"))
-        XCTAssertEqual("state4", subject.biometricIntegrityState(userId: "1"))
-    }
-
-    /// `biometricIntegrityStateLegacy` returns `nil` if there isn't a previously stored value.
-    func test_biometricIntegrityStateLegacy_isInitiallyNil() {
-        XCTAssertNil(subject.biometricIntegrityStateLegacy)
-    }
-
-    /// `biometricIntegrityStateLegacy` can be used to get and set the value.
-    func test_biometricIntegrityStateLegacy_withValue() {
-        subject.biometricIntegrityStateLegacy = "1"
-        XCTAssertEqual(subject.biometricIntegrityStateLegacy, "1")
-        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource"), "1")
-
-        subject.biometricIntegrityStateLegacy = nil
-        XCTAssertNil(subject.biometricIntegrityStateLegacy)
-        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:biometricIntegritySource"))
     }
 
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
@@ -331,6 +343,25 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `events(userId:)` returns an empty array if there are no events for a user.
     func test_events_empty() {
         XCTAssertEqual(subject.events(userId: "1"), [])
+    }
+
+    /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
+    func test_featureFlags() {
+        let featureFlags = FeatureFlag.debugMenuFeatureFlags
+
+        for flag in featureFlags {
+            subject.overrideDebugFeatureFlag(name: flag.rawValue, value: true)
+        }
+
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.emailVerification.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
+        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCreateAccountFlow.rawValue)))
+    }
+
+    /// `featureFlag(name:)` returns `nil` if not found.
+    func test_featureFlags_nilWhenNotPresent() {
+        XCTAssertNil(subject.debugFeatureFlag(name: ""))
     }
 
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
@@ -599,6 +630,86 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `accountCreationEnvironmentUrls` returns `nil` if there isn't a previously stored value.
+    func test_accountCreationEnvironmentUrls_isInitiallyNil() {
+        XCTAssertNil(subject.accountCreationEnvironmentUrls(email: "example@email.com"))
+    }
+
+    /// `accountCreationEnvironmentUrls` can be used to get and set the persisted value in user defaults.
+    func test_accountCreationEnvironmentUrls_withValue() {
+        let email = "example@email.com"
+        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultUS, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultUS)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultUS
+        )
+
+        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultEU, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultEU)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                EnvironmentUrlData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
+                        .data(using: .utf8)
+                )
+            ),
+            .defaultEU
+        )
+    }
+
+    /// `preAuthServerConfig` is initially `nil`
+    func test_preAuthServerConfig_isInitiallyNil() {
+        XCTAssertNil(subject.preAuthServerConfig)
+    }
+
+    /// `preAuthServerConfig` can be used to get and set the persisted value in user defaults.
+    func test_preAuthServerConfig_withValue() {
+        let config = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: EnvironmentServerConfigResponseModel(
+                    api: "https://vault.bitwarden.com",
+                    cloudRegion: "US",
+                    identity: "https://vault.bitwarden.com",
+                    notifications: "https://vault.bitwarden.com",
+                    sso: "https://vault.bitwarden.com",
+                    vault: "https://vault.bitwarden.com"
+                ),
+                featureStates: ["feature": .bool(true)],
+                gitHash: "hash",
+                server: ThirdPartyConfigResponseModel(
+                    name: "Name",
+                    url: "Url"
+                ),
+                version: "version"
+            )
+        )
+        subject.preAuthServerConfig = config
+
+        XCTAssertEqual(subject.preAuthServerConfig, config)
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                ServerConfig.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:preAuthServerConfig")?
+                        .data(using: .utf8)
+                )
+            ),
+            config
+        )
+    }
+
     /// `serverConfig(:)` is initially `nil`
     func test_serverConfig_isInitiallyNil() {
         XCTAssertNil(subject.serverConfig(userId: "1"))
@@ -642,17 +753,20 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `shouldCheckOrganizationUnassignedItems(:)` is initially nil {
-    func test_shouldCheckOrganizationUnassignedItems_isInitiallyNil() {
-        XCTAssertNil(subject.shouldCheckOrganizationUnassignedItems(userId: "1"))
+    /// `syncToAuthenticator(userId:)` returns false if there isn't a previously stored value.
+    func test_syncToAuthenticator_isInitiallyFalse() {
+        XCTAssertFalse(subject.syncToAuthenticator(userId: "0"))
     }
 
-    /// `shouldCheckOrganizationUnassignedItems(:)` can be used to get and set the persisted value.
-    func test_shouldCheckOrganizationUnassignedItems_withValue() {
-        subject.setShouldCheckOrganizationUnassignedItems(true, userId: "1")
-        XCTAssertEqual(subject.shouldCheckOrganizationUnassignedItems(userId: "1"), true)
-        subject.setShouldCheckOrganizationUnassignedItems(false, userId: "1")
-        XCTAssertEqual(subject.shouldCheckOrganizationUnassignedItems(userId: "1"), false)
+    /// `syncToAuthenticator(userId:)` can be used to get the sync to authenticator value for a user.
+    func test_syncToAuthenticator_withValue() {
+        subject.setSyncToAuthenticator(true, userId: "1")
+        subject.setSyncToAuthenticator(false, userId: "2")
+
+        XCTAssertTrue(subject.syncToAuthenticator(userId: "1"))
+        XCTAssertFalse(subject.syncToAuthenticator(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:shouldSyncToAuthenticator_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:shouldSyncToAuthenticator_2"))
     }
 
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
@@ -749,6 +863,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.rememberedEmail = nil
         XCTAssertNil(subject.rememberedEmail)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
+    }
+
+    /// `usesKeyConnector(userId:)` returns `false` if there isn't a previously stored value.
+    func test_usesKeyConnector_isInitiallyNil() {
+        XCTAssertFalse(subject.usesKeyConnector(userId: "-1"))
+    }
+
+    /// `usesKeyConnector(userId:)` can be used to get whether the user uses key connector.
+    func test_usesKeyConnector_withValue() {
+        subject.setUsesKeyConnector(true, userId: "1")
+        subject.setUsesKeyConnector(false, userId: "2")
+
+        XCTAssertTrue(subject.usesKeyConnector(userId: "1"))
+        XCTAssertFalse(subject.usesKeyConnector(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:usesKeyConnector_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:usesKeyConnector_2"))
     }
 
     /// `rememberedOrgIdentifier` returns `nil` if there isn't a previously stored value.

@@ -4,7 +4,7 @@ import Foundation
 
 /// An enum listing all the language options, either default (system settings) or any of the currently available
 /// localizable files.
-public enum LanguageOption: Equatable {
+public enum LanguageOption: Equatable, Sendable {
     /// Use the system settings.
     case `default`
 
@@ -50,7 +50,7 @@ public enum LanguageOption: Equatable {
             "nb",
             "nl",
             "pl",
-            "pt-BT",
+            "pt-BR",
             "pt-PT",
             "ro",
             "ru",
@@ -60,8 +60,8 @@ public enum LanguageOption: Equatable {
             "tr",
             "uk",
             "vi",
-            "zh-CN",
-            "zh-TW",
+            "zh-Hans",
+            "zh-Hant",
         ]
 
     // MARK: Properties

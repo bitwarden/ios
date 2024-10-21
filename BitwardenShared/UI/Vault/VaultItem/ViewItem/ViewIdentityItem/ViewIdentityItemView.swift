@@ -94,7 +94,7 @@ struct ViewIdentityItemView: View {
     }
 }
 
-#Preview {
+#Preview("Empty Add Edit State") {
     NavigationView {
         ScrollView {
             LazyVStack(spacing: 20) {
@@ -122,8 +122,7 @@ struct ViewIdentityItemView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .ignoresSafeArea()
     }
-    .previewDisplayName("Empty Add Edit State")
 }

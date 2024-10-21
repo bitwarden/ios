@@ -155,7 +155,7 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
     }
 }
 
-#Preview {
+#Preview("CipherType") {
     VStack {
         BitwardenMenuField(
             title: "Animals",
@@ -165,10 +165,9 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("CipherType")
 }
 
-#Preview {
+#Preview("Trailing Button") {
     Group {
         BitwardenMenuField(
             title: "Animals",
@@ -183,10 +182,9 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Trailing Button")
 }
 
-#Preview {
+#Preview("Footer") {
     Group {
         BitwardenMenuField(
             title: "Animals",
@@ -197,6 +195,5 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Footer")
 }
 #endif

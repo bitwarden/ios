@@ -1,10 +1,10 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - AttachmentsAction
 
 /// Actions that can be processed by an `AttachmentsProcessor`.
 ///
-enum AttachmentsAction: Equatable {
+enum AttachmentsAction: Equatable, Sendable {
     /// The choose file button was pressed.
     case chooseFilePressed
 

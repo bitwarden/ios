@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // MARK: - ViewItemProcessor
@@ -28,6 +28,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
         /// A password visibility toggle occurred when not possible.
         case nonLoginPasswordToggle(String)
+
+        /// An error for ssh key action handling
+        case nonSshKeyTypeToggle(String)
     }
 
     // MARK: Private Properties
@@ -100,6 +103,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 await showPermanentDeleteConfirmation(cipherState.cipher)
             }
         case .restorePressed:
+            guard !state.isMasterPasswordRequired else {
+                presentMasterPasswordRepromptAlert { await self.perform(effect) }
+                return
+            }
             await showRestoreItemConfirmation()
         case .totpCodeExpired:
             await updateTOTPCode()
@@ -167,6 +174,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         case .passwordHistoryPressed:
             guard let passwordHistory = state.passwordHistory else { return }
             coordinator.navigate(to: .passwordHistory(passwordHistory))
+        case let .sshKeyItemAction(sshKeyAction):
+            handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
         }
@@ -226,7 +235,7 @@ private extension ViewItemProcessor {
         services.pasteboardService.copy(value)
 
         let localizedFieldName = field?.localizedName ?? Localizations.value
-        state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(localizedFieldName))
         if let event = field?.eventOnCopy {
             Task {
                 await services.eventService.collect(
@@ -376,6 +385,31 @@ private extension ViewItemProcessor {
             coordinator.navigate(to: .editCollections(cipher), context: self)
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(cipher), context: self)
+        }
+    }
+
+    /// Handles `ViewSSHKeyItemAction` events.
+    /// - Parameter sshKeyAction: The action to handle
+    private func handleSSHKeyAction(_ sshKeyAction: ViewSSHKeyItemAction) {
+        guard case var .data(cipherState) = state.loadingState else {
+            services.errorReporter.log(
+                error: ActionError.dataNotLoaded("Cannot handle SSH key action without loaded data")
+            )
+            return
+        }
+        guard case .sshKey = cipherState.type else {
+            services.errorReporter.log(
+                error: ActionError.nonSshKeyTypeToggle("Cannot handle SSH key action on non SSH key type")
+            )
+            return
+        }
+        switch sshKeyAction {
+        case let .copyPressed(value, field):
+            copyValue(value, field)
+        case .privateKeyVisibilityPressed:
+            cipherState.sshKeyState.isPrivateKeyVisible.toggle()
+            state.loadingState = .data(cipherState)
+            // TODO: PM-11977 Collect visibility toggled event
         }
     }
 
@@ -554,7 +588,7 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
 
 extension ViewItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(text: Localizations.itemUpdated)
+        state.toast = Toast(title: Localizations.itemUpdated)
     }
 }
 
@@ -562,6 +596,6 @@ extension ViewItemProcessor: EditCollectionsProcessorDelegate {
 
 extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
-        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
+        state.toast = Toast(title: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 } // swiftlint:disable:this file_length

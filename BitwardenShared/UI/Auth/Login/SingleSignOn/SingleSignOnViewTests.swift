@@ -30,6 +30,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -37,6 +38,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
     }
 
     /// Updating the text field dispatches the `.identifierTextChanged()` action.
+    @MainActor
     func test_identifierField_updateValue() throws {
         let textfield = try subject.inspect().find(viewWithId: Localizations.orgIdentifier).textField()
         try textfield.setInput("text")
@@ -44,6 +46,7 @@ class SingleSignOnViewTests: BitwardenTestCase {
     }
 
     /// Tapping the login button performs the `.loginTapped` effect.
+    @MainActor
     func test_saveButton_tap() async throws {
         let button = try subject.inspect().find(asyncButton: Localizations.logIn)
         try await button.tap()
@@ -55,12 +58,13 @@ class SingleSignOnViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the text field is empty.
     func test_snapshot_empty() {
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// Tests the view renders correctly when the text field is populated.
+    @MainActor
     func test_snapshot_populated() {
         processor.state.identifierText = "Insert cool identifier here"
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

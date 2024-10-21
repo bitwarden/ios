@@ -1,34 +1,73 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       build-variant:
-        description: "Which variant of the app to build"
+        description: "Build Variant"
         required: true
+        default: "Beta"
         type: choice
         options:
           - Beta
           - Production
       build-version:
-        description: "Optional. Version string to use, in X.Y.Z format. Overrides default in the project."
-        required: false
+        description: "Version Name Override - e.g. '2024.8.1'"
         type: string
       build-number:
-        description: "Optional. Build number to use. Overrides default of GitHub run number."
-        required: false
-        type: number
-      xcode-version:
-        description: "Optional. Xcode version to use. Overrides default."
-        required: false
+        description: "Version Number Override - e.g. '1021'"
         type: string
-
+      xcode-version:
+        description: "Xcode Version Override - e.g. '15.2'"
+        type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
+        default: "DEBUG_MENU"
+      base_version_number:
+        description: "Base Version Number - Will be added to the calculated version number"
+        type: number
+        default: 2000
+      patch_version:
+        description: "Patch Version Override - e.g. '999'"
+        type: string
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+        default: true
+  workflow_call:
+    inputs:
+      build-variant:
+        description: "Build Variant"
+        type: string
+      build-version:
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      build-number:
+        description: "Version Number Override - e.g. '1021'"
+        type: string
+      xcode-version:
+        description: "Xcode Version Override - e.g. '15.2'"
+        type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
+      base_version_number:
+        description: "Base Version Number - Will be added to the calculated version number"
+        type: number
+        default: 2000
+      patch_version:
+        description: "Patch Version Override - e.g. '999'"
+        type: string
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+      upload_version_info:
+        description: "Upload version-info file - When false, caller may be handling it already"
+        type: boolean
 env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
-  XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
+  XCODE_VERSION: ${{ inputs.xcode-version }}
 
 jobs:
   build:
@@ -39,31 +78,79 @@ jobs:
       MINT_LINK_PATH: .mint/bin
 
     steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "<details><summary>Build Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
       - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
         with:
           fetch-depth: 0
           filter: tree:0
 
+      - name: Calculate version
+        if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
+        id: dispatch-version
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          owner: bitwarden
+          repo: ios
+          ref: main
+          workflow: _version.yml
+          workflow_inputs: '{"base_version_number": "${{ inputs.base_version_number }}", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
+
+      - name: Read version info
+        id: version_info
+        run: |
+          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
+          if [ ! -f version-info/version_info.json ]; then
+            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
+            json='{
+              "version_number": "${{ inputs.build-number }}",
+              "version_name": "${{ inputs.build-version }}"
+            }'
+
+            # file will be used by the upload step
+            mkdir version-info
+            echo "$json" > version-info/version_info.json
+          else
+              echo "::notice::version-version.json found!"
+          fi
+
+          content=$(cat version-info/version_info.json)
+          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
+          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
+      - name: Upload version info artifact
+        if: ${{ inputs.upload_version_info }}
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: version-info
+          path: version-info/version_info.json
+
+      - name: Read default Xcode version
+        run: |
+          echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: ${{ env.XCODE_VERSION }}
+          xcode-version: ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
 
       - name: Cache Mint packages
         id: mint-cache
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4.0.2
+        uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8 # v4.1.1
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
           restore-keys: |
             ${{ runner.os }}-mint-
-
-      - name: Install yeetd
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
 
       - name: Log in to Azure
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
@@ -90,6 +177,7 @@ jobs:
             "dist_share_extension.mobileprovision"
             "dist_bitwarden_watch_app.mobileprovision"
             "dist_bitwarden_watch_app_extension.mobileprovision"
+            "dist_bitwarden_watch_widget_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
@@ -112,6 +200,7 @@ jobs:
             "dist_beta_share_extension.mobileprovision"
             "dist_beta_bitwarden_watch_app.mobileprovision"
             "dist_beta_bitwarden_watch_app_extension.mobileprovision"
+            "dist_beta_bitwarden_watch_widget_extension.mobileprovision"
           )
 
           for FILE in "${profiles[@]}"
@@ -199,67 +288,9 @@ jobs:
             -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-      - name: Configure production provisioning profiles
-        if: env.BUILD_VARIANT == 'Production'
+      - name: Configure provisioning profiles
         run: |
-          AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_autofill.mobileprovision
-          BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_bitwarden.mobileprovision
-          EXTENSION_PROFILE_PATH=$HOME/secrets/dist_extension.mobileprovision
-          SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_share_extension.mobileprovision
-          WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app.mobileprovision
-          WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_bitwarden_watch_app_extension.mobileprovision
-          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
-
-          mkdir -p "$PROFILES_DIR_PATH"
-
-          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.mobileprovision"
-
-          BITWARDEN_UUID=$(grep UUID -A1 -a $BITWARDEN_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $BITWARDEN_PROFILE_PATH "$PROFILES_DIR_PATH/$BITWARDEN_UUID.mobileprovision"
-
-          EXTENSION_UUID=$(grep UUID -A1 -a $EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$EXTENSION_UUID.mobileprovision"
-
-          SHARE_EXTENSION_UUID=$(grep UUID -A1 -a $SHARE_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $SHARE_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$SHARE_EXTENSION_UUID.mobileprovision"
-
-          WATCH_APP_UUID=$(grep UUID -A1 -a $WATCH_APP_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_UUID.mobileprovision"
-
-          WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
-
-      - name: Configure beta provisioning profiles
-        if: env.BUILD_VARIANT == 'Beta'
-        run: |
-          AUTOFILL_PROFILE_PATH=$HOME/secrets/dist_beta_autofill.mobileprovision
-          BITWARDEN_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden.mobileprovision
-          EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_extension.mobileprovision
-          SHARE_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_share_extension.mobileprovision
-          WATCH_APP_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app.mobileprovision
-          WATCH_APP_EXTENSION_PROFILE_PATH=$HOME/secrets/dist_beta_bitwarden_watch_app_extension.mobileprovision
-          PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
-
-          mkdir -p "$PROFILES_DIR_PATH"
-
-          AUTOFILL_UUID=$(grep UUID -A1 -a $AUTOFILL_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $AUTOFILL_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTOFILL_UUID.mobileprovision"
-
-          BITWARDEN_UUID=$(grep UUID -A1 -a $BITWARDEN_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $BITWARDEN_PROFILE_PATH "$PROFILES_DIR_PATH/$BITWARDEN_UUID.mobileprovision"
-
-          EXTENSION_UUID=$(grep UUID -A1 -a $EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$EXTENSION_UUID.mobileprovision"
-
-          SHARE_EXTENSION_UUID=$(grep UUID -A1 -a $SHARE_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $SHARE_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$SHARE_EXTENSION_UUID.mobileprovision"
-
-          WATCH_APP_UUID=$(grep UUID -A1 -a $WATCH_APP_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_UUID.mobileprovision"
-
-          WATCH_APP_EXTENSION_UUID=$(grep UUID -A1 -a $WATCH_APP_EXTENSION_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
-          cp $WATCH_APP_EXTENSION_PROFILE_PATH "$PROFILES_DIR_PATH/$WATCH_APP_EXTENSION_UUID.mobileprovision"
+          ./Scripts/configure_provisioning_profiles.sh ${{ env.BUILD_VARIANT }}
 
       - name: Update beta export compliance key
         if: env.BUILD_VARIANT == 'Beta'
@@ -276,13 +307,14 @@ jobs:
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
       - name: Configure Ruby
-        uses: ruby/setup-ruby@a6e6f86333f0a2523ece813039b8b4be04560854 # v1.190.0
+        uses: ruby/setup-ruby@f26937343756480a8cb3ae1f623b9c8d89ed6984 # v1.196.0
         with:
           bundler-cache: true
 
-      - name: Install Fastlane, Mint, xcbeautify, and yq
+      - name: Install Fastlane, Mint
         run: |
-          brew install fastlane mint xcbeautify yq
+          brew update
+          brew install fastlane mint
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -291,70 +323,19 @@ jobs:
 
       - name: Select variant
         run: |
-          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }}
-          echo "**Variant**: ${{ env.BUILD_VARIANT }}" | tee -a $GITHUB_STEP_SUMMARY
-
-      - name: Calculate build version and number
-        id: calculate
-        run: |
-          if [[ ! -z "${{ inputs.build-version }}" ]]; then
-            echo -e "\nApplying build version override"
-            next_version=${{ inputs.build-version }}
-          else
-            echo -e "\nCalculating next version..."
-            current_year=$(date +%Y)
-            current_month=$(date +%-m)
-
-            latest_tag_version=$(git tag --sort=committerdate --list | tail -1)
-            latest_version=${latest_tag_version:1}  # remove 'v' from tag version
-
-            latest_major_version=$(echo $latest_version | cut -d "." -f 1)
-            latest_minor_version=$(echo $latest_version | cut -d "." -f 2)
-            latest_patch_version=$(echo $latest_version | cut -d "." -f 3)
-
-            echo "  Current Year:         $current_year"
-            echo "  Current Month:        $current_month"
-            echo "  Latest Version:       $latest_version"
-            echo "  Latest Major Version: $latest_major_version"
-            echo "  Latest Minor Version: $latest_minor_version"
-            echo "  Latest Patch Version: $latest_patch_version"
-
-            if [[ "$current_year" == "$latest_major_version" && "$current_month" == "$latest_minor_version" ]]; then
-              next_version="${latest_major_version}.${latest_minor_version}.$(($latest_patch_version + 1))"
-            else
-              next_version="${current_year}.${current_month}.0"
-            fi
-          fi
-
-          if [[ ! -z "${{ inputs.build-number }}" ]]; then
-            echo -e "\nApplying build number override"
-            next_number=${{ inputs.build-number }}
-          else
-            echo -e "\nCalculating build number..."
-            next_number=$(($GITHUB_RUN_NUMBER))
-          fi
-
-          echo -e "\n"
-          echo "**Version**: $next_version" | tee -a $GITHUB_STEP_SUMMARY
-          echo "**Build Number**: $next_number" | tee -a $GITHUB_STEP_SUMMARY
-          echo "version=$next_version" >> $GITHUB_OUTPUT
-          echo "build_number=$next_number" >> $GITHUB_OUTPUT
+          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }} "${{ inputs.compiler-flags }}"
 
       - name: Update build version and number
-        env:
-          build_version: ${{ steps.calculate.outputs.version }}
-          build_number: ${{ steps.calculate.outputs.build_number }}
         run: |
-          yq -i '.settings.MARKETING_VERSION = "${{ env.build_version }}"' 'project.yml'
-          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ env.build_number }}"' 'project.yml'
+          yq -i '.settings.MARKETING_VERSION = "${{ steps.version_info.outputs.version_name }}"' 'project.yml'
+          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ steps.version_info.outputs.version_number }}"' 'project.yml'
 
-      - name: Update app CI Build info
+      - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }}
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ inputs.compiler-flags }}"
 
       - name: Build iOS app
         run: |
-          BUILD_NUMBER=$(($GITHUB_RUN_NUMBER))
           ./Scripts/build.sh
 
       - name: Prepare IPA & dSYM files for upload to GitHub
@@ -364,12 +345,12 @@ jobs:
           cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
 
       - name: Upload IPA & dSYM files
-        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: Bitwarden iOS
+          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
           path: export
           if-no-files-found: error
-      
+
       - name: Set up private auth key
         run: |
           mkdir ~/private_keys
@@ -386,9 +367,15 @@ jobs:
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight with Fastlane
+        if: ${{ inputs.distribute }}
         run: |
-          NEWLINE=$'\n'
+          CHANGELOG="$(git show -s --format=%s)
+          $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
+          Xcode ${{ env.XCODE_VERSION }}
+          Compiler Flags: ${{ inputs.compiler-flags }}
+          $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
-            changelog:"$(git show -s --format=%s)$NEWLINE$GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA$NEWLINE$NEWLINE$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            changelog:"$CHANGELOG" \
             ipa_path:"export/Bitwarden.ipa"

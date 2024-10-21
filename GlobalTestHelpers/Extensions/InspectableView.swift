@@ -2,6 +2,17 @@ import Foundation
 import SwiftUI
 import ViewInspector
 
+/// A generic type wrapper around `ActionCard` to allow `ViewInspector` to find instances of
+/// `ActionCard` without needing to know the details of it's implementation.
+///
+struct ActionCardType: BaseViewType {
+    static var typePrefix: String = "ActionCard"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.ActionCard",
+    ]
+}
+
 /// A generic type wrapper around `AsyncButton` to allow `ViewInspector` to find instances of `AsyncButton` without
 /// needing to know the type of its `Label`.
 ///
@@ -74,6 +85,18 @@ struct SettingsMenuFieldType: BaseViewType {
 
 extension InspectableView {
     // MARK: Methods
+
+    /// Attempts to locate an action card with the provided title.
+    ///
+    /// - Parameters:
+    ///   - title: The title to use while searching for a button.
+    ///   - locale: The locale for text extraction.
+    /// - Returns: An async button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(actionCard title: String) throws -> InspectableView<ActionCardType> {
+        try find(ActionCardType.self, containing: title)
+    }
 
     /// Attempts to locate an async button with the provided title.
     ///

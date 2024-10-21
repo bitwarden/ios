@@ -106,7 +106,7 @@ struct LoginRequestView: View {
 
             Text(store.state.request.fingerprintPhrase ?? "")
                 .styleGuide(.bodyMonospaced)
-                .foregroundStyle(Asset.Colors.fingerprint.swiftUIColor)
+                .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
                 .multilineTextAlignment(.leading)
                 .accessibilityIdentifier("FingerprintPhraseValue")
         }

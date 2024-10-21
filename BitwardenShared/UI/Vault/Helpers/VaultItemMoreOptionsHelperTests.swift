@@ -55,6 +55,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     // MARK: Tests
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a card cipher.
+    @MainActor
     func test_showMoreOptionsAlert_card() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -124,6 +125,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` and press `copyPassword` presents master password re-prompt alert.
+    @MainActor
     func test_showMoreOptionsAlert_copyPassword_rePromptMasterPassword() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -178,6 +180,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `showMoreOptionsAlert()` and press `copyPassword` presents master password re-prompt alert,
     ///  entering wrong password should not allow to copy password.
+    @MainActor
     func test_showMoreOptionsAlert_copyPassword_passwordReprompt_invalidPassword() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -233,6 +236,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `showMoreOptionsAlert()` and press `copyTotp` presents master password re-prompt
     /// alert and copies the TOTP code when the master password is confirmed.
+    @MainActor
     func test_showMoreOptionsAlert_copyTotp_passwordReprompt() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -272,13 +276,14 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(pasteboardService.copiedString, "123321")
         XCTAssertEqual(
-            toastToDisplay?.text,
-            Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)
+            toastToDisplay,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
         )
     }
 
     /// `showMoreOptionsAlert()` and press `copyTotp` presents master password re-prompt
     /// alert and displays an alert if the entered master password doesn't match.
+    @MainActor
     func test_showMoreOptionsAlert_copyTotp_passwordReprompt_invalidPassword() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -321,6 +326,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `showMoreOptionsAlert()` and press `copyTotp` copies the TOTP code if the user
     /// doesn't have premium but the organization uses TOTP.
+    @MainActor
     func test_showMoreOptionsAlert_copyTotp_organizationUseTotp() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -354,13 +360,14 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(pasteboardService.copiedString, "123321")
         XCTAssertEqual(
-            toastToDisplay?.text,
-            Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)
+            toastToDisplay,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
         )
     }
 
     /// `showMoreOptionsAlert()` and press `copyTotp` logs an error if refreshing the TOTP code
     /// doesn't return a code.
+    @MainActor
     func test_showMoreOptionsAlert_copyTotp_refreshTOTPEmpty() async throws {
         stateService.activeAccount = .fixture()
         vaultRepository.refreshTOTPCodeResult = .success(
@@ -384,6 +391,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` and press `copyTotp` logs an error if refreshing the TOTP code fails.
+    @MainActor
     func test_showMoreOptionsAlert_copyTotp_refreshTOTPError() async throws {
         stateService.activeAccount = .fixture()
         vaultRepository.refreshTOTPCodeResult = .failure(BitwardenTestError.example)
@@ -405,6 +413,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` logs an error if fetching whether the account has premium fails.
+    @MainActor
     func test_showMoreOptionsAlert_doesActiveAccountHavePremiumError() async throws {
         stateService.activeAccount = .fixture()
         vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
@@ -422,6 +431,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `showMoreOptionsAlert()` and press `edit` presents master password re-prompt
     /// alert and navigates to the edit view when the master password is confirmed.
+    @MainActor
     func test_showMoreOptionsAlert_edit_passwordReprompt() async throws {
         stateService.activeAccount = .fixture()
 
@@ -448,6 +458,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `showMoreOptionsAlert()` and press `edit` presents master password re-prompt
     /// alert and displays an alert if the entered master password doesn't match.
+    @MainActor
     func test_showMoreOptionsAlert_edit_passwordReprompt_invalidPassword() async throws {
         stateService.activeAccount = .fixture()
 
@@ -474,6 +485,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for an identity cipher.
+    @MainActor
     func test_showMoreOptionsAlert_identity() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -511,6 +523,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a login cipher.
+    @MainActor
     func test_showMoreOptionsAlert_login_minimal() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -536,6 +549,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a login cipher.
+    @MainActor
     func test_showMoreOptionsAlert_morePressed_login_full() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -608,6 +622,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` does not show the password re-prompt alert when the user has no password.
+    @MainActor
     func test_showMoreOptionsAlert_noPassword() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
@@ -641,6 +656,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` logs an error if password validation fails.
+    @MainActor
     func test_showMoreOptionsAlert_passwordRepromptValidationError() async throws {
         authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
         stateService.activeAccount = .fixture()
@@ -665,6 +681,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a secure note cipher.
+    @MainActor
     func test_showMoreOptionsAlert_secureNote() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account

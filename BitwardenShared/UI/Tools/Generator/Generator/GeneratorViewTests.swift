@@ -31,6 +31,7 @@ class GeneratorViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping on the dismiss button dispatches the `.dismissPressed` action.
+    @MainActor
     func test_dismissButton_tap() throws {
         processor.state.presentationMode = .inPlace
         let button = try subject.inspect().find(button: Localizations.cancel)
@@ -39,6 +40,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Tapping on the copy button dispatches the `.copyGeneratedValue` action.
+    @MainActor
     func test_generatedValue_copyTap() throws {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copyPassword)
         try button.tap()
@@ -46,6 +48,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Tapping on the refresh button dispatches the `.refreshGeneratedValue` action.
+    @MainActor
     func test_generatedValue_refreshTap() throws {
         let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.generatePassword)
         try button.tap()
@@ -53,6 +56,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Updating the email type dispatches the `.emailTypeChanged` action.
+    @MainActor
     func test_menuEmailTypeChanged() throws {
         processor.state.generatorType = .username
         processor.state.usernameState.emailWebsite = "bitwarden.com"
@@ -62,6 +66,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Updating the generator type dispatches the `.generatorTypeChanged` action.
+    @MainActor
     func test_menuGeneratorTypeChanged() throws {
         processor.state.generatorType = .password
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whatWouldYouLikeToGenerate)
@@ -70,6 +75,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Updating the password generator type dispatches the `.passwordGeneratorTypeChanged` action.
+    @MainActor
     func test_menuPasswordGeneratorTypeChanged() throws {
         processor.state.passwordState.passwordGeneratorType = .password
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.passwordType)
@@ -79,6 +85,7 @@ class GeneratorViewTests: BitwardenTestCase {
 
     /// Updating the username generator forwarded email service dispatches the
     /// `.usernameForwardedEmailServiceChanged` action.
+    @MainActor
     func test_menuUsernameForwardedEmailServiceChanged() throws {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .forwardedEmail
@@ -89,6 +96,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Tapping the password history button dispatches the `.showPasswordHistory` action.
+    @MainActor
     func test_showPasswordHistory_tapped() throws {
         let button = try subject.inspect().find(button: Localizations.passwordHistory)
         try button.tap()
@@ -96,6 +104,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Tapping the select button dispatches the `.selectButtonPressed` action.
+    @MainActor
     func test_selectButton_tap() async throws {
         processor.state.presentationMode = .inPlace
         let button = try subject.inspect().find(asyncButton: Localizations.select)
@@ -104,6 +113,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Updating the slider value dispatches the `.sliderValueChanged` action.
+    @MainActor
     func test_sliderValueChanged() throws {
         let field = SliderField<GeneratorState>(
             keyPath: \.passwordState.lengthDouble,
@@ -123,6 +133,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Updating the stepper value dispatches the `.stepperValueChanged` action.
+    @MainActor
     func test_stepperValueChanged() throws {
         let field = StepperField<GeneratorState>(
             accessibilityId: "MinNumberValueLabel",
@@ -140,6 +151,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Updating the text value dispatches the `.textValueChanged` action.
+    @MainActor
     func test_textValueChanged() throws {
         processor.state.passwordState.passwordGeneratorType = .passphrase
         let field = FormTextField<GeneratorState>(
@@ -156,6 +168,7 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Updating the toggle value dispatches the `.toggleValueChanged()` action.
+    @MainActor
     func test_toggleField_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
@@ -176,34 +189,38 @@ class GeneratorViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Test a snapshot of the copied value toast.
+    @MainActor
     func test_snapshot_generatorViewToast() {
         processor.state.generatedValue = "pa11w0rd"
         processor.state.showCopiedValueToast()
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            of: subject.navStackWrapped,
             as: .defaultPortrait
         )
     }
 
     /// Test a snapshot of the passphrase generation view.
+    @MainActor
     func test_snapshot_generatorViewPassphrase() {
         processor.state.passwordState.passwordGeneratorType = .passphrase
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            of: subject.navStackWrapped,
             as: .defaultPortrait
         )
     }
 
     /// Test a snapshot of the password generation view.
+    @MainActor
     func test_snapshot_generatorViewPassword() {
         processor.state.passwordState.passwordGeneratorType = .password
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            of: subject.navStackWrapped,
             as: .defaultPortrait
         )
     }
 
     /// Test a snapshot of the password generation view with the select button.
+    @MainActor
     func test_snapshot_generatorViewPassword_inPlace() {
         processor.state.passwordState.passwordGeneratorType = .password
         processor.state.presentationMode = .inPlace
@@ -211,58 +228,64 @@ class GeneratorViewTests: BitwardenTestCase {
     }
 
     /// Test a snapshot of the password generation view with a policy in effect.
+    @MainActor
     func test_snapshot_generatorViewPassword_policyInEffect() {
         processor.state.isPolicyInEffect = true
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            of: subject.navStackWrapped,
             as: .defaultPortrait
         )
     }
 
     /// Test a snapshot of the catch-all username generation view.
+    @MainActor
     func test_snapshot_generatorViewUsernameCatchAll() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .catchAllEmail
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            of: subject.navStackWrapped,
             as: .defaultPortrait
         )
     }
 
     /// Test a snapshot of the forwarded email alias generation view.
+    @MainActor
     func test_snapshot_generatorViewUsernameForwarded() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .forwardedEmail
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            of: subject.navStackWrapped,
             as: .defaultPortrait
         )
     }
 
     /// Test a snapshot of the plus addressed username generation view.
+    @MainActor
     func test_snapshot_generatorViewUsernamePlusAddressed() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            of: subject.navStackWrapped,
             as: .defaultPortrait
         )
     }
 
     /// Test a snapshot of the plus addressed username generation view with the select button.
+    @MainActor
     func test_snapshot_generatorViewUsernamePlusAddressed_inPlace() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         processor.state.presentationMode = .inPlace
-        assertSnapshot(matching: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the random word username generation view.
+    @MainActor
     func test_snapshot_generatorViewUsernameRandomWord() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .randomWord
         assertSnapshot(
-            matching: subject.navStackWrapped,
+            of: subject.navStackWrapped,
             as: .defaultPortrait
         )
     }

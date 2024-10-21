@@ -49,6 +49,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `.perform(_:)` with `.answerRequest` answers the request.
+    @MainActor
     func test_perform_answerRequest() async {
         authService.getPendingLoginRequestResult = .success([.fixture()])
 
@@ -65,6 +66,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
     }
 
     /// `.perform(_:)` with `.answerRequest` handles an errors
+    @MainActor
     func test_perform_answerRequest_error() async {
         authService.answerLoginRequestResult = .failure(BitwardenTestError.example)
 
@@ -77,6 +79,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
     }
 
     /// `.perform(_:)` with `.loadData` loads the user's email address.
+    @MainActor
     func test_perform_loadData() async {
         stateService.activeAccount = .fixture()
         await subject.perform(.loadData)
@@ -90,6 +93,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
     }
 
     /// `.perform(_:)` with `.reloadData` shows an alert for an answered request.
+    @MainActor
     func test_perform_reloadData_answered() async throws {
         authService.getPendingLoginRequestResult = .success([
             .fixture(
@@ -114,6 +118,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
     }
 
     /// `.perform(_:)` with `.reloadData` shows an alert for an expired request.
+    @MainActor
     func test_perform_reloadData_expired() async throws {
         authService.getPendingLoginRequestResult = .success([.fixture(creationDate: .distantPast)])
         await subject.perform(.reloadData)
@@ -125,6 +130,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
     }
 
     /// `.receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss())

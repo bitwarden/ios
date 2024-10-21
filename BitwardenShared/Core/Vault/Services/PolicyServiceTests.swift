@@ -41,7 +41,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     let passwordGeneratorPolicy = Policy.fixture(
         data: [
             PolicyOptionType.capitalize.rawValue: .bool(true),
-            PolicyOptionType.defaultType.rawValue: .string(PasswordGeneratorType.passphrase.rawValue),
+            PolicyOptionType.overridePasswordType.rawValue: .string(PasswordGeneratorType.passphrase.rawValue),
             PolicyOptionType.includeNumber.rawValue: .bool(false),
             PolicyOptionType.minLength.rawValue: .int(30),
             PolicyOptionType.minNumbers.rawValue: .int(3),
@@ -84,7 +84,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
     /// options and if the existing option has a type set, the policies will override that.
-    func test_applyPasswordGenerationOptions_defaultType_existingOption() async throws {
+    func test_applyPasswordGenerationOptions_overridePasswordType_existingOption() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success([passwordGeneratorPolicy])
@@ -96,7 +96,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertTrue(appliedPolicy)
     }
 
-    /// `applyPasswordGenerationOptions()` returns `false` if the user is exempt from policies in the organization.
+    /// `applyPasswordGenerationOptions()` returns `true` if the user is owner in the organization.
     func test_applyPasswordGenerationOptions_exemptUser() async throws {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .owner)])
@@ -105,7 +105,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         var options = PasswordGenerationOptions(type: .password)
         let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
 
-        XCTAssertFalse(appliedPolicy)
+        XCTAssertTrue(appliedPolicy)
     }
 
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
@@ -145,7 +145,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 numWords: 4,
                 special: true,
                 type: .passphrase,
-                uppercase: nil
+                uppercase: nil,
+                overridePasswordType: true
             )
         )
     }
@@ -157,13 +158,21 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         organizationService.fetchAllOrganizationsResult = .success([.fixture()])
         policyDataStore.fetchPoliciesResult = .success(
             [
+                passwordGeneratorPolicy,
                 .fixture(
                     data: [
-                        PolicyOptionType.defaultType.rawValue: .string("password"),
+                        PolicyOptionType.overridePasswordType.rawValue:
+                            .string(PasswordGeneratorType.password.rawValue),
                     ],
                     type: .passwordGenerator
                 ),
-                passwordGeneratorPolicy,
+                .fixture(
+                    data: [
+                        PolicyOptionType.overridePasswordType.rawValue:
+                            .string(PasswordGeneratorType.passphrase.rawValue),
+                    ],
+                    type: .passwordGenerator
+                ),
             ]
         )
 
@@ -211,9 +220,30 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 numWords: 4,
                 special: true,
                 type: .passphrase,
-                uppercase: nil
+                uppercase: nil,
+                overridePasswordType: true
             )
         )
+    }
+
+    /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
+    /// options.
+    func test_applyPasswordGenerationOptions_policy_noOverride() async throws {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success(
+            [
+                .fixture(
+                    data: [:],
+                    type: .passwordGenerator
+                ),
+            ])
+
+        var options = PasswordGenerationOptions()
+        let appliedPolicy = try await subject.applyPasswordGenerationPolicy(options: &options)
+
+        XCTAssertTrue(appliedPolicy)
+        XCTAssertEqual(options.overridePasswordType, false)
     }
 
     /// `applyPasswordGenerationOptions(options:)` applies the password generation policy to the
@@ -248,7 +278,8 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
                 numWords: 4,
                 special: true,
                 type: .passphrase,
-                uppercase: true
+                uppercase: true,
+                overridePasswordType: true
             )
         )
     }
@@ -389,6 +420,23 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
         let onlyOrgApplies = await subject.policyAppliesToUser(.onlyOrg)
         XCTAssertFalse(onlyOrgApplies)
+    }
+
+    /// `policyAppliesToUser()` called concurrently doesn't crash.
+    func test_policyAppliesToUser_calledConcurrently() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        // Calling `policyAppliesToUser(_:)` concurrently shouldn't throw an exception due to
+        // simultaneous access to shared state. Since it's a race condition, running it repeatedly
+        // should expose the failure if it's going to fail.
+        for _ in 0 ..< 5 {
+            async let concurrentTask1 = subject.policyAppliesToUser(.twoFactorAuthentication)
+            async let concurrentTask2 = subject.policyAppliesToUser(.twoFactorAuthentication)
+
+            _ = await (concurrentTask1, concurrentTask2)
+        }
     }
 
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when one

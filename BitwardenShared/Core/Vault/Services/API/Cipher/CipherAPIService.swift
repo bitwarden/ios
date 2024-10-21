@@ -73,13 +73,6 @@ protocol CipherAPIService {
     ///
     func getCipher(withId id: String) async throws -> CipherDetailsResponseModel
 
-    /// Performs an API request to see if a user has any unassigned ciphers. This only applies
-    /// to users who are an organization owner or admin.
-    ///
-    /// - Returns: `true` if the user has any unassigned ciphers; `false` otherwise.
-    ///
-    func hasUnassignedCiphers() async throws -> Bool
-
     /// Performs an API request to restore a cipher in the user's trash.
     ///
     /// - Parameter id: The id of the cipher to be restored.
@@ -159,11 +152,6 @@ extension APIService: CipherAPIService {
 
     func getCipher(withId id: String) async throws -> CipherDetailsResponseModel {
         try await apiService.send(GetCipherRequest(cipherId: id))
-    }
-
-    func hasUnassignedCiphers() async throws -> Bool {
-        let response = try await apiService.send(HasUnassignedCiphersRequest())
-        return response.hasUnassignedCiphers
     }
 
     func restoreCipher(withID id: String) async throws -> EmptyResponse {

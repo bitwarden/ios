@@ -4,6 +4,9 @@ import Foundation
 
 /// A route to a specific screen in the authentication flow.
 public enum AuthRoute: Equatable {
+    /// A route to the autofill setup screen.
+    case autofillSetup
+
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 
@@ -25,13 +28,11 @@ public enum AuthRoute: Equatable {
     ///    - emailVerificationToken: Token needed to complete registration.
     ///    - userEmail: The user's email.
     ///    - fromEmail: The user opened the app from an email AppLink.
-    ///    - region: Region where the complete registration should happen.
     ///
     case completeRegistrationFromAppLink(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool,
-        region: RegionType
+        fromEmail: Bool
     )
 
     /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
@@ -52,6 +53,10 @@ public enum AuthRoute: Equatable {
     ///
     case dismissWithAction(_ action: DismissAction? = nil)
 
+    /// A route to the expired link screen.
+    ///
+    case expiredLink
+
     /// A route that triggers the duo 2FA flow.
     ///  Requires that any `context` provided to the coordinator conforms to `DuoAuthenticationFlowDelegate`.
     case duoAuthenticationFlow(_ authURL: URL)
@@ -68,11 +73,16 @@ public enum AuthRoute: Equatable {
     /// A route to the landing screen.
     case landing
 
+    /// A route to the landing screen that populates the email field for a soft logged out account.
+    case landingSoftLoggedOut(email: String)
+
     /// A route to the login screen.
     ///
-    /// - Parameter username: The username to display on the login screen.
+    /// - Parameters:
+    ///   - username: The username to display on the login screen.
+    ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
-    case login(username: String)
+    case login(username: String, isNewAccount: Bool = false)
 
     /// A route to the login decryption options screen.
     ///
@@ -84,6 +94,10 @@ public enum AuthRoute: Equatable {
     ///
     case startRegistration
 
+    /// A route to start registration screen when coming from the expired link screen.
+    ///
+    case startRegistrationFromExpiredLink
+
     /// A route to the login with device screen.
     ///
     /// - Parameters:
@@ -93,17 +107,29 @@ public enum AuthRoute: Equatable {
     ///
     case loginWithDevice(email: String, authRequestType: AuthRequestType, isAuthenticated: Bool)
 
+    /// A route to the generate master password view.
+    case masterPasswordGenerator
+
+    /// A route to the master password guidance view.
+    case masterPasswordGuidance
+
     /// A route to the master password hint screen for the provided username.
     ///
     /// - Parameter username: The username to display on the password hint screen.
     case masterPasswordHint(username: String)
 
-    /// A route to the self-hosted settings view.
+    /// A route to the prevent account lock view.
+    case preventAccountLock
+
+    /// A route to the remove master password screen.
+    case removeMasterPassword(organizationName: String)
+
+    /// A route to the self-hosted settings screen.
     ///
-    /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted view.
+    /// - Parameter currentRegion: The user's region type prior to navigating to the self-hosted screen.
     case selfHosted(currentRegion: RegionType)
 
-    /// A route to the set master password view.
+    /// A route to the set master password screen.
     ///
     /// - Parameter organizationIdentifier: The organization's identifier.
     ///
@@ -118,7 +144,7 @@ public enum AuthRoute: Equatable {
     ///
     case singleSignOn(callbackUrlScheme: String, state: String, url: URL)
 
-    /// A route to the two-factor authentication view.
+    /// A route to the two-factor authentication screen.
     ///
     /// - Parameters:
     ///   - email: The user's email address.
@@ -133,7 +159,7 @@ public enum AuthRoute: Equatable {
         _ orgIdentifier: String?
     )
 
-    /// A route to the update master password view.
+    /// A route to the update master password screen.
     case updateMasterPassword
 
     /// A route to the unlock vault screen.
@@ -151,6 +177,9 @@ public enum AuthRoute: Equatable {
         attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool
     )
+
+    /// A route to the vault unlock setup screen.
+    case vaultUnlockSetup(AccountSetupFlow)
 
     /// A route to the WebAuthn two factor authentication.
     ///

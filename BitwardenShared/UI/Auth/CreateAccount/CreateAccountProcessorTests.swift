@@ -56,6 +56,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `captchaCompleted()` makes the create account request again, this time with a captcha token.
     /// Also tests that the user is then navigated to the login screen.
+    @MainActor
     func test_captchaCompleted() throws {
         CreateAccountRequestModel.encoder.outputFormatting = .sortedKeys
         subject.state.isTermsAndPrivacyToggleOn = true
@@ -87,6 +88,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `captchaErrored(error:)` records an error.
+    @MainActor
     func test_captchaErrored() {
         subject.captchaErrored(error: BitwardenTestError.example)
 
@@ -96,6 +98,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `captchaErrored(error:)` doesn't record an error if the captcha flow was cancelled.
+    @MainActor
     func test_captchaErrored_cancelled() {
         let error = NSError(domain: "", code: ASWebAuthenticationSessionError.canceledLogin.rawValue)
         subject.captchaErrored(error: error)
@@ -104,6 +107,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` will still make the `CreateAccountRequest` when the HIBP
     /// network request fails.
+    @MainActor
     func test_perform_checkPasswordAndCreateAccount_failure() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true)
 
@@ -129,6 +133,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` presents an alert when the password
     /// is weak and exposed. This also tests that the correct alert is presented.
     /// Additionally, this tests that tapping Yes on the alert creates the account.
+    @MainActor
     func test_perform_checkPasswordAndCreateAccount_exposedWeak_yesTapped() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true, passwordStrengthScore: 1)
 
@@ -164,6 +169,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` presents an alert when the password
     /// is strong and exposed. This also tests that the correct alert is presented.
     /// Additionally, this tests that tapping Yes on the alert creates the account.
+    @MainActor
     func test_perform_checkPasswordAndCreateAccount_exposedStrong_yesTapped() async throws {
         subject.state = .fixture(isCheckDataBreachesToggleOn: true, passwordStrengthScore: 3)
 
@@ -199,6 +205,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` presents an alert when the password
     /// is weak and unchecked against breaches. This also tests that the correct alert is presented.
     /// Additionally, this tests that tapping Yes on the alert creates the account.
+    @MainActor
     func test_perform_checkPasswordAndCreateAccount_uncheckedWeak_yesTapped() async throws {
         subject.state = .fixture(
             isCheckDataBreachesToggleOn: false,
@@ -232,6 +239,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.createAccount` presents an alert when the password
     /// is weak and unexposed. This also tests that the correct alert is presented.
     /// Additionally, this tests that tapping Yes on the alert creates the account.
+    @MainActor
     func test_perform_checkPasswordAndCreateAccount_unexposedWeak_yesTapped() async throws {
         subject.state = .fixture(
             isCheckDataBreachesToggleOn: true,
@@ -270,6 +278,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email has already been taken.
+    @MainActor
     func test_perform_createAccount_accountAlreadyExists() async {
         subject.state = .fixture()
 
@@ -300,6 +309,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email exceeds the maximum length.
+    @MainActor
     func test_perform_createAccount_emailExceedsMaxLength() async {
         subject.state = .fixture(emailText: """
         eyrztwlvxqdksnmcbjgahfpouyqiwubfdzoxhjsrlnvgeatkcpimy\
@@ -339,6 +349,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email field is empty.
+    @MainActor
     func test_perform_createAccount_emptyEmail() async {
         subject.state = .fixture(emailText: "")
 
@@ -352,6 +363,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password field is empty.
+    @MainActor
     func test_perform_createAccount_emptyPassword() async {
         subject.state = .fixture(passwordText: "", retypePasswordText: "")
 
@@ -365,6 +377,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` and a captcha required error occurs navigates to the `.captcha` route.
+    @MainActor
     func test_perform_createAccount_captchaError() async {
         subject.state = .fixture()
 
@@ -382,6 +395,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` and a captcha flow error records the error.
+    @MainActor
     func test_perform_createAccount_captchaFlowError() async {
         captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
         client.result = .httpFailure(CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: "token"))
@@ -402,6 +416,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password hint is too long.
+    @MainActor
     func test_perform_createAccount_hintTooLong() async {
         subject.state = .fixture(passwordHintText: """
         ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajaj
@@ -435,6 +450,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email is in an invalid format.
+    @MainActor
     func test_perform_createAccount_invalidEmailFormat() async {
         subject.state = .fixture(emailText: "∫@ø.com")
 
@@ -466,6 +482,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when there is no internet connection.
     /// When the user taps `Try again`, the create account request is made again.
+    @MainActor
     func test_perform_createAccount_noInternetConnection() async throws {
         subject.state = .fixture()
 
@@ -497,6 +514,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when password confirmation is incorrect.
+    @MainActor
     func test_perform_createAccount_passwordsDontMatch() async {
         subject.state = .fixture(passwordText: "123456789012", retypePasswordText: "123456789000")
 
@@ -510,6 +528,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password isn't long enough.
+    @MainActor
     func test_perform_createAccount_passwordsTooShort() async {
         subject.state = .fixture(passwordText: "123", retypePasswordText: "123")
 
@@ -524,6 +543,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the request times out.
     /// When the user taps `Try again`, the create account request is made again.
+    @MainActor
     func test_perform_createAccount_timeout() async throws {
         subject.state = .fixture()
 
@@ -553,6 +573,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` and an invalid email navigates to an invalid email alert.
+    @MainActor
     func test_perform_createAccount_withInvalidEmail() async {
         subject.state = .fixture(emailText: "exampleemail.com")
 
@@ -566,6 +587,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.createAccount` and a valid email creates the user's account.
+    @MainActor
     func test_perform_createAccount_withValidEmail() async {
         subject.state = .fixture()
 
@@ -582,6 +604,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` and a valid email surrounded by whitespace trims the whitespace and
     /// creates the user's account
+    @MainActor
     func test_perform_createAccount_withValidEmailAndSpace() async {
         subject.state = .fixture(emailText: " email@example.com ")
 
@@ -598,6 +621,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` and a valid email with uppercase characters converts the email to lowercase
     /// and creates the user's account.
+    @MainActor
     func test_perform_createAccount_withValidEmailUppercased() async {
         subject.state = .fixture(emailText: "EMAIL@EXAMPLE.COM")
 
@@ -614,6 +638,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` navigates to an error alert when the terms of service
     /// and privacy policy toggle is off.
+    @MainActor
     func test_perform_createAccount_withTermsAndServicesToggle_false() async {
         subject.state = .fixture(isTermsAndPrivacyToggleOn: false)
 
@@ -627,12 +652,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// `receive(_:)` with `.emailTextChanged(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_emailTextChanged() {
         subject.state.emailText = ""
         XCTAssertTrue(subject.state.emailText.isEmpty)
@@ -642,6 +669,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.passwordHintTextChanged(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_passwordHintTextChanged() {
         subject.state.passwordHintText = ""
         XCTAssertTrue(subject.state.passwordHintText.isEmpty)
@@ -651,6 +679,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.passwordTextChanged(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_passwordTextChanged() {
         subject.state.passwordText = ""
         XCTAssertTrue(subject.state.passwordText.isEmpty)
@@ -661,6 +690,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.passwordTextChanged(_:)` updates the password strength score based on
     /// the entered password.
+    @MainActor
     func test_receive_passwordTextChanged_updatesPasswordStrength() {
         subject.state.emailText = "user@bitwarden.com"
         subject.receive(.passwordTextChanged(""))
@@ -672,6 +702,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         waitFor(subject.state.passwordStrengthScore == 0)
         XCTAssertEqual(subject.state.passwordStrengthScore, 0)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertTrue(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "T")
 
         authRepository.passwordStrengthResult = 4
@@ -679,10 +710,12 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         waitFor(subject.state.passwordStrengthScore == 4)
         XCTAssertEqual(subject.state.passwordStrengthScore, 4)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertTrue(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "TestPassword1234567890!@#")
     }
 
     /// `receive(_:)` with `.retypePasswordTextChanged(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_retypePasswordTextChanged() {
         subject.state.retypePasswordText = ""
         XCTAssertTrue(subject.state.retypePasswordText.isEmpty)
@@ -692,6 +725,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toggleCheckDataBreaches(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_toggleCheckDataBreaches() {
         subject.receive(.toggleCheckDataBreaches(false))
         XCTAssertFalse(subject.state.isCheckDataBreachesToggleOn)
@@ -704,6 +738,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.togglePasswordVisibility(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_togglePasswordVisibility() {
         subject.state.arePasswordsVisible = false
 
@@ -718,6 +753,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toggleTermsAndPrivacy(_:)` updates the state to reflect the change.
+    @MainActor
     func test_receive_toggleTermsAndPrivacy() {
         subject.receive(.toggleTermsAndPrivacy(false))
         XCTAssertFalse(subject.state.isTermsAndPrivacyToggleOn)

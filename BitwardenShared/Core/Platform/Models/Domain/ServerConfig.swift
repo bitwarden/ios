@@ -4,7 +4,7 @@ import Foundation
 
 /// Model that represents the configuration provided by the server at a particular time.
 ///
-struct ServerConfig: Equatable, Codable {
+struct ServerConfig: Equatable, Codable, Sendable {
     // MARK: Properties
 
     /// The environment URLs of the server.
@@ -29,15 +29,28 @@ struct ServerConfig: Equatable, Codable {
         environment = responseModel.environment.map(EnvironmentServerConfig.init)
         self.date = date
         let features: [(FeatureFlag, AnyCodable)]
-        features = responseModel.featureStates.compactMap { key, value in
+        features = responseModel.featureStates?.compactMap { key, value in
             guard let flag = FeatureFlag(rawValue: key) else { return nil }
             return (flag, value)
-        }
+        } ?? []
         featureStates = Dictionary(uniqueKeysWithValues: features)
 
         gitHash = responseModel.gitHash
         server = responseModel.server.map(ThirdPartyServerConfig.init)
         version = responseModel.version
+    }
+
+    // MARK: Methods
+
+    /// Whether the server supports cipher key encryption.
+    /// - Returns: `true` if it's supported, `false` otherwise.
+    func supportsCipherKeyEncryption() -> Bool {
+        guard let minVersion = ServerVersion(Constants.cipherKeyEncryptionMinServerVersion),
+              let serverVersion = ServerVersion(version),
+              minVersion <= serverVersion else {
+            return false
+        }
+        return true
     }
 }
 

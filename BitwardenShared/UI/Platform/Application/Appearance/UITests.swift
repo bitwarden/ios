@@ -5,7 +5,6 @@ import XCTest
 
 // MARK: - UITests
 
-@MainActor
 class UITests: BitwardenTestCase {
     // MARK: Tests
 

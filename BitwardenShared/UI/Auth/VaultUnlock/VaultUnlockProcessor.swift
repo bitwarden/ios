@@ -127,10 +127,9 @@ class VaultUnlockProcessor: StateProcessor<
         state.unsuccessfulUnlockAttemptsCount = await services.stateService.getUnsuccessfulUnlockAttempts()
         state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
         await refreshProfileState()
-        // If biometric unlock is available, enabled,
-        // and the user's biometric integrity state is valid;
+        // If biometric unlock is available and enabled,
         // attempt to unlock the vault with biometrics once.
-        if case .available(_, true, true) = state.biometricUnlockStatus,
+        if case .available(_, true) = state.biometricUnlockStatus,
            shouldAttemptAutomaticBiometricUnlock {
             shouldAttemptAutomaticBiometricUnlock = false
             await unlockWithBiometrics()
@@ -231,9 +230,7 @@ class VaultUnlockProcessor: StateProcessor<
     ///
     private func unlockWithBiometrics() async {
         let status = try? await services.biometricsRepository.getBiometricUnlockStatus()
-        guard case let .available(_, enabled: enabled, hasValidIntegrity) = status,
-              enabled,
-              hasValidIntegrity else {
+        guard case let .available(_, enabled: enabled) = status, enabled else {
             await loadData()
             return
         }
@@ -243,29 +240,42 @@ class VaultUnlockProcessor: StateProcessor<
             await coordinator.handleEvent(.didCompleteAuth)
             state.unsuccessfulUnlockAttemptsCount = 0
             await services.stateService.setUnsuccessfulUnlockAttempts(0)
-        } catch let error as BiometricsServiceError {
-            Logger.processor.error("BiometricsServiceError unlocking vault with biometrics: \(error)")
+        } catch BiometricsServiceError.biometryCancelled {
+            Logger.processor.error("Biometric unlock cancelled.")
+            // Do nothing if the user cancels.
+        } catch BiometricsServiceError.biometryLocked {
+            Logger.processor.error("Biometric unlock failed duo to biometrics lockout.")
             // If the user has locked biometry, logout immediately.
-            if case .biometryLocked = error {
-                await logoutUser(userInitiated: true)
-                return
+            await logoutUser(userInitiated: true)
+        } catch BiometricsServiceError.getAuthKeyFailed {
+            services.errorReporter.log(error: BitwardenError.generalError(
+                type: "VaultUnlock: Get Biometrics Auth Key Failed",
+                message: "Biometrics auth is enabled but key was unable to be found. Disabling biometric unlock."
+            ))
+            try? await services.authRepository.allowBioMetricUnlock(false)
+
+            let hasMasterPassword = try? await services.authRepository.hasMasterPassword()
+            let isPinEnabled = try? await services.authRepository.isPinUnlockAvailable()
+            if hasMasterPassword == nil || hasMasterPassword == false, isPinEnabled == false {
+                // If biometrics is enabled, but the auth key doesn't exist and the user doesn't
+                // have a master password or PIN, log the user out.
+                await logoutUser(userInitiated: false)
+            } else {
+                // Otherwise, refresh the data to remove biometrics as an unlock method.
+                await loadData()
             }
-            if case .biometryCancelled = error {
-                // Do nothing if the user cancels.
-                return
-            }
-            // There is no biometric auth key stored, set user preference to false.
-            if case .getAuthKeyFailed = error {
-                try? await services.authRepository.allowBioMetricUnlock(false)
-            }
-            await loadData()
         } catch let error as StateServiceError {
             // If there is no active account, don't add to the unsuccessful count.
-            Logger.processor.error("StateServiceError unlocking vault with biometrics: \(error)")
+            services.errorReporter.log(error: error)
             // Just send the user back to landing.
             coordinator.navigate(to: .landing)
         } catch {
-            Logger.processor.error("Error unlocking vault with biometrics: \(error)")
+            services.errorReporter.log(error: BitwardenError.generalError(
+                type: "VaultUnlock: Biometrics Unlock Error",
+                message: "A biometrics error occurred.",
+                error: error
+            ))
+
             state.unsuccessfulUnlockAttemptsCount += 1
             await services.stateService
                 .setUnsuccessfulUnlockAttempts(state.unsuccessfulUnlockAttemptsCount)

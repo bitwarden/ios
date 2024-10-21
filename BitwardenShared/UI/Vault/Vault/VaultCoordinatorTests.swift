@@ -43,6 +43,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `handleEvent(_:context:)` with `.switchAccount` notifies the delegate to switch to the
     /// specified account.
+    @MainActor
     func test_handleEvent_switchAccount() async {
         let route = AppRoute.tab(.vault(.vaultItemSelection(.fixtureExample)))
         await subject.handleEvent(.switchAccount(
@@ -58,6 +59,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.
+    @MainActor
     func test_navigateTo_autofillList() throws {
         subject.navigate(to: .autofillList)
 
@@ -67,6 +69,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `. addAccount ` informs the delegate that the user wants to add an account.
+    @MainActor
     func test_navigateTo_addAccount() throws {
         subject.navigate(to: .addAccount)
 
@@ -74,6 +77,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.addItem` presents the add item view onto the stack navigator.
+    @MainActor
     func test_navigateTo_addItem() throws {
         let coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         module.vaultItemCoordinator = coordinator
@@ -88,6 +92,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.
+    @MainActor
     func test_navigateTo_editItem() throws {
         subject.navigate(to: .editItem(.fixture()))
 
@@ -101,6 +106,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
     /// navigator.
+    @MainActor
     func test_navigate_dismiss() throws {
         subject.navigate(to: .dismiss)
         let action = try XCTUnwrap(stackNavigator.actions.last)
@@ -108,6 +114,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
+    @MainActor
     func test_navigateTo_group() throws {
         subject.navigate(to: .group(.identity, filter: .allVaults))
 
@@ -119,7 +126,30 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(view.store.state.vaultFilterType, .allVaults)
     }
 
+    /// `navigate(to:)` with `.importLogins` presents the import logins view onto the stack navigator.
+    @MainActor
+    func test_navigateTo_importLogins() throws {
+        subject.navigate(to: .importLogins)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ImportLoginsView>)
+    }
+
+    /// `navigate(to:)` with `.importLoginsSuccess` presents the import logins success view onto the stack navigator.
+    @MainActor
+    func test_navigateTo_importLoginsSuccess() throws {
+        subject.navigate(to: .importLoginsSuccess)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ImportLoginsSuccessView>)
+    }
+
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
+    @MainActor
     func test_navigateTo_list_withoutPresented() throws {
         XCTAssertFalse(stackNavigator.isPresenting)
         subject.navigate(to: .list)
@@ -130,6 +160,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
+    @MainActor
     func test_navigateTo_lockVault() throws {
         let task = Task {
             await subject.handleEvent(.lockVault(userId: "123"))
@@ -139,12 +170,14 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.loginRequest` calls the delegate method.
+    @MainActor
     func test_navigateTo_loginRequest() {
         subject.navigate(to: .loginRequest(.fixture()))
         XCTAssertEqual(delegate.presentLoginRequestRequest, .fixture())
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
+    @MainActor
     func test_navigateTo_logout() throws {
         let task = Task {
             await subject.handleEvent(.logout(userId: "123", userInitiated: true))
@@ -157,6 +190,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.logout` informs the delegate that the user logged out.
+    @MainActor
     func test_navigateTo_logout_systemInitiated() throws {
         let task = Task {
             await subject.handleEvent(.logout(userId: "123", userInitiated: false))
@@ -169,6 +203,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.switchAccount(userId:, isUnlocked: isUnlocked)`calls the associated delegate method.
+    @MainActor
     func test_navigateTo_switchAccount() throws {
         subject.navigate(to: .switchAccount(userId: "123"))
 
@@ -176,6 +211,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.
+    @MainActor
     func test_navigateTo_vaultItemSelection() throws {
         let otpAuthModel = try XCTUnwrap(OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete))
         subject.navigate(to: .vaultItemSelection(otpAuthModel))
@@ -187,6 +223,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
+    @MainActor
     func test_navigateTo_viewItem() throws {
         subject.navigate(to: .viewItem(id: "id"))
 
@@ -197,6 +234,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    @MainActor
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
         try setKeyWindowRoot(viewController: XCTUnwrap(stackNavigator.rootViewController))
@@ -212,6 +250,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` has no effect.
+    @MainActor
     func test_start() {
         subject.start()
 

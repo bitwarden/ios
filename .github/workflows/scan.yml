@@ -17,7 +17,7 @@ jobs:
 
   sast:
     name: SAST scan
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: check-run
     permissions:
       contents: read
@@ -26,12 +26,12 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Scan with Checkmarx
-        uses: checkmarx/ast-github-action@6c56658230f79c227a55120e9b24845d574d5225 # 2.0.31
+        uses: checkmarx/ast-github-action@f0869bd1a37fddc06499a096101e6c900e815d81 # 2.0.36
         env:
           INCREMENTAL: "${{ contains(github.event_name, 'pull_request') && '--sast-incremental' || '' }}"
         with:
@@ -46,13 +46,13 @@ jobs:
             --output-path . ${{ env.INCREMENTAL }}
 
       - name: Upload Checkmarx results to GitHub
-        uses: github/codeql-action/upload-sarif@afb54ba388a7dca6ecae48f608c4ff05ff4cc77a # v3.25.15
+        uses: github/codeql-action/upload-sarif@f779452ac5af1c261dce0346a8f964149f49322b # v3.26.13
         with:
           sarif_file: cx_result.sarif
 
   quality:
     name: Quality scan
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: check-run
     permissions:
       contents: read
@@ -60,13 +60,13 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
         with:
           fetch-depth: 0
           ref: ${{  github.event.pull_request.head.sha }}
 
       - name: Scan with SonarCloud
-        uses: sonarsource/sonarcloud-github-action@e44258b109568baa0df60ed515909fc6c72cba92 # v2.3.0
+        uses: sonarsource/sonarcloud-github-action@383f7e52eae3ab0510c3cb0e7d9d150bbaeab838 # v3.1.0
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

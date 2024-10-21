@@ -1,8 +1,6 @@
 import LocalAuthentication
 import XCTest
 
-// swiftlint:disable file_length
-
 @testable import BitwardenShared
 
 // MARK: - BiometricsRepositoryTests
@@ -48,29 +46,13 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
 
     // MARK: Tests
 
-    /// `configureBiometricIntegrity` does not store empty data.
-    func test_configureBiometricIntegrity_noData() async throws {
-        biometricsService.biometricIntegrityState = nil
-        stateService.activeAccount = .fixture()
-        stateService.setBiometricIntegrityStateError = nil
-        try await subject.configureBiometricIntegrity()
-        XCTAssertTrue(stateService.biometricIntegrityStates.isEmpty)
-    }
+    /// `getBiometricAuthenticationType()` gets the current authentication type.
+    func test_getBiometricAuthenticationType() async throws {
+        biometricsService.biometricAuthenticationType = .faceID
+        XCTAssertEqual(subject.getBiometricAuthenticationType(), .faceID)
 
-    /// `configureBiometricIntegrity` successfully stores data to state.
-    func test_configureBiometricIntegrity_success() async throws {
-        let mockData = Data("Mock User Key".utf8)
-        let expectedBase64String = mockData.base64EncodedString()
-        biometricsService.biometricIntegrityState = mockData
-        stateService.activeAccount = .fixture()
-        stateService.setBiometricIntegrityStateError = nil
-        try await subject.configureBiometricIntegrity()
-        XCTAssertEqual(
-            stateService.biometricIntegrityStates,
-            [
-                "1": expectedBase64String,
-            ]
-        )
+        biometricsService.biometricAuthenticationType = nil
+        XCTAssertNil(subject.getBiometricAuthenticationType())
     }
 
     /// `setBiometricUnlockKey` throws for a no user situation.
@@ -128,11 +110,6 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         let active = Account.fixture()
         stateService.activeAccount = active
         biometricsService.biometricAuthStatus = .lockedOut(.faceID)
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
-        stateService.biometricIntegrityStates = [
-            active.profile.userId: integrity.base64EncodedString(),
-        ]
         stateService.biometricsEnabled = [
             active.profile.userId: false,
         ]
@@ -141,39 +118,11 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `getBiometricUnlockStatus` marks devices without any biometric integrity data as having valid integrity.
-    func test_getBiometricUnlockStatus_noDeviceIntegrityData() async throws {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        biometricsService.biometricIntegrityState = nil
-        stateService.biometricIntegrityStates = [
-            active.profile.userId: Data("National Treasure".utf8).base64EncodedString(),
-        ]
-        stateService.biometricsEnabled = [
-            active.profile.userId: true,
-        ]
-        let status = try await subject.getBiometricUnlockStatus()
-        XCTAssertEqual(
-            status,
-            BiometricsUnlockStatus.available(
-                .faceID,
-                enabled: true,
-                hasValidIntegrity: true
-            )
-        )
-    }
-
-    /// `getBiometricUnlockStatus` tracks the availablity of biometrics.
+    /// `getBiometricUnlockStatus` tracks the availability of biometrics.
     func test_getBiometricUnlockStatus_success_denied() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
         biometricsService.biometricAuthStatus = .denied(.touchID)
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
-        stateService.biometricIntegrityStates = [
-            active.profile.userId: integrity.base64EncodedString(),
-        ]
         stateService.biometricsEnabled = [
             active.profile.userId: false,
         ]
@@ -189,46 +138,13 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         let active = Account.fixture()
         stateService.activeAccount = active
         biometricsService.biometricAuthStatus = .authorized(.touchID)
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
-        stateService.biometricIntegrityStates = [
-            active.profile.userId: integrity.base64EncodedString(),
-        ]
         stateService.biometricsEnabled = [
             active.profile.userId: false,
         ]
         let status = try await subject.getBiometricUnlockStatus()
         XCTAssertEqual(
             status,
-            BiometricsUnlockStatus.available(
-                .touchID,
-                enabled: false,
-                hasValidIntegrity: true
-            )
-        )
-    }
-
-    /// `getBiometricUnlockStatus` tracks integrity state validity.
-    func test_getBiometricUnlockStatus_success_invalidIntegrity() async throws {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        biometricsService.biometricAuthStatus = .authorized(.faceID)
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
-        stateService.biometricIntegrityStates = [
-            active.profile.userId: Data("National Treasure".utf8).base64EncodedString(),
-        ]
-        stateService.biometricsEnabled = [
-            active.profile.userId: true,
-        ]
-        let status = try await subject.getBiometricUnlockStatus()
-        XCTAssertEqual(
-            status,
-            BiometricsUnlockStatus.available(
-                .faceID,
-                enabled: true,
-                hasValidIntegrity: false
-            )
+            BiometricsUnlockStatus.available(.touchID, enabled: false)
         )
     }
 
@@ -237,22 +153,13 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         let active = Account.fixture()
         stateService.activeAccount = active
         biometricsService.biometricAuthStatus = .authorized(.faceID)
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
-        stateService.biometricIntegrityStates = [
-            active.profile.userId: integrity.base64EncodedString(),
-        ]
         stateService.biometricsEnabled = [
             active.profile.userId: true,
         ]
         let status = try await subject.getBiometricUnlockStatus()
         XCTAssertEqual(
             status,
-            BiometricsUnlockStatus.available(
-                .faceID,
-                enabled: true,
-                hasValidIntegrity: true
-            )
+            BiometricsUnlockStatus.available(.faceID, enabled: true)
         )
     }
 
@@ -260,8 +167,6 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
     func test_getUserAuthKey_emptyString() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
         stateService.biometricsEnabled = [
             active.profile.userId: true,
         ]
@@ -271,12 +176,10 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    /// `getUserAuthKey` retrieves the key from keychain.
     func test_getUserAuthKey_success() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
         stateService.biometricsEnabled = [
             active.profile.userId: true,
         ]
@@ -286,20 +189,12 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
             key,
             "Dramatic Masterpiece"
         )
-        XCTAssertEqual(
-            stateService.biometricIntegrityStates,
-            [
-                active.profile.userId: integrity.base64EncodedString(),
-            ]
-        )
     }
 
-    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    /// `getUserAuthKey` throws a biometry locked error if biometrics are locked out.
     func test_getUserAuthKey_lockedError() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
         stateService.biometricsEnabled = [
             active.profile.userId: true,
         ]
@@ -310,12 +205,23 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    /// `getUserAuthKey` throws a not found error if the key can't be found.
+    func test_getUserAuthKey_notFoundError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.biometricsEnabled = [
+            active.profile.userId: true,
+        ]
+        keychainService.getResult = .failure(KeychainServiceError.osStatusError(errSecItemNotFound))
+        await assertAsyncThrows(error: BiometricsServiceError.getAuthKeyFailed) {
+            _ = try await subject.getUserAuthKey()
+        }
+    }
+
+    /// `getUserAuthKey` throws a biometry failed error if biometrics are disconnected.
     func test_getUserAuthKey_biometryFailed() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
         stateService.biometricsEnabled = [
             active.profile.userId: true,
         ]
@@ -325,12 +231,10 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    /// `getUserAuthKey` throws a biometry cancelled error if biometrics were cancelled.
     func test_getUserAuthKey_cancelled() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
         stateService.biometricsEnabled = [
             active.profile.userId: true,
         ]
@@ -341,17 +245,28 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `getUserAuthKey` retrieves the key from keychain and updates integrity state.
+    /// `getUserAuthKey` throws an error if one occurs.
     func test_getUserAuthKey_unknownError() async throws {
         let active = Account.fixture()
         stateService.activeAccount = active
-        let integrity = Data("Face/Off".utf8)
-        biometricsService.biometricIntegrityState = integrity
         stateService.biometricsEnabled = [
             active.profile.userId: true,
         ]
         keychainService.getResult = .failure(BitwardenTestError.example)
-        await assertAsyncThrows(error: BiometricsServiceError.getAuthKeyFailed) {
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.getUserAuthKey()
+        }
+    }
+
+    /// `getUserAuthKey` throws an error if an unknown OS error occurs.
+    func test_getUserAuthKey_unknownOSError() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.biometricsEnabled = [
+            active.profile.userId: true,
+        ]
+        keychainService.getResult = .failure(KeychainServiceError.osStatusError(errSecParam))
+        await assertAsyncThrows(error: KeychainServiceError.osStatusError(errSecParam)) {
             _ = try await subject.getUserAuthKey()
         }
     }
@@ -377,25 +292,10 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         }
     }
 
-    /// `setBiometricUnlockKey` throws when there is a state service error.
-    func test_setBiometricUnlockKey_nilValue_setBiometricIntegrityStateFailed() async throws {
-        stateService.activeAccount = .fixture()
-        stateService.setBiometricIntegrityStateError = TestError
-            .mock("setBiometricIntegrityStateFailed")
-        await assertAsyncThrows(
-            error: TestError.mock("setBiometricIntegrityStateFailed")
-        ) {
-            try await subject.setBiometricUnlockKey(authKey: nil)
-        }
-    }
-
-    /// `setBiometricUnlockKey` A failure in evaluating the biometrics policy clears any integrity state or auth key.
+    /// `setBiometricUnlockKey` A failure in evaluating the biometrics policy clears any auth key.
     func test_setBiometricUnlockKey_evaluationFalse() async throws {
         stateService.activeAccount = .fixture()
         try? await stateService.setBiometricAuthenticationEnabled(true)
-        stateService.biometricIntegrityStates = [
-            "1": "SomeState",
-        ]
         keychainService.mockStorage = [
             keychainService.formattedKey(for: .biometrics(userId: "1")): "storedKey",
         ]
@@ -408,13 +308,10 @@ final class BiometricsRepositoryTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertFalse(result)
     }
 
-    /// `setBiometricUnlockKey` can remove a user key from the keychain and track the availbility in state.
+    /// `setBiometricUnlockKey` can remove a user key from the keychain and track the availability in state.
     func test_setBiometricUnlockKey_nilValue_success() async throws {
         stateService.activeAccount = .fixture()
         try? await stateService.setBiometricAuthenticationEnabled(true)
-        stateService.biometricIntegrityStates = [
-            "1": "SomeState",
-        ]
         keychainService.mockStorage = [
             keychainService.formattedKey(for: .biometrics(userId: "1")): "storedKey",
         ]

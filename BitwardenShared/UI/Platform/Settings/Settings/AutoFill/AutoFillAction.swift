@@ -12,6 +12,9 @@ enum AutoFillAction: Equatable {
     /// The password auto-fill button was tapped.
     case passwordAutoFillTapped
 
+    /// The user tapped the get started button on the set up autofill action card.
+    case showSetUpAutofill
+
     /// The copy TOTP automatically toggle value changed.
     case toggleCopyTOTPToggle(Bool)
 }

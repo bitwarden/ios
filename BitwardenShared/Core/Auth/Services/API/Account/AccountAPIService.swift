@@ -21,6 +21,10 @@ protocol AccountAPIService {
     ///
     func checkDataBreaches(password: String) async throws -> Int
 
+    /// Converts the user's account to use key connector.
+    ///
+    func convertToKeyConnector() async throws
+
     /// Creates an API call for when the user submits an account creation form.
     ///
     /// - Parameter body: The body to be included in the request.
@@ -73,6 +77,12 @@ protocol AccountAPIService {
     ///
     func setAccountKeys(requestModel: KeysRequestModel) async throws
 
+    /// Sets the user's key from key connector.
+    ///
+    /// - Parameter requestModel: The request model containing the user's key connector key.
+    ///
+    func setKeyConnectorKey(_ requestModel: SetKeyConnectorKeyRequestModel) async throws
+
     /// Performs the API request to set the user's password.
     ///
     /// - Parameter requestModel: The request model containing the details needed to set the user's
@@ -91,6 +101,13 @@ protocol AccountAPIService {
     /// - Parameter requestModel: The request model used to send the request.
     ///
     func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws
+
+    /// Verify if the verification token received by email is still valid.
+    ///
+    /// - Parameter email: The email being used to create the account.
+    /// - Parameter emailVerificationToken: The token used to verify the email.
+    ///
+    func verifyEmailToken(email: String, emailVerificationToken: String) async throws
 
     /// Verifies that the entered one-time password matches the one sent to the user.
     ///
@@ -122,6 +139,10 @@ extension APIService: AccountAPIService {
 
         // If any returned suffixes match the password's suffix, the password has been found in a data breach.
         return response.leakedHashes[hashWithoutPrefix] ?? 0
+    }
+
+    func convertToKeyConnector() async throws {
+        _ = try await apiService.send(ConvertToKeyConnectorRequest())
     }
 
     func createNewAccount(body: CreateAccountRequestModel) async throws -> CreateAccountResponseModel {
@@ -158,6 +179,10 @@ extension APIService: AccountAPIService {
         _ = try await apiService.send(SetAccountKeysRequest(body: requestModel))
     }
 
+    func setKeyConnectorKey(_ requestModel: SetKeyConnectorKeyRequestModel) async throws {
+        _ = try await apiService.send(SetKeyConnectorKeyRequest(requestModel: requestModel))
+    }
+
     func setPassword(_ requestModel: SetPasswordRequestModel) async throws {
         _ = try await apiService.send(SetPasswordRequest(requestModel: requestModel))
     }
@@ -172,6 +197,16 @@ extension APIService: AccountAPIService {
 
     func updateTempPassword(_ requestModel: UpdateTempPasswordRequestModel) async throws {
         _ = try await apiService.send(UpdateTempPasswordRequest(requestModel: requestModel))
+    }
+
+    func verifyEmailToken(email: String, emailVerificationToken: String) async throws {
+        let request = VerifyEmailTokenRequest(
+            requestModel: VerifyEmailTokenRequestModel(
+                email: email,
+                emailVerificationToken: emailVerificationToken
+            )
+        )
+        _ = try await identityService.send(request)
     }
 
     func verifyOtp(_ otp: String) async throws {

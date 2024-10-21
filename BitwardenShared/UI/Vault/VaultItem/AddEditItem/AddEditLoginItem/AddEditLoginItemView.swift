@@ -47,7 +47,14 @@ struct AddEditLoginItemView: View {
                     fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
                     fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
                 )
-            )
+            ) {
+                if store.state.canViewPassword, store.state.editView {
+                    AccessoryButton(asset: Asset.Images.minusRound, accessibilityLabel: Localizations.removePasskey) {
+                        store.send(.removePasskeyPressed)
+                    }
+                    .accessibilityIdentifier("LoginRemovePasskeyButton")
+                }
+            }
         }
     }
 
@@ -243,7 +250,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                 }
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Empty Add Edit State")
@@ -264,7 +271,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
                 }
                 .padding(16)
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
             .ignoresSafeArea()
         }
         .previewDisplayName("Auth Key")

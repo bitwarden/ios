@@ -30,6 +30,10 @@ extension AuthRouter {
         }
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
+        } else if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
+            return .vaultUnlockSetup(.createAccount)
+        } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
+            return .autofillSetup
         } else {
             await setCarouselShownIfEnabled()
             return .complete
@@ -162,7 +166,10 @@ extension AuthRouter {
             }
         }
         do {
-            try await services.authRepository.logout(userId: accountToLogOut.profile.userId)
+            try await services.authRepository.logout(
+                userId: accountToLogOut.profile.userId,
+                userInitiated: userInitiated
+            )
             if let previouslyActiveAccount,
                accountToLogOut.profile.userId != previouslyActiveAccount.profile.userId {
                 return await handleAndRoute(
@@ -206,9 +213,13 @@ extension AuthRouter {
     func preparedStartRoute() async -> AuthRoute {
         guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
             // If no account can be set to active, go to the landing or carousel screen.
-            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(
+                .nativeCarouselFlow,
+                isPreAuth: true
+            )
             let introCarouselShown = await services.stateService.getIntroCarouselShown()
-            return isCarouselEnabled && !introCarouselShown ? .introCarousel : .landing
+            let shouldShowCarousel = isCarouselEnabled && !introCarouselShown && !isInAppExtension
+            return shouldShowCarousel ? .introCarousel : .landing
         }
 
         // If there's existing accounts, mark the carousel as shown.
@@ -269,10 +280,10 @@ extension AuthRouter {
             case .logout:
                 // If there is a timeout and the user has a logout vault action,
                 //  log out the user.
-                try await services.authRepository.logout(userId: userId)
+                try await services.authRepository.logout(userId: userId, userInitiated: false)
 
-                // Go to landing.
-                return .landing
+                let account = try await services.authRepository.getAccount()
+                return .landingSoftLoggedOut(email: account.profile.email)
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -321,7 +332,7 @@ extension AuthRouter {
     /// - Parameters:
     ///    - activeAccount: The active account.
     ///    - animated: If the suggested route can be animated, use this value.
-    ///    - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic bioemtrics unlock,
+    ///    - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic biometrics unlock,
     ///      this value enables or disables the feature.
     ///    - shouldAttemptAccountSwitch: Should the application automatically switch accounts for the user?
     /// - Returns: A suggested route for the active account with state pre-configured.
@@ -346,7 +357,10 @@ extension AuthRouter {
             case (_, false):
                 return .complete
             default:
-                // Otherwise, return `.vaultUnlock`.
+                guard try await services.stateService.isAuthenticated(userId: userId) else {
+                    return .landingSoftLoggedOut(email: activeAccount.profile.email)
+                }
+
                 return .vaultUnlock(
                     activeAccount,
                     animated: animated,
@@ -371,7 +385,7 @@ extension AuthRouter {
     /// existing account or once logging in or creating an account is successful.
     ///
     private func setCarouselShownIfEnabled() async {
-        let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+        let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow, isPreAuth: true)
         let introCarouselShown = await services.stateService.getIntroCarouselShown()
         if isCarouselEnabled, !introCarouselShown {
             await services.stateService.setIntroCarouselShown(true)

@@ -1,11 +1,11 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // MARK: - AddEditSendItemState
 
 /// An object that defines the current state of a `AddEditSendItemView`.
 ///
-struct AddEditSendItemState: Equatable {
+struct AddEditSendItemState: Equatable, Sendable {
     // MARK: Types
 
     enum Mode: Equatable {
@@ -21,12 +21,13 @@ struct AddEditSendItemState: Equatable {
         /// The navigation title to use for this mode.
         var navigationTitle: String {
             switch self {
-            case .add:
-                Localizations.addSend
+            case .add,
+                 .shareExtension:
+                Localizations.newSend.capitalized(
+                    with: Locale(identifier: UI.initialLanguageCode ?? "")
+                )
             case .edit:
                 Localizations.editSend
-            case .shareExtension:
-                Localizations.addSend
             }
         }
     }

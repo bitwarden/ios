@@ -13,6 +13,10 @@ protocol AutofillCredentialServiceDelegate: AnyObject {
 /// A service which manages the ciphers exposed to the system for AutoFill suggestions.
 ///
 protocol AutofillCredentialService: AnyObject {
+    /// Returns whether autofilling credentials via the extension is enabled.
+    ///
+    func isAutofillCredentialsEnabled() async -> Bool
+
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be
     /// used for autofill.
     ///
@@ -88,6 +92,9 @@ class DefaultAutofillCredentialService {
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
 
+    /// The service used by the application to validate TOTP keys and produce TOTP values
+    private let totpService: TOTPService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -113,6 +120,7 @@ class DefaultAutofillCredentialService {
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
     init(
@@ -125,6 +133,7 @@ class DefaultAutofillCredentialService {
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         pasteboardService: PasteboardService,
         stateService: StateService,
+        totpService: TOTPService,
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.cipherService = cipherService
@@ -136,6 +145,7 @@ class DefaultAutofillCredentialService {
         self.identityStore = identityStore
         self.pasteboardService = pasteboardService
         self.stateService = stateService
+        self.totpService = totpService
         self.vaultTimeoutService = vaultTimeoutService
 
         Task {
@@ -257,6 +267,10 @@ class DefaultAutofillCredentialService {
 }
 
 extension DefaultAutofillCredentialService: AutofillCredentialService {
+    func isAutofillCredentialsEnabled() async -> Bool {
+        await identityStore.isAutofillEnabled()
+    }
+
     func provideCredential(
         for id: String,
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
@@ -284,13 +298,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             throw ASExtensionError(.userInteractionRequired)
         }
 
-        let disableAutoTotpCopy = try await stateService.getDisableAutoTotpCopy()
-        let accountHasPremium = try await stateService.doesActiveAccountHavePremium()
-        if !disableAutoTotpCopy,
-           let totp = cipher.login?.totp,
-           cipher.organizationUseTotp || accountHasPremium {
-            let codeModel = try await clientService.vault().generateTOTPCode(for: totp, date: nil)
-            pasteboardService.copy(codeModel.code)
+        do {
+            try await totpService.copyTotpIfPossible(cipher: cipher)
+        } catch {
+            errorReporter.log(error: error)
         }
 
         await eventService.collect(
@@ -380,6 +391,12 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             Fido2DebuggingReportBuilder.builder.withGetAssertionResult(.success(assertionResult))
             #endif
 
+            do {
+                try await totpService.copyTotpIfPossible(cipher: assertionResult.selectedCredential.cipher)
+            } catch {
+                errorReporter.log(error: error)
+            }
+
             return ASPasskeyAssertionCredential(
                 userHandle: assertionResult.userHandle,
                 relyingParty: rpId,
@@ -458,6 +475,14 @@ protocol CredentialIdentityStore {
     /// - Returns: The state of the credential identity store.
     ///
     func state() async -> ASCredentialIdentityStoreState
+}
+
+extension CredentialIdentityStore {
+    /// Returns whether autofilling credentials via the extension is enabled.
+    ///
+    func isAutofillEnabled() async -> Bool {
+        await state().isEnabled
+    }
 }
 
 // MARK: - ASCredentialIdentityStore+CredentialIdentityStore

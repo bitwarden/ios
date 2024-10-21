@@ -66,12 +66,14 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     // MARK: Tests
 
     /// `getter:isAutofillingFromList` returns `false` when delegate is not a Fido2 one.
+    @MainActor
     func test_isAutofillingFromList_falseNoFido2Delegate() async throws {
         XCTAssertFalse(subject.isAutofillingFromList)
     }
 
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and completes the
     /// autofill request.
+    @MainActor
     func test_perform_vaultItemTapped() async {
         let vaultListItem = VaultListItem(
             cipherView: CipherView.fixture(login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
@@ -85,6 +87,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `vaultItemTapped(_:)` has the autofill helper handle autofill for the cipher and shows a toast
     /// if a cipher value was copied instead of autofilled.
+    @MainActor
     func test_perform_vaultItemTapped_showToast() async throws {
         let vaultListItem = VaultListItem(
             cipherView: CipherView.fixture(login: .fixture(password: "PASSWORD", username: nil))
@@ -100,10 +103,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         try await alert.tapAction(title: Localizations.copyPassword)
 
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
     }
 
     /// `perform(_:)` with `.loadData` loads the profile switcher state.
+    @MainActor
     func test_perform_loadData_profileSwitcher() async {
         authRepository.profileSwitcherState = ProfileSwitcherState(
             accounts: [.anneAccount],
@@ -118,6 +122,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.loadData` loads an empty state the profile switcher.
+    @MainActor
     func test_perform_loadData_profileSwitcher_empty() async {
         authRepository.profileSwitcherState = .empty()
 
@@ -128,6 +133,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `perform(_:)` with `.profileSwitcher(.accountPressed)` updates the profile switcher's
     /// visibility and navigates to switch account.
+    @MainActor
     func test_perform_profileSwitcher_accountPressed() async {
         subject.state.profileSwitcherState.isVisible = true
         await subject.perform(.profileSwitcher(.accountPressed(ProfileSwitcherItem.fixture(userId: "1"))))
@@ -145,6 +151,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.profileSwitcher(.lock)` does nothing.
+    @MainActor
     func test_perform_profileSwitcher_lock() async {
         subject.state.profileSwitcherState.isVisible = true
         await subject.perform(.profileSwitcher(.accessibility(.lock(.fixture()))))
@@ -153,6 +160,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.profileSwitcher(.requestedProfileSwitcher(visible:))` updates the state correctly.
+    @MainActor
     func test_perform_profileSwitcher_toggleProfilesViewVisibility() async {
         subject.state.profileSwitcherState.isVisible = false
         await subject.perform(.profileSwitcher(.requestedProfileSwitcher(visible: true)))
@@ -161,6 +169,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
+    @MainActor
     func test_perform_search() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
         let expectedSection = VaultListSection(
@@ -182,6 +191,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.search()` doesn't perform a search if the search string is empty.
+    @MainActor
     func test_perform_search_empty() async {
         await subject.perform(.search(" "))
 
@@ -190,6 +200,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and logs an error if one occurs.
+    @MainActor
     func test_perform_search_error() {
         let task = Task {
             await subject.perform(.search("example"))
@@ -205,6 +216,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.search()` sets the `showNoResults` flag if the search resulted in no results.
+    @MainActor
     func test_perform_search_noResults() {
         let task = Task {
             await subject.perform(.search("example"))
@@ -217,6 +229,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
+    @MainActor
     func test_perform_streamAutofillItems() {
         let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
         let expectedSection = VaultListSection(
@@ -237,6 +250,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `perform(_:)` with `.streamAutofillItems` logs an error if one occurs.
+    @MainActor
     func test_perform_streamAutofillItems_error() {
         let task = Task {
             await subject.perform(.streamAutofillItems)
@@ -253,6 +267,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
     /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
     /// web icons parameter from the state service.
+    @MainActor
     func test_perform_streamShowWebIcons() {
         let task = Task {
             await subject.perform(.streamShowWebIcons)
@@ -265,6 +280,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
+    @MainActor
     func test_receive_addTapped() {
         subject.receive(.addTapped(fromToolbar: false))
 
@@ -275,6 +291,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible.
+    @MainActor
     func test_receive_addTapped_hidesProfileSwitcher() {
         subject.state.profileSwitcherState.isVisible = true
 
@@ -284,6 +301,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.addTapped` navigates to the add item view when adding from toolbar.
+    @MainActor
     func test_receive_addTapped_fromToolbar() {
         subject.receive(.addTapped(fromToolbar: true))
 
@@ -294,6 +312,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.addTapped` hides the profile switcher if it's visible when adding from toolbar.
+    @MainActor
     func test_receive_addTapped_hidesProfileSwitcher_fromToolbar() {
         subject.state.profileSwitcherState.isVisible = true
 
@@ -303,6 +322,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.cancelTapped` notifies the delegate to cancel the extension.
+    @MainActor
     func test_receive_cancelTapped() {
         subject.receive(.cancelTapped)
 
@@ -310,6 +330,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.profileSwitcher(.backgroundPressed)` turns off the Profile Switcher Visibility.
+    @MainActor
     func test_receive_profileSwitcher_backgroundPressed() {
         subject.state.profileSwitcherState.isVisible = true
         subject.receive(.profileSwitcher(.backgroundPressed))
@@ -318,6 +339,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.profileSwitcher(.logout)` does nothing.
+    @MainActor
     func test_receive_profileSwitcher_logout() async {
         subject.state.profileSwitcherState.isVisible = true
         subject.receive(.profileSwitcher(.accessibility(.logout(.fixture()))))
@@ -325,14 +347,8 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
-    /// `receive(_:)` with `.profileSwitcher(.scrollOffsetChanged)` updates the scroll offset.
-    func test_receive_profileSwitcher_scrollOffset() {
-        subject.state.profileSwitcherState.scrollOffset = .zero
-        subject.receive(.profileSwitcher(.scrollOffsetChanged(CGPoint(x: 10, y: 10))))
-        XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, CGPoint(x: 10, y: 10))
-    }
-
     /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes.
+    @MainActor
     func test_receive_searchStateChanged() {
         subject.receive(.searchStateChanged(isSearching: true))
 
@@ -348,6 +364,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.searchStateChanged(isSearching: true)` hides the profile switcher.
+    @MainActor
     func test_receive_searchStateChanged_true_profilesHide() {
         subject.state.profileSwitcherState.isVisible = true
         subject.receive(.searchStateChanged(isSearching: true))
@@ -356,6 +373,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.searchTextChanged` updates the state's search text value.
+    @MainActor
     func test_receive_searchTextChanged() {
         subject.receive(.searchTextChanged("Bit"))
         XCTAssertEqual(subject.state.searchText, "Bit")
@@ -365,8 +383,9 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 
@@ -375,14 +394,16 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     }
 
     /// `showAlert(_:onDismissed:)` shows the alert with the coordinator.
+    @MainActor
     func test_showAlert_withOnDismissed() async throws {
         subject.showAlert(Alert(title: "Test", message: "testing"), onDismissed: nil)
         XCTAssertFalse(coordinator.alertShown.isEmpty)
     }
 
     /// `showAlert(_:)` shows the alert with the coordinator.
+    @MainActor
     func test_showAlert() async throws {
         subject.showAlert(Alert(title: "Test", message: "testing"))
         XCTAssertFalse(coordinator.alertShown.isEmpty)
     }
-}
+} // swiftlint:disable:this file_length

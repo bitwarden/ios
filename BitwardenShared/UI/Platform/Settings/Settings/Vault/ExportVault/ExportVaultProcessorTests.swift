@@ -49,6 +49,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     // MARK: Tests
 
     /// Test that an alert is displayed if the user tries to export with an invalid password.
+    @MainActor
     func test_invalidPassword() async throws {
         authRepository.validatePasswordResult = .success(false)
         subject.state.masterPasswordOrOtpText = "password"
@@ -61,6 +62,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// Test that an error is recorded if there was an error validating the password.
+    @MainActor
     func test_invalidPassword_error() async throws {
         authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
         subject.state.masterPasswordOrOtpText = "password"
@@ -73,6 +75,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `loadData` loads the initial data for the view.
+    @MainActor
     func test_perform_loadData() async {
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.disableIndividualVaultExport)
@@ -83,6 +86,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `perform()` with `.sendCodeTapped` requests an OTP code for the user.
+    @MainActor
     func test_perform_sendCodeTapped() async {
         await subject.perform(.sendCodeTapped)
 
@@ -90,11 +94,12 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.sendingCode)])
         XCTAssertTrue(authRepository.requestOtpCalled)
         XCTAssertTrue(subject.state.isSendCodeButtonDisabled)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.codeSent)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.codeSent))
     }
 
     /// `perform()` with `.sendCodeTapped` records an error and displays an alert if requesting the
     /// OTP code fails.
+    @MainActor
     func test_perform_sendCodeTapped_error() async {
         authRepository.requestOtpResult = .failure(BitwardenTestError.example)
 
@@ -105,6 +110,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.dismiss` dismisses the view and clears any files.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
@@ -114,6 +120,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `.receive()` with  `.exportVaultTapped` shows the confirm alert for encrypted formats and
     /// exports the vault.
+    @MainActor
     func test_receive_exportVaultTapped_encrypted() throws {
         let testURL = URL(string: "www.bitwarden.com")!
         exportService.exportVaultContentResult = .success("")
@@ -138,6 +145,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
+    @MainActor
     func test_receive_exportVaultTapped_encrypted_error() throws {
         exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .jsonEncrypted
@@ -157,6 +165,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password fields don't match.
+    @MainActor
     func test_receive_exportVaultTapped_encrypted_filePasswordMismatch() {
         subject.state.fileFormat = .jsonEncrypted
         subject.state.filePasswordText = "filePassword"
@@ -168,6 +177,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password is missing.
+    @MainActor
     func test_receive_exportVaultTapped_encrypted_missingFilePassword() {
         subject.state.fileFormat = .jsonEncrypted
 
@@ -184,6 +194,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password confirmation is missing.
+    @MainActor
     func test_receive_exportVaultTapped_encrypted_missingFilePasswordConfirmation() {
         subject.state.fileFormat = .jsonEncrypted
         subject.state.filePasswordText = "file password"
@@ -201,6 +212,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with  `.exportVaultTapped` shows an alert if the master password is missing.
+    @MainActor
     func test_receive_exportVaultTapped_missingMasterPassword() {
         subject.receive(.exportVaultTapped)
 
@@ -215,6 +227,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.exportVaultTapped` shows the confirm alert for unencrypted formats.
+    @MainActor
     func test_receive_exportVaultTapped_unencrypted() {
         subject.state.fileFormat = .json
         subject.state.masterPasswordOrOtpText = "password"
@@ -225,6 +238,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
+    @MainActor
     func test_receive_exportVaultTapped_unencrypted_error() throws {
         exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .csv
@@ -242,6 +256,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with  `.exportVaultTapped` passes a file url to the coordinator on success.
+    @MainActor
     func test_receive_exportVaultTapped_unencrypted_success() throws {
         let testURL = URL(string: "www.bitwarden.com")!
         exportService.exportVaultContentResult = .success("")
@@ -262,6 +277,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `.receive()` with  `.exportVaultTapped` clears the user's master password after exporting
     /// the vault successfully.
+    @MainActor
     func test_receive_exportVaultTapped_success_clearsPasswords() async throws {
         let testURL = URL(string: "www.bitwarden.com")!
         exportService.exportVaultContentResult = .success("")
@@ -285,6 +301,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `receive()` with `.exportVaultTapped` verifies the user's OTP code and exports the vault if
     /// the user doesn't have a master password.
+    @MainActor
     func test_receive_exportVaultTapped_noMasterPassword_success() async throws {
         let testURL = URL(string: "www.bitwarden.com")!
         exportService.exportVaultContentResult = .success("")
@@ -303,6 +320,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive()` with `.exportVaultTapped` displays an alert if OTP verification fails.
+    @MainActor
     func test_receive_exportVaultTapped_noMasterPassword_otpVerificationFailure() async throws {
         authRepository.verifyOtpResult = .failure(
             ServerError.error(
@@ -322,6 +340,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.fileFormatTypeChanged()` updates the file format.
+    @MainActor
     func test_receive_fileFormatTypeChanged() {
         subject.receive(.fileFormatTypeChanged(.csv))
 
@@ -329,6 +348,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.filePasswordTextChanged()` updates the file password text.
+    @MainActor
     func test_receive_filePasswordTextChanged() {
         subject.receive(.filePasswordTextChanged("file password"))
 
@@ -336,16 +356,19 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.filePasswordTextChanged()` updates the password strength.
+    @MainActor
     func test_receive_filePasswordTextChanged_updatesPasswordStrength() {
         authRepository.passwordStrengthResult = 1
         subject.receive(.filePasswordTextChanged("file"))
         waitFor(subject.state.filePasswordStrengthScore == 1)
+        XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "file")
         XCTAssertEqual(subject.state.filePasswordStrengthScore, 1)
 
         authRepository.passwordStrengthResult = 4
         subject.receive(.filePasswordTextChanged("file password"))
         waitFor(subject.state.filePasswordStrengthScore == 4)
+        XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "file password")
         XCTAssertEqual(subject.state.filePasswordStrengthScore, 4)
 
@@ -354,6 +377,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.filePasswordConfirmationTextChanged()` updates the file password confirmation text.
+    @MainActor
     func test_receive_filePasswordConfirmationTextChanged() {
         subject.receive(.filePasswordConfirmationTextChanged("file password"))
 
@@ -361,6 +385,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.masterPasswordOrOtpTextChanged()` updates the master password/OTP text.
+    @MainActor
     func test_receive_masterPasswordOrOtpTextChanged() {
         subject.receive(.masterPasswordOrOtpTextChanged("password"))
 
@@ -368,8 +393,9 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 
@@ -378,6 +404,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.toggleFilePasswordVisibility()` toggles the file password visibility.
+    @MainActor
     func test_receive_toggleFilePasswordVisibility() {
         subject.receive(.toggleFilePasswordVisibility(true))
         XCTAssertTrue(subject.state.isFilePasswordVisible)
@@ -387,6 +414,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     }
 
     /// `.receive()` with `.toggleMasterPasswordOrOtpVisibility()` toggles the master password/OTP visibility.
+    @MainActor
     func test_receive_toggleMasterPasswordOrOtpVisibility() {
         subject.receive(.toggleMasterPasswordOrOtpVisibility(true))
         XCTAssertTrue(subject.state.isMasterPasswordOrOtpVisible)
@@ -394,4 +422,4 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.receive(.toggleMasterPasswordOrOtpVisibility(false))
         XCTAssertFalse(subject.state.isMasterPasswordOrOtpVisible)
     }
-}
+} // swiftlint:disable:this file_length

@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 
 // MARK: - PolicyService
 
@@ -51,7 +51,7 @@ protocol PolicyService: AnyObject {
 /// A default implementation of a `PolicyService` which manages syncing and updates to the user's
 /// policies.
 ///
-class DefaultPolicyService: PolicyService {
+actor DefaultPolicyService: PolicyService {
     // MARK: Properties
 
     /// The data store for managing the persisted policies for the user.
@@ -71,6 +71,7 @@ class DefaultPolicyService: PolicyService {
     /// Initialize a `DefaultPolicyService`.
     ///
     /// - Parameters:
+    ///   - organizationService: The service for managing the organizations for the user.
     ///   - policyDataStore: The data store for managing the persisted policies for the user.
     ///   - stateService: The service used by the application to manage account state.
     ///
@@ -94,6 +95,10 @@ class DefaultPolicyService: PolicyService {
     /// - Returns: Whether the organization is exempt from the policy.
     ///
     private func isOrganization(_ organization: Organization, exemptFrom policyType: PolicyType) -> Bool {
+        if policyType == .passwordGenerator {
+            return false
+        }
+
         if policyType == .maximumVaultTimeout {
             return organization.type == .owner
         }
@@ -175,14 +180,16 @@ extension DefaultPolicyService {
         // When determining the generator type, ignore the existing option's type to find the preferred
         // default type based on the policies. Then set it on `options` below.
         var generatorType: PasswordGeneratorType?
+        options.overridePasswordType = false
         for policy in policies {
-            if let defaultTypeString = policy[.defaultType]?.stringValue,
-               let defaultType = PasswordGeneratorType(rawValue: defaultTypeString),
+            if let overridePasswordTypeString = policy[.overridePasswordType]?.stringValue,
+               let overridePasswordType = PasswordGeneratorType(rawValue: overridePasswordTypeString),
                generatorType != .password {
                 // If there's multiple policies with different default types, the password type
                 // should take priority. Use `generateType` as opposed to `options.type` to ignore
                 // the existing type in the options.
-                generatorType = defaultType
+                generatorType = overridePasswordType
+                options.overridePasswordType = true
             }
 
             if let minLength = policy[.minLength]?.intValue {

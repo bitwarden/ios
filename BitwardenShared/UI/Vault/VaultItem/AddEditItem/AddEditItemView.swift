@@ -76,7 +76,7 @@ struct AddEditItemView: View {
         .animation(.default, value: store.state.collectionsForOwner)
         .dismissKeyboardImmediately()
         .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            Asset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
@@ -140,7 +140,7 @@ struct AddEditItemView: View {
                 BitwardenMenuField(
                     title: Localizations.type,
                     accessibilityIdentifier: "ItemTypePicker",
-                    options: CipherType.allCases,
+                    options: CipherType.canCreateCases,
                     selection: store.binding(
                         get: \.type,
                         send: AddEditItemAction.typeChanged
@@ -166,6 +166,8 @@ struct AddEditItemView: View {
                 EmptyView()
             case .identity:
                 identityItems
+            case .sshKey:
+                sshKeyItems
             }
         }
     }
@@ -192,6 +194,17 @@ struct AddEditItemView: View {
                 },
                 mapAction: { $0 },
                 mapEffect: { $0 }
+            )
+        )
+    }
+
+    @ViewBuilder private var sshKeyItems: some View {
+        ViewSSHKeyItemView(
+            showCopyButtons: false,
+            store: store.child(
+                state: { _ in store.state.sshKeyState },
+                mapAction: { .sshKeyItemAction($0) },
+                mapEffect: nil
             )
         )
     }
@@ -228,7 +241,7 @@ private extension AddEditItemView {
                         } label: {
                             Asset.Images.questionRound.swiftUIImage
                         }
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                         .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
                     }
                 }
@@ -408,7 +421,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                         state: {
                             var state = cipherState
                             state.loginState.totpState = .init("JBSWY3DPEHPK3PXP")
-                            state.toast = Toast(text: "Authenticator key added.")
+                            state.toast = Toast(title: "Authenticator key added.")
                             return state
                         }()
                     )

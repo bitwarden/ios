@@ -13,12 +13,43 @@ extension ProfileSwitcherItem {
         email: "bee.account@bitwarden.com",
         userInitials: "BA"
     )
+
+    static let fixtureLocked = ProfileSwitcherItem.fixture(
+        color: .purple,
+        email: "anne.account@bitwarden.com",
+        isLoggedOut: false,
+        isUnlocked: false,
+        userId: "2",
+        userInitials: "AA",
+        webVault: "bitwarden.com"
+    )
+
+    static let fixtureLoggedOut = ProfileSwitcherItem.fixture(
+        color: .purple,
+        email: "anne.account@bitwarden.com",
+        isLoggedOut: true,
+        isUnlocked: false,
+        userId: "2",
+        userInitials: "AA",
+        webVault: "bitwarden.com"
+    )
+
+    static let fixtureUnlocked = ProfileSwitcherItem.fixture(
+        color: .purple,
+        email: "anne.account@bitwarden.com",
+        isLoggedOut: false,
+        isUnlocked: true,
+        userId: "2",
+        userInitials: "AA",
+        webVault: "bitwarden.com"
+    )
 }
 
 extension ProfileSwitcherItem {
     static func fixture(
         color: Color = .purple,
         email: String = "",
+        isLoggedOut: Bool = false,
         isUnlocked: Bool = false,
         userId: String = UUID().uuidString,
         userInitials: String? = nil,
@@ -27,6 +58,7 @@ extension ProfileSwitcherItem {
         ProfileSwitcherItem(
             color: color,
             email: email,
+            isLoggedOut: isLoggedOut,
             isUnlocked: isUnlocked,
             userId: userId,
             userInitials: userInitials,

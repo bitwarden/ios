@@ -21,13 +21,6 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
-    /// The legacy system biometric integrity state `Data`, base64 encoded.
-    ///
-    /// NOTE: This is only used for migrating from the legacy app and isn't constrained to a
-    ///     specific user, `biometricIntegrityState(userId:)` should be used instead.
-    ///
-    var biometricIntegrityStateLegacy: String? { get set }
-
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -47,6 +40,9 @@ protocol AppSettingsStore: AnyObject {
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
 
+    /// The server config used prior to user authentication.
+    var preAuthServerConfig: ServerConfig? { get set }
+
     /// The email being remembered on the landing screen.
     var rememberedEmail: String? { get set }
 
@@ -56,6 +52,27 @@ protocol AppSettingsStore: AnyObject {
     /// The app's account state.
     var state: State? { get set }
 
+    /// The user's progress for setting up autofill.
+    ///
+    /// - Parameter userId: The user ID associated with the stored autofill setup progress.
+    /// - Returns: The user's autofill setup progress.
+    ///
+    func accountSetupAutofill(userId: String) -> AccountSetupProgress?
+
+    /// The user's progress for importing logins.
+    ///
+    /// - Parameter userId: The user ID associated with the stored import logins setup progress.
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress?
+
+    /// The user's progress for setting up vault unlock.
+    ///
+    /// - Parameter userId: The user ID associated with the stored vault unlock setup progress.
+    /// - Returns: The user's vault unlock setup progress.
+    ///
+    func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress?
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameter userId: The user ID associated with the sync on refresh setting.
@@ -63,14 +80,6 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the vault should sync on refreshing.
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
-
-    /// The system biometric integrity state `Data`, base64 encoded.
-    ///
-    /// - Parameter userId: The user ID associated with the Biometric Integrity State.
-    /// - Returns: A base64 encoded `String`
-    ///  representing the last known Biometric Integrity State `Data` for the userID.
-    ///
-    func biometricIntegrityState(userId: String) -> String?
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -87,6 +96,18 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to connect to the watch app.
     ///
     func connectToWatch(userId: String) -> Bool
+
+    /// Retrieves a feature flag value from the app's settings store.
+    ///
+    /// This method fetches the value for a specified feature flag from the app's settings store.
+    /// The value is returned as a `Bool`. If the flag does not exist or cannot be decoded,
+    /// the method returns `nil`.
+    ///
+    /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
+    /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
+    ///     or cannot be decoded.
+    ///
+    func debugFeatureFlag(name: String) -> Bool?
 
     /// Gets the default URI match type.
     ///
@@ -166,6 +187,19 @@ protocol AppSettingsStore: AnyObject {
     ///
     func notificationsLastRegistrationDate(userId: String) -> Date?
 
+    /// Sets a feature flag value in the app's settings store.
+    ///
+    /// This method updates or removes the value for a specified feature flag in the app's settings store.
+    /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
+    /// is set to the provided boolean value.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the feature flag to set or remove, represented as a `String`.
+    ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
+    ///    from the settings store.
+    ///
+    func overrideDebugFeatureFlag(name: String, value: Bool?)
+
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -180,11 +214,43 @@ protocol AppSettingsStore: AnyObject {
     ///
     func pinProtectedUserKey(userId: String) -> String?
 
+    /// Gets the environment URLs used to start the account creation flow.
+    ///
+    /// - Parameters:
+    ///  - email: The email used to start the account creation.
+    /// - Returns: The environment URLs used prior to start the account creation.
+    ///
+    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData?
+
     /// The server configuration.
     ///
     /// - Parameter userId: The user ID associated with the server config.
     /// - Returns: The server config for that user ID.
     func serverConfig(userId: String) -> ServerConfig?
+
+    /// Sets the user's progress for autofill setup.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's autofill setup progress.
+    ///   - userId: The user ID associated with the stored autofill setup progress.
+    ///
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String)
+
+    /// Sets the user's progress for import logins setup.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's import logins setup progress.
+    ///   - userId: The user ID associated with the stored import logins setup progress.
+    ///
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String)
+
+    /// Sets the user's progress for vault unlock setup.
+    ///
+    /// - Parameters:
+    ///   - vaultUnlockSetup: The user's vault unlock setup progress.
+    ///   - userId: The user ID associated with the stored autofill setup progress.
+    ///
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String)
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -203,14 +269,6 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the biometric authentication preference.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String)
-
-    /// Sets a biometric integrity state `Data` as a base64 encoded `String`.
-    ///
-    /// - Parameters:
-    ///   - base64EncodedIntegrityState: The biometric integrity state `Data`, encoded as a base64 `String`.
-    ///   - userId: The user ID associated with the Biometric Integrity State.
-    ///
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String)
 
     /// Sets the time after which the clipboard should be cleared.
     ///
@@ -326,6 +384,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setPinProtectedUserKey(key: String?, userId: String)
 
+    /// Sets the environment URLs used to start the account creation flow.
+    ///
+    /// - Parameters:
+    ///  - email: The user's email address.
+    ///  - environmentUrlData: The environment data to be saved.
+    ///
+    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String)
+
     /// Sets the server config.
     ///
     /// - Parameters:
@@ -334,20 +400,19 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String)
 
-    /// Sets whether or not we should check for unassigned ciphers in an organization for
-    /// a particular user.
-    ///
-    /// - Parameters:
-    ///   - shouldCheck: Whether or not we should check for unassigned ciphers.
-    ///   - userId: The user ID to track.
-    ///
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String)
-
     /// Set whether to trust the device.
     ///
     /// - Parameter shouldTrustDevice: Whether to trust the device.
     ///
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String)
+
+    /// Sets the sync to Authenticator setting for the user.
+    ///
+    /// - Parameters:
+    ///   - syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
+    ///   - userId: The user ID associated with the sync to Authenticator value.
+    ///
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String)
 
     /// Sets the user's timeout action.
     ///
@@ -373,6 +438,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
 
+    /// Sets whether the user uses key connector.
+    ///
+    /// - Parameters:
+    ///   - usesKeyConnector: Whether the user uses key connector.
+    ///   - userId: The user ID to set whether they use key connector.
+    ///
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String)
+
     /// Sets the user's session timeout, in minutes.
     ///
     /// - Parameters:
@@ -389,18 +462,19 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions?, userId: String)
 
-    /// Gets whether or not we should check for unassigned ciphers in an organization for
-    /// a particular user.
-    ///
-    /// - Parameter userId: The user ID to check.
-    ///
-    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool?
-
     /// Get whether the device should be trusted.
     ///
     /// - Returns: Whether to trust the device.
     ///
     func shouldTrustDevice(userId: String) -> Bool?
+
+    /// Gets the sync to Authenticator setting for the user.
+    ///
+    /// - Parameter userId: The user ID associated with the sync to Authenticator value.
+    ///
+    /// - Returns: Whether to sync TOTP codes with the Authenticator app.
+    ///
+    func syncToAuthenticator(userId: String) -> Bool
 
     /// Returns the action taken upon a session timeout.
     ///
@@ -429,6 +503,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The number of unsuccessful attempts to unlock the vault.
     ///
     func unsuccessfulUnlockAttempts(userId: String) -> Int
+
+    /// Gets whether the user uses key connector.
+    ///
+    /// - Parameter userId: The user ID to check if they use key connector.
+    /// - Returns: Whether the user uses key connector.
+    ///
+    func usesKeyConnector(userId: String) -> Bool
 
     /// Returns the session timeout in minutes.
     ///
@@ -561,16 +642,18 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
+        case accountSetupAutofill(userId: String)
+        case accountSetupImportLogins(userId: String)
+        case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
         case appTheme
         case biometricAuthEnabled(userId: String)
-        case biometricIntegrityState(userId: String, bundleId: String)
-        case biometricIntegrityStateLegacy
         case clearClipboardValue(userId: String)
         case connectToWatch(userId: String)
+        case debugFeatureFlag(name: String)
         case defaultUriMatch(userId: String)
         case disableAutoTotpCopy(userId: String)
         case disableWebIcons
@@ -589,15 +672,18 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentUrls
+        case accountCreationEnvironmentUrls(email: String)
+        case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
         case serverConfig(userId: String)
-        case shouldCheckOrganizationUnassignedItems(userId: String)
         case shouldTrustDevice(userId: String)
+        case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
+        case usesKeyConnector(userId: String)
         case vaultTimeout(userId: String)
         case vaultTimeoutAction(userId: String)
 
@@ -605,6 +691,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         var storageKey: String {
             let key: String
             switch self {
+            case let .accountSetupAutofill(userId):
+                key = "accountSetupAutofill_\(userId)"
+            case let .accountSetupImportLogins(userId):
+                key = "accountSetupImportLogins_\(userId)"
+            case let .accountSetupVaultUnlock(userId):
+                key = "accountSetupVaultUnlock_\(userId)"
             case .addSitePromptShown:
                 key = "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
@@ -617,14 +709,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "theme"
             case let .biometricAuthEnabled(userId):
                 key = "biometricUnlock_\(userId)"
-            case let .biometricIntegrityState(userId, bundleId):
-                key = "biometricIntegritySource_\(userId)_\(bundleId)"
-            case .biometricIntegrityStateLegacy:
-                key = "biometricIntegritySource"
             case let .clearClipboardValue(userId):
                 key = "clearClipboard_\(userId)"
             case let .connectToWatch(userId):
                 key = "shouldConnectToWatch_\(userId)"
+            case let .debugFeatureFlag(name):
+                key = "debugFeatureFlag_\(name)"
             case let .defaultUriMatch(userId):
                 key = "defaultUriMatch_\(userId)"
             case let .disableAutoTotpCopy(userId):
@@ -661,24 +751,30 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentUrls:
                 key = "preAuthEnvironmentUrls"
+            case let .accountCreationEnvironmentUrls(email):
+                key = "accountCreationEnvironmentUrls_\(email)"
+            case .preAuthServerConfig:
+                key = "preAuthServerConfig"
             case .rememberedEmail:
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
-            case let .shouldCheckOrganizationUnassignedItems(userId):
-                key = "shouldCheckOrganizationUnassignedItems_\(userId)"
             case let .shouldTrustDevice(userId):
                 key = "shouldTrustDevice_\(userId)"
             case .state:
                 key = "state"
+            case let .syncToAuthenticator(userId):
+                key = "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
                 key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
                 key = "invalidUnlockAttempts_\(userId)"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
+            case let .usesKeyConnector(userId):
+                key = "usesKeyConnector_\(userId)"
             case let .vaultTimeout(userId):
                 key = "vaultTimeout_\(userId)"
             case let .vaultTimeoutAction(userId):
@@ -706,11 +802,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
-    }
-
-    var biometricIntegrityStateLegacy: String? {
-        get { fetch(for: .biometricIntegrityStateLegacy) }
-        set { store(newValue, for: .biometricIntegrityStateLegacy) }
     }
 
     var disableWebIcons: Bool {
@@ -743,6 +834,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .preAuthEnvironmentUrls) }
     }
 
+    var preAuthServerConfig: ServerConfig? {
+        get { fetch(for: .preAuthServerConfig) }
+        set { store(newValue, for: .preAuthServerConfig) }
+    }
+
     var rememberedEmail: String? {
         get { fetch(for: .rememberedEmail) }
         set { store(newValue, for: .rememberedEmail) }
@@ -761,17 +857,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         }
     }
 
-    func allowSyncOnRefresh(userId: String) -> Bool {
-        fetch(for: .allowSyncOnRefresh(userId: userId))
+    func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
+        fetch(for: .accountSetupAutofill(userId: userId))
     }
 
-    func biometricIntegrityState(userId: String) -> String? {
-        fetch(
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId
-            )
-        )
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress? {
+        fetch(for: .accountSetupImportLogins(userId: userId))
+    }
+
+    func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
+        fetch(for: .accountSetupVaultUnlock(userId: userId))
+    }
+
+    func allowSyncOnRefresh(userId: String) -> Bool {
+        fetch(for: .allowSyncOnRefresh(userId: userId))
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -784,6 +883,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func connectToWatch(userId: String) -> Bool {
         fetch(for: .connectToWatch(userId: userId))
+    }
+
+    func debugFeatureFlag(name: String) -> Bool? {
+        fetch(for: .debugFeatureFlag(name: name))
     }
 
     func defaultUriMatchType(userId: String) -> UriMatchType? {
@@ -830,6 +933,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .notificationsLastRegistrationDate(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
+    func overrideDebugFeatureFlag(name: String, value: Bool?) {
+        store(value, for: .debugFeatureFlag(name: name))
+    }
+
     func passwordGenerationOptions(userId: String) -> PasswordGenerationOptions? {
         fetch(for: .passwordGenerationOptions(userId: userId))
     }
@@ -838,8 +945,26 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
+    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData? {
+        fetch(
+            for: .accountCreationEnvironmentUrls(email: email)
+        )
+    }
+
     func serverConfig(userId: String) -> ServerConfig? {
         fetch(for: .serverConfig(userId: userId))
+    }
+
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String) {
+        store(autofillSetup, for: .accountSetupAutofill(userId: userId))
+    }
+
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String) {
+        store(importLoginsSetup, for: .accountSetupImportLogins(userId: userId))
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
+        store(vaultUnlockSetup, for: .accountSetupVaultUnlock(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
@@ -848,16 +973,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
         store(isEnabled, for: .biometricAuthEnabled(userId: userId))
-    }
-
-    func setBiometricIntegrityState(_ base64EncodedIntegrityState: String?, userId: String) {
-        store(
-            base64EncodedIntegrityState,
-            for: .biometricIntegrityState(
-                userId: userId,
-                bundleId: bundleId
-            )
-        )
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
@@ -916,16 +1031,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
+    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String) {
+        store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String) {
         store(config, for: .serverConfig(userId: userId))
     }
 
-    func setShouldCheckOrganizationUnassignedItems(_ shouldCheck: Bool?, userId: String) {
-        store(shouldCheck, for: .shouldCheckOrganizationUnassignedItems(userId: userId))
-    }
-
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String) {
         store(shouldTrustDevice, for: .shouldTrustDevice(userId: userId))
+    }
+
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String) {
+        store(syncToAuthenticator, for: .syncToAuthenticator(userId: userId))
     }
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
@@ -940,12 +1059,16 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(options, for: .usernameGenerationOptions(userId: userId))
     }
 
+    func setUsesKeyConnector(_ usesKeyConnector: Bool, userId: String) {
+        store(usesKeyConnector, for: .usesKeyConnector(userId: userId))
+    }
+
     func setVaultTimeout(minutes: Int, userId: String) {
         store(minutes, for: .vaultTimeout(userId: userId))
     }
 
-    func shouldCheckOrganizationUnassignedItems(userId: String) -> Bool? {
-        fetch(for: .shouldCheckOrganizationUnassignedItems(userId: userId))
+    func syncToAuthenticator(userId: String) -> Bool {
+        fetch(for: .syncToAuthenticator(userId: userId))
     }
 
     func timeoutAction(userId: String) -> Int? {
@@ -966,6 +1089,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func usernameGenerationOptions(userId: String) -> UsernameGenerationOptions? {
         fetch(for: .usernameGenerationOptions(userId: userId))
+    }
+
+    func usesKeyConnector(userId: String) -> Bool {
+        fetch(for: .usesKeyConnector(userId: userId))
     }
 
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String) {

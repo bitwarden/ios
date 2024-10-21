@@ -32,9 +32,10 @@ struct VaultGroupView: View {
             )
             .navigationTitle(store.state.group.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
             .toolbar {
-                addToolbarItem(hidden: !store.state.showAddToolbarItem) {
+                // Using this state here temporarily until we remove the toolbar button.
+                addToolbarItem(hidden: !store.state.showAddItemFloatingActionButton) {
                     store.send(.addItemPressed)
                 }
             }
@@ -107,6 +108,11 @@ struct VaultGroupView: View {
                 groupView(with: items)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton(hidden: !store.state.showAddItemFloatingActionButton) {
+                store.send(.addItemPressed)
+            }
+        }
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -126,7 +132,7 @@ struct VaultGroupView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         }
                     }
                 }
@@ -187,6 +193,7 @@ struct VaultGroupView: View {
                 }
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 
@@ -290,6 +297,24 @@ struct VaultGroupView: View {
                                 ),
                             ]
                         ),
+                        searchVaultFilterType: .allVaults,
+                        vaultFilterType: .allVaults
+                    )
+                )
+            ),
+            timeProvider: PreviewTimeProvider()
+        )
+    }
+}
+
+#Preview("Trash") {
+    NavigationView {
+        VaultGroupView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultGroupState(
+                        group: .trash,
+                        loadingState: .data([]),
                         searchVaultFilterType: .allVaults,
                         vaultFilterType: .allVaults
                     )

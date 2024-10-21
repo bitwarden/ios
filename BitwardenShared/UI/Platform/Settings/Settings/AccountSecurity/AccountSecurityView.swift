@@ -17,14 +17,19 @@ struct AccountSecurityView: View {
 
     var body: some View {
         VStack(spacing: 20) {
+            setUpUnlockActionCard
+
             pendingLoginRequests
 
             unlockOptionsSection
+
+            authenticatorSyncSection
 
             sessionTimeoutSection
 
             otherSection
         }
+        .animation(.easeInOut, value: store.state.badgeState?.vaultUnlockSetupProgress == .complete)
         .scrollView()
         .navigationBar(title: Localizations.accountSecurity, titleDisplayMode: .inline)
         .onChange(of: store.state.twoStepLoginUrl) { newValue in
@@ -43,9 +48,29 @@ struct AccountSecurityView: View {
         .task {
             await store.perform(.loadData)
         }
+        .task {
+            await store.perform(.streamSettingsBadge)
+        }
     }
 
     // MARK: Private views
+
+    /// The action card for setting up vault unlock methods.
+    @ViewBuilder private var setUpUnlockActionCard: some View {
+        if let progress = store.state.badgeState?.vaultUnlockSetupProgress, progress != .complete {
+            ActionCard(
+                title: Localizations.setUpUnlock,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                    store.send(.showSetUpUnlock)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissSetUpUnlockActionCard)
+                }
+            ) {
+                BitwardenBadge(badgeValue: "1")
+            }
+        }
+    }
 
     /// The other section.
     private var otherSection: some View {
@@ -180,9 +205,9 @@ struct AccountSecurityView: View {
             VStack(spacing: 24) {
                 biometricsSetting
 
-                Toggle(isOn: store.binding(
+                Toggle(isOn: store.bindingAsync(
                     get: \.isUnlockWithPINCodeOn,
-                    send: AccountSecurityAction.toggleUnlockWithPINCode
+                    perform: AccountSecurityEffect.toggleUnlockWithPINCode
                 )) {
                     Text(Localizations.unlockWithPIN)
                 }
@@ -192,11 +217,31 @@ struct AccountSecurityView: View {
         }
     }
 
+    /// The authenticator sync section.
+    @ViewBuilder private var authenticatorSyncSection: some View {
+        if store.state.shouldShowAuthenticatorSyncSection {
+            VStack(alignment: .leading, spacing: 16) {
+                SectionHeaderView(Localizations.authenticatorSync)
+
+                VStack(spacing: 24) {
+                    Toggle(isOn: store.bindingAsync(
+                        get: \.isAuthenticatorSyncEnabled,
+                        perform: AccountSecurityEffect.toggleSyncWithAuthenticator
+                    )) {
+                        Text(Localizations.allowAuthenticatorSyncing)
+                    }
+                    .toggleStyle(.bitwarden)
+                    .accessibilityLabel(Localizations.allowAuthenticatorSyncing)
+                }
+            }
+        }
+    }
+
     /// A view for the user's biometrics setting
     ///
     @ViewBuilder private var biometricsSetting: some View {
         switch store.state.biometricUnlockStatus {
-        case let .available(type, enabled: enabled, _):
+        case let .available(type, enabled: enabled):
             biometricUnlockToggle(enabled: enabled, type: type)
         default:
             EmptyView()
@@ -237,6 +282,14 @@ struct AccountSecurityView: View {
         AccountSecurityView(
             store: Store(processor: StateProcessor(state: AccountSecurityState()))
         )
+    }
+}
+
+#Preview("Vault Unlock Action Card") {
+    NavigationView {
+        AccountSecurityView(store: Store(processor: StateProcessor(state: AccountSecurityState(
+            badgeState: .fixture(vaultUnlockSetupProgress: .setUpLater)
+        ))))
     }
 }
 #endif

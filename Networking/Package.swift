@@ -14,7 +14,12 @@ let package = Package(
         ),
     ],
     targets: [
-        .target(name: "Networking"),
+        .target(name: "Networking",
+                // TODO: PM-11195
+                // This package can be updated to Swift 6, and this feature enablement removed
+                swiftSettings: [
+                    .enableExperimentalFeature("StrictConcurrency"),
+                ]),
         .testTarget(
             name: "NetworkingTests",
             dependencies: ["Networking"]

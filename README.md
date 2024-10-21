@@ -46,6 +46,9 @@
     $ Scripts/bootstrap.sh
     ```
 
+    > **Hint**
+    > For development purposes it's possible to use a local build of the Bitwarden SDK by setting the environment variable `LOCAL_SDK` to `true` before running the bootstrap script. Review [Linking SDK to clients](https://contributing.bitwarden.com/getting-started/sdk/#linking-the-sdk-to-clients) for more details.
+
     > **Note**
     > Because `Scripts/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
 
@@ -63,7 +66,7 @@
 
 ### Running Tests
 
-Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 15 Pro simulator (iOS 17.0.1).
+Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 15 Pro simulator (iOS 18).
 
 1. In Xcode's toolbar, select the project and a connected device or simulator.
    - The `Generic iOS Device` used for builds will not work for testing.

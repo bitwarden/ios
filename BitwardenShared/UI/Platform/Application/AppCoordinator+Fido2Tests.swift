@@ -7,7 +7,6 @@ import XCTest
 // MARK: - AppCoordinatorTests
 
 @available(iOS 17.0, *)
-@MainActor
 class AppCoordinatorFido2Tests: BitwardenTestCase {
     // MARK: Properties
 
@@ -52,6 +51,7 @@ class AppCoordinatorFido2Tests: BitwardenTestCase {
 
     /// `handleEvent(_:)` with didStart, completeWithNeverUnlockKey and in fido2 autofill credential flow
     /// shows a transparent navigation controller and completes.
+    @MainActor
     func test_handleEvent_didStartTransparentController() async throws {
         appExtensionDelegate.extensionMode = .autofillFido2Credential(
             MockPasskeyCredentialRequest(),
@@ -71,6 +71,7 @@ class AppCoordinatorFido2Tests: BitwardenTestCase {
 
     /// `handleEvent(_:)` with didStart, completeWithNeverUnlockKey and not in fido2 autofill credential flow
     /// shows the corresponding auth route.
+    @MainActor
     func test_handleEvent_didStartNeverUnlockKeyNormal() async throws {
         appExtensionDelegate.authCompletionRoute = nil
         router.routeForEvent = { _ in .completeWithNeverUnlockKey }

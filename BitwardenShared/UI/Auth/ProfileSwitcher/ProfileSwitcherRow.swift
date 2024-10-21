@@ -85,7 +85,7 @@ struct ProfileSwitcherRow: View {
             }
             .padding([.leading], 16)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
     }
 
     /// A row divider view
@@ -94,7 +94,7 @@ struct ProfileSwitcherRow: View {
             Rectangle()
                 .frame(height: 1.0)
                 .frame(maxWidth: .infinity)
-                .foregroundColor(Asset.Colors.separatorOpaque.swiftUIColor)
+                .foregroundColor(Asset.Colors.strokeDivider.swiftUIColor)
         } else {
             EmptyView()
         }
@@ -113,7 +113,7 @@ struct ProfileSwitcherRow: View {
             .accessibilityLabel(Localizations.account)
         case .addAccount:
             Asset.Images.plus.swiftUIImage
-                .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
+                .imageStyle(.rowIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
                 .padding(4)
         }
     }
@@ -152,9 +152,14 @@ struct ProfileSwitcherRow: View {
              .addAccount:
             return nil
         case let .alternate(account):
-            return account.isUnlocked
-                ? Localizations.accountUnlocked.lowercased()
-                : Localizations.accountLocked.lowercased()
+            return switch (account.isUnlocked, account.isLoggedOut) {
+            case (true, false):
+                Localizations.accountUnlocked.lowercased()
+            case (false, false):
+                Localizations.accountLocked.lowercased()
+            case (_, true):
+                Localizations.accountLoggedOut.lowercased()
+            }
         }
     }
 
@@ -178,11 +183,11 @@ struct ProfileSwitcherRow: View {
     private var trailingIconColor: Color {
         switch store.state.rowType {
         case .active:
-            Asset.Colors.primaryBitwarden.swiftUIColor
+            Asset.Colors.iconPrimary.swiftUIColor
         case .alternate:
             Asset.Colors.textSecondary.swiftUIColor
         case .addAccount:
-            Asset.Colors.backgroundPrimary.swiftUIColor
+            Asset.Colors.backgroundSecondary.swiftUIColor
         }
     }
 
@@ -249,26 +254,6 @@ struct ProfileSwitcherRow: View {
 }
 
 #if DEBUG
-extension ProfileSwitcherItem {
-    static var unlockedAccountPreview = ProfileSwitcherItem(
-        color: .purple,
-        email: "anne.account@bitwarden.com",
-        isUnlocked: true,
-        userId: "1",
-        userInitials: "AA",
-        webVault: "bitwarden.com"
-    )
-
-    static var lockedAccountPreview = ProfileSwitcherItem(
-        color: .purple,
-        email: "anne.account@bitwarden.com",
-        isUnlocked: false,
-        userId: "2",
-        userInitials: "AA",
-        webVault: "bitwarden.com"
-    )
-}
-
 #Preview("Active Unlocked Account") {
     NavigationView {
         ProfileSwitcherRow(
@@ -276,7 +261,7 @@ extension ProfileSwitcherItem {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .active(.unlockedAccountPreview)
+                        rowType: .active(.fixtureUnlocked)
                     )
                 )
             )
@@ -291,7 +276,7 @@ extension ProfileSwitcherItem {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .active(.lockedAccountPreview)
+                        rowType: .active(.fixtureLocked)
                     )
                 )
             )
@@ -307,7 +292,7 @@ extension ProfileSwitcherItem {
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
                         showDivider: false,
-                        rowType: .active(.lockedAccountPreview)
+                        rowType: .active(.fixtureLocked)
                     )
                 )
             )
@@ -322,7 +307,7 @@ extension ProfileSwitcherItem {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .alternate(.unlockedAccountPreview)
+                        rowType: .alternate(.fixtureUnlocked)
                     )
                 )
             )
@@ -337,7 +322,22 @@ extension ProfileSwitcherItem {
                 processor: StateProcessor(
                     state: ProfileSwitcherRowState(
                         shouldTakeAccessibilityFocus: true,
-                        rowType: .alternate(.lockedAccountPreview)
+                        rowType: .alternate(.fixtureLocked)
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Alternate Logged Out Account") {
+    NavigationView {
+        ProfileSwitcherRow(
+            store: Store(
+                processor: StateProcessor(
+                    state: ProfileSwitcherRowState(
+                        shouldTakeAccessibilityFocus: true,
+                        rowType: .alternate(.fixtureLoggedOut)
                     )
                 )
             )

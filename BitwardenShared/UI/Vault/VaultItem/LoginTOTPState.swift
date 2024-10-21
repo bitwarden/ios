@@ -85,7 +85,7 @@ public enum LoginTOTPState: Equatable, Sendable {
     ///   - authKeyString: The optional TOTP key string.
     ///
     init(_ authKeyString: String?) {
-        switch authKeyString {
+        switch authKeyString?.trimmingCharacters(in: .whitespaces).nilIfEmpty {
         case let .some(string):
             self = .key(TOTPKeyModel(authenticatorKey: string))
         case .none:

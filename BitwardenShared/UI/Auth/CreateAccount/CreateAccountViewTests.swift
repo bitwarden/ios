@@ -31,6 +31,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -38,6 +39,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     }
 
     /// Tapping the check for security breaches toggle dispatches the `.toggleCheckDataBreaches()` action.
+    @MainActor
     func test_checkBreachesToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
@@ -48,6 +50,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     }
 
     /// Updating the text field dispatches the `.emailTextChanged()` action.
+    @MainActor
     func test_emailField_updateValue() throws {
         let textfield = try subject.inspect().find(viewWithId: Localizations.emailAddress).textField()
         try textfield.setInput("text")
@@ -55,6 +58,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     }
 
     /// Updating the text field dispatches the `.passwordHintTextChanged()` action.
+    @MainActor
     func test_hintField_updateValue() throws {
         let textfield = try subject.inspect().find(viewWithId: Localizations.masterPasswordHint).textField()
         try textfield.setInput("text")
@@ -62,6 +66,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     }
 
     /// Updating the text field dispatches the `.passwordTextChanged()` action.
+    @MainActor
     func test_masterPasswordField_updateValue() throws {
         processor.state.arePasswordsVisible = true
         let textfield = try subject.inspect().find(viewWithId: Localizations.masterPassword).textField()
@@ -70,6 +75,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     }
 
     /// Tapping the password visibility icon changes whether or not passwords are visible.
+    @MainActor
     func test_passwordVisibility_tap() throws {
         processor.state.arePasswordsVisible = false
         let visibilityIcon = try subject.inspect().find(
@@ -80,6 +86,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     }
 
     /// Updating the text field dispatches the `.retypePasswordTextChanged()` action.
+    @MainActor
     func test_retypePasswordField_updateValue() throws {
         processor.state.arePasswordsVisible = true
         let textfield = try subject.inspect().find(viewWithId: Localizations.retypeMasterPassword).textField()
@@ -88,6 +95,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     }
 
     /// Tapping the submit button performs the `.createAccount` effect.
+    @MainActor
     func test_submitButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.submit)
         try button.tap()
@@ -98,6 +106,7 @@ class CreateAccountViewTests: BitwardenTestCase {
     }
 
     /// Tapping the terms and privacy policy toggle dispatches the `.toggleTermsAndPrivacy()` action.
+    @MainActor
     func test_termsAndPrivacyToggle_tap() throws {
         if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
             throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
@@ -110,11 +119,13 @@ class CreateAccountViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests the view renders correctly when the text fields are all empty.
+    @MainActor
     func test_snapshot_empty() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when text fields are hidden.
+    @MainActor
     func test_snapshot_textFields_hidden() throws {
         processor.state.arePasswordsVisible = false
         processor.state.emailText = "email@example.com"
@@ -123,10 +134,11 @@ class CreateAccountViewTests: BitwardenTestCase {
         processor.state.passwordHintText = "wink wink"
         processor.state.passwordStrengthScore = 0
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when the text fields are all populated.
+    @MainActor
     func test_snapshot_textFields_populated() throws {
         processor.state.arePasswordsVisible = true
         processor.state.emailText = "email@example.com"
@@ -135,14 +147,15 @@ class CreateAccountViewTests: BitwardenTestCase {
         processor.state.passwordHintText = "wink wink"
         processor.state.passwordStrengthScore = 0
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly when the toggles are on.
+    @MainActor
     func test_snapshot_toggles_on() throws {
         processor.state.isTermsAndPrivacyToggleOn = true
         processor.state.isCheckDataBreachesToggleOn = true
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

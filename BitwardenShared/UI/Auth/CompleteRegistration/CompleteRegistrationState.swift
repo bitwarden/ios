@@ -4,11 +4,25 @@ import SwiftUI
 
 /// An object that defines the current state of a `CompleteRegistrationView`.
 ///
-struct CompleteRegistrationState: Equatable {
+struct CompleteRegistrationState: Equatable, Sendable {
     // MARK: Properties
 
     /// Whether passwords are visible in the view's text fields.
     var arePasswordsVisible: Bool = false
+
+    /// Whether the continue button is enabled.
+    var continueButtonEnabled: Bool {
+        if nativeCreateAccountFeatureFlag {
+            !passwordText.isEmpty
+                && !retypePasswordText.isEmpty
+                && passwordText.count >= requiredPasswordCount
+        } else {
+            true
+        }
+    }
+
+    /// Whether the user's account has been created when completing registration.
+    var didCreateAccount = false
 
     /// Token needed to complete registration
     var emailVerificationToken: String
@@ -25,6 +39,9 @@ struct CompleteRegistrationState: Equatable {
         return passwordStrengthScore < 3
     }
 
+    /// Whether the native create account feature flag is on.
+    var nativeCreateAccountFeatureFlag: Bool = false
+
     /// The text in the password hint text field.
     var passwordHintText: String = ""
 
@@ -40,8 +57,8 @@ struct CompleteRegistrationState: Equatable {
         arePasswordsVisible ? Asset.Images.hidden : Asset.Images.visible
     }
 
-    /// The region where the account should be created
-    var region: RegionType?
+    /// The required text count for the password strength.
+    var requiredPasswordCount = Constants.minimumPasswordCharacters
 
     /// The text in the re-type password text field.
     var retypePasswordText: String = ""

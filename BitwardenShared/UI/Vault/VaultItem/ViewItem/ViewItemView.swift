@@ -38,7 +38,7 @@ struct ViewItemView: View {
                 details(for: viewState)
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toast(store.binding(
@@ -78,6 +78,11 @@ struct ViewItemView: View {
                 )
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            editItemFloatingActionButton {
+                store.send(.editPressed)
+            }
+        }
         .task {
             await store.perform(.appeared)
         }
@@ -107,6 +112,7 @@ struct ViewItemView: View {
                 )
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 }
@@ -215,6 +221,21 @@ struct ViewItemView_Previews: PreviewProvider {
         return state
     }
 
+    static var sshKeyState: CipherItemState {
+        var state = CipherItemState(
+            existing: cipher,
+            hasPremium: true
+        )!
+        state.name = "Example"
+        state.type = .sshKey
+        state.sshKeyState = SSHKeyItemState(
+            privateKey: "ajsdfopij1ZXCVZXC12312QW",
+            publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
+            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw"
+        )
+        return state
+    }
+
     static var previews: some View {
         NavigationView {
             ViewItemView(
@@ -239,6 +260,8 @@ struct ViewItemView_Previews: PreviewProvider {
         cardPreview
 
         loginPreview
+
+        sshKeyPreview
     }
 
     @ViewBuilder static var cardPreview: some View {
@@ -283,6 +306,28 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Login")
+    }
+
+    @ViewBuilder static var sshKeyPreview: some View {
+        NavigationView {
+            ViewItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ViewItemState(
+                            loadingState: .data(sshKeyState)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_011
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("SSH Key")
     }
 }
 #endif

@@ -1,0 +1,119 @@
+name: CI - main
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      build-version:
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      build-number:
+        description: "Version Number Override - e.g. '1021'"
+        type: number
+      patch_version:
+        description: "Patch Version Override - e.g. '999'"
+        type: string
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+env:
+  XCODE_VERSION: '15.4'
+  DISTRIBUTE_TO_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.distribute }}
+  INTERNAL_BETA_PATCH_NUMBER: 999
+
+jobs:
+  resolve-values:
+    name: "Resolve values"
+    runs-on: ubuntu-latest
+    outputs:
+      version_name: ${{ steps.version_info.outputs.version_name }}
+      version_number: ${{ steps.version_info.outputs.version_number }}
+      xcode_version: ${{ env.XCODE_VERSION }}
+      distribute_to_testflight: ${{ env.DISTRIBUTE_TO_TESTFLIGHT }}
+      internal_beta_version_name: ${{ steps.internal_versions.outputs.internal_beta_version_name}}
+    steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+      - name: Calculate version
+        if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
+        id: dispatch-version
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ios
+          owner: bitwarden
+          workflow: _version.yml
+          workflow_inputs: '{"base_version_number": "1500", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
+
+      - name: Read version info
+        id: version_info
+        run: |
+          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
+          if [ ! -f version-info/version_info.json ]; then
+            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
+            json='{
+              "version_number": "${{ inputs.build-number }}",
+              "version_name": "${{ inputs.build-version }}"
+            }'
+
+            # file will be used by the upload step
+            mkdir version-info
+            echo "$json" > version-info/version_info.json
+          else
+              echo "::notice::version-version.json found!"
+          fi
+
+          content=$(cat version-info/version_info.json)
+          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
+          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+      - name: Upload version info artifact
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: version-info
+          path: version-info/version_info.json
+      - name: Set patch version for internal builds
+        id: internal_versions
+        run: |
+          version_name=${{ steps.version_info.outputs.version_name }}
+          internal_beta_version_name="${version_name%.*}.${{ env.INTERNAL_BETA_PATCH_NUMBER }}"
+          echo "internal_beta_version_name=$internal_beta_version_name" >> $GITHUB_OUTPUT
+          echo "::warning::Internal version name: $internal_beta_version_name"
+
+  build-public:
+    name: Build Public Apps
+    needs: resolve-values
+    uses: bitwarden/ios/.github/workflows/build.yml@main
+    strategy:
+      matrix:
+        variant: [Beta, Production]
+    with:
+      build-variant: ${{ matrix.variant }}
+      build-version: ${{ needs.resolve-values.outputs.version_name }}
+      build-number: ${{ needs.resolve-values.outputs.version_number }}
+      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+      distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+      upload_version_info: false
+    secrets: inherit
+
+  build-internal:
+    name: Build Internal App
+    needs: resolve-values
+    uses: bitwarden/ios/.github/workflows/build.yml@main
+    with:
+      build-variant: Beta
+      build-version: ${{ needs.resolve-values.outputs.internal_beta_version_name }}
+      build-number: ${{ needs.resolve-values.outputs.version_number }}
+      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+      distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+      upload_version_info: false
+      compiler-flags: "DEBUG_MENU"
+    secrets: inherit

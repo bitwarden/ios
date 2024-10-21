@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // MARK: - SendListProcessor
@@ -55,7 +55,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             case let .copyLinkPressed(sendView):
                 guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
                 services.pasteboardService.copy(url.absoluteString)
-                state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+                state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
             case let .deletePressed(sendView):
                 let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
                     await self?.deleteSend(sendView)
@@ -132,7 +132,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         do {
             try await services.sendRepository.deleteSend(sendView)
             coordinator.hideLoadingOverlay()
-            state.toast = Toast(text: Localizations.sendDeleted)
+            state.toast = Toast(title: Localizations.sendDeleted)
         } catch {
             let alert = Alert.networkResponseError(error) { [weak self] in
                 await self?.deleteSend(sendView)
@@ -157,7 +157,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         do {
             _ = try await services.sendRepository.removePassword(from: sendView)
             coordinator.hideLoadingOverlay()
-            state.toast = Toast(text: Localizations.sendPasswordRemoved)
+            state.toast = Toast(title: Localizations.sendPasswordRemoved)
         } catch {
             let alert = Alert.networkResponseError(error) { [weak self] in
                 await self?.removePassword(sendView)
@@ -243,6 +243,6 @@ extension SendListProcessor: SendItemDelegate {
 
     func sendItemDeleted() {
         coordinator.navigate(to: .dismiss(nil))
-        state.toast = Toast(text: Localizations.sendDeleted)
+        state.toast = Toast(title: Localizations.sendDeleted)
     }
 }

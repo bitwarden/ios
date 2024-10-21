@@ -13,6 +13,9 @@ struct VaultListState: Equatable {
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
+    /// The user's import logins setup progress.
+    var importLoginsSetupProgress: AccountSetupProgress?
+
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
 
@@ -33,9 +36,6 @@ struct VaultListState: Equatable {
 
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType: VaultFilterType = .allVaults
-
-    /// If we should check for unassigned ciphers. The check should happen once per login/unlock.
-    var shouldCheckUnassignedCiphers: Bool = true
 
     /// Whether to show the special web icons.
     var showWebIcons = true
@@ -60,13 +60,28 @@ struct VaultListState: Equatable {
         }
     }
 
+    /// The state for showing the vault filter in search.
+    var searchVaultFilterState: SearchVaultFilterRowState {
+        SearchVaultFilterRowState(
+            canShowVaultFilter: canShowVaultFilter,
+            isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
+            organizations: organizations,
+            searchVaultFilterType: searchVaultFilterType
+        )
+    }
+
+    /// Whether the import logins action card should be shown.
+    var shouldShowImportLoginsActionCard: Bool {
+        importLoginsSetupProgress != nil && importLoginsSetupProgress != .complete
+    }
+
     /// The state for showing the vault filter.
     var vaultFilterState: SearchVaultFilterRowState {
         SearchVaultFilterRowState(
             canShowVaultFilter: canShowVaultFilter,
             isPersonalOwnershipDisabled: isPersonalOwnershipDisabled,
             organizations: organizations,
-            searchVaultFilterType: searchVaultFilterType
+            searchVaultFilterType: vaultFilterType
         )
     }
 

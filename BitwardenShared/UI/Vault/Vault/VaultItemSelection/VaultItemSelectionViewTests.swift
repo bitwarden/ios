@@ -34,13 +34,23 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the add an item button dispatches the `.addTapped` action.
+    @MainActor
     func test_addItemButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
     }
 
+    /// Tapping the add item floating acrtion button dispatches the `.addTapped` action.`
+    @MainActor
+    func test_addFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
+    }
+
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -48,6 +58,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     }
 
     /// In the empty state, tapping the add item button dispatches the `.addTapped` action.
+    @MainActor
     func test_emptyState_addItemTapped() throws {
         let button = try subject.inspect().find(button: Localizations.newItem)
         try button.tap()
@@ -57,6 +68,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The empty view renders correctly.
+    @MainActor
     func test_snapshot_cipherSelection_empty() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -68,6 +80,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     }
 
     /// The empty view renders correctly when there's no account or issuer.
+    @MainActor
     func test_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
@@ -85,6 +98,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     }
 
     /// The populated view renders correctly.
+    @MainActor
     func test_snapshot_cipherSelection_populated() {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
@@ -107,6 +121,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     }
 
     /// The search view renders correctly when there's search results.
+    @MainActor
     func test_snapshot_cipherSelection_search() {
         let ciphers: [CipherView] = [
             .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
@@ -121,6 +136,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     }
 
     /// The search view renders correctly when there's no search results.
+    @MainActor
     func test_snapshot_cipherSelection_searchEmpty() {
         processor.state.searchText = "Example"
         processor.state.showNoResults = true

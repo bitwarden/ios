@@ -46,6 +46,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
+    @MainActor
     func test_perform_fetchCipherOptions() async {
         let collections: [CollectionView] = [
             .fixture(id: "1", name: "Design", organizationId: "1"),
@@ -63,6 +64,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` reports an error if one occurs.
+    @MainActor
     func test_perform_fetchCipherOptions_error() async {
         vaultRepository.fetchCollectionsResult = .failure(StateServiceError.noActiveAccount)
 
@@ -72,6 +74,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.save` saves the updated cipher.
+    @MainActor
     func test_perform_save() async {
         subject.state.collectionIds = ["1"]
 
@@ -91,6 +94,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.save` shows an alert if an error occurs updating the cipher.
+    @MainActor
     func test_perform_save_error() async {
         subject.state.collectionIds = ["1"]
 
@@ -109,6 +113,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.save` shows an alert if no collections have been selected.
+    @MainActor
     func test_perform_moveCipher_errorNoCollections() async {
         await subject.perform(.save)
 
@@ -122,6 +127,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
+    @MainActor
     func test_receive_collectionToggleChanged() {
         subject.state.collections = [
             .fixture(id: "1", name: "Design"),
@@ -139,6 +145,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismissPressed` dismisses the view.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
 

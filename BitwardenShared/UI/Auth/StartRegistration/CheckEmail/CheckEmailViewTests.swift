@@ -31,6 +31,7 @@ class CheckEmailViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -41,6 +42,6 @@ class CheckEmailViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly.
     func test_snapshot_empty() {
-        assertSnapshots(matching: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

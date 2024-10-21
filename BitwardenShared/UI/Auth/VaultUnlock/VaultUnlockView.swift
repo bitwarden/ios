@@ -85,7 +85,7 @@ struct VaultUnlockView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
     /// The Toolbar item for the profile switcher view.
@@ -107,7 +107,7 @@ struct VaultUnlockView: View {
 
     /// A button to trigger a biometric auth unlock.
     @ViewBuilder private var biometricAuthButton: some View {
-        if case let .available(biometryType, true, true) = store.state.biometricUnlockStatus {
+        if case let .available(biometryType, true) = store.state.biometricUnlockStatus {
             AsyncButton {
                 Task { await store.perform(.unlockVaultWithBiometrics) }
             } label: {

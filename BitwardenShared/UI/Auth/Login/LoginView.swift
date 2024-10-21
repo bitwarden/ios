@@ -25,7 +25,7 @@ struct LoginView: View {
             .padding(.top, 16)
             .frame(maxWidth: .infinity)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.bitwarden)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -71,7 +71,7 @@ struct LoginView: View {
             }
             .styleGuide(.subheadline)
             .accessibilityIdentifier("GetMasterPasswordHintLabel")
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
         }
     }
 
@@ -128,7 +128,7 @@ struct LoginView: View {
                 store.send(.notYouPressed)
             }
             .accessibilityIdentifier("NotYouLabel")
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
         }
         .styleGuide(.footnote)
     }
@@ -137,7 +137,7 @@ struct LoginView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
+#Preview("Empty") {
     NavigationView {
         LoginView(
             store: Store(
@@ -147,10 +147,9 @@ struct LoginView: View {
             )
         )
     }
-    .previewDisplayName("Empty")
 }
 
-#Preview {
+#Preview("With Device") {
     NavigationView {
         LoginView(
             store: Store(
@@ -162,6 +161,5 @@ struct LoginView: View {
             )
         )
     }
-    .previewDisplayName("With Device")
 }
 #endif

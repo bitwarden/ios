@@ -2,9 +2,13 @@ import Foundation
 
 // MARK: - KeychainItem
 
+// swiftlint:disable file_length
 enum KeychainItem: Equatable {
     /// The keychain item for a user's access token.
     case accessToken(userId: String)
+
+    /// The keychain item for a user's vault key for Authenticator syncing.
+    case authenticatorVaultKey(userId: String)
 
     /// The keychain item for biometrics protected user auth key.
     case biometrics(userId: String)
@@ -27,6 +31,7 @@ enum KeychainItem: Equatable {
     var protection: SecAccessControlCreateFlags? {
         switch self {
         case .accessToken,
+             .authenticatorVaultKey,
              .deviceKey,
              .neverLock,
              .pendingAdminLoginRequest,
@@ -43,6 +48,8 @@ enum KeychainItem: Equatable {
         switch self {
         case let .accessToken(userId):
             "accessToken_\(userId)"
+        case let .authenticatorVaultKey(userId):
+            "authenticatorVaultKey_\(userId)"
         case let .biometrics(userId: id):
             "userKeyBiometricUnlock_" + id
         case let .deviceKey(userId: id):
@@ -63,6 +70,12 @@ protocol KeychainRepository: AnyObject {
     /// Deletes all items stored in the keychain.
     ///
     func deleteAllItems() async throws
+
+    /// Attempts to delete the authenticator vault key from the keychain.
+    ///
+    /// - Parameter userId: The user ID associated with the authenticator vault key.
+    ///
+    func deleteAuthenticatorVaultKey(userId: String) async throws
 
     /// Deletes items stored in the keychain for a specific user.
     ///
@@ -94,6 +107,13 @@ protocol KeychainRepository: AnyObject {
     /// - Returns: The user's access token.
     ///
     func getAccessToken(userId: String) async throws -> String
+
+    /// Gets the authenticator vault key for a user ID.
+    ///
+    /// - Parameter userId: The user ID associated with the authenticator vault key.
+    /// - Returns: The authenticator vault key.
+    ///
+    func getAuthenticatorVaultKey(userId: String) async throws -> String
 
     /// Gets the stored device key for a user from the keychain.
     ///
@@ -130,6 +150,14 @@ protocol KeychainRepository: AnyObject {
     ///   - userId: The user's ID, used to get back the token later on.
     ///
     func setAccessToken(_ value: String, userId: String) async throws
+
+    /// Sets the authenticator vault key for a user ID.
+    ///
+    /// - Parameters:
+    ///   - value: The authenticator vault key to store.
+    ///   - userId: The user ID associated with the authenticator vault key.
+    ///
+    func setAuthenticatorVaultKey(_ value: String, userId: String) async throws
 
     /// Stores the device key for a user in the keychain.
     ///
@@ -243,8 +271,8 @@ class DefaultKeychainRepository: KeychainRepository {
         )
 
         if let resultDictionary = foundItem as? [String: Any],
-           let data = resultDictionary[kSecValueData as String] as? Data {
-            let string = String(decoding: data, as: UTF8.self)
+           let data = resultDictionary[kSecValueData as String] as? Data,
+           let string = String(data: data, encoding: .utf8) {
             guard !string.isEmpty else {
                 throw KeychainServiceError.keyNotFound(item)
             }
@@ -324,9 +352,16 @@ extension DefaultKeychainRepository {
         }
     }
 
+    func deleteAuthenticatorVaultKey(userId: String) async throws {
+        try await keychainService.delete(
+            query: keychainQueryValues(for: .authenticatorVaultKey(userId: userId))
+        )
+    }
+
     func deleteItems(for userId: String) async throws {
         let keychainItems: [KeychainItem] = [
             .accessToken(userId: userId),
+            .authenticatorVaultKey(userId: userId),
             .biometrics(userId: userId),
             // Exclude `deviceKey` since it is used to log back into an account.
             .neverLock(userId: userId),
@@ -360,6 +395,10 @@ extension DefaultKeychainRepository {
         try await getValue(for: .accessToken(userId: userId))
     }
 
+    func getAuthenticatorVaultKey(userId: String) async throws -> String {
+        try await getValue(for: .authenticatorVaultKey(userId: userId))
+    }
+
     func getDeviceKey(userId: String) async throws -> String? {
         try await getValue(for: .deviceKey(userId: userId))
     }
@@ -378,6 +417,10 @@ extension DefaultKeychainRepository {
 
     func setAccessToken(_ value: String, userId: String) async throws {
         try await setValue(value, for: .accessToken(userId: userId))
+    }
+
+    func setAuthenticatorVaultKey(_ value: String, userId: String) async throws {
+        try await setValue(value, for: .authenticatorVaultKey(userId: userId))
     }
 
     func setDeviceKey(_ value: String, userId: String) async throws {

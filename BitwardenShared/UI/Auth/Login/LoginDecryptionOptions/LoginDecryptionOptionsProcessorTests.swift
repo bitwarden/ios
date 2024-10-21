@@ -56,6 +56,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `perform(_:)` with `.approveWithMasterPasswordPressed` set should trust device and navigates.
+    @MainActor
     func test_perform_approveWithMasterPassword_tapped() async throws {
         authRepository.activeAccount = .fixture()
         subject.state.isRememberDeviceToggleOn = true
@@ -72,6 +73,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.approveWithOtherDevicePressed` set should trust device and navigates.
+    @MainActor
     func test_perform_approveWithOtherDevice_tapped() async throws {
         subject.state.isRememberDeviceToggleOn = true
         subject.state.email = "example@bitwarden.com"
@@ -87,6 +89,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.continuePressed` creates new JIT user .
+    @MainActor
     func test_perform_continue_tapped() async throws {
         subject.state.isRememberDeviceToggleOn = true
         subject.state.orgIdentifier = "Bitwarden"
@@ -100,6 +103,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loadLoginDecryptionOptions` load user decryption options.
+    @MainActor
     func test_perform_loadLoginDecryptionOptions() async throws {
         authRepository.activeAccount = .fixtureWithTDE()
 
@@ -115,6 +119,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.loadLoginDecryptionOptions` load user decryption options.
     ///  has a pending admin request approved.
+    @MainActor
     func test_perform_loadLoginDecryptionOptions_approvedPendingAdminRequest() async throws {
         authRepository.activeAccount = .fixtureWithTDE()
         authService.getPendingAdminLoginRequestResult = .success(.fixture())
@@ -128,11 +133,12 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.shouldShowApproveMasterPasswordButton)
         XCTAssertTrue(subject.state.shouldShowApproveWithOtherDeviceButton)
         XCTAssertFalse(subject.state.shouldShowContinueButton)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.loginApproved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.loginApproved))
         XCTAssertEqual(coordinator.routes.last, .complete)
     }
 
     /// `perform(_:)` with `.requestAdminApprovalPressed` set should trust device and navigates.
+    @MainActor
     func test_perform_requestAdminApproval_tapped() async throws {
         subject.state.isRememberDeviceToggleOn = true
         subject.state.email = "example@bitwarden.com"
@@ -148,6 +154,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.notYouPressed` sends action to logout the user.
+    @MainActor
     func test_perform_notYou_tapped() async throws {
         await subject.perform(.notYouPressed)
 
@@ -155,6 +162,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:Bool)` with `.toggleRememberDevice` changes state value.
+    @MainActor
     func test_receive_toggleRememberDevice() {
         subject.state.isRememberDeviceToggleOn = true
         subject.receive(.toggleRememberDevice(false))

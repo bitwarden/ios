@@ -28,6 +28,7 @@ class AppModuleTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `makeAppCoordinator` builds the app coordinator.
+    @MainActor
     func test_makeAppCoordinator() {
         let coordinator = subject.makeAppCoordinator(appContext: .mainApp, navigator: rootViewController)
         let task = Task {
@@ -38,6 +39,7 @@ class AppModuleTests: BitwardenTestCase {
     }
 
     /// `makeAuthCoordinator` builds the auth coordinator.
+    @MainActor
     func test_makeAuthCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeAuthCoordinator(
@@ -50,7 +52,32 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(rootViewController.childViewController === navigationController)
     }
 
+    /// `makeDebugMenuCoordinator()` builds the debug menu coordinator.
+    @MainActor
+    func test_makeDebugMenuCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeDebugMenuCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<DebugMenuView>)
+    }
+
+    /// `makeExtensionSetupCoordinator` builds the extensions setup coordinator.
+    @MainActor
+    func test_makeExtensionSetupCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeExtensionSetupCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.navigate(to: .extensionActivation(type: .autofillExtension))
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<ExtensionActivationView>)
+    }
+
     /// `makeSendCoordinator()` builds the send coordinator.
+    @MainActor
     func test_makeSendCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeSendCoordinator(
@@ -62,6 +89,7 @@ class AppModuleTests: BitwardenTestCase {
     }
 
     /// `makeSendItemCoordinator()` builds the send item coordinator.
+    @MainActor
     func test_makeSendItemCoordinator() {
         let delegate = MockSendItemDelegate()
         let navigationController = UINavigationController()
@@ -74,6 +102,7 @@ class AppModuleTests: BitwardenTestCase {
     }
 
     /// `makeSettingsCoordinator()` builds the settings coordinator.
+    @MainActor
     func test_makeSettingsCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeSettingsCoordinator(
@@ -86,6 +115,7 @@ class AppModuleTests: BitwardenTestCase {
     }
 
     /// `makeTabCoordinator` builds the tab coordinator.
+    @MainActor
     func test_makeTabCoordinator() {
         let errorReporter = MockErrorReporter()
         let tabBarController = UITabBarController()
@@ -106,6 +136,7 @@ class AppModuleTests: BitwardenTestCase {
     }
 
     /// `makeVaultCoordinator()` builds the vault coordinator.
+    @MainActor
     func test_makeVaultCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeVaultCoordinator(

@@ -1,10 +1,12 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
+import UIKit
 
 // MARK: - CipherItemOperationDelegate
 
 /// An object that is notified when specific circumstances in the add/edit/delete item view have occurred.
 ///
+@MainActor
 protocol CipherItemOperationDelegate: AnyObject {
     /// Called when a new cipher item has been successfully added.
     ///
@@ -116,7 +118,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .copyTotpPressed:
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
         case .fetchCipherOptions:
             await fetchCipherOptions()
         case .savePressed:
@@ -175,6 +177,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.owner = newValue
         case let .passwordChanged(newValue):
             state.loginState.password = newValue
+        case .removePasskeyPressed:
+            state.loginState.fido2Credentials = []
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                UIAccessibility.post(notification: .announcement, argument: Localizations.passkeyRemoved)
+            }
         case let .removeUriPressed(index):
             guard index < state.loginState.uris.count else { return }
             state.loginState.uris.remove(at: index)
@@ -188,12 +195,14 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                     )
                 }
             }
+        case let .sshKeyItemAction(sshKeyAction):
+            handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpFieldLeftFocus:
             parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):
-            state.loginState.totpState = .init(newValue)
+            state.loginState.totpState = LoginTOTPState(newValue)
         case let .typeChanged(newValue):
             state.type = newValue
             state.customFieldsState = AddEditCustomFieldsState(cipherType: newValue, customFields: [])
@@ -337,6 +346,18 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             coordinator.navigate(to: .editCollections(state.cipher), context: self)
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
+        }
+    }
+
+    /// Handles `ViewSSHKeyItemAction` events.
+    /// - Parameter sshKeyAction: The action to handle
+    private func handleSSHKeyAction(_ sshKeyAction: ViewSSHKeyItemAction) {
+        switch sshKeyAction {
+        case .copyPressed:
+            return
+        case .privateKeyVisibilityPressed:
+            state.sshKeyState.isPrivateKeyVisible.toggle()
+            // TODO: PM-11977 Collect visibility toggled event
         }
     }
 
@@ -716,7 +737,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             state.loginState.totpState = .key(authKeyModel)
-            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+            state.toast = Toast(title: Localizations.authenticatorKeyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -756,7 +777,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
 
 extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(text: Localizations.itemUpdated)
+        state.toast = Toast(title: Localizations.itemUpdated)
     }
 }
 
@@ -764,6 +785,6 @@ extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
 
 extension AddEditItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
-        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
+        state.toast = Toast(title: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 } // swiftlint:disable:this file_length

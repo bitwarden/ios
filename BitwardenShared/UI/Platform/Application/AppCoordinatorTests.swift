@@ -4,8 +4,7 @@ import XCTest
 
 // MARK: - AppCoordinatorTests
 
-@MainActor
-class AppCoordinatorTests: BitwardenTestCase {
+class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
@@ -48,6 +47,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `didCompleteAuth()` starts the tab coordinator and navigates to the proper tab route.
+    @MainActor
     func test_didCompleteAuth() {
         subject.didCompleteAuth()
         XCTAssertTrue(module.tabCoordinator.isStarted)
@@ -56,6 +56,7 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     /// `didCompleteAuth()` starts the vault coordinator in the app extension and navigates to the
     /// proper vault route.
+    @MainActor
     func test_didCompleteAuth_appExtension() {
         subject = AppCoordinator(
             appContext: .appExtension,
@@ -79,6 +80,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the auth completion route.
+    @MainActor
     func test_didCompleteAuth_authCompletionRoute() async {
         await subject.handleEvent(.setAuthCompletionRoute(.tab(.vault(.addAccount))))
         XCTAssertNotNil(subject.authCompletionRoute)
@@ -91,6 +93,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.
+    @MainActor
     func test_didDeleteAccount() throws {
         subject.didDeleteAccount()
         waitFor(!router.events.isEmpty)
@@ -106,6 +109,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `lockVault(_:)` passes the lock event to the router.
+    @MainActor
     func test_didLockVault() {
         let account: Account = .fixtureAccountLogin()
 
@@ -122,6 +126,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `logout()` passes the event to the router.
+    @MainActor
     func test_didLogout_automatic() {
         subject.logout(userId: "123", userInitiated: false)
         waitFor(module.authCoordinator.isStarted)
@@ -129,6 +134,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `didLogout()` starts the auth coordinator and navigates to the `.didLogout` route.
+    @MainActor
     func test_didLogout_userInitiated() {
         let expectedEvent = AuthEvent.action(.logout(userId: "123", userInitiated: true))
         subject.logout(userId: "123", userInitiated: true)
@@ -140,6 +146,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `didTapAccount(:)` triggers the switch account action.
+    @MainActor
     func test_didTapAccount() {
         subject.didTapAccount(userId: "123")
         waitFor(module.authCoordinator.isStarted)
@@ -157,6 +164,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `didTapAddAccount()` triggers the login sequence from the landing page
+    @MainActor
     func test_didTapAddAccount() {
         subject.didTapAddAccount()
         waitFor(module.authCoordinator.isStarted)
@@ -164,6 +172,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `handle()` triggers the contained auth action.
+    @MainActor
     func test_handleAuthAction() async {
         router.routeForEvent = { _ in .complete }
         await subject.handle(.switchAccount(isAutomatic: false, userId: "123"))
@@ -172,12 +181,14 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `handleEvent(_:)` navigates the user to the auth landing view.
+    @MainActor
     func test_handleEvent_didLogout() async {
         await subject.handleEvent(.didLogout(userId: "1", userInitiated: false))
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
     }
 
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
+    @MainActor
     func test_navigateTo_auth() throws {
         subject.navigate(to: .auth(.landing))
 
@@ -186,6 +197,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.auth(.landing)` twice uses the existing coordinator, rather than creating a new one.
+    @MainActor
     func test_navigateTo_authTwice() {
         subject.navigate(to: .auth(.landing))
         subject.navigate(to: .auth(.landing))
@@ -194,8 +206,17 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.authCoordinator.routes, [.landing, .landing])
     }
 
+    /// `navigate(to:)` with `.debugMenu` starts the auth coordinator and navigates to the proper debug menu route.
+    @MainActor
+    func test_navigateTo_debugMenu() throws {
+        subject.navigate(to: .debugMenu)
+
+        waitFor(module.debugMenuCoordinator.isStarted)
+    }
+
     /// `navigate(to:)` with `.extensionSetup(.extensionActivation))` starts the extension setup
     /// coordinator and navigates to the proper route.
+    @MainActor
     func test_navigateTo_extensionSetup() throws {
         subject.navigate(to: .extensionSetup(.extensionActivation(type: .autofillExtension)))
 
@@ -205,6 +226,7 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.extensionSetup(.extensionActivation))` twice uses the existing
     /// coordinator, rather than creating a new one.
+    @MainActor
     func test_navigateTo_extensionSetupTwice() {
         subject.navigate(to: .extensionSetup(.extensionActivation(type: .autofillExtension)))
         subject.navigate(to: .extensionSetup(.extensionActivation(type: .autofillExtension)))
@@ -216,6 +238,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.loginRequest(_)` shows the login request view.
+    @MainActor
     func test_navigateTo_loginRequest() {
         // Set up.
         rootNavigator.rootViewController = MockUIViewController()
@@ -238,6 +261,7 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.sendItem(.add(content:hasPremium:))` starts the send item coordinator
     /// and navigates to the proper route.
+    @MainActor
     func test_navigateTo_sendItem() {
         subject.navigate(to: .sendItem(.add(content: nil, hasPremium: false)))
 
@@ -250,6 +274,7 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.sendItem()` twice uses the existing coordinator, rather than
     /// creating a new one.
+    @MainActor
     func test_navigateTo_sendItem_twice() {
         subject.navigate(to: .sendItem(.add(content: nil, hasPremium: false)))
         subject.navigate(to: .sendItem(.add(content: .text("test"), hasPremium: true)))
@@ -265,6 +290,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.tab(.vault(.list))` starts the tab coordinator and navigates to the proper tab route.
+    @MainActor
     func test_navigateTo_tab() {
         subject.navigate(to: .tab(.vault(.list)))
         XCTAssertTrue(module.tabCoordinator.isStarted)
@@ -272,6 +298,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.tab(.vault(.list))` twice uses the existing coordinator, rather than creating a new one.
+    @MainActor
     func test_navigateTo_tabTwice() {
         subject.navigate(to: .tab(.vault(.list)))
         subject.navigate(to: .tab(.vault(.list)))
@@ -280,6 +307,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `presentLoginRequest(_:)` shows the login request view.
+    @MainActor
     func test_presentLoginRequest() {
         // Set up.
         rootNavigator.rootViewController = MockUIViewController()
@@ -301,6 +329,7 @@ class AppCoordinatorTests: BitwardenTestCase {
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    @MainActor
     func test_show_hide_loadingOverlay() throws {
         rootNavigator.rootViewController = UIViewController()
         try setKeyWindowRoot(viewController: XCTUnwrap(subject.rootNavigator?.rootViewController))
@@ -315,7 +344,22 @@ class AppCoordinatorTests: BitwardenTestCase {
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
     }
 
+    /// `showToast(_:subtitle)` shows the toast in the navigator.
+    @MainActor
+    func test_showToast() {
+        let viewController = UIViewController()
+        let window = UIWindow()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+        rootNavigator.rootViewController = viewController
+
+        subject.showToast("Title", subtitle: "Subtitle")
+
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
+
     /// `start()` doesn't navigate anywhere (first route is managed by AppProcessor).
+    @MainActor
     func test_start() {
         subject.start()
 
@@ -324,6 +368,7 @@ class AppCoordinatorTests: BitwardenTestCase {
 
     /// `switchAccount(userId:isAutomatic:authCompletionRoute:)` sets the auth completion route and
     /// navigates to the appropriate route.
+    @MainActor
     func test_switchAccount() throws {
         let authCompletionRoute = AppRoute.tab(.vault(.vaultItemSelection(.fixtureExample)))
         subject.switchAccount(

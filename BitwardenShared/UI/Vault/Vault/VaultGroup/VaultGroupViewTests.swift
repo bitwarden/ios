@@ -40,6 +40,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the add an item button dispatches the `.addItemPressed` action.
+    @MainActor
     func test_addAnItemButton_tap() throws {
         processor.state.loadingState = .data([])
         let button = try subject.inspect().find(button: Localizations.addAnItem)
@@ -47,7 +48,16 @@ class VaultGroupViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
+    /// Tapping the add item floating action button dispatches the `.addItemPressed` action.`
+    @MainActor
+    func test_addItemFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+    }
+
     /// Tapping the add an item toolbar button dispatches the `.addItemPressed` action.
+    @MainActor
     func test_addAnItemToolbarButton_tap() throws {
         processor.state.loadingState = .data([])
         let button = try subject.inspect().find(button: Localizations.add)
@@ -56,6 +66,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     /// Tapping a vault item dispatches the `.itemPressed` action.
+    @MainActor
     func test_vaultItem_tap() throws {
         let item = VaultListItem.fixture(cipherView: .fixture(name: "Item"))
         let section = VaultListSection(id: "Items", items: [item], name: Localizations.items)
@@ -66,6 +77,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     /// Tapping the vault item copy totp button dispatches the `.copyTOTPCode` action.
+    @MainActor
     func test_vaultItem_copyTOTPButton_tap() throws {
         processor.state.loadingState = .data(
             [
@@ -89,6 +101,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     /// Tapping the more button on a vault item dispatches the `.morePressed` action.
+    @MainActor
     func test_vaultItem_moreButton_tap() async throws {
         let item = VaultListItem.fixture()
         let section = VaultListSection(id: "Items", items: [item], name: Localizations.items)
@@ -100,34 +113,40 @@ class VaultGroupViewTests: BitwardenTestCase {
 
     // MARK: Snapshots
 
+    @MainActor
     func test_snapshot_empty() {
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_emptyCollection() {
         processor.state.group = .collection(id: "id", name: "name", organizationId: "12345")
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_emptyFolder() {
         processor.state.group = .folder(id: "id", name: "name")
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_emptyTrash() {
         processor.state.group = .trash
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_multipleItems() {
         processor.state.loadingState = .data(
             [
@@ -166,6 +185,7 @@ class VaultGroupViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_oneItem() {
         processor.state.loadingState = .data(
             [
@@ -184,6 +204,7 @@ class VaultGroupViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_search_oneItem() {
         processor.state.isSearching = true
         processor.state.searchResults = [
@@ -195,6 +216,7 @@ class VaultGroupViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    @MainActor
     func test_snapshot_search_oneTOTPItem() {
         timeProvider.timeConfig = .mockTime(
             .init(

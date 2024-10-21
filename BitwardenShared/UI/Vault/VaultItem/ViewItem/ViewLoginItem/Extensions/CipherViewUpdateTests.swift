@@ -3,23 +3,30 @@ import XCTest
 
 @testable import BitwardenShared
 
-final class CipherViewUpdateTests: BitwardenTestCase {
+final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherItemState: CipherItemState!
+    var now: Date!
+    var timeProvider: MockTimeProvider!
     var subject: BitwardenSdk.CipherView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
+
+        now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
         subject = CipherView.loginFixture()
+        timeProvider = MockTimeProvider(.mockTime(now))
         cipherItemState = .init(hasPremium: true)
     }
 
     override func tearDown() {
         super.tearDown()
+
         subject = nil
+        timeProvider = nil
         cipherItemState = nil
     }
 
@@ -225,6 +232,39 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         let newerPasswordHistory = secondComparison.passwordHistory
 
         XCTAssertEqual(newerPasswordHistory?.last?.password, "New password")
+    }
+
+    /// Tests that the update succeeds with a new password updating the password revision date.
+    func test_update_login_passwordRevisionDate_succeeds() throws {
+        subject = CipherView.loginFixture(
+            login: .fixture(
+                password: "Old password",
+                passwordRevisionDate: DateTime.distantPast
+            )
+        )
+        cipherItemState.loginState.password = "New password"
+
+        let comparison = subject.updatedView(with: cipherItemState, timeProvider: timeProvider)
+        let passwordRevisionDate = try XCTUnwrap(comparison.login?.passwordRevisionDate)
+
+        XCTAssertEqual(passwordRevisionDate, now)
+    }
+
+    /// Tests that the password revision date doesn't get updated if the password hasn't changed
+    func test_update_login_passwordRevisionDate_noUpdateIfNoNewPassword() throws {
+        subject = CipherView.loginFixture(
+            login: .fixture(
+                password: "Old password",
+                passwordRevisionDate: DateTime.distantPast
+            )
+        )
+        cipherItemState.loginState.password = "Old password"
+        cipherItemState.loginState.username = "New username"
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let passwordRevisionDate = try XCTUnwrap(comparison.login?.passwordRevisionDate)
+
+        XCTAssertEqual(passwordRevisionDate, DateTime.distantPast)
     }
 
     /// Tests that the update succeeds with updated properties.

@@ -84,8 +84,6 @@ extension ProfileSwitcherHandler {
             }
         case .backgroundPressed:
             profileSwitcherState.isVisible = false
-        case let .scrollOffsetChanged(newOffset):
-            profileSwitcherState.scrollOffset = newOffset
         }
     }
 
@@ -176,7 +174,7 @@ private extension ProfileSwitcherHandler {
             // vault view, but if it was the non-active account, display a success toast
             // and update the profile switcher view.
             if account.userId != activeAccountId {
-                toast = Toast(text: Localizations.accountLockedSuccessfully)
+                toast = Toast(title: Localizations.accountLockedSuccessfully)
                 await refreshProfileState()
             }
         } catch {
@@ -197,7 +195,7 @@ private extension ProfileSwitcherHandler {
             // If that account was not active,
             // show a toast that the account was logged out successfully.
             if account.userId != activeAccountId {
-                toast = Toast(text: Localizations.accountLoggedOutSuccessfully)
+                toast = Toast(title: Localizations.accountLoggedOutSuccessfully)
 
                 // Update the profile switcher view.
                 await refreshProfileState()

@@ -1,11 +1,11 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // MARK: - AttachmentsState
 
 /// An object that defines the current state of a `AttachmentsView`.
 ///
-struct AttachmentsState: Equatable {
+struct AttachmentsState: Equatable, Sendable {
     /// The cipher.
     var cipher: CipherView?
 

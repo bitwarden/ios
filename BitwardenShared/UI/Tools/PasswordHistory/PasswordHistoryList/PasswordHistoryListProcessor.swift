@@ -1,4 +1,4 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import OSLog
 
 // MARK: - PasswordHistoryListProcessor
@@ -63,7 +63,7 @@ final class PasswordHistoryListProcessor: StateProcessor<
         switch action {
         case let .copyPassword(passwordHistory):
             services.pasteboardService.copy(passwordHistory.password)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.password))
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case let .toastShown(newValue):

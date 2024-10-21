@@ -93,6 +93,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.booleanFieldChanged)` changes
     /// the boolean value of the custom field.
+    @MainActor
     func test_customField_booleanFieldChanged() {
         subject.state.customFieldsState.customFields = [
             CustomFieldState(
@@ -109,6 +110,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.customField(.customFieldAdded)` adds a new custom field view.
+    @MainActor
     func test_customField_customFieldAdded() {
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
         subject.receive(.customField(.customFieldAdded(.text, "fieldName2")))
@@ -120,6 +122,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.customFieldAdded)` adds a new linked custom field view and selects
     /// default `LinkedIdType`.
+    @MainActor
     func test_customField_customFieldAdded_linked() {
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
         subject.receive(.customField(.customFieldAdded(.linked, "linked field")))
@@ -135,6 +138,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.customFieldChanged(newValue:,index:))` changes
     /// the value of the custom field.
+    @MainActor
     func test_customField_customFieldChanged() {
         subject.receive(.customField(.customFieldChanged("newValue", index: 0)))
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
@@ -144,6 +148,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.customField(.customFieldNameChanged)` changes the name of the custom field.
+    @MainActor
     func test_customField_customFieldNameChanged() {
         subject.receive(.customField(.customFieldNameChanged(index: 0, newValue: "newFieldName")))
         XCTAssertEqual(subject.state.customFieldsState.customFields.count, 1)
@@ -154,6 +159,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `customField(.editCustomFieldNamePressed(index:))` navigates
     /// to the `.alert` route to edit the existing custom field name .
+    @MainActor
     func test_receive_editCustomFieldNamePressed() async throws {
         XCTAssertEqual(subject.state.customFieldsState.customFields.last?.name, "fieldName1")
         subject.receive(.customField(.editCustomFieldNamePressed(index: 0)))
@@ -170,6 +176,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.moveDownCustomFieldPressed(index:))` move down
     /// the index of the given custom field.
+    @MainActor
     func test_customField_moveDownCustomFieldPressed() {
         let originalCustomFields = [
             CustomFieldState(
@@ -197,6 +204,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.moveDownCustomFieldPressed(index:))` will not
     ///  change anything if the the given index to move down was wrong.
+    @MainActor
     func test_customField_moveDownCustomFieldPressed_wrongIndexes() {
         let originalCustomFields = [
             CustomFieldState(
@@ -230,6 +238,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.moveUpCustomFieldPressed(index:))` move up
     /// the index of the given custom field.
+    @MainActor
     func test_customField_moveUpCustomFieldPressed() {
         let originalCustomFields = [
             CustomFieldState(
@@ -257,6 +266,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.moveUpCustomFieldPressed(index:))` will not change anything if
     /// the the given index to move up was wrong.
+    @MainActor
     func test_customField_moveUpCustomFieldPressed_wrongIndexes() {
         let originalCustomFields = [
             CustomFieldState(
@@ -290,6 +300,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `customField(.newCustomFieldPressed)` navigates to the `.alert` route
     /// to select the new custom field type.
+    @MainActor
     func test_receive_newCustomFieldPressed() async throws {
         subject.receive(.customField(.newCustomFieldPressed))
 
@@ -305,6 +316,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `customField(.newCustomFieldPressed)` navigates to the `.alert` route
     /// to select the new custom field type for secure note.
+    @MainActor
     func test_receive_newCustomFieldPressed_forSecureNote() async throws {
         subject.state.type = .secureNote
         subject.receive(.customField(.newCustomFieldPressed))
@@ -320,6 +332,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.removeCustomFieldPressed(index:))` will remove
     /// the  custom field from given index.
+    @MainActor
     func test_customField_removeCustomFieldPressed() {
         let originalCustomFields = [
             CustomFieldState(
@@ -349,6 +362,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.customField(.removeCustomFieldPressed(index:))` will not change anything
     /// if  given index was wrong.
+    @MainActor
     func test_customField_removeCustomFieldPressed_wrongIndexes() {
         let originalCustomFields = [
             CustomFieldState(
@@ -381,6 +395,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `customField(.selectedCustomFieldType)` navigates to the `.alert` route
     /// to name the new custom field.
+    @MainActor
     func test_customField_selectedCustomFieldType() async throws {
         subject.receive(.customField(.selectedCustomFieldType(.boolean)))
 
@@ -399,6 +414,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `customField(.selectedLinkedIdType)` updates
     /// the `.linkedIdType` of the custom field.
+    @MainActor
     func test_customField_selectedLinkedIdType() async throws {
         let originalCustomFields = [
             CustomFieldState(
@@ -421,6 +437,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `customField(.togglePasswordVisibilityChanged)`  only changes
     /// the `isPasswordVisible` of the custom field.
+    @MainActor
     func test_customField_togglePasswordVisibilityChanged() async throws {
         XCTAssertEqual(subject.state.customFieldsState.customFields[0].isPasswordVisible, false)
         subject.receive(.customField(.togglePasswordVisibilityChanged(true, 0)))
@@ -431,6 +448,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `didCancelGenerator()` navigates to the `.dismiss()` route.
+    @MainActor
     func test_didCancelGenerator() {
         subject.didCancelGenerator()
         XCTAssertEqual(coordinator.routes.last, .dismiss())
@@ -438,6 +456,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `didCompleteGenerator` with a password value updates the state with the new password value
     /// and navigates to the `.dismiss()` route.
+    @MainActor
     func test_didCompleteGenerator_withPassword() {
         subject.state.loginState.username = "username123"
         subject.state.loginState.password = "password123"
@@ -449,6 +468,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `didCompleteGenerator` with a username value updates the state with the new username value
     /// and navigates to the `.dismiss()` route.
+    @MainActor
     func test_didCompleteGenerator_withUsername() {
         subject.state.loginState.username = "username123"
         subject.state.loginState.password = "password123"
@@ -460,6 +480,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `didCompleteCapture` with a value updates the state with the new auth key value
     /// and navigates to the `.dismiss` route.
+    @MainActor
     func test_didCompleteCapture_failure() {
         subject.state.loginState.totpState = .none
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
@@ -487,6 +508,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `didCompleteCapture` with a value updates the state with the new auth key value
     /// and navigates to the `.dismiss()` route.
+    @MainActor
     func test_didCompleteCapture_success() throws {
         subject.state.loginState.totpState = .none
         let key = String.standardTotpKey
@@ -501,31 +523,34 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertEqual(subject.state.loginState.authenticatorKey, .standardTotpKey)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.authenticatorKeyAdded)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.authenticatorKeyAdded))
     }
 
     /// `didMoveCipher(_:to:)` displays a toast after the cipher is moved to the organization.
+    @MainActor
     func test_didMoveCipher() {
         subject.didMoveCipher(.fixture(name: "Bitwarden Password"), to: .organization(id: "1", name: "Organization"))
 
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.movedItemToOrg("Bitwarden Password", "Organization")
+            subject.state.toast,
+            Toast(title: Localizations.movedItemToOrg("Bitwarden Password", "Organization"))
         )
     }
 
     /// `didUpdateCipher()` displays a toast after the cipher is updated.
+    @MainActor
     func test_didUpdateCipher() {
         subject.didUpdateCipher()
 
         waitFor { subject.state.toast != nil }
 
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
     }
 
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
+    @MainActor
     func test_perform_appeared_showPasswordAutofill_alreadyShown() async {
         stateService.addSitePromptShown = true
         await subject.perform(.appeared)
@@ -533,6 +558,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it's in the extension.
+    @MainActor
     func test_perform_appeared_showPasswordAutofill_extension() async {
         appExtensionDelegate.isInAppExtension = true
         await subject.perform(.appeared)
@@ -540,6 +566,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if the user isn't adding a login.
+    @MainActor
     func test_perform_appeared_showPasswordAutofill_nonLoginType() async {
         subject.state.type = .card
         await subject.perform(.appeared)
@@ -547,6 +574,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` shows the password autofill alert.
+    @MainActor
     func test_perform_appeared_showPasswordAutofill_notShown() async {
         await subject.perform(.appeared)
         XCTAssertEqual(coordinator.alertShown.last, .passwordAutofillInformation())
@@ -554,6 +582,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` checks if user has masterpassword.
+    @MainActor
     func test_perform_appeared_checkUserHasMasterPassword_true() async {
         authRepository.hasMasterPasswordResult = .success(true)
         await subject.perform(.appeared)
@@ -561,6 +590,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` checks if user has masterpassword.
+    @MainActor
     func test_perform_appeared_checkUserHasMasterPassword_false() async {
         authRepository.hasMasterPasswordResult = .success(false)
         await subject.perform(.appeared)
@@ -568,6 +598,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
+    @MainActor
     func test_perform_checkPasswordPressed_exposedPassword() async throws {
         subject.state.loginState.password = "password1234"
         client.result = .httpSuccess(testData: .hibpLeakedPasswords)
@@ -586,6 +617,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
+    @MainActor
     func test_perform_checkPasswordPressed_safePassword() async throws {
         subject.state.loginState.password = "iqpeor,kmn!JO8932jldfasd"
         client.result = .httpSuccess(testData: .hibpLeakedPasswords)
@@ -604,6 +636,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// Tapping the copy button on the auth key row dispatches the `.copyPassword` action.
+    @MainActor
     func test_perform_copyTotp() async throws {
         subject.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
 
@@ -616,6 +649,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// generic error alert if soft deleting fails.
+    @MainActor
     func test_perform_deletePressed_genericError() async throws {
         subject.state = CipherItemState(existing: .fixture(id: "123"), hasPremium: false)!
         struct TestError: Error, Equatable {}
@@ -640,6 +674,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays
     /// toast if soft deleting succeeds.
+    @MainActor
     func test_perform_deletePressed_success() async throws {
         subject.state = CipherItemState(
             existing: .fixture(id: "123"),
@@ -676,6 +711,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
+    @MainActor
     func test_perform_fetchCipherOptions() async {
         let collections: [CollectionView] = [
             .fixture(id: "1", name: "Design"),
@@ -705,6 +741,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` handles errors.
+    @MainActor
     func test_perform_fetchCipherOptions_error() async {
         vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .failure(BitwardenTestError.example)
@@ -720,6 +757,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` sends events on edit.
+    @MainActor
     func test_perform_fetchCipherOptions_events() async {
         subject = AddEditItemProcessor(
             appExtensionDelegate: appExtensionDelegate,
@@ -771,6 +809,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher and
     /// filters out any preset collections that the user doesn't have access to.
+    @MainActor
     func test_perform_fetchCipherOptions_filtersUnavailableCollections() async {
         let owner = CipherOwner.organization(id: "123", name: "Test Org 1")
         subject.state = CipherItemState(
@@ -791,6 +830,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository
     /// when the personal ownership policy is in place.
+    @MainActor
     func test_perform_fetchCipherOptions_personalOwnershipPolicy_enabled() async throws {
         let collections: [CollectionView] = [
             .fixture(id: "1", name: "Design"),
@@ -830,6 +870,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership and policy options for a
     /// cipher, but doesn't overwrite the owner if it was previously set to an organization and the
     /// personal ownership policy is in effect.
+    @MainActor
     func test_perform_fetchCipherOptions_personalOwnershipPolicy_doesNotOverrideOwner() async {
         let owner = CipherOwner.organization(id: "987", name: "Test Org 2")
         subject.state = CipherItemState(
@@ -856,6 +897,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
+    @MainActor
     func test_perform_savePressed_invalidName() async throws {
         subject.state.name = "    "
 
@@ -873,6 +915,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if saving or updating fails.
+    @MainActor
     func test_perform_savePressed_genericErrorAlert() async throws {
         subject.state.name = "vault item"
         struct EncryptError: Error, Equatable {}
@@ -888,6 +931,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected.
+    @MainActor
     func test_perform_savePressed_noCollection() async throws {
         subject.state.name = "Organization Item"
         subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
@@ -905,6 +949,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` succeeds if an organization and collection have been selected.
+    @MainActor
     func test_perform_savePressed_organizationAndCollection() async throws {
         subject.state.name = "Organization Item"
         subject.state.owner = CipherOwner.organization(id: "123", name: "Organization")
@@ -918,6 +963,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` displays an alert containing the message returned by the
     /// server if saving fails.
+    @MainActor
     func test_perform_savePressed_serverErrorAlert() async throws {
         let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
         try vaultRepository.addCipherResult = .failure(
@@ -937,6 +983,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
+    @MainActor
     func test_perform_savePressed_secureNote() async {
         subject.state.type = .secureNote
         subject.state.name = "secureNote"
@@ -956,6 +1003,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
+    @MainActor
     func test_perform_savePressed_card() async throws {
         subject.state.name = "vault item"
         subject.state.type = .card
@@ -999,6 +1047,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
+    @MainActor
     func test_perform_savePressed_login() async {
         subject.state.name = "vault item"
         await subject.perform(.savePressed)
@@ -1026,6 +1075,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` in the app extension completes the autofill request if a
     /// username and password was entered.
+    @MainActor
     func test_perform_savePressed_appExtension() async {
         appExtensionDelegate.isInAppExtensionSaveLoginFlow = true
         subject.state.loginState.password = "PASSWORD"
@@ -1042,6 +1092,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` in the app extension cancels the autofill extension if no
     /// username or password was entered.
+    @MainActor
     func test_perform_savePressed_appExtension_cancel() async {
         appExtensionDelegate.isInAppExtensionSaveLoginFlow = true
         subject.state.name = "Login from App Extension"
@@ -1054,6 +1105,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
+    @MainActor
     func test_perform_savePressed_error() async {
         subject.state.name = "vault item"
         struct EncryptError: Error, Equatable {}
@@ -1065,6 +1117,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was added and
     /// doesn't dismiss the view if it returns `false`.
+    @MainActor
     func test_perform_savePressed_new_shouldNotDismiss() async throws {
         delegate.itemAddedShouldDismiss = false
         subject.state.name = "Bitwarden"
@@ -1076,6 +1129,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` forwards errors to the error reporter.
+    @MainActor
     func test_perform_savePressed_existing_error() async throws {
         let cipher = CipherView.fixture(id: "123")
         let maybeCipherState = CipherItemState(
@@ -1095,6 +1149,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was updated and
     /// doesn't dismiss the view if it returns `false`.
+    @MainActor
     func test_perform_savePressed_existing_shouldNotDismiss() async throws {
         delegate.itemUpdatedShouldDismiss = false
         subject.state = try XCTUnwrap(CipherItemState(existing: .fixture(), hasPremium: true))
@@ -1106,6 +1161,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
+    @MainActor
     func test_perform_savePressed_existing_success() async throws {
         let cipher = CipherView.fixture(id: "123")
         let maybeCipherState = CipherItemState(
@@ -1141,6 +1197,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
     /// `.setupTotpCamera` route.
+    @MainActor
     func test_perform_setupTotpPressed_cameraAuthorizationAuthorized() async {
         cameraService.cameraAuthorizationStatus = .authorized
         await subject.perform(.setupTotpPressed)
@@ -1150,6 +1207,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization denied navigates to the
     /// `.setupTotpManual` route.
+    @MainActor
     func test_perform_setupTotpPressed_cameraAuthorizationDenied() async {
         cameraService.cameraAuthorizationStatus = .denied
         await subject.perform(.setupTotpPressed)
@@ -1159,6 +1217,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization restricted navigates to the
     /// `.setupTotpManual` route.
+    @MainActor
     func test_perform_setupTotpPressed_cameraAuthorizationRestricted() async {
         cameraService.cameraAuthorizationStatus = .restricted
         await subject.perform(.setupTotpPressed)
@@ -1167,6 +1226,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.
+    @MainActor
     func test_receive_authKeyVisibilityTapped() {
         subject.state.loginState.isAuthKeyVisible = false
         subject.receive(.authKeyVisibilityTapped(true))
@@ -1175,6 +1235,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
+    @MainActor
     func test_receive_clearTOTPKey() {
         subject.state.loginState.totpState = LoginTOTPState(.standardTotpKey)
         subject.receive(.totpKeyChanged(nil))
@@ -1182,7 +1243,19 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.loginState.authenticatorKey)
     }
 
+    /// `receive(_:)` with `.removePasskeyPressed` clears the fido2Credentials.
+    @MainActor
+    func test_receive_removePasskeyPressed() {
+        subject.state.loginState.fido2Credentials = [
+            .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
+        ]
+        subject.receive(.removePasskeyPressed)
+
+        XCTAssertEqual(subject.state.loginState.fido2Credentials, [])
+    }
+
     /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
+    @MainActor
     func test_receive_collectionToggleChanged() {
         subject.state.collections = [
             .fixture(id: "1", name: "Design"),
@@ -1200,6 +1273,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.dismiss()` navigates to the `.dismiss()` route.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
 
@@ -1207,6 +1281,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.favoriteChanged` with `true` updates the state correctly.
+    @MainActor
     func test_receive_favoriteChanged_withTrue() {
         subject.state.isFavoriteOn = false
 
@@ -1218,6 +1293,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.favoriteChanged` with `false` updates the state correctly.
+    @MainActor
     func test_receive_favoriteChanged_withFalse() {
         subject.state.isFavoriteOn = true
 
@@ -1229,6 +1305,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.folderChanged` with a value updates the state correctly.
+    @MainActor
     func test_receive_folderChanged_withValue() {
         let folder = FolderView.fixture(id: "1", name: "📁")
         subject.state.folders = [
@@ -1243,6 +1320,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.folderChanged` without a value updates the state correctly.
+    @MainActor
     func test_receive_folderChanged_withoutValue() {
         subject.state.folders = [
             .default,
@@ -1258,6 +1336,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.generatePasswordPressed` navigates to the `.generator` route.
+    @MainActor
     func test_receive_generatePasswordPressed() {
         subject.state.loginState.password = ""
         subject.receive(.generatePasswordPressed)
@@ -1267,6 +1346,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.generateUsernamePressed` and with a password value in the state
     /// navigates to the `.alert` route.
+    @MainActor
     func test_receive_generatePasswordPressed_withUsernameValue() async throws {
         subject.state.loginState.password = "password"
         subject.receive(.generatePasswordPressed)
@@ -1290,6 +1370,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.generateUsernamePressed` and without a username value in the state
     /// navigates to the `.generator` route.
+    @MainActor
     func test_receive_generateUsernamePressed_withoutUsernameValue() {
         subject.state.loginState.username = ""
         subject.receive(.generateUsernamePressed)
@@ -1299,6 +1380,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.generateUsernamePressed` and with a username value in the state
     /// navigates to the `.alert` route.
+    @MainActor
     func test_receive_generateUsernamePressed_withUsernameValue() async throws {
         subject.state.loginState.username = "username"
         subject.receive(.generateUsernamePressed)
@@ -1321,6 +1403,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.generateUsernamePressed` passes the host of the first URI to the generator.
+    @MainActor
     func test_receive_generateUsernamePressed_withURI() async throws {
         subject.state.loginState.uris = [
             UriState(uri: "https://bitwarden.com"),
@@ -1335,6 +1418,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.masterPasswordRePromptChanged` with `true` updates the state correctly.
+    @MainActor
     func test_receive_masterPasswordRePromptChanged_withTrue() {
         subject.state.isMasterPasswordRePromptOn = false
 
@@ -1346,6 +1430,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.masterPasswordRePromptChanged` with `false` updates the state correctly.
+    @MainActor
     func test_receive_masterPasswordRePromptChanged_withFalse() {
         subject.state.isMasterPasswordRePromptOn = true
 
@@ -1357,6 +1442,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.morePressed(.attachments)` navigates the user to the attachments  view.
+    @MainActor
     func test_receive_morePressed_attachments() throws {
         let cipher = CipherView.fixture(id: "1")
         subject.state = try XCTUnwrap(
@@ -1371,6 +1457,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.morePressed(.editCollections)` navigates the user to the edit
     /// collections view.
+    @MainActor
     func test_receive_morePressed_editCollections() throws {
         let cipher = CipherView.fixture(id: "1")
         subject.state = try XCTUnwrap(
@@ -1388,6 +1475,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.morePressed(.moveToOrganization)` navigates the user to the move to
     /// organization view.
+    @MainActor
     func test_receive_morePressed_moveToOrganization() throws {
         let cipher = CipherView.fixture(id: "1")
         subject.state = try XCTUnwrap(
@@ -1404,6 +1492,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.nameChanged` with a value updates the state correctly.
+    @MainActor
     func test_receive_nameChanged_withValue() {
         subject.state.name = ""
         subject.receive(.nameChanged("name"))
@@ -1412,6 +1501,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.nameChanged` without a value updates the state correctly.
+    @MainActor
     func test_receive_nameChanged_withoutValue() {
         subject.state.name = "name"
         subject.receive(.nameChanged(""))
@@ -1420,6 +1510,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.newUriPressed` adds a new URI field to the state.
+    @MainActor
     func test_receive_newUriPressed() {
         subject.receive(.newUriPressed)
 
@@ -1427,6 +1518,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.notesChanged` with a value updates the state correctly.
+    @MainActor
     func test_receive_notesChanged_withValue() {
         subject.state.notes = ""
         subject.receive(.notesChanged("notes"))
@@ -1435,6 +1527,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.notesChanged` without a value updates the state correctly.
+    @MainActor
     func test_receive_notesChanged_withoutValue() {
         subject.state.notes = "notes"
         subject.receive(.notesChanged(""))
@@ -1443,6 +1536,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.ownerChanged` updates the state correctly.
+    @MainActor
     func test_receive_ownerChanged() {
         let personalOwner = CipherOwner.personal(email: "user@bitwarden.com")
         let organizationOwner = CipherOwner.organization(id: "1", name: "Organization")
@@ -1456,6 +1550,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.passwordChanged` with a value updates the state correctly.
+    @MainActor
     func test_receive_passwordChanged_withValue() {
         subject.state.loginState.password = ""
         subject.receive(.passwordChanged("password"))
@@ -1464,6 +1559,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.passwordChanged` without a value updates the state correctly.
+    @MainActor
     func test_receive_passwordChanged_withoutValue() {
         subject.state.loginState.password = "password"
         subject.receive(.passwordChanged(""))
@@ -1471,9 +1567,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.loginState.password, "")
     }
 
+    /// `receive(_:)` with `.sshKeyItemAction` and `privateKeyVisibilityPressed` toggles
+    /// the visibility of the `privateKey` field.
+    @MainActor
+    func test_receive_sshKeyItemAction_withoutValue() {
+        subject.state.sshKeyState.isPrivateKeyVisible = false
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        XCTAssertTrue(subject.state.sshKeyState.isPrivateKeyVisible)
+    }
+
     /// `receive(_:)` with `.toastShown` without a value updates the state correctly.
+    @MainActor
     func test_receive_toastShown_withoutValue() {
-        let toast = Toast(text: "123")
+        let toast = Toast(title: "123")
         subject.state.toast = toast
         subject.receive(.toastShown(nil))
 
@@ -1481,14 +1588,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
+    @MainActor
     func test_receive_toastShown_withValue() {
-        let toast = Toast(text: "123")
+        let toast = Toast(title: "123")
         subject.receive(.toastShown(toast))
 
         XCTAssertEqual(subject.state.toast, toast)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.
+    @MainActor
     func test_receive_togglePasswordVisibilityChanged_withTrue() {
         subject.state.loginState.isPasswordVisible = false
 
@@ -1501,6 +1610,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` when editing
     ///  sends an event.
+    @MainActor
     func test_receive_togglePasswordVisibilityChanged_withTrue_whenEditing() {
         subject = AddEditItemProcessor(
             appExtensionDelegate: appExtensionDelegate,
@@ -1534,6 +1644,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `false` updates the state correctly.
+    @MainActor
     func test_receive_togglePasswordVisibilityChanged_withFalse() {
         subject.state.loginState.isPasswordVisible = true
 
@@ -1545,6 +1656,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.totpFieldLeftFocus` with a key with spaces.
+    @MainActor
     func test_receive_totpFieldLeftFocus_validKey_standardState() throws {
         let keyWithSpaces = "pasta batman"
         subject.state.loginState.totpState = LoginTOTPState(keyWithSpaces)
@@ -1566,6 +1678,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.totpFieldLeftFocus` clears the authenticator key.
+    @MainActor
     func test_receive_totpFieldLeftFocus_validKey() {
         subject.state.loginState.totpState = LoginTOTPState(.standardTotpKey)
         subject.receive(.totpFieldLeftFocus)
@@ -1580,6 +1693,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.typeChanged` updates the state correctly.
+    @MainActor
     func test_receive_typeChanged() {
         subject.state.type = .login
         subject.receive(.typeChanged(.card))
@@ -1592,6 +1706,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.uriChanged` with a valid index updates the state correctly.
+    @MainActor
     func test_receive_uriChanged_withValidIndex() {
         subject.state.loginState.uris = [
             UriState(
@@ -1606,6 +1721,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.uriChanged` without a valid index does not update the state.
+    @MainActor
     func test_receive_uriChanged_withoutValidIndex() {
         subject.state.loginState.uris = [
             UriState(
@@ -1620,6 +1736,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.uriTypeChanged` with a valid id updates the state correctly.
+    @MainActor
     func test_receive_uriTypeChanged_withValidUriId() {
         subject.state.loginState.uris = [
             UriState(
@@ -1634,6 +1751,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.uriTypeChanged` without a valid id does not update the state.
+    @MainActor
     func test_receive_uriTypeChanged_withoutValidUriId() {
         subject.state.loginState.uris = [
             UriState(
@@ -1648,6 +1766,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.usernameChanged` without a value updates the state correctly.
+    @MainActor
     func test_receive_usernameChanged_withValue() {
         subject.state.loginState.username = ""
         subject.receive(.usernameChanged("username"))
@@ -1656,6 +1775,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.usernameChanged` without a value updates the state correctly.
+    @MainActor
     func test_receive_usernameChanged_withoutValue() {
         subject.state.loginState.username = "username"
         subject.receive(.usernameChanged(""))
@@ -1664,6 +1784,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_cardholderNameChanged_withValidValue() {
         subject.state.cardItemState.brand = .default
         subject.receive(.cardFieldChanged(.brandChanged(.custom(.visa))))
@@ -1671,6 +1792,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_cardholderNameChanged_withoutValidValue() {
         subject.state.cardItemState.brand = .custom(.visa)
         subject.receive(.cardFieldChanged(.brandChanged(.default)))
@@ -1678,6 +1800,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardholderNameChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_cardholderNameChanged() {
         subject.state.cardItemState.cardholderName = "James"
         subject.receive(.cardFieldChanged(.cardholderNameChanged("Jane")))
@@ -1685,6 +1808,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardNumberChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_cardNumberChanged() {
         subject.state.cardItemState.cardNumber = "123"
         subject.receive(.cardFieldChanged(.cardNumberChanged("12345")))
@@ -1692,6 +1816,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.cardSecurityCodeChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_cardSecurityCodeChanged() {
         subject.state.cardItemState.cardSecurityCode = "123"
         subject.receive(.cardFieldChanged(.cardSecurityCodeChanged("456")))
@@ -1699,6 +1824,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.expirationMonthChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_expirationMonthChanged_withValidValue() {
         subject.state.cardItemState.brand = .default
         subject.receive(.cardFieldChanged(.expirationMonthChanged(.custom(.jul))))
@@ -1706,6 +1832,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.brandChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_expirationMonthChanged_withoutValidValue() {
         subject.state.cardItemState.expirationMonth = .custom(.jul)
         subject.receive(.cardFieldChanged(.expirationMonthChanged(.default)))
@@ -1713,6 +1840,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.expirationYearChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_expirationYearChanged() {
         subject.state.cardItemState.expirationYear = "2009"
         subject.receive(.cardFieldChanged(.expirationYearChanged("2029")))
@@ -1720,6 +1848,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_titleChange_withValidValue() {
         subject.state.identityState.title = .default
         subject.receive(.identityFieldChanged(.titleChanged(.custom(.mr))))
@@ -1727,6 +1856,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.titleChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_titleChange_withOutValidValue() {
         subject.state.identityState.title = DefaultableType.custom(.mr)
         subject.receive(.identityFieldChanged(.titleChanged(DefaultableType.default)))
@@ -1734,18 +1864,21 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.toggleCodeVisibilityChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_toggleCodeVisibilityChanged() {
         subject.receive(.cardFieldChanged(.toggleCodeVisibilityChanged(true)))
         XCTAssertEqual(subject.state.cardItemState.isCodeVisible, true)
     }
 
     /// `receive(_:)` with `.cardFieldChanged(.toggleNumberVisibilityChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_cardFieldChanged_toggleNumberVisibilityChanged() {
         subject.receive(.cardFieldChanged(.toggleNumberVisibilityChanged(true)))
         XCTAssertEqual(subject.state.cardItemState.isNumberVisible, true)
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_firstNameChange_withValidValue() {
         subject.state.identityState.firstName = ""
         subject.receive(.identityFieldChanged(.firstNameChanged("firstName")))
@@ -1754,6 +1887,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.firstNameChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_firstNameChange_withOutValidValue() {
         subject.state.identityState.firstName = "firstName"
         subject.receive(.identityFieldChanged(.firstNameChanged("")))
@@ -1762,6 +1896,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.middleNameChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_middleNameChange_withValidValue() {
         subject.state.identityState.middleName = ""
         subject.receive(.identityFieldChanged(.middleNameChanged("middleName")))
@@ -1770,6 +1905,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.middleNameChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_middleNameChange_withOutValidValue() {
         subject.state.identityState.middleName = "middleName"
         subject.receive(.identityFieldChanged(.middleNameChanged("")))
@@ -1778,6 +1914,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.lastNameChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_lastNameChange_withValidValue() {
         subject.state.identityState.lastName = ""
         subject.receive(.identityFieldChanged(.lastNameChanged("lastName")))
@@ -1786,6 +1923,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.lastNameChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_lastNameChange_withOutValidValue() {
         subject.state.identityState.lastName = "lastName"
         subject.receive(.identityFieldChanged(.lastNameChanged("")))
@@ -1794,6 +1932,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.userNameChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_userNameChange_withValidValue() {
         subject.state.identityState.userName = ""
         subject.receive(.identityFieldChanged(.userNameChanged("userName")))
@@ -1802,6 +1941,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.userNameChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_userNameChange_withOutValidValue() {
         subject.state.identityState.userName = "userName"
         subject.receive(.identityFieldChanged(.userNameChanged("")))
@@ -1810,6 +1950,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.companyChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_companyChange_withValidValue() {
         subject.state.identityState.company = ""
         subject.receive(.identityFieldChanged(.companyChanged("company")))
@@ -1818,6 +1959,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.companyChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_companyChange_withOutValidValue() {
         subject.state.identityState.company = "company"
         subject.receive(.identityFieldChanged(.companyChanged("")))
@@ -1826,6 +1968,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_passportNumberChange_withValidValue() {
         subject.state.identityState.passportNumber = ""
         subject.receive(.identityFieldChanged(.passportNumberChanged("passportNumber")))
@@ -1834,6 +1977,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_passportNumberChange_withOutValidValue() {
         subject.state.identityState.passportNumber = "passportNumber"
         subject.receive(.identityFieldChanged(.passportNumberChanged("")))
@@ -1843,6 +1987,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.identityFieldChanged(.socialSecurityNumberChanged)`
     /// with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_socialSecurityNumberChange_withValidValue() {
         subject.state.identityState.socialSecurityNumber = ""
         subject.receive(.identityFieldChanged(.socialSecurityNumberChanged("socialSecurityNumber")))
@@ -1851,6 +1996,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.passportNumberChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_socialSecurityNumberChange_withOutValidValue() {
         subject.state.identityState.passportNumber = "socialSecurityNumber"
         subject.receive(.identityFieldChanged(.socialSecurityNumberChanged("")))
@@ -1859,6 +2005,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.licenseNumberChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_licenseNumberChange_withValidValue() {
         subject.state.identityState.licenseNumber = ""
         subject.receive(.identityFieldChanged(.licenseNumberChanged("licenseNumber")))
@@ -1867,6 +2014,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.licenseNumberChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_licenseNumberChange_withOutValidValue() {
         subject.state.identityState.licenseNumber = "licenseNumber"
         subject.receive(.identityFieldChanged(.licenseNumberChanged("")))
@@ -1875,6 +2023,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.emailChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_emailChange_withValidValue() {
         subject.state.identityState.email = ""
         subject.receive(.identityFieldChanged(.emailChanged("email")))
@@ -1883,6 +2032,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.emailChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_emailChange_withOutValidValue() {
         subject.state.identityState.email = "email"
         subject.receive(.identityFieldChanged(.emailChanged("")))
@@ -1891,6 +2041,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.phoneNumberChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_phoneChange_withValidValue() {
         subject.state.identityState.phone = ""
         subject.receive(.identityFieldChanged(.phoneNumberChanged("phone")))
@@ -1899,6 +2050,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.phoneNumberChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_phoneChange_withOutValidValue() {
         subject.state.identityState.phone = "phone"
         subject.receive(.identityFieldChanged(.phoneNumberChanged("")))
@@ -1907,6 +2059,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.address1Changed)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_address1Change_withValidValue() {
         subject.state.identityState.address1 = ""
         subject.receive(.identityFieldChanged(.address1Changed("address1")))
@@ -1915,6 +2068,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.address1Changed)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_address1Change_withOutValidValue() {
         subject.state.identityState.address1 = "address1"
         subject.receive(.identityFieldChanged(.address1Changed("")))
@@ -1923,6 +2077,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.address2Changed)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_address2Change_withValidValue() {
         subject.state.identityState.address2 = ""
         subject.receive(.identityFieldChanged(.address2Changed("address2")))
@@ -1931,6 +2086,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.address2Changed)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_address2Change_withOutValidValue() {
         subject.state.identityState.address2 = "address2"
         subject.receive(.identityFieldChanged(.address2Changed("")))
@@ -1939,6 +2095,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.address3Changed)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_address3Change_withValidValue() {
         subject.state.identityState.address3 = ""
         subject.receive(.identityFieldChanged(.address3Changed("address3")))
@@ -1947,6 +2104,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.address3Changed)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_address3Change_withOutValidValue() {
         subject.state.identityState.address3 = "address3"
         subject.receive(.identityFieldChanged(.address3Changed("")))
@@ -1955,6 +2113,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.cityOrTownChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_cityOrTownChange_withValidValue() {
         subject.state.identityState.cityOrTown = ""
         subject.receive(.identityFieldChanged(.cityOrTownChanged("cityOrTown")))
@@ -1963,6 +2122,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.cityOrTownChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_cityOrTownChange_withOutValidValue() {
         subject.state.identityState.cityOrTown = "cityOrTown"
         subject.receive(.identityFieldChanged(.cityOrTownChanged("")))
@@ -1971,6 +2131,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.stateChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_stateChange_withValidValue() {
         subject.state.identityState.state = ""
         subject.receive(.identityFieldChanged(.stateChanged("state")))
@@ -1980,6 +2141,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.identityFieldChanged(.stateChanged)` without
     ///  a value updates the state correctly.
+    @MainActor
     func test_receive_identity_stateChange_withOutValidValue() {
         subject.state.identityState.state = "state"
         subject.receive(.identityFieldChanged(.stateChanged("")))
@@ -1988,6 +2150,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.postalCodeChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_postalCodeChange_withValidValue() {
         subject.state.identityState.state = ""
         subject.receive(.identityFieldChanged(.postalCodeChanged("55408")))
@@ -1997,6 +2160,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     /// `receive(_:)` with `.identityFieldChanged(.postalCodeChanged)` without
     ///  a value updates the state correctly.
+    @MainActor
     func test_receive_identity_postalCodeChange_withOutValidValue() {
         subject.state.identityState.postalCode = "55408"
         subject.receive(.identityFieldChanged(.postalCodeChanged("")))
@@ -2005,6 +2169,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.countryChanged)` with a value updates the state correctly.
+    @MainActor
     func test_receive_identity_countryChange_withValidValue() {
         subject.state.identityState.country = ""
         subject.receive(.identityFieldChanged(.countryChanged("country")))
@@ -2013,6 +2178,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.identityFieldChanged(.countryChanged)` without a value updates the state correctly.
+    @MainActor
     func test_receive_identity_countryChange_withOutValidValue() {
         subject.state.identityState.country = "country"
         subject.receive(.identityFieldChanged(.countryChanged("")))

@@ -19,7 +19,7 @@ public enum UnlockMethod {
 
 /// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menuable {
+public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menuable, Sendable {
     /// Timeout immediately.
     case immediately
 
@@ -141,7 +141,7 @@ public enum SessionTimeoutValue: RawRepresentable, CaseIterable, Equatable, Menu
 
 /// The action to perform on session timeout.
 ///
-public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuable {
+public enum SessionTimeoutAction: Int, CaseIterable, Codable, Equatable, Menuable, Sendable {
     /// Lock the vault.
     case lock = 0
 
@@ -174,6 +174,9 @@ struct AccountSecurityState: Equatable {
     /// The timeout options to show when the policy for maximum timeout value is in effect.
     var availableTimeoutOptions: [SessionTimeoutValue] = SessionTimeoutValue.allCases
 
+    /// The state of the badges in the settings tab.
+    var badgeState: SettingsBadgeState?
+
     /// The biometric auth status for the user.
     var biometricUnlockStatus: BiometricsUnlockStatus = .notAvailable
 
@@ -182,6 +185,9 @@ struct AccountSecurityState: Equatable {
 
     /// Whether the user has a master password.
     var hasMasterPassword = true
+
+    /// Whether the user has enabled the sync with the authenticator app..
+    var isAuthenticatorSyncEnabled = false
 
     /// Whether the timeout policy is in effect.
     var isTimeoutPolicyEnabled = false
@@ -209,6 +215,9 @@ struct AccountSecurityState: Equatable {
 
     /// The length of time before a session timeout occurs.
     var sessionTimeoutValue: SessionTimeoutValue = .immediately
+
+    /// Whether the sync with the authenticator app section should be included.
+    var shouldShowAuthenticatorSyncSection = false
 
     /// The URL for two step login external link.
     var twoStepLoginUrl: URL?

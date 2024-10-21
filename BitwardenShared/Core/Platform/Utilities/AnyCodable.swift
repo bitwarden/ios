@@ -2,7 +2,7 @@
 
 /// A custom codable type that can be used to encode/decode a variety of primitive types.
 ///
-public enum AnyCodable: Codable, Equatable {
+public enum AnyCodable: Codable, Equatable, Sendable {
     /// The wrapped value is a bool value.
     case bool(Bool)
 

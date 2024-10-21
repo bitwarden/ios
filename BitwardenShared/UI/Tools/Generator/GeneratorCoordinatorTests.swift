@@ -41,6 +41,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.cancel` instructs the delegate that the generator flow has been
     /// cancelled.
+    @MainActor
     func test_navigateTo_cancel() {
         subject.navigate(to: .cancel)
         XCTAssertTrue(delegate.didCancelGeneratorCalled)
@@ -48,6 +49,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.complete` instructs the delegate that the generator flow has
     /// completed.
+    @MainActor
     func test_navigateTo_complete() {
         subject.navigate(to: .complete(type: .username, value: "email@example.com"))
         XCTAssertTrue(delegate.didCompleteGeneratorCalled)
@@ -57,6 +59,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.generator` and a delegate pushes the generator view onto the stack
     /// navigator.
+    @MainActor
     func test_navigateTo_generator_withDelegate() throws {
         subject.navigate(to: .generator())
 
@@ -71,6 +74,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.generator` and an email website pushes the generator view onto the
     /// stack navigator.
+    @MainActor
     func test_navigateTo_generator_withEmailType() throws {
         subject.navigate(to: .generator(emailWebsite: "bitwarden.com"))
 
@@ -84,6 +88,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.generator` and `.password` pushes the generator view onto the stack
     /// navigator without the type field visible.
+    @MainActor
     func test_navigateTo_generator_withPassword() throws {
         subject.navigate(to: .generator(staticType: .password))
 
@@ -98,6 +103,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.generator` and `.username` pushes the generator view onto the stack
     /// navigator without the type field visible.
+    @MainActor
     func test_navigateTo_generator_withUsername() throws {
         subject.navigate(to: .generator(staticType: .username))
 
@@ -112,6 +118,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.generator` and without a delegate pushes the generator view onto the
     /// stack navigator without the select button or dismiss button visible.
+    @MainActor
     func test_navigateTo_generator_withoutDelegate() throws {
         subject = GeneratorCoordinator(
             delegate: nil,
@@ -131,6 +138,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the presented view.
+    @MainActor
     func test_navigate_dismiss() throws {
         subject.navigate(to: .generatorHistory)
         subject.navigate(to: .dismiss)
@@ -139,6 +147,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.generator` pushes the generator view onto the stack navigator.
+    @MainActor
     func test_navigateTo_generator() throws {
         subject.navigate(to: .generator())
 
@@ -148,6 +157,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     }
 
     /// `navigate(to:)` with `.generatorHistory` presents the generator history view.
+    @MainActor
     func test_navigateTo_generatorHistory() throws {
         subject.navigate(to: .generatorHistory)
 
@@ -160,6 +170,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    @MainActor
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
         try setKeyWindowRoot(viewController: XCTUnwrap(stackNavigator.rootViewController))
@@ -175,6 +186,7 @@ class GeneratorCoordinatorTests: BitwardenTestCase {
     }
 
     /// `start()` navigates to the generator view.
+    @MainActor
     func test_start() {
         subject.start()
 

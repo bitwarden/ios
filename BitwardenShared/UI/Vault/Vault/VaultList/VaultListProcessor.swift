@@ -17,6 +17,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasNotificationService
@@ -33,11 +34,6 @@ final class VaultListProcessor: StateProcessor<
 
     /// The services used by this processor.
     private let services: Services
-
-    /// `true` if we're currently showing notification permissions.
-    /// This is used to prevent both the notification permissions and unused ciphers alert
-    /// from appearing at the same time.
-    private var isShowingNotificationPermissions = false
 
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
@@ -73,9 +69,8 @@ final class VaultListProcessor: StateProcessor<
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
-            if !isShowingNotificationPermissions {
-                await checkUnassignedCiphers()
-            }
+        case .dismissImportLoginsActionCard:
+            await dismissImportLoginsActionCard()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -94,6 +89,8 @@ final class VaultListProcessor: StateProcessor<
             await refreshVault(isManualRefresh: true)
         case let .search(text):
             state.searchResults = await searchVault(for: text)
+        case .streamAccountSetupProgress:
+            await streamAccountSetupProgress()
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
@@ -136,6 +133,8 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
+        case .showImportLogins:
+            coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
@@ -182,22 +181,15 @@ extension VaultListProcessor {
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
-    /// Checks if we need to display the unassigned ciphers alert, and displays if necessary.
+    /// Dismisses the import logins action card by marking the user's import logins progress complete.
     ///
-    private func checkUnassignedCiphers() async {
-        guard state.shouldCheckUnassignedCiphers else { return }
-        state.shouldCheckUnassignedCiphers = false
-
-        guard await services.vaultRepository.shouldShowUnassignedCiphersAlert()
-        else { return }
-
-        showAlert(.unassignedCiphers {
-            do {
-                try await self.services.stateService.setShouldCheckOrganizationUnassignedItems(false, userId: nil)
-            } catch {
-                self.services.errorReporter.log(error: error)
-            }
-        })
+    private func dismissImportLoginsActionCard() async {
+        do {
+            try await services.stateService.setAccountSetupImportLogins(.complete)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
     }
 
     /// Entry point to handling things around push notifications.
@@ -247,8 +239,6 @@ extension VaultListProcessor {
 
     /// Request permission to send push notifications.
     private func requestNotificationPermissions() async {
-        isShowingNotificationPermissions = true
-
         // Show the explanation alert before asking for permissions.
         coordinator.showAlert(
             .pushNotificationsInformation { [services] in
@@ -260,11 +250,6 @@ extension VaultListProcessor {
                     }
                 } catch {
                     self.services.errorReporter.log(error: error)
-                }
-            }, onDismissed: {
-                Task {
-                    self.isShowingNotificationPermissions = false
-                    await self.checkUnassignedCiphers()
                 }
             }
         )
@@ -304,6 +289,19 @@ extension VaultListProcessor {
         state.profileSwitcherState.isVisible = visible
     }
 
+    /// Streams the user's account setup progress.
+    ///
+    private func streamAccountSetupProgress() async {
+        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
+        do {
+            for await badgeState in try await services.stateService.settingsBadgePublisher().values {
+                state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Streams the user's organizations.
     private func streamOrganizations() async {
         do {
@@ -331,6 +329,11 @@ extension VaultListProcessor {
                     // Otherwise mark the state as `.loading` until the sync is complete.
                     state.loadingState = .loading(value)
                 }
+
+                // Dismiss the import logins action card once the vault has items in it.
+                if !value.isEmpty, await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+                    await dismissImportLoginsActionCard()
+                }
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -342,15 +345,15 @@ extension VaultListProcessor {
 
 extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
-        state.toast = Toast(text: Localizations.itemDeleted)
+        state.toast = Toast(title: Localizations.itemDeleted)
     }
 
     func itemSoftDeleted() {
-        state.toast = Toast(text: Localizations.itemSoftDeleted)
+        state.toast = Toast(title: Localizations.itemSoftDeleted)
     }
 
     func itemRestored() {
-        state.toast = Toast(text: Localizations.itemRestored)
+        state.toast = Toast(title: Localizations.itemRestored)
     }
 }
 

@@ -43,7 +43,7 @@ struct VaultAutofillListView: View {
                 )
             }
 
-            addToolbarItem(hidden: store.state.isAutofillingFido2List) {
+            addToolbarItem {
                 store.send(.addTapped(fromToolbar: true))
             }
         }
@@ -136,7 +136,6 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .scrollView()
     }
 
     /// A view for displaying a list of ciphers without sections.
@@ -151,9 +150,8 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.
@@ -186,17 +184,17 @@ private struct VaultAutofillListSearchableView: View {
     /// The content displayed in the view.
     @ViewBuilder
     private func contentView() -> some View {
-        if isSearching {
-            searchContentView()
-        } else {
-            if store.state.vaultListSections.isEmpty {
-                EmptyContentView(
-                    image: Asset.Images.openSource.swiftUIImage,
-                    text: store.state.emptyViewMessage
-                ) {
-                    if store.state.isAutofillingFido2List {
-                        EmptyView()
-                    } else {
+        ZStack {
+            let isSearching = isSearching
+                || !store.state.searchText.isEmpty
+                || !store.state.ciphersForSearch.isEmpty
+
+            Group {
+                if store.state.vaultListSections.isEmpty {
+                    EmptyContentView(
+                        image: Asset.Images.items.swiftUIImage,
+                        text: store.state.emptyViewMessage
+                    ) {
                         Button {
                             store.send(.addTapped(fromToolbar: false))
                         } label: {
@@ -205,15 +203,26 @@ private struct VaultAutofillListSearchableView: View {
                             } icon: {
                                 Asset.Images.plus.swiftUIImage
                                     .imageStyle(.accessoryIcon(
-                                        color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                         scaleWithFont: true
                                     ))
                             }
                         }
                     }
+                } else {
+                    cipherListView(store.state.vaultListSections)
+                        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+                        .scrollView()
                 }
-            } else {
-                cipherListView(store.state.vaultListSections)
+            }
+            .hidden(isSearching)
+
+            searchContentView()
+                .hidden(!isSearching)
+        }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.addTapped(fromToolbar: false))
             }
         }
     }
@@ -238,6 +247,18 @@ private struct VaultAutofillListSearchableView: View {
     }
 }
 
+#Preview("Searching") {
+    NavigationView {
+        VaultAutofillListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultAutofillListState(searchText: "Test")
+                )
+            )
+        )
+    }
+}
+
 #Preview("Logins") {
     NavigationView {
         VaultAutofillListView(
@@ -247,22 +268,15 @@ private struct VaultAutofillListSearchableView: View {
                         vaultListSections: [
                             VaultListSection(
                                 id: "Passwords",
-                                items: [
-                                    .init(cipherView: .fixture(
-                                        id: "1",
-                                        login: .fixture(username: "user@bitwarden.com"),
-                                        name: "Apple"
-                                    ))!,
-                                    .init(cipherView: .fixture(
-                                        id: "2",
-                                        login: .fixture(username: "user@bitwarden.com"),
-                                        name: "Bitwarden"
-                                    ))!,
-                                    .init(cipherView: .fixture(
-                                        id: "3",
-                                        name: "Company XYZ"
-                                    ))!,
-                                ],
+                                items: (1 ... 12).map { id in
+                                    .init(
+                                        cipherView: .fixture(
+                                            id: String(id),
+                                            login: .fixture(),
+                                            name: "Bitwarden"
+                                        )
+                                    )!
+                                },
                                 name: "Passwords"
                             ),
                         ]
@@ -336,6 +350,14 @@ private struct VaultAutofillListSearchableView: View {
                                     ))!,
                                     .init(cipherView: .fixture(
                                         id: "3",
+                                        name: "Company XYZ"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "4",
+                                        name: "Company XYZ"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "5",
                                         name: "Company XYZ"
                                     ))!,
                                 ],

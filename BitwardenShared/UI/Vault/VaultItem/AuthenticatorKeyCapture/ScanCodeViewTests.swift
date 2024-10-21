@@ -34,6 +34,7 @@ class ScanCodeViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -46,7 +47,7 @@ class ScanCodeViewTests: BitwardenTestCase {
     func test_snapshot_scanCodeView_previews() {
         for preview in ScanCodeView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [
                     .defaultPortrait,
                     .defaultLandscape,

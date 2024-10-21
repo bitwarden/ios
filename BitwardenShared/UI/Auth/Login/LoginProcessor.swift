@@ -6,6 +6,7 @@ import Foundation
 
 /// An object that is signaled when specific circumstances in the captcha flow have been encountered.
 ///
+@MainActor
 protocol CaptchaFlowDelegate: AnyObject {
     /// Called when the captcha flow has been completed successfully.
     ///
@@ -139,7 +140,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             try await services.authService.loginWithMasterPassword(
                 state.masterPassword,
                 username: state.username,
-                captchaToken: captchaToken
+                captchaToken: captchaToken,
+                isNewAccount: state.isNewAccount
             )
 
             // Unlock the vault.

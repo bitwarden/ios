@@ -32,6 +32,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the add button dispatches the `.addPressed(:)` action.
+    @MainActor
     func test_addButton_tap_empty() throws {
         let button = try subject.inspect().find(button: Localizations.addTotp)
         try button.tap()
@@ -39,6 +40,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Tapping the add button dispatches the `.addPressed(:)` action.
+    @MainActor
     func test_addButton_tap_new() throws {
         processor.state.authenticatorKey = "pasta-batman"
         let button = try subject.inspect().find(button: Localizations.addTotp)
@@ -47,6 +49,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_closeButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -54,6 +57,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     }
 
     /// Tapping the scan code button dispatches the `.scanCodePressed` action.
+    @MainActor
     func test_scanCodeButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.scanQRCode)
         try button.tap()
@@ -67,7 +71,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     /// Test a snapshot of the ProfileSwitcherView empty state.
     func test_snapshot_manualEntryView_empty() {
         assertSnapshot(
-            matching: ManualEntryView_Previews.empty,
+            of: ManualEntryView_Previews.empty,
             as: .defaultPortrait
         )
     }
@@ -75,7 +79,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     /// Test a snapshot of the ProfileSwitcherView empty state.
     func test_snapshot_manualEntryView_empty_landscape() {
         assertSnapshot(
-            matching: ManualEntryView_Previews.empty,
+            of: ManualEntryView_Previews.empty,
             as: .defaultLandscape
         )
     }
@@ -83,7 +87,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     /// Test a snapshot of the ProfileSwitcherView in dark mode.
     func test_snapshot_manualEntryView_text_dark() {
         assertSnapshot(
-            matching: ManualEntryView_Previews.textAdded,
+            of: ManualEntryView_Previews.textAdded,
             as: .defaultPortraitDark
         )
     }
@@ -91,7 +95,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     /// Test a snapshot of the ProfileSwitcherView with large text.
     func test_snapshot_manualEntryView_text_largeText() {
         assertSnapshot(
-            matching: ManualEntryView_Previews.textAdded,
+            of: ManualEntryView_Previews.textAdded,
             as: .tallPortraitAX5(heightMultiple: 1.75)
         )
     }
@@ -99,7 +103,7 @@ class ManualEntryViewTests: BitwardenTestCase {
     /// Test a snapshot of the ProfileSwitcherView in light mode.
     func test_snapshot_manualEntryView_text_light() {
         assertSnapshot(
-            matching: ManualEntryView_Previews.textAdded,
+            of: ManualEntryView_Previews.textAdded,
             as: .defaultPortrait
         )
     }

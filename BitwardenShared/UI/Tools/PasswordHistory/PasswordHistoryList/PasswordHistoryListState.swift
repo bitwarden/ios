@@ -1,11 +1,11 @@
-import BitwardenSdk
+@preconcurrency import BitwardenSdk
 import Foundation
 
 // MARK: - PasswordHistoryList
 
 /// An object that defines the current state of a `PasswordHistoryListView`.
 ///
-struct PasswordHistoryListState: Equatable {
+struct PasswordHistoryListState: Equatable, Sendable {
     // MARK: Types
 
     /// The source of the password history.

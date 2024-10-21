@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftUIIntrospect
 
 // MARK: - BitwardenTextField
 
@@ -6,6 +7,7 @@ import SwiftUI
 /// configured to act as a password field with visibility toggling, and supports
 /// displaying additional content on the trailing edge of the text field.
 ///
+@MainActor
 struct BitwardenTextField<TrailingContent: View>: View {
     // MARK: Private Properties
 
@@ -99,6 +101,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
+                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
+                        textField.smartDashesType = isPassword ? .no : .default
+                    }
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                         .focused($isSecureFieldFocused)
@@ -113,13 +118,13 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 text = ""
             } label: {
                 Asset.Images.cancelRound.swiftUIImage
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                     .frame(width: 14, height: 14)
             }
             .padding(.vertical, 5)
             .hidden(text.isEmpty || !isFocused)
         }
-        .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+        .tint(Asset.Colors.tintPrimary.swiftUIColor)
         .onAppear {
             isSecureFieldFocused = isPasswordAutoFocused
         }
@@ -206,7 +211,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
 // MARK: Previews
 
 #if DEBUG
-#Preview {
+#Preview("No buttons") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -216,10 +221,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("No buttons")
 }
 
-#Preview {
+#Preview("Password button") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -230,10 +234,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Password button")
 }
 
-#Preview {
+#Preview("Password revealed") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -244,10 +247,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Password revealed")
 }
 
-#Preview {
+#Preview("Additional buttons") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -258,10 +260,9 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Additional buttons")
 }
 
-#Preview {
+#Preview("Footer text") {
     VStack {
         BitwardenTextField(
             title: "Title",
@@ -274,6 +275,5 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         .padding()
     }
     .background(Color(.systemGroupedBackground))
-    .previewDisplayName("Footer text")
 }
 #endif

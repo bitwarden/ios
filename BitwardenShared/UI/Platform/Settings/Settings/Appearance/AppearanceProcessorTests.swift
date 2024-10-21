@@ -38,6 +38,7 @@ class AppearanceProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// The delegate method `languageSelected` should update the language.
+    @MainActor
     func test_languageSelected() {
         XCTAssertEqual(subject.state.currentLanguage, .default)
 
@@ -47,6 +48,7 @@ class AppearanceProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.loadData` sets the value in the state.
+    @MainActor
     func test_perform_loadData() async {
         XCTAssertEqual(subject.state.appTheme, .default)
         stateService.appLanguage = .custom(languageCode: "de")
@@ -61,6 +63,7 @@ class AppearanceProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.appThemeChanged` updates the theme.
+    @MainActor
     func test_receive_appThemeChanged() {
         subject.receive(.appThemeChanged(.dark))
 
@@ -74,6 +77,7 @@ class AppearanceProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.languageTapped` navigates to the select language view.
+    @MainActor
     func test_receive_languageTapped() async throws {
         subject.state.currentLanguage = .custom(languageCode: "th")
 
@@ -83,6 +87,7 @@ class AppearanceProcessorTests: BitwardenTestCase {
     }
 
     /// `receive(_:)` with `.toggleShowWebsiteIcons` updates the value in the state and the cache.
+    @MainActor
     func test_receive_toggleShowWebsiteIcons() {
         XCTAssertFalse(subject.state.isShowWebsiteIconsToggleOn)
 

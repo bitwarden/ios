@@ -3,7 +3,7 @@ import Foundation
 // MARK: - VaultGroupState
 
 /// The state of a `VaultGroupView`.
-struct VaultGroupState: Equatable {
+struct VaultGroupState: Equatable, Sendable {
     // MARK: Properties
 
     /// Whether the vault filter can be shown.
@@ -69,8 +69,8 @@ struct VaultGroupState: Equatable {
         return true
     }
 
-    /// Whether to show the add item button in the toolbar.
-    var showAddToolbarItem: Bool {
+    /// Whether to show the add item floating action button.
+    var showAddItemFloatingActionButton: Bool {
         if case .trash = group {
             return false
         }

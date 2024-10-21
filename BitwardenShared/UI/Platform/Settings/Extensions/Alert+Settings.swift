@@ -237,13 +237,26 @@ extension Alert {
 
     /// An alert asking if the user wants to login with their PIN upon app restart.
     ///
-    /// - Parameter action: The action to occur if `Yes` is tapped.
-    /// - Returns: An alert asking if the user wants to login with their PIN upon app restart.
+    /// - Parameters:
+    ///   - biometricType: The biometric type the app supports.
+    ///   - action: The action to occur if `Yes` is tapped
     ///
-    static func unlockWithPINCodeAlert(action: @escaping (Bool) async -> Void) -> Alert {
-        Alert(
+    /// - Returns: An alert asking if the user wants to login with their PIN upon app restart.
+    static func unlockWithPINCodeAlert(
+        biometricType: BiometricAuthenticationType?,
+        action: @escaping (Bool) async -> Void
+    ) -> Alert {
+        let message = switch biometricType {
+        case .faceID:
+            Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID)
+        case .touchID:
+            Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID)
+        case nil:
+            Localizations.pinRequireMasterPasswordRestart
+        }
+        return Alert(
             title: Localizations.unlockWithPIN,
-            message: Localizations.pinRequireMasterPasswordRestart,
+            message: message,
             alertActions: [
                 AlertAction(title: Localizations.no, style: .cancel) { _ in
                     await action(false)

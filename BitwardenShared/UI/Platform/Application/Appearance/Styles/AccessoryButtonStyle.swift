@@ -9,8 +9,8 @@ struct AccessoryButtonStyle: ButtonStyle {
         configuration.label
             .frame(width: 14, height: 14)
             .padding(10)
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-            .background(Asset.Colors.fillTertiary.swiftUIColor)
+            .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+            .background(Asset.Colors.Legacy.fillTertiary.swiftUIColor)
             .clipShape(Circle())
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
@@ -29,20 +29,18 @@ extension ButtonStyle where Self == AccessoryButtonStyle {
 // MARK: Previews
 
 #if DEBUG
-#Preview {
+#Preview("Enabled") {
     Button {} label: {
         Asset.Images.bwiProvider.swiftUIImage
     }
     .buttonStyle(.accessory)
-    .previewDisplayName("Enabled")
 }
 
-#Preview {
+#Preview("Disabled") {
     Button {} label: {
         Asset.Images.bwiProvider.swiftUIImage
     }
     .buttonStyle(.accessory)
     .disabled(true)
-    .previewDisplayName("Disabled")
 }
 #endif

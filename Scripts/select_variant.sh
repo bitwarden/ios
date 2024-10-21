@@ -1,23 +1,28 @@
 #!/usr/bin/env bash
 #
-# Updates the Release version of the Bitwarden app to a build variant
+# Updates the Release version of the Bitwarden app to a build variant and sets compiler flags
 #
 # Usage:
 #
-#   $ ./select_variant.sh <variant>
+#   $ ./select_variant.sh <variant - {Production|Beta}> "<compiler_flags>"
+# Example:
+#  $ ./select_variant.sh Production
+#  $ ./select_variant.sh Beta DEBUG_MENU
+#  $ ./select_variant.sh Beta "FEATURE1 FEATURE2"
 
 set -euo pipefail
 
 bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 1 ]; then
   echo >&2 "Called without necessary arguments: ${bold}Variant${normal}."
-  echo >&2 "For example: \`Scripts/select_variant.sh Beta."
+  echo >&2 "For example: \`Scripts/select_variant.sh Beta \"DEBUG_MENU\"\`"
   exit 1
 fi
 
 variant=$1
+compiler_flags=${2:-''}
 
 echo "🧱 Setting build variant to ${bold}${variant}${normal}."
 
@@ -27,11 +32,13 @@ export_options_file="Configs/export_options.plist"
 case $variant in
     Production)
     ios_bundle_id='com.8bit.bitwarden'
+    shared_app_group_id='group.com.bitwarden.bitwarden-authenticator'
     profile_prefix="Dist:"
     app_icon="AppIcon"
         ;;
     Beta)
     ios_bundle_id='com.8bit.bitwarden.beta'
+    shared_app_group_id='group.com.bitwarden.bitwarden-authenticator.beta'
     profile_prefix="Dist: Beta"
     app_icon="AppIcon-Beta"
         ;;
@@ -43,12 +50,15 @@ CODE_SIGN_IDENTITY = Apple Distribution
 DEVELOPMENT_TEAM = LTZ2PFU5D6
 ORGANIZATION_IDENTIFIER = com.8bit
 BASE_BUNDLE_ID = ${ios_bundle_id}
+SHARED_APP_GROUP_IDENTIFIER = ${shared_app_group_id}
 APPICON_NAME = ${app_icon}
 PROVISIONING_PROFILE_SPECIFIER = ${profile_prefix} Bitwarden
 PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION = ${profile_prefix} Extension
 PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION = ${profile_prefix} Autofill
 PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION = ${profile_prefix} Share Extension
 PROVISIONING_PROFILE_SPECIFIER_WATCH_APP = ${profile_prefix} Bitwarden Watch App
+PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION = ${profile_prefix} Bitwarden Watch Widget Extension
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = \$(inherited) ${compiler_flags}
 EOF
 
 cat << EOF > ${export_options_file}
@@ -70,6 +80,8 @@ cat << EOF > ${export_options_file}
         <string>${profile_prefix} Share Extension</string>
         <key>${ios_bundle_id}.watchkitapp</key>
         <string>${profile_prefix} Bitwarden Watch App</string>
+        <key>${ios_bundle_id}.watchkitapp.widget-extension</key>
+        <string>${profile_prefix} Bitwarden Watch Widget Extension</string>
     </dict>
     <key>manageAppVersionAndBuildNumber</key>
     <false/>

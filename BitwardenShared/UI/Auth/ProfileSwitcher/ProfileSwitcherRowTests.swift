@@ -8,23 +8,7 @@ import XCTest
 // MARK: - ProfileSwitcherRowTests
 
 final class ProfileSwitcherRowTests: BitwardenTestCase {
-    let unlockedAccount = ProfileSwitcherItem(
-        color: .purple,
-        email: "anne.account@bitwarden.com",
-        isUnlocked: true,
-        userId: "1",
-        userInitials: "AA",
-        webVault: "bitwarden.com"
-    )
-
-    let lockedAccount = ProfileSwitcherItem(
-        color: .purple,
-        email: "anne.account@bitwarden.com",
-        isUnlocked: false,
-        userId: "2",
-        userInitials: "AA",
-        webVault: "bitwarden.com"
-    )
+    // MARK: Properties
 
     var processor: MockProcessor<ProfileSwitcherRowState, ProfileSwitcherRowAction, ProfileSwitcherRowEffect>!
     var subject: ProfileSwitcherRow!
@@ -52,44 +36,58 @@ final class ProfileSwitcherRowTests: BitwardenTestCase {
 
     /// Snapshot test for the add account row
     func test_snapshot_addAccount() throws {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Snapshot test for the active account row
+    @MainActor
     func test_snapshot_active_divider() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             showDivider: true,
-            rowType: .active(unlockedAccount)
+            rowType: .active(.fixtureUnlocked)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Snapshot test for the active account row without a divider
+    @MainActor
     func test_snapshot_active_noDivider() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
             showDivider: false,
-            rowType: .active(unlockedAccount)
+            rowType: .active(.fixtureUnlocked)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    /// Snapshot test for the active account row
+    /// Snapshot test for the alternate unlocked account row
+    @MainActor
     func test_snapshot_alternate_unlocked() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
-            rowType: .alternate(unlockedAccount)
+            rowType: .alternate(.fixtureUnlocked)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
-    /// Snapshot test for the active account row
+    /// Snapshot test for the alternate locked account row
+    @MainActor
     func test_snapshot_alternate_locked() throws {
         processor.state = .init(
             shouldTakeAccessibilityFocus: false,
-            rowType: .alternate(lockedAccount)
+            rowType: .alternate(.fixtureLocked)
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Snapshot test for the alternate logged out row.
+    @MainActor
+    func test_snapshot_alternate_loggedOut() throws {
+        processor.state = .init(
+            shouldTakeAccessibilityFocus: false,
+            rowType: .alternate(.fixtureLoggedOut)
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

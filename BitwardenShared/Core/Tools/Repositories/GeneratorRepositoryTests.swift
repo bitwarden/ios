@@ -146,6 +146,12 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
+    /// `generateMasterPassword` returns the generated master password.
+    func test_generateMasterPassword() async throws {
+        let masterPassword = try await subject.generateMasterPassword()
+        XCTAssertEqual(masterPassword, "PASSPHRASE")
+    }
+
     /// `generatePassphrase` returns the generated passphrase.
     func test_generatePassphrase() async throws {
         let passphrase = try await subject.generatePassphrase(
@@ -328,6 +334,7 @@ class GeneratorRepositoryTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `passwordHistoryPublisher()` returns a publisher that the user's password history as it changes.
+    @MainActor
     func test_passwordHistoryPublisher() {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
