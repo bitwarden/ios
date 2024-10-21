@@ -25,8 +25,8 @@ struct PasswordVisibilityButton: View {
         Button(action: action) {
             (
                 isPasswordVisible
-                    ? Asset.Images.hidden16.swiftUIImage
-                    : Asset.Images.visible16.swiftUIImage
+                    ? Asset.Images.eyeSlash16.swiftUIImage
+                    : Asset.Images.eye16.swiftUIImage
             )
             .resizable()
             .frame(width: size, height: size)
