@@ -16,13 +16,19 @@ struct PreventAccountLockView: View {
         VStack(spacing: 24) {
             instructionsView
 
-            VStack(spacing: 0) {
-                hintInstructionsView
+            ContentBlock(dividerLeadingPadding: 48) {
+                rowView(
+                    image: Asset.Images.lightbulb24,
+                    title: Localizations.createAHint,
+                    subtitle: Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt
+                )
 
-                writeDownInstructions
+                rowView(
+                    image: Asset.Images.pencil24,
+                    title: Localizations.writeYourPasswordDown,
+                    subtitle: Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe
+                )
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .scrollView()
         .navigationBar(title: Localizations.preventAccountLockout, titleDisplayMode: .inline)
@@ -33,7 +39,7 @@ struct PreventAccountLockView: View {
         }
     }
 
-    // MARK: Private views
+    // MARK: Private
 
     /// The main instructions.
     private var instructionsView: some View {
@@ -49,46 +55,35 @@ struct PreventAccountLockView: View {
         .padding(.top, 8)
     }
 
-    /// The hint instructions.
-    private var hintInstructionsView: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 12) {
-                Image(decorative: Asset.Images.lightbulb24)
-                    .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+    /// Returns a view for displaying a row of content within the view.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display on the leading edge of the title and subtitle.
+    ///   - title: The title text to display in the row.
+    ///   - subtitle: The subtitle text to display in the row.
+    /// - Returns: A view for displaying a row of content in the view.
+    ///
+    @ViewBuilder
+    private func rowView(
+        image: ImageAsset,
+        title: String,
+        subtitle: String? = nil
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(decorative: image)
+                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(Localizations.createAHint)
-                        .styleGuide(.headline, weight: .semibold)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .styleGuide(.body, weight: .semibold)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
 
-                    Text(Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt)
+                if let subtitle {
+                    Text(subtitle)
                         .styleGuide(.subheadline)
                         .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(12)
-
-            Divider().padding(.leading, 48)
-        }
-    }
-
-    /// The writing down instructions.
-    private var writeDownInstructions: some View {
-        HStack(spacing: 12) {
-            Image(decorative: Asset.Images.pencil24)
-                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(Localizations.writeYourPasswordDown)
-                    .styleGuide(.headline, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-
-                Text(Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe)
-                    .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(12)
     }

@@ -16,7 +16,6 @@ class PreventAccountLockViewTests: BitwardenTestCase {
         super.setUp()
 
         processor = MockProcessor(state: ())
-
         subject = PreventAccountLockView(store: Store(processor: processor))
     }
 
