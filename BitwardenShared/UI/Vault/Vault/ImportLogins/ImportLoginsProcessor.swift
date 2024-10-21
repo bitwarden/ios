@@ -6,6 +6,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasSettingsRepository
         & HasStateService
 
     // MARK: Private Properties
@@ -39,6 +40,10 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     override func perform(_ effect: ImportLoginsEffect) async {
         switch effect {
+        case .advanceNextPage:
+            await advanceNextPage()
+        case .appeared:
+            await loadData()
         case .importLoginsLater:
             showImportLoginsLaterAlert()
         }
@@ -46,6 +51,8 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     override func receive(_ action: ImportLoginsAction) {
         switch action {
+        case .advancePreviousPage:
+            advancePreviousPage()
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case .getStarted:
@@ -55,11 +62,40 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
     // MARK: Private
 
+    /// Advances the view to show the next page of instructions.
+    ///
+    private func advanceNextPage() async {
+        guard let next = state.page.next else {
+            // On the last page, hitting next initiates a vault sync.
+            await syncVault()
+            return
+        }
+        state.page = next
+    }
+
+    /// Advances the view to show the previous page of instructions.
+    ///
+    private func advancePreviousPage() {
+        guard let previous = state.page.previous else { return }
+        state.page = previous
+    }
+
+    /// Loads the data for the view.
+    ///
+    private func loadData() async {
+        do {
+            let account = try await services.stateService.getActiveAccount()
+            state.webVaultHost = account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Shows the alert confirming the user wants to get started on importing logins.
     ///
     private func showGetStartAlert() {
         coordinator.showAlert(.importLoginsComputerAvailable {
-            // TODO: PM-11150 Show step 1
+            await self.advanceNextPage()
         })
     }
 
@@ -74,5 +110,21 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
             }
             self.coordinator.navigate(to: .dismiss)
         })
+    }
+
+    /// Syncs the user's vault to fetch any imported logins.
+    ///
+    private func syncVault() async {
+        coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.syncingLogins))
+        defer { coordinator.hideLoadingOverlay() }
+
+        do {
+            try await services.settingsRepository.fetchSync()
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .importLoginsSuccess)
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
     }
 }

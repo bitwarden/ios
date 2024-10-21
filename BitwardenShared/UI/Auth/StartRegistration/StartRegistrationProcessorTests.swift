@@ -517,7 +517,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.environmentSaved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
             environmentService.setPreAuthEnvironmentUrlsData,
             EnvironmentUrlData(base: .example)

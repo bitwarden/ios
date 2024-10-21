@@ -49,7 +49,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
 
         waitFor(authService.getPendingLoginRequestCalled)
         task.cancel()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.loginApproved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.loginApproved))
     }
 
     /// `perform(_:)` with `.loadData` loads the pending requests for the view.
@@ -132,7 +132,7 @@ class PendingRequestsProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

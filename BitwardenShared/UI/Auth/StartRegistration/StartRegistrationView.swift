@@ -139,4 +139,16 @@ struct StartRegistrationView: View {
 #Preview {
     StartRegistrationView(store: Store(processor: StateProcessor(state: StartRegistrationState())))
 }
+
+#Preview("Native Create Account Flow") {
+    StartRegistrationView(
+        store: Store(
+            processor: StateProcessor(
+                state: StartRegistrationState(
+                    isCreateAccountFeatureFlagEnabled: true
+                )
+            )
+        )
+    )
+}
 #endif

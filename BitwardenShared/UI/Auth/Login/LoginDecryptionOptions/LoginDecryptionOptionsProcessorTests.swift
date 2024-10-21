@@ -133,7 +133,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.shouldShowApproveMasterPasswordButton)
         XCTAssertTrue(subject.state.shouldShowApproveWithOtherDeviceButton)
         XCTAssertFalse(subject.state.shouldShowContinueButton)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.loginApproved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.loginApproved))
         XCTAssertEqual(coordinator.routes.last, .complete)
     }
 

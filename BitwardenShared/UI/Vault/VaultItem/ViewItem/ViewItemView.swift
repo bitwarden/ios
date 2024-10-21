@@ -78,6 +78,11 @@ struct ViewItemView: View {
                 )
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            editItemFloatingActionButton {
+                store.send(.editPressed)
+            }
+        }
         .task {
             await store.perform(.appeared)
         }
@@ -107,6 +112,7 @@ struct ViewItemView: View {
                 )
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 }

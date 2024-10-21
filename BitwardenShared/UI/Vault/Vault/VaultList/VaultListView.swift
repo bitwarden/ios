@@ -181,6 +181,11 @@ private struct SearchableVaultListView: View {
                 vaultContents(with: sections)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.addItemPressed)
+            }
+        }
     }
 
     /// Displays the vault filter row if the user is a member of any.
@@ -226,6 +231,7 @@ private struct SearchableVaultListView: View {
                 }
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 
@@ -294,6 +300,7 @@ struct VaultListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
+            .autocorrectionDisabled(true)
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
@@ -528,6 +535,42 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "CollectionItems",
                                     items: [
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
                                         .init(cipherView: .fixture(
                                             id: UUID().uuidString,
                                             login: .fixture(username: "email@example.com"),

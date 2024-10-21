@@ -71,6 +71,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasFido2UserInterfaceHelper
         & HasLocalAuthService
         & HasNotificationService
+        & HasSettingsRepository
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -172,6 +173,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showGroup(group, filter: filter)
         case .importLogins:
             showImportLogins()
+        case .importLoginsSuccess:
+            showImportLoginsSuccess()
         case .list:
             showList()
         case let .loginRequest(loginRequest):
@@ -255,6 +258,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let viewController = UIHostingController(rootView: view)
         let navigationController = UINavigationController(rootViewController: viewController)
         navigationController.modalPresentationStyle = .fullScreen
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the import login success screen.
+    ///
+    private func showImportLoginsSuccess() {
+        let processor = ImportLoginsSuccessProcessor(coordinator: asAnyCoordinator())
+        let view = ImportLoginsSuccessView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        let navigationController = UINavigationController(rootViewController: viewController)
         stackNavigator?.present(navigationController)
     }
 
