@@ -101,6 +101,12 @@ public protocol VaultRepository: AnyObject {
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
 
+    /// Returns whether the user's vault is empty.
+    ///
+    /// - Returns: Whether the user's vault is empty.
+    ///
+    func isVaultEmpty() async throws -> Bool
+
     /// Regenerates the TOTP code for a given key.
     ///
     /// - Parameter key: The key for a TOTP code.
@@ -1040,6 +1046,10 @@ extension DefaultVaultRepository: VaultRepository {
 
     func getDisableAutoTotpCopy() async throws -> Bool {
         try await stateService.getDisableAutoTotpCopy()
+    }
+
+    func isVaultEmpty() async throws -> Bool {
+        try await cipherService.fetchAllCiphers().isEmpty
     }
 
     func needsSync() async throws -> Bool {
