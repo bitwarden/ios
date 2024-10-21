@@ -2,7 +2,7 @@
 
 /// Links that are coming into our app via the "bitwarden://" deep link scheme.
 ///
-enum IncomingLinkConstants {
+enum BitwardenDeepLinkConstants {
     // MARK: Properties
 
     /// Deep link to the Settings -> Account Security screen.

@@ -113,7 +113,12 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         guard await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync) else {
             return nil
         }
-        return try? await authBridgeItemService.fetchTemporaryItem()
+        do {
+            return try await authBridgeItemService.fetchTemporaryItem()
+        } catch {
+            errorReporter.log(error: error)
+            return nil
+        }
     }
 
     public func start() async {

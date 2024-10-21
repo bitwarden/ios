@@ -683,6 +683,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         authBridgeItemService.errorToThrow = BitwardenTestError.example
         let result = await subject.getTemporaryTotpItem()
         XCTAssertNil(result)
+        XCTAssertFalse(errorReporter.errors.isEmpty)
     }
 
     /// When the feature flag is off, `getTemporaryTotpItem()` always returns `nil`.
