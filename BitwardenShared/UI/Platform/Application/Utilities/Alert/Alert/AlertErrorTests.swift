@@ -12,6 +12,16 @@ class AlertErrorTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions, [AlertAction(title: "Ok", style: .cancel)])
     }
 
+    /// `defaultAlert(error:)` constructs an `Alert` with the title and message based on the error,
+    /// and an OK button.
+    func test_defaultAlertError() {
+        let subject = Alert.defaultAlert(error: StateServiceError.noActiveAccount)
+
+        XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(subject.message, StateServiceError.noActiveAccount.errorDescription)
+        XCTAssertEqual(subject.alertActions, [AlertAction(title: "Ok", style: .cancel)])
+    }
+
     /// `inputValidationAlert(error:)` creates an `Alert` for an input validation error.
     func test_inputValidationAlert() {
         let subject = Alert.inputValidationAlert(

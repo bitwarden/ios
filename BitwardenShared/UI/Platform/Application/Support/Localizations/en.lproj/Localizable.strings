@@ -1042,3 +1042,4 @@
 "AutofillPasswords" = "Autofill passwords";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
 "GotIt" = "Got it";
+"NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";

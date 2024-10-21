@@ -78,7 +78,7 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
             try await services.stateService.setAccountSetupImportLogins(.complete)
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            coordinator.showAlert(.defaultAlert(error: error))
         }
     }
 

@@ -65,7 +65,7 @@ class VaultSettingsProcessorTests: BitwardenTestCase {
     func test_perform_dismissImportLoginsActionCard_error() async {
         await subject.perform(.dismissImportLoginsActionCard)
 
-        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(error: StateServiceError.noActiveAccount)])
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
