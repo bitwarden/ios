@@ -300,6 +300,12 @@ extension InspectableView where View: SingleViewContent {
         try find(ViewType.SecureField.self)
     }
 
+    /// Overrides the default `text` method in order to find a text field
+    /// that might be buried beneath added `AnyView` objects.
+    func text() throws -> InspectableView<ViewType.Text> {
+        try find(ViewType.Text.self)
+    }
+
     /// Overrides the default `textField` method in order to find a text field
     /// that might be buried beneath added `AnyView` objects.
     func textField() throws -> InspectableView<ViewType.TextField> {
