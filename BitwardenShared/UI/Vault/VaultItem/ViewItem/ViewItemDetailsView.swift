@@ -186,7 +186,10 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var notesSection: some View {
         if !store.state.notes.isEmpty {
             SectionView(Localizations.notes) {
-                BitwardenTextValueField(value: store.state.notes)
+                BitwardenTextValueField(
+                    value: store.state.notes,
+                    useUIKitTextView: true
+                )
             }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("CipherNotesLabel")
