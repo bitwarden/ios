@@ -166,7 +166,10 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Updating the text textfield sends the `.textChanged` action.
     @MainActor
     func test_textTextField_updated() throws {
-        let textField = try subject.inspect().find(bitwardenMultilineTextField: Localizations.text)
+        let textField = try subject.inspect().find(
+            type: BitwardenUITextViewType.self,
+            accessibilityLabel: Localizations.text
+        )
         try textField.inputBinding().wrappedValue = "Text"
         XCTAssertEqual(processor.dispatchedActions.last, .textChanged("Text"))
     }
@@ -291,7 +294,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_snapshot_text_withOptions_withValues() {
         processor.state.isOptionsExpanded = true
         processor.state.name = "Name"
-        processor.state.text = "Text with lots of text that wraps to new lines when displayed."
+        processor.state.text = "Text."
         processor.state.isHideTextByDefaultOn = true
         processor.state.deletionDate = .custom
         processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
@@ -300,7 +303,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.maximumAccessCount = 42
         processor.state.maximumAccessCountText = "42"
         processor.state.password = "pa$$w0rd"
-        processor.state.notes = "Notes with lots of text that wraps to new lines when displayed."
+        processor.state.notes = "Notes."
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)

@@ -16,7 +16,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     var titleAccessibilityIdentifier: String?
 
     /// A flag to determine whether to use a `UITextView` implementation instead of the default SwiftUI-based text view.
-    /// When `true`, a`UITextView` will be used for improved text selection and cursor/keyboard management.
+    /// When `true`, a `UITextView` will be used for improved text selection and cursor/keyboard management.
     var useUIKitTextView: Bool
 
     /// The text value to display in this field.

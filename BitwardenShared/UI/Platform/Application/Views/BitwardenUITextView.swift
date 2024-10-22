@@ -80,17 +80,11 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.isSelectable = true
         textView.backgroundColor = .clear
         textView.tintColor = Asset.Colors.tintPrimary.color
-        textView.textContainerInset = .zero
-
-        let verticalPadding: CGFloat = 4
-        textView.textContainerInset = UIEdgeInsets(top: verticalPadding, left: 0, bottom: verticalPadding, right: 0)
+        textView.textContainerInset = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        let backupFont = UIFont.preferredFont(forTextStyle: .body)
-        let customFont = UIFont(name: FontFamily.DMSans.regular.name, size: 15)
-        textView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: customFont ?? backupFont)
-
+        let customFont = FontFamily.DMSans.regular.font(size: 15)
+        textView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: customFont)
         return textView
     }
 
@@ -114,7 +108,16 @@ struct BitwardenUITextView: UIViewRepresentable {
         )
     }
 
-    private func recalculateHeight(view: UIView, result: Binding<CGFloat>) {
+    /// Recalculates the height of the UIView based on its content size and updates the binding if the height changes.
+    ///
+    /// - Parameters:
+    ///   - view: The UIView whose height is to be recalculated.
+    ///   - result: A binding to a CGFloat that stores the height value.
+    ///
+    private func recalculateHeight(
+        view: UIView,
+        result: Binding<CGFloat>
+    ) {
         let newSize = view.sizeThatFits(
             CGSize(
                 width: view.frame.size.width,
