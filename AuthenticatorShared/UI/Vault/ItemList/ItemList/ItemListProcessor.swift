@@ -236,16 +236,48 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         return []
     }
 
+    /// Determine if the user has synced with this account previously. If they have not synced previously,
+    /// this method return `true` indicating that we should show the toast for a newly synced account. It
+    /// also stores the fact that we've synced with this account in the `AppSettingsStore` for
+    /// future reference so that we only show the toast on *first* sync.
+    ///
+    /// For any local code sections or for accounts the user has previously synced with, this method will return
+    /// `false` so that we do not show the toast.
+    ///
+    /// - Parameter name: The name of the account to evaluate. This is the section header shown to the user.
+    /// - Returns: `true` if the accounts synced toast should be shown to the user, `false` otherwise.
+    ///
+    private func shouldShowAccountSyncToast(name: String) -> Bool {
+        guard !name.isEmpty,
+              name != Localizations.localCodes,
+              name != Localizations.favorites
+        else { return false }
+
+        if !services.appSettingsStore.hasSyncedAccount(name: name) {
+            services.appSettingsStore.setHasSyncedAccount(name: name)
+            return true
+        } else {
+            return false
+        }
+    }
+
     /// Stream the items list.
     private func streamItemList() async {
         do {
+            var showToast = false
             for try await value in try await services.authenticatorItemRepository.itemListPublisher() {
                 let sectionList = try await value.asyncMap { section in
+                    if shouldShowAccountSyncToast(name: section.name) {
+                        showToast = true
+                    }
                     let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: section.items)
                     return ItemListSection(id: section.id, items: itemList, name: section.name)
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: sectionList.flatMap(\.items))
                 state.loadingState = .data(sectionList)
+                if showToast {
+                    state.toast = Toast(text: Localizations.accountsSyncedFromBitwardenApp)
+                }
             }
         } catch {
             services.errorReporter.log(error: error)

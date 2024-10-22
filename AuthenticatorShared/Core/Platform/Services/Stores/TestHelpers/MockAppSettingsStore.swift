@@ -26,6 +26,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var encryptedPrivateKeys = [String: String]()
     var encryptedUserKeys = [String: String]()
+    var hasSyncedAccountValues = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var masterPasswordHashes = [String: String]()
@@ -53,6 +54,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func hasSyncedAccount(name: String) -> Bool {
+        hasSyncedAccountValues[name] ?? false
+    }
+
+    func setHasSyncedAccount(name: String) {
+        hasSyncedAccountValues[name] = true
     }
 
     func secretKey(userId: String) -> String? {

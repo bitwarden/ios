@@ -1,3 +1,4 @@
+import CryptoKit
 import XCTest
 
 @testable import AuthenticatorShared
@@ -155,6 +156,25 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         subject.disableWebIcons = false
         XCTAssertFalse(subject.disableWebIcons)
         XCTAssertFalse(userDefaults.bool(forKey: "bwaPreferencesStorage:disableFavicon"))
+    }
+
+    /// `hasSyncedAccount(name:)` can be used to get and set if the user has synced previously with a given account.
+    /// Account names should be hashed so as to not appear in plaintext.
+    func test_hasSyncedAccount_withValue() {
+        let accountName = "test@example.com | vault.bitwarden.com"
+        let hashedData = SHA256.hash(data: Data(accountName.utf8))
+        let hashedName = hashedData.map { String(format: "%02hhx", $0) }.joined()
+        subject.setHasSyncedAccount(name: accountName)
+        XCTAssertTrue(subject.hasSyncedAccount(name: accountName))
+
+        // Doesn't store the account as plain text:
+        XCTAssertFalse(userDefaults.bool(forKey: "bwaPreferencesStorage:hasSyncedAccount_\(accountName)"))
+
+        // Stores with the hashed value:
+        XCTAssertTrue(userDefaults.bool(forKey: "bwaPreferencesStorage:hasSyncedAccount_\(hashedName)"))
+
+        // A new account that we've not synced before defaults to `false`
+        XCTAssertFalse(subject.hasSyncedAccount(name: "New Account"))
     }
 
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.

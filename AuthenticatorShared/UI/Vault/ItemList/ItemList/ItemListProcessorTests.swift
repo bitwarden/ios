@@ -374,16 +374,16 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         task.cancel()
     }
 
-    /// `perform(_:)` with `.appeared` starts streaming vault items.
+    /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are no shared
+    /// account items, it should not show a toast.
     func test_perform_streamItemList() {
         let totpCode = TOTPCodeModel(code: "654321",
                                      codeGenerationDate: Date(year: 2023, month: 12, day: 31),
                                      period: 30)
         let results = [
             ItemListItem.fixture(totp: .fixture(totpCode: totpCode)),
-            ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
         ]
-        let resultSection = ItemListSection(id: "", items: results, name: "Items")
+        let resultSection = ItemListSection(id: "", items: results, name: "")
 
         authItemRepository.itemListSubject.send([resultSection])
         authItemRepository.refreshTotpCodesResult = .success(results)
@@ -391,12 +391,72 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         let task = Task {
             await subject.perform(.streamItemList)
         }
+        defer { task.cancel() }
 
         waitFor(subject.state.loadingState != .loading(nil))
-        task.cancel()
 
         XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
         XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are shared items
+    /// from an account the user has not synced with previously, it should show a toast stating that the account
+    /// was synced.
+    ///
+    func test_perform_streamItemList_withAccountSyncToast() {
+        let accountName = "test@example.com | vault.example.com"
+        let totpCode = TOTPCodeModel(code: "654321",
+                                     codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                     period: 30)
+        let results = [
+            ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
+        ]
+        let resultSection = ItemListSection(id: accountName, items: results, name: accountName)
+
+        authItemRepository.itemListSubject.send([resultSection])
+        authItemRepository.refreshTotpCodesResult = .success(results)
+
+        let task = Task {
+            await subject.perform(.streamItemList)
+        }
+        defer { task.cancel() }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
+        XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
+        XCTAssertEqual(subject.state.toast?.text, Localizations.accountsSyncedFromBitwardenApp)
+        XCTAssertTrue(appSettingsStore.hasSyncedAccount(name: accountName))
+    }
+
+    /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are shared items
+    /// from an account the user *has* synced with previously, it should *not* show a toast.
+    ///
+    func test_perform_streamItemList_withPreviouslySyncedAccount() {
+        let accountName = "test@example.com | vault.example.com"
+        let totpCode = TOTPCodeModel(code: "654321",
+                                     codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                     period: 30)
+        let results = [
+            ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
+        ]
+        let resultSection = ItemListSection(id: accountName, items: results, name: accountName)
+
+        appSettingsStore.setHasSyncedAccount(name: accountName)
+        authItemRepository.itemListSubject.send([resultSection])
+        authItemRepository.refreshTotpCodesResult = .success(results)
+
+        let task = Task {
+            await subject.perform(.streamItemList)
+        }
+        defer { task.cancel() }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+
+        XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
+        XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
+        XCTAssertNil(subject.state.toast)
     }
 
     // MARK: AuthenticatorKeyCaptureDelegate Tests
