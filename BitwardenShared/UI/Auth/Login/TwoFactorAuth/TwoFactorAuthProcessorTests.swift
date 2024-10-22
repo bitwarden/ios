@@ -504,7 +504,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     func test_perform_continueTapped_twoFactorError() async {
         subject.state.verificationCode = "Test"
         authService.loginWithTwoFactorCodeResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil, nil)
         )
 
         await subject.perform(.continueTapped)

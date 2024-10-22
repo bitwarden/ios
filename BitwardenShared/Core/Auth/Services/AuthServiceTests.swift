@@ -603,8 +603,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
@@ -750,8 +751,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
@@ -819,8 +821,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
@@ -858,8 +861,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
@@ -890,6 +894,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
             masterPassword: "master password",
+            preAuth: false,
             policy: nil
         )
         XCTAssertFalse(requirePasswordChange)
@@ -912,6 +917,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
             masterPassword: "strong 32 password & #",
+            preAuth: false,
             policy: policy
         )
         XCTAssertFalse(requirePasswordChange)
@@ -934,6 +940,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
             masterPassword: "weak password",
+            preAuth: false,
             policy: policy
         )
         XCTAssertTrue(requirePasswordChange)
@@ -969,8 +976,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(

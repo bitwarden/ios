@@ -180,7 +180,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil, nil)
         )
 
         let task = Task {

@@ -294,7 +294,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_perform_loginWithMasterPasswordPressed_twoFactorError() async {
         subject.state.masterPassword = "Test"
         authService.loginWithMasterPasswordResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil, nil)
         )
 
         await subject.perform(.loginWithMasterPasswordPressed)

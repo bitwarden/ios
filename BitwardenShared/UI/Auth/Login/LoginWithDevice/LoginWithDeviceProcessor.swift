@@ -180,7 +180,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
             switch identityTokenError {
             case let .captchaRequired(token):
                 launchCaptchaFlow(with: token)
-            case let .twoFactorRequired(authMethodsData, _, _):
+            case let .twoFactorRequired(authMethodsData, _, _, _):
                 let unlockMethod: TwoFactorUnlockMethod? = if let key = approvedRequest?.key, let authRequestResponse {
                     TwoFactorUnlockMethod.loginWithDevice(
                         key: key,

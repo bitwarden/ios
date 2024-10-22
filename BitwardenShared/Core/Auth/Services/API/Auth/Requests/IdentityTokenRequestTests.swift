@@ -132,8 +132,9 @@ class IdentityTokenRequestTests: BitwardenTestCase {
                 error as? IdentityTokenRequestError,
                 .twoFactorRequired(
                     AuthMethodsData.fixture(),
-                    "exampleToken",
-                    "BWCaptchaBypass_ABCXYZ"
+                    "BWCaptchaBypass_ABCXYZ",
+                    nil,
+                    "exampleToken"
                 )
             )
         }
