@@ -3,7 +3,7 @@ import BitwardenSdk // swiftlint:disable:this file_name
 // MARK: - FieldView+Update
 
 extension BitwardenSdk.FieldView {
-    /// initializes a new LoginView with updated properties
+    /// initializes a new FieldView with updated properties
     ///
     /// - Parameter customFieldState: The `CustomFieldState` used to create or update the field view.
     ///
