@@ -13,6 +13,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasBiometricsRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasExportItemsService
         & HasImportItemsService

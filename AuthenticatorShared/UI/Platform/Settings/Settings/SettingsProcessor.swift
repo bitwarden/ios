@@ -8,6 +8,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
     // MARK: Types
 
     typealias Services = HasBiometricsRepository
+        & HasConfigService
         & HasErrorReporter
         & HasExportItemsService
         & HasPasteboardService
@@ -76,6 +77,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             coordinator.showAlert(.privacyPolicyAlert {
                 self.state.url = ExternalLinksConstants.privacyPolicy
             })
+        case .syncWithBitwardenAppTapped:
+            state.url = ExternalLinksConstants.passwordManagerSettings
         case let .toastShown(newValue):
             state.toast = newValue
         case .tutorialTapped:
@@ -114,6 +117,7 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         state.currentLanguage = services.stateService.appLanguage
         state.appTheme = await services.stateService.getAppTheme()
         state.biometricUnlockStatus = await loadBiometricUnlockPreference()
+        state.shouldShowSyncButton = await services.configService.getFeatureFlag(.enablePasswordManagerSync)
     }
 
     /// Sets the user's biometric auth

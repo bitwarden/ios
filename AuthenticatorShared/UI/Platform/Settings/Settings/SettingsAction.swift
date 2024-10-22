@@ -25,6 +25,9 @@ enum SettingsAction: Equatable {
     /// The privacy policy button was tapped.
     case privacyPolicyTapped
 
+    /// The sync with bitwarden app button was tapped.
+    case syncWithBitwardenAppTapped
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 

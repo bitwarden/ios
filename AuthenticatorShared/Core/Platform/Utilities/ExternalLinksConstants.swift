@@ -37,7 +37,7 @@ enum ExternalLinksConstants {
     static let passwordManagerScheme = URL(string: "bitwarden://")!
 
     /// A deeplink used by the password manager app to open the options menu.
-    static let passwordManagerSettings = URL(string: "bitwarden://sync_authenticator?options=true")!
+    static let passwordManagerSettings = URL(string: "bitwarden://settings/account_security")!
 
     /// A markdown link to Bitwarden's privacy policy.
     static let privacyPolicy = URL(string: "https://bitwarden.com/privacy/")!

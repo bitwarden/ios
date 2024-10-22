@@ -17,6 +17,10 @@ struct SettingsState: Equatable {
     /// The current language selection.
     var currentLanguage: LanguageOption = .default
 
+    /// A flag to indicate if we should show the "Sync with the Bitwarden app" button
+    /// Defaults to false, which indicates we should not show the button.
+    var shouldShowSyncButton = false
+
     /// A toast message to show in the view.
     var toast: Toast?
 

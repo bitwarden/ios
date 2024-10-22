@@ -70,6 +70,14 @@ class SettingsViewTests: AuthenticatorTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .privacyPolicyTapped)
     }
 
+    /// Tapping the sync with Bitwarden app button dispatches the `.syncWithBitwardenAppTapped` action.
+    func test_syncWithBitwardenButton_tap() throws {
+        processor.state.shouldShowSyncButton = true
+        let button = try subject.inspect().find(button: Localizations.syncWithTheBitwardenApp)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .syncWithBitwardenAppTapped)
+    }
+
     /// Tapping the tutorial button dispatches the `.tutorialTapped` action.
     func test_tutorialButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.launchTutorial)
@@ -86,6 +94,15 @@ class SettingsViewTests: AuthenticatorTestCase {
 
     /// Tests the view renders correctly.
     func test_viewRender() {
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// Tests the view renders correctly with the `shouldShowSyncButton` set to `true`.
+    func test_viewRenderWithSyncRow() {
+        processor.state.shouldShowSyncButton = true
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]

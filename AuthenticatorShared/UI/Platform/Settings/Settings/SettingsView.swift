@@ -102,8 +102,16 @@ struct SettingsView: View {
                         store.send(.exportItemsTapped)
                     }
 
-                    SettingsListItem(Localizations.backup, hasDivider: false) {
+                    SettingsListItem(Localizations.backup, hasDivider: store.state.shouldShowSyncButton) {
                         store.send(.backupTapped)
+                    }
+
+                    if store.state.shouldShowSyncButton {
+                        externalLinkRow(
+                            Localizations.syncWithTheBitwardenApp,
+                            action: .syncWithBitwardenAppTapped,
+                            hasDivider: false
+                        )
                     }
                 }
                 .cornerRadius(10)
