@@ -104,8 +104,7 @@ public enum UI {
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
         UISearchBar.appearance().setImage(Asset.Images.search16.image, for: .search, state: .normal)
 
-        // Adjust the appearance of `UITextView` for `BitwardenMultilineTextField` instances on
-        // iOS 15.
+        // Adjust the appearance of `UITextView` for `BitwardenUITextField` instances on iOS 15.
         UITextView.appearance().isScrollEnabled = false
         UITextView.appearance().backgroundColor = .clear
         UITextView.appearance().textContainerInset = .zero
