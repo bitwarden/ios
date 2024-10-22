@@ -127,8 +127,8 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
         textSelectionEnabled: Bool = true,
-        copyButtonAction: @escaping () -> Void,
-        copyButtonAccessibilityIdentifier: String
+        copyButtonAccessibilityIdentifier: String,
+        copyButtonAction: @escaping () -> Void
     ) {
         // Initialize the BitwardenTextValueField with the button as the accessory content
         self.init(
@@ -141,8 +141,8 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
                 AccessoryButton(
                     asset: Asset.Images.copy,
                     accessibilityLabel: Localizations.copy,
-                    action: copyButtonAction,
-                    accessibilityIdentifier: copyButtonAccessibilityIdentifier
+                    accessibilityIdentifier: copyButtonAccessibilityIdentifier,
+                    action: copyButtonAction
                 )
             }
         )

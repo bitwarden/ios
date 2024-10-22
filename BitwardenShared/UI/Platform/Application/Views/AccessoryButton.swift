@@ -64,8 +64,8 @@ struct AccessoryButton: View {
     ///
     init(asset: ImageAsset,
          accessibilityLabel: String,
-         action: @escaping () -> Void,
-         accessibilityIdentifier: String = "") {
+         accessibilityIdentifier: String = "",
+         action: @escaping () -> Void) {
         self.accessibilityLabel = accessibilityLabel
         self.action = .sync(action)
         self.asset = asset
@@ -77,12 +77,13 @@ struct AccessoryButton: View {
     /// - Parameters:
     ///   - asset: The image to display in the button.
     ///   - accessibilityLabel: The accessibility label of the button.
+    ///   - accessibilityIdentifier: The accessibility identifier of the button.
     ///   - action: The action to perform when the user triggers the button.
     ///
     init(asset: ImageAsset,
          accessibilityLabel: String,
-         action: @escaping () async -> Void,
-         accessibilityIdentifier: String = "") {
+         accessibilityIdentifier: String = "",
+         action: @escaping () async -> Void) {
         self.accessibilityLabel = accessibilityLabel
         self.action = .async(action)
         self.asset = asset

@@ -127,7 +127,7 @@ enum CopyableField {
     /// The identity address field.
     case fullAddress
 
-    /// The identity address field.
+    /// The notes field.
     case notes
 
     /// The event to collect when copying the field.

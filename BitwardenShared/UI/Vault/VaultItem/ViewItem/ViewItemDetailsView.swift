@@ -188,8 +188,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             let notes = store.state.notes
             SectionView(Localizations.notes) {
                 BitwardenTextValueField(value: notes,
-                                        copyButtonAction: { store.send(.copyPressed(value: notes, field: .notes)) },
-                                        copyButtonAccessibilityIdentifier: "CopyNotesButton")
+                                        copyButtonAccessibilityIdentifier: "CopyNotesButton",
+                                        copyButtonAction: { store.send(.copyPressed(value: notes, field: .notes)) })
             }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("CipherNotesLabel")

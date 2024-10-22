@@ -17,8 +17,8 @@ struct ViewIdentityItemView: View {
                 title: Localizations.identityName,
                 value: identityName,
                 valueAccessibilityIdentifier: "ItemNameEntry",
-                copyButtonAction: { store.send(.copyPressed(value: identityName, field: .identityName)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopyNameButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopyNameButton",
+                copyButtonAction: { store.send(.copyPressed(value: identityName, field: .identityName)) }
             )
             .accessibilityElement(children: .contain)
         }
@@ -29,8 +29,8 @@ struct ViewIdentityItemView: View {
                 title: Localizations.username,
                 value: username,
                 valueAccessibilityIdentifier: "IdentityUsernameEntry",
-                copyButtonAction: { store.send(.copyPressed(value: username, field: .username)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopyUsernameButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopyUsernameButton",
+                copyButtonAction: { store.send(.copyPressed(value: username, field: .username)) }
             )
             .accessibilityElement(children: .contain)
         }
@@ -41,8 +41,8 @@ struct ViewIdentityItemView: View {
                 title: Localizations.company,
                 value: company,
                 valueAccessibilityIdentifier: "IdentityCompanyEntry",
-                copyButtonAction: { store.send(.copyPressed(value: company, field: .company)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopyCompanyButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopyCompanyButton",
+                copyButtonAction: { store.send(.copyPressed(value: company, field: .company)) }
             )
             .accessibilityElement(children: .contain)
         }
@@ -53,8 +53,8 @@ struct ViewIdentityItemView: View {
                 title: Localizations.ssn,
                 value: socialSecurityNumber,
                 valueAccessibilityIdentifier: "IdentitySsnEntry",
-                copyButtonAction: { store.send(.copyPressed(value: socialSecurityNumber, field: .socialSecurityNumber)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopySocialSecurityNumberButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopySsnButton",
+                copyButtonAction: { store.send(.copyPressed(value: socialSecurityNumber, field: .socialSecurityNumber)) }
             )
             .accessibilityElement(children: .contain)
         }
@@ -65,8 +65,8 @@ struct ViewIdentityItemView: View {
                 title: Localizations.passportNumber,
                 value: passportNumber,
                 valueAccessibilityIdentifier: "IdentityPassportNumberEntry",
-                copyButtonAction: { store.send(.copyPressed(value: passportNumber, field: .passportNumber)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopyPassportNumberButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopyPassportNumberButton",
+                copyButtonAction: { store.send(.copyPressed(value: passportNumber, field: .passportNumber)) }
             )
             .accessibilityElement(children: .contain)
         }
@@ -77,8 +77,13 @@ struct ViewIdentityItemView: View {
                 title: Localizations.licenseNumber,
                 value: licenseNumber,
                 valueAccessibilityIdentifier: "IdentityLicenseNumberEntry",
-                copyButtonAction: { store.send(.copyPressed(value: licenseNumber, field: .licenseNumber)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopyLicenseNumberButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopyLicenseNumberButton",
+                copyButtonAction: { store.send(
+                    .copyPressed(
+                        value: licenseNumber,
+                        field: .licenseNumber
+                    )
+                ) }
             )
             .accessibilityElement(children: .contain)
         }
@@ -86,11 +91,11 @@ struct ViewIdentityItemView: View {
         if !store.state.email.isEmpty {
             let email = store.state.email
             BitwardenTextValueField(
-                title: email,
-                value: store.state.email,
+                title: Localizations.email,
+                value: email,
                 valueAccessibilityIdentifier: "IdentityEmailEntry",
-                copyButtonAction: { store.send(.copyPressed(value: email, field: .email)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopyEmailButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopyEmailButton",
+                copyButtonAction: { store.send(.copyPressed(value: email, field: .email)) }
             )
             .accessibilityElement(children: .contain)
         }
@@ -101,8 +106,8 @@ struct ViewIdentityItemView: View {
                 title: Localizations.phone,
                 value: phone,
                 valueAccessibilityIdentifier: "IdentityPhoneEntry",
-                copyButtonAction: { store.send(.copyPressed(value: phone, field: .phone)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopyPhoneButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopyPhoneButton",
+                copyButtonAction: { store.send(.copyPressed(value: phone, field: .phone)) }
             )
             .accessibilityElement(children: .contain)
         }
@@ -113,8 +118,8 @@ struct ViewIdentityItemView: View {
                 title: Localizations.address,
                 value: fullAddress,
                 valueAccessibilityIdentifier: "IdentityAddressOneEntry",
-                copyButtonAction: { store.send(.copyPressed(value: fullAddress, field: .fullAddress)) },
-                copyButtonAccessibilityIdentifier: "IdentityCopyFullAddressButton"
+                copyButtonAccessibilityIdentifier: "IdentityCopyFullAddressButton",
+                copyButtonAction: { store.send(.copyPressed(value: fullAddress, field: .fullAddress)) }
             )
             .accessibilityElement(children: .contain)
         }
