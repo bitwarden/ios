@@ -14,6 +14,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
+    /// The height of the notes textfield
+    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
+
+    /// The height of the text send attributes textfield
+    @SwiftUI.State private var textSendDynamicHeight: CGFloat = 28
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -392,14 +398,20 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
         .textFieldConfiguration(.password)
 
-        BitwardenMultilineTextField(
+        BitwardenField(
             title: Localizations.notes,
-            text: store.binding(
-                get: \.notes,
-                send: AddEditSendItemAction.notesChanged
-            ),
             footer: Localizations.notesInfo
-        )
+        ) {
+            BitwardenUITextView(
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditSendItemAction.notesChanged
+                ),
+                calculatedHeight: $notesDynamicHeight
+            )
+            .frame(minHeight: notesDynamicHeight)
+            .accessibilityLabel(Localizations.notes)
+        }
 
         Toggle(Localizations.hideEmail, isOn: store.binding(
             get: \.isHideMyEmailOn,
@@ -459,15 +471,21 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
-        BitwardenMultilineTextField(
+        BitwardenField(
             title: Localizations.text,
-            text: store.binding(
-                get: \.text,
-                send: AddEditSendItemAction.textChanged
-            ),
-            footer: Localizations.typeTextInfo,
-            accessibilityIdentifier: "SendTextContentEntry"
-        )
+            footer: Localizations.typeTextInfo
+        ) {
+            BitwardenUITextView(
+                text: store.binding(
+                    get: \.text,
+                    send: AddEditSendItemAction.textChanged
+                ),
+                calculatedHeight: $textSendDynamicHeight
+            )
+            .frame(minHeight: textSendDynamicHeight)
+            .accessibilityLabel(Localizations.text)
+            .accessibilityIdentifier("SendTextContentEntry")
+        }
 
         Toggle(Localizations.hideTextByDefault, isOn: store.binding(
             get: \.isHideTextByDefaultOn,
