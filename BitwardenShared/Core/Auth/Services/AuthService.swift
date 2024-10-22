@@ -504,7 +504,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let appId = await appIdService.getOrCreateAppId()
 
         // Initiate the login request and cache the result.
-        let loginWithDeviceData = try await clientService.auth().newAuthRequest(email: email)
+        let loginWithDeviceData = try await clientService.auth(isPreAuth: true).newAuthRequest(email: email)
         let loginRequest = try await authAPIService.initiateLoginWithDevice(LoginWithDeviceRequestModel(
             email: email,
             publicKey: loginWithDeviceData.publicKey,
@@ -602,7 +602,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             do {
                 let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
                 try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
-                try await stateService.setAccountSetupImportLogins(.incomplete)
+                if await configService.getFeatureFlag(.importLoginsFlow) {
+                    try await stateService.setAccountSetupImportLogins(.incomplete)
+                }
                 try await stateService.setAccountSetupVaultUnlock(.incomplete)
             } catch {
                 errorReporter.log(error: error)

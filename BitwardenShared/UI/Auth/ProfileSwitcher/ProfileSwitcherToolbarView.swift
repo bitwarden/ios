@@ -56,7 +56,7 @@ extension View {
             .frame(minWidth: 22, alignment: .center)
             .background {
                 if initials == nil {
-                    Asset.Images.horizontalDots.swiftUIImage
+                    Asset.Images.horizontalDots16.swiftUIImage
                         .padding(.vertical, 10)
                         .padding(.horizontal, 14)
                         .opacity(initials == nil ? 1.0 : 0.0)

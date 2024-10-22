@@ -272,6 +272,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Verify the results.
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(clientService.mockAuth.newAuthRequestEmail, "email@example.com")
+        XCTAssertTrue(clientService.mockAuthIsPreAuth)
         XCTAssertEqual(result.authRequestResponse, authRequestResponse)
         XCTAssertEqual(result.requestId, LoginRequest.fixture().id)
     }
@@ -403,6 +404,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ]
         appSettingsStore.appId = "App id"
         clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        configService.featureFlagsBool[.importLoginsFlow] = true
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         credentialIdentityStore.state.mockIsEnabled = false
         stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
@@ -508,6 +510,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ]
         appSettingsStore.appId = "App id"
         clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        configService.featureFlagsBool[.importLoginsFlow] = true
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         credentialIdentityStore.state.mockIsEnabled = true
         stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))

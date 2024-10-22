@@ -15,7 +15,7 @@ struct VaultUnlockSetupView: View {
     var body: some View {
         VStack(spacing: 32) {
             PageHeaderView(
-                image: Asset.Images.biometricsPhone,
+                image: Asset.Images.Illustrations.biometricsPhone,
                 title: Localizations.setUpUnlock,
                 message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
             )

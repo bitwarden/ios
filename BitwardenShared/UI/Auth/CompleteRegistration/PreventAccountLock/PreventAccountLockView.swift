@@ -13,91 +13,80 @@ struct PreventAccountLockView: View {
     // MARK: View
 
     var body: some View {
-        VStack {
-            VStack(spacing: 0) {
-                instructionsView
+        VStack(spacing: 24) {
+            instructionsView
 
-                hintInstructionsView
+            ContentBlock(dividerLeadingPadding: 48) {
+                rowView(
+                    image: Asset.Images.lightbulb24,
+                    title: Localizations.createAHint,
+                    subtitle: Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt
+                )
 
-                writeDownInstructions
+                rowView(
+                    image: Asset.Images.pencil24,
+                    title: Localizations.writeYourPasswordDown,
+                    subtitle: Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe
+                )
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .scrollView()
         .navigationBar(title: Localizations.preventAccountLockout, titleDisplayMode: .inline)
         .toolbar {
-            cancelToolbarItem {
+            closeToolbarItem {
                 store.send(.dismiss)
             }
         }
     }
 
-    // MARK: Private views
+    // MARK: Private
 
     /// The main instructions.
     private var instructionsView: some View {
-        VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(Localizations.neverLoseAccessToYourVault)
-                    .styleGuide(.title3, weight: .semibold)
+        VStack(spacing: 8) {
+            Text(Localizations.neverLoseAccessToYourVault)
+                .styleGuide(.title2, weight: .semibold)
+                .multilineTextAlignment(.center)
 
-                Text(Localizations.theBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart)
-                    .styleGuide(.body)
-            }
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .padding(24)
-
-            Divider()
+            Text(Localizations.theBestWayToMakeSureYouCanAlwaysAccessYourAccountIsToSetUpSafeguardsFromTheStart)
+                .styleGuide(.body)
+                .multilineTextAlignment(.center)
         }
+        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .padding(.top, 8)
     }
 
-    /// The hint instructions.
-    private var hintInstructionsView: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 20) {
-                Image(decorative: Asset.Images.lightbulb)
-                    .resizable()
-                    .frame(width: 32, height: 32)
-                    .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+    /// Returns a view for displaying a row of content within the view.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display on the leading edge of the title and subtitle.
+    ///   - title: The title text to display in the row.
+    ///   - subtitle: The subtitle text to display in the row.
+    /// - Returns: A view for displaying a row of content in the view.
+    ///
+    @ViewBuilder
+    private func rowView(
+        image: ImageAsset,
+        title: String,
+        subtitle: String? = nil
+    ) -> some View {
+        HStack(spacing: 12) {
+            Image(decorative: image)
+                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(Localizations.createAHint)
-                        .styleGuide(.headline, weight: .semibold)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .styleGuide(.body, weight: .semibold)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
 
-                    Text(Localizations.yourHintWillBeSentToYouViaEmailWhenYouRequestIt)
+                if let subtitle {
+                    Text(subtitle)
                         .styleGuide(.subheadline)
                         .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(16)
-
-            Divider().padding(.leading, 68)
         }
-    }
-
-    /// The writing down instructions.
-    private var writeDownInstructions: some View {
-        HStack(spacing: 20) {
-            Image(decorative: Asset.Images.pencil)
-                .resizable()
-                .frame(width: 32, height: 32)
-                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(Localizations.writeYourPasswordDown)
-                    .styleGuide(.headline, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-
-                Text(Localizations.beCarefulToKeepYourWrittenPasswordSomewhereSecretAndSafe)
-                    .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(16)
+        .padding(12)
     }
 }
 
@@ -105,12 +94,14 @@ struct PreventAccountLockView: View {
 
 #if DEBUG
 #Preview {
-    PreventAccountLockView(
-        store: Store(
-            processor: StateProcessor(
-                state: ()
+    NavigationView {
+        PreventAccountLockView(
+            store: Store(
+                processor: StateProcessor(
+                    state: ()
+                )
             )
         )
-    )
+    }
 }
 #endif

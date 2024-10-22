@@ -7,6 +7,7 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasAppSettingsStore
         & HasConfigService
+        & HasErrorReporter
 
     // MARK: Private Properties
 

@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AccountSecurityViewTests: BitwardenTestCase {
+class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<AccountSecurityState, AccountSecurityAction, AccountSecurityEffect>!
@@ -39,6 +39,33 @@ class AccountSecurityViewTests: BitwardenTestCase {
         }
         waitFor(processor.effects.last == .accountFingerprintPhrasePressed)
         task.cancel()
+    }
+
+    /// The view hides the authenticator sync section when appropriate.
+    @MainActor
+    func test_authenticatorSync_hidden() throws {
+        processor.state.shouldShowAuthenticatorSyncSection = false
+        XCTAssertNil(
+            try? subject.inspect().find(
+                toggleWithAccessibilityLabel: Localizations.allowAuthenticatorSyncing
+            )
+        )
+    }
+
+    /// Tapping the sync with authenticator switch should send `.toggleSyncWithAuthenticator(enabled)` with the
+    /// new value of enabled.
+    @MainActor
+    func test_authenticatorSync_tap() throws {
+        processor.state.shouldShowAuthenticatorSyncSection = true
+        processor.state.isAuthenticatorSyncEnabled = false
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.allowAuthenticatorSyncing)
+        XCTAssertFalse(try toggle.isOn())
+
+        let task = Task {
+            try toggle.tap()
+        }
+        defer { task.cancel() }
+        waitFor(processor.effects.last == .toggleSyncWithAuthenticator(true))
     }
 
     /// The action card is hidden if the vault unlock setup progress is complete.
@@ -233,6 +260,19 @@ class AccountSecurityViewTests: BitwardenTestCase {
                         hasMasterPassword: false,
                         sessionTimeoutAction: .logout
                     )
+                )
+            )
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders correctly when the `shouldShowAuthenticatorSyncSection` is `true`.
+    @MainActor
+    func test_snapshot_shouldShowAuthenticatorSyncSection() {
+        let subject = AccountSecurityView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AccountSecurityState(shouldShowAuthenticatorSyncSection: true)
                 )
             )
         )

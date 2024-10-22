@@ -8,10 +8,6 @@ import Networking
 /// Contains information necessary for encrypting the user's password for login.
 ///
 struct PreLoginResponseModel: Equatable, JSONResponse, KdfConfigProtocol {
-    // MARK: Static Properties
-
-    static let decoder = JSONDecoder()
-
     // MARK: Properties
 
     /// The type of kdf algorithm to use for encryption.

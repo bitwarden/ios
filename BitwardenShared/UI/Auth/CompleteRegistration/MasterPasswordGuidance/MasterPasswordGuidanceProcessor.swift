@@ -29,7 +29,7 @@ class MasterPasswordGuidanceProcessor: StateProcessor<
     ) {
         self.coordinator = coordinator
         self.delegate = delegate
-        super.init(state: ())
+        super.init()
     }
 
     // MARK: Methods
