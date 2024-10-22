@@ -66,7 +66,7 @@
 
 ### Running Tests
 
-Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 15 Pro simulator (iOS 17.0.1).
+Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 15 Pro simulator (iOS 18).
 
 1. In Xcode's toolbar, select the project and a connected device or simulator.
    - The `Generic iOS Device` used for builds will not work for testing.
