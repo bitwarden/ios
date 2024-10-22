@@ -7,5 +7,5 @@
 # Default file owners
 * @bitwarden/dept-development-mobile
 
-# DevOps for Actions and other workflow changes
-.github/workflows @bitwarden/dept-devops
+## These workflows have joint ownership ##
+.github/workflows/build.yml @bitwarden/dept-bre @bitwarden/dept-development-mobile
