@@ -287,6 +287,44 @@ extension InspectableView {
     }
 }
 
+extension InspectableView where View: SingleViewContent {
+    /// Overrides the default `button` method in order to find a text field
+    /// that might be buried beneath added `AnyView` objects.
+    func button() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self)
+    }
+
+    /// Overrides the default `secureField` method in order to find a text field
+    /// that might be buried beneath added `AnyView` objects.
+    func secureField() throws -> InspectableView<ViewType.SecureField> {
+        try find(ViewType.SecureField.self)
+    }
+
+    /// Overrides the default `textField` method in order to find a text field
+    /// that might be buried beneath added `AnyView` objects.
+    func textField() throws -> InspectableView<ViewType.TextField> {
+        try find(ViewType.TextField.self)
+    }
+}
+
+extension InspectableView where View: SingleViewContent {
+    func recursiveCallOnLongPressGesture() throws {
+        do {
+            try callOnLongPressGesture()
+        } catch {
+            try implicitAnyView().recursiveCallOnLongPressGesture()
+        }
+    }
+
+    func recursiveCallOnTapGesture() throws {
+        do {
+            try callOnTapGesture()
+        } catch {
+            try implicitAnyView().recursiveCallOnTapGesture()
+        }
+    }
+}
+
 extension InspectableView where View == AsyncButtonType {
     /// Simulates a tap on an `AsyncButton`. This method is asynchronous and allows the entire `async` `action` on the
     /// button to run before returning.
