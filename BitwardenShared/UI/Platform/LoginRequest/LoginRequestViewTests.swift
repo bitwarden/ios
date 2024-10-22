@@ -60,17 +60,14 @@ class LoginRequestViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// The default view renders correctly.
-    func test_snapshot_default() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
-    }
-
-    /// The default view renders correctly in dark mode.
-    func test_snapshot_default_dark() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
-    }
-
-    /// The default view renders correctly with large fonts.
-    func test_snapshot_default_large() {
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortraitAX5(heightMultiple: 2))
+    func test_snapshots() {
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(heightMultiple: 2),
+            ]
+        )
     }
 }

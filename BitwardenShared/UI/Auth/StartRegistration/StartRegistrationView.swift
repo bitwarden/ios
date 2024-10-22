@@ -18,7 +18,7 @@ struct StartRegistrationView: View {
     var body: some View {
         VStack(spacing: 16) {
             if store.state.isCreateAccountFeatureFlagEnabled {
-                Image(decorative: Asset.Images.vaultIllustration)
+                Image(decorative: Asset.Images.Illustrations.vault)
                     .resizable()
                     .frame(width: 132, height: 132)
                     .padding(.top, 24)

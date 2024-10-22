@@ -26,8 +26,8 @@ struct FloatingActionButton: View {
                     .init(
                         color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                         scaleWithFont: false,
-                        width: 24,
-                        height: 24
+                        width: 32,
+                        height: 32
                     )
                 )
         }
@@ -39,7 +39,7 @@ struct FloatingActionButton: View {
 #Preview {
     VStack {
         FloatingActionButton(
-            image: Asset.Images.pencil.swiftUIImage) {}
+            image: Asset.Images.pencil32.swiftUIImage) {}
     }
     .padding()
 }
