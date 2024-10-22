@@ -135,7 +135,6 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
         do {
             try await services.settingsRepository.fetchSync()
-            coordinator.hideLoadingOverlay()
 
             guard try await !services.vaultRepository.isVaultEmpty() else {
                 showImportLoginsEmptyAlert()
