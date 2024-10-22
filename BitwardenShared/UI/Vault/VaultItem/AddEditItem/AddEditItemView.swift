@@ -261,7 +261,7 @@ private extension AddEditItemView {
                     ),
                     calculatedHeight: $notesDynamicHeight
                 )
-                .frame(minHeight: notesDynamicHeight, maxHeight: notesDynamicHeight)
+                .frame(minHeight: notesDynamicHeight)
                 .accessibilityLabel(Localizations.notes)
             }
         }
@@ -309,12 +309,6 @@ private extension AddEditItemView {
 }
 
 #if DEBUG
-private let multilineText =
-    """
-    I should really keep this safe.
-    Is that right?
-    """
-
 struct AddEditItemView_Previews: PreviewProvider {
     static var cipherState: CipherItemState {
         var state = CipherItemState(
@@ -360,6 +354,21 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
+                        state: {
+                            var state = cipherState
+                            state.notes = "This is a nice note"
+                            return state
+                        }()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Notes")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
                         state: CipherItemState(
                             addItem: .card,
                             hasPremium: true
@@ -394,7 +403,6 @@ struct AddEditItemView_Previews: PreviewProvider {
                             copy.isFavoriteOn = false
                             copy.isMasterPasswordRePromptOn = true
                             copy.owner = .personal(email: "security@bitwarden.com")
-                            copy.notes = multilineText
                             return copy.addEditState
                         }()
                     )

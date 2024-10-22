@@ -14,6 +14,9 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
+    /// The height of the notes field
+    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -392,14 +395,20 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
         .textFieldConfiguration(.password)
 
-        BitwardenMultilineTextField(
+        BitwardenField(
             title: Localizations.notes,
-            text: store.binding(
-                get: \.notes,
-                send: AddEditSendItemAction.notesChanged
-            ),
             footer: Localizations.notesInfo
-        )
+        ) {
+            BitwardenUITextView(
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditSendItemAction.notesChanged
+                ),
+                calculatedHeight: $notesDynamicHeight
+            )
+            .frame(minHeight: notesDynamicHeight)
+            .accessibilityLabel(Localizations.notes)
+        }
 
         Toggle(Localizations.hideEmail, isOn: store.binding(
             get: \.isHideMyEmailOn,

@@ -103,7 +103,10 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_notesTextField_updated() throws {
         processor.state.isOptionsExpanded = true
-        let textField = try subject.inspect().find(bitwardenMultilineTextField: Localizations.notes)
+        let textField = try subject.inspect().find(
+            type: BitwardenUITextViewType.self,
+            accessibilityLabel: Localizations.notes
+        )
         try textField.inputBinding().wrappedValue = "Notes"
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("Notes"))
     }

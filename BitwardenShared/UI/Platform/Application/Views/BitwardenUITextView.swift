@@ -45,8 +45,13 @@ struct BitwardenUITextView: UIViewRepresentable {
     /// The text entered into the text field.
     @Binding var text: String
 
-    ///
+    /// The calculated height of the `UITextView`. This value is dynamically updated based on the
+    /// content size, and it helps to adjust the height of the view in SwiftUI.
     @Binding var calculatedHeight: CGFloat
+
+    /// Indicates whether the `UITextView` is editable. When set to `true`, the user can edit the
+    /// text. If `false`, the text view is read-only.
+    var isEditable: Bool = true
 
     /// Creates and returns the coordinator for the `UITextView`.
     ///
@@ -70,15 +75,17 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.delegate = context.coordinator
         textView.textColor = Asset.Colors.textPrimary.color
         textView.isScrollEnabled = false
+        textView.isEditable = isEditable
         textView.isUserInteractionEnabled = true
         textView.isSelectable = true
         textView.backgroundColor = .clear
         textView.tintColor = Asset.Colors.tintPrimary.color
-        let font = UIFont.preferredFont(forTextStyle: .body)
-        textView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: font)
         textView.textContainerInset = .zero
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        let backupFont = UIFont.preferredFont(forTextStyle: .body)
+        let customFont = UIFont(name: FontFamily.DMSans.regular.name, size: 15)
+        textView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: customFont ?? backupFont)
         return textView
     }
 
