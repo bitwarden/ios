@@ -308,6 +308,10 @@ extension InspectableView where View: SingleViewContent {
 }
 
 extension InspectableView where View: SingleViewContent {
+    /// Recursively traverses a child view hierarchy of `AnyView` objects until
+    /// it finds one that will take a long press gesture, and performs the gesture.
+    /// This is necessary because Xcode 16 adds additional `AnyView` objects in
+    /// debug mode.
     func recursiveCallOnLongPressGesture() throws {
         do {
             try callOnLongPressGesture()
@@ -316,6 +320,10 @@ extension InspectableView where View: SingleViewContent {
         }
     }
 
+    /// Recursively traverses a child view hierarchy of `AnyView` objects until
+    /// it finds one that will take a tap gesture, and performs the gesture.
+    /// This is necessary because Xcode 16 adds additional `AnyView` objects in
+    /// debug mode.
     func recursiveCallOnTapGesture() throws {
         do {
             try callOnTapGesture()
