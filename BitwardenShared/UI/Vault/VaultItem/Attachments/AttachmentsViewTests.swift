@@ -77,40 +77,28 @@ class AttachmentsViewTests: BitwardenTestCase {
 
     /// The empty view renders correctly in dark mode.
     @MainActor
-    func test_snapshot_attachments_empty_dark() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
-    }
-
-    /// The empty view renders correctly.
-    @MainActor
-    func test_snapshot_attachments_empty_default() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
-    }
-
-    /// The empty view renders correctly with large text.
-    @MainActor
-    func test_snapshot_attachments_empty_large() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitAX5)
+    func test_snapshot_attachments_empty() {
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+            ]
+        )
     }
 
     /// The view with several attachments renders correctly in dark mode.
     @MainActor
-    func test_snapshot_attachments_several_dark() {
+    func test_snapshot_attachments_several() {
         processor.state.cipher = cipherWithAttachments
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitDark)
-    }
-
-    /// The view with several attachments renders correctly.
-    @MainActor
-    func test_snapshot_attachments_several_default() {
-        processor.state.cipher = cipherWithAttachments
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
-    }
-
-    /// The view with several attachments renders correctly with large text.
-    @MainActor
-    func test_snapshot_attachments_several_large() {
-        processor.state.cipher = cipherWithAttachments
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortraitAX5)
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+            ]
+        )
     }
 }
