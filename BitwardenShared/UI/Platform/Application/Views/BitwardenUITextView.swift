@@ -82,7 +82,7 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.tintColor = Asset.Colors.tintPrimary.color
         textView.textContainerInset = .zero
 
-        let verticalPadding: CGFloat = 8
+        let verticalPadding: CGFloat = 4
         textView.textContainerInset = UIEdgeInsets(top: verticalPadding, left: 0, bottom: verticalPadding, right: 0)
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
