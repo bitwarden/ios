@@ -120,6 +120,7 @@ class SetMasterPasswordProcessor: StateProcessor<
                 let isInvalid = try await services.authService.requirePasswordChange(
                     email: services.authRepository.getAccount().profile.email,
                     masterPassword: state.masterPassword,
+                    preAuth: false,
                     policy: state.masterPasswordPolicy
                 )
                 guard !isInvalid else {

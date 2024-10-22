@@ -207,6 +207,7 @@ protocol AuthService {
     func requirePasswordChange(
         email: String,
         masterPassword: String,
+        preAuth: Bool,
         policy: MasterPasswordPolicyOptions?
     ) async throws -> Bool
 
@@ -274,6 +275,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
+
+    /// The force password reset reason, which is cached after the original login request fails when
+    /// two factor authentication is active and is used after the user enters the code.
+    private var forcePasswordResetReason: ForcePasswordResetReason?
 
     /// The repository used to manages keychain items.
     private let keychainRepository: KeychainRepository
@@ -573,17 +578,55 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             kdfParams: response.sdkKdf,
             purpose: .serverAuthorization
         )
-        let token = try await getIdentityTokenResponse(
-            authenticationMethod: .password(username: username, password: hashedPassword),
-            email: username,
-            captchaToken: captchaToken
-        )
+
+        var token: IdentityTokenResponseModel?
+        do {
+            token = try await getIdentityTokenResponse(
+                authenticationMethod: .password(username: username, password: hashedPassword),
+                email: username,
+                captchaToken: captchaToken
+            )
+        } catch let error as IdentityTokenRequestError {
+            if case let .twoFactorRequired(_, _, masterPasswordPolicyResponseModel, _) = error {
+                try await checkMasterPasswordPolicies(masterPassword, true, username, masterPasswordPolicyResponseModel)
+            }
+            // Re-throw the error.
+            throw error
+        }
 
         // Save the master password hash.
         try await saveMasterPasswordHash(password: masterPassword)
 
+        try await checkMasterPasswordPolicies(masterPassword, false, username, token?.masterPasswordPolicy)
+
+        if isNewAccount, await configService.getFeatureFlag(.nativeCreateAccountFlow) {
+            do {
+                let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
+                try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
+                try await stateService.setAccountSetupImportLogins(.incomplete)
+                try await stateService.setAccountSetupVaultUnlock(.incomplete)
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
+    }
+
+    /// Check if master password complies with organization policies
+    ///
+    /// - Parameters:
+    ///  - masterPassword: The user's master password
+    ///  - preAuth: Whether this flow is before or after authentication
+    ///  - username: The user's email address.
+    ///  - masterPasswordPolicy: The master password policies that the org has active.
+    ///
+    private func checkMasterPasswordPolicies(
+        _ masterPassword: String,
+        _ preAuth: Bool,
+        _ username: String,
+        _ masterPasswordPolicy: MasterPasswordPolicyResponseModel?
+    ) async throws {
         var policy: MasterPasswordPolicyOptions?
-        if let model = token.masterPasswordPolicy {
+        if let model = masterPasswordPolicy {
             policy = MasterPasswordPolicyOptions(
                 minComplexity: model.minComplexity ?? 0,
                 minLength: model.minLength ?? 0,
@@ -594,18 +637,18 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                 enforceOnLogin: model.enforceOnLogin ?? false
             )
         }
-        if try await requirePasswordChange(email: username, masterPassword: masterPassword, policy: policy) {
-            try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
-        }
-
-        if isNewAccount, await configService.getFeatureFlag(.nativeCreateAccountFlow) {
-            do {
-                let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
-                try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
-                try await stateService.setAccountSetupImportLogins(.incomplete)
-                try await stateService.setAccountSetupVaultUnlock(.incomplete)
-            } catch {
-                errorReporter.log(error: error)
+        if try await requirePasswordChange(
+            email: username,
+            masterPassword: masterPassword,
+            preAuth: preAuth,
+            policy: policy
+        ) {
+            if preAuth {
+                // Since this is pre authentication we use a local var to cache this info.
+                forcePasswordResetReason = .weakMasterPasswordOnLogin
+            } else {
+                // Otherwise we save it in state.
+                try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
             }
         }
     }
@@ -681,6 +724,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         // Get the identity token to log in to Bitwarden.
         let response = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
 
+        // If it's assigned then we need to update the required reset password and remove the cache.
+        if forcePasswordResetReason != nil {
+            try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
+            forcePasswordResetReason = nil
+        }
+
         // Save the master password hash.
         if case let .password(_, password) = twoFactorRequest.authenticationMethod {
             try await saveMasterPasswordHash(password: password)
@@ -696,6 +745,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func requirePasswordChange(
         email: String,
         masterPassword: String,
+        preAuth: Bool,
         policy: MasterPasswordPolicyOptions?
     ) async throws -> Bool {
         // Check if we need to change password on login
@@ -705,14 +755,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         // Calculate the strength of the user email and password
-        let strength = try await clientService.auth().passwordStrength(
+        let strength = try await clientService.auth(isPreAuth: preAuth).passwordStrength(
             password: masterPassword,
             email: email,
             additionalInputs: []
         )
 
         // Check if master password meets the master password policy.
-        let satisfyPolicy = try await clientService.auth().satisfiesPolicy(
+        let satisfyPolicy = try await clientService.auth(isPreAuth: preAuth).satisfiesPolicy(
             password: masterPassword,
             strength: strength,
             policy: masterPasswordPolicy
@@ -849,7 +899,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
             return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
-            if case let .twoFactorRequired(_, ssoToken, captchaBypassToken) = error {
+            if case let .twoFactorRequired(_, captchaBypassToken, _, ssoToken) = error {
                 // If the token request require two-factor authentication, cache the request so that
                 // the token information can be added once the user inputs the code.
                 twoFactorRequest = request

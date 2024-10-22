@@ -15,10 +15,16 @@ enum IdentityTokenRequestError: Error, Equatable {
     ///
     /// - Parameters:
     ///   - authMethodsData: The information about the available auth methods.
-    ///   - ssoToken: The sso token, which is non-nil if the user is using single sign on.
     ///   - captchaBypassToken: A captcha bypass token, which allows the user to bypass the next captcha prompt.
+    ///   - masterPasswordPolicy: The master password policies that the org has enabled.
+    ///   - ssoToken: The sso token, which is non-nil if the user is using single sign on.
     ///
-    case twoFactorRequired(_ authMethodsData: AuthMethodsData, _ ssoToken: String?, _ captchaBypassToken: String?)
+    case twoFactorRequired(
+        _ authMethodsData: AuthMethodsData,
+        _ captchaBypassToken: String?,
+        _ masterPasswordPolicy: MasterPasswordPolicyResponseModel?,
+        _ ssoToken: String?
+    )
 }
 
 // MARK: - IdentityTokenRequest
@@ -79,8 +85,9 @@ struct IdentityTokenRequest: Request {
                 twoFactorProvidersData.providersAvailable = twoFactorProviders
                 throw IdentityTokenRequestError.twoFactorRequired(
                     twoFactorProvidersData,
-                    errorModel.ssoToken,
-                    errorModel.captchaBypassToken
+                    errorModel.captchaBypassToken,
+                    errorModel.masterPasswordPolicy,
+                    errorModel.ssoToken
                 )
             } else if let siteCode = errorModel.siteCode {
                 // Throw the captcha error if the captcha site key can be found.
