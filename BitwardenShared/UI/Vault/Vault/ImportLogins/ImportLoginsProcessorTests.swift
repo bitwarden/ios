@@ -62,6 +62,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page.
     @MainActor
     func test_perform_advanceNextPage_sync() async {
+        stateService.activeAccount = .fixture()
         subject.state.page = .step3
 
         await subject.perform(.advanceNextPage)
@@ -70,6 +71,24 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.importLoginsSuccess])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page and
+    /// logs a setup progress error if one occurs without affecting navigation.
+    @MainActor
+    func test_perform_advanceNextPage_setupProgressError() async {
+        subject.state.page = .step3
+
+        await subject.perform(.advanceNextPage)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.routes, [.importLoginsSuccess])
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertNil(stateService.accountSetupImportLogins["1"])
     }
 
     /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page and
@@ -78,6 +97,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     func test_perform_advanceNextPage_syncError() async {
         subject.state.page = .step3
         settingsRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
 
         await subject.perform(.advanceNextPage)
 
@@ -87,6 +107,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.routes.isEmpty)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [BitwardenTestError.example])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertNil(stateService.accountSetupImportLogins["1"])
     }
 
     /// `perform(_:)` with `.appeared` loads the user's web vault host.

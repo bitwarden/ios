@@ -1730,7 +1730,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `settingsBadgePublisher()` publishes the settings badge value for the active user.
-    func test_settingsBadgePublisher() async throws {
+    func test_settingsBadgePublisher() async throws { // swiftlint:disable:this function_body_length
         await subject.addAccount(.fixture())
 
         var publishedValues = [SettingsBadgeState]()
@@ -1741,12 +1741,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         defer { publisher.cancel() }
 
         try await subject.setAccountSetupAutofill(.setUpLater)
+        try await subject.setAccountSetupImportLogins(.setUpLater)
         try await subject.setAccountSetupVaultUnlock(.setUpLater)
 
         try await subject.setAccountSetupAutofill(.complete)
+        try await subject.setAccountSetupImportLogins(.complete)
         try await subject.setAccountSetupVaultUnlock(.complete)
 
-        XCTAssertEqual(publishedValues.count, 5)
+        XCTAssertEqual(publishedValues.count, 7)
         XCTAssertEqual(publishedValues[0], .fixture())
         XCTAssertEqual(publishedValues[1], .fixture(autofillSetupProgress: .setUpLater, badgeValue: "1"))
         XCTAssertEqual(
@@ -1754,20 +1756,43 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .fixture(
                 autofillSetupProgress: .setUpLater,
                 badgeValue: "2",
-                vaultUnlockSetupProgress: .setUpLater
+                importLoginsSetupProgress: .setUpLater
             )
         )
         XCTAssertEqual(
             publishedValues[3],
             .fixture(
-                autofillSetupProgress: .complete,
-                badgeValue: "1",
+                autofillSetupProgress: .setUpLater,
+                badgeValue: "3",
+                importLoginsSetupProgress: .setUpLater,
                 vaultUnlockSetupProgress: .setUpLater
             )
         )
         XCTAssertEqual(
             publishedValues[4],
-            .fixture(autofillSetupProgress: .complete, vaultUnlockSetupProgress: .complete)
+            .fixture(
+                autofillSetupProgress: .complete,
+                badgeValue: "2",
+                importLoginsSetupProgress: .setUpLater,
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[5],
+            .fixture(
+                autofillSetupProgress: .complete,
+                badgeValue: "1",
+                importLoginsSetupProgress: .complete,
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[6],
+            .fixture(
+                autofillSetupProgress: .complete,
+                importLoginsSetupProgress: .complete,
+                vaultUnlockSetupProgress: .complete
+            )
         )
     }
 

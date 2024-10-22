@@ -43,7 +43,7 @@ struct SettingsView: View {
             }
             .accessibilityIdentifier("AutofillSettingsButton")
 
-            SettingsListItem(Localizations.vault) {
+            SettingsListItem(Localizations.vault, badgeValue: store.state.vaultBadgeValue) {
                 store.send(.vaultPressed)
             } trailingContent: {
                 chevron

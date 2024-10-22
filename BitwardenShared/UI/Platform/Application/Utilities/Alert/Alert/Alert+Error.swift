@@ -5,6 +5,25 @@ import Foundation
 extension Alert {
     // MARK: Methods
 
+    /// The default alert style for a given error with a standard ok button to dismiss.
+    ///
+    /// - Parameters:
+    ///   - error: The error that prompted the alert.
+    ///   - alertActions: A list of actions that the user can tap on in the alert.
+    ///
+    /// - Returns a default styled alert.
+    ///
+    static func defaultAlert(
+        error: Error,
+        alertActions: [AlertAction]? = nil
+    ) -> Alert {
+        defaultAlert(
+            title: Localizations.anErrorHasOccurred,
+            message: error.localizedDescription,
+            alertActions: alertActions
+        )
+    }
+
     /// The default alert style with a standard ok button to dismiss.
     ///
     /// - Parameters:
