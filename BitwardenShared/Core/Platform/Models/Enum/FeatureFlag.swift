@@ -69,6 +69,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
         .testRemoteInitialBoolFlag: .bool(true),
         .testRemoteInitialIntFlag: .int(42),
         .testRemoteInitialStringFlag: .string("Test String"),
+        .enableAuthenticatorSync: .bool(true),
     ]
 
     // MARK: Instance Properties
