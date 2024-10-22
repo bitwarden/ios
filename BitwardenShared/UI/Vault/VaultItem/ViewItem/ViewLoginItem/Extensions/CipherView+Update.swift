@@ -211,29 +211,28 @@ extension CipherView {
         guard let oldFields else {
             return passwordHistory
         }
-
-        var newHistory = passwordHistory
-        oldFields.filter { field in
-            FieldType(fieldType: field.type) == FieldType.hidden &&
-                !field.name.isEmptyOrNil &&
-                !field.value.isEmptyOrNil &&
-                !(newFields?.contains(field) ?? false)
-        }.forEach { hiddenField in
-            guard !hiddenField.name.isEmptyOrNil else {
-                return
+        let newPasswordHistoryFields: [PasswordHistoryView] = oldFields
+            .filter { field in
+                FieldType(fieldType: field.type) == FieldType.hidden &&
+                    !field.name.isEmptyOrNil &&
+                    !field.value.isEmptyOrNil &&
+                    !(newFields?.contains(field) ?? false)
+            }.compactMap { hiddenField in
+                guard !hiddenField.name.isEmptyOrNil else {
+                    return nil
+                }
+                return PasswordHistoryView(
+                    password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
+                    lastUsedDate: lastUsedDate
+                )
             }
-
-            let passHistoryHiddenField = PasswordHistoryView(
-                password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
-                lastUsedDate: lastUsedDate
-            )
-            if newHistory == nil {
-                newHistory = [passHistoryHiddenField]
-            } else {
-                newHistory?.append(passHistoryHiddenField)
-            }
+        guard !newPasswordHistoryFields.isEmpty else {
+            return passwordHistory
         }
-        return newHistory
+        guard let passwordHistory else {
+            return newPasswordHistoryFields
+        }
+        return passwordHistory + newPasswordHistoryFields
     }
 
     /// Maps the array of `CustomFieldState` into the an array of `FieldView`.
