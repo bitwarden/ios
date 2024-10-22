@@ -11,14 +11,17 @@ struct VaultSettingsView: View {
     @Environment(\.openURL) private var openURL
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<VaultSettingsState, VaultSettingsAction, Void>
+    @ObservedObject var store: Store<VaultSettingsState, VaultSettingsAction, VaultSettingsEffect>
 
     // MARK: View
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            importLoginsActionCard
+
             vaultSettings
         }
+        .animation(.easeInOut, value: store.state.badgeState?.importLoginsSetupProgress == .complete)
         .scrollView()
         .navigationBar(title: Localizations.vault, titleDisplayMode: .inline)
         .onChange(of: store.state.url) { newValue in
@@ -26,9 +29,30 @@ struct VaultSettingsView: View {
             openURL(url)
             store.send(.clearUrl)
         }
+        .task {
+            await store.perform(.streamSettingsBadge)
+        }
     }
 
     // MARK: Private views
+
+    /// The action card for setting up vault unlock methods.
+    @ViewBuilder private var importLoginsActionCard: some View {
+        if store.state.shouldShowImportLoginsActionCard {
+            ActionCard(
+                title: Localizations.importSavedLogins,
+                message: Localizations.importSavedLoginsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                    store.send(.showImportLogins)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissImportLoginsActionCard)
+                }
+            ) {
+                BitwardenBadge(badgeValue: "1")
+            }
+        }
+    }
 
     /// The vault settings section.
     private var vaultSettings: some View {

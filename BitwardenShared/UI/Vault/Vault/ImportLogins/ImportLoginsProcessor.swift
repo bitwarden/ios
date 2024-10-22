@@ -120,6 +120,13 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
         do {
             try await services.settingsRepository.fetchSync()
+
+            do {
+                try await services.stateService.setAccountSetupImportLogins(.complete)
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .importLoginsSuccess)
         } catch {
