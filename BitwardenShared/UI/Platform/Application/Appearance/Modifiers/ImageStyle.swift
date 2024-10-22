@@ -45,8 +45,8 @@ extension ImageStyle {
     static let toolbarIcon = ImageStyle(
         color: Asset.Colors.iconSecondary.swiftUIColor,
         scaleWithFont: false,
-        width: 19,
-        height: 19
+        width: 24,
+        height: 24
     )
 
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
@@ -78,7 +78,7 @@ extension ImageStyle {
         color: Color = Asset.Colors.textSecondary.swiftUIColor,
         scaleWithFont: Bool = true
     ) -> ImageStyle {
-        ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 22, height: 22)
+        ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
     }
 }
 
