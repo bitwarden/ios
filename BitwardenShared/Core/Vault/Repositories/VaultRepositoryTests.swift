@@ -762,7 +762,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `isVaultEmpty()` throws an error if one occurs.
     func test_isVaultEmpty_error() async {
-        cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
+        cipherService.cipherCountResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.isVaultEmpty()
         }
@@ -770,13 +770,14 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `isVaultEmpty()` returns `false` if the user's vault is not empty.
     func test_isVaultEmpty_false() async throws {
-        cipherService.fetchAllCiphersResult = .success([.fixture()])
+        cipherService.cipherCountResult = .success(2)
         let isEmpty = try await subject.isVaultEmpty()
         XCTAssertFalse(isEmpty)
     }
 
     /// `isVaultEmpty()` returns `true` if the user's vault is empty.
     func test_isVaultEmpty_true() async throws {
+        cipherService.cipherCountResult = .success(0)
         let isEmpty = try await subject.isVaultEmpty()
         XCTAssertTrue(isEmpty)
     }

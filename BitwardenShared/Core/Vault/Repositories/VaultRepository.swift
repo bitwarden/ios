@@ -1049,7 +1049,7 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func isVaultEmpty() async throws -> Bool {
-        try await cipherService.fetchAllCiphers().isEmpty
+        try await cipherService.cipherCount() == 0
     }
 
     func needsSync() async throws -> Bool {
