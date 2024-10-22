@@ -58,8 +58,8 @@ struct BitwardenMultilineTextFieldType: BaseViewType {
     ]
 }
 
-/// A generic type wrapper around `BitwardenMultilineTextField` to allow `ViewInspector` to find
-/// instances of `BitwardenMultilineTextField` without needing to know the details of it's
+/// A generic type wrapper around `BitwardenUITextViewType` to allow `ViewInspector` to find
+/// instances of `BitwardenUITextViewType` without needing to know the details of it's
 /// implementation.
 ///
 struct BitwardenUITextViewType: BaseViewType {
