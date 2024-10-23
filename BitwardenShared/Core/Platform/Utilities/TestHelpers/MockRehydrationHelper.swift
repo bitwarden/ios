@@ -1,15 +1,32 @@
 @testable import BitwardenShared
 
 class MockRehydrationHelper: RehydrationHelper {
-    var rehydratableTargets: [Rehydratable] = []
+    var clearAppRehydrationStateCalled = false
+    var clearAppRehydrationStateError: Error?
     var getLastTargetStateResult: RehydrationState?
+    var getSavedRehydratableTargetResult: Result<RehydratableTarget?, Error> = .success(nil)
+    var rehydratableTargets: [Rehydratable] = []
+    var saveRehydrationStateIfNeededCalled = false
 
-    /// Adds a new target to be considered for rehydration.
+    func clearAppRehydrationState() async throws {
+        clearAppRehydrationStateCalled = true
+        if let clearAppRehydrationStateError {
+            throw clearAppRehydrationStateError
+        }
+    }
+
+    func getSavedRehydratableTarget() async throws -> BitwardenShared.RehydratableTarget? {
+        try getSavedRehydratableTargetResult.get()
+    }
+
+    func saveRehydrationStateIfNeeded() async {
+        saveRehydrationStateIfNeededCalled = true
+    }
+
     func addRehydratableTarget(_ target: Rehydratable) {
         rehydratableTargets.append(target)
     }
 
-    /// Gets the last target state for rehydartion.
     func getLastTargetState() -> RehydrationState? {
         getLastTargetStateResult
     }

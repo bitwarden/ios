@@ -111,7 +111,7 @@ protocol StateService: AnyObject {
     /// - Returns: The allow sync on refresh value.
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
-    
+
     /// Gets the app rehydration state.
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
@@ -1107,7 +1107,7 @@ extension StateService {
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?) async throws {
         try await setAppRehydrationState(rehydrationState, userId: nil)
     }
-    
+
     /// Sets the server config for the active account.
     ///
     /// - Parameter config: The server config.

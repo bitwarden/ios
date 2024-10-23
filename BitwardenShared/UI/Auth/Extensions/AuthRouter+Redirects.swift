@@ -282,12 +282,8 @@ extension AuthRouter {
                     return .landing
                 }
 
-                do {
-                    if !isInAppExtension {
-                        try await services.rehydrationHelper.saveRehydrationStateIfNeeded()
-                    }
-                } catch {
-                    services.errorReporter.log(error: error)
+                if !isInAppExtension {
+                    await services.rehydrationHelper.saveRehydrationStateIfNeeded()
                 }
 
                 // Setup the check route for the active account.
@@ -413,4 +409,4 @@ extension AuthRouter {
             await services.stateService.setIntroCarouselShown(true)
         }
     }
-}
+} // swiftlint:disable:this file_length

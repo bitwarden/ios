@@ -329,6 +329,7 @@ extension AppCoordinator: AuthCoordinatorDelegate {
                         services.errorReporter.log(error: error)
                     }
                 }
+                return
             }
 
             if let authCompletionRoute {

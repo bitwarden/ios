@@ -140,7 +140,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
-    func navigate(to route: VaultRoute, context: AnyObject?) {
+    func navigate(to route: VaultRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
@@ -169,10 +169,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             }
         case let .editItemFrom(id):
             Task {
-                guard let cipher = try await services.vaultRepository.fetchCipher(withId: id) else {
-                    return
+                do {
+                    guard let cipher = try await services.vaultRepository.fetchCipher(withId: id) else {
+                        return
+                    }
+                    navigate(to: .editItem(cipher))
+                } catch {
+                    services.errorReporter.log(error: error)
                 }
-                navigate(to: .editItem(cipher))
             }
         case .dismiss:
             stackNavigator?.dismiss()

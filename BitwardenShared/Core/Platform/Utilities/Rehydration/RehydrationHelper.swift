@@ -11,7 +11,7 @@ protocol RehydrationHelper {
     func getSavedRehydratableTarget() async throws -> RehydratableTarget?
     /// Saves the rehydration state if the last view seen by the user is one that we need to save
     /// so after the user unlocks it navigates back to such screen.
-    func saveRehydrationStateIfNeeded() async throws
+    func saveRehydrationStateIfNeeded() async
 }
 
 actor DefaultRehydrationHelper: RehydrationHelper {
@@ -19,19 +19,23 @@ actor DefaultRehydrationHelper: RehydrationHelper {
     /// when restoring targets after unlocking.
     private static let rehydrationTimeoutInSecs: TimeInterval = 5 * 60
 
+    /// The service used by the application to report non-fatal errors
+    private let errorReporter: ErrorReporter
     /// The service used by the application to manage account state.
     private let stateService: StateService
     /// A provider of time.
     private let timeProvider: TimeProvider
 
     /// The weak rehydratable targets.
-    var weakTargets: [WeakWrapper] = []
+    private var weakTargets: [WeakWrapper] = []
 
     /// Initializes a `DefaultRehydrationHelper`
     /// - Parameters:
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: A provider of time.
-    init(stateService: StateService, timeProvider: TimeProvider) {
+    init(errorReporter: ErrorReporter, stateService: StateService, timeProvider: TimeProvider) {
+        self.errorReporter = errorReporter
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
@@ -65,7 +69,7 @@ actor DefaultRehydrationHelper: RehydrationHelper {
             return nil
         }
         guard rehydrationState.expirationTime >= timeProvider.presentTime else {
-            try await stateService.setAppRehydrationState(nil)
+            try await clearAppRehydrationState()
             return nil
         }
 
@@ -73,19 +77,23 @@ actor DefaultRehydrationHelper: RehydrationHelper {
     }
 
     /// Saves the rehydration state if needed.
-    func saveRehydrationStateIfNeeded() async throws {
+    func saveRehydrationStateIfNeeded() async {
         guard let state = await getLastTargetState() else {
             return
         }
 
-        try await stateService.setAppRehydrationState(
-            AppRehydrationState(
-                target: state.target,
-                expirationTime: timeProvider.presentTime.addingTimeInterval(
-                    Self.rehydrationTimeoutInSecs
+        do {
+            try await stateService.setAppRehydrationState(
+                AppRehydrationState(
+                    target: state.target,
+                    expirationTime: timeProvider.presentTime.addingTimeInterval(
+                        Self.rehydrationTimeoutInSecs
+                    )
                 )
             )
-        )
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 }
 
@@ -97,7 +105,7 @@ protocol Rehydratable: AnyObject {
 }
 
 /// The state for rehydration.
-struct RehydrationState: Codable {
+struct RehydrationState: Codable, Equatable {
     let target: RehydratableTarget
 }
 

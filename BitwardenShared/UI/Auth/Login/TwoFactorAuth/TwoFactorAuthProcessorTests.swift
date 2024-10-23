@@ -455,7 +455,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
-        XCTAssertEqual(coordinator.routes, [.complete])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
@@ -471,7 +471,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(coordinator.routes, [.complete])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.continueTapped` throws an error if the organization identifier is
