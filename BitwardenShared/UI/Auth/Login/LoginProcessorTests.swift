@@ -192,7 +192,10 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
         XCTAssertEqual(
             coordinator.alertShown.last,
-            .networkResponseError(ServerError.validationError(validationErrorResponse: validationResponse))
+            .networkResponseError(
+                ServerError.validationError(validationErrorResponse: validationResponse),
+                isOfficialBitwardenServer: false
+            )
         )
         XCTAssertEqual(
             errorReporter.errors.last as? ServerError,
