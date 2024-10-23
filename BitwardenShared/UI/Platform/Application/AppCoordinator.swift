@@ -375,6 +375,14 @@ extension AppCoordinator: SendItemDelegate {
 // MARK: - SettingsCoordinatorDelegate
 
 extension AppCoordinator: SettingsCoordinatorDelegate {
+    func didCompleteLoginsImport() {
+        navigate(to: .tab(.vault(.list)))
+        showToast(
+            Localizations.loginsImported,
+            subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer
+        )
+    }
+
     func didDeleteAccount() {
         Task {
             await handleAuthEvent(.didDeleteAccount)
