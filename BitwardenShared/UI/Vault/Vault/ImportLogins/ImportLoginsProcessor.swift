@@ -8,6 +8,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     typealias Services = HasErrorReporter
         & HasSettingsRepository
         & HasStateService
+        & HasVaultRepository
 
     // MARK: Private Properties
 
@@ -91,6 +92,17 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
         }
     }
 
+    /// Sets the user's import logins progress to set up later and dismisses the view.
+    ///
+    private func setImportLoginsLaterAndDismiss() async {
+        do {
+            try await services.stateService.setAccountSetupImportLogins(.setUpLater)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        coordinator.navigate(to: .dismiss)
+    }
+
     /// Shows the alert confirming the user wants to get started on importing logins.
     ///
     private func showGetStartAlert() {
@@ -99,16 +111,19 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
         })
     }
 
+    /// Shows an alert informing the user that their vault is empty after importing logins.
+    ///
+    private func showImportLoginsEmptyAlert() {
+        coordinator.showAlert(.importLoginsEmpty {
+            await self.setImportLoginsLaterAndDismiss()
+        })
+    }
+
     /// Shows the alert confirming the user wants to import logins later.
     ///
     private func showImportLoginsLaterAlert() {
         coordinator.showAlert(.importLoginsLater {
-            do {
-                try await self.services.stateService.setAccountSetupImportLogins(.setUpLater)
-            } catch {
-                self.services.errorReporter.log(error: error)
-            }
-            self.coordinator.navigate(to: .dismiss)
+            await self.setImportLoginsLaterAndDismiss()
         })
     }
 
@@ -120,6 +135,12 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
         do {
             try await services.settingsRepository.fetchSync()
+            coordinator.hideLoadingOverlay()
+
+            guard try await !services.vaultRepository.isVaultEmpty() else {
+                showImportLoginsEmptyAlert()
+                return
+            }
 
             do {
                 try await services.stateService.setAccountSetupImportLogins(.complete)
@@ -127,7 +148,6 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
                 services.errorReporter.log(error: error)
             }
 
-            coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .importLoginsSuccess)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
