@@ -28,7 +28,7 @@ enum ServerError: Error, Equatable, CustomNSError {
         case let .validationError(validationErrorResponse):
             validationErrorResponse.errorModel.message
         case .unofficialBitwardenServerError:
-            Localizations.thisIsNotARecognizedBitwardenServer
+            Localizations.thisIsNotARecognizedBitwardenServerYouMayNeedToCheckWithYourProviderOrUpdateYourServer
         }
     }
 

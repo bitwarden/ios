@@ -1049,4 +1049,4 @@
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";
 "ImportError" = "Import error";
 "NoLoginsWereImported" = "No logins were imported";
-"ThisIsNotARecognizedBitwardenServer" = "This is not a recognized Bitwarden server";
+"ThisIsNotARecognizedBitwardenServerYouMayNeedToCheckWithYourProviderOrUpdateYourServer" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";

@@ -195,10 +195,12 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// - Parameter errorResponse: The error received from the network response.
     ///
     private func handleErrorResponse(_ errorResponse: Error) async {
-        let error = if await services.configService.getConfig()?.isOfficialBitwardenServer() == false {
-            ServerError.unofficialBitwardenServerError
+        let error = if case let serverError as ServerError = errorResponse {
+            serverError
         } else {
-            errorResponse
+            await services.configService.getConfig()?.isOfficialBitwardenServer() == false
+                ? ServerError.unofficialBitwardenServerError
+                : errorResponse
         }
 
         coordinator.showAlert(.networkResponseError(error))

@@ -143,6 +143,55 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors.last as? ServerError, .unofficialBitwardenServerError)
     }
 
+    /// `perform(_:)` with `.appeared` and an error occurs with an unofficial server but the error is expected.
+    @MainActor
+    func test_perform_appeared_failure_supportedErrorWithUnofficialServer() async throws {
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                responseModel: ConfigResponseModel(
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: "75238191",
+                    server: .init(name: "Vaultwarden", url: "example.com"),
+                    version: "2024.4.0"
+                )
+            )
+        )
+        subject.state.isLoginWithDeviceVisible = false
+
+        let validationResponse = ResponseValidationErrorModel(
+            error: "Invalid credentials",
+            errorDescription: "an error occured",
+            errorModel: .init(
+                message: "message",
+                object: "object"
+            )
+        )
+
+        client.results = [
+            .httpFailure(
+                ServerError.validationError(
+                    validationErrorResponse: validationResponse
+                )
+            ),
+        ]
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
+        XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .networkResponseError(ServerError.validationError(validationErrorResponse: validationResponse))
+        )
+        XCTAssertEqual(
+            errorReporter.errors.last as? ServerError,
+            .validationError(validationErrorResponse: validationResponse)
+        )
+    }
+
     /// `perform(_:)` with `.appeared` and a true result shows the login with device button.
     @MainActor
     func test_perform_appeared_success_true() async throws {
