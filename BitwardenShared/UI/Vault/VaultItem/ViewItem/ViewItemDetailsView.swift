@@ -86,7 +86,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                 }
                             case .text:
                                 if let value = customField.value {
-                                    Text(value)
+                                    Text(value).textSelection(.enabled)
                                 }
                             case .linked:
                                 if let linkedIdType = customField.linkedIdType {
