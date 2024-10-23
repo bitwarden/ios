@@ -41,6 +41,15 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `didCompleteLoginsImport()` dismisses the import logins flow.
+    @MainActor
+    func test_didCompleteLoginsImport() throws {
+        subject.didCompleteLoginsImport()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
     /// `handleEvent(_:context:)` with `.switchAccount` notifies the delegate to switch to the
     /// specified account.
     @MainActor
@@ -133,19 +142,9 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ImportLoginsView>)
-    }
-
-    /// `navigate(to:)` with `.importLoginsSuccess` presents the import logins success view onto the stack navigator.
-    @MainActor
-    func test_navigateTo_importLoginsSuccess() throws {
-        subject.navigate(to: .importLoginsSuccess)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ImportLoginsSuccessView>)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.importLoginsCoordinator.isStarted)
+        XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.vault))
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.

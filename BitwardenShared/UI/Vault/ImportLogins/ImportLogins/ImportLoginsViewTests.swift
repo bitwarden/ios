@@ -15,7 +15,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: ImportLoginsState())
+        processor = MockProcessor(state: ImportLoginsState(mode: .vault))
 
         subject = ImportLoginsView(store: Store(processor: processor))
     }

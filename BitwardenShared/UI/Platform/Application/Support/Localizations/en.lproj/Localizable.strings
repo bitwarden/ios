@@ -1049,3 +1049,5 @@
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";
 "ImportError" = "Import error";
 "NoLoginsWereImported" = "No logins were imported";
+"LoginsImported" = "Logins imported";
+"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";

@@ -13,7 +13,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
+    private let coordinator: AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent>
 
     /// The services used by this processor.
     private let services: Services
@@ -28,7 +28,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
+        coordinator: AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent>,
         services: Services,
         state: ImportLoginsState
     ) {
@@ -135,7 +135,6 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
 
         do {
             try await services.settingsRepository.fetchSync()
-            coordinator.hideLoadingOverlay()
 
             guard try await !services.vaultRepository.isVaultEmpty() else {
                 showImportLoginsEmptyAlert()
