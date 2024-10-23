@@ -8,7 +8,7 @@ struct ImportLoginsSuccessView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<Void, ImportLoginsSuccessAction, Void>
+    @ObservedObject var store: Store<Void, Void, ImportLoginsSuccessEffect>
 
     // MARK: View
 
@@ -41,8 +41,8 @@ struct ImportLoginsSuccessView: View {
                 )
             }
 
-            Button(Localizations.gotIt) {
-                store.send(.dismiss)
+            AsyncButton(Localizations.gotIt) {
+                await store.perform(.dismiss)
             }
             .buttonStyle(.primary())
         }
@@ -52,7 +52,9 @@ struct ImportLoginsSuccessView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 closeToolbarButton {
-                    store.send(.dismiss)
+                    Task {
+                        await store.perform(.dismiss)
+                    }
                 }
             }
         }
