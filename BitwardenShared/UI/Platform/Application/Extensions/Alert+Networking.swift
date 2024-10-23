@@ -35,6 +35,7 @@ extension Alert {
     ///
     static func networkResponseError(
         _ error: Error,
+        isOfficialBitwardenServer: Bool = true,
         _ tryAgain: (() async -> Void)? = nil
     ) -> Alert {
         switch error {
@@ -64,7 +65,10 @@ extension Alert {
                 ]
             )
         default:
-            return defaultAlert(title: Localizations.anErrorHasOccurred)
+            return defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: isOfficialBitwardenServer ? nil : Localizations.thisIsNotARecognizedServerDescriptionLong
+            )
         }
     }
 }

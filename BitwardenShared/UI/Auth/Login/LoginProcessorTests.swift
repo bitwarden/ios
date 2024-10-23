@@ -4,6 +4,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - LoginProcessorTests
 
 class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -139,8 +141,14 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
         XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(ServerError.unofficialBitwardenServerError))
-        XCTAssertEqual(errorReporter.errors.last as? ServerError, .unofficialBitwardenServerError)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .networkResponseError(
+                BitwardenTestError.example,
+                isOfficialBitwardenServer: false
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.appeared` and an error occurs with an unofficial server but the error is expected.
@@ -370,8 +378,14 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
         XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
 
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(ServerError.unofficialBitwardenServerError))
-        XCTAssertEqual(errorReporter.errors.last as? ServerError, .unofficialBitwardenServerError)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .networkResponseError(
+                BitwardenTestError.example,
+                isOfficialBitwardenServer: false
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` records non captcha errors.
@@ -409,8 +423,14 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.perform(.loginWithMasterPasswordPressed)
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(ServerError.unofficialBitwardenServerError))
-        XCTAssertEqual(errorReporter.errors.last as? ServerError, .unofficialBitwardenServerError)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .networkResponseError(
+                BitwardenTestError.example,
+                isOfficialBitwardenServer: false
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` shows an alert for empty login text.

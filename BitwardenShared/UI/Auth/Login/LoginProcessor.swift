@@ -194,16 +194,10 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     ///
     /// - Parameter errorResponse: The error received from the network response.
     ///
-    private func handleErrorResponse(_ errorResponse: Error) async {
-        let error = if case let serverError as ServerError = errorResponse {
-            serverError
-        } else {
-            await services.configService.getConfig()?.isOfficialBitwardenServer() == false
-                ? ServerError.unofficialBitwardenServerError
-                : errorResponse
-        }
-
-        coordinator.showAlert(.networkResponseError(error))
+    @MainActor
+    private func handleErrorResponse(_ error: Error) async {
+        let isOfficialBitwardenServer = await services.configService.getConfig()?.isOfficialBitwardenServer() ?? true
+        coordinator.showAlert(.networkResponseError(error, isOfficialBitwardenServer: isOfficialBitwardenServer))
         services.errorReporter.log(error: error)
     }
 }
@@ -220,12 +214,12 @@ extension LoginProcessor: CaptchaFlowDelegate {
     func captchaErrored(error: Error) {
         guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
 
-        services.errorReporter.log(error: error)
-
         // Show the alert after a delay to ensure it doesn't try to display over the
         // closing captcha view.
         DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            self.coordinator.showAlert(.networkResponseError(error))
+            Task {
+                await self.handleErrorResponse(error)
+            }
         }
     }
 }
