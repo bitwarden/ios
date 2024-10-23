@@ -70,6 +70,26 @@ class CipherServiceTests: BitwardenTestCase {
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
+    /// `cipherCount()` returns the number of ciphers in the data store.
+    func test_ciphersCount() async throws {
+        stateService.activeAccount = .fixture()
+
+        cipherDataStore.cipherCountResult = .success(0)
+        var count = try await subject.cipherCount()
+        XCTAssertEqual(count, 0)
+
+        cipherDataStore.cipherCountResult = .success(3)
+        count = try await subject.cipherCount()
+        XCTAssertEqual(count, 3)
+    }
+
+    /// `cipherCount()` throws an error if one occurs getting the count of ciphers.
+    func test_ciphersCount_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.cipherCount()
+        }
+    }
+
     /// `ciphersPublisher()` returns a publisher that emits data as the data store changes.
     func test_ciphersPublisher() async throws {
         stateService.activeAccount = .fixtureAccountLogin()

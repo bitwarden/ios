@@ -82,7 +82,7 @@ private struct SearchableVaultListView: View {
                     Spacer()
 
                     PageHeaderView(
-                        image: Asset.Images.items,
+                        image: Asset.Images.Illustrations.items,
                         title: Localizations.saveAndProtectYourData,
                         message: Localizations
                             .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere
@@ -93,7 +93,7 @@ private struct SearchableVaultListView: View {
                         store.send(.addItemPressed)
                     } label: {
                         HStack {
-                            Image(decorative: Asset.Images.plus)
+                            Image(decorative: Asset.Images.plus16)
                                 .resizable()
                                 .frame(width: 16, height: 16)
                             Text(Localizations.newLogin)

@@ -15,6 +15,10 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     /// The (optional) accessibility identifier to apply to the title of the field (if it exists)
     var titleAccessibilityIdentifier: String?
 
+    /// A flag to determine whether to use a `UITextView` implementation instead of the default SwiftUI-based text view.
+    /// When `true`, a `UITextView` will be used for improved text selection and cursor/keyboard management.
+    var useUIKitTextView: Bool
+
     /// The text value to display in this field.
     var value: String
 
@@ -25,19 +29,37 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     /// content automatically has the `AccessoryButtonStyle` applied to it.
     var accessoryContent: AccessoryContent?
 
+    /// A state variable that holds the dynamic height of the text view.
+    /// This value is updated based on the content size of the text view,
+    /// allowing for automatic resizing to fit the text content.
+    /// The initial height is set to a default value of 28 points.
+    @SwiftUI.State private var textViewDynamicHeight: CGFloat = 28
+
     // MARK: View
 
     var body: some View {
-        BitwardenField(title: title, titleAccessibilityIdentifier: titleAccessibilityIdentifier) {
-            Text(value)
-                .styleGuide(.body)
-                .multilineTextAlignment(.leading)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
-                .if(textSelectionEnabled) { textView in
-                    textView
-                        .textSelection(.enabled)
-                }
+        BitwardenField(
+            title: title,
+            titleAccessibilityIdentifier: titleAccessibilityIdentifier
+        ) {
+            if useUIKitTextView {
+                BitwardenUITextView(
+                    text: .constant(value),
+                    calculatedHeight: $textViewDynamicHeight,
+                    isEditable: false
+                )
+                .frame(minHeight: textViewDynamicHeight)
+            } else {
+                Text(value)
+                    .styleGuide(.body)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
+                    .if(textSelectionEnabled) { textView in
+                        textView
+                            .textSelection(.enabled)
+                    }
+            }
         } accessoryContent: {
             accessoryContent
         }
@@ -54,7 +76,8 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     ///   - valueAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the displayed value of the field
     ///   - textSelectionEnabled: Whether text selection is enabled.
-    ///   This doesn't allow range selection, only copy/share actions.
+    ///     This doesn't allow range selection, only copy/share actions.
+    ///   - useUIKitTextView: Whether we should use a UITextView or a SwiftUI version.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
     init(
@@ -63,12 +86,14 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
         textSelectionEnabled: Bool = true,
+        useUIKitTextView: Bool = false,
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
         self.textSelectionEnabled = textSelectionEnabled
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
         self.value = value
+        self.useUIKitTextView = useUIKitTextView
         self.valueAccessibilityIdentifier = valueAccessibilityIdentifier
         self.accessoryContent = accessoryContent()
     }
@@ -85,21 +110,24 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
     ///   - valueAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the displayed value of the field
     ///   - textSelectionEnabled: Whether text selection is enabled.
-    ///   This doesn't allow range selection, only copy/share actions.
+    ///     This doesn't allow range selection, only copy/share actions.
+    ///   - useUIKitTextView: Whether we should use a UITextView or a SwiftUI version.
     ///
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = "ItemName",
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
-        textSelectionEnabled: Bool = true
+        textSelectionEnabled: Bool = true,
+        useUIKitTextView: Bool = false
     ) {
         self.init(
             title: title,
             titleAccessibilityIdentifier: titleAccessibilityIdentifier,
             value: value,
             valueAccessibilityIdentifier: valueAccessibilityIdentifier,
-            textSelectionEnabled: textSelectionEnabled
+            textSelectionEnabled: textSelectionEnabled,
+            useUIKitTextView: useUIKitTextView
         ) {
             EmptyView()
         }
@@ -117,8 +145,8 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
     ///   - valueAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the displayed value of the field.
     ///   - textSelectionEnabled: Whether text selection is enabled.
+    ///   - useUIKitTextView: Whether we should use a UITextView or a SwiftUI version.
     ///   - copyButtonAction: The action to perform when the button is pressed.
-    ///   - buttonAccessibilityLabel: The (optional) accessibility label to apply to the button.
     ///   - copyButtonAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the button.
     init(
@@ -127,6 +155,7 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
         value: String,
         valueAccessibilityIdentifier: String? = "ItemValue",
         textSelectionEnabled: Bool = true,
+        useUIKitTextView: Bool = false,
         copyButtonAccessibilityIdentifier: String,
         copyButtonAction: @escaping () -> Void
     ) {
@@ -137,9 +166,10 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
             value: value,
             valueAccessibilityIdentifier: valueAccessibilityIdentifier,
             textSelectionEnabled: textSelectionEnabled,
+            useUIKitTextView: useUIKitTextView,
             accessoryContent: {
                 AccessoryButton(
-                    asset: Asset.Images.copy,
+                    asset: Asset.Images.copy16,
                     accessibilityLabel: Localizations.copy,
                     accessibilityIdentifier: copyButtonAccessibilityIdentifier,
                     action: copyButtonAction
@@ -157,6 +187,18 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
         BitwardenTextValueField(
             title: "Title",
             value: "Text field text"
+        )
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+}
+
+#Preview("Legacy view") {
+    VStack {
+        BitwardenTextValueField(
+            title: "Title",
+            value: "Text field text",
+            useUIKitTextView: true
         )
         .padding()
     }

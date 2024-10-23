@@ -46,4 +46,22 @@ class SettingsStateTests: BitwardenTestCase {
         subject = SettingsState(badgeState: .fixture(autofillSetupProgress: .setUpLater, badgeValue: "2"))
         XCTAssertEqual(subject.autofillBadgeValue, "1")
     }
+
+    /// `vaultBadgeValue` returns `nil` if no badge should be shown for the vault row.
+    func test_vaultBadgeValue_nil() {
+        var subject = SettingsState(badgeState: .fixture())
+        XCTAssertNil(subject.vaultBadgeValue)
+
+        subject = SettingsState(badgeState: .fixture(importLoginsSetupProgress: .incomplete))
+        XCTAssertNil(subject.vaultBadgeValue)
+
+        subject = SettingsState(badgeState: .fixture(importLoginsSetupProgress: .complete))
+        XCTAssertNil(subject.vaultBadgeValue)
+    }
+
+    /// `vaultBadgeValue` returns the badge value for the vault row if the user wants to import logins later.
+    func test_vaultBadgeValue_value() {
+        let subject = SettingsState(badgeState: .fixture(importLoginsSetupProgress: .setUpLater))
+        XCTAssertEqual(subject.vaultBadgeValue, "1")
+    }
 }
