@@ -115,7 +115,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    /// `perform(_:)` with `.appeared` and an error occurs with an unofficial server.
+    /// `perform(_:)` with `.appeared` and an error occurs with an unofficial server and the error isn't expected.
     @MainActor
     func test_perform_appeared_failure_unofficialServer() async throws {
         configService.configMocker.withResult(
