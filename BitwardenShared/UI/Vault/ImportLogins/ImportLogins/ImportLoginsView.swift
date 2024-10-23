@@ -55,10 +55,12 @@ struct ImportLoginsView: View {
                 }
                 .buttonStyle(.primary())
 
-                AsyncButton(Localizations.importLoginsLater) {
-                    await store.perform(.importLoginsLater)
+                if store.state.shouldShowImportLoginsLater {
+                    AsyncButton(Localizations.importLoginsLater) {
+                        await store.perform(.importLoginsLater)
+                    }
+                    .buttonStyle(.transparent)
                 }
-                .buttonStyle(.transparent)
             }
         }
         .padding(.top, 8)
@@ -153,22 +155,22 @@ struct ImportLoginsView: View {
 
 #if DEBUG
 #Preview("Intro") {
-    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState())))
+    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(mode: .vault))))
         .navStackWrapped
 }
 
 #Preview("Step 1") {
-    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(page: .step1))))
+    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(mode: .vault, page: .step1))))
         .navStackWrapped
 }
 
 #Preview("Step 2") {
-    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(page: .step2))))
+    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(mode: .vault, page: .step2))))
         .navStackWrapped
 }
 
 #Preview("Step 3") {
-    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(page: .step3))))
+    ImportLoginsView(store: Store(processor: StateProcessor(state: ImportLoginsState(mode: .vault, page: .step3))))
         .navStackWrapped
 }
 #endif

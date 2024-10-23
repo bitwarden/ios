@@ -1050,3 +1050,5 @@
 "ImportError" = "Import error";
 "NoLoginsWereImported" = "No logins were imported";
 "ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
+"LoginsImported" = "Logins imported";
+"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";

@@ -7,7 +7,7 @@ import XCTest
 class ImportLoginsSuccessViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<Void, ImportLoginsSuccessAction, Void>!
+    var processor: MockProcessor<Void, Void, ImportLoginsSuccessEffect>!
     var subject: ImportLoginsSuccessView!
 
     // MARK: Setup & Teardown
@@ -34,15 +34,16 @@ class ImportLoginsSuccessViewTests: BitwardenTestCase {
     func test_close_tap() throws {
         let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+        waitFor { !processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects.last, .dismiss)
     }
 
     /// Tapping the got it button dispatches the `dismiss` action.
     @MainActor
-    func test_gotIt_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.gotIt)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    func test_gotIt_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.gotIt)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .dismiss)
     }
 
     // MARK: Snapshots
