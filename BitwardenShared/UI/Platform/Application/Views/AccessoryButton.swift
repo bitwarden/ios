@@ -68,6 +68,7 @@ struct AccessoryButton: View {
          action: @escaping () -> Void) {
         self.accessibilityLabel = accessibilityLabel
         self.action = .sync(action)
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.asset = asset
     }
 
@@ -86,8 +87,8 @@ struct AccessoryButton: View {
          action: @escaping () async -> Void) {
         self.accessibilityLabel = accessibilityLabel
         self.action = .async(action)
-        self.asset = asset
         self.accessibilityIdentifier = accessibilityIdentifier
+        self.asset = asset
     }
 }
 
