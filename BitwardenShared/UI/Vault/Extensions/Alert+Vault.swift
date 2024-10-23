@@ -109,6 +109,26 @@ extension Alert {
         )
     }
 
+    /// An alert informing the user that no logins were imported.
+    ///
+    /// - Parameter action: The action taken when the user taps import logins later.
+    /// - Returns: An alert informing the user that no logins were imported.
+    ///
+    static func importLoginsEmpty(
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.importError,
+            message: Localizations.noLoginsWereImported,
+            alertActions: [
+                AlertAction(title: Localizations.tryAgain, style: .cancel),
+                AlertAction(title: Localizations.importLoginsLater, style: .default) { _ in
+                    await action()
+                },
+            ]
+        )
+    }
+
     /// An alert confirming that the user wants to import logins later in settings.
     ///
     /// - Parameter action: The action taken when the user taps on Confirm to import logins later

@@ -10,6 +10,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
     var subject: ImportLoginsProcessor!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
@@ -20,13 +21,15 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
+        vaultRepository = MockVaultRepository()
 
         subject = ImportLoginsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
-                stateService: stateService
+                stateService: stateService,
+                vaultRepository: vaultRepository
             ),
             state: ImportLoginsState()
         )
@@ -40,6 +43,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         settingsRepository = nil
         stateService = nil
         subject = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
@@ -62,6 +66,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page.
     @MainActor
     func test_perform_advanceNextPage_sync() async {
+        stateService.activeAccount = .fixture()
         subject.state.page = .step3
 
         await subject.perform(.advanceNextPage)
@@ -70,6 +75,71 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes, [.importLoginsSuccess])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page and
+    /// logs a setup progress error if one occurs without affecting navigation.
+    @MainActor
+    func test_perform_advanceNextPage_setupProgressError() async {
+        subject.state.page = .step3
+
+        await subject.perform(.advanceNextPage)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+        XCTAssertEqual(coordinator.routes, [.importLoginsSuccess])
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertNil(stateService.accountSetupImportLogins["1"])
+    }
+
+    /// `perform(_:)` with `.advanceNextPage` syncs the user's vault and shows an alert if the
+    /// user's vault is still empty. Tapping set up later sets the user's progress and dismisses
+    /// the view.
+    @MainActor
+    func test_perform_advanceNextPage_sync_vaultEmpty_setUpLater() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupImportLogins["1"] = .incomplete
+        subject.state.page = .step3
+        vaultRepository.isVaultEmptyResult = .success(true)
+
+        await subject.perform(.advanceNextPage)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .importLoginsEmpty {})
+        try await alert.tapAction(title: Localizations.importLoginsLater)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .setUpLater)
+    }
+
+    /// `perform(_:)` with `.advanceNextPage` syncs the user's vault and shows an alert if the
+    /// user's vault is still empty. Tapping try again dismisses the alert.
+    @MainActor
+    func test_perform_advanceNextPage_sync_vaultEmpty_tryAgain() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupImportLogins["1"] = .incomplete
+        subject.state.page = .step3
+        vaultRepository.isVaultEmptyResult = .success(true)
+
+        await subject.perform(.advanceNextPage)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .importLoginsEmpty {})
+
+        vaultRepository.isVaultEmptyResult = .success(false)
+        try await alert.tapAction(title: Localizations.tryAgain)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .incomplete)
     }
 
     /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page and
@@ -78,6 +148,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     func test_perform_advanceNextPage_syncError() async {
         subject.state.page = .step3
         settingsRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        stateService.activeAccount = .fixture()
 
         await subject.perform(.advanceNextPage)
 
@@ -87,6 +158,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.routes.isEmpty)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [BitwardenTestError.example])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertNil(stateService.accountSetupImportLogins["1"])
     }
 
     /// `perform(_:)` with `.appeared` loads the user's web vault host.

@@ -437,8 +437,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
 
         await subject.openUrl(.bitwardenAuthenticatorNewItem)
-        XCTAssertEqual(coordinator.alertShown,
-                       [.defaultAlert(title: Localizations.somethingWentWrong, message: Localizations.pleaseTryAgain)])
+        XCTAssertEqual(coordinator.alertShown.first,
+                       .defaultAlert(title: Localizations.somethingWentWrong,
+                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
         XCTAssertEqual(coordinator.routes, [])
     }
 
@@ -452,8 +453,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         authenticatorSyncService.tempItem = nil
 
         await subject.openUrl(.bitwardenAuthenticatorNewItem)
-        XCTAssertEqual(coordinator.alertShown,
-                       [.defaultAlert(title: Localizations.somethingWentWrong, message: Localizations.pleaseTryAgain)])
+        XCTAssertEqual(coordinator.alertShown.first,
+                       .defaultAlert(title: Localizations.somethingWentWrong,
+                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
         XCTAssertEqual(coordinator.routes, [])
     }
 
@@ -475,8 +477,9 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
 
         await subject.openUrl(.bitwardenAuthenticatorNewItem)
-        XCTAssertEqual(coordinator.alertShown,
-                       [.defaultAlert(title: Localizations.somethingWentWrong, message: Localizations.pleaseTryAgain)])
+        XCTAssertEqual(coordinator.alertShown.first,
+                       .defaultAlert(title: Localizations.somethingWentWrong,
+                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
         XCTAssertEqual(coordinator.routes, [])
     }
 

@@ -393,7 +393,7 @@ extension AppProcessor {
                   let totpKey = item.totpKey,
                   let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else {
                 coordinator?.showAlert(.defaultAlert(title: Localizations.somethingWentWrong,
-                                                     message: Localizations.pleaseTryAgain))
+                                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
                 return nil
             }
 
