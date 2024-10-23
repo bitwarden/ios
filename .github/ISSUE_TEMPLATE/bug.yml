@@ -8,16 +8,16 @@ body:
         Thanks for taking the time to fill out this bug report!
 
         > [!WARNING]
-        > This is the new native Bitwarden Beta app repository. For the pubicly available apps in App Store / Play Store, submit your report in [bitwarden/mobile](https://github.com/bitwarden/mobile)
+        > This is the new native Bitwarden app repository. For the pubicly available apps in App Store / Play Store, submit your report in [bitwarden/mobile](https://github.com/bitwarden/mobile)
 
 
         Please do not submit feature requests. The [Community Forums](https://community.bitwarden.com) has a section for submitting, voting for, and discussing product feature requests.
   - type: checkboxes
-    id: beta
+    id: app
     attributes:
-      label: Bitwarden Beta
+      label: Bitwarden app
       options:
-        - label: "I'm using the new native Bitwarden Beta app and I'm aware that legacy .NET app bugs should be reported in [bitwarden/mobile](https://github.com/bitwarden/mobile)"
+        - label: "I'm using the new native Bitwarden app and I'm aware that legacy .NET app bugs should be reported in [bitwarden/mobile](https://github.com/bitwarden/mobile)"
     validations:
       required: true
   - type: textarea
