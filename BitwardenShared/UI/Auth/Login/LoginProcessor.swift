@@ -32,6 +32,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasAuthRepository
         & HasAuthService
         & HasCaptchaService
+        & HasConfigService
         & HasDeviceAPIService
         & HasErrorReporter
         & HasPolicyService
@@ -107,7 +108,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
     ///   with hCaptcha.
     ///
-    private func launchCaptchaFlow(with siteKey: String) {
+    private func launchCaptchaFlow(with siteKey: String) async {
         do {
             let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
             coordinator.navigate(
@@ -118,8 +119,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 context: self
             )
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
+            await handleErrorResponse(error)
         }
     }
 
@@ -154,15 +154,14 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         } catch let error as IdentityTokenRequestError {
             switch error {
             case let .captchaRequired(hCaptchaSiteCode):
-                launchCaptchaFlow(with: hCaptchaSiteCode)
+                await launchCaptchaFlow(with: hCaptchaSiteCode)
             case let .twoFactorRequired(authMethodsData, _, _):
                 coordinator.navigate(
                     to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil)
                 )
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
+            await handleErrorResponse(error)
         }
     }
 
@@ -185,9 +184,25 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             )
             state.isLoginWithDeviceVisible = isKnownDevice
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
+            await handleErrorResponse(error)
         }
+    }
+
+    /// Handles error responses by checking if the Bitwarden server is official or unofficial.
+    /// If the server is unofficial, it assigns a custom error; otherwise, it uses the provided error.
+    /// Displays an alert for the error and logs it using the error reporter.
+    ///
+    /// - Parameter errorResponse: The error received from the network response.
+    ///
+    private func handleErrorResponse(_ errorResponse: Error) async {
+        let error = if await services.configService.getConfig()?.isOfficialBitwardenServer() == false {
+            ServerError.unofficialBitwardenServerError
+        } else {
+            errorResponse
+        }
+
+        coordinator.showAlert(.networkResponseError(error))
+        services.errorReporter.log(error: error)
     }
 }
 

@@ -44,6 +44,21 @@ class AlertNetworkingTests: BitwardenTestCase {
         XCTAssertNil(action.handler)
     }
 
+    /// `.networkResponseError` builds an alert to display a server error message for an unofficial Bitwarden server..
+    func test_networkResponseError_serverError_unofficialBitwardenServerError() {
+        let error = ServerError.unofficialBitwardenServerError
+        let subject = Alert.networkResponseError(error)
+
+        XCTAssertEqual(subject.message, Localizations.thisIsNotARecognizedBitwardenServer)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 1)
+
+        let action = subject.alertActions[0]
+        XCTAssertEqual(action.title, Localizations.ok)
+        XCTAssertEqual(action.style, .cancel)
+        XCTAssertNil(action.handler)
+    }
+
     /// Tests the `internetConnectionError` alert contains the correct properties.
     func test_noInternetConnection() {
         let urlError = URLError(.notConnectedToInternet)

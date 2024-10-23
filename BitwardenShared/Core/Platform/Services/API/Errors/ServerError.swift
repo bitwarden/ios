@@ -17,6 +17,9 @@ enum ServerError: Error, Equatable, CustomNSError {
     ///
     case validationError(validationErrorResponse: ResponseValidationErrorModel)
 
+    /// An unofficial bitwarden server error.
+    case unofficialBitwardenServerError
+
     /// A computed property that returns an error message based on the case.
     var message: String {
         switch self {
@@ -24,6 +27,8 @@ enum ServerError: Error, Equatable, CustomNSError {
             errorResponse.singleMessage()
         case let .validationError(validationErrorResponse):
             validationErrorResponse.errorModel.message
+        case .unofficialBitwardenServerError:
+            Localizations.thisIsNotARecognizedBitwardenServer
         }
     }
 
