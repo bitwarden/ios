@@ -199,6 +199,7 @@ protocol AuthService {
     /// Evaluates the supplied master password against the master password policy provided by the Identity response.
     /// - Parameters:
     ///   - email: user email.
+    ///   - isPreAuth: Whether this flow is before or after authentication.
     ///   - masterPassword: user master password.
     ///   - policy: Optional `MasterPasswordPolicyOptions` to check against password.
     /// - Returns: True if the master password does NOT meet any policy requirements, false otherwise
@@ -206,8 +207,8 @@ protocol AuthService {
     ///
     func requirePasswordChange(
         email: String,
+        isPreAuth: Bool,
         masterPassword: String,
-        preAuth: Bool,
         policy: MasterPasswordPolicyOptions?
     ) async throws -> Bool
 
@@ -276,15 +277,15 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
-    /// The force password reset reason, which is cached after the original login request fails when
-    /// two factor authentication is active and is used after the user enters the code.
-    private var forcePasswordResetReason: ForcePasswordResetReason?
-
     /// The repository used to manages keychain items.
     private let keychainRepository: KeychainRepository
 
     /// The service used by the application to manage the policy.
     private var policyService: PolicyService
+
+    /// The force password reset reason, which is cached after the original login request fails when
+    /// two factor authentication is active and is used after the user enters the code.
+    private var preAuthForcePasswordResetReason: ForcePasswordResetReason?
 
     /// The request model to resend the email with the two-factor verification code.
     private var resendEmailModel: ResendEmailCodeRequestModel?
@@ -615,13 +616,13 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///
     /// - Parameters:
     ///  - masterPassword: The user's master password
-    ///  - preAuth: Whether this flow is before or after authentication
+    ///  - isPreAuth: Whether this flow is before or after authentication
     ///  - username: The user's email address.
     ///  - masterPasswordPolicy: The master password policies that the org has active.
     ///
     private func checkMasterPasswordPolicies(
         _ masterPassword: String,
-        _ preAuth: Bool,
+        _ isPreAuth: Bool,
         _ username: String,
         _ masterPasswordPolicy: MasterPasswordPolicyResponseModel?
     ) async throws {
@@ -639,13 +640,13 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
         if try await requirePasswordChange(
             email: username,
+            isPreAuth: isPreAuth,
             masterPassword: masterPassword,
-            preAuth: preAuth,
             policy: policy
         ) {
-            if preAuth {
+            if isPreAuth {
                 // Since this is pre authentication we use a local var to cache this info.
-                forcePasswordResetReason = .weakMasterPasswordOnLogin
+                preAuthForcePasswordResetReason = .weakMasterPasswordOnLogin
             } else {
                 // Otherwise we save it in state.
                 try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
@@ -725,9 +726,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         let response = try await getIdentityTokenResponse(email: email, request: twoFactorRequest)
 
         // If it's assigned then we need to update the required reset password and remove the cache.
-        if forcePasswordResetReason != nil {
+        if preAuthForcePasswordResetReason != nil {
             try await stateService.setForcePasswordResetReason(.weakMasterPasswordOnLogin)
-            forcePasswordResetReason = nil
+            preAuthForcePasswordResetReason = nil
         }
 
         // Save the master password hash.
@@ -744,8 +745,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     func requirePasswordChange(
         email: String,
+        isPreAuth: Bool,
         masterPassword: String,
-        preAuth: Bool,
         policy: MasterPasswordPolicyOptions?
     ) async throws -> Bool {
         // Check if we need to change password on login
@@ -755,14 +756,14 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         }
 
         // Calculate the strength of the user email and password
-        let strength = try await clientService.auth(isPreAuth: preAuth).passwordStrength(
+        let strength = try await clientService.auth(isPreAuth: isPreAuth).passwordStrength(
             password: masterPassword,
             email: email,
             additionalInputs: []
         )
 
         // Check if master password meets the master password policy.
-        let satisfyPolicy = try await clientService.auth(isPreAuth: preAuth).satisfiesPolicy(
+        let satisfyPolicy = try await clientService.auth(isPreAuth: isPreAuth).satisfiesPolicy(
             password: masterPassword,
             strength: strength,
             policy: masterPasswordPolicy

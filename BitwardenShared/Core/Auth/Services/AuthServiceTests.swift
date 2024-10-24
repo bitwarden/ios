@@ -893,8 +893,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
+            isPreAuth: false,
             masterPassword: "master password",
-            preAuth: false,
             policy: nil
         )
         XCTAssertFalse(requirePasswordChange)
@@ -916,8 +916,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
+            isPreAuth: false,
             masterPassword: "strong 32 password & #",
-            preAuth: false,
             policy: policy
         )
         XCTAssertFalse(requirePasswordChange)
@@ -939,8 +939,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
+            isPreAuth: false,
             masterPassword: "weak password",
-            preAuth: false,
             policy: policy
         )
         XCTAssertTrue(requirePasswordChange)
