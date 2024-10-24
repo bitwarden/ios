@@ -92,14 +92,6 @@ protocol SyncServiceDelegate: AnyObject {
     func setMasterPassword(orgIdentifier: String) async
 }
 
-// MARK: - SyncService extension
-
-extension SyncService {
-    func needsSync(for userId: String) async throws -> Bool {
-        try await needsSync(for: userId, onlyCheckLocalData: false)
-    }
-}
-
 // MARK: - DefaultSyncService
 
 /// A default implementation of a `SyncService` which manages syncing vault data with the API.
