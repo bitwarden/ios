@@ -29,12 +29,14 @@ extension Alert {
     ///
     /// - Parameters:
     ///   - error: The networking error that occurred.
+    ///   - isOfficialBitwardenServer: Indicates whether the request was made to the official Bitwarden server
     ///   - tryAgain: An action allowing the user to retry the request.
     ///
     /// - Returns: An alert notifying the user that a networking error occurred.
     ///
     static func networkResponseError(
         _ error: Error,
+        isOfficialBitwardenServer: Bool = true,
         _ tryAgain: (() async -> Void)? = nil
     ) -> Alert {
         switch error {
@@ -64,7 +66,10 @@ extension Alert {
                 ]
             )
         default:
-            return defaultAlert(title: Localizations.anErrorHasOccurred)
+            return defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: isOfficialBitwardenServer ? nil : Localizations.thisIsNotARecognizedServerDescriptionLong
+            )
         }
     }
 }
