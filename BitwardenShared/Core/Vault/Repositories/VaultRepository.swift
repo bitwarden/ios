@@ -1044,7 +1044,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func needsSync() async throws -> Bool {
         let userId = try await stateService.getActiveAccountId()
-        return try await syncService.needsSync(for: userId)
+        return try await syncService.needsSync(for: userId, onlyCheckLocalData: true)
     }
 
     func refreshTOTPCode(for key: TOTPKeyModel) async throws -> LoginTOTPState {

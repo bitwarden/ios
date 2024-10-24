@@ -727,6 +727,19 @@ class SyncServiceTests: BitwardenTestCase {
         try await subject.fetchUpsertSyncSend(data: notification)
         XCTAssertEqual(sendService.syncSendWithServerId, "id")
     }
+
+    /// `needsSync(forceSync:onlyCheckLocalData:userId:)` returns `true` when
+    /// only checking local data and not enough time hasn't passed since the last sync.
+    func test_needsSync_onlyCheckLocalData() async throws {
+        stateService.activeAccount = .fixture()
+        let lastSync = timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval + 1))
+        stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
+            lastSync
+        )
+        let needsSync = try await subject.needsSync(for: "1", onlyCheckLocalData: true)
+        XCTAssertTrue(needsSync)
+        XCTAssertTrue(client.requests.isEmpty)
+    }
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {

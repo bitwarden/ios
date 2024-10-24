@@ -760,6 +760,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(isDisabled)
     }
 
+    /// `needsSync()` Calls the sync service to check it.
+    func test_needsSync() async throws {
+        stateService.activeAccount = .fixture()
+        syncService.needsSyncResult = .success(true)
+        let needsSync = try await subject.needsSync()
+        XCTAssertTrue(needsSync)
+        XCTAssertTrue(syncService.needsSyncOnlyCheckLocalData)
+    }
+
+    /// `needsSync()` throws when no active account.
+    func test_needsSync_throwsNoActiveAccount() async throws {
+        stateService.activeAccount = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.needsSync()
+        }
+    }
+
+    /// `needsSync()` throws when sync service throws.
+    func test_needsSync_throwsSyncService() async throws {
+        stateService.activeAccount = .fixture()
+        syncService.needsSyncResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.needsSync()
+        }
+        XCTAssertTrue(syncService.needsSyncOnlyCheckLocalData)
+    }
+
     /// `refreshTOTPCode(:)` rethrows errors.
     func test_refreshTOTPCode_error() async throws {
         clientService.mockVault.generateTOTPCodeResult = .failure(BitwardenTestError.example)
