@@ -32,12 +32,12 @@ extension AuthRouter {
             return .updateMasterPassword
         }
 
-        if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
-            return .vaultUnlockSetup(.createAccount)
-        }
-
-        if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
-            return .autofillSetup
+        if !isInAppExtension {
+            if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
+                return .vaultUnlockSetup(.createAccount)
+            } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
+                return .autofillSetup
+            }
         }
 
         await setCarouselShownIfEnabled()
