@@ -57,11 +57,13 @@ protocol SyncService: AnyObject {
     func fetchUpsertSyncSend(data: SyncSendNotification) async throws
 
     /// Does a given account need a sync?
+    /// - Parameters:
+    ///   - userId: The user id of the account
+    ///   - onlyCheckLocalData: If `true` it will only check local data to establish whether sync is needed.
+    ///   Otherwise, it can also perform requests to server to have additional data to check.
     ///
-    /// - Parameter userId: The user id of the account.
     /// - Returns: A bool indicating if the user needs a sync or not.
-    ///
-    func needsSync(for userId: String) async throws -> Bool
+    func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool
 }
 
 // MARK: - SyncServiceDelegate
@@ -88,6 +90,14 @@ protocol SyncServiceDelegate: AnyObject {
     /// - Parameter orgIdentifier: The organization Identifier the user belongs to.
     ///
     func setMasterPassword(orgIdentifier: String) async
+}
+
+// MARK: - SyncService extension
+
+extension SyncService {
+    func needsSync(for userId: String) async throws -> Bool {
+        try await needsSync(for: userId, onlyCheckLocalData: false)
+    }
 }
 
 // MARK: - DefaultSyncService
@@ -188,14 +198,8 @@ class DefaultSyncService: SyncService {
         self.timeProvider = timeProvider
     }
 
-    /// Determine if a full sync is necessary.
-    ///
-    /// - Parameters:
-    ///   - userId: The user ID of the account to sync.
-    /// - Returns: Whether a sync should be performed.
-    ///
-    func needsSync(for userId: String) async throws -> Bool {
-        try await needsSync(forceSync: false, userId: userId)
+    func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool {
+        try await needsSync(forceSync: false, onlyCheckLocalData: onlyCheckLocalData, userId: userId)
     }
 
     // MARK: Private
@@ -205,13 +209,22 @@ class DefaultSyncService: SyncService {
     /// - Parameters:
     ///   - forceSync: Whether syncing should be forced, bypassing the account revision and minimum
     ///     sync interval checks.
+    ///   - onlyCheckLocalData: If `true` it will only check local data to establish whether sync is needed.
+    ///     Otherwise, it can also perform requests to server to have additional data to check.
     ///   - userId: The user ID of the account to sync.
     /// - Returns: Whether a sync should be performed.
     ///
-    private func needsSync(forceSync: Bool, userId: String) async throws -> Bool {
-        guard let lastSyncTime = try await stateService.getLastSyncTime(userId: userId), !forceSync else { return true }
-        guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval)
-            < timeProvider.presentTime else { return false }
+    private func needsSync(forceSync: Bool, onlyCheckLocalData: Bool = false, userId: String) async throws -> Bool {
+        guard !forceSync, let lastSyncTime = try await stateService.getLastSyncTime(userId: userId) else {
+            return true
+        }
+        guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) < timeProvider.presentTime else {
+            return false
+        }
+        guard !onlyCheckLocalData else {
+            return true
+        }
+
         do {
             guard let accountRevisionDate = try await accountAPIService.accountRevisionDate()
             else { return true }
