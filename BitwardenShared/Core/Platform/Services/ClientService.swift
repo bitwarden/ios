@@ -32,10 +32,13 @@ protocol ClientService {
 
     /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
     ///
-    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Parameters:
+    ///   - userId: The user ID mapped to the client instance.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).
     /// - Returns: A `ClientGeneratorsProtocol` for generator data tasks.
     ///
-    func generators(for userId: String?) async throws -> ClientGeneratorsProtocol
+    func generators(for userId: String?, isPreAuth: Bool) async throws -> ClientGeneratorsProtocol
 
     /// Returns a `ClientPlatformService` for client platform tasks.
     ///
@@ -70,16 +73,10 @@ protocol ClientService {
 extension ClientService {
     /// Returns a `ClientAuthProtocol` for auth data tasks.
     ///
-    func auth() async throws -> ClientAuthProtocol {
-        try await auth(for: nil, isPreAuth: false)
-    }
-
-    /// Returns a `ClientAuthProtocol` for auth data tasks.
-    ///
     /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
     ///     (when the user's ID doesn't yet exist).
     ///
-    func auth(isPreAuth: Bool) async throws -> ClientAuthProtocol {
+    func auth(isPreAuth: Bool = false) async throws -> ClientAuthProtocol {
         try await auth(for: nil, isPreAuth: isPreAuth)
     }
 
@@ -97,8 +94,11 @@ extension ClientService {
 
     /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
     ///
-    func generators() async throws -> ClientGeneratorsProtocol {
-        try await generators(for: nil)
+    /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
+    ///     (when the user's ID doesn't yet exist). This primarily will happen in SSO flows.
+    ///
+    func generators(isPreAuth: Bool = false) async throws -> ClientGeneratorsProtocol {
+        try await generators(for: nil, isPreAuth: isPreAuth)
     }
 
     /// Returns a `ClientPlatformService` for client platform tasks.
@@ -203,8 +203,8 @@ actor DefaultClientService: ClientService {
         try await client(for: userId).exporters()
     }
 
-    func generators(for userId: String?) async throws -> ClientGeneratorsProtocol {
-        try await client(for: userId).generators()
+    func generators(for userId: String?, isPreAuth: Bool = false) async throws -> ClientGeneratorsProtocol {
+        try await client(for: userId, isPreAuth: isPreAuth).generators()
     }
 
     func platform(for userId: String?) async throws -> ClientPlatformService {

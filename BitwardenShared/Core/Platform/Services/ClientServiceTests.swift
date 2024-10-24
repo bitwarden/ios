@@ -352,7 +352,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_generators() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
-        let generators = try await subject.generators()
+        let generators = try await subject.generators(isPreAuth: false)
         XCTAssertIdentical(generators, clientBuilder.clients.first?.clientGenerators)
 
         let user2Generators = try await subject.generators(for: "2")
