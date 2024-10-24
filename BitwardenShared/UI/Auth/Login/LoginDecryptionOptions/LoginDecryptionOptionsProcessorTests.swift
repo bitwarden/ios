@@ -99,7 +99,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(authRepository.createNewSsoUserOrgIdentifier, "Bitwarden")
         XCTAssertEqual(authRepository.createNewSsoUserRememberDevice, true)
-        XCTAssertEqual(coordinator.routes.last, .complete)
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.loadLoginDecryptionOptions` load user decryption options.
@@ -134,7 +134,7 @@ class LoginDecryptionOptionsProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.shouldShowApproveWithOtherDeviceButton)
         XCTAssertFalse(subject.state.shouldShowContinueButton)
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.loginApproved))
-        XCTAssertEqual(coordinator.routes.last, .complete)
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.requestAdminApprovalPressed` set should trust device and navigates.

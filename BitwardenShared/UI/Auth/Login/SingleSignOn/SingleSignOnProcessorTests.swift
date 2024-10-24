@@ -282,7 +282,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.complete, .dismiss])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses TDE.
@@ -301,7 +302,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.complete, .dismiss])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
     /// `singleSignOnErrored(error:)` handles the error correctly.

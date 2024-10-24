@@ -30,6 +30,12 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case editItem(_ cipher: CipherView)
 
+    /// A route to edit an item based on its ID.
+    ///
+    /// - Parameter id: The ID of the cipher to edit.
+    ///
+    case editItemFrom(id: String)
+
     /// A route to dismiss the screen currently presented modally.
     case dismiss
 

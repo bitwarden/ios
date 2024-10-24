@@ -18,11 +18,10 @@ extension AuthRouter {
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
     }
 
-    /// Handles the `didComplete` route by navigating the user to the update master password screen
-    /// if their password needs to be updated or completes the auth flow by navigating the user to
-    /// the vault.
+    /// Handles the `didComplete` route by navigating the user to the corresponding screen
+    /// after the auth flow completes. Normally, this ends up redirecting to `.complete` route.
     ///
-    /// - Returns: A redirect route to either `.complete` or `.updateMasterPassword`.
+    /// - Returns: A redirect route to either `.complete` or some other alternative depending on the context.
     ///
     func completeAuthRedirect() async -> AuthRoute {
         guard let account = try? await services.authRepository.getAccount() else {
@@ -42,6 +41,15 @@ extension AuthRouter {
         }
 
         await setCarouselShownIfEnabled()
+
+        do {
+            if let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget() {
+                return .completeWithRehydration(rehydratableTarget)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
         return .complete
     }
 
@@ -273,6 +281,11 @@ extension AuthRouter {
                 guard let activeAccount = try? await services.authRepository.getAccount() else {
                     return .landing
                 }
+
+                if !isInAppExtension {
+                    await services.rehydrationHelper.saveRehydrationStateIfNeeded()
+                }
+
                 // Setup the check route for the active account.
                 let event = AuthEvent.accountBecameActive(
                     activeAccount,
@@ -396,4 +409,4 @@ extension AuthRouter {
             await services.stateService.setIntroCarouselShown(true)
         }
     }
-}
+} // swiftlint:disable:this file_length

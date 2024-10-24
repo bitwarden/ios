@@ -191,7 +191,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                 case .deviceKey:
                     // Attempt to unlock the vault with tde.
                     try await services.authRepository.unlockVaultWithDeviceKey()
-                    coordinator.navigate(to: .complete)
+                    await coordinator.handleEvent(.didCompleteAuth)
                 case let .masterPassword(account):
                     coordinator.navigate(
                         to: .vaultUnlock(
@@ -206,7 +206,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                         keyConnectorURL: keyConnectorUrl,
                         orgIdentifier: state.identifierText
                     )
-                    coordinator.navigate(to: .complete)
+                    await coordinator.handleEvent(.didCompleteAuth)
                 }
 
                 coordinator.navigate(to: .dismiss)
