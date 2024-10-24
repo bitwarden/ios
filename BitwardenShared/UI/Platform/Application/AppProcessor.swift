@@ -383,14 +383,24 @@ extension AppProcessor {
     /// - Returns: an `AppRoute` if one was successfully built from the URL passed in, `nil` if not.
     ///
     private func getBitwardenUrlRoute(url: URL) async -> AppRoute? {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-              let scheme = components.scheme,
-              scheme.isBitwardenAppScheme,
-              components.host == "settings",
-              components.path == "/account_security"
-        else { return nil }
+        guard let scheme = url.scheme, scheme.isBitwardenAppScheme else { return nil }
 
-        return AppRoute.tab(.settings(.accountSecurity))
+        switch url.absoluteString {
+        case BitwardenDeepLinkConstants.accountSecurity:
+            return AppRoute.tab(.settings(.accountSecurity))
+        case BitwardenDeepLinkConstants.authenticatorNewItem:
+            guard let item = await services.authenticatorSyncService?.getTemporaryTotpItem(),
+                  let totpKey = item.totpKey,
+                  let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else {
+                coordinator?.showAlert(.defaultAlert(title: Localizations.somethingWentWrong,
+                                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
+                return nil
+            }
+
+            return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+        default:
+            return nil
+        }
     }
 
     /// Attempt to create an `AppRoute` from an "otpauth://" url.

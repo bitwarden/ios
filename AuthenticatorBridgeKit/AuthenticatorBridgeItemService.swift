@@ -19,6 +19,13 @@ public protocol AuthenticatorBridgeItemService {
     ///
     func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataView]
 
+    /// Fetches the temporary item stored by the Authenticator app and removes all temporary items from the store.
+    /// If there are no temporary items in the store, this method will return `nil`.
+    ///
+    /// - Returns: The temporary item from the store, or `nil` if none was found.
+    ///
+    func fetchTemporaryItem() async throws -> AuthenticatorBridgeItemDataView?
+
     /// Inserts the list of items into the store for the given userId.
     ///
     /// - Parameters:
@@ -27,6 +34,20 @@ public protocol AuthenticatorBridgeItemService {
     ///
     func insertItems(_ items: [AuthenticatorBridgeItemDataView],
                      forUserId userId: String) async throws
+
+    /// Inserts a temporary item into the store. This method is for an item that originate in the Authenticator app that
+    /// need to move to the PM app (e.g. the user chooses Move to BW, or manually creates an item and selects
+    /// Save in BW). When the item originates from the Authenticator, we don't yet know what account it will be stored
+    /// in, so we save it to a temporary account and retrieve it for processing in the PM app.
+    ///
+    /// The expectation is that only *one* temporary item will be stored at a time. Each time this method is called, it
+    /// will replace the one temporary item. When `fetchTemporaryItem()`is called, it will retrieve only
+    /// the last item stored.
+    ///
+    /// - Parameters:
+    ///   - item: The temporary `AuthenticatorBridgeItemDataModel` to be inserted into the store.
+    ///
+    func insertTemporaryItem(_ item: AuthenticatorBridgeItemDataView) async throws
 
     /// Returns `true` if sync has been enabled for one or more accounts in the Bitwarden PM app, `false`
     /// if there are no accounts with sync currently turned on.
@@ -55,6 +76,11 @@ public protocol AuthenticatorBridgeItemService {
 /// A concrete implementation of the `AuthenticatorBridgeItemService` protocol.
 ///
 public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
+    // MARK: Private Properties
+
+    /// A constant to use as the userId for storing a temporary item.
+    private static let temporaryUserId = "000000000000"
+
     // MARK: Properties
 
     /// Cryptography service for encrypting/decrypting items.
@@ -106,6 +132,17 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         return try await cryptoService.decryptAuthenticatorItems(encryptedItems)
     }
 
+    public func fetchTemporaryItem() async throws -> AuthenticatorBridgeItemDataView? {
+        let decryptedItems = try await fetchAllForUserId(
+            DefaultAuthenticatorBridgeItemService.temporaryUserId
+        )
+        try await deleteAllForUserId(
+            DefaultAuthenticatorBridgeItemService.temporaryUserId
+        )
+
+        return decryptedItems.first
+    }
+
     public func isSyncOn() async -> Bool {
         let key = try? await sharedKeychainRepository.getAuthenticatorKey()
         return key != nil
@@ -122,6 +159,13 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
         let encryptedItems = try await cryptoService.encryptAuthenticatorItems(items)
         try await dataStore.executeBatchInsert(
             AuthenticatorBridgeItemData.batchInsertRequest(objects: encryptedItems, userId: userId)
+        )
+    }
+
+    public func insertTemporaryItem(_ item: AuthenticatorBridgeItemDataView) async throws {
+        try await replaceAllItems(
+            with: [item],
+            forUserId: DefaultAuthenticatorBridgeItemService.temporaryUserId
         )
     }
 
@@ -147,7 +191,11 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
 
     public func sharedItemsPublisher() async throws ->
         AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> {
-        let fetchRequest = AuthenticatorBridgeItemData.fetchRequest()
+        let fetchRequest = AuthenticatorBridgeItemData.fetchRequest(
+            predicate: NSPredicate(
+                format: "userId != %@", DefaultAuthenticatorBridgeItemService.temporaryUserId
+            )
+        )
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \AuthenticatorBridgeItemData.userId, ascending: true)]
         return FetchedResultsPublisher(
             context: dataStore.persistentContainer.viewContext,

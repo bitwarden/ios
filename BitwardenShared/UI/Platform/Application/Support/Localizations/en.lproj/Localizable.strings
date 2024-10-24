@@ -1052,3 +1052,5 @@
 "ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
 "LoginsImported" = "Logins imported";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
+"SomethingWentWrong" = "Something went wrong";
+"UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";

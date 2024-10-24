@@ -383,6 +383,22 @@ extension Fido2CredentialView {
     }
 }
 
+extension BitwardenSdk.FieldView {
+    static func fixture(
+        name: String? = "Name",
+        value: String? = "1",
+        type: BitwardenSdk.FieldType = BitwardenSdk.FieldType.hidden,
+        linkedId: BitwardenSdk.LinkedIdType? = nil
+    ) -> BitwardenSdk.FieldView {
+        BitwardenSdk.FieldView(
+            name: name,
+            value: value,
+            type: type,
+            linkedId: linkedId
+        )
+    }
+}
+
 extension BitwardenSdk.Login {
     static func fixture(
         autofillOnPageLoad: Bool? = nil,
