@@ -1051,3 +1051,5 @@
 "NoLoginsWereImported" = "No logins were imported";
 "LoginsImported" = "Logins imported";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
+"SomethingWentWrong" = "Something went wrong";
+"UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
