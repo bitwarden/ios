@@ -1047,3 +1047,9 @@
 "AllowAuthenticatorSyncing" = "Allow authenticator syncing";
 "AuthenticatorSync" = "Authenticator sync";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "No account found. Please log in again if you continue to see this error.";
+"ImportError" = "Import error";
+"NoLoginsWereImported" = "No logins were imported";
+"LoginsImported" = "Logins imported";
+"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
+"SomethingWentWrong" = "Something went wrong";
+"UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";

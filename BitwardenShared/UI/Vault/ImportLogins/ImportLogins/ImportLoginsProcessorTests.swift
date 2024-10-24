@@ -5,11 +5,12 @@ import XCTest
 class ImportLoginsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<VaultRoute, AuthAction>!
+    var coordinator: MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
     var subject: ImportLoginsProcessor!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
@@ -20,15 +21,17 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
+        vaultRepository = MockVaultRepository()
 
         subject = ImportLoginsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
-                stateService: stateService
+                stateService: stateService,
+                vaultRepository: vaultRepository
             ),
-            state: ImportLoginsState()
+            state: ImportLoginsState(mode: .vault)
         )
     }
 
@@ -40,6 +43,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         settingsRepository = nil
         stateService = nil
         subject = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
@@ -89,6 +93,53 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
         XCTAssertNil(stateService.accountSetupImportLogins["1"])
+    }
+
+    /// `perform(_:)` with `.advanceNextPage` syncs the user's vault and shows an alert if the
+    /// user's vault is still empty. Tapping set up later sets the user's progress and dismisses
+    /// the view.
+    @MainActor
+    func test_perform_advanceNextPage_sync_vaultEmpty_setUpLater() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupImportLogins["1"] = .incomplete
+        subject.state.page = .step3
+        vaultRepository.isVaultEmptyResult = .success(true)
+
+        await subject.perform(.advanceNextPage)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .importLoginsEmpty {})
+        try await alert.tapAction(title: Localizations.importLoginsLater)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .setUpLater)
+    }
+
+    /// `perform(_:)` with `.advanceNextPage` syncs the user's vault and shows an alert if the
+    /// user's vault is still empty. Tapping try again dismisses the alert.
+    @MainActor
+    func test_perform_advanceNextPage_sync_vaultEmpty_tryAgain() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupImportLogins["1"] = .incomplete
+        subject.state.page = .step3
+        vaultRepository.isVaultEmptyResult = .success(true)
+
+        await subject.perform(.advanceNextPage)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .importLoginsEmpty {})
+
+        vaultRepository.isVaultEmptyResult = .success(false)
+        try await alert.tapAction(title: Localizations.tryAgain)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertTrue(settingsRepository.fetchSyncCalled)
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .incomplete)
     }
 
     /// `perform(_:)` with `.advanceNextPage` initiates a vault sync when on the last page and

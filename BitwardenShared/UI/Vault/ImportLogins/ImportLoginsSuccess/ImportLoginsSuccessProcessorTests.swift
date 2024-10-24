@@ -5,7 +5,7 @@ import XCTest
 class ImportLoginsSuccessProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<VaultRoute, AuthAction>!
+    var coordinator: MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>!
     var subject: ImportLoginsSuccessProcessor!
 
     // MARK: Setup & Teardown
@@ -29,10 +29,10 @@ class ImportLoginsSuccessProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.dismiss` dismisses the view.
+    /// `perform(_:)` with `.dismiss` notifies the coordinator that import logins has completed.
     @MainActor
-    func test_receive_dismiss() {
-        subject.receive(.dismiss)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    func test_perform_dismiss() async {
+        await subject.perform(.dismiss)
+        XCTAssertEqual(coordinator.events.last, .completeImportLogins)
     }
 }

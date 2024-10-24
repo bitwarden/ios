@@ -2,11 +2,11 @@
 
 /// The processor used to manage state and handle actions for the import logins success screen.
 ///
-class ImportLoginsSuccessProcessor: StateProcessor<Void, ImportLoginsSuccessAction, Void> {
+class ImportLoginsSuccessProcessor: StateProcessor<Void, Void, ImportLoginsSuccessEffect> {
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
+    private let coordinator: AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent>
 
     // MARK: Initialization
 
@@ -14,17 +14,17 @@ class ImportLoginsSuccessProcessor: StateProcessor<Void, ImportLoginsSuccessActi
     ///
     /// - Parameter coordinator: The coordinator that handles navigation.
     ///
-    init(coordinator: AnyCoordinator<VaultRoute, AuthAction>) {
+    init(coordinator: AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent>) {
         self.coordinator = coordinator
         super.init()
     }
 
     // MARK: Methods
 
-    override func receive(_ action: ImportLoginsSuccessAction) {
-        switch action {
+    override func perform(_ effect: ImportLoginsSuccessEffect) async {
+        switch effect {
         case .dismiss:
-            coordinator.navigate(to: .dismiss)
+            await coordinator.handleEvent(.completeImportLogins)
         }
     }
 }

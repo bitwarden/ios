@@ -63,9 +63,7 @@ final class VaultSettingsProcessor: StateProcessor<VaultSettingsState, VaultSett
                 self.state.url = self.services.environmentService.importItemsURL
             })
         case .showImportLogins:
-            // TODO: PM-13467 Navigate to import logins
-            // coordinator.navigate(to: .importLogins)
-            break
+            coordinator.navigate(to: .importLogins)
         }
     }
 

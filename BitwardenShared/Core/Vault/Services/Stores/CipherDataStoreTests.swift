@@ -31,6 +31,18 @@ class CipherDataStoreTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `cipherCount(userId:)` returns the count of ciphers in the data store.
+    func test_cipherCount() async throws {
+        var count = try await subject.cipherCount(userId: "1")
+        XCTAssertEqual(count, 0)
+
+        try await insertCiphers(ciphers, userId: "1")
+        try await insertCiphers(ciphers, userId: "2")
+
+        count = try await subject.cipherCount(userId: "1")
+        XCTAssertEqual(count, 3)
+    }
+
     /// `cipherPublisher(userId:)` returns a publisher for a user's cipher objects.
     func test_cipherPublisher() async throws {
         var publishedValues = [[Cipher]]()
