@@ -188,11 +188,13 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         }
     }
 
-    /// Handles error responses by checking if the Bitwarden server is official or unofficial.
-    /// If the server is unofficial, it assigns a custom error; otherwise, it uses the provided error.
-    /// Displays an alert for the error and logs it using the error reporter.
+    /// Handles network error responses.
     ///
-    /// - Parameter errorResponse: The error received from the network response.
+    /// Determines whether the Bitwarden server is official or unofficial and passes this information
+    /// along with the error to the coordinator to display an appropriate alert on the main thread
+    /// The error is also logged using the error reporter.
+    ///
+    /// - Parameter error: The error received from the network request.
     ///
     private func handleErrorResponse(_ error: Error) async {
         let isOfficialBitwardenServer = await services.configService.getConfig()?.isOfficialBitwardenServer() ?? true
