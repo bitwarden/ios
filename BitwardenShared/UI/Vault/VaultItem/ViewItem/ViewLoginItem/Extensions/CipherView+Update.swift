@@ -218,10 +218,7 @@ extension CipherView {
                     !field.value.isEmptyOrNil &&
                     !(newFields?.contains(field) ?? false)
             }.compactMap { hiddenField in
-                guard !hiddenField.name.isEmptyOrNil else {
-                    return nil
-                }
-                return PasswordHistoryView(
+                PasswordHistoryView(
                     password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
                     lastUsedDate: lastUsedDate
                 )
