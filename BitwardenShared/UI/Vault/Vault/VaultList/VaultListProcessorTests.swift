@@ -386,11 +386,11 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_dismissSetUpUnlockActionCard() async {
         stateService.activeAccount = .fixture()
-        stateService.accountSetupImportLogins["1"] = .setUpLater
+        stateService.accountSetupImportLogins["1"] = .incomplete
 
         await subject.perform(.dismissImportLoginsActionCard)
 
-        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .setUpLater)
     }
 
     /// `perform(_:)` with `.dismissImportLoginsActionCard` logs an error and shows an alert if an
@@ -399,7 +399,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_dismissSetUpUnlockActionCard_error() async {
         await subject.perform(.dismissImportLoginsActionCard)
 
-        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(error: StateServiceError.noActiveAccount)])
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 

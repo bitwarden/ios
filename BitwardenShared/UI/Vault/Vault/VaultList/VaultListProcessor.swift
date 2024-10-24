@@ -70,7 +70,7 @@ final class VaultListProcessor: StateProcessor<
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
         case .dismissImportLoginsActionCard:
-            await dismissImportLoginsActionCard()
+            await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -181,17 +181,6 @@ extension VaultListProcessor {
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
-    /// Dismisses the import logins action card by marking the user's import logins progress complete.
-    ///
-    private func dismissImportLoginsActionCard() async {
-        do {
-            try await services.stateService.setAccountSetupImportLogins(.complete)
-        } catch {
-            services.errorReporter.log(error: error)
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-        }
-    }
-
     /// Entry point to handling things around push notifications.
     private func handleNotifications() async {
         switch await services.notificationService.notificationAuthorization() {
@@ -278,6 +267,19 @@ extension VaultListProcessor {
         return []
     }
 
+    /// Sets the user's import logins progress.
+    ///
+    /// - Parameter progress: The user's import logins progress.
+    ///
+    private func setImportLoginsProgress(_ progress: AccountSetupProgress) async {
+        do {
+            try await services.stateService.setAccountSetupImportLogins(progress)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(error: error))
+        }
+    }
+
     /// Sets the visibility of the profiles view and updates accessibility focus.
     ///
     /// - Parameter visible: the intended visibility of the view.
@@ -332,7 +334,7 @@ extension VaultListProcessor {
 
                 // Dismiss the import logins action card once the vault has items in it.
                 if !value.isEmpty, await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
-                    await dismissImportLoginsActionCard()
+                    await setImportLoginsProgress(.complete)
                 }
             }
         } catch {

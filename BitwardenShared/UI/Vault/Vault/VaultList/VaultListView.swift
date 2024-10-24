@@ -104,6 +104,7 @@ private struct SearchableVaultListView: View {
 
                     Spacer()
                 }
+                .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .setUpLater)
                 .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .complete)
                 .padding(.horizontal, 16)
                 .frame(minHeight: reader.size.height)
