@@ -29,6 +29,7 @@ extension Alert {
     ///
     /// - Parameters:
     ///   - error: The networking error that occurred.
+    ///   - isOfficialBitwardenServer: Indicates whether the request was made to the official Bitwarden server
     ///   - tryAgain: An action allowing the user to retry the request.
     ///
     /// - Returns: An alert notifying the user that a networking error occurred.

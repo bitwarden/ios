@@ -197,17 +197,15 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// - Parameter error: The error received from the network request.
     ///
     private func handleErrorResponse(_ error: Error) async {
-        let isOfficialBitwardenServer = await services.configService.getConfig()?.isOfficialBitwardenServer() ?? true
         services.errorReporter.log(error: error)
-
-        await MainActor.run {
-            coordinator.showAlert(
-                .networkResponseError(
-                    error,
-                    isOfficialBitwardenServer: isOfficialBitwardenServer
-                )
+        let serverConfig = await services.configService.getConfig(isPreAuth: true)
+        let isOfficialBitwardenServer = serverConfig?.isOfficialBitwardenServer() ?? true
+        coordinator.showAlert(
+            .networkResponseError(
+                error,
+                isOfficialBitwardenServer: isOfficialBitwardenServer
             )
-        }
+        )
     }
 }
 
