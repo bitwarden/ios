@@ -69,7 +69,7 @@ jobs:
         with:
           ref: ${{  github.event.pull_request.head.sha }}
 
-      - name: Read default Xcode version
+      - name: Read default Xcode version and simulator configuration
         run: |
           echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
           echo "DEFAULT_SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
