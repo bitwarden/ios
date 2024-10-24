@@ -33,11 +33,12 @@ enum ToastDisplayHelper {
 
         // Position the toast view on the window with appropriate bottom padding above the tab bar.
         window.addSubview(viewController.view)
-        let bottomPadding = window.safeAreaInsets.bottom + getSafeArea(from: parentViewController).bottom + 14
+        let bottomPadding = getSafeArea(from: parentViewController).bottom + 16
         viewController.view.translatesAutoresizingMaskIntoConstraints = false
         viewController.view.bottomAnchor.constraint(equalTo: window.bottomAnchor, constant: -bottomPadding)
             .isActive = true
-        viewController.view.centerXAnchor.constraint(equalTo: window.centerXAnchor).isActive = true
+        viewController.view.leadingAnchor.constraint(equalTo: window.leadingAnchor).isActive = true
+        viewController.view.trailingAnchor.constraint(equalTo: window.trailingAnchor).isActive = true
 
         // Animate the toast in.
         UIView.animate(withDuration: UI.duration(transitionDuration)) {
@@ -46,7 +47,7 @@ enum ToastDisplayHelper {
 
         // Dismiss the toast after 3 seconds.
         Timer.scheduledTimer(withTimeInterval: duration, repeats: false) { _ in
-            hide(from: parentViewController)
+            hide(viewController.view)
         }
     }
 
@@ -65,19 +66,16 @@ enum ToastDisplayHelper {
            let selected = tabBarController?.selectedViewController,
            let topViewController = (selected as? UINavigationController)?.topViewController,
            !topViewController.hidesBottomBarWhenPushed {
-            let height = tabBar.bounds.height - tabBar.safeAreaInsets.bottom
-            return UIEdgeInsets(top: 0, left: 0, bottom: height, right: 0)
+            return UIEdgeInsets(top: 0, left: 0, bottom: tabBar.bounds.height, right: 0)
         }
-        return .zero
+        return parentViewController.view.safeAreaInsets
     }
 
     /// Hides the toast from showing over the specified view controller
     ///
-    /// - Parameter parentViewController: The parent view controller that the toast is shown in.
+    /// - Parameter view: The toast view to hide.
     ///
-    private static func hide(from parentViewController: UIViewController) {
-        guard let view = parentViewController.view.window?.viewWithTag(toastTag) else { return }
-
+    private static func hide(_ view: UIView) {
         UIView.animate(withDuration: UI.duration(transitionDuration)) {
             view.layer.opacity = 0
         } completion: { _ in

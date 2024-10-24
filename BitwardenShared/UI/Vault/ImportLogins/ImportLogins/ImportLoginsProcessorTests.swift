@@ -5,7 +5,7 @@ import XCTest
 class ImportLoginsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<VaultRoute, AuthAction>!
+    var coordinator: MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
@@ -31,7 +31,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
                 stateService: stateService,
                 vaultRepository: vaultRepository
             ),
-            state: ImportLoginsState()
+            state: ImportLoginsState(mode: .vault)
         )
     }
 
