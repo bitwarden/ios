@@ -81,6 +81,26 @@ class AlertVaultTests: BitwardenTestCase {
         XCTAssertTrue(actionCalled)
     }
 
+    /// `importLoginsEmpty(action:)` constructs an `Alert` that informs the user that no logins
+    /// were imported.
+    func test_importLoginsEmpty() async throws {
+        var actionCalled = false
+        let subject = Alert.importLoginsEmpty { actionCalled = true }
+
+        XCTAssertEqual(subject.title, Localizations.importError)
+        XCTAssertEqual(subject.message, Localizations.noLoginsWereImported)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.tryAgain)
+        XCTAssertEqual(subject.alertActions[0].style, .cancel)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.importLoginsLater)
+        XCTAssertEqual(subject.alertActions[1].style, .default)
+
+        try await subject.tapAction(title: Localizations.tryAgain)
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.importLoginsLater)
+        XCTAssertTrue(actionCalled)
+    }
+
     /// `static importLoginsLater(action:)` constructs an `Alert` that confirms that the user
     /// wants to import logins later in settings.
     func test_importLoginsLater() async throws {
