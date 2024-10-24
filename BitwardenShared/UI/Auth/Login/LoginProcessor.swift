@@ -191,7 +191,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// Handles network error responses.
     ///
     /// Determines whether the Bitwarden server is official or unofficial and passes this information
-    /// along with the error to the coordinator to display an appropriate alert on the main thread
+    /// along with the error to the coordinator to display an appropriate alert on the main thread.
     /// The error is also logged using the error reporter.
     ///
     /// - Parameter error: The error received from the network request.
