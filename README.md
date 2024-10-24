@@ -15,7 +15,7 @@
 - **Minimum iOS**: 15.0
 - **Target SDK**: 15.0
 - **Device Types Supported**: iPhone, iPad
-- **Screen Sizes Supported**: iPhone SE to iPhone 15 Pro Max, iPad Mini to iPad Pro 12.9"
+- **Screen Sizes Supported**: iPhone SE to iPhone 16 Pro Max, iPad Mini to iPad Pro 12.9"
 - **Orientations Supported**: Portrait, Landscape
 
 ## Setup
@@ -66,7 +66,7 @@
 
 ### Running Tests
 
-Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 15 Pro simulator (iOS 18).
+Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 16 Pro simulator (iOS 18.1).
 
 1. In Xcode's toolbar, select the project and a connected device or simulator.
    - The `Generic iOS Device` used for builds will not work for testing.

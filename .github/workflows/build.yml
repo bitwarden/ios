@@ -72,7 +72,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
