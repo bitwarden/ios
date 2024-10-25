@@ -88,6 +88,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 else { return }
                 await generateAndCopyTotpCode(totpKey: totpKey)
             }
+        case let .moveToBitwardenPressed(item):
+            guard case .totp = item.itemType else { return }
+            await moveItemToBitwarden(item: item)
         case .refresh:
             await streamItemList()
         case let .search(text):
@@ -100,7 +103,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     override func receive(_ action: ItemListAction) {
         switch action {
         case .clearURL:
-            break
+            state.url = nil
         case let .deletePressed(item):
             guard case .totp = item.itemType else { return }
             confirmDeleteItem(item.id)
@@ -157,6 +160,26 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             let code = try await services.totpService.getTotpCode(for: totpKey)
             services.pasteboardService.copy(code.code)
             state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Store the item in the shared sync data store as a temporary item and deeplink to the Bitwarden app to
+    /// let the user choose where to store it.
+    ///
+    /// - Parameter item: the item to be moved.
+    ///
+    private func moveItemToBitwarden(item: ItemListItem) async {
+        guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
+              let application = services.application,
+              application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)
+        else { return }
+
+        do {
+            try await services.authenticatorItemRepository.saveTemporarySharedItem(item)
+            state.url = ExternalLinksConstants.passwordManagerNewItem
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
@@ -274,6 +297,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                     return ItemListSection(id: section.id, items: itemList, name: section.name)
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: sectionList.flatMap(\.items))
+                state.showMoveToBitwarden = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
                 state.loadingState = .data(sectionList)
                 if showToast {
                     state.toast = Toast(text: Localizations.accountsSyncedFromBitwardenApp)

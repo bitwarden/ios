@@ -274,6 +274,77 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         )
     }
 
+    /// `perform(:_)` with `.moveToBitwardenPressed()` with a local item stores the item in the shared
+    /// store and launches the Bitwarden app via the new item  deep link.
+    func test_perform_moveToBitwardenPressed_localItem() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        application.canOpenUrlResponse = true
+        let localItem = ItemListItem.fixture()
+
+        await subject.perform(.moveToBitwardenPressed(localItem))
+
+        waitFor(authItemRepository.tempItem != nil)
+        XCTAssertEqual(authItemRepository.tempItem, localItem)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
+    }
+
+    /// `perform(:_)` with `.moveToBitwardenPressed()` captures any errors thrown, logs them, and shows an
+    /// error alert.
+    func test_perform_moveToBitwardenPressed_error() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        application.canOpenUrlResponse = true
+        let localItem = ItemListItem.fixture()
+        authItemRepository.tempItemErrorToThrow = AuthenticatorTestError.example
+
+        await subject.perform(.moveToBitwardenPressed(localItem))
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertEqual(coordinator.alertShown,
+                       [Alert.defaultAlert(title: Localizations.anErrorHasOccurred)])
+    }
+
+    /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the `enablePasswordManagerSync`
+    /// feature flag is disabled.
+    func test_perform_moveToBitwardenPressed_featureFlagDisabled() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = false
+        application.canOpenUrlResponse = true
+        let localItem = ItemListItem.fixture()
+
+        await subject.perform(.moveToBitwardenPressed(localItem))
+
+        XCTAssertNil(authItemRepository.tempItem)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the Password Manager app is not
+    /// installed - i.e. the `bitwarden://` urls cannot be opened.
+    func test_perform_moveToBitwardenPressed_passwordManagerAppNotInstalled() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        application.canOpenUrlResponse = false
+        let localItem = ItemListItem.fixture()
+
+        await subject.perform(.moveToBitwardenPressed(localItem))
+
+        XCTAssertNil(authItemRepository.tempItem)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when called with a shared item.
+    func test_perform_moveToBitwardenPressed_sharedItem() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        application.canOpenUrlResponse = true
+        let localItem = ItemListItem.fixtureShared()
+
+        await subject.perform(.moveToBitwardenPressed(localItem))
+
+        XCTAssertNil(authItemRepository.tempItem)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertNil(subject.state.url)
+    }
+
     /// `perform(:_)` with `.search` updates search results in the state.
     func test_perform_search() {
         let result = ItemListItem.fixture(
@@ -375,7 +446,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are no shared
-    /// account items, it should not show a toast.
+    /// account items, does not show a toast.
     func test_perform_streamItemList() {
         let totpCode = TOTPCodeModel(code: "654321",
                                      codeGenerationDate: Date(year: 2023, month: 12, day: 31),
@@ -457,6 +528,65 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertEqual(authItemRepository.refreshedTotpCodes, results)
         XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `false` when the feature flag is disabled
+    /// or the user has not yet turned sync on for at least one account.
+    func test_perform_streamItemList_showMoveToBitwarden_false() {
+        authItemRepository.pmSyncEnabled = false
+        let totpCode = TOTPCodeModel(code: "654321",
+                                     codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                     period: 30)
+        let results = [
+            ItemListItem.fixture(totp: .fixture(totpCode: totpCode)),
+            ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
+        ]
+        let resultSection = ItemListSection(id: "", items: results, name: "Items")
+
+        authItemRepository.itemListSubject.send([resultSection])
+        authItemRepository.refreshTotpCodesResult = .success(results)
+
+        let task = Task {
+            await subject.perform(.streamItemList)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertFalse(subject.state.showMoveToBitwarden)
+    }
+
+    /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `true` when the feature flag is enabled
+    /// and the user has turned sync on for at least one account.
+    func test_perform_appeared_showMoveToBitwarden_true() {
+        authItemRepository.pmSyncEnabled = true
+        let totpCode = TOTPCodeModel(code: "654321",
+                                     codeGenerationDate: Date(year: 2023, month: 12, day: 31),
+                                     period: 30)
+        let results = [
+            ItemListItem.fixture(totp: .fixture(totpCode: totpCode)),
+            ItemListItem.fixtureShared(totp: .fixture(totpCode: totpCode)),
+        ]
+        let resultSection = ItemListSection(id: "", items: results, name: "Items")
+
+        authItemRepository.itemListSubject.send([resultSection])
+        authItemRepository.refreshTotpCodesResult = .success(results)
+
+        let task = Task {
+            await subject.perform(.streamItemList)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertTrue(subject.state.showMoveToBitwarden)
+    }
+
+    /// `.receive` with `.clearURL` sets the `state.url` to `nil`.
+    func test_receive_clearURL() throws {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
     }
 
     // MARK: AuthenticatorKeyCaptureDelegate Tests

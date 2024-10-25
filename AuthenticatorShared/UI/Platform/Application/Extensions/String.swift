@@ -1,3 +1,4 @@
+import CryptoKit
 import Foundation
 import SwiftUI
 
@@ -43,6 +44,12 @@ extension String {
         }
 
         return Color(hex: color)
+    }
+
+    /// Returns a SHA256-hashed version of this string as a hexadecimal string.
+    var hexSHA256Hash: String {
+        let hashedData = SHA256.hash(data: Data(utf8))
+        return hashedData.map { String(format: "%02hhx", $0) }.joined()
     }
 
     /// A flag indicating if this string is considered a valid email address or not.

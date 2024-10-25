@@ -1,3 +1,4 @@
+import CryptoKit
 import XCTest
 
 @testable import AuthenticatorShared
@@ -12,6 +13,14 @@ class StringTests: AuthenticatorTestCase {
         XCTAssertEqual("test".hashColor.description, "#924436FF")
         XCTAssertEqual("0620ee30-91c3-40cb-8fad-b102005c35b0".hashColor.description, "#32F23FFF")
         XCTAssertEqual("9c303aee-e636-4760-94b6-e4951d7b0abb".hashColor.description, "#C96CD2FF")
+    }
+
+    /// `hexSHA256Hash` returns a hexadecimal string with a SHA-256 hash of the string.
+    func test_hexSHA256Hash() {
+        let subject = "String to be hashed"
+        let expected = "6bd36935ea986ded286b264a72f5e008cc4434082877e4b12c91511d3803b22f"
+
+        XCTAssertEqual(subject.hexSHA256Hash, expected)
     }
 
     /// `isValidEmail` with an invalid string returns `false`.

@@ -38,6 +38,9 @@ struct ItemListState: Equatable {
         true
     }
 
+    /// Whether to show the Move to Bitwarden button on local items.
+    var showMoveToBitwarden = false
+
     /// Whether to show the special web icons.
     var showWebIcons = true
 

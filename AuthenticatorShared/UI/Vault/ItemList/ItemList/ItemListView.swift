@@ -5,7 +5,7 @@ import SwiftUI
 // MARK: - SearchableItemListView
 
 /// A view that displays the items in a single vault group.
-private struct SearchableItemListView: View {
+private struct SearchableItemListView: View { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// A flag indicating if the search bar is focused.
@@ -59,6 +59,11 @@ private struct SearchableItemListView: View {
             get: \.toast,
             send: ItemListAction.toastShown
         ))
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
     }
 
     // MARK: Private
@@ -226,6 +231,19 @@ private struct SearchableItemListView: View {
                                 Spacer()
                                 Image(decorative: Asset.Images.pencil)
                                     .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            }
+                        }
+
+                        if store.state.showMoveToBitwarden {
+                            AsyncButton {
+                                await store.perform(.moveToBitwardenPressed(item))
+                            } label: {
+                                HStack(spacing: 4) {
+                                    Text(Localizations.moveToBitwarden)
+                                    Spacer()
+                                    Image(decorative: Asset.Images.rightArrow)
+                                        .imageStyle(.accessoryIcon(scaleWithFont: true))
+                                }
                             }
                         }
 

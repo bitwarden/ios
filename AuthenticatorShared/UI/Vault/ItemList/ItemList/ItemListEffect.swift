@@ -15,6 +15,12 @@ enum ItemListEffect: Equatable {
     ///
     case copyPressed(_ item: ItemListItem)
 
+    /// The Move to Bitwarden item button was pressed.
+    ///
+    /// - Parameter item: The item that should be moved.
+    ///
+    case moveToBitwardenPressed(_ item: ItemListItem)
+
     /// The refresh control was triggered.
     case refresh
 

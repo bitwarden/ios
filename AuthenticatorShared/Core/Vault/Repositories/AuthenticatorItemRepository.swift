@@ -33,9 +33,18 @@ protocol AuthenticatorItemRepository: AnyObject {
 
     /// Fetch all items
     ///
-    /// Returns: An array of all items in storage
+    /// - Returns: An array of all items in storage
     ///
     func fetchAllAuthenticatorItems() async throws -> [AuthenticatorItemView]
+
+    /// Determine if the `enablePasswordManagerSync` feature flag is enabled *and* the user
+    /// has turned sync on for at least one account in the PM app. If one or both of these is
+    /// not `true`, this returns `false`.
+    ///
+    /// - Returns: `true` if the sync feature flag is enabled and the user has actively synced an account.
+    ///     `false` otherwise.
+    ///
+    func isPasswordManagerSyncActive() async -> Bool
 
     /// Regenerates the TOTP codes for a list of items.
     ///
@@ -71,6 +80,13 @@ protocol AuthenticatorItemRepository: AnyObject {
     /// - Returns: A publisher for the list of a user's items
     ///
     func itemListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListSection], Error>>
+
+    /// Create a temporary shared item based on a `ItemListItem` for sharing with the PM app. This method will store it
+    /// as a temporary item in the shared store.
+    ///
+    /// - Parameter item: The item to be shared with the PM app
+    ///
+    func saveTemporarySharedItem(_ item: ItemListItem) async throws
 
     /// A publisher for searching a user's cipher objects based on the specified search text and filter type.
     ///
@@ -159,8 +175,7 @@ class DefaultAuthenticatorItemRepository {
         localSections: [ItemListSection],
         sharedItems: [AuthenticatorBridgeItemDataView]
     ) async throws -> [ItemListSection] {
-        guard await configService.getFeatureFlag(.enablePasswordManagerSync),
-              await sharedItemService.isSyncOn() else {
+        guard await isPasswordManagerSyncActive() else {
             return localSections
         }
 
@@ -209,9 +224,7 @@ class DefaultAuthenticatorItemRepository {
             ItemListItem(authenticatorItemView: item, timeProvider: self.timeProvider)
         }
 
-        let syncEnabled: Bool = await configService.getFeatureFlag(.enablePasswordManagerSync)
-        let syncOn = await sharedItemService.isSyncOn()
-        let useSyncValues = syncEnabled && syncOn
+        let useSyncValues = await isPasswordManagerSyncActive()
 
         return [
             ItemListSection(id: "Favorites", items: favorites, name: Localizations.favorites),
@@ -264,6 +277,14 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         return try? await cryptographyService.decrypt(item)
     }
 
+    func isPasswordManagerSyncActive() async -> Bool {
+        guard await configService.getFeatureFlag(.enablePasswordManagerSync),
+              await sharedItemService.isSyncOn() else {
+            return false
+        }
+        return true
+    }
+
     func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
         try await items.asyncMap { item in
             let keyModel: TOTPKeyModel?
@@ -283,6 +304,20 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             let code = try await totpService.getTotpCode(for: keyModel)
             return item.with(newTotpModel: code)
         }
+    }
+
+    func saveTemporarySharedItem(_ item: ItemListItem) async throws {
+        guard case let .totp(model) = item.itemType else { return }
+
+        try await sharedItemService.insertTemporaryItem(AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: item.id,
+            name: item.name,
+            totpKey: model.itemView.totpKey,
+            username: item.accountName
+        ))
     }
 
     func updateAuthenticatorItem(_ authenticatorItem: AuthenticatorItemView) async throws {

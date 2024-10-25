@@ -116,6 +116,50 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         XCTAssertNil(result)
     }
 
+    /// 'isPasswordManagerSyncActive` should return `false` when both the
+    /// `enablePasswordManagerSync` feature flag is disabled and the
+    /// `AuthenticatorBridgeItemService.syncOn` is `false`.
+    func test_isPasswordManagerSyncActive_bothOff() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = false
+        sharedItemService.syncOn = false
+
+        let syncActive = await subject.isPasswordManagerSyncActive()
+        XCTAssertFalse(syncActive)
+    }
+
+    /// 'isPasswordManagerSyncActive` should return `false` when the
+    /// `enablePasswordManagerSync` feature flag is disabled even if the
+    /// `AuthenticatorBridgeItemService.syncOn` is `true`.
+    func test_isPasswordManagerSyncActive_featureFlagDisabled() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = false
+        sharedItemService.syncOn = true
+
+        let syncActive = await subject.isPasswordManagerSyncActive()
+        XCTAssertFalse(syncActive)
+    }
+
+    /// 'isPasswordManagerSyncActive` should return `false` when the
+    /// `enablePasswordManagerSync` feature flag is enabled but the
+    /// `AuthenticatorBridgeItemService.syncOn` is `false`.
+    func test_isPasswordManagerSyncActive_syncOff() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        sharedItemService.syncOn = false
+
+        let syncActive = await subject.isPasswordManagerSyncActive()
+        XCTAssertFalse(syncActive)
+    }
+
+    /// 'isPasswordManagerSyncActive` should return `true` when the
+    /// `enablePasswordManagerSync` feature flag is enabled and the
+    /// `AuthenticatorBridgeItemService.syncOn` is `true`.
+    func test_isPasswordManagerSyncActive_success() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        sharedItemService.syncOn = true
+
+        let syncActive = await subject.isPasswordManagerSyncActive()
+        XCTAssertTrue(syncActive)
+    }
+
     /// `refreshTotpCodes(on:)` logs an error when it can't update the TOTP code on a
     /// .sharedTotp item, and returns the item as-is.
     func test_refreshTotpCodes_errorSharedTotp() async throws {
@@ -186,6 +230,43 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
             XCTAssertEqual(model.totpCode, newCodeModel)
         case .totp:
             XCTFail("TOTP itemType found when expecting Shared TOTP")
+        }
+    }
+
+    /// `saveTemporarySharedItem(_)` doesn't allow shared items to be stored as temporary items
+    func test_saveTemporarySharedItem_sharedItemsIgnored() async throws {
+        let item = ItemListItem.fixtureShared()
+
+        try await subject.saveTemporarySharedItem(item)
+        let result = sharedItemService.tempItem
+
+        XCTAssertNil(result)
+    }
+
+    /// `saveTemporarySharedItem(_)` saves a temporary item into the Authenticator Bridge shared store.
+    func test_saveTemporarySharedItem_success() async throws {
+        let totpKey = "TOTP Key"
+        let item = ItemListItem.fixture(totp: .fixture(itemView: .fixture(totpKey: totpKey)))
+
+        try await subject.saveTemporarySharedItem(item)
+        let result = try XCTUnwrap(sharedItemService.tempItem)
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result.id, item.id)
+        XCTAssertEqual(result.name, item.name)
+        XCTAssertEqual(result.totpKey, totpKey)
+        XCTAssertEqual(result.username, item.accountName)
+    }
+
+    /// `saveTemporarySharedItem(_)` throws errors received from the `AuthenticatorBridgeItemService`.
+    func test_saveTemporarySharedItem_throwsError() async throws {
+        let item = ItemListItem.fixture(totp: .fixture())
+        let error = AuthenticatorTestError.example
+
+        sharedItemService.errorToThrow = error
+
+        await assertAsyncThrows(error: error) {
+            try await subject.saveTemporarySharedItem(item)
         }
     }
 
@@ -412,7 +493,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     }
 
     /// `itemListPublisher()` correctly handles the empty/nil cases for different sections of the item list when
-    /// the feature flag is enabled and the user has turned on Sync for multiple accounts..
+    /// the feature flag is enabled and the user has turned on Sync for multiple accounts.
     func test_itemListPublisher_withMultipleAccountSync() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true

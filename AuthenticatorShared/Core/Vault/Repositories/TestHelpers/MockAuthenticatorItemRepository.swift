@@ -17,6 +17,8 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     var fetchAuthenticatorItemId: String?
     var fetchAuthenticatorItemResult: Result<AuthenticatorItemView?, Error> = .success(nil)
 
+    var pmSyncEnabled = false
+
     var refreshTotpCodesResult: Result<[ItemListItem], Error> = .success([])
     var refreshedTotpTime: Date?
     var refreshedTotpCodes: [ItemListItem] = []
@@ -25,6 +27,9 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
     var itemListSubject = CurrentValueSubject<[ItemListSection], Error>([])
 
     var searchItemListSubject = CurrentValueSubject<[ItemListItem], Error>([])
+
+    var tempItem: ItemListItem?
+    var tempItemErrorToThrow: Error?
 
     var timeProvider: TimeProvider = MockTimeProvider(.currentTime)
 
@@ -52,10 +57,21 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
         return try fetchAuthenticatorItemResult.get()
     }
 
+    func isPasswordManagerSyncActive() async -> Bool {
+        pmSyncEnabled
+    }
+
     func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem] {
         refreshedTotpTime = timeProvider.presentTime
         refreshedTotpCodes = items
         return try refreshTotpCodesResult.get()
+    }
+
+    func saveTemporarySharedItem(_ item: ItemListItem) async throws {
+        if let tempItemErrorToThrow {
+            throw tempItemErrorToThrow
+        }
+        tempItem = item
     }
 
     func updateAuthenticatorItem(_ authenticatorItem: AuthenticatorItemView) async throws {
