@@ -71,6 +71,15 @@ class ImportLoginsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .advanceNextPage)
     }
 
+    /// Tapping the done button for step 3 dispatches the `advanceNextPage` action.
+    @MainActor
+    func test_step_done_tap() async throws {
+        processor.state.page = .step3
+        let button = try subject.inspect().find(asyncButton: Localizations.done)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .advanceNextPage)
+    }
+
     // MARK: Snapshots
 
     /// The import logins intro page renders correctly.
