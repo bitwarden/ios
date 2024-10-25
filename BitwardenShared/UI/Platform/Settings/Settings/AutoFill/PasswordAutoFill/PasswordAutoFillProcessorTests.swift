@@ -9,7 +9,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
 
     var autofillCredentialService: MockAutofillCredentialService!
     var configService: MockConfigService!
-    var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var coordinator: MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>!
     var errorReporter: MockErrorReporter!
     var notificationCenterService: MockNotificationCenterService!
     var stateService: MockStateService!
@@ -106,7 +106,7 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
     /// `perform(.checkAutoFillOnForeground` will complete auth if autofill is enabled.
     ///
     @MainActor
-    func test_perform_checkAutofillOnForeground_autofillEnabled() {
+    func test_perform_checkAutofillOnForeground_autofillEnabled_onboarding() {
         autofillCredentialService.isAutofillCredentialsEnabled = true
 
         let task = Task {
@@ -118,6 +118,26 @@ class PasswordAutoFillProcessorTests: BitwardenTestCase {
         waitFor(!coordinator.events.isEmpty)
 
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
+        XCTAssertTrue(stateService.setAccountSetupAutofillCalled)
+    }
+
+    /// `perform(_:)` with `.checkAutoFillOnForeground` will dismiss the view if autofill is
+    /// enabled when the app is foregrounded in the settings flow.
+    @MainActor
+    func test_perform_checkAutofillOnForeground_autofillEnabled_settings() {
+        autofillCredentialService.isAutofillCredentialsEnabled = true
+        subject.state.mode = .settings
+
+        let task = Task {
+            await subject.perform(.checkAutofillOnForeground)
+        }
+        defer { task.cancel() }
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        waitFor(!coordinator.routes.isEmpty)
+
+        XCTAssertTrue(coordinator.events.isEmpty)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
         XCTAssertTrue(stateService.setAccountSetupAutofillCalled)
     }
 
