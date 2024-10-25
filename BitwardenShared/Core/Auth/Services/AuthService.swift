@@ -569,6 +569,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         captchaToken: String?,
         isNewAccount: Bool
     ) async throws {
+        // Clean any stored value in case the user changes account
+        preAuthForcePasswordResetReason = nil
+        
         // Complete the pre-login steps.
         let response = try await accountAPIService.preLogin(email: username)
 
