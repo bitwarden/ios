@@ -1042,5 +1042,15 @@
 "AutofillPasswords" = "Automatické vyplňování hesel";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Nastavte automatické vyplňování na všech Vašich zařízeních pro přihlášení jedním klepnutím kdekoliv.";
 "GotIt" = "Rozumím";
-"AllowAuthenticatorSyncing" = "Allow authenticator syncing";
-"AuthenticatorSync" = "Authenticator sync";
+"GenerateCrash" = "Vygenerovat pád";
+"GenerateErrorReport" = "Vygenerovat chybové hlášení";
+"AllowAuthenticatorSyncing" = "Povolit synchronizaci ověřovací aplikace";
+"AuthenticatorSync" = "Synchronizovat ověřovací aplikaci";
+"NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Nebyl nalezen žádný účet. Přihlaste se znovu, pokud znovu uvidíte tuto chybu.";
+"ImportError" = "Chyba importu";
+"NoLoginsWereImported" = "Nebyla importována žádná přihlášení";
+"ThisIsNotARecognizedServerDescriptionLong" = "Nejedná se o rozpoznaný server Bitwarden. Možná budete muset zkontrolovat svého poskytovatele nebo aktualizovat svůj server.";
+"LoginsImported" = "Přihlášení importována";
+"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Nezapomeňte smazat soubor importovaných hesel z Vašeho počítače.";
+"SomethingWentWrong" = "Něco se pokazilo";
+"UnableToMoveTheSelectedItemPleaseTryAgain" = "Nelze přesunout vybranou položku. Zkuste to znovu.";

@@ -1044,5 +1044,15 @@
 "AutofillPasswords" = "Автозаполнение паролей";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автозаполнение на всех своих устройствах, чтобы авторизоваться одним кликом везде.";
 "GotIt" = "Понятно";
-"AllowAuthenticatorSyncing" = "Allow authenticator syncing";
-"AuthenticatorSync" = "Authenticator sync";
+"GenerateCrash" = "Сгенерировать сбой";
+"GenerateErrorReport" = "Создать отчет об ошибке";
+"AllowAuthenticatorSyncing" = "Разрешить синхронизацию аутентификатора";
+"AuthenticatorSync" = "Синхронизация аутентификатора";
+"NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Аккаунт не найден. Пожалуйста, авторизуйтесь повторно, если вы продолжите видеть эту ошибку.";
+"ImportError" = "Ошибка импорта";
+"NoLoginsWereImported" = "Ни один логин не был импортирован";
+"ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
+"LoginsImported" = "Логины импортированы";
+"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Не забудьте удалить файл импортированных паролей с компьютера.";
+"SomethingWentWrong" = "Something went wrong";
+"UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
