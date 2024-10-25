@@ -173,6 +173,10 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
             if state.shouldShowAuthenticatorSyncSection {
                 state.isAuthenticatorSyncEnabled = try await services.stateService.getSyncToAuthenticator()
             }
+
+            if state.biometricUnlockStatus.isEnabled || state.isUnlockWithPINCodeOn {
+                await completeAccountSetupVaultUnlockIfNeeded()
+            }
         } catch {
             services.errorReporter.log(error: error)
         }

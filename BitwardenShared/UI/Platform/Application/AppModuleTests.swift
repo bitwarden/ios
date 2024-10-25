@@ -76,6 +76,19 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<ExtensionActivationView>)
     }
 
+    /// `makeImportLoginsCoordinator` builds the import logins coordinator.
+    @MainActor
+    func test_makeImportLoginsCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeImportLoginsCoordinator(
+            delegate: MockImportLoginsCoordinatorDelegate(),
+            stackNavigator: navigationController
+        )
+        coordinator.navigate(to: .importLogins(.vault))
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<ImportLoginsView>)
+    }
+
     /// `makeSendCoordinator()` builds the send coordinator.
     @MainActor
     func test_makeSendCoordinator() {

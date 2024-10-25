@@ -16,6 +16,9 @@ struct AddEditItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
+    /// The height of the notes field
+    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
+
     /// Whether to show that a policy is in effect.
     var isPolicyEnabled: Bool {
         store.state.isPersonalOwnershipDisabled && store.state.configuration == .add
@@ -236,7 +239,7 @@ private extension AddEditItemView {
                         Button {
                             openURL(ExternalLinksConstants.protectIndividualItems)
                         } label: {
-                            Asset.Images.questionRound.swiftUIImage
+                            Asset.Images.questionCircle16.swiftUIImage
                         }
                         .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                         .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
@@ -250,13 +253,17 @@ private extension AddEditItemView {
 
     var notesSection: some View {
         SectionView(Localizations.notes) {
-            BitwardenMultilineTextField(
-                text: store.binding(
-                    get: \.notes,
-                    send: AddEditItemAction.notesChanged
+            BitwardenField {
+                BitwardenUITextView(
+                    text: store.binding(
+                        get: \.notes,
+                        send: AddEditItemAction.notesChanged
+                    ),
+                    calculatedHeight: $notesDynamicHeight
                 )
-            )
-            .accessibilityLabel(Localizations.notes)
+                .frame(minHeight: notesDynamicHeight)
+                .accessibilityLabel(Localizations.notes)
+            }
         }
     }
 
@@ -302,12 +309,6 @@ private extension AddEditItemView {
 }
 
 #if DEBUG
-private let multilineText =
-    """
-    I should really keep this safe.
-    Is that right?
-    """
-
 struct AddEditItemView_Previews: PreviewProvider {
     static var cipherState: CipherItemState {
         var state = CipherItemState(
@@ -353,6 +354,21 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
+                        state: {
+                            var state = cipherState
+                            state.notes = "This is a nice note"
+                            return state
+                        }()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Notes")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
                         state: CipherItemState(
                             addItem: .card,
                             hasPremium: true
@@ -387,7 +403,6 @@ struct AddEditItemView_Previews: PreviewProvider {
                             copy.isFavoriteOn = false
                             copy.isMasterPasswordRePromptOn = true
                             copy.owner = .personal(email: "security@bitwarden.com")
-                            copy.notes = multilineText
                             return copy.addEditState
                         }()
                     )

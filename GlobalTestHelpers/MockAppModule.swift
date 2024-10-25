@@ -9,6 +9,7 @@ class MockAppModule:
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
+    ImportLoginsModule,
     LoginRequestModule,
     PasswordHistoryModule,
     SendModule,
@@ -25,6 +26,7 @@ class MockAppModule:
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
@@ -79,6 +81,13 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute, Void> {
         generatorCoordinator.asAnyCoordinator()
+    }
+
+    func makeImportLoginsCoordinator(
+        delegate: any ImportLoginsCoordinatorDelegate,
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent> {
+        importLoginsCoordinator.asAnyCoordinator()
     }
 
     func makeLoginRequestCoordinator(

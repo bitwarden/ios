@@ -152,7 +152,7 @@ private struct VaultItemSelectionSearchableView: View {
     private func contentView() -> some View {
         if store.state.vaultListSections.isEmpty {
             EmptyContentView(
-                image: Asset.Images.items.swiftUIImage,
+                image: Asset.Images.Illustrations.items.swiftUIImage,
                 text: emptyViewMessage
             ) {
                 Button {
@@ -161,7 +161,7 @@ private struct VaultItemSelectionSearchableView: View {
                     Label {
                         Text(Localizations.newItem)
                     } icon: {
-                        Asset.Images.plus.swiftUIImage
+                        Asset.Images.plus16.swiftUIImage
                             .imageStyle(.accessoryIcon(
                                 color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                 scaleWithFont: true

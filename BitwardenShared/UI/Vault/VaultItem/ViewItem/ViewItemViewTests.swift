@@ -171,7 +171,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )!
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
-        cipherState.notes = "This is a long note so that it goes to the next line!"
+        cipherState.notes = "Notes"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.identityState = .fixture(
             title: .custom(.dr),
@@ -213,7 +213,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         cipherState.name = "Example"
-        cipherState.notes = "This is a long note so that it goes to the next line!"
+        cipherState.notes = "Notes"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.canViewPassword = canViewPassword
         cipherState.loginState.fido2Credentials = [.fixture()]

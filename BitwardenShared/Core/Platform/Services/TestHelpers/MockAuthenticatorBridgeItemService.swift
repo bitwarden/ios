@@ -8,6 +8,7 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     var sharedItemsSubject = CurrentValueSubject<[AuthenticatorBridgeItemDataView], Error>([])
     var storedItems: [String: [AuthenticatorBridgeItemDataView]] = [:]
     var syncOn = false
+    var tempItem: AuthenticatorBridgeItemDataView?
 
     func deleteAllForUserId(_ userId: String) async throws {
         guard errorToThrow == nil else { throw errorToThrow! }
@@ -17,6 +18,16 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     func fetchAllForUserId(_ userId: String) async throws -> [AuthenticatorBridgeItemDataView] {
         guard errorToThrow == nil else { throw errorToThrow! }
         return storedItems[userId] ?? []
+    }
+
+    func fetchTemporaryItem() async throws -> AuthenticatorBridgeItemDataView? {
+        guard errorToThrow == nil else { throw errorToThrow! }
+        return tempItem
+    }
+
+    func insertTemporaryItem(_ item: AuthenticatorBridgeItemDataView) async throws {
+        guard errorToThrow == nil else { throw errorToThrow! }
+        tempItem = item
     }
 
     func insertItems(_ items: [AuthenticatorBridgeItemDataView], forUserId userId: String) async throws {

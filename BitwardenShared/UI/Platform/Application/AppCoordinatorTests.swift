@@ -92,6 +92,14 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(subject.authCompletionRoute)
     }
 
+    /// `didCompleteLoginsImport()` navigates to the vault list.
+    @MainActor
+    func test_didCompleteLoginsImport() {
+        subject.didCompleteLoginsImport()
+        XCTAssertTrue(module.tabCoordinator.isStarted)
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
+    }
+
     /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.
     @MainActor
     func test_didDeleteAccount() throws {
