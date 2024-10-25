@@ -85,6 +85,9 @@ struct ToastView: View {
                     // No-op: Skip the animation if the task/sleep is cancelled.
                 }
             }
+            .onDisappear {
+                self.toast = nil
+            }
         }
     }
 }
@@ -94,13 +97,15 @@ struct ToastView: View {
 extension View {
     /// Adds a toast view in an overlay at the bottom of the view.
     ///
-    /// - Parameter toast: A binding to the toast to show.
+    /// - Parameters:
+    ///     - toast: A binding to the toast to show.
+    ///     - additionalBottomPadding: Additional bottom padding to apply to the toast.
     /// - Returns: A view that displays a toast.
     ///
-    func toast(_ toast: Binding<Toast?>) -> some View {
+    func toast(_ toast: Binding<Toast?>, additionalBottomPadding: CGFloat = 0) -> some View {
         overlay(alignment: .bottom) {
             ToastView(toast: toast)
-                .padding(.bottom, 28)
+                .padding(.bottom, 12 + additionalBottomPadding)
                 .animation(.easeInOut, value: toast.wrappedValue)
         }
     }

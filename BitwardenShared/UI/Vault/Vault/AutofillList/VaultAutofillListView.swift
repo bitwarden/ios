@@ -100,10 +100,13 @@ private struct VaultAutofillListSearchableView: View {
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
-            .toast(store.binding(
-                get: \.toast,
-                send: VaultAutofillListAction.toastShown
-            ))
+            .toast(
+                store.binding(
+                    get: \.toast,
+                    send: VaultAutofillListAction.toastShown
+                ),
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            )
     }
 
     // MARK: Private Views
