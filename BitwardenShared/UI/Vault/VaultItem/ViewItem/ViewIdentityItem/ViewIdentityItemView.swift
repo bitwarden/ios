@@ -54,7 +54,13 @@ struct ViewIdentityItemView: View {
                 value: socialSecurityNumber,
                 valueAccessibilityIdentifier: "IdentitySsnEntry",
                 copyButtonAccessibilityIdentifier: "IdentityCopySsnButton",
-                copyButtonAction: { store.send(.copyPressed(value: socialSecurityNumber, field: .socialSecurityNumber)) }
+                copyButtonAction: { store.send(
+                    .copyPressed(
+                        value: socialSecurityNumber,
+                        field: .socialSecurityNumber
+                    )
+                )
+                }
             )
             .accessibilityElement(children: .contain)
         }
@@ -83,7 +89,8 @@ struct ViewIdentityItemView: View {
                         value: licenseNumber,
                         field: .licenseNumber
                     )
-                ) }
+                )
+                }
             )
             .accessibilityElement(children: .contain)
         }
