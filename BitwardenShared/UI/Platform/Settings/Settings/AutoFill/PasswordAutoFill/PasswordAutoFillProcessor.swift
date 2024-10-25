@@ -17,7 +17,7 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>?
+    private let coordinator: AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>?
 
     /// The services used by this processor.
     private let services: Services
@@ -32,7 +32,7 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute, AuthEvent>? = nil,
+        coordinator: AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>,
         services: Services,
         state: PasswordAutoFillState
     ) {
@@ -84,8 +84,6 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     /// it completes the account setup process and triggers the appropriate event.
     ///
     private func monitorAutofillCompletionDuringOnboarding() async {
-        guard state.mode == .onboarding else { return }
-
         for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
             await checkAutofillCompletion()
         }
@@ -104,6 +102,11 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
             services.errorReporter.log(error: error)
         }
 
-        await coordinator?.handleEvent(.didCompleteAuth)
+        switch state.mode {
+        case .onboarding:
+            await coordinator?.handleEvent(.didCompleteAuth)
+        case .settings:
+            coordinator?.navigate(to: .dismiss)
+        }
     }
 }

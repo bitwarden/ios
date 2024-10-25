@@ -15,7 +15,7 @@ class ImportLoginsViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: ImportLoginsState())
+        processor = MockProcessor(state: ImportLoginsState(mode: .vault))
 
         subject = ImportLoginsView(store: Store(processor: processor))
     }
@@ -67,6 +67,15 @@ class ImportLoginsViewTests: BitwardenTestCase {
     func test_step_continue_tap() async throws {
         processor.state.page = .step1
         let button = try subject.inspect().find(asyncButton: Localizations.continue)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .advanceNextPage)
+    }
+
+    /// Tapping the done button for step 3 dispatches the `advanceNextPage` action.
+    @MainActor
+    func test_step_done_tap() async throws {
+        processor.state.page = .step3
+        let button = try subject.inspect().find(asyncButton: Localizations.done)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .advanceNextPage)
     }
