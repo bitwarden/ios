@@ -233,6 +233,9 @@ extension LandingProcessor: RegionDelegate {
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
-        await refreshConfig()
+
+        Task {
+            await refreshConfig()
+        }
     }
 }
