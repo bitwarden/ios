@@ -29,6 +29,8 @@ extension AuthRouter {
             return .landing
         }
 
+        await setCarouselShownIfEnabled()
+
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
         }
@@ -41,7 +43,6 @@ extension AuthRouter {
             }
         }
 
-        await setCarouselShownIfEnabled()
         return .complete
     }
 
