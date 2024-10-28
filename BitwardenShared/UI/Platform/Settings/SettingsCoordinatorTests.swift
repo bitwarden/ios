@@ -260,9 +260,10 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_passwordAutoFill() throws {
         subject.navigate(to: .passwordAutoFill)
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.view is UIHostingController<PasswordAutoFillView>)
+        XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
+        XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .settings)])
+        XCTAssertNil(module.passwordAutoFillCoordinatorDelegate)
+        XCTAssertIdentical(module.passwordAutoFillCoordinatorStackNavigator, stackNavigator)
     }
 
     /// `navigate(to:)` with `.pendingLoginRequests()` presents the pending login requests view.

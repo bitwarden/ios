@@ -28,16 +28,22 @@ extension AuthRouter {
         guard let account = try? await services.authRepository.getAccount() else {
             return .landing
         }
+
+        await setCarouselShownIfEnabled()
+
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
-        } else if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
-            return .vaultUnlockSetup(.createAccount)
-        } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
-            return .autofillSetup
-        } else {
-            await setCarouselShownIfEnabled()
-            return .complete
         }
+
+        if !isInAppExtension {
+            if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
+                return .vaultUnlockSetup(.createAccount)
+            } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
+                return .autofillSetup
+            }
+        }
+
+        return .complete
     }
 
     /// Handles the `.didDeleteAccount`route and redirects the user to the correct screen

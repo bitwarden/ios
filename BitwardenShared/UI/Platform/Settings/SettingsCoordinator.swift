@@ -51,6 +51,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     typealias Module = AuthModule
         & ImportLoginsModule
         & LoginRequestModule
+        & PasswordAutoFillModule
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
@@ -403,14 +404,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the password auto-fill screen.
     ///
     private func showPasswordAutoFill() {
-        let processor = PasswordAutoFillProcessor(
-            services: services,
-            state: .init(mode: .settings)
+        guard let stackNavigator else { return }
+        let coordinator = module.makePasswordAutoFillCoordinator(
+            delegate: nil,
+            stackNavigator: stackNavigator
         )
-        let view = PasswordAutoFillView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: Localizations.passwordAutofill)
+        coordinator.start()
+        coordinator.navigate(to: .passwordAutofill(mode: .settings))
     }
 
     /// Shows the pending login requests screen.

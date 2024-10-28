@@ -37,6 +37,7 @@ extension DefaultAppModule: AuthModule {
         AuthCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
+            module: self,
             rootNavigator: rootNavigator,
             router: makeAuthRouter(),
             services: services,
