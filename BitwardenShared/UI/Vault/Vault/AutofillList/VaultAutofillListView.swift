@@ -111,12 +111,16 @@ private struct VaultAutofillListSearchableView: View {
     /// A view for displaying a list of ciphers.
     @ViewBuilder
     private func cipherListView(_ sections: [VaultListSection]) -> some View {
-        if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
-            cipherCombinedListView(sections)
-        } else {
-            let items = sections.first?.items ?? []
-            cipherSimpleListView(items)
+        Group {
+            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
+                cipherCombinedListView(sections)
+            } else {
+                let items = sections.first?.items ?? []
+                cipherSimpleListView(items)
+            }
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView()
     }
 
     /// A view for displaying a list of sections with ciphers.
@@ -211,8 +215,6 @@ private struct VaultAutofillListSearchableView: View {
                     }
                 } else {
                     cipherListView(store.state.vaultListSections)
-                        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-                        .scrollView()
                 }
             }
             .hidden(isSearching)
@@ -252,7 +254,24 @@ private struct VaultAutofillListSearchableView: View {
         VaultAutofillListView(
             store: Store(
                 processor: StateProcessor(
-                    state: VaultAutofillListState(searchText: "Test")
+                    state: VaultAutofillListState(
+                        ciphersForSearch: [
+                            VaultListSection(
+                                id: "Passwords",
+                                items: (1 ... 12).map { id in
+                                    .init(
+                                        cipherView: .fixture(
+                                            id: String(id),
+                                            login: .fixture(),
+                                            name: "Bitwarden"
+                                        )
+                                    )!
+                                },
+                                name: "Passwords"
+                            ),
+                        ],
+                        searchText: "Test"
+                    )
                 )
             )
         )
