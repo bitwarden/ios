@@ -226,6 +226,7 @@ private struct VaultAutofillListSearchableView: View {
             addItemFloatingActionButton {
                 store.send(.addTapped(fromToolbar: false))
             }
+            .hidden(isSearching || !store.state.ciphersForSearch.isEmpty)
         }
     }
 
