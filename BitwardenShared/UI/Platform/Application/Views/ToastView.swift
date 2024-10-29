@@ -66,7 +66,7 @@ struct ToastView: View {
             .dynamicTypeSize(...DynamicTypeSize.accessibility2)
             .id(toast.id)
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
             .foregroundColor(Asset.Colors.textReversed.swiftUIColor)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Asset.Colors.backgroundAlert.swiftUIColor)
@@ -74,7 +74,7 @@ struct ToastView: View {
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 4)
             .accessibilityElement(children: .combine)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .task(id: toast.id) {
                 do {
                     try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
