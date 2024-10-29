@@ -138,10 +138,13 @@ private struct VaultItemSelectionSearchableView: View {
         .task(id: store.state.searchText) {
             await store.perform(.search(store.state.searchText))
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultItemSelectionAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: VaultItemSelectionAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
         .background(Color(asset: Asset.Colors.backgroundPrimary).ignoresSafeArea())
     }
 

@@ -66,7 +66,7 @@ struct ToastView: View {
             .dynamicTypeSize(...DynamicTypeSize.accessibility2)
             .id(toast.id)
             .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.vertical, 12)
             .foregroundColor(Asset.Colors.textReversed.swiftUIColor)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Asset.Colors.backgroundAlert.swiftUIColor)
@@ -74,7 +74,7 @@ struct ToastView: View {
             .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 2)
             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 4)
             .accessibilityElement(children: .combine)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .task(id: toast.id) {
                 do {
                     try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
@@ -85,6 +85,9 @@ struct ToastView: View {
                     // No-op: Skip the animation if the task/sleep is cancelled.
                 }
             }
+            .onDisappear {
+                self.toast = nil
+            }
         }
     }
 }
@@ -94,13 +97,15 @@ struct ToastView: View {
 extension View {
     /// Adds a toast view in an overlay at the bottom of the view.
     ///
-    /// - Parameter toast: A binding to the toast to show.
+    /// - Parameters:
+    ///     - toast: A binding to the toast to show.
+    ///     - additionalBottomPadding: Additional bottom padding to apply to the toast.
     /// - Returns: A view that displays a toast.
     ///
-    func toast(_ toast: Binding<Toast?>) -> some View {
+    func toast(_ toast: Binding<Toast?>, additionalBottomPadding: CGFloat = 0) -> some View {
         overlay(alignment: .bottom) {
             ToastView(toast: toast)
-                .padding(.bottom, 28)
+                .padding(.bottom, 12 + additionalBottomPadding)
                 .animation(.easeInOut, value: toast.wrappedValue)
         }
     }
