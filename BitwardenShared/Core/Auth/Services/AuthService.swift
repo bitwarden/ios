@@ -571,7 +571,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ) async throws {
         // Clean any stored value in case the user changes account
         preAuthForcePasswordResetReason = nil
-        
+
         // Complete the pre-login steps.
         let response = try await accountAPIService.preLogin(email: username)
 
@@ -583,25 +583,17 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             purpose: .serverAuthorization
         )
 
-        var token: IdentityTokenResponseModel?
-        do {
-            token = try await getIdentityTokenResponse(
-                authenticationMethod: .password(username: username, password: hashedPassword),
-                email: username,
-                captchaToken: captchaToken
-            )
-        } catch let error as IdentityTokenRequestError {
-            if case let .twoFactorRequired(_, _, masterPasswordPolicyResponseModel, _) = error {
-                try await checkMasterPasswordPolicies(masterPassword, true, username, masterPasswordPolicyResponseModel)
-            }
-            // Re-throw the error.
-            throw error
-        }
+        let token = try await getIdentityTokenResponse(
+            authenticationMethod: .password(username: username, password: hashedPassword),
+            email: username,
+            captchaToken: captchaToken,
+            masterPassword: masterPassword
+        )
 
         // Save the master password hash.
         try await saveMasterPasswordHash(password: masterPassword)
 
-        try await checkMasterPasswordPolicies(masterPassword, false, username, token?.masterPasswordPolicy)
+        try await checkMasterPasswordPolicies(masterPassword, false, username, token.masterPasswordPolicy)
 
         if isNewAccount, await configService.getFeatureFlag(.nativeCreateAccountFlow) {
             do {
@@ -857,6 +849,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         email: String,
         captchaToken: String? = nil,
         loginRequestId: String? = nil,
+        masterPassword: String? = nil,
         request: IdentityTokenRequestModel? = nil
     ) async throws -> IdentityTokenResponseModel {
         // Get the app's id.
@@ -905,7 +898,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
             return identityTokenResponse
         } catch let error as IdentityTokenRequestError {
-            if case let .twoFactorRequired(_, captchaBypassToken, _, ssoToken) = error {
+            if case let .twoFactorRequired(_, captchaBypassToken, masterPasswordPolicyResponseModel, ssoToken) = error {
                 // If the token request require two-factor authentication, cache the request so that
                 // the token information can be added once the user inputs the code.
                 twoFactorRequest = request
@@ -913,7 +906,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
                 // Form the resend email request in case the user needs to resend the verification code email.
                 var passwordHash: String?
-                if case let .password(_, password) = request?.authenticationMethod { passwordHash = password }
+                if case let .password(_, password) = request?.authenticationMethod { passwordHash = password
+                    try await checkMasterPasswordPolicies(masterPassword!, true, email, masterPasswordPolicyResponseModel)
+                }
                 resendEmailModel = .init(
                     deviceIdentifier: appID,
                     email: email,
