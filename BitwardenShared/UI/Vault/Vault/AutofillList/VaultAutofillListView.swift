@@ -217,16 +217,15 @@ private struct VaultAutofillListSearchableView: View {
                     cipherListView(store.state.vaultListSections)
                 }
             }
+            .overlay(alignment: .bottomTrailing) {
+                addItemFloatingActionButton {
+                    store.send(.addTapped(fromToolbar: false))
+                }
+            }
             .hidden(isSearching)
 
             searchContentView()
                 .hidden(!isSearching)
-        }
-        .overlay(alignment: .bottomTrailing) {
-            addItemFloatingActionButton {
-                store.send(.addTapped(fromToolbar: false))
-            }
-            .hidden(store.state.isInAppExtension)
         }
     }
 
@@ -271,7 +270,6 @@ private struct VaultAutofillListSearchableView: View {
                                 name: "Passwords"
                             ),
                         ],
-                        isInAppExtension: true,
                         searchText: "Test"
                     )
                 )

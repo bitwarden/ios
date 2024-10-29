@@ -103,7 +103,6 @@ class VaultAutofillListProcessor: StateProcessor<
                 await initFido2State()
             }
         case .loadData:
-            state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
             await refreshProfileState()
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
