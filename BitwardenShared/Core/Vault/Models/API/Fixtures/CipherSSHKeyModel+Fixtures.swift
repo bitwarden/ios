@@ -4,14 +4,14 @@ import Foundation
 
 extension CipherSSHKeyModel {
     static func fixture(
-        publicKey: String? = "publicKey",
+        keyFingerprint: String? = "keyFingerprint",
         privateKey: String? = "privateKey",
-        keyFingerprint: String? = "keyFingerprint"
+        publicKey: String? = "publicKey"
     ) -> CipherSSHKeyModel {
         self.init(
-            publicKey: publicKey,
+            keyFingerprint: keyFingerprint,
             privateKey: privateKey,
-            keyFingerprint: keyFingerprint
+            publicKey: publicKey
         )
     }
 }
