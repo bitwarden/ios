@@ -94,8 +94,9 @@ class VaultAutofillListProcessor: StateProcessor<
                         self?.state.toast = Toast(title: toastText)
                     }
                 }
-            case .group, 
-                 .totp:
+            case .group:
+                return
+            case .totp:
                 return
             }
         case .initFido2:
