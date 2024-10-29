@@ -290,4 +290,42 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
+
+    /// The view renders correctly when searching a term with populated results.
+    @MainActor
+    func test_snapshot_vaultAutofillList_searching_populated() {
+        processor.state.searchText = "Bitwarden"
+        processor.state.ciphersForSearch = [
+            VaultListSection(
+                id: "Passwords",
+                items: (1 ... 5).map { id in
+                    .init(
+                        cipherView: .fixture(
+                            id: String(id),
+                            login: .fixture(),
+                            name: "Bitwarden"
+                        )
+                    )!
+                },
+                name: "Passwords"
+            ),
+        ]
+
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The view renders correctly when searching a term with no results.
+    @MainActor
+    func test_snapshot_vaultAutofillList_searching_noResults() {
+        processor.state.searchText = "Bitwarden"
+        processor.state.showNoResults = true
+
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
 }
