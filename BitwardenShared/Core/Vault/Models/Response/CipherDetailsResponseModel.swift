@@ -70,6 +70,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// Secure note data if the cipher is a secure note.
     let secureNote: CipherSecureNoteModel?
 
+    /// SSH key if the `type` is `.sshKey`.
+    let sshKey: CipherSSHKeyModel?
+
     /// The type of the cipher.
     let type: CipherType
 

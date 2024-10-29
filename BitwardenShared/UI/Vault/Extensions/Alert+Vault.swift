@@ -161,7 +161,7 @@ extension Alert {
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count
+    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count cyclomatic_complexity line_length
         canCopyTotp: Bool,
         cipherView: CipherView,
         hasMasterPassword: Bool,
@@ -260,6 +260,41 @@ extension Alert {
                         requiresMasterPasswordReprompt: false,
                         logEvent: nil,
                         cipherId: nil
+                    ))
+                })
+            }
+        case .sshKey:
+            if let publicKey = cipherView.sshKey?.publicKey {
+                alertActions.append(AlertAction(title: Localizations.copyPublicKey, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.publicKey,
+                        value: publicKey,
+                        requiresMasterPasswordReprompt: false,
+                        logEvent: nil,
+                        cipherId: cipherView.id
+                    ))
+                })
+            }
+            if let privateKey = cipherView.sshKey?.privateKey,
+               cipherView.viewPassword {
+                alertActions.append(AlertAction(title: Localizations.copyPrivateKey, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.privateKey,
+                        value: privateKey,
+                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                        logEvent: nil,
+                        cipherId: cipherView.id
+                    ))
+                })
+            }
+            if let fingerprint = cipherView.sshKey?.fingerprint {
+                alertActions.append(AlertAction(title: Localizations.copyFingerprint, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.fingerprint,
+                        value: fingerprint,
+                        requiresMasterPasswordReprompt: false,
+                        logEvent: nil,
+                        cipherId: cipherView.id
                     ))
                 })
             }
