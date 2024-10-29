@@ -26,6 +26,9 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// Whether the extension mode is creating a Fido2 credential.
     var isCreatingFido2Credential: Bool = false
 
+    /// Whether the view is being displayed in the app extension.
+    var isInAppExtension: Bool = false
+
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
 

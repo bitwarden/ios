@@ -295,6 +295,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
     @MainActor
     func test_snapshot_vaultAutofillList_searching_populated() {
         processor.state.searchText = "Bitwarden"
+        processor.state.isInAppExtension = true
         processor.state.ciphersForSearch = [
             VaultListSection(
                 id: "Passwords",
@@ -322,6 +323,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
     func test_snapshot_vaultAutofillList_searching_noResults() {
         processor.state.searchText = "Bitwarden"
         processor.state.showNoResults = true
+        processor.state.isInAppExtension = true
 
         assertSnapshots(
             of: subject.navStackWrapped,

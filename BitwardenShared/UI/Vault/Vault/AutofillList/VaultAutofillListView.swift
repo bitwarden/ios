@@ -226,7 +226,7 @@ private struct VaultAutofillListSearchableView: View {
             addItemFloatingActionButton {
                 store.send(.addTapped(fromToolbar: false))
             }
-            .hidden(isSearching || !store.state.ciphersForSearch.isEmpty)
+            .hidden(store.state.isInAppExtension)
         }
     }
 
@@ -271,6 +271,7 @@ private struct VaultAutofillListSearchableView: View {
                                 name: "Passwords"
                             ),
                         ],
+                        isInAppExtension: true,
                         searchText: "Test"
                     )
                 )

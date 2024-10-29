@@ -94,9 +94,8 @@ class VaultAutofillListProcessor: StateProcessor<
                         self?.state.toast = Toast(title: toastText)
                     }
                 }
-            case .group:
-                return
-            case .totp:
+            case .group, 
+                 .totp:
                 return
             }
         case .initFido2:
@@ -104,6 +103,7 @@ class VaultAutofillListProcessor: StateProcessor<
                 await initFido2State()
             }
         case .loadData:
+            state.isInAppExtension = appExtensionDelegate?.isInAppExtension ?? false
             await refreshProfileState()
         case let .profileSwitcher(profileEffect):
             await handle(profileEffect)
