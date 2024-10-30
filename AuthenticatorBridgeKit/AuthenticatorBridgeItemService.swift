@@ -201,11 +201,14 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             context: dataStore.persistentContainer.viewContext,
             request: fetchRequest
         )
-        .tryMap { dataItems in
+        .map { dataItems in
             dataItems.compactMap(\.model)
         }
         .asyncTryMap { itemModel in
-            try await self.cryptoService.decryptAuthenticatorItems(itemModel)
+            guard let items = try? await self.cryptoService.decryptAuthenticatorItems(itemModel) else {
+                return []
+            }
+            return items
         }
         .eraseToAnyPublisher()
     }
