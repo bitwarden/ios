@@ -41,10 +41,13 @@ struct ViewItemView: View {
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toast(store.binding(
-            get: \.toast,
-            send: ViewItemAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: ViewItemAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 closeToolbarButton {

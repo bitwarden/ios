@@ -333,7 +333,8 @@ extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
         stackNavigator?.dismiss {
             self.showToast(
                 Localizations.loginsImported,
-                subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer
+                subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer,
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
             )
         }
     }

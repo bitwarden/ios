@@ -244,10 +244,13 @@ struct SendListView: View {
                     store.send(.addItemPressed)
                 }
             }
-            .toast(store.binding(
-                get: \.toast,
-                send: SendListAction.toastShown
-            ))
+            .toast(
+                store.binding(
+                    get: \.toast,
+                    send: SendListAction.toastShown
+                ),
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            )
             .task { await store.perform(.loadData) }
             .task { await store.perform(.streamSendList) }
             .task(id: store.state.searchText) {
