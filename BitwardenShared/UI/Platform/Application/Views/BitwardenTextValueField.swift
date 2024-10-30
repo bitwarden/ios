@@ -134,6 +134,51 @@ extension BitwardenTextValueField where AccessoryContent == EmptyView {
     }
 }
 
+extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
+    /// Creates a new `BitwardenTextValueField` with a button as accessory content.
+    ///
+    /// - Parameters:
+    ///   - title: The (optional) title of the field.
+    ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
+    ///     to the title of the field (if it exists).
+    ///   - value: The text value to display in this field.
+    ///   - valueAccessibilityIdentifier: The (optional) accessibility identifier to apply
+    ///     to the displayed value of the field.
+    ///   - textSelectionEnabled: Whether text selection is enabled.
+    ///   - useUIKitTextView: Whether we should use a UITextView or a SwiftUI version.
+    ///   - copyButtonAction: The action to perform when the button is pressed.
+    ///   - copyButtonAccessibilityIdentifier: The (optional) accessibility identifier to apply
+    ///     to the button.
+    init(
+        title: String? = nil,
+        titleAccessibilityIdentifier: String? = "ItemName",
+        value: String,
+        valueAccessibilityIdentifier: String? = "ItemValue",
+        textSelectionEnabled: Bool = true,
+        useUIKitTextView: Bool = false,
+        copyButtonAccessibilityIdentifier: String,
+        copyButtonAction: @escaping () -> Void
+    ) {
+        // Initialize the BitwardenTextValueField with the button as the accessory content
+        self.init(
+            title: title,
+            titleAccessibilityIdentifier: titleAccessibilityIdentifier,
+            value: value,
+            valueAccessibilityIdentifier: valueAccessibilityIdentifier,
+            textSelectionEnabled: textSelectionEnabled,
+            useUIKitTextView: useUIKitTextView,
+            accessoryContent: {
+                AccessoryButton(
+                    asset: Asset.Images.copy16,
+                    accessibilityLabel: Localizations.copy,
+                    accessibilityIdentifier: copyButtonAccessibilityIdentifier,
+                    action: copyButtonAction
+                )
+            }
+        )
+    }
+}
+
 // MARK: Previews
 
 #if DEBUG
