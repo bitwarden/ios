@@ -25,6 +25,7 @@ extension CipherDetailsResponseModel {
         reprompt: CipherRepromptType = .none,
         revisionDate: Date = Date(),
         secureNote: CipherSecureNoteModel? = nil,
+        sshKey: CipherSSHKeyModel? = nil,
         type: CipherType = .login,
         viewPassword: Bool = false
     ) -> CipherDetailsResponseModel {
@@ -50,6 +51,7 @@ extension CipherDetailsResponseModel {
             reprompt: reprompt,
             revisionDate: revisionDate,
             secureNote: secureNote,
+            sshKey: sshKey,
             type: type,
             viewPassword: viewPassword
         )

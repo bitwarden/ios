@@ -93,6 +93,8 @@ extension VaultListItem {
                 fido2CredentialAutofillView != nil ? Asset.Images.passkey24 : Asset.Images.globe24
             case .secureNote:
                 Asset.Images.file24
+            case .sshKey:
+                Asset.Images.key16
             }
         case let .group(group, _):
             switch group {
@@ -132,6 +134,8 @@ extension VaultListItem {
                 return "LoginCipherIcon"
             case .secureNote:
                 return "SecureNoteCipherIcon"
+            case .sshKey:
+                return "SSHKeyCipherIcon"
             }
         default:
             return ""
@@ -198,6 +202,8 @@ extension CipherView {
         case .login:
             return login?.username
         case .secureNote:
+            return nil
+        case .sshKey:
             return nil
         }
     }
