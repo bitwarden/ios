@@ -66,7 +66,7 @@
 
 ### Running Tests
 
-Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 16 Pro simulator (iOS 18.1).
+The test target requires running in an iPhone 15 Pro simulator running iOS 18.1. It is, however, worth noting that our snapshot tests almost entirely work off of enforced iPhone 12/13/14 dimensions, with a 3x scale; however a few use the dimensions of the chosen simulator, and thus require an iPhone 15 Pro.
 
 1. In Xcode's toolbar, select the project and a connected device or simulator.
    - The `Generic iOS Device` used for builds will not work for testing.
