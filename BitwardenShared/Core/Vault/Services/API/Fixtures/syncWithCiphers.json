@@ -132,6 +132,24 @@
       "collectionIds": [],
       "creationDate": "2023-07-04T05:00:53Z",
       "edit": true
+    },
+    {
+      "sshKey": {
+        "privateKey": "privateKey",
+        "publicKey": "publicKey",
+        "keyFingerprint": "keyFingerprint"
+      },
+      "viewPassword": true,
+      "id": "98f65684-f059-4cfd-9eb0-947b69b51882",
+      "favorite": false,
+      "reprompt": 0,
+      "name": "Top SSH Key",
+      "type": 5,
+      "organizationUseTotp": false,
+      "revisionDate": "2024-08-13T12:15:17Z",
+      "collectionIds": [],
+      "creationDate": "2024-07-04T05:00:53Z",
+      "edit": true
     }
   ],
   "collections": [],

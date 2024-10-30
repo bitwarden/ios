@@ -390,8 +390,7 @@ extension BitwardenSdk.CipherType {
         case .identity:
             self = .identity
         case .sshKey:
-            // TODO: PM-10401 set self = .sshKey when SDK is ready.
-            self = .init(rawValue: 5)!
+            self = .sshKey
         }
     }
 }

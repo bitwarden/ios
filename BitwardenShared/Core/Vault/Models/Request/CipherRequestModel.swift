@@ -56,6 +56,9 @@ struct CipherRequestModel: JSONRequestBody {
     /// Secure note data if the cipher is a secure note.
     let secureNote: CipherSecureNoteModel?
 
+    /// SSH key data if the cipher is an SSH Key.
+    let sshKey: CipherSSHKeyModel?
+
     /// The type of the cipher.
     let type: CipherType
 }
@@ -85,6 +88,7 @@ extension CipherRequestModel {
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
             reprompt: CipherRepromptType(type: cipher.reprompt),
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
+            sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
             type: CipherType(type: cipher.type)
         )
     }

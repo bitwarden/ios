@@ -63,7 +63,11 @@ struct VaultGroupState: Equatable, Sendable {
         // If the collection or trash are empty, return false.
         if case .collection = group {
             return false
-        } else if case .trash = group {
+        }
+        if case .sshKey = group {
+            return false
+        }
+        if case .trash = group {
             return false
         }
         return true
@@ -71,6 +75,9 @@ struct VaultGroupState: Equatable, Sendable {
 
     /// Whether to show the add item floating action button.
     var showAddItemFloatingActionButton: Bool {
+        if case .sshKey = group {
+            return false
+        }
         if case .trash = group {
             return false
         }

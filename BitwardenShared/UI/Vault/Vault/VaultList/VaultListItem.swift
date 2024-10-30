@@ -111,6 +111,8 @@ extension VaultListItem {
                 Asset.Images.globe24
             case .secureNote:
                 Asset.Images.file24
+            case .sshKey:
+                Asset.Images.key16
             case .totp:
                 Asset.Images.clock24
             case .trash:

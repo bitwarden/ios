@@ -5,6 +5,21 @@ import XCTest
 
 @testable import BitwardenShared
 
+// MARK: - BitwardenSdk.CipherType
+
+class BitwardenSdkVaultBitwardenCipherTypeTests: BitwardenTestCase { // swiftlint:disable:this type_name
+    // MARK: Tests
+
+    /// `init(type:)` initializes the SDK cipher type based on the cipher type.
+    func test_init_byCipherType() {
+        XCTAssertEqual(BitwardenSdk.CipherType(.login), .login)
+        XCTAssertEqual(BitwardenSdk.CipherType(.card), .card)
+        XCTAssertEqual(BitwardenSdk.CipherType(.identity), .identity)
+        XCTAssertEqual(BitwardenSdk.CipherType(.secureNote), .secureNote)
+        XCTAssertEqual(BitwardenSdk.CipherType(.sshKey), .sshKey)
+    }
+}
+
 // MARK: - Cipher
 
 class BitwardenSdkVaultCipherTests: BitwardenTestCase {

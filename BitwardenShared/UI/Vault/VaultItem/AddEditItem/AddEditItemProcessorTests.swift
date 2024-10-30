@@ -330,6 +330,22 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
     }
 
+    /// `receive(_:)` with `customField(.newCustomFieldPressed)` navigates to the `.alert` route
+    /// to select the new custom field type for SSH key.
+    @MainActor
+    func test_receive_newCustomFieldPressed_forSSHKey() async throws {
+        subject.state.type = .sshKey
+        subject.receive(.customField(.newCustomFieldPressed))
+
+        // Validate that select custom field type action sheet is shown.
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.fieldTypeText)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.fieldTypeHidden)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.fieldTypeBoolean)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
+    }
+
     /// `receive(_:)` with `.customField(.removeCustomFieldPressed(index:))` will remove
     /// the  custom field from given index.
     @MainActor
@@ -1002,6 +1018,26 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
+    /// `perform(_:)` with `.savePressed` saves the item for SSH Key
+    @MainActor
+    func test_perform_savePressed_sshKey() async {
+        subject.state.type = .sshKey
+        subject.state.name = "sshKey"
+
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).type,
+            .sshKey
+        )
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
+            "sshKey"
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
     /// `perform(_:)` with `.savePressed` saves the item.
     @MainActor
     func test_perform_savePressed_card() async throws {
@@ -1033,6 +1069,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(added.identity)
         XCTAssertNil(added.login)
         XCTAssertNil(added.secureNote)
+        XCTAssertNil(added.sshKey)
         XCTAssertNotNil(added.card)
         XCTAssertEqual(added.cardItemState(), expectedCardState)
         let unwrappedState = try XCTUnwrap(subject.state as? CipherItemState)

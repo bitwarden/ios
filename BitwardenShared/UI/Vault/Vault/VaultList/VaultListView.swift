@@ -490,6 +490,10 @@ struct VaultListView_Previews: PreviewProvider {
                                             id: "24",
                                             itemType: .group(.secureNote, 0)
                                         ),
+                                        VaultListItem(
+                                            id: "25",
+                                            itemType: .group(.sshKey, 4)
+                                        ),
                                     ],
                                     name: "Types"
                                 ),

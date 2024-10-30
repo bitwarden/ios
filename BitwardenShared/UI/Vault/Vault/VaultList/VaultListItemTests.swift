@@ -172,6 +172,10 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             Asset.Images.file24.name
         )
         XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.sshKey, 1)).icon.name,
+            Asset.Images.key16.name
+        )
+        XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.totp, 1)).icon.name,
             Asset.Images.clock24.name
         )
