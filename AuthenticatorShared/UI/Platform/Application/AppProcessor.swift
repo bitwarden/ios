@@ -73,4 +73,11 @@ public class AppProcessor {
             await coordinator.handleEvent(.didStart)
         }
     }
+
+    #if DEBUG_MENU
+    /// Show the debug menu.
+    public func showDebugMenu() {
+        coordinator?.navigate(to: .debugMenu)
+    }
+    #endif
 }

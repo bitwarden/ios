@@ -15,7 +15,9 @@ class MockStateService: StateService {
     var getBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var getBiometricIntegrityStateError: Error?
     var getSecretKeyResult: Result<String, Error> = .success("qwerty")
+    var preAuthServerConfig: ServerConfig?
     var secretKeyValues = [String: String]()
+    var serverConfig = [String: ServerConfig]()
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
     var setSecretKeyResult: Result<Void, Error> = .success(())
@@ -37,6 +39,15 @@ class MockStateService: StateService {
         try clearClipboardResult.get()
         let userId = try unwrapUserId(userId)
         return clearClipboardValues[userId] ?? .never
+    }
+
+    func getPreAuthServerConfig() async -> ServerConfig? {
+        preAuthServerConfig
+    }
+
+    func getServerConfig(userId: String?) async throws -> ServerConfig? {
+        let userId = try unwrapUserId(userId)
+        return serverConfig[userId]
     }
 
     func getShowWebIcons() async -> Bool {
@@ -65,9 +76,18 @@ class MockStateService: StateService {
         try getSecretKeyResult.get()
     }
 
+    func setPreAuthServerConfig(config: ServerConfig) async {
+        preAuthServerConfig = config
+    }
+
     func setSecretKey(_ key: String, userId: String?) async throws {
         try setSecretKeyResult.get()
         secretKeyValues[userId ?? "localtest"] = key
+    }
+
+    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        serverConfig[userId] = config
     }
 
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {

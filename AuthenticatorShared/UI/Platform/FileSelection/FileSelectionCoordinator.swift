@@ -112,7 +112,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
                 viewController.delegate = self
                 stackNavigator?.present(viewController)
             } else {
-                // TODO: BIT-1466 Present an alert about camera permissions being needed.
+                // TODO: BWA-92 Present an alert about camera permissions being needed.
             }
         }
     }

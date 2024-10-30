@@ -1,4 +1,6 @@
 name: Authenticator
+fileGroups:
+  - Configs
 configs:
   Debug: debug
   Release: release
@@ -149,8 +151,8 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs/AuthenticatorShared.xcconfig
-      Release: Configs/AuthenticatorShared.xcconfig
+      Debug: Configs/AuthenticatorShared-Debug.xcconfig
+      Release: Configs/AuthenticatorShared-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true

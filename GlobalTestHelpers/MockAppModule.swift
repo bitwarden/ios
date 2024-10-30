@@ -5,6 +5,7 @@
 class MockAppModule:
     AppModule,
     AuthModule,
+    DebugMenuModule,
     FileSelectionModule,
     ItemListModule,
     TutorialModule,
@@ -12,6 +13,7 @@ class MockAppModule:
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .vaultUnlock })
+    var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, FileSelectionEvent>()
     var itemListCoordinator = MockCoordinator<ItemListRoute, ItemListEvent>()
@@ -35,6 +37,12 @@ class MockAppModule:
 
     func makeAuthRouter() -> AnyRouter<AuthEvent, AuthRoute> {
         authRouter.asAnyRouter()
+    }
+
+    func makeDebugMenuCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<DebugMenuRoute, Void> {
+        debugMenuCoordinator.asAnyCoordinator()
     }
 
     func makeFileSelectionCoordinator(

@@ -5,6 +5,11 @@ import UIKit
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     // MARK: Properties
 
+    /// The processor that manages application level logic.
+    var appProcessor: AppProcessor? {
+        (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor
+    }
+
     /// Whether the app is still starting up. This ensures the splash view isn't dismissed on start
     /// up until the processor has shown the initial view.
     var isStartingUp = true
@@ -24,7 +29,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
-        guard let appProcessor = (UIApplication.shared.delegate as? AppDelegateType)?.appProcessor else {
+        guard let appProcessor else {
             if (UIApplication.shared.delegate as? AppDelegateType)?.isTesting == true {
                 // If the app is running tests, show a testing view.
                 window = buildSplashWindow(windowScene: windowScene)
@@ -34,7 +39,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
 
         let rootViewController = RootViewController()
-        let appWindow = UIWindow(windowScene: windowScene)
+        let appWindow = ShakeWindow(windowScene: windowScene) { [weak self] in
+            #if DEBUG_MENU
+            self?.appProcessor?.showDebugMenu()
+            #endif
+        }
         appWindow.rootViewController = rootViewController
         appWindow.makeKeyAndVisible()
         window = appWindow
@@ -92,4 +101,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func showSplash() {
         splashWindow?.alpha = 1
     }
+
+    #if DEBUG_MENU
+    /// Handle the triple-tap gesture and launch the debug menu.
+    @objc
+    private func handleTripleTapGesture() {
+        appProcessor?.showDebugMenu()
+    }
+    #endif
+
+    #if DEBUG_MENU
+    /// Add the triple-tap gesture recognizer to the window.
+    private func addTripleTapGestureRecognizer(to window: UIWindow) {
+        let tapGesture = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTripleTapGesture)
+        )
+        tapGesture.numberOfTapsRequired = 3
+        tapGesture.numberOfTouchesRequired = 1
+        window.addGestureRecognizer(tapGesture)
+    }
+    #endif
 }
