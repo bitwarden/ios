@@ -89,6 +89,8 @@ extension CipherListViewType {
             self = .login(hasFido2: !(cipher.login?.fido2Credentials?.isEmpty ?? true), totp: cipher.login?.totp)
         case .secureNote:
             self = .secureNote
+        case .sshKey:
+            self = .sshKey
         }
     }
 }
@@ -108,6 +110,7 @@ extension Cipher {
             identity: cipherView.identity.map(Identity.init),
             card: cipherView.card.map(Card.init),
             secureNote: cipherView.secureNote.map(SecureNote.init),
+            sshKey: cipherView.sshKey.map(SshKey.init),
             favorite: cipherView.favorite,
             reprompt: cipherView.reprompt,
             organizationUseTotp: cipherView.organizationUseTotp,
@@ -139,6 +142,7 @@ extension CipherView {
             identity: cipher.identity.map(IdentityView.init),
             card: cipher.card.map(CardView.init),
             secureNote: cipher.secureNote.map(SecureNoteView.init),
+            sshKey: cipher.sshKey.map(SshKeyView.init),
             favorite: cipher.favorite,
             reprompt: cipher.reprompt,
             organizationUseTotp: cipher.organizationUseTotp,
@@ -479,6 +483,26 @@ extension Send {
             revisionDate: sendView.revisionDate,
             deletionDate: sendView.deletionDate,
             expirationDate: sendView.expirationDate
+        )
+    }
+}
+
+extension SshKey {
+    init(sshKeyView: SshKeyView) {
+        self.init(
+            privateKey: sshKeyView.privateKey,
+            publicKey: sshKeyView.publicKey,
+            fingerprint: sshKeyView.fingerprint
+        )
+    }
+}
+
+extension SshKeyView {
+    init(sshKey: SshKey) {
+        self.init(
+            privateKey: sshKey.privateKey,
+            publicKey: sshKey.publicKey,
+            fingerprint: sshKey.fingerprint
         )
     }
 } // swiftlint:disable:this file_length

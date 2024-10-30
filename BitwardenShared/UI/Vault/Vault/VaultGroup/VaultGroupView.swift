@@ -48,10 +48,13 @@ struct VaultGroupView: View {
             .task {
                 await store.perform(.streamShowWebIcons)
             }
-            .toast(store.binding(
-                get: \.toast,
-                send: VaultGroupAction.toastShown
-            ))
+            .toast(
+                store.binding(
+                    get: \.toast,
+                    send: VaultGroupAction.toastShown
+                ),
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            )
     }
 
     // MARK: Private

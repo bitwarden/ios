@@ -36,10 +36,13 @@ struct FoldersView: View {
         .task {
             await store.perform(.streamFolders)
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: FoldersAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: FoldersAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
     }
 
     // MARK: Private views

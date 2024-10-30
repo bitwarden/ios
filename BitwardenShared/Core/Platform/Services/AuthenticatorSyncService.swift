@@ -205,7 +205,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
 
         return decryptedCiphers.map { cipher in
             AuthenticatorBridgeItemDataView(
-                accountDomain: account.settings.environmentUrls?.webVaultHost,
+                accountDomain: account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost,
                 accountEmail: account.profile.email,
                 favorite: false,
                 id: cipher.id ?? UUID().uuidString,

@@ -39,10 +39,16 @@ extension Navigator {
 
     /// Shows the toast.
     ///
-    /// - Parameter toast: The toast to display.
+    /// - Parameters:
+    ///   - toast: The toast to display.
+    ///   - additionalBottomPadding: Additional padding to apply to the bottom of the toast.
     ///
-    func showToast(_ toast: Toast) {
+    func showToast(_ toast: Toast, additionalBottomPadding: CGFloat = 0) {
         guard let rootViewController else { return }
-        ToastDisplayHelper.show(in: rootViewController, toast: toast)
+        ToastDisplayHelper.show(
+            in: rootViewController,
+            toast: toast,
+            additionalBottomPadding: additionalBottomPadding
+        )
     }
 }
