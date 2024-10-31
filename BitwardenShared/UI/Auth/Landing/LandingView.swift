@@ -84,7 +84,7 @@ struct LandingView: View {
 
                     VStack(alignment: .leading, spacing: 16) {
                         Text(Localizations.logInToBitwarden)
-                            .styleGuide(.title2)
+                            .styleGuide(.title2, weight: .semibold)
                             .multilineTextAlignment(.center)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                             .frame(maxWidth: .infinity)
