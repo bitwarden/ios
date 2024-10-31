@@ -20,8 +20,25 @@ protocol NotificationCenterService: AnyObject {
 /// A default implementation of the `NotificationCenterService` which accesses the app's notification center.
 ///
 class DefaultNotificationCenterService: NotificationCenterService {
+    // MARK: Properties
+
+    /// The NotificationCenter to use in subscribing to notifications.
+    let notificationCenter: NotificationCenter
+
+    // MARK: Initialization
+
+    /// Initialize a `DefaultNotificationCenterService`.
+    ///
+    /// - Parameter notificationCenter: The NotificationCenter to use in subscribing to notifications.
+    ///
+    init(notificationCenter: NotificationCenter = NotificationCenter.default) {
+        self.notificationCenter = notificationCenter
+    }
+
+    // MARK: Methods
+
     func didEnterBackgroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
-        NotificationCenter.default
+        notificationCenter
             .publisher(for: UIApplication.didEnterBackgroundNotification)
             .map { _ in }
             .eraseToAnyPublisher()
@@ -29,7 +46,7 @@ class DefaultNotificationCenterService: NotificationCenterService {
     }
 
     func willEnterForegroundPublisher() -> AsyncPublisher<AnyPublisher<Void, Never>> {
-        NotificationCenter.default
+        notificationCenter
             .publisher(for: UIApplication.willEnterForegroundNotification)
             .map { _ in }
             .eraseToAnyPublisher()

@@ -60,21 +60,22 @@ struct VaultGroupState: Equatable, Sendable {
         // Don't show if there is data.
         guard emptyData else { return false }
 
-        // If the collection or trash are empty, return false.
-        if case .collection = group {
+        switch group {
+        case .collection, .sshKey, .trash:
             return false
-        } else if case .trash = group {
-            return false
+        default:
+            return true
         }
-        return true
     }
 
     /// Whether to show the add item floating action button.
     var showAddItemFloatingActionButton: Bool {
-        if case .trash = group {
+        switch group {
+        case .sshKey, .trash:
             return false
+        default:
+            return true
         }
-        return true
     }
 
     /// Whether to show the special web icons.

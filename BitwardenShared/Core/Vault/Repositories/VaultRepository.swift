@@ -514,6 +514,11 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             ? { $0.deletedDate == nil }
             : { $0.deletedDate != nil }
 
+        let isSSHKeyVaultItemEnabled: Bool = await configService.getFeatureFlag(.sshKeyVaultItem)
+        let sshKeyFilter: (CipherView) -> Bool = { cipher in
+            cipher.type != .sshKey || isSSHKeyVaultItemEnabled
+        }
+
         return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherView] in
             // Convert the Ciphers to CipherViews and filter appropriately.
             let matchingCiphers = try await ciphers.asyncMap { cipher in
@@ -522,6 +527,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             .filter { cipher in
                 filterType.cipherFilter(cipher) &&
                     isMatchingCipher(cipher) &&
+                    sshKeyFilter(cipher) &&
                     (cipherFilter?(cipher) ?? true)
             }
 
@@ -739,6 +745,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             items = activeCiphers.filter { $0.folderId == nil }.compactMap(VaultListItem.init)
         case .secureNote:
             items = activeCiphers.filter { $0.type == .secureNote }.compactMap(VaultListItem.init)
+        case .sshKey:
+            items = activeCiphers.filter { $0.type == .sshKey }.compactMap(VaultListItem.init)
         case .totp:
             items = try await totpListItems(from: activeCiphers, filter: filter)
         case .trash:
@@ -830,7 +838,11 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         .filter(filter.cipherFilter)
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let activeCiphers = ciphers.filter { $0.deletedDate == nil }
+        let isSSHKeyVaultItemFlagEnabled: Bool = await configService.getFeatureFlag(.sshKeyVaultItem)
+        let activeCiphers = ciphers.filter { cipher in
+            cipher.deletedDate == nil
+                && (isSSHKeyVaultItemFlagEnabled || cipher.type != .sshKey)
+        }
 
         let folders = try await clientService.vault().folders()
             .decryptList(folders: folders)
@@ -882,12 +894,17 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let typesLoginCount = activeCiphers.lazy.filter { $0.type == .login }.count
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
 
-        let types = [
+        var types = [
             VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount)),
             VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)),
             VaultListItem(id: "Types.Identities", itemType: .group(.identity, typesIdentityCount)),
             VaultListItem(id: "Types.SecureNotes", itemType: .group(.secureNote, typesSecureNoteCount)),
         ]
+
+        if isSSHKeyVaultItemFlagEnabled {
+            let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
+            types.append(VaultListItem(id: "Types.SSHKeys", itemType: .group(.sshKey, typesSSHKeyCount)))
+        }
 
         return [
             VaultListSection(id: "TOTP", items: totpItems, name: Localizations.totp),
@@ -1292,6 +1309,8 @@ extension DefaultVaultRepository: VaultRepository {
                 return cipher.folderId == nil
             case .secureNote:
                 return cipher.type == .secureNote
+            case .sshKey:
+                return cipher.type == .sshKey
             case .totp:
                 return cipher.type == .login
                     && cipher.login?.totp != nil

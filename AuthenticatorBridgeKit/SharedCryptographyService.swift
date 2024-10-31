@@ -57,6 +57,8 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
     public func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataView] {
+        guard !items.isEmpty else { return [] }
+
         let key = try await sharedKeychainRepository.getAuthenticatorKey()
         let symmetricKey = SymmetricKey(data: key)
 
