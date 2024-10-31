@@ -94,7 +94,7 @@ extension VaultListItem {
             case .secureNote:
                 Asset.Images.file24
             case .sshKey:
-                Asset.Images.key16
+                Asset.Images.key24
             }
         case let .group(group, _):
             switch group {
@@ -112,7 +112,7 @@ extension VaultListItem {
             case .secureNote:
                 Asset.Images.file24
             case .sshKey:
-                Asset.Images.key16
+                Asset.Images.key24
             case .totp:
                 Asset.Images.clock24
             case .trash:
