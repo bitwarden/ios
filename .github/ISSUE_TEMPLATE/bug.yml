@@ -56,8 +56,8 @@ body:
     attributes:
       label: Environment Details
       placeholder: |
-        - Device: [e.g. iPhone 15 Pro, iPad Air (5th Generation)]
-        - OS Version: [e.g. 17.4.1]
+        - Device: [e.g. iPhone 16 Pro, iPad Air (5th Generation)]
+        - OS Version: [e.g. 18.0.1]
   - type: checkboxes
     id: issue-tracking-info
     attributes:
