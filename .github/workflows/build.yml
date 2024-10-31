@@ -23,7 +23,6 @@ on:
       compiler-flags:
         description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
         type: string
-        default: "DEBUG_MENU"
       base_version_number:
         description: "Base Version Number - Will be added to the calculated version number"
         type: number
