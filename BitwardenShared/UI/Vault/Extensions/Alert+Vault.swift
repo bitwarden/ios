@@ -264,34 +264,31 @@ extension Alert {
                 })
             }
         case .sshKey:
-            if let publicKey = cipherView.sshKey?.publicKey {
+            if let sshKey = cipherView.sshKey {
                 alertActions.append(AlertAction(title: Localizations.copyPublicKey, style: .default) { _, _ in
                     await action(.copy(
                         toast: Localizations.publicKey,
-                        value: publicKey,
+                        value: sshKey.publicKey,
                         requiresMasterPasswordReprompt: false,
                         logEvent: nil,
                         cipherId: cipherView.id
                     ))
                 })
-            }
-            if let privateKey = cipherView.sshKey?.privateKey,
-               cipherView.viewPassword {
-                alertActions.append(AlertAction(title: Localizations.copyPrivateKey, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.privateKey,
-                        value: privateKey,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
-                        logEvent: nil,
-                        cipherId: cipherView.id
-                    ))
-                })
-            }
-            if let fingerprint = cipherView.sshKey?.fingerprint {
+                if cipherView.viewPassword {
+                    alertActions.append(AlertAction(title: Localizations.copyPrivateKey, style: .default) { _, _ in
+                        await action(.copy(
+                            toast: Localizations.privateKey,
+                            value: sshKey.privateKey,
+                            requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                            logEvent: nil,
+                            cipherId: cipherView.id
+                        ))
+                    })
+                }
                 alertActions.append(AlertAction(title: Localizations.copyFingerprint, style: .default) { _, _ in
                     await action(.copy(
                         toast: Localizations.fingerprint,
-                        value: fingerprint,
+                        value: sshKey.fingerprint,
                         requiresMasterPasswordReprompt: false,
                         logEvent: nil,
                         cipherId: cipherView.id

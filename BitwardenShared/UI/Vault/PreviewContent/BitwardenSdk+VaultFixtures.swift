@@ -250,6 +250,7 @@ extension Collection {
         name: String = "",
         externalId: String = "",
         hidePasswords: Bool = false,
+        manage: Bool = false,
         readOnly: Bool = false
     ) -> Collection {
         Collection(
@@ -258,7 +259,8 @@ extension Collection {
             name: name,
             externalId: externalId,
             hidePasswords: hidePasswords,
-            readOnly: readOnly
+            readOnly: readOnly,
+            manage: manage
         )
     }
 }
@@ -290,6 +292,7 @@ extension CollectionView {
         id: String = "collection-view-1",
         name: String = "",
         organizationId: String = "",
+        manage: Bool = false,
         readOnly: Bool = false
     ) -> CollectionView {
         CollectionView(
@@ -298,7 +301,8 @@ extension CollectionView {
             name: name,
             externalId: externalId,
             hidePasswords: hidePasswords,
-            readOnly: readOnly
+            readOnly: readOnly,
+            manage: manage
         )
     }
 }
@@ -479,9 +483,9 @@ extension BitwardenSdk.LoginUriView {
 
 extension BitwardenSdk.SshKey {
     static func fixture(
-        privateKey: String? = "privateKey",
-        publicKey: String? = "publicKey",
-        fingerprint: String? = "fingerprint"
+        privateKey: String = "privateKey",
+        publicKey: String = "publicKey",
+        fingerprint: String = "fingerprint"
     ) -> SshKey {
         SshKey(privateKey: privateKey, publicKey: publicKey, fingerprint: fingerprint)
     }
@@ -489,9 +493,9 @@ extension BitwardenSdk.SshKey {
 
 extension BitwardenSdk.SshKeyView {
     static func fixture(
-        privateKey: String? = "privateKey",
-        publicKey: String? = "publicKey",
-        fingerprint: String? = "fingerprint"
+        privateKey: String = "privateKey",
+        publicKey: String = "publicKey",
+        fingerprint: String = "fingerprint"
     ) -> SshKeyView {
         SshKeyView(privateKey: privateKey, publicKey: publicKey, fingerprint: fingerprint)
     }

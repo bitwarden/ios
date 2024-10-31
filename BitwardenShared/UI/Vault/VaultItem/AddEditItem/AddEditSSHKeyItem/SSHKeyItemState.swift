@@ -5,6 +5,9 @@ import Foundation
 
 /// The state for an SSH key item.
 struct SSHKeyItemState: Equatable, Sendable {
+    /// Whether the user has permissions to view the cipher's private key.
+    var canViewPrivateKey: Bool = false
+
     /// The visibility of the private key.
     var isPrivateKeyVisible: Bool = false
 
