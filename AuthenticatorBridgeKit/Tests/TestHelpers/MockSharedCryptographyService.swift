@@ -6,10 +6,14 @@ import Foundation
 class MockSharedCryptographyService: SharedCryptographyService {
     var decryptCalled = false
     var encryptCalled = false
+    var errorToThrow: Error?
 
     func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataView] {
+        if let errorToThrow {
+            throw errorToThrow
+        }
         decryptCalled = true
         return items.map { model in
             AuthenticatorBridgeItemDataView(
@@ -27,6 +31,9 @@ class MockSharedCryptographyService: SharedCryptographyService {
     func encryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataView]
     ) async throws -> [AuthenticatorBridgeItemDataModel] {
+        if let errorToThrow {
+            throw errorToThrow
+        }
         encryptCalled = true
         return items.map { view in
             AuthenticatorBridgeItemDataModel(

@@ -18,6 +18,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.identity.collectionId)
         XCTAssertNil(VaultListGroup.login.collectionId)
         XCTAssertNil(VaultListGroup.secureNote.collectionId)
+        XCTAssertNil(VaultListGroup.sshKey.collectionId)
         XCTAssertNil(VaultListGroup.totp.collectionId)
         XCTAssertNil(VaultListGroup.trash.collectionId)
     }
@@ -31,6 +32,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertFalse(VaultListGroup.login.isFolder)
         XCTAssertFalse(VaultListGroup.noFolder.isFolder)
         XCTAssertFalse(VaultListGroup.secureNote.isFolder)
+        XCTAssertFalse(VaultListGroup.sshKey.isFolder)
         XCTAssertFalse(VaultListGroup.totp.isFolder)
         XCTAssertFalse(VaultListGroup.trash.isFolder)
     }
@@ -45,6 +47,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.identity.folderId)
         XCTAssertNil(VaultListGroup.login.folderId)
         XCTAssertNil(VaultListGroup.secureNote.folderId)
+        XCTAssertNil(VaultListGroup.sshKey.folderId)
         XCTAssertNil(VaultListGroup.totp.folderId)
         XCTAssertNil(VaultListGroup.trash.folderId)
     }
@@ -60,6 +63,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.identity.name, "Identity")
         XCTAssertEqual(VaultListGroup.login.name, "Login")
         XCTAssertEqual(VaultListGroup.secureNote.name, "Secure note")
+        XCTAssertEqual(VaultListGroup.sshKey.name, "SSH key")
         XCTAssertEqual(VaultListGroup.totp.name, Localizations.verificationCodes)
         XCTAssertEqual(VaultListGroup.trash.name, "Trash")
     }
@@ -75,6 +79,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertEqual(VaultListGroup.identity.navigationTitle, Localizations.identities)
         XCTAssertEqual(VaultListGroup.login.navigationTitle, Localizations.logins)
         XCTAssertEqual(VaultListGroup.secureNote.navigationTitle, Localizations.secureNotes)
+        XCTAssertEqual(VaultListGroup.sshKey.navigationTitle, Localizations.sshKeys)
         XCTAssertEqual(VaultListGroup.totp.navigationTitle, Localizations.verificationCodes)
         XCTAssertEqual(VaultListGroup.trash.navigationTitle, Localizations.trash)
     }
@@ -90,6 +95,7 @@ class VaultListGroupTests: BitwardenTestCase {
         XCTAssertNil(VaultListGroup.identity.organizationId)
         XCTAssertNil(VaultListGroup.login.organizationId)
         XCTAssertNil(VaultListGroup.secureNote.organizationId)
+        XCTAssertNil(VaultListGroup.sshKey.organizationId)
         XCTAssertNil(VaultListGroup.totp.organizationId)
         XCTAssertNil(VaultListGroup.trash.organizationId)
     }

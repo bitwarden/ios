@@ -27,7 +27,7 @@ on:
       base_version_number:
         description: "Base Version Number - Will be added to the calculated version number"
         type: number
-        default: 2000
+        default: 1500
       patch_version:
         description: "Patch Version Override - e.g. '999'"
         type: string
@@ -55,7 +55,7 @@ on:
       base_version_number:
         description: "Base Version Number - Will be added to the calculated version number"
         type: number
-        default: 2000
+        default: 1500
       patch_version:
         description: "Patch Version Override - e.g. '999'"
         type: string
