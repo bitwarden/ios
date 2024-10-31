@@ -16,38 +16,52 @@ struct StartRegistrationView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            if store.state.isCreateAccountFeatureFlagEnabled {
-                Image(decorative: Asset.Images.Illustrations.vault)
-                    .resizable()
-                    .frame(width: 132, height: 132)
-                    .padding(.top, 24)
-                    .padding(.bottom, 32)
-            }
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 0) {
+                    if store.state.isCreateAccountFeatureFlagEnabled {
+                        Spacer()
 
-            name
+                        Image(decorative: Asset.Images.logo)
+                            .resizable()
+                            .scaledToFit()
+                            .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                            .frame(maxWidth: .infinity, maxHeight: 34)
+                            .padding(.horizontal, 12)
 
-            VStack(alignment: .leading, spacing: 0) {
-                email
-                    .padding(.bottom, 8)
+                        Spacer()
+                    }
 
-                RegionSelector(
-                    selectorLabel: Localizations.creatingOn,
-                    regionName: store.state.region.baseUrlDescription
-                ) {
-                    await store.perform(.regionTapped)
+                    VStack(spacing: 16) {
+                        name
+
+                        VStack(alignment: .leading, spacing: 0) {
+                            email
+                                .padding(.bottom, 8)
+
+                            RegionSelector(
+                                selectorLabel: Localizations.creatingOn,
+                                regionName: store.state.region.baseUrlDescription
+                            ) {
+                                await store.perform(.regionTapped)
+                            }
+                        }
+
+                        receiveMarketingToggle
+
+                        continueButton
+
+                        termsAndPrivacyText
+                            .frame(maxWidth: .infinity)
+                    }
                 }
+                .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? geometry.size.height : 0)
+                .padding([.horizontal, .vertical], 16)
             }
-
-            receiveMarketingToggle
-
-            continueButton
-
-            termsAndPrivacyText
-                .frame(maxWidth: .infinity)
+            .frame(width: geometry.size.width)
         }
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
-        .scrollView()
         .task {
             await store.perform(.appeared)
         }
