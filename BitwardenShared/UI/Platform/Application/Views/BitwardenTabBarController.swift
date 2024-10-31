@@ -9,7 +9,7 @@ class BitwardenTabBarController: UITabBarController, TabNavigator {
     // MARK: Properties
 
     /// The tabs used in the UITabBarController, mapping each `TabRoute` to its respective `Navigator`.
-    private var tabs: [TabRoute: any Navigator] = [:]
+    private var tabsAndNavigators: [TabRoute: any Navigator] = [:]
 
     // MARK: AlertPresentable
 
@@ -24,7 +24,7 @@ class BitwardenTabBarController: UITabBarController, TabNavigator {
     }
 
     func setNavigators<Tab: Hashable & TabRepresentable>(_ tabs: [Tab: Navigator]) {
-        self.tabs = tabs as? [TabRoute: Navigator] ?? [:]
+        tabsAndNavigators = tabs as? [TabRoute: Navigator] ?? [:]
 
         viewControllers = tabs
             .sorted { $0.key.index < $1.key.index }
@@ -49,7 +49,7 @@ class BitwardenTabBarController: UITabBarController, TabNavigator {
         super.traitCollectionDidChange(previousTraitCollection)
 
         if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
-            setNavigators(tabs)
+            setNavigators(tabsAndNavigators)
         }
     }
 }
