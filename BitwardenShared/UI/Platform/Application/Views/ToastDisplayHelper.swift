@@ -18,9 +18,15 @@ enum ToastDisplayHelper {
     /// - Parameters:
     ///   - parentViewController: The parent view controller that the toast should be shown above.
     ///   - toast: The toast to display.
+    ///   - additionalBottomPadding: Additional padding to apply to the bottom of the toast.
     ///   - duration: The number of seconds the toast should display for.
     ///
-    static func show(in parentViewController: UIViewController, toast: Toast, duration: TimeInterval = 3) {
+    static func show(
+        in parentViewController: UIViewController,
+        toast: Toast,
+        additionalBottomPadding: CGFloat = 0,
+        duration: TimeInterval = 3
+    ) {
         guard parentViewController.view.window?.viewWithTag(toastTag) == nil,
               let window = parentViewController.view.window
         else { return }
@@ -33,7 +39,7 @@ enum ToastDisplayHelper {
 
         // Position the toast view on the window with appropriate bottom padding above the tab bar.
         window.addSubview(viewController.view)
-        let bottomPadding = getSafeArea(from: parentViewController).bottom + 16
+        let bottomPadding = getSafeArea(from: parentViewController).bottom + 16 + additionalBottomPadding
         viewController.view.translatesAutoresizingMaskIntoConstraints = false
         viewController.view.bottomAnchor.constraint(equalTo: window.bottomAnchor, constant: -bottomPadding)
             .isActive = true

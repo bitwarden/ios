@@ -379,7 +379,8 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         navigate(to: .tab(.vault(.list)))
         showToast(
             Localizations.loginsImported,
-            subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer
+            subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer,
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
         )
     }
 

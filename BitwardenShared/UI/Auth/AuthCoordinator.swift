@@ -33,6 +33,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     HasRouter {
     // MARK: Types
 
+    /// The module types required by this coordinator for creating child coordinators.
+    typealias Module = PasswordAutoFillModule
+
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
     typealias Services = HasAccountAPIService
@@ -71,6 +74,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// the auth flow should be dismissed.
     private weak var delegate: (any AuthCoordinatorDelegate)?
 
+    /// The module used to create child coordinators.
+    private let module: Module
+
     /// A delegate used to communicate the WebAuthn result when the auth has been completed. This is assigned
     /// on a webAuthn navigation casted from the provided context.
     private weak var webAuthnFlowDelegate: (any WebAuthnFlowDelegate)?
@@ -94,6 +100,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator. Used to signal when auth has been completed.
+    ///   - module: The module used to create child coordinators.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - router: The router used by this coordinator to handle events.
     ///   - services: The services used by this coordinator.
@@ -102,6 +109,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     init(
         appExtensionDelegate: AppExtensionDelegate?,
         delegate: AuthCoordinatorDelegate?,
+        module: Module,
         rootNavigator: RootNavigator?,
         router: AnyRouter<AuthEvent, AuthRoute>,
         services: Services,
@@ -109,6 +117,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
+        self.module = module
         self.rootNavigator = rootNavigator
         self.router = router
         self.services = services
@@ -281,14 +290,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the password autofill screen.
     ///
     private func showAutoFillSetup() {
-        let processor = PasswordAutoFillProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: .init(mode: .onboarding)
+        guard let stackNavigator else { return }
+        let coordinator = module.makePasswordAutoFillCoordinator(
+            delegate: self,
+            stackNavigator: stackNavigator
         )
-
-        let view = PasswordAutoFillView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
+        coordinator.start()
+        coordinator.navigate(to: .passwordAutofill(mode: .onboarding))
     }
 
     /// Shows the captcha screen.
@@ -1031,5 +1039,13 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
     /// Handle errors during the creation of the attestation
     func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
         webAuthnFlowDelegate?.webAuthnErrored(error: error)
+    }
+}
+
+// MARK: PasswordAutoFillCoordinatorDelegate
+
+extension AuthCoordinator: PasswordAutoFillCoordinatorDelegate {
+    func didCompleteAuth() {
+        delegate?.didCompleteAuth()
     }
 } // swiftlint:disable:this file_length

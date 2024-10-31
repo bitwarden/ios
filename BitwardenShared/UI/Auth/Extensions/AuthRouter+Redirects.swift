@@ -28,6 +28,8 @@ extension AuthRouter {
             return .landing
         }
 
+        await setCarouselShownIfEnabled()
+
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
         }
@@ -39,8 +41,6 @@ extension AuthRouter {
                 return .autofillSetup
             }
         }
-
-        await setCarouselShownIfEnabled()
 
         do {
             if let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget() {

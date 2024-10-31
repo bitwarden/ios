@@ -11,6 +11,7 @@ class MockAppModule:
     GeneratorModule,
     ImportLoginsModule,
     LoginRequestModule,
+    PasswordAutoFillModule,
     PasswordHistoryModule,
     SendModule,
     SendItemModule,
@@ -28,6 +29,10 @@ class MockAppModule:
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
+    var passwordAutoFillCoordinator = MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>()
+    var passwordAutoFillCoordinatorDelegate: PasswordAutoFillCoordinatorDelegate?
+    // swiftlint:disable:next weak_navigator identifier_name
+    var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
@@ -94,6 +99,15 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<LoginRequestRoute, Void> {
         loginRequestCoordinator.asAnyCoordinator()
+    }
+
+    func makePasswordAutoFillCoordinator(
+        delegate: PasswordAutoFillCoordinatorDelegate?,
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent> {
+        passwordAutoFillCoordinatorDelegate = delegate
+        passwordAutoFillCoordinatorStackNavigator = stackNavigator
+        return passwordAutoFillCoordinator.asAnyCoordinator()
     }
 
     func makePasswordHistoryCoordinator(
