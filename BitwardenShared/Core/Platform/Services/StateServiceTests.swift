@@ -999,6 +999,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(vaultTimeout, .never)
     }
 
+    /// `getVaultTimeout(userId:)` returns the default timeout if the user has a never lock value
+    /// stored but the never lock key doesn't exist.
+    func test_getVaultTimeout_neverLock_missingKey() async throws {
+        appSettingsStore.vaultTimeout["1"] = -2
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let vaultTimeout = try await subject.getVaultTimeout()
+        XCTAssertEqual(vaultTimeout, .fifteenMinutes)
+    }
+
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
