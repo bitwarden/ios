@@ -201,7 +201,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             context: dataStore.persistentContainer.viewContext,
             request: fetchRequest
         )
-        .tryMap { dataItems in
+        .map { dataItems in
             dataItems.compactMap(\.model)
         }
         .asyncTryMap { itemModel in

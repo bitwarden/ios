@@ -5,6 +5,91 @@ import XCTest
 
 @testable import BitwardenShared
 
+// MARK: - Cipher
+
+class BitwardenSdkVaultCipherTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(responseModel:)` inits the correct Cipher from CipherDetailsResponseModel with `.sshKey` type.
+    func test_init_fromCipherDetailsResponseModelWithSSHKey() {
+        let responseModel = CipherDetailsResponseModel.fixture(
+            id: "1",
+            sshKey: .fixture(),
+            type: .sshKey
+        )
+        let cipher = Cipher(responseModel: responseModel)
+        XCTAssertEqual(cipher.id, responseModel.id)
+        XCTAssertEqual(Int(cipher.type.rawValue), responseModel.type.rawValue)
+        XCTAssertEqual(cipher.sshKey?.publicKey, responseModel.sshKey?.publicKey)
+        XCTAssertEqual(cipher.sshKey?.privateKey, responseModel.sshKey?.privateKey)
+        XCTAssertEqual(cipher.sshKey?.fingerprint, responseModel.sshKey?.keyFingerprint)
+    }
+}
+
+// MARK: - CipherDetailsResponseModel
+
+class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase { // swiftlint:disable:this type_name
+    // MARK: Tests
+
+    /// `init(cipher:)` Inits a cipher details response model from an SDK cipher without id throws.
+    func test_init_fromSdkNoIdThrows() throws {
+        let cipher = Cipher.fixture(
+            id: nil
+        )
+        XCTAssertThrowsError(try CipherDetailsResponseModel(cipher: cipher))
+    }
+
+    /// `init(cipher:)` Inits a cipher details response model from an SDK cipher that is an SSH key.
+    func test_init_fromSdkCipherSSHKey() throws {
+        let cipher = Cipher.fixture(
+            id: "1",
+            sshKey: .fixture(),
+            type: .sshKey
+        )
+        let responseModel = try CipherDetailsResponseModel(cipher: cipher)
+        XCTAssertEqual(responseModel.id, cipher.id)
+        XCTAssertEqual(responseModel.sshKey?.privateKey, cipher.sshKey?.privateKey)
+        XCTAssertEqual(responseModel.sshKey?.publicKey, cipher.sshKey?.publicKey)
+        XCTAssertEqual(responseModel.sshKey?.keyFingerprint, cipher.sshKey?.fingerprint)
+    }
+}
+
+// MARK: - CipherSSHKeyModel
+
+class BitwardenSdkVaultCipherSSHKeyModelTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(sshKey:)` Inits cipher SSH key model from the SDK one.
+    func test_init_fromSdkSSHKey() {
+        let model = CipherSSHKeyModel(
+            sshKey: .init(
+                privateKey: "privateKey",
+                publicKey: "publicKey",
+                fingerprint: "fingerprint"
+            )
+        )
+
+        XCTAssertEqual(model.privateKey, "privateKey")
+        XCTAssertEqual(model.publicKey, "publicKey")
+        XCTAssertEqual(model.keyFingerprint, "fingerprint")
+    }
+}
+
+// MARK: - CipherType
+
+class BitwardenSdkVaultCipherTypeTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `init(type:)` initializes the cipher type based on the SDK cipher type.
+    func test_init_bySdkCipherType() {
+        XCTAssertEqual(CipherType(type: .login), .login)
+        XCTAssertEqual(CipherType(type: .card), .card)
+        XCTAssertEqual(CipherType(type: .identity), .identity)
+        XCTAssertEqual(CipherType(type: .secureNote), .secureNote)
+        XCTAssertEqual(CipherType(type: .sshKey), .sshKey)
+    }
+}
+
 // MARK: - CipherView
 
 class CipherViewTests: BitwardenTestCase {
@@ -57,6 +142,7 @@ class CipherViewTests: BitwardenTestCase {
                 identity: nil,
                 card: nil,
                 secureNote: nil,
+                sshKey: nil,
                 favorite: false,
                 reprompt: .none,
                 organizationUseTotp: false,
@@ -105,6 +191,7 @@ class CipherViewTests: BitwardenTestCase {
                 identity: nil,
                 card: nil,
                 secureNote: nil,
+                sshKey: nil,
                 favorite: false,
                 reprompt: .none,
                 organizationUseTotp: false,
