@@ -174,7 +174,8 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     static var standardImage: Snapshotting {
         .image(
             precision: defaultPrecision,
-            perceptualPrecision: defaultPerceptualPrecision
+            perceptualPrecision: defaultPerceptualPrecision,
+            size: ViewImageConfig.iPhone13(.portrait).size
         )
     }
 }
