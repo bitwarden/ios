@@ -1495,13 +1495,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
         let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-        let timeoutValue: SessionTimeoutValue = if let rawValue = appSettingsStore.vaultTimeout(userId: userId) {
-            SessionTimeoutValue(rawValue: rawValue)
-        } else {
+        guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
             // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
-            // So if the never lock key exists, set the timeout to never.
-            userAuthKey != nil ? .never : .fifteenMinutes
+            // So if the never lock key exists, set the timeout to never, otherwise to default.
+            return userAuthKey != nil ? .never : .fifteenMinutes
         }
+
+        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
         if timeoutValue == .never, userAuthKey == nil {
             // If never lock but no key (possibly due to logging out), return the default timeout.
             return .fifteenMinutes
