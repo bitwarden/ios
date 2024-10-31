@@ -347,7 +347,7 @@ jobs:
       - name: Upload IPA & dSYM files
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION }}
+          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
           path: export
           if-no-files-found: error
 

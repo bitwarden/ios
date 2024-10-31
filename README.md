@@ -61,7 +61,7 @@
 
 ### Run the App
 
-1. Open the project in Xcode 15.4+.
+1. Open the project in Xcode 16.1+.
 2. Run the app in the Simulator with the `Bitwarden` target.
 
 ### Running Tests
