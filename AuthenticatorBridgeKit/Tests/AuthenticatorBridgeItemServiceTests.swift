@@ -247,30 +247,6 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertEqual(results[0], combined)
     }
 
-    /// When the shared items publisher encounters a missing key, return an empty array rather than throwing the error.
-    /// This is likely due to the keys being removed as part of the last user turning off sync, so returning an
-    /// empty list is safer.
-    ///
-    func test_sharedItemsPublisher_keyFailureReturnsEmpty() async throws {
-        let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
-        try await subject.insertItems(initialItems, forUserId: "userId")
-
-        cryptoService.errorToThrow = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
-
-        var results: [[AuthenticatorBridgeItemDataView]] = []
-        let publisher = try await subject.sharedItemsPublisher()
-            .sink(
-                receiveCompletion: { _ in },
-                receiveValue: { value in
-                    results.append(value)
-                }
-            )
-        defer { publisher.cancel() }
-
-        waitFor(results.count == 1)
-        XCTAssertEqual(results[0], [])
-    }
-
     /// Verify that the shared items publisher does not publish any temporary items
     ///
     func test_sharedItemsPublisher_noTemporaryItems() async throws {

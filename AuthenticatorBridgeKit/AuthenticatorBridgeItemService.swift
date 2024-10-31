@@ -205,10 +205,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             dataItems.compactMap(\.model)
         }
         .asyncTryMap { itemModel in
-            guard let items = try? await self.cryptoService.decryptAuthenticatorItems(itemModel) else {
-                return []
-            }
-            return items
+            try await self.cryptoService.decryptAuthenticatorItems(itemModel)
         }
         .eraseToAnyPublisher()
     }
