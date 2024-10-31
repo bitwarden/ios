@@ -47,7 +47,7 @@ jobs:
 
   test:
     name: Test
-    runs-on: macos-14-xlarge
+    runs-on: macos-15-xlarge
     needs: check-run
     permissions:
       contents: read
