@@ -16,6 +16,7 @@ struct LandingView: View {
             scrollingContent
             profileSwitcher
         }
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBarTitle(Localizations.bitwarden, displayMode: .inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -67,68 +68,81 @@ struct LandingView: View {
 
     /// The main scrollable content of the view
     var scrollingContent: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Image(decorative: Asset.Images.logo)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 45)
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 0) {
+                    Spacer()
 
-                Text(Localizations.loginOrCreateNewAccount)
-                    .styleGuide(.title2)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .frame(maxWidth: .infinity)
+                    Image(decorative: Asset.Images.logo)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                        .frame(maxWidth: .infinity, maxHeight: 34)
+                        .padding(.horizontal, 12)
 
-                BitwardenTextField(
-                    title: Localizations.emailAddress,
-                    text: store.binding(
-                        get: \.email,
-                        send: LandingAction.emailChanged
-                    ),
-                    accessibilityIdentifier: "EmailAddressEntry"
-                )
-                .textFieldConfiguration(.email)
-                .onSubmit {
-                    guard store.state.isContinueButtonEnabled else { return }
-                    Task { await store.perform(.continuePressed) }
-                }
+                    Spacer()
 
-                RegionSelector(
-                    selectorLabel: Localizations.loggingInOn,
-                    regionName: store.state.region.baseUrlDescription
-                ) {
-                    await store.perform(.regionPressed)
-                }
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(Localizations.logInToBitwarden)
+                            .styleGuide(.title2)
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            .frame(maxWidth: .infinity)
 
-                Toggle(Localizations.rememberMe, isOn: store.binding(
-                    get: { $0.isRememberMeOn },
-                    send: { .rememberMeChanged($0) }
-                ))
-                .accessibilityIdentifier("RememberMeSwitch")
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .toggleStyle(.bitwarden)
+                        BitwardenTextField(
+                            title: Localizations.emailAddress,
+                            text: store.binding(
+                                get: \.email,
+                                send: LandingAction.emailChanged
+                            ),
+                            accessibilityIdentifier: "EmailAddressEntry"
+                        )
+                        .textFieldConfiguration(.email)
+                        .onSubmit {
+                            guard store.state.isContinueButtonEnabled else { return }
+                            Task { await store.perform(.continuePressed) }
+                        }
 
-                AsyncButton(Localizations.continue) {
-                    await store.perform(.continuePressed)
-                }
-                .accessibilityIdentifier("ContinueButton")
-                .disabled(!store.state.isContinueButtonEnabled)
-                .buttonStyle(.primary())
+                        RegionSelector(
+                            selectorLabel: Localizations.loggingInOn,
+                            regionName: store.state.region.baseUrlDescription
+                        ) {
+                            await store.perform(.regionPressed)
+                        }
 
-                HStack(spacing: 4) {
-                    Text(Localizations.newAroundHere)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    Button(Localizations.createAccount) {
-                        store.send(.createAccountPressed)
+                        Toggle(Localizations.rememberMe, isOn: store.binding(
+                            get: { $0.isRememberMeOn },
+                            send: { .rememberMeChanged($0) }
+                        ))
+                        .accessibilityIdentifier("RememberMeSwitch")
+                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .toggleStyle(.bitwarden)
+
+                        AsyncButton(Localizations.continue) {
+                            await store.perform(.continuePressed)
+                        }
+                        .accessibilityIdentifier("ContinueButton")
+                        .disabled(!store.state.isContinueButtonEnabled)
+                        .buttonStyle(.primary())
+
+                        HStack(spacing: 4) {
+                            Spacer()
+                            Text(Localizations.newAroundHere)
+                                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            Button(Localizations.createAccount) {
+                                store.send(.createAccountPressed)
+                            }
+                            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                            Spacer()
+                        }
+                        .styleGuide(.footnote)
                     }
-                    .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
                 }
-                .styleGuide(.footnote)
+                .padding([.horizontal, .bottom], 16)
+                .frame(minHeight: geometry.size.height)
             }
-            .padding([.horizontal, .bottom], 16)
+            .frame(width: geometry.size.width)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 }
 
