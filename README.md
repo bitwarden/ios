@@ -61,12 +61,12 @@
 
 ### Run the App
 
-1. Open the project in Xcode 15.4+.
+1. Open the project in Xcode 16.1+.
 2. Run the app in the Simulator with the `Bitwarden` target.
 
 ### Running Tests
 
-The test target requires running in an iPhone 15 Pro simulator running iOS 18.1. It is, however, worth noting that our snapshot tests almost entirely work off of enforced iPhone 12/13/14 dimensions, with a 3x scale; however a few use the dimensions of the chosen simulator, and thus require an iPhone 15 Pro.
+The test target requires running in an iPhone 16 Pro simulator running iOS 18.1. While our snapshot tests work off of enforced device dimensions, small differences can still arise between devices and iOS versions, and this makes sure our snapshots are as consistent as we can make them in testing.
 
 1. In Xcode's toolbar, select the project and a connected device or simulator.
    - The `Generic iOS Device` used for builds will not work for testing.
