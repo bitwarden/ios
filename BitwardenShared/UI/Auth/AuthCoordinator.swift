@@ -1046,6 +1046,6 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
 
 extension AuthCoordinator: PasswordAutoFillCoordinatorDelegate {
     func didCompleteAuth() {
-        delegate?.didCompleteAuth()
+        delegate?.didCompleteAuth(rehydratableTarget: nil)
     }
 } // swiftlint:disable:this file_length

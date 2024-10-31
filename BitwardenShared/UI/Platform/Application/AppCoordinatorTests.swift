@@ -427,4 +427,4 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(module.authCoordinator.routes, [AuthRoute.landing])
     }
-}
+} // swiftlint:disable:this file_length
