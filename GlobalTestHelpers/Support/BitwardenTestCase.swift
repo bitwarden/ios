@@ -10,12 +10,12 @@ open class BitwardenTestCase: XCTestCase {
     @MainActor
     override open class func setUp() {
         if UIDevice.current.name != "iPhone 16 Pro" || UIDevice.current.systemVersion != "18.1" {
-           assertionFailure(
+            assertionFailure(
                """
                Tests must be run using iOS 18.1 on an iPhone 16 Pro simulator. Snapshot tests depend on using the correct device.
                """
-           )
-       }
+            )
+        }
 
         // Apply default appearances for snapshot tests.
         UI.applyDefaultAppearances()
