@@ -1083,6 +1083,33 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             )
         )
         XCTAssertEqual(route, .complete)
+        XCTAssertEqual(authRepository.setActiveAccountId, active.profile.userId)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.switchAccount()` to `.vaultUnlock` when switching to a
+    /// locked inactive account.
+    func test_handleAndRoute_switchAccount_toInactive() async {
+        let active = Account.fixture()
+        let inactive = Account.fixture(profile: .fixture(userId: "2"))
+        authRepository.activeAccount = active
+        authRepository.altAccounts = [inactive]
+        authRepository.isLockedResult = .success(true)
+        stateService.isAuthenticated["2"] = true
+        let route = await subject.handleAndRoute(
+            .action(
+                .switchAccount(isAutomatic: true, userId: inactive.profile.userId)
+            )
+        )
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                inactive,
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: true
+            )
+        )
+        XCTAssertEqual(authRepository.setActiveAccountId, inactive.profile.userId)
     }
 
     /// `handleAndRoute(_ :)` redirects `.switchAccount()` to `.landingSoftLoggedOut` when that
@@ -1099,5 +1126,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             )
         )
         XCTAssertEqual(route, .landingSoftLoggedOut(email: account.profile.email))
+        XCTAssertEqual(authRepository.setActiveAccountId, account.profile.userId)
     }
 }
