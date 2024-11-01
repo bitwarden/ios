@@ -1049,8 +1049,13 @@
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Kein Konto gefunden. Bitte melde dich erneut an, wenn du diesen Fehler weiterhin siehst.";
 "ImportError" = "Importfehler";
 "NoLoginsWereImported" = "Es wurden keine Zugangsdaten importiert";
-"ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
+"ThisIsNotARecognizedServerDescriptionLong" = "Dies ist kein anerkannter Bitwarden-Server. Möglicherweise musst du dich bei deinem Anbieter erkundigen oder deinen Server aktualisieren.";
 "LoginsImported" = "Zugangsdaten importiert";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Vergiss nicht, deine importierte Passwortdatei von deinem Computer zu löschen.";
 "SomethingWentWrong" = "Etwas ist schiefgelaufen";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Der ausgewählte Eintrag konnte nicht verschoben werden. Bitte versuche es erneut.";
+"Done" = "Fertig";
+"CopyPublicKey" = "Copy public key";
+"CopyPrivateKey" = "Copy private key";
+"CopyFingerprint" = "Copy fingerprint";
+"SSHKeys" = "SSH keys";

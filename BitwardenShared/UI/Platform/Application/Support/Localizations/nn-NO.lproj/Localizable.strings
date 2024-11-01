@@ -1025,7 +1025,7 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "You’ll delete this file after import is complete.";
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
 "LogInToBitwarden" = "Log in to Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Log in to the Bitwarden web app.**";
 "ImportLoginsToBitwarden" = "Importer innloggingar til Bitwarden";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "I Bitwarden sin navigasjon, **finn Verktøy-alternativet** og **vel Importer data.**";
@@ -1038,7 +1038,7 @@
 "DownloadTheBrowserExtension" = "Download the browser extension";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Go to bitwarden.com/download to integrate Bitwarden into your favorite browser for a seamless experience.";
 "UseTheWebApp" = "Use the web app";
-"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings";
+"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings.";
 "AutofillPasswords" = "Autofill passwords";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
 "GotIt" = "Got it";
@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
+"Done" = "Done";
+"CopyPublicKey" = "Kopier offentleg nøkkel";
+"CopyPrivateKey" = "Kopier privat nøkkel";
+"CopyFingerprint" = "Kopier fingeravtrykk";
+"SSHKeys" = "SSH-nøklar";

@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Husk at slette den importerede adgangskodefil fra computeren.";
 "SomethingWentWrong" = "Noget gik galt";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Det valgte element kan ikke flyttes. Forsøg igen.";
+"Done" = "Færdig";
+"CopyPublicKey" = "Kopiér offentlig nøgle";
+"CopyPrivateKey" = "Kopiér privat nøgle";
+"CopyFingerprint" = "Kopiér fingeraftryk";
+"SSHKeys" = "SSH-nøgler";

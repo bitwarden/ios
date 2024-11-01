@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Vergeet niet het geïmporteerde wachtwoordbestand van je computer te verwijderen.";
 "SomethingWentWrong" = "Er is iets fout gegaan";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Kan het geselecteerde item niet verplaatsen. Probeer het opnieuw.";
+"Done" = "Klaar";
+"CopyPublicKey" = "Publieke sleutel kopiëren";
+"CopyPrivateKey" = "Privésleutel kopiëren";
+"CopyFingerprint" = "Vingerafdruk kopiëren";
+"SSHKeys" = "SSH keys";
