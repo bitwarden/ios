@@ -17,50 +17,13 @@ struct StartRegistrationView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ScrollView {
-                VStack(spacing: 0) {
-                    if store.state.isCreateAccountFeatureFlagEnabled {
-                        Spacer()
-
-                        Image(decorative: Asset.Images.logo)
-                            .resizable()
-                            .scaledToFit()
-                            .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-                            .frame(maxWidth: .infinity, maxHeight: 34)
-                            .padding(.horizontal, 12)
-
-                        Spacer()
-                    }
-
-                    VStack(spacing: 16) {
-                        name
-
-                        VStack(alignment: .leading, spacing: 0) {
-                            email
-                                .padding(.bottom, 8)
-
-                            RegionSelector(
-                                selectorLabel: Localizations.creatingOn,
-                                regionName: store.state.region.baseUrlDescription
-                            ) {
-                                await store.perform(.regionTapped)
-                            }
-                        }
-
-                        receiveMarketingToggle
-
-                        continueButton
-
-                        termsAndPrivacyText
-                            .frame(maxWidth: .infinity)
-                    }
-                }
-                .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? geometry.size.height : 0)
-                .padding([.horizontal, .vertical], 16)
+            ScrollView(showsIndicators: false) {
+                mainContent
+                    .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? geometry.size.height : 0)
             }
             .frame(width: geometry.size.width)
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
         .task {
             await store.perform(.appeared)
@@ -77,6 +40,53 @@ struct StartRegistrationView: View {
     }
 
     // MARK: Private views
+
+    /// The main content of the view.
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            if store.state.isCreateAccountFeatureFlagEnabled {
+                Spacer()
+
+                Image(decorative: Asset.Images.logo)
+                    .resizable()
+                    .scaledToFit()
+                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                    .frame(maxWidth: .infinity, maxHeight: 34)
+                    .padding(.horizontal, 12)
+
+                Spacer()
+            }
+
+            registrationDetails
+        }
+        .padding([.horizontal, .vertical], 16)
+    }
+
+    /// The section of the view containing input fields, and action buttons.
+    private var registrationDetails: some View {
+        VStack(spacing: 16) {
+            name
+
+            VStack(alignment: .leading, spacing: 0) {
+                email
+                    .padding(.bottom, 8)
+
+                RegionSelector(
+                    selectorLabel: Localizations.creatingOn,
+                    regionName: store.state.region.baseUrlDescription
+                ) {
+                    await store.perform(.regionTapped)
+                }
+            }
+
+            receiveMarketingToggle
+
+            continueButton
+
+            termsAndPrivacyText
+                .frame(maxWidth: .infinity)
+        }
+    }
 
     /// The text fields for the user's email and password.
     private var email: some View {
