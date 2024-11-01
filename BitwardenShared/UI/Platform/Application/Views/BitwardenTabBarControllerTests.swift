@@ -3,9 +3,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - UITabBarControllerExtensionsTests
+// MARK: - BitwardenTabBarControllerTests
 
-class UITabBarControllerExtensionsTests: BitwardenTestCase {
+class BitwardenTabBarControllerTests: BitwardenTestCase {
     var module: MockAppModule!
     var coordinator: TabCoordinator!
     var rootNavigator: MockRootNavigator!
@@ -13,7 +13,7 @@ class UITabBarControllerExtensionsTests: BitwardenTestCase {
     var settingsDelegate: MockSettingsCoordinatorDelegate!
     var errorReporter: MockErrorReporter!
     var vaultRepository: MockVaultRepository!
-    var subject: UITabBarController!
+    var subject: BitwardenTabBarController!
 
     // MARK: Setup & Teardown
 
@@ -26,7 +26,7 @@ class UITabBarControllerExtensionsTests: BitwardenTestCase {
         settingsDelegate = MockSettingsCoordinatorDelegate()
         errorReporter = MockErrorReporter()
         vaultRepository = MockVaultRepository()
-        subject = UITabBarController()
+        subject = BitwardenTabBarController()
 
         coordinator = TabCoordinator(
             errorReporter: errorReporter,
