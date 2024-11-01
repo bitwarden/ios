@@ -78,7 +78,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func navigate(to route: AppRoute, context _: AnyObject?) {
         switch route {
         case .debugMenu:
+            #if DEBUG_MENU
             showDebugMenu()
+            #endif
         case let .tab(tabRoute):
             showTab(route: tabRoute)
         }
