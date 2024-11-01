@@ -306,17 +306,6 @@ extension AuthRouter {
     /// - Returns: A suggested route for the active account with state pre-configured.
     ///
     func switchAccountRedirect(isAutomatic: Bool, userId: String) async -> AuthRoute {
-        if let account = try? await services.authRepository.getAccount(),
-           userId == account.profile.userId {
-            return await handleAndRoute(
-                .accountBecameActive(
-                    account,
-                    animated: false,
-                    attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
-                )
-            )
-        }
         do {
             let activeAccount = try await services.authRepository.setActiveAccount(userId: userId)
             // Setup the unlock route for the active account.
