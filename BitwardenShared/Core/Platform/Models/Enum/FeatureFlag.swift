@@ -24,6 +24,8 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag for the create account flow.
     case nativeCreateAccountFlow = "native-create-account-flow"
 
+    case sshKeyVaultItem = "ssh-key-vault-item"
+
     // MARK: Test Flags
 
     /// A test feature flag that isn't remotely configured and has no initial value.
@@ -82,6 +84,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
+             .sshKeyVaultItem,
              .testLocalFeatureFlag,
              .testLocalInitialBoolFlag,
              .testLocalInitialIntFlag,

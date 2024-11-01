@@ -42,10 +42,13 @@ private struct SearchableVaultListView: View {
                 .hidden(!isSearching)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultListAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: VaultListAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -54,15 +57,7 @@ private struct SearchableVaultListView: View {
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultListAction.toastShown
-        ))
         .animation(.default, value: isSearching)
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultListAction.toastShown
-        ))
     }
 
     // MARK: Private Properties
@@ -494,6 +489,10 @@ struct VaultListView_Previews: PreviewProvider {
                                         VaultListItem(
                                             id: "24",
                                             itemType: .group(.secureNote, 0)
+                                        ),
+                                        VaultListItem(
+                                            id: "25",
+                                            itemType: .group(.sshKey, 4)
                                         ),
                                     ],
                                     name: "Types"

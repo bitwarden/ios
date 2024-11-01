@@ -1055,3 +1055,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
+"CopyPublicKey" = "Copy public key";
+"CopyPrivateKey" = "Copy private key";
+"CopyFingerprint" = "Copy fingerprint";
+"SSHKeys" = "SSH keys";

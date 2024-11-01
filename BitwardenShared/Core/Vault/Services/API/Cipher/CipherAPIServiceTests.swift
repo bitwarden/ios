@@ -72,6 +72,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 reprompt: .none,
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
+                sshKey: nil,
                 type: .login,
                 viewPassword: true
             )
@@ -121,6 +122,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 reprompt: .none,
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
+                sshKey: nil,
                 type: .login,
                 viewPassword: true
             )
@@ -248,6 +250,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                     reprompt: .none,
                     revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                     secureNote: nil,
+                    sshKey: nil,
                     type: .login,
                     viewPassword: true
                 ),
@@ -300,6 +303,7 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
                 reprompt: .none,
                 revisionDate: Date(timeIntervalSince1970: 1_691_656_425.345),
                 secureNote: nil,
+                sshKey: nil,
                 type: .login,
                 viewPassword: true
             )

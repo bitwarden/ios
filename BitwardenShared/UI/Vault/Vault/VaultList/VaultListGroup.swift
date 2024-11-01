@@ -17,6 +17,9 @@ public enum VaultListGroup: Equatable, Hashable, Sendable {
     /// A group of secure note type ciphers.
     case secureNote
 
+    /// A group of SSH key type ciphers.
+    case sshKey
+
     /// A group of TOTP Enabled login types.
     case totp
 
@@ -73,6 +76,8 @@ extension VaultListGroup {
             return Localizations.typeLogin
         case .secureNote:
             return Localizations.typeSecureNote
+        case .sshKey:
+            return Localizations.sshKey
         case .totp:
             return Localizations.verificationCodes
         case .trash:
@@ -97,6 +102,8 @@ extension VaultListGroup {
             return Localizations.logins
         case .secureNote:
             return Localizations.secureNotes
+        case .sshKey:
+            return Localizations.sshKeys
         case .totp:
             return Localizations.verificationCodes
         case .trash:
