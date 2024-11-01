@@ -101,6 +101,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.identity)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
 
         XCTAssertEqual(comparison.cardItemState(), expectedCardState)
 
@@ -152,6 +153,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
     }
 
     /// Tests that the update succeeds with new properties.
@@ -191,6 +193,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.identity)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
 
         XCTAssertEqual(comparison.id, subject.id)
         XCTAssertEqual(comparison.organizationId, subject.organizationId)
@@ -201,6 +204,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(comparison.login?.password, cipherItemState.loginState.password)
         XCTAssertEqual(comparison.notes, cipherItemState.notes)
         XCTAssertEqual(comparison.secureNote, subject.secureNote)
+        XCTAssertEqual(comparison.sshKey, subject.sshKey)
         XCTAssertEqual(comparison.favorite, cipherItemState.isFavoriteOn)
         XCTAssertEqual(
             comparison.reprompt,
@@ -356,6 +360,18 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.identity)
+        XCTAssertNil(comparison.sshKey)
+    }
+
+    /// Tests that the update succeeds with updated properties on SSH key type.
+    func test_update_sshKey_succeeds() {
+        cipherItemState.type = .sshKey
+        let comparison = subject.updatedView(with: cipherItemState)
+        XCTAssertEqual(comparison.type, .sshKey)
+        XCTAssertNil(comparison.card)
+        XCTAssertNil(comparison.login)
+        XCTAssertNil(comparison.identity)
+        XCTAssertNil(comparison.secureNote)
     }
 
     /// Tests that the update succeeds with new properties.

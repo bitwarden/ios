@@ -1058,3 +1058,4 @@
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
+"SSHKeys" = "SSH keys";

@@ -484,9 +484,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// to the `.alert` route.
     ///
     private func presentCustomFieldAlert() {
-        let fieldTypes: [FieldType] = state.type != .secureNote ? [.text, .hidden, .boolean, .linked]
-            : [.text, .hidden, .boolean]
-        let actions = fieldTypes.map { type in
+        let actions = state.type.allowedFieldTypes.map { type in
             AlertAction(title: type.localizedName, style: .default) { [weak self] _ in
                 guard let self else { return }
                 receive(
