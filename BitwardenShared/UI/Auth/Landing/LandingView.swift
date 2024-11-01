@@ -86,7 +86,7 @@ struct LandingView: View {
             }
             .padding(.bottom, 16)
             .frame(minHeight: geometry.size.height)
-            .scrollView(addVerticalPadding: false)
+            .scrollView(addVerticalPadding: false, showsIndicators: false)
         }
     }
 
