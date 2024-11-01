@@ -1,0 +1,27 @@
+{
+  "configurations" : [
+    {
+      "id" : "AE7F8439-11C3-4A5A-AB62-C322355EE6A5",
+      "name" : "DefaultConfig",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "language" : "en",
+    "region" : "US",
+    "testExecutionOrdering" : "random",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:Bitwarden.xcodeproj",
+        "identifier" : "1ACA591B401F3A38DB33C366",
+        "name" : "BitwardenSharedTests"
+      }
+    }
+  ],
+  "version" : 1
+}
