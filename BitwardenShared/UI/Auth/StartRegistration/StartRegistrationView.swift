@@ -84,7 +84,8 @@ struct StartRegistrationView: View {
 
                 registrationDetails
             }
-            .padding(.vertical, 16)
+            .padding(.top, store.state.isCreateAccountFeatureFlagEnabled ? 0 : 16)
+            .padding(.bottom, 16)
             .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? proxy.size.height : 0)
             .scrollView(addVerticalPadding: false, showsIndicators: false)
         }
