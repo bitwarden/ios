@@ -39,37 +39,6 @@ struct StartRegistrationView: View {
 
     // MARK: Private views
 
-    /// The main content view that displays a scrollable layout of registration details.
-    ///
-    /// - Parameter proxy: A `GeometryProxy` instance that provides information about the size and
-    ///   coordinate space of the parent view.
-    /// - Returns: A `ScrollView` containing the logo image and registration details, with spacing
-    ///   and padding adjusted based on feature flag states.
-    ///
-    private func mainContent(with proxy: GeometryProxy) -> some View {
-        ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
-                if store.state.isCreateAccountFeatureFlagEnabled {
-                    Spacer()
-
-                    Image(decorative: Asset.Images.logo)
-                        .resizable()
-                        .scaledToFit()
-                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-                        .frame(maxWidth: .infinity, maxHeight: 34)
-                        .padding(.horizontal, 12)
-
-                    Spacer()
-                }
-
-                registrationDetails
-            }
-            .padding([.horizontal, .vertical], 16)
-            .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? proxy.size.height : 0)
-        }
-        .frame(width: proxy.size.width)
-    }
-
     /// The section of the view containing input fields, and action buttons.
     private var registrationDetails: some View {
         VStack(spacing: 16) {
@@ -162,6 +131,37 @@ struct StartRegistrationView: View {
             .toggleStyle(.bitwarden)
             .id(ViewIdentifier.StartRegistration.receiveMarketing)
         }
+    }
+
+    /// The main content view that displays a scrollable layout of registration details.
+    ///
+    /// - Parameter proxy: A `GeometryProxy` instance that provides information about the size and
+    ///   coordinate space of the parent view.
+    /// - Returns: A `ScrollView` containing the logo image and registration details, with spacing
+    ///   and padding adjusted based on feature flag states.
+    ///
+    private func mainContent(with proxy: GeometryProxy) -> some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                if store.state.isCreateAccountFeatureFlagEnabled {
+                    Spacer()
+
+                    Image(decorative: Asset.Images.logo)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                        .frame(maxWidth: .infinity, maxHeight: 34)
+                        .padding(.horizontal, 12)
+
+                    Spacer()
+                }
+
+                registrationDetails
+            }
+            .padding([.horizontal, .vertical], 16)
+            .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? proxy.size.height : 0)
+        }
+        .frame(width: proxy.size.width)
     }
 }
 
