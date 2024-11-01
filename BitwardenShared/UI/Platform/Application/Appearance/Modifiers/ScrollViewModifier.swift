@@ -13,10 +13,13 @@ struct ScrollViewModifier: ViewModifier {
     /// The background color to apply to the scroll view.
     var backgroundColor: Color
 
+    /// Whether or not to show the scrolling indicators .
+    var showsIndicators = true
+
     // MARK: View
 
     func body(content: Content) -> some View {
-        ScrollView {
+        ScrollView(showsIndicators: showsIndicators) {
             content
                 .padding(.horizontal, 16)
                 .padding([.top, .bottom], addVerticalPadding ? 16 : 0)
