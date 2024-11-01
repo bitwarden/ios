@@ -23,8 +23,8 @@ struct StartRegistrationView: View {
             }
             .frame(width: geometry.size.width)
             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
         }
-        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
         .task {
             await store.perform(.appeared)
         }
@@ -33,10 +33,12 @@ struct StartRegistrationView: View {
                 store.send(.dismiss)
             }
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: StartRegistrationAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: StartRegistrationAction.toastShown
+            )
+        )
     }
 
     // MARK: Private views
