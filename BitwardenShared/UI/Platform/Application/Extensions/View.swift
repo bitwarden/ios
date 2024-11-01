@@ -118,11 +118,13 @@ extension View {
     ///
     func scrollView(
         addVerticalPadding: Bool = true,
-        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor
+        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
+        showsIndicators: Bool = true
     ) -> some View {
         modifier(ScrollViewModifier(
             addVerticalPadding: addVerticalPadding,
-            backgroundColor: backgroundColor
+            backgroundColor: backgroundColor,
+            showsIndicators: showsIndicators
         ))
     }
 
