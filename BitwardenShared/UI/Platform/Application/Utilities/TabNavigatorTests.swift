@@ -20,38 +20,47 @@ class TabNavigatorTests: BitwardenTestCase {
 
         var image: UIImage? {
             switch self {
-            case .firstTab: return Self.firstTabImage
-            case .secondTab: return Self.secondTabImage
-            case .thirdTab: return Self.thirdTabImage
+            case .firstTab:
+                Self.firstTabImage
+            case .secondTab:
+                Self.secondTabImage
+            case .thirdTab:
+                Self.thirdTabImage
             }
         }
 
         var selectedImage: UIImage? {
             switch self {
-            case .firstTab: return Self.firstTabSelectedImage
-            case .secondTab: return Self.secondTabSelectedImage
-            case .thirdTab: return Self.thirdTabSelectedImage
+            case .firstTab:
+                Self.firstTabSelectedImage
+            case .secondTab:
+                Self.secondTabSelectedImage
+            case .thirdTab:
+                Self.thirdTabSelectedImage
             }
         }
 
         var title: String {
             switch self {
-            case .firstTab: return "first"
-            case .secondTab: return "second"
-            case .thirdTab: return "third"
+            case .firstTab:
+                "first"
+            case .secondTab:
+                "second"
+            case .thirdTab:
+                "third"
             }
         }
     }
 
     // MARK: Properties
 
-    var subject: UITabBarController!
+    var subject: BitwardenTabBarController!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
-        subject = UITabBarController()
+        subject = BitwardenTabBarController()
         setKeyWindowRoot(viewController: subject)
     }
 
