@@ -177,15 +177,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             try await tryToUnlockVault(unlockMethod)
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
-        } catch let error as IdentityTokenRequestError {
-            if case let .captchaRequired(hCaptchaSiteCode) = error {
-                launchCaptchaFlow(with: hCaptchaSiteCode)
-            } else {
-                coordinator.showAlert(.defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: Localizations.invalidVerificationCode
-                ))
-            }
+        } catch let IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode) {
+            launchCaptchaFlow(with: hCaptchaSiteCode)
         } catch let authError as AuthError {
             if authError == .requireSetPassword,
                let orgId = state.orgIdentifier {
@@ -199,10 +192,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             }
         } catch {
-            coordinator.showAlert(.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.invalidVerificationCode
-            ))
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }
