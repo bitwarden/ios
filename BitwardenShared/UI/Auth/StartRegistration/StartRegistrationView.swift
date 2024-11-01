@@ -16,12 +16,8 @@ struct StartRegistrationView: View {
     // MARK: View
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView(showsIndicators: false) {
-                mainContent
-                    .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? geometry.size.height : 0)
-            }
-            .frame(width: geometry.size.width)
+        GeometryReader { proxy in
+            mainContent(with: proxy)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
@@ -43,25 +39,35 @@ struct StartRegistrationView: View {
 
     // MARK: Private views
 
-    /// The main content of the view.
-    private var mainContent: some View {
-        VStack(spacing: 0) {
-            if store.state.isCreateAccountFeatureFlagEnabled {
-                Spacer()
+    /// The main content view that displays a scrollable layout of registration details.
+    ///
+    /// - Parameter proxy: A `GeometryProxy` instance that provides information about the size and
+    ///   coordinate space of the parent view.
+    /// - Returns: A `ScrollView` containing the logo image and registration details, with spacing
+    ///   and padding adjusted based on feature flag states.
+    ///
+    private func mainContent(with proxy: GeometryProxy) -> some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                if store.state.isCreateAccountFeatureFlagEnabled {
+                    Spacer()
 
-                Image(decorative: Asset.Images.logo)
-                    .resizable()
-                    .scaledToFit()
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-                    .frame(maxWidth: .infinity, maxHeight: 34)
-                    .padding(.horizontal, 12)
+                    Image(decorative: Asset.Images.logo)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                        .frame(maxWidth: .infinity, maxHeight: 34)
+                        .padding(.horizontal, 12)
 
-                Spacer()
+                    Spacer()
+                }
+
+                registrationDetails
             }
-
-            registrationDetails
+            .padding([.horizontal, .vertical], 16)
+            .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? proxy.size.height : 0)
         }
-        .padding([.horizontal, .vertical], 16)
+        .frame(width: proxy.size.width)
     }
 
     /// The section of the view containing input fields, and action buttons.
