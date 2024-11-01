@@ -22,9 +22,9 @@ struct StartRegistrationView: View {
                     .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? geometry.size.height : 0)
             }
             .frame(width: geometry.size.width)
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
         }
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
         .task {
             await store.perform(.appeared)
         }
