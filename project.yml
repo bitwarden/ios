@@ -51,7 +51,7 @@ schemes:
       targets:
         - AuthenticatorBridgeKitTests
       testPlans:
-        - path: TestPlans/DefaultTestPlan.xctestplan
+        - path: TestPlans/TestPlan-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/TestPlan-Unit.xctestplan
   Bitwarden:
@@ -83,7 +83,7 @@ schemes:
         - BitwardenSharedTests
         - package: Networking/NetworkingTests
       testPlans:
-        - path: TestPlans/DefaultTestPlan.xctestplan
+        - path: TestPlans/TestPlan-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/TestPlan-Unit.xctestplan
         - path: TestPlans/TestPlan-Snapshot.xctestplan
@@ -101,7 +101,7 @@ schemes:
       targets:
         - BitwardenActionExtensionTests
       testPlans:
-        - path: TestPlans/DefaultTestPlan.xctestplan
+        - path: TestPlans/TestPlan-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/TestPlan-Unit.xctestplan
   BitwardenAutoFillExtension:
@@ -118,7 +118,7 @@ schemes:
       targets:
         - BitwardenAutoFillExtensionTests
       testPlans:
-        - path: TestPlans/DefaultTestPlan.xctestplan
+        - path: TestPlans/TestPlan-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/TestPlan-Unit.xctestplan
   BitwardenShareExtension:
@@ -135,7 +135,7 @@ schemes:
       targets:
         - BitwardenShareExtensionTests
       testPlans:
-        - path: TestPlans/DefaultTestPlan.xctestplan
+        - path: TestPlans/TestPlan-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/TestPlan-Unit.xctestplan
   BitwardenShared:
@@ -154,7 +154,7 @@ schemes:
       targets:
         - BitwardenSharedTests
       testPlans:
-        - path: TestPlans/DefaultTestPlan.xctestplan
+        - path: TestPlans/TestPlan-Default.xctestplan
           defaultPlan: true
         - path: TestPlans/TestPlan-Unit.xctestplan
   BitwardenWatchApp:

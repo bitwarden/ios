@@ -17,13 +17,6 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:Networking",
-        "identifier" : "NetworkingTests",
-        "name" : "NetworkingTests"
-      }
-    },
-    {
-      "target" : {
         "containerPath" : "container:Bitwarden.xcodeproj",
         "identifier" : "1ACA591B401F3A38DB33C366",
         "name" : "BitwardenSharedTests"
