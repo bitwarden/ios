@@ -40,14 +40,14 @@ extension AuthRouter {
             } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
                 return .autofillSetup
             }
-        }
 
-        do {
-            if let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget() {
-                return .completeWithRehydration(rehydratableTarget)
+            do {
+                if let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget() {
+                    return .completeWithRehydration(rehydratableTarget)
+                }
+            } catch {
+                services.errorReporter.log(error: error)
             }
-        } catch {
-            services.errorReporter.log(error: error)
         }
 
         return .complete

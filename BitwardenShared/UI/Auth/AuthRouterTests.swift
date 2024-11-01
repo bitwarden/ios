@@ -224,6 +224,30 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to complete the auth flow if the account
+    /// doesn't require an updated password and there's a rehydratable target saved
+    /// but it's in the app extension context.
+    @MainActor
+    func test_handleAndRoute_didCompleteAuth_completeWithRehydrationNotCalledAppExtension() async {
+        subject = AuthRouter(
+            isInAppExtension: true,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                biometricsRepository: biometricsRepository,
+                configService: configService,
+                errorReporter: errorReporter,
+                rehydrationHelper: rehydrationHelper,
+                stateService: stateService,
+                vaultTimeoutService: vaultTimeoutService
+            )
+        )
+
+        authRepository.activeAccount = .fixture()
+        rehydrationHelper.getSavedRehydratableTargetResult = .success(.viewCipher(cipherId: "1"))
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .complete)
+    }
+
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.autofillSetup` if the user still
     /// needs to set up autofill.
     func test_handleAndRoute_didCompleteAuth_incompleteAutofill() async {
