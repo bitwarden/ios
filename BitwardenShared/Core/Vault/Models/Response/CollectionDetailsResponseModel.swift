@@ -15,7 +15,7 @@ struct CollectionDetailsResponseModel: Codable, Equatable {
     let id: String
 
     /// Whether the collection can be managed by the user.
-    let manage: Bool
+    @DefaultFalse var manage: Bool
 
     /// The collection's name.
     let name: String
