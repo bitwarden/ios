@@ -259,7 +259,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             switch unlockMethod {
             case .deviceKey:
                 try await services.authRepository.unlockVaultWithDeviceKey()
-                coordinator.navigate(to: .complete)
+                await coordinator.handleEvent(.didCompleteAuth)
             case let .masterPassword(account):
                 coordinator.hideLoadingOverlay()
                 coordinator.navigate(
@@ -279,7 +279,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     keyConnectorURL: keyConnectorUrl,
                     orgIdentifier: orgIdentifier
                 )
-                coordinator.navigate(to: .complete)
+                await coordinator.handleEvent(.didCompleteAuth)
             }
         }
     }

@@ -3,7 +3,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockAppSettingsStore: AppSettingsStore {
+class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
@@ -11,6 +11,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?
+    var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
     var disableWebIcons = false
     var introCarouselShown = false
@@ -72,6 +73,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func appRehydrationState(userId: String) -> BitwardenShared.AppRehydrationState? {
+        appRehydrationState[userId]
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -165,6 +170,14 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
+    }
+
+    func setAppRehydrationState(_ state: BitwardenShared.AppRehydrationState?, userId: String) {
+        guard state != nil else {
+            appRehydrationState.removeValue(forKey: userId)
+            return
+        }
+        appRehydrationState[userId] = state
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
