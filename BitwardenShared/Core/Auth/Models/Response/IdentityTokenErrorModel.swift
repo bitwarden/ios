@@ -13,7 +13,6 @@ struct IdentityTokenErrorModel: Codable {
         case masterPasswordPolicy = "MasterPasswordPolicy"
         case siteCode = "HCaptcha_SiteKey"
         case ssoToken = "SsoEmail2faSessionToken"
-        case twoFactorProviders = "TwoFactorProviders"
         case twoFactorProvidersData = "TwoFactorProviders2"
     }
 
@@ -31,9 +30,6 @@ struct IdentityTokenErrorModel: Codable {
     /// The user's SSO token.
     let ssoToken: String?
 
-    /// The two-factor providers that the user has enabled and set up for their account.
-    let twoFactorProviders: [String]?
-
     /// The two-factor providers data that the user has enabled and set up for their account.
     let twoFactorProvidersData: AuthMethodsData?
 }
@@ -44,12 +40,16 @@ struct IdentityTokenErrorModel: Codable {
 public struct AuthMethodsData: Codable, Equatable, Sendable {
     /// Key names used for encoding and decoding.
     enum CodingKeys: String, CodingKey {
+        case authenticator = "0"
         case email = "1"
         case duo = "2"
         case organizationDuo = "6"
         case yubikey = "3"
         case webAuthn = "7"
     }
+
+    /// Information for two factor authentication with Authenticator
+    let authenticator: Bool
 
     /// Information for two factor authentication with Email
     let email: Email?
@@ -67,17 +67,39 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
     let webAuthn: WebAuthn?
 
     /// List of all available two factor authentication for the user
-    /// This is necessary because authenticator is one possible option but has no information
-    var providersAvailable: [String]?
+    var providersAvailable: [String]? {
+        var providers: [String] = []
+        if authenticator { providers.append(CodingKeys.authenticator.rawValue) }
+        if email != nil { providers.append(CodingKeys.email.rawValue) }
+        if duo != nil { providers.append(CodingKeys.duo.rawValue) }
+        if organizationDuo != nil { providers.append(CodingKeys.organizationDuo.rawValue) }
+        if yubikey != nil { providers.append(CodingKeys.yubikey.rawValue) }
+        if webAuthn != nil { providers.append(CodingKeys.webAuthn.rawValue) }
+        return providers.nilIfEmpty
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        email = try container.decodeIfPresent(Email.self, forKey: .email)
+        duo = try container.decodeIfPresent(Duo.self, forKey: .duo)
+        organizationDuo = try container.decodeIfPresent(Duo.self, forKey: .organizationDuo)
+        yubikey = try container.decodeIfPresent(Yubikey.self, forKey: .yubikey)
+        webAuthn = try container.decodeIfPresent(WebAuthn.self, forKey: .webAuthn)
+
+        authenticator = container.contains(.authenticator)
+    }
 
     /// Constructor to initialise the AuthMethodsData empty
     init(
+        authenticator: Bool = false,
         email: Email? = nil,
         duo: Duo? = nil,
         organizationDuo: Duo? = nil,
         yubikey: Yubikey? = nil,
         webAuthn: WebAuthn? = nil
     ) {
+        self.authenticator = authenticator
         self.email = email
         self.duo = duo
         self.organizationDuo = organizationDuo
