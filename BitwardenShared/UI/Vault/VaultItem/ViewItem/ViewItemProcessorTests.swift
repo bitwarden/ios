@@ -15,6 +15,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var pasteboardService: MockPasteboardService!
+    var rehydrationHelper: MockRehydrationHelper!
     var stateService: MockStateService!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -30,6 +31,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         pasteboardService = MockPasteboardService()
+        rehydrationHelper = MockRehydrationHelper()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
@@ -38,6 +40,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             eventService: eventService,
             httpClient: client,
             pasteboardService: pasteboardService,
+            rehydrationHelper: rehydrationHelper,
             stateService: stateService,
             vaultRepository: vaultRepository
         )
@@ -58,6 +61,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         errorReporter = nil
         eventService = nil
         pasteboardService = nil
+        rehydrationHelper = nil
         stateService = nil
         subject = nil
         vaultRepository = nil
@@ -86,6 +90,35 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
+    }
+
+    /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with editing configuration
+    /// doesn't add itself as a rehydratable target.
+    @MainActor
+    func test_init_editingConfiguration() {
+        rehydrationHelper.rehydratableTargets.removeAll()
+
+        let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            eventService: eventService,
+            httpClient: client,
+            pasteboardService: pasteboardService,
+            rehydrationHelper: rehydrationHelper,
+            stateService: stateService,
+            vaultRepository: vaultRepository
+        )
+        subject = ViewItemProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            itemId: "id",
+            services: services,
+            state: ViewItemState()
+        )
+        waitFor(
+            !rehydrationHelper.rehydratableTargets.isEmpty
+                && rehydrationHelper.rehydratableTargets[0] is ViewItemProcessor
+        )
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
@@ -1443,6 +1476,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    /// `getter:rehydrationState` returns the proper state with the cipher id.
+    @MainActor
+    func test_rehydrationState() {
+        XCTAssertEqual(subject.rehydrationState?.target, .viewCipher(cipherId: "id"))
     }
 
     // MARK: Private

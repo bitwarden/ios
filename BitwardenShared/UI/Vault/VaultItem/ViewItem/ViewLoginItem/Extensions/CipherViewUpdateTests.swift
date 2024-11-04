@@ -63,6 +63,51 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertTrue(loginItemState.fido2Credentials.isEmpty)
     }
 
+    /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView.
+    func test_sshKeyItemState() {
+        let cipherView = CipherView.fixture(
+            sshKey: .fixture(),
+            type: .sshKey,
+            viewPassword: true
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertTrue(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "privateKey")
+        XCTAssertEqual(sshKeyItemState.publicKey, "publicKey")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "fingerprint")
+    }
+
+    /// `sshKeyItemState()` returns nil if there's no `sshKey` in the cipher view.
+    func test_sshKeyItemState_nil() {
+        let cipherView = CipherView.fixture(
+            sshKey: nil,
+            viewPassword: true
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertFalse(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "")
+        XCTAssertEqual(sshKeyItemState.publicKey, "")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "")
+    }
+
+    /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView
+    /// when `viewPassword` is `false`.
+    func test_sshKeyItemState_cantViewPassword() {
+        let cipherView = CipherView.fixture(
+            sshKey: .fixture(),
+            type: .sshKey,
+            viewPassword: false
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertFalse(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "privateKey")
+        XCTAssertEqual(sshKeyItemState.publicKey, "publicKey")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "fingerprint")
+    }
+
     /// Tests that the update succeeds with new properties.
     func test_update_card_edits_succeeds() {
         cipherItemState.type = .card

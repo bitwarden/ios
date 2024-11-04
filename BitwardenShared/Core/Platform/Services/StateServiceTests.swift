@@ -481,6 +481,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getAppRehydrationState(userId:)` returns the app rehydration state for the active account.
+    func test_getAppRehydrationState() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.appRehydrationState["1"] = AppRehydrationState(
+            target: .viewCipher(cipherId: "1"),
+            expirationTime: .now
+        )
+        let value = try await subject.getAppRehydrationState()
+        XCTAssertEqual(value?.target, .viewCipher(cipherId: "1"))
+    }
+
+    /// `getAppRehydrationState(userId:)` throws when there's no active account.
+    func test_getAppRehydrationState_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAppRehydrationState()
+        }
+    }
+
     /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
     func test_getClearClipboardValue() async throws {
         await subject.addAccount(.fixture())
@@ -1406,6 +1424,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setAllowSyncOnRefresh(true)
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setAppRehydrationState(_:userId:)` sets the app rehydration state for the given account.
+    func test_setAppRehydrationState() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setAppRehydrationState(
+            AppRehydrationState(
+                target: .viewCipher(cipherId: "1"),
+                expirationTime: .now
+            ),
+            userId: "1"
+        )
+        let value = appSettingsStore.appRehydrationState["1"]
+        XCTAssertEqual(value?.target, .viewCipher(cipherId: "1"))
+    }
+
+    /// `setAppRehydrationState(_:userId:)` throws when there's no active account.
+    func test_setAppRehydrationState_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.setAppRehydrationState(nil)
+        }
     }
 
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.

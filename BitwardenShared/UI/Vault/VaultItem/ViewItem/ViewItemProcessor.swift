@@ -5,7 +5,7 @@ import Foundation
 
 /// A processor that can process `ViewItemAction`s.
 ///
-final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
+final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect>, Rehydratable {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -13,6 +13,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
+        & HasRehydrationHelper
         & HasStateService
         & HasVaultRepository
 
@@ -31,6 +32,12 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
         /// An error for ssh key action handling
         case nonSshKeyTypeToggle(String)
+    }
+
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        RehydrationState(target: .viewCipher(cipherId: itemId))
     }
 
     // MARK: Private Properties
@@ -70,6 +77,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         self.itemId = itemId
         self.services = services
         super.init(state: state)
+
+        Task {
+            await self.services.rehydrationHelper.addRehydratableTarget(self)
+        }
     }
 
     deinit {
