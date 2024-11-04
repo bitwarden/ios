@@ -1049,8 +1049,13 @@
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Nenašiel sa žiadny účet. Ak sa táto chyba bude naďalej zobrazovať, prihláste sa znova.";
 "ImportError" = "Chyba importu";
 "NoLoginsWereImported" = "Neboli importované žiadne prihlasovacie údaje";
-"ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
+"ThisIsNotARecognizedServerDescriptionLong" = "Toto nie je známy Bitwarden server. Možno bude potrebné overiť si to u svojho poskytovateľa alebo aktualizovať server.";
 "LoginsImported" = "Prihlasovacie údaje boli importované";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Nezabudnite z počítača odstrániť importovaný súbor s heslami.";
 "SomethingWentWrong" = "Niečo sa pokazilo";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Nepodarilo sa presunúť vybranú položku. Skúste to znova, prosím.";
+"Done" = "Hotovo";
+"CopyPublicKey" = "Kopírovať verejný kľúč";
+"CopyPrivateKey" = "Kopírovať privátny kľúč";
+"CopyFingerprint" = "Kopírovať odtlačok prsta";
+"SSHKeys" = "SSH keys";

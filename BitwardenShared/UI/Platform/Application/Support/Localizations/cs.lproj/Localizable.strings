@@ -1025,7 +1025,7 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "Po dokončení importu tento soubor smažete.";
 "NeedHelpCheckOutImportHelp" = "Potřebujete pomoc? Podívejte se do **[nápovědy pro import](%1$@)**";
 "LogInToBitwarden" = "Přihlásit se do Bitwardenu";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "Na Vašem počítači otevřete novou kartu prohlížeče a **přejděte do %1$@**";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "Na Vašem počítači otevřete novou kartu prohlížeče a **přejděte do %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Přihlaste se do webové aplikace Bitwarden**";
 "ImportLoginsToBitwarden" = "Importovat přihlášení do Bitwardenu";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "V navigaci Bitwarden **najděte volbu Nástroje** a **vyberte Importovat data.**";
@@ -1038,7 +1038,7 @@
 "DownloadTheBrowserExtension" = "Stáhnout rozšíření prohlížeče";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Přejděte na bitwarden.com/download a integrujte Bitwarden do svého oblíbeného prohlížeče pro bezproblémové používání.";
 "UseTheWebApp" = "Použít webovou aplikaci";
-"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Přihlaste se na bitwarden.com a snadno spravujte svůj účet a aktualizujte nastavení";
+"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Přihlaste se na bitwarden.com a snadno spravujte svůj účet a aktualizujte nastavení.";
 "AutofillPasswords" = "Automatické vyplňování hesel";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Nastavte automatické vyplňování na všech Vašich zařízeních pro přihlášení jedním klepnutím kdekoliv.";
 "GotIt" = "Rozumím";
@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Nezapomeňte smazat soubor importovaných hesel z Vašeho počítače.";
 "SomethingWentWrong" = "Něco se pokazilo";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Nelze přesunout vybranou položku. Zkuste to znovu.";
+"Done" = "Hotovo";
+"CopyPublicKey" = "Kopírovat veřejný klíč";
+"CopyPrivateKey" = "Kopírovat soukromý klíč";
+"CopyFingerprint" = "Kopírovat otisk prstu";
+"SSHKeys" = "SSH klíče";
