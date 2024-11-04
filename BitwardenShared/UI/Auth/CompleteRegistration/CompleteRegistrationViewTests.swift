@@ -17,6 +17,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     override func setUp() {
         super.setUp()
+
         processor = MockProcessor(state: CompleteRegistrationState(
             emailVerificationToken: "emailVerificationToken",
             userEmail: "email@example.com"
@@ -27,6 +28,7 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     override func tearDown() {
         super.tearDown()
+
         processor = nil
         subject = nil
     }
@@ -190,8 +192,9 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly when the feature flag for native create account is on.
     @MainActor
-    func test_nativeCreateAccountFlow() throws {
+    func test_snapshot_empty_nativeCreateAccountFlow() throws {
         processor.state.nativeCreateAccountFeatureFlag = true
+
         assertSnapshots(
             of: subject,
             as: [
@@ -200,5 +203,42 @@ class CompleteRegistrationViewTests: BitwardenTestCase {
                 .tallPortraitAX5(),
             ]
         )
+    }
+
+    /// Tests the view renders correctly when text fields are hidden and new account ff is on.
+    @MainActor
+    func test_snapshot_textFields_hidden_nativeCreateAccountFlow() throws {
+        processor.state.nativeCreateAccountFeatureFlag = true
+        processor.state.arePasswordsVisible = false
+        processor.state.userEmail = "email@example.com"
+        processor.state.passwordText = "12345"
+        processor.state.retypePasswordText = "12345"
+        processor.state.passwordHintText = "wink wink"
+        processor.state.passwordStrengthScore = 0
+
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Tests the view renders correctly when the text fields are all populated and new account ff is on.
+    @MainActor
+    func test_snapshot_textFields_populated_nativeCreateAccountFlow() throws {
+        processor.state.nativeCreateAccountFeatureFlag = true
+        processor.state.arePasswordsVisible = true
+        processor.state.userEmail = "email@example.com"
+        processor.state.passwordText = "12345"
+        processor.state.retypePasswordText = "12345"
+        processor.state.passwordHintText = "wink wink"
+        processor.state.passwordStrengthScore = 0
+
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// Tests the view renders correctly when the toggles are on when the feature flag for native create account is on.
+    @MainActor
+    func test_snapshot_toggles_on_nativeCreateAccountFlow() throws {
+        processor.state.nativeCreateAccountFeatureFlag = true
+        processor.state.isCheckDataBreachesToggleOn = true
+
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 }

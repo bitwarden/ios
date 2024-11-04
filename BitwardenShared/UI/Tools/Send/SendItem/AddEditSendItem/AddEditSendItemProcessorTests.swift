@@ -56,8 +56,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
         XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.sendLink)
+            subject.state.toast,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
         )
     }
 
@@ -151,7 +151,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             coordinator.loadingOverlaysShown.last?.title,
             Localizations.removingSendPassword
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendPasswordRemoved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
@@ -176,7 +176,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
             coordinator.loadingOverlaysShown.last?.title,
             Localizations.removingSendPassword
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendPasswordRemoved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
 
     /// `perform(_:)` with `shareLinkPressed` uses the send repository to generate a url and
@@ -394,8 +394,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
         XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.sendLink)
+            subject.state.toast,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
         )
 
         subject.receive(.toastShown(nil))
@@ -683,7 +683,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.
     @MainActor
     func test_receive_toastShown() {
-        subject.state.toast = Toast(text: "toasty")
+        subject.state.toast = Toast(title: "toasty")
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
     }

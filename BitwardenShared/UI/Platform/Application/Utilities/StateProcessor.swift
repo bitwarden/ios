@@ -35,6 +35,12 @@ open class StateProcessor<State: Sendable, Action: Sendable, Effect: Sendable>: 
         stateSubject = CurrentValueSubject(state)
     }
 
+    /// Initializes a `StateProcessor` with an unused (`Void`) state.
+    ///
+    public init() where State == Void {
+        stateSubject = CurrentValueSubject(())
+    }
+
     /// Performs an asynchronous effect.
     ///
     /// Override this method in subclasses to customize its behavior.

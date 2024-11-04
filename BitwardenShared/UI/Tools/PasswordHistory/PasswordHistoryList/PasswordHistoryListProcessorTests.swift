@@ -116,7 +116,7 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
     func test_receive_copyPassword() {
         subject.receive(.copyPassword(.fixture(password: "PASSWORD")))
         XCTAssertEqual(pasteboardService.copiedString, "PASSWORD")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
@@ -129,7 +129,7 @@ class PasswordHistoryListProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.password))
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

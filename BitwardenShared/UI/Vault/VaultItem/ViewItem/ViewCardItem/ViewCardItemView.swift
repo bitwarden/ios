@@ -57,7 +57,7 @@ struct ViewCardItemView: View {
                 Button {
                     store.send(.copyPressed(value: number, field: .cardNumber))
                 } label: {
-                    Asset.Images.copy.swiftUIImage
+                    Asset.Images.copy16.swiftUIImage
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)
@@ -124,7 +124,7 @@ struct ViewCardItemView: View {
                 Button {
                     store.send(.copyPressed(value: code, field: .securityCode))
                 } label: {
-                    Asset.Images.copy.swiftUIImage
+                    Asset.Images.copy16.swiftUIImage
                         .imageStyle(.accessoryIcon)
                 }
                 .accessibilityLabel(Localizations.copy)

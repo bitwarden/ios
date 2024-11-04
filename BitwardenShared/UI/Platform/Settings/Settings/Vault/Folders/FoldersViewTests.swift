@@ -37,6 +37,14 @@ class FoldersViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .add)
     }
 
+    /// Tapping the new folder floating acrtion button dispatches the `.add` action.`
+    @MainActor
+    func test_addItemFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .add)
+    }
+
     /// Tapping on a folder button dispatches the `.folderTapped(id:)` action.
     @MainActor
     func test_folderButton_tap() throws {

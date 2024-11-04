@@ -15,11 +15,6 @@ struct ExpiredLinkView: View {
     var body: some View {
         VStack(spacing: 16) {
             VStack(alignment: .center, spacing: 0) {
-                Image(decorative: Asset.Images.expiredLink)
-                    .frame(maxWidth: .infinity)
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-                    .padding([.bottom, .top], 32)
-
                 Text(Localizations.expiredLink)
                     .styleGuide(.title2)
                     .padding(.bottom, 8)

@@ -12,7 +12,7 @@ struct ResponseValidationErrorModel: Codable, Equatable {
     let error: String
 
     /// A string that provides a description of the error.
-    let errorDescription: String
+    let errorDescription: String?
 
     /// An `ErrorModel` object that provides more details about the error.
     let errorModel: ErrorModel

@@ -26,6 +26,9 @@ enum VaultListAction: Equatable {
     /// The text in the search bar was changed.
     case searchTextChanged(String)
 
+    /// The user tapped the get started button on the import logins action card.
+    case showImportLogins
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 

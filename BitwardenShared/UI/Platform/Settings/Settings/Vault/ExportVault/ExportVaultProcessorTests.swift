@@ -94,7 +94,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.sendingCode)])
         XCTAssertTrue(authRepository.requestOtpCalled)
         XCTAssertTrue(subject.state.isSendCodeButtonDisabled)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.codeSent)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.codeSent))
     }
 
     /// `perform()` with `.sendCodeTapped` records an error and displays an alert if requesting the
@@ -395,7 +395,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

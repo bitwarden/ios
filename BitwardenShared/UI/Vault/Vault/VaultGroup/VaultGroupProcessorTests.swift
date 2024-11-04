@@ -80,7 +80,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(subject.state.toast)
 
         subject.itemDeleted()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemDeleted))
     }
 
     /// `itemSoftDeleted()` delegate method shows the expected toast.
@@ -89,7 +89,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(subject.state.toast)
 
         subject.itemSoftDeleted()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemSoftDeleted))
     }
 
     /// `itemRestored()` delegate method shows the expected toast.
@@ -98,7 +98,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(subject.state.toast)
 
         subject.itemRestored()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemRestored)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemRestored))
     }
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.
@@ -196,7 +196,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNotNil(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleDisplayToast)
         XCTAssertNotNil(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL)
 
-        let toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.password))
         vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleDisplayToast?(toast)
         XCTAssertEqual(subject.state.toast, toast)
 
@@ -657,7 +657,10 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_receive_copyTOTPCode() {
         subject.receive(.copyTOTPCode("123456"))
         XCTAssertEqual(pasteboardService.copiedString, "123456")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.verificationCode))
+        XCTAssertEqual(
+            subject.state.toast,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
+        )
     }
 
     /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
@@ -701,7 +704,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

@@ -54,6 +54,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupAutofill_2"), 2)
     }
 
+    /// `accountSetupImportLogins(userId:)` returns `nil` if there isn't a previously stored value.
+    func test_accountSetupImportLogins_isInitiallyNil() {
+        XCTAssertNil(subject.accountSetupImportLogins(userId: "-1"))
+    }
+
+    /// `accountSetupImportLogins(userId:)` can be used to get the user's progress for import logins setup.
+    func test_accountSetupImportLogins_withValue() {
+        subject.setAccountSetupImportLogins(.setUpLater, userId: "1")
+        subject.setAccountSetupImportLogins(.complete, userId: "2")
+
+        XCTAssertEqual(subject.accountSetupImportLogins(userId: "1"), .setUpLater)
+        XCTAssertEqual(subject.accountSetupImportLogins(userId: "2"), .complete)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupImportLogins_1"), 1)
+        XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:accountSetupImportLogins_2"), 2)
+    }
+
     /// `accountSetupVaultUnlock(userId:)` returns `nil` if there isn't a previously stored value.
     func test_accountSetupVaultUnlock_isInitiallyFalse() {
         XCTAssertNil(subject.accountSetupVaultUnlock(userId: "-1"))
@@ -136,6 +152,49 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.appLocale = nil
         XCTAssertNil(subject.appLocale)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appLocale"))
+    }
+
+    /// `appRehydrationState(userId:)` is initially `nil`
+    func test_appRehydrationState_isInitiallyNil() {
+        XCTAssertNil(subject.appRehydrationState(userId: "-1"))
+    }
+
+    /// `appRehydrationState(userId:)` is initially `nil`
+    func test_appRehydrationState_withValue() {
+        subject.setAppRehydrationState(
+            AppRehydrationState(target: .viewCipher(cipherId: "1"), expirationTime: .now),
+            userId: "1"
+        )
+        subject.setAppRehydrationState(
+            AppRehydrationState(target: .viewCipher(cipherId: "2"), expirationTime: .now),
+            userId: "2"
+        )
+
+        XCTAssertEqual(subject.appRehydrationState(userId: "1")?.target, .viewCipher(cipherId: "1"))
+        XCTAssertEqual(subject.appRehydrationState(userId: "2")?.target, .viewCipher(cipherId: "2"))
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                AppRehydrationState.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:appRehydrationState_1")?
+                        .data(using: .utf8)
+                )
+            ).target,
+            .viewCipher(cipherId: "1")
+        )
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                AppRehydrationState.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:appRehydrationState_2")?
+                        .data(using: .utf8)
+                )
+            ).target,
+            .viewCipher(cipherId: "2")
+        )
     }
 
     /// `appTheme` returns `nil` if there isn't a previously stored value.

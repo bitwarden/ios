@@ -9,6 +9,10 @@ import SwiftUI
 ///
 @MainActor
 public protocol SettingsCoordinatorDelegate: AnyObject {
+    /// Called when the user completes the import navigation flow and should be navigated to the vault tab.
+    ///
+    func didCompleteLoginsImport()
+
     /// Called when the active user's account has been deleted.
     ///
     func didDeleteAccount()
@@ -44,7 +48,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = LoginRequestModule
+    typealias Module = AuthModule
+        & ImportLoginsModule
+        & LoginRequestModule
+        & PasswordAutoFillModule
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
@@ -148,6 +155,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportVault()
         case .folders:
             showFolders()
+        case .importLogins:
+            showImportLogins()
         case let .loginRequest(loginRequest):
             showLoginRequest(loginRequest, delegate: context as? LoginRequestDelegate)
         case .other:
@@ -165,8 +174,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .vault:
             showVault()
         case .vaultUnlockSetup:
-            // TODO: PM-12780 Display set up unlock screen
-            break
+            showAuthCoordinator(route: .vaultUnlockSetup(.settings))
         }
     }
 
@@ -276,6 +284,20 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(viewController)
     }
 
+    /// Navigates to the specified auth coordinator route within the existing navigator.
+    ///
+    /// - Parameter route: The auth route to navigate to.
+    ///
+    private func showAuthCoordinator(route: AuthRoute) {
+        guard let stackNavigator else { return }
+        let coordinator = module.makeAuthCoordinator(
+            delegate: nil,
+            rootNavigator: nil,
+            stackNavigator: stackNavigator
+        )
+        coordinator.navigate(to: route)
+    }
+
     /// Shows the auto-fill screen.
     ///
     private func showAutoFill() {
@@ -336,6 +358,21 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.push(viewController, navigationTitle: Localizations.folders)
     }
 
+    /// Shows the import login items screen.
+    ///
+    private func showImportLogins() {
+        let navigationController = UINavigationController()
+        navigationController.modalPresentationStyle = .overFullScreen
+        let coordinator = module.makeImportLoginsCoordinator(
+            delegate: self,
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        coordinator.navigate(to: .importLogins(.settings))
+
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the login request.
     ///
     /// - Parameters:
@@ -367,14 +404,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the password auto-fill screen.
     ///
     private func showPasswordAutoFill() {
-        let processor = PasswordAutoFillProcessor(
-            services: services,
-            state: .init(mode: .settings)
+        guard let stackNavigator else { return }
+        let coordinator = module.makePasswordAutoFillCoordinator(
+            delegate: nil,
+            stackNavigator: stackNavigator
         )
-        let view = PasswordAutoFillView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        viewController.navigationItem.largeTitleDisplayMode = .never
-        stackNavigator?.push(viewController, navigationTitle: Localizations.passwordAutofill)
+        coordinator.start()
+        coordinator.navigate(to: .passwordAutofill(mode: .settings))
     }
 
     /// Shows the pending login requests screen.
@@ -432,7 +468,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     }
 }
 
-// MARK: SettingsProcessorDelegate
+// MARK: - ImportLoginsCoordinatorDelegate
+
+extension SettingsCoordinator: ImportLoginsCoordinatorDelegate {
+    func didCompleteLoginsImport() {
+        stackNavigator?.dismiss {
+            self.delegate?.didCompleteLoginsImport()
+        }
+    }
+}
+
+// MARK: - SettingsProcessorDelegate
 
 extension SettingsCoordinator: SettingsProcessorDelegate {
     func updateSettingsTabBadge(_ badgeValue: String?) {

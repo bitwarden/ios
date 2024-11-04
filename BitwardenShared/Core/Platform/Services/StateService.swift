@@ -60,6 +60,13 @@ protocol StateService: AnyObject {
     ///
     func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress?
 
+    /// Gets the user's progress for importing logins.
+    ///
+    /// - Parameter userId: The user ID associated with the import logins setup progress.
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress?
+
     /// Gets the user's progress for setting up vault unlock.
     ///
     /// - Parameter userId: The user ID associated with the vault unlock setup progress.
@@ -104,6 +111,11 @@ protocol StateService: AnyObject {
     /// - Returns: The allow sync on refresh value.
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
+
+    /// Gets the app rehydration state.
+    /// - Parameter userId: The user ID associated with this state.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState?
 
     /// Get the app theme.
     ///
@@ -371,6 +383,14 @@ protocol StateService: AnyObject {
     ///
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws
 
+    /// Sets the user's progress for setting up import logins.
+    ///
+    /// - Parameters:
+    ///   - importLogins: The user's import logins setup progress.
+    ///   - userId: The user ID associated with the import logins setup progress.
+    ///
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?, userId: String?) async throws
+
     /// Sets the user's progress for setting up vault unlock.
     ///
     /// - Parameters:
@@ -549,6 +569,12 @@ protocol StateService: AnyObject {
     /// - Parameter config: The server config to use prior to user authentication.
     func setPreAuthServerConfig(config: ServerConfig) async
 
+    /// Sets the app rehydration state for the active account.
+    /// - Parameters:
+    ///   - rehydrationState: The app rehydration state.
+    ///   - userId: The user ID of the rehydration state.
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
+
     /// Sets the server configuration as provided by a server for a user ID.
     ///
     /// - Parameters:
@@ -716,6 +742,14 @@ extension StateService {
         try await getAccountSetupAutofill(userId: getActiveAccountId())
     }
 
+    /// Gets the active user's progress for importing logins.
+    ///
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func getAccountSetupImportLogins() async throws -> AccountSetupProgress? {
+        try await getAccountSetupImportLogins(userId: getActiveAccountId())
+    }
+
     /// Gets the active user's progress for setting up vault unlock.
     ///
     /// - Returns: The user's vault unlock setup progress.
@@ -750,6 +784,12 @@ extension StateService {
     ///
     func getAllowSyncOnRefresh() async throws -> Bool {
         try await getAllowSyncOnRefresh(userId: nil)
+    }
+
+    /// Gets the app rehydration state for the active account.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState() async throws -> AppRehydrationState? {
+        try await getAppRehydrationState(userId: nil)
     }
 
     /// Gets the clear clipboard value for the active account.
@@ -956,6 +996,14 @@ extension StateService {
         try await setAccountSetupAutofill(autofillSetup, userId: nil)
     }
 
+    /// Sets the active user's progress for importing logins.
+    ///
+    /// - Parameter importLogins: The user's import logins progress.
+    ///
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?) async throws {
+        try await setAccountSetupImportLogins(importLogins, userId: nil)
+    }
+
     /// Sets the active user's progress for setting up vault unlock.
     ///
     /// - Parameter vaultUnlockSetup: The user's vault unlock setup progress.
@@ -1052,6 +1100,14 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
+    /// Sets the app rehydration state for the active account.
+    ///
+    /// - Parameter rehydrationState: The app rehydration state.
+    ///
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?) async throws {
+        try await setAppRehydrationState(rehydrationState, userId: nil)
+    }
+
     /// Sets the server config for the active account.
     ///
     /// - Parameter config: The server config.
@@ -1113,7 +1169,7 @@ extension StateService {
 
 /// The errors thrown from a `StateService`.
 ///
-enum StateServiceError: Error {
+enum StateServiceError: LocalizedError {
     /// There are no known accounts.
     case noAccounts
 
@@ -1128,6 +1184,15 @@ enum StateServiceError: Error {
 
     /// The user has no user key.
     case noEncUserKey
+
+    var errorDescription: String? {
+        switch self {
+        case .noActiveAccount:
+            Localizations.noAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError
+        default:
+            nil
+        }
+    }
 }
 
 // MARK: - DefaultStateService
@@ -1277,6 +1342,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.accountSetupAutofill(userId: userId)
     }
 
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress? {
+        appSettingsStore.accountSetupImportLogins(userId: userId)
+    }
+
     func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
         appSettingsStore.accountSetupVaultUnlock(userId: userId)
     }
@@ -1302,6 +1371,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
+    }
+
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.appRehydrationState(userId: userId)
     }
 
     func getAppTheme() async -> AppTheme {
@@ -1450,11 +1524,19 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
+        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
         guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
-            let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-            return userAuthKey == nil ? .fifteenMinutes : .never
+            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
+            // So if the never lock key exists, set the timeout to never, otherwise to default.
+            return userAuthKey != nil ? .never : .fifteenMinutes
         }
-        return SessionTimeoutValue(rawValue: rawValue)
+
+        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
+        if timeoutValue == .never, userAuthKey == nil {
+            // If never lock but no key (possibly due to logging out), return the default timeout.
+            return .fifteenMinutes
+        }
+        return timeoutValue
     }
 
     func isAuthenticated(userId: String?) async throws -> Bool {
@@ -1515,6 +1597,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
+    }
+
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupImportLogins(importLogins, userId: userId)
         await updateSettingsBadgePublisher(userId: userId)
     }
 
@@ -1654,6 +1742,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthServerConfig(config: ServerConfig) async {
         appSettingsStore.preAuthServerConfig = config
+    }
+
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
@@ -1807,14 +1900,19 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     ///
     private func updateSettingsBadgePublisher(userId: String) async {
         let autofillSetupProgress = await getAccountSetupAutofill(userId: userId)
+        let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
         let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
-        let badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
+        var badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
             .compactMap { $0 }
             .filter { $0 != .complete }
             .count
+        if importLoginsSetupProgress == .setUpLater {
+            badgeCount += 1
+        }
         settingsBadgeByUserIdSubject.value[userId] = SettingsBadgeState(
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
+            importLoginsSetupProgress: importLoginsSetupProgress,
             vaultUnlockSetupProgress: vaultUnlockSetupProgress
         )
     }

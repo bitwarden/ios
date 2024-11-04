@@ -53,7 +53,7 @@ struct PendingRequestsView: View {
             HStack(spacing: 4) {
                 Spacer()
 
-                Image(decorative: Asset.Images.trash)
+                Image(decorative: Asset.Images.trash16)
                     .imageStyle(.accessoryIcon(scaleWithFont: true))
 
                 Text(Localizations.declineAllRequests)
@@ -69,7 +69,9 @@ struct PendingRequestsView: View {
     /// The empty view.
     private var empty: some View {
         VStack(spacing: 20) {
-            Image(decorative: Asset.Images.pendingLoginRequestsEmpty)
+            Image(decorative: Asset.Images.Illustrations.devices)
+                .resizable()
+                .frame(width: 100, height: 100)
 
             Text(Localizations.noPendingRequests)
                 .styleGuide(.body)

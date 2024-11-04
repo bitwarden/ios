@@ -15,11 +15,16 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A flag that enables individual cipher encryption.
     case enableCipherKeyEncryption
 
+    /// A feature flag for the import logins flow for new accounts.
+    case importLoginsFlow = "import-logins-flow"
+
     /// A feature flag for the intro carousel flow.
     case nativeCarouselFlow = "native-carousel-flow"
 
     /// A feature flag for the create account flow.
     case nativeCreateAccountFlow = "native-create-account-flow"
+
+    case sshKeyVaultItem = "ssh-key-vault-item"
 
     // MARK: Test Flags
 
@@ -75,8 +80,10 @@ enum FeatureFlag: String, CaseIterable, Codable {
         switch self {
         case .enableAuthenticatorSync,
              .enableCipherKeyEncryption,
+             .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
+             .sshKeyVaultItem,
              .testLocalFeatureFlag,
              .testLocalInitialBoolFlag,
              .testLocalInitialIntFlag,

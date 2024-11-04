@@ -76,27 +76,18 @@ class AddEditCustomFieldsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .removeCustomFieldPressed(index: 0))
     }
 
-    /// The view with all types of custom fields renders correctly in dark mode.
-    @MainActor
-    func test_snapshot_allFields_dark() {
-        for preview in AddEditCustomFieldsView_Previews._allPreviews {
-            assertSnapshot(of: preview.content, as: .defaultPortraitDark)
-        }
-    }
-
     /// The view with all types of custom fields renders correctly.
     @MainActor
-    func test_snapshot_allFields_default() {
+    func test_snapshot_allFields() {
         for preview in AddEditCustomFieldsView_Previews._allPreviews {
-            assertSnapshot(of: preview.content, as: .defaultPortrait)
-        }
-    }
-
-    /// The view with all types of custom fields renders correctly with large text.
-    @MainActor
-    func test_snapshot_allFields_large() {
-        for preview in AddEditCustomFieldsView_Previews._allPreviews {
-            assertSnapshot(of: preview.content, as: .defaultPortraitAX5)
+            assertSnapshots(
+                of: preview.content,
+                as: [
+                    .defaultPortrait,
+                    .defaultPortraitDark,
+                    .defaultPortraitAX5,
+                ]
+            )
         }
     }
 }

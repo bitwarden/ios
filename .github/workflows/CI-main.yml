@@ -19,7 +19,6 @@ on:
         description: "Distribute to TestFlight"
         type: boolean
 env:
-  XCODE_VERSION: '15.4'
   DISTRIBUTE_TO_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.distribute }}
   INTERNAL_BETA_PATCH_NUMBER: 999
 
@@ -30,7 +29,7 @@ jobs:
     outputs:
       version_name: ${{ steps.version_info.outputs.version_name }}
       version_number: ${{ steps.version_info.outputs.version_number }}
-      xcode_version: ${{ env.XCODE_VERSION }}
+      xcode_version: ${{ steps.xcode_version.outputs.xcode_version }}
       distribute_to_testflight: ${{ env.DISTRIBUTE_TO_TESTFLIGHT }}
       internal_beta_version_name: ${{ steps.internal_versions.outputs.internal_beta_version_name}}
     steps:
@@ -42,6 +41,11 @@ jobs:
           echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+      - name: Read default Xcode version
+        id: xcode_version
+        run: |
+          echo "xcode_version=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_OUTPUT"
 
       - name: Calculate version
         if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
@@ -76,7 +80,7 @@ jobs:
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
       - name: Upload version info artifact
-        uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: version-info
           path: version-info/version_info.json

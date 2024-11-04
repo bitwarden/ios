@@ -113,16 +113,75 @@ extension View {
     /// - Parameters:
     ///   - addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
     ///   - backgroundColor: The background color to apply to the scroll view. Defaults to `backgroundPrimary`.
+    ///   - showsIndicators: Whether or not the scroll indicators are shown.
     ///
     /// - Returns: A view within a `ScrollView`.
     ///
     func scrollView(
         addVerticalPadding: Bool = true,
-        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor
+        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
+        showsIndicators: Bool = true
     ) -> some View {
         modifier(ScrollViewModifier(
             addVerticalPadding: addVerticalPadding,
-            backgroundColor: backgroundColor
+            backgroundColor: backgroundColor,
+            showsIndicators: showsIndicators
         ))
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured for adding an item.
+    ///
+    func addItemFloatingActionButton(
+        hidden: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        floatingActionButton(
+            hidden: hidden,
+            image: Asset.Images.plus32.swiftUIImage,
+            action: action
+        )
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured for adding an item.
+    ///
+    func editItemFloatingActionButton(
+        hidden: Bool = false,
+        action: @escaping () -> Void
+    ) -> some View {
+        floatingActionButton(
+            hidden: hidden,
+            image: Asset.Images.pencil32.swiftUIImage,
+            action: action
+        )
+        .accessibilityLabel(Localizations.edit)
+        .accessibilityIdentifier("EditItemFloatingActionButton")
+    }
+
+    /// Returns a floating action button positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display within the button.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `FloatingActionButton` configured with the specified image and action.
+    ///
+    func floatingActionButton(
+        hidden: Bool = false,
+        image: Image,
+        action: @escaping () -> Void
+    ) -> some View {
+        FloatingActionButton(
+            image: image,
+            action: action
+        )
+        .padding([.trailing, .bottom], 16)
+        .hidden(hidden)
     }
 }

@@ -30,6 +30,17 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
 
     // MARK: Tests
 
+    /// Verify that `SharedCryptographyService.decryptAuthenticatorItems()' returns and empty
+    /// array when the input is an empty array even when the authenticator key is missing.
+    ///
+    func test_decryptAuthenticatorItems_returnsEmpty() async throws {
+        try sharedKeychainRepository.deleteAuthenticatorKey()
+        await assertAsyncDoesNotThrow {
+            let result = try await subject.decryptAuthenticatorItems([])
+            XCTAssertEqual(result, [])
+        }
+    }
+
     /// Verify that `SharedCryptographyService.decryptAuthenticatorItems(:)` correctly
     /// decrypts an encrypted array of `AuthenticatorBridgeItemDataModel`.
     ///
@@ -44,11 +55,12 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
     /// when the `SharedKeyRepository` authenticator key is missing.
     ///
     func test_decryptAuthenticatorItems_throwsKeyMissingError() async throws {
+        let encryptedItems = try await subject.encryptAuthenticatorItems(items)
         let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
 
         try sharedKeychainRepository.deleteAuthenticatorKey()
         await assertAsyncThrows(error: error) {
-            _ = try await subject.decryptAuthenticatorItems([])
+            _ = try await subject.decryptAuthenticatorItems(encryptedItems)
         }
     }
 
@@ -71,6 +83,16 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
 
             // Encrypted values should not remain equal, unless they were `nil`
             XCTAssertNotEqual(item.name, encryptedItem.name)
+            if item.accountDomain != nil {
+                XCTAssertNotEqual(item.accountDomain, encryptedItem.accountDomain)
+            } else {
+                XCTAssertNil(encryptedItem.accountDomain)
+            }
+            if item.accountEmail != nil {
+                XCTAssertNotEqual(item.accountEmail, encryptedItem.accountEmail)
+            } else {
+                XCTAssertNil(encryptedItem.accountEmail)
+            }
             if item.totpKey != nil {
                 XCTAssertNotEqual(item.totpKey, encryptedItem.totpKey)
             } else {

@@ -4,6 +4,9 @@ import Combine
 @testable import BitwardenShared
 
 class MockCipherDataStore: CipherDataStore {
+    var cipherCountUserId: String?
+    var cipherCountResult: Result<Int, Error> = .success(0)
+
     var deleteAllCiphersUserId: String?
 
     var deleteCipherId: String?
@@ -22,6 +25,11 @@ class MockCipherDataStore: CipherDataStore {
 
     var upsertCipherValue: Cipher?
     var upsertCipherUserId: String?
+
+    func cipherCount(userId: String) async throws -> Int {
+        cipherCountUserId = userId
+        return try cipherCountResult.get()
+    }
 
     func deleteAllCiphers(userId: String) async throws {
         deleteAllCiphersUserId = userId

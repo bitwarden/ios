@@ -9,7 +9,9 @@ class MockAppModule:
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
+    ImportLoginsModule,
     LoginRequestModule,
+    PasswordAutoFillModule,
     PasswordHistoryModule,
     SendModule,
     SendItemModule,
@@ -25,7 +27,12 @@ class MockAppModule:
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
+    var passwordAutoFillCoordinator = MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>()
+    var passwordAutoFillCoordinatorDelegate: PasswordAutoFillCoordinatorDelegate?
+    // swiftlint:disable:next weak_navigator identifier_name
+    var passwordAutoFillCoordinatorStackNavigator: StackNavigator?
     var passwordHistoryCoordinator = MockCoordinator<PasswordHistoryRoute, Void>()
     var sendCoordinator = MockCoordinator<SendRoute, Void>()
     var sendItemCoordinator = MockCoordinator<SendItemRoute, AuthAction>()
@@ -43,8 +50,8 @@ class MockAppModule:
     }
 
     func makeAuthCoordinator(
-        delegate _: AuthCoordinatorDelegate,
-        rootNavigator _: RootNavigator,
+        delegate _: AuthCoordinatorDelegate?,
+        rootNavigator _: RootNavigator?,
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<AuthRoute, AuthEvent> {
         authCoordinator.asAnyCoordinator()
@@ -81,10 +88,26 @@ class MockAppModule:
         generatorCoordinator.asAnyCoordinator()
     }
 
+    func makeImportLoginsCoordinator(
+        delegate: any ImportLoginsCoordinatorDelegate,
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<ImportLoginsRoute, ImportLoginsEvent> {
+        importLoginsCoordinator.asAnyCoordinator()
+    }
+
     func makeLoginRequestCoordinator(
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<LoginRequestRoute, Void> {
         loginRequestCoordinator.asAnyCoordinator()
+    }
+
+    func makePasswordAutoFillCoordinator(
+        delegate: PasswordAutoFillCoordinatorDelegate?,
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<PasswordAutofillRoute, PasswordAutofillEvent> {
+        passwordAutoFillCoordinatorDelegate = delegate
+        passwordAutoFillCoordinatorStackNavigator = stackNavigator
+        return passwordAutoFillCoordinator.asAnyCoordinator()
     }
 
     func makePasswordHistoryCoordinator(

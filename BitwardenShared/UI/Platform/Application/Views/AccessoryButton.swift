@@ -20,6 +20,9 @@ struct AccessoryButton: View {
     /// The accessibility label of the button.
     var accessibilityLabel: String
 
+    /// The accessibility label of the button.
+    var accessibilityIdentifier: String = ""
+
     /// The action to perform when the user interacts with this button.
     var action: Action
 
@@ -32,18 +35,20 @@ struct AccessoryButton: View {
             AsyncButton(action: action) {
                 asset.swiftUIImage
                     .resizable()
-                    .frame(width: 14, height: 14)
+                    .frame(width: 16, height: 16)
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Text(accessibilityLabel))
+            .accessibilityIdentifier(accessibilityIdentifier)
         case let .sync(action):
             Button(action: action) {
                 asset.swiftUIImage
                     .resizable()
-                    .frame(width: 14, height: 14)
+                    .frame(width: 16, height: 16)
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Text(accessibilityLabel))
+            .accessibilityIdentifier(accessibilityIdentifier)
         }
     }
 
@@ -57,9 +62,13 @@ struct AccessoryButton: View {
     ///   - accessibilityLabel: The accessibility label of the button.
     ///   - action: The action to perform when the user triggers the button.
     ///
-    init(asset: ImageAsset, accessibilityLabel: String, action: @escaping () -> Void) {
+    init(asset: ImageAsset,
+         accessibilityLabel: String,
+         accessibilityIdentifier: String = "",
+         action: @escaping () -> Void) {
         self.accessibilityLabel = accessibilityLabel
         self.action = .sync(action)
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.asset = asset
     }
 
@@ -69,11 +78,16 @@ struct AccessoryButton: View {
     /// - Parameters:
     ///   - asset: The image to display in the button.
     ///   - accessibilityLabel: The accessibility label of the button.
+    ///   - accessibilityIdentifier: The accessibility identifier of the button.
     ///   - action: The action to perform when the user triggers the button.
     ///
-    init(asset: ImageAsset, accessibilityLabel: String, action: @escaping () async -> Void) {
+    init(asset: ImageAsset,
+         accessibilityLabel: String,
+         accessibilityIdentifier: String = "",
+         action: @escaping () async -> Void) {
         self.accessibilityLabel = accessibilityLabel
         self.action = .async(action)
+        self.accessibilityIdentifier = accessibilityIdentifier
         self.asset = asset
     }
 }
@@ -81,5 +95,5 @@ struct AccessoryButton: View {
 // MARK: Previews
 
 #Preview {
-    AccessoryButton(asset: Asset.Images.copy, accessibilityLabel: Localizations.copy) {}
+    AccessoryButton(asset: Asset.Images.copy16, accessibilityLabel: Localizations.copy) {}
 }

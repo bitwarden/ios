@@ -192,7 +192,7 @@ struct GeneratorState: Equatable {
         case .username:
             valueCopied = Localizations.username
         }
-        toast = Toast(text: Localizations.valueHasBeenCopied(valueCopied))
+        toast = Toast(title: Localizations.valueHasBeenCopied(valueCopied))
     }
 }
 

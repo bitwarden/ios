@@ -48,6 +48,14 @@ class VaultGroupViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
+    /// Tapping the add item floating action button dispatches the `.addItemPressed` action.`
+    @MainActor
+    func test_addItemFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+    }
+
     /// Tapping the add an item toolbar button dispatches the `.addItemPressed` action.
     @MainActor
     func test_addAnItemToolbarButton_tap() throws {
@@ -121,6 +129,13 @@ class VaultGroupViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_emptyFolder() {
         processor.state.group = .folder(id: "id", name: "name")
+        processor.state.loadingState = .data([])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_emptySSHKey() {
+        processor.state.group = .sshKey
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

@@ -99,7 +99,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_nativeCreateAccountFeatureFlag() {
         processor.state.isCreateAccountFeatureFlagEnabled = true
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
     }
 
     /// Tests the view renders correctly when the text fields are all populated.

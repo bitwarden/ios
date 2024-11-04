@@ -39,6 +39,17 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `didCompleteLoginsImport()` notifies the delegate that the user completed importing their
+    /// logins and dismisses the import logins flow.
+    @MainActor
+    func test_didCompleteLoginsImport() throws {
+        subject.didCompleteLoginsImport()
+
+        XCTAssertTrue(delegate.didCompleteLoginsImportCalled)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
     /// `navigate(to:)` with `.about` pushes the about view onto the stack navigator.
     @MainActor
     func test_navigateTo_about() throws {
@@ -165,6 +176,18 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
     }
 
+    /// `navigate(to:)` with `.importLogins` presents the import logins flow.
+    @MainActor
+    func test_navigateTo_importLogins() throws {
+        subject.navigate(to: .importLogins)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.importLoginsCoordinator.isStarted)
+        XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.settings))
+    }
+
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
     @MainActor
     func test_navigateTo_lockVault() async throws {
@@ -237,9 +260,10 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_passwordAutoFill() throws {
         subject.navigate(to: .passwordAutoFill)
 
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .pushed)
-        XCTAssertTrue(action.view is UIHostingController<PasswordAutoFillView>)
+        XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
+        XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .settings)])
+        XCTAssertNil(module.passwordAutoFillCoordinatorDelegate)
+        XCTAssertIdentical(module.passwordAutoFillCoordinatorStackNavigator, stackNavigator)
     }
 
     /// `navigate(to:)` with `.pendingLoginRequests()` presents the pending login requests view.
@@ -280,6 +304,14 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
         XCTAssertTrue(action.view is UIHostingController<VaultSettingsView>)
+    }
+
+    /// `navigate(to:)` with `.vaultUnlockSetup` pushes the vault unlock setup screen.
+    @MainActor
+    func test_navigateTo_vaultUnlockSetup() throws {
+        subject.navigate(to: .vaultUnlockSetup)
+
+        XCTAssertEqual(module.authCoordinator.routes, [.vaultUnlockSetup(.settings)])
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
@@ -323,6 +355,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
 }
 
 class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
+    var didCompleteLoginsImportCalled = false
     var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
@@ -332,6 +365,10 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
     var switchUserId: String?
     var wasLogoutUserInitiated: Bool?
     var wasSwitchAutomatic: Bool?
+
+    func didCompleteLoginsImport() {
+        didCompleteLoginsImportCalled = true
+    }
 
     func didDeleteAccount() {
         didDeleteAccountCalled = true

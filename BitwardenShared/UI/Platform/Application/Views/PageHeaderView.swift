@@ -35,7 +35,6 @@ struct PageHeaderView: View {
                     .styleGuide(.body)
             }
         }
-        .padding(.top, 40)
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
     }
@@ -88,7 +87,7 @@ struct PageHeaderView: View {
 #if DEBUG
 #Preview("PageHeader") {
     PageHeaderView(
-        image: Asset.Images.biometricsPhone,
+        image: Asset.Images.Illustrations.biometricsPhone,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
     )

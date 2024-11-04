@@ -23,37 +23,53 @@ public enum TabRoute: Equatable, Hashable {
 extension TabRoute: TabRepresentable {
     public var image: UIImage? {
         switch self {
-        case .generator: return Asset.Images.restartFilled.image
-        case .send: return Asset.Images.sendFilled.image
-        case .settings: return Asset.Images.gearFilled.image
-        case .vault: return Asset.Images.lockedFilled.image
+        case .generator:
+            Asset.Images.TabBar.generatorIdle.image
+        case .send:
+            Asset.Images.TabBar.sendIdle.image
+        case .settings:
+            Asset.Images.TabBar.settingsIdle.image
+        case .vault:
+            Asset.Images.TabBar.vaultIdle.image
         }
     }
 
     public var index: Int {
         switch self {
-        case .vault: return 0
-        case .send: return 1
-        case .generator: return 2
-        case .settings: return 3
+        case .vault:
+            0
+        case .send:
+            1
+        case .generator:
+            2
+        case .settings:
+            3
         }
     }
 
     public var selectedImage: UIImage? {
         switch self {
-        case .generator: return Asset.Images.restartFilled.image
-        case .send: return Asset.Images.sendFilled.image
-        case .settings: return Asset.Images.gearFilled.image
-        case .vault: return Asset.Images.lockedFilled.image
+        case .generator:
+            Asset.Images.TabBar.generatorActive.image
+        case .send:
+            Asset.Images.TabBar.sendActive.image
+        case .settings:
+            Asset.Images.TabBar.settingsActive.image
+        case .vault:
+            Asset.Images.TabBar.vaultActive.image
         }
     }
 
     public var title: String {
         switch self {
-        case .generator: return Localizations.generator
-        case .send: return Localizations.send
-        case .settings: return Localizations.settings
-        case .vault: return Localizations.myVault
+        case .generator:
+            Localizations.generator
+        case .send:
+            Localizations.send
+        case .settings:
+            Localizations.settings
+        case .vault:
+            Localizations.myVault
         }
     }
 }

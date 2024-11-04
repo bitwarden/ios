@@ -97,7 +97,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
 
         do {
             try await services.settingsRepository.fetchSync()
-            state.toast = Toast(text: Localizations.syncingComplete)
+            state.toast = Toast(title: Localizations.syncingComplete)
         } catch {
             coordinator.showAlert(.networkResponseError(error) {
                 await self.syncVault()

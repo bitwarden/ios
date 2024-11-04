@@ -59,6 +59,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func accountSetupAutofill(userId: String) -> AccountSetupProgress?
 
+    /// The user's progress for importing logins.
+    ///
+    /// - Parameter userId: The user ID associated with the stored import logins setup progress.
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress?
+
     /// The user's progress for setting up vault unlock.
     ///
     /// - Parameter userId: The user ID associated with the stored vault unlock setup progress.
@@ -73,6 +80,11 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the vault should sync on refreshing.
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
+
+    /// Gets the app rehydration state.
+    /// - Parameter userId: The user ID associated with this state.
+    /// - Returns: The rehydration state.
+    func appRehydrationState(userId: String) -> AppRehydrationState?
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -229,6 +241,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String)
 
+    /// Sets the user's progress for import logins setup.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's import logins setup progress.
+    ///   - userId: The user ID associated with the stored import logins setup progress.
+    ///
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String)
+
     /// Sets the user's progress for vault unlock setup.
     ///
     /// - Parameters:
@@ -236,6 +256,12 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the stored autofill setup progress.
     ///
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String)
+
+    /// Sets the app rehydration state to be used after timeout lock and user unlock.
+    /// - Parameters:
+    ///   - state: The state to save.
+    ///   - userId: The user ID the state belongs to.
+    func setAppRehydrationState(_ state: AppRehydrationState?, userId: String)
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -628,11 +654,13 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     ///
     enum Keys {
         case accountSetupAutofill(userId: String)
+        case accountSetupImportLogins(userId: String)
         case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
+        case appRehydrationState(userId: String)
         case appTheme
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
@@ -677,6 +705,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             switch self {
             case let .accountSetupAutofill(userId):
                 key = "accountSetupAutofill_\(userId)"
+            case let .accountSetupImportLogins(userId):
+                key = "accountSetupImportLogins_\(userId)"
             case let .accountSetupVaultUnlock(userId):
                 key = "accountSetupVaultUnlock_\(userId)"
             case .addSitePromptShown:
@@ -687,6 +717,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appId"
             case .appLocale:
                 key = "appLocale"
+            case let .appRehydrationState(userId):
+                key = "appRehydrationState_\(userId)"
             case .appTheme:
                 key = "theme"
             case let .biometricAuthEnabled(userId):
@@ -843,12 +875,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .accountSetupAutofill(userId: userId))
     }
 
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress? {
+        fetch(for: .accountSetupImportLogins(userId: userId))
+    }
+
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
         fetch(for: .accountSetupVaultUnlock(userId: userId))
     }
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         fetch(for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func appRehydrationState(userId: String) -> AppRehydrationState? {
+        fetch(for: .appRehydrationState(userId: userId))
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -937,12 +977,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(autofillSetup, for: .accountSetupAutofill(userId: userId))
     }
 
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String) {
+        store(importLoginsSetup, for: .accountSetupImportLogins(userId: userId))
+    }
+
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
         store(vaultUnlockSetup, for: .accountSetupVaultUnlock(userId: userId))
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {
+        store(state, for: .appRehydrationState(userId: userId))
     }
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {

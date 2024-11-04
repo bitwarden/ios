@@ -29,6 +29,6 @@ enum ServerError: Error, Equatable, CustomNSError {
 
     /// The user-info dictionary.
     public var errorUserInfo: [String: Any] {
-       ["Message": message]
+        ["Message": message]
     }
 }

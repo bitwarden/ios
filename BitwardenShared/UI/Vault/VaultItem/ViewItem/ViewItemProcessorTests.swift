@@ -15,6 +15,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var pasteboardService: MockPasteboardService!
+    var rehydrationHelper: MockRehydrationHelper!
     var stateService: MockStateService!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -30,6 +31,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         pasteboardService = MockPasteboardService()
+        rehydrationHelper = MockRehydrationHelper()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
@@ -38,6 +40,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             eventService: eventService,
             httpClient: client,
             pasteboardService: pasteboardService,
+            rehydrationHelper: rehydrationHelper,
             stateService: stateService,
             vaultRepository: vaultRepository
         )
@@ -58,6 +61,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         errorReporter = nil
         eventService = nil
         pasteboardService = nil
+        rehydrationHelper = nil
         stateService = nil
         subject = nil
         vaultRepository = nil
@@ -73,8 +77,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.movedItemToOrg("Bitwarden Password", "Organization")
+            subject.state.toast,
+            Toast(title: Localizations.movedItemToOrg("Bitwarden Password", "Organization"))
         )
     }
 
@@ -85,7 +89,36 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         waitFor { subject.state.toast != nil }
 
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
+    }
+
+    /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with editing configuration
+    /// doesn't add itself as a rehydratable target.
+    @MainActor
+    func test_init_editingConfiguration() {
+        rehydrationHelper.rehydratableTargets.removeAll()
+
+        let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            eventService: eventService,
+            httpClient: client,
+            pasteboardService: pasteboardService,
+            rehydrationHelper: rehydrationHelper,
+            stateService: stateService,
+            vaultRepository: vaultRepository
+        )
+        subject = ViewItemProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            itemId: "id",
+            services: services,
+            state: ViewItemState()
+        )
+        waitFor(
+            !rehydrationHelper.rehydratableTargets.isEmpty
+                && rehydrationHelper.rehydratableTargets[0] is ViewItemProcessor
+        )
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
@@ -415,37 +448,37 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
         XCTAssertEqual(pasteboardService.copiedString, "card number")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.number))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.number)))
 
         subject.receive(.copyPressed(value: "hidden field value", field: .customHiddenField))
         XCTAssertEqual(pasteboardService.copiedString, "hidden field value")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.value)))
         waitFor(eventService.collectEventType == .cipherClientCopiedHiddenField)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "text field value", field: .customTextField))
         XCTAssertEqual(pasteboardService.copiedString, "text field value")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.value)))
 
         subject.receive(.copyPressed(value: "password", field: .password))
         XCTAssertEqual(pasteboardService.copiedString, "password")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
         waitFor(eventService.collectEventType == .cipherClientCopiedPassword)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "security code", field: .securityCode))
         XCTAssertEqual(pasteboardService.copiedString, "security code")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.securityCode))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.securityCode)))
         waitFor(eventService.collectEventType == .cipherClientCopiedCardCode)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "totp", field: .totp))
         XCTAssertEqual(pasteboardService.copiedString, "totp")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.totp))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.totp)))
 
         subject.receive(.copyPressed(value: "username", field: .username))
         XCTAssertEqual(pasteboardService.copiedString, "username")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
     }
 
     /// `recieve` with `.copyPressed` doesn't copy if the data isn't loaded.
@@ -453,7 +486,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_receive_copyPressed_notLoaded() {
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
         XCTAssertNil(pasteboardService.copiedString)
-        XCTAssertNil(subject.state.toast?.text)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
@@ -1305,15 +1338,15 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
         XCTAssertEqual(pasteboardService.copiedString, "privateKey")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.privateKey))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.privateKey)))
 
         subject.receive(.sshKeyItemAction(.copyPressed(value: "publicKey", field: .sshPublicKey)))
         XCTAssertEqual(pasteboardService.copiedString, "publicKey")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.publicKey))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.publicKey)))
 
         subject.receive(.sshKeyItemAction(.copyPressed(value: "fingerprint", field: .sshKeyFingerprint)))
         XCTAssertEqual(pasteboardService.copiedString, "fingerprint")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.fingerprint))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.fingerprint)))
     }
 
     /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field when
@@ -1331,7 +1364,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
 
         XCTAssertEqual(pasteboardService.copiedString, "privateKey")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.privateKey))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.privateKey)))
     }
 
     /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field when
@@ -1348,13 +1381,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
 
         XCTAssertNil(pasteboardService.copiedString)
-        XCTAssertNil(subject.state.toast?.text)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
     @MainActor
     func test_receive_toastShown_withValue() {
-        let toast = Toast(text: "123")
+        let toast = Toast(title: "123")
         subject.receive(.toastShown(toast))
 
         XCTAssertEqual(subject.state.toast, toast)
@@ -1443,6 +1476,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    /// `getter:rehydrationState` returns the proper state with the cipher id.
+    @MainActor
+    func test_rehydrationState() {
+        XCTAssertEqual(subject.rehydrationState?.target, .viewCipher(cipherId: "id"))
     }
 
     // MARK: Private

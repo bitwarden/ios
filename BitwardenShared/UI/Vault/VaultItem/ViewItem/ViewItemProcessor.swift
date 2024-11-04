@@ -5,7 +5,7 @@ import Foundation
 
 /// A processor that can process `ViewItemAction`s.
 ///
-final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect> {
+final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, ViewItemEffect>, Rehydratable {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -13,6 +13,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
+        & HasRehydrationHelper
         & HasStateService
         & HasVaultRepository
 
@@ -31,6 +32,12 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
         /// An error for ssh key action handling
         case nonSshKeyTypeToggle(String)
+    }
+
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        RehydrationState(target: .viewCipher(cipherId: itemId))
     }
 
     // MARK: Private Properties
@@ -70,6 +77,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         self.itemId = itemId
         self.services = services
         super.init(state: state)
+
+        Task {
+            await self.services.rehydrationHelper.addRehydratableTarget(self)
+        }
     }
 
     deinit {
@@ -235,7 +246,7 @@ private extension ViewItemProcessor {
         services.pasteboardService.copy(value)
 
         let localizedFieldName = field?.localizedName ?? Localizations.value
-        state.toast = Toast(text: Localizations.valueHasBeenCopied(localizedFieldName))
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(localizedFieldName))
         if let event = field?.eventOnCopy {
             Task {
                 await services.eventService.collect(
@@ -588,7 +599,7 @@ extension ViewItemProcessor: CipherItemOperationDelegate {
 
 extension ViewItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(text: Localizations.itemUpdated)
+        state.toast = Toast(title: Localizations.itemUpdated)
     }
 }
 
@@ -596,6 +607,6 @@ extension ViewItemProcessor: EditCollectionsProcessorDelegate {
 
 extension ViewItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
-        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
+        state.toast = Toast(title: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 } // swiftlint:disable:this file_length

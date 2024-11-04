@@ -177,15 +177,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             try await tryToUnlockVault(unlockMethod)
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
-        } catch let error as IdentityTokenRequestError {
-            if case let .captchaRequired(hCaptchaSiteCode) = error {
-                launchCaptchaFlow(with: hCaptchaSiteCode)
-            } else {
-                coordinator.showAlert(.defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: Localizations.invalidVerificationCode
-                ))
-            }
+        } catch let IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode) {
+            launchCaptchaFlow(with: hCaptchaSiteCode)
         } catch let authError as AuthError {
             if authError == .requireSetPassword,
                let orgId = state.orgIdentifier {
@@ -199,10 +192,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             }
         } catch {
-            coordinator.showAlert(.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.invalidVerificationCode
-            ))
+            coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
     }
@@ -216,7 +206,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             try await services.authService.resendVerificationCodeEmail()
 
             coordinator.hideLoadingOverlay()
-            state.toast = Toast(text: Localizations.verificationEmailSent)
+            state.toast = Toast(title: Localizations.verificationEmailSent)
         } catch {
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(.defaultAlert(
@@ -259,7 +249,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             switch unlockMethod {
             case .deviceKey:
                 try await services.authRepository.unlockVaultWithDeviceKey()
-                coordinator.navigate(to: .complete)
+                await coordinator.handleEvent(.didCompleteAuth)
             case let .masterPassword(account):
                 coordinator.hideLoadingOverlay()
                 coordinator.navigate(
@@ -279,7 +269,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                     keyConnectorURL: keyConnectorUrl,
                     orgIdentifier: orgIdentifier
                 )
-                coordinator.navigate(to: .complete)
+                await coordinator.handleEvent(.didCompleteAuth)
             }
         }
     }
@@ -379,7 +369,7 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
               let authURL = URL(string: authURLValue) else {
             state.toast = Toast(
                 // swiftlint:disable:next line_length
-                text: Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance
+                title: Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance
             )
             return
         }

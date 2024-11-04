@@ -114,6 +114,23 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(value: "www.example.com", field: .uri)))
     }
 
+    /// Tapping the copy notes button dispatches the `.copyPressed` action along with the notes.
+    @MainActor
+    func test_copyNotesButton_tap() throws {
+        let loginState = CipherItemState(
+            existing: .loginFixture(
+                name: "Name",
+                notes: "Notes",
+                revisionDate: Date()
+            ),
+            hasPremium: true
+        )!
+        processor.state.loadingState = .data(loginState)
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.copy)
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(value: "Notes", field: CopyableField.notes)))
+    }
+
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
     @MainActor
     func test_dismissButton_tap() throws {
@@ -135,6 +152,14 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(processor.dispatchedActions.last, .downloadAttachment(.fixture(id: "2")))
     }
 
+    /// Tapping the floating action button dispatches the `.editPressed` action.`
+    @MainActor
+    func test_editItemFloatingActionButton() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "EditItemFloatingActionButton")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .editPressed)
+    }
+
     /// Tapping the password history button dispatches the `passwordHistoryPressed` action.
     @MainActor
     func test_passwordHistoryButton_tap() throws {
@@ -142,6 +167,132 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let button = try subject.inspect().find(buttonWithId: "passwordHistoryButton")
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .passwordHistoryPressed)
+    }
+
+    /// Tapping the copy name button dispatches the `.copyPressed` action with the name.
+    @MainActor
+    func test_copyNameButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopyNameButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "Dr First Middle Last",
+            field: .identityName
+        )))
+    }
+
+    /// Tapping the copy identity username button dispatches the `.copyPressed` action with the identity username.
+    @MainActor
+    func test_copyIdentityUsernameButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopyUsernameButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "userName",
+            field: .username
+        )))
+    }
+
+    /// Tapping the copy company button dispatches the `.copyPressed` action with the company.
+    @MainActor
+    func test_copyCompanyButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopyCompanyButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "Company name",
+            field: .company
+        )))
+    }
+
+    /// Tapping the copy ssn button dispatches the `.copyPressed` action with the social security number.
+    @MainActor
+    func test_copySsnButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopySsnButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "12-345-6789",
+            field: .socialSecurityNumber
+        )))
+    }
+
+    /// Tapping the copy passport number button dispatches the `.copyPressed` action with the passport number.
+    @MainActor
+    func test_copyPassportButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopyPassportNumberButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "passport #",
+            field: .passportNumber
+        )))
+    }
+
+    /// Tapping the copy license number button dispatches the `.copyPressed` action with the license number.
+    @MainActor
+    func test_copyLicenseNumberButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopyLicenseNumberButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "license #",
+            field: .licenseNumber
+        )))
+    }
+
+    /// Tapping the copy phone button dispatches the `.copyPressed` action with the phone.
+    @MainActor
+    func test_copyPhoneButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopyPhoneButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "(123) 456-7890",
+            field: .phone
+        )))
+    }
+
+    /// Tapping the copy email button dispatches the `.copyPressed` action with the email.
+    @MainActor
+    func test_copyEmailButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopyEmailButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "hello@email.com",
+            field: .email
+        )))
+    }
+
+    /// Tapping the copy fullAddress button dispatches the `.copyPressed` action with the full address.
+    @MainActor
+    func test_copyAddressButton_tap() throws {
+        processor.state.loadingState = .data(identityState())
+        let button = try subject.inspect().find(
+            viewWithAccessibilityIdentifier: "IdentityCopyFullAddressButton"
+        ).button()
+        try button.tap()
+        XCTAssertTrue(processor.dispatchedActions.contains(.copyPressed(
+            value: "123 street\naddress2\naddress3\nCity, State, 1234\ncountry",
+            field: .fullAddress
+        )))
     }
 
     // MARK: Snapshots
@@ -406,7 +557,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_snapshot_previews_sshKey() {
         assertSnapshot(
-            matching: ViewItemView_Previews.sshKeyPreview,
+            of: ViewItemView_Previews.sshKeyPreview,
             as: .tallPortrait
         )
     }
@@ -414,7 +565,13 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Snapshots the previews for SSH key type.
     @MainActor
     func test_snapshot_sshKey() {
-        processor.state.loadingState = .data(sshKeyCipherItemState(isPrivateKeyVisible: false))
+        processor.state.loadingState =
+            .data(
+                sshKeyCipherItemState(
+                    canViewPrivateKey: true,
+                    isPrivateKeyVisible: false
+                )
+            )
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -424,7 +581,29 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Snapshots the previews for SSH key type when private key is visible.
     @MainActor
     func test_snapshot_sshKeyPrivateKeyVisible() {
-        processor.state.loadingState = .data(sshKeyCipherItemState(isPrivateKeyVisible: true))
+        processor.state.loadingState =
+            .data(
+                sshKeyCipherItemState(
+                    canViewPrivateKey: true,
+                    isPrivateKeyVisible: true
+                )
+            )
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// Snapshots the previews for SSH key type when `canViewPrivateKey` is `false`.
+    @MainActor
+    func test_snapshot_sshKeyCantViewPrivateKey() {
+        processor.state.loadingState =
+            .data(
+                sshKeyCipherItemState(
+                    canViewPrivateKey: false,
+                    isPrivateKeyVisible: false
+                )
+            )
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
@@ -434,9 +613,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     // MARK: Private
 
     /// Creates a `CipherItemState` for an SSH key item.
-    /// - Parameter isPrivateKeyVisible: Whether the private key is visible.
+    /// - Parameters:
+    ///   - canViewPrivateKey: Whether the private key can be viewed.
+    ///   - isPrivateKeyVisible: Whether the private key is visible
     /// - Returns: The `CipherItemState` for SSH key item.
-    private func sshKeyCipherItemState(isPrivateKeyVisible: Bool) -> CipherItemState {
+    private func sshKeyCipherItemState(canViewPrivateKey: Bool, isPrivateKeyVisible: Bool) -> CipherItemState {
         var state = CipherItemState(
             existing: .fixture(
                 id: "fake-id"
@@ -446,6 +627,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         state.name = "Example"
         state.type = .sshKey
         state.sshKeyState = SSHKeyItemState(
+            canViewPrivateKey: canViewPrivateKey,
             isPrivateKeyVisible: isPrivateKeyVisible,
             privateKey: "ajsdfopij1ZXCVZXC12312QW",
             publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",

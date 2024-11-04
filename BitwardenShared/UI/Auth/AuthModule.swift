@@ -14,8 +14,8 @@ protocol AuthModule {
     /// - Returns: A coordinator that can navigate to `AuthRoute`s.
     ///
     func makeAuthCoordinator(
-        delegate: AuthCoordinatorDelegate,
-        rootNavigator: RootNavigator,
+        delegate: AuthCoordinatorDelegate?,
+        rootNavigator: RootNavigator?,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<AuthRoute, AuthEvent>
 
@@ -30,13 +30,14 @@ protocol AuthModule {
 
 extension DefaultAppModule: AuthModule {
     func makeAuthCoordinator(
-        delegate: AuthCoordinatorDelegate,
-        rootNavigator: RootNavigator,
+        delegate: AuthCoordinatorDelegate?,
+        rootNavigator: RootNavigator?,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<AuthRoute, AuthEvent> {
         AuthCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
+            module: self,
             rootNavigator: rootNavigator,
             router: makeAuthRouter(),
             services: services,

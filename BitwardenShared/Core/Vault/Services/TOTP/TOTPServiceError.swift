@@ -8,7 +8,7 @@ enum TOTPServiceError: Error, Equatable, CustomNSError {
 
     /// `unableToGenerateCode` is thrown when the TOTP code cannot be generated.
     case unableToGenerateCode(_ errorDescription: String?)
-    
+
     /// The user-info dictionary.
     public var errorUserInfo: [String: Any] {
         switch self {

@@ -377,6 +377,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ]
         )
         XCTAssertNil(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"])
+        XCTAssertNil(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"])
         XCTAssertNil(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"])
         XCTAssertEqual(
             stateService.masterPasswordHashes,
@@ -403,6 +404,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ]
         appSettingsStore.appId = "App id"
         clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        configService.featureFlagsBool[.importLoginsFlow] = true
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         credentialIdentityStore.state.mockIsEnabled = false
         stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
@@ -448,6 +450,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
             ]
         )
         XCTAssertEqual(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
+        XCTAssertEqual(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
         XCTAssertEqual(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
         XCTAssertEqual(
             stateService.masterPasswordHashes,
@@ -492,6 +495,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
 
         XCTAssertNil(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"])
+        XCTAssertNil(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"])
         XCTAssertNil(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"])
     }
 
@@ -506,6 +510,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ]
         appSettingsStore.appId = "App id"
         clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        configService.featureFlagsBool[.importLoginsFlow] = true
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         credentialIdentityStore.state.mockIsEnabled = true
         stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
@@ -520,6 +525,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
 
         XCTAssertEqual(stateService.accountSetupAutofill["13512467-9cfe-43b0-969f-07534084764b"], .complete)
+        XCTAssertEqual(stateService.accountSetupImportLogins["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
         XCTAssertEqual(stateService.accountSetupVaultUnlock["13512467-9cfe-43b0-969f-07534084764b"], .incomplete)
     }
 

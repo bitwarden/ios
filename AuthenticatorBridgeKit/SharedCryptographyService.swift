@@ -57,11 +57,15 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
     public func decryptAuthenticatorItems(
         _ items: [AuthenticatorBridgeItemDataModel]
     ) async throws -> [AuthenticatorBridgeItemDataView] {
+        guard !items.isEmpty else { return [] }
+
         let key = try await sharedKeychainRepository.getAuthenticatorKey()
         let symmetricKey = SymmetricKey(data: key)
 
         return items.map { item in
             AuthenticatorBridgeItemDataView(
+                accountDomain: (try? decrypt(item.accountDomain, withKey: symmetricKey)) ?? "",
+                accountEmail: (try? decrypt(item.accountEmail, withKey: symmetricKey)) ?? "",
                 favorite: item.favorite,
                 id: item.id,
                 name: (try? decrypt(item.name, withKey: symmetricKey)) ?? "",
@@ -79,6 +83,8 @@ public class DefaultAuthenticatorCryptographyService: SharedCryptographyService 
 
         return items.map { item in
             AuthenticatorBridgeItemDataModel(
+                accountDomain: encrypt(item.accountDomain, withKey: symmetricKey) ?? "",
+                accountEmail: encrypt(item.accountEmail, withKey: symmetricKey) ?? "",
                 favorite: item.favorite,
                 id: item.id,
                 name: encrypt(item.name, withKey: symmetricKey) ?? "",

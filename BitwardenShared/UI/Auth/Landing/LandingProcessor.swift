@@ -207,7 +207,7 @@ extension LandingProcessor: ProfileSwitcherHandler {
 extension LandingProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
         await setRegion(.selfHosted, urls)
-        state.toast = Toast(text: Localizations.environmentSaved)
+        state.toast = Toast(title: Localizations.environmentSaved)
         await regionHelper.loadRegion()
     }
 }
@@ -234,10 +234,10 @@ extension LandingProcessor: RegionDelegate {
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
 
-        /// - Using `Task` for `refreshConfig` ensures that this call doesn’t delay other operations,
-        ///   such as closing the Self-host settings view or triggering `.appeared` events. These issues
-        ///   arose because `refreshConfig` was awaited directly, leading to delays when internet speed
-        ///   was low.
+        // - Using `Task` for `refreshConfig` ensures that this call doesn’t delay other operations,
+        //   such as closing the Self-host settings view or triggering `.appeared` events. These issues
+        //   arose because `refreshConfig` was awaited directly, leading to delays when internet speed
+        //   was low.
         Task {
             await refreshConfig()
         }

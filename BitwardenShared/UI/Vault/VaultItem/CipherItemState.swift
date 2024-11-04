@@ -357,6 +357,7 @@ extension CipherItemState {
             identity: type == .identity ? identityState.identityView : nil,
             card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
+            sshKey: nil, // SSH keys cannot be created in mobile yet.
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,

@@ -51,7 +51,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     AddEditItemState,
     AddEditItemAction,
     AddEditItemEffect
-> {
+>, Rehydratable {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -62,11 +62,19 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
         & HasPolicyService
+        & HasRehydrationHelper
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
 
-    // MARK: Properties
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        guard let id = state.cipher.id else { return nil }
+        return RehydrationState(target: .editCipher(cipherId: id))
+    }
+
+    // MARK: Private Properties
 
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
@@ -104,6 +112,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
 
         super.init(state: state)
+
+        if !state.configuration.isAdding {
+            Task {
+                await self.services.rehydrationHelper.addRehydratableTarget(self)
+            }
+        }
     }
 
     // MARK: Methods
@@ -118,7 +132,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .copyTotpPressed:
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
-            state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
         case .fetchCipherOptions:
             await fetchCipherOptions()
         case .savePressed:
@@ -470,9 +484,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// to the `.alert` route.
     ///
     private func presentCustomFieldAlert() {
-        let fieldTypes: [FieldType] = state.type != .secureNote ? [.text, .hidden, .boolean, .linked]
-            : [.text, .hidden, .boolean]
-        let actions = fieldTypes.map { type in
+        let actions = state.type.allowedFieldTypes.map { type in
             AlertAction(title: type.localizedName, style: .default) { [weak self] _ in
                 guard let self else { return }
                 receive(
@@ -737,7 +749,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             state.loginState.totpState = .key(authKeyModel)
-            state.toast = Toast(text: Localizations.authenticatorKeyAdded)
+            state.toast = Toast(title: Localizations.authenticatorKeyAdded)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -777,7 +789,7 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
 
 extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
     func didUpdateCipher() {
-        state.toast = Toast(text: Localizations.itemUpdated)
+        state.toast = Toast(title: Localizations.itemUpdated)
     }
 }
 
@@ -785,6 +797,6 @@ extension AddEditItemProcessor: EditCollectionsProcessorDelegate {
 
 extension AddEditItemProcessor: MoveToOrganizationProcessorDelegate {
     func didMoveCipher(_ cipher: CipherView, to organization: CipherOwner) {
-        state.toast = Toast(text: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
+        state.toast = Toast(title: Localizations.movedItemToOrg(cipher.name, organization.localizedName))
     }
 } // swiftlint:disable:this file_length

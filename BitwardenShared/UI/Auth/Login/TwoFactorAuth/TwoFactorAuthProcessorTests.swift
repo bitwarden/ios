@@ -184,8 +184,11 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.beginDuoAuth)
 
         XCTAssertEqual(coordinator.routes, [])
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.state.toast?.text, Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance)
+        XCTAssertEqual(
+            subject.state.toast,
+            Toast(title: Localizations.errorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance)
+            // swiftlint:disable:previous line_length
+        )
     }
 
     /// `perform(_:)` with `.beginDuoAuth` initates the duo auth flow.
@@ -391,10 +394,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.verifying)])
         XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "Test")
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidVerificationCode
-        ))
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -452,7 +452,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
-        XCTAssertEqual(coordinator.routes, [.complete])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
@@ -468,7 +468,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(coordinator.routes, [.complete])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.continueTapped` throws an error if the organization identifier is
@@ -483,15 +483,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(
-            coordinator.alertShown,
-            [
-                .defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: Localizations.invalidVerificationCode
-                ),
-            ]
-        )
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(TwoFactorAuthError.missingOrgIdentifier))
         XCTAssertEqual(coordinator.routes, [])
         XCTAssertEqual(errorReporter.errors as? [TwoFactorAuthError], [.missingOrgIdentifier])
     }
@@ -499,18 +491,14 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.
     @MainActor
     func test_perform_continueTapped_twoFactorError() async {
+        let error = IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil)
         subject.state.verificationCode = "Test"
-        authService.loginWithTwoFactorCodeResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil)
-        )
+        authService.loginWithTwoFactorCodeResult = .failure(error)
 
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidVerificationCode
-        ))
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(error))
     }
 
     /// `perform(_:)` with `.listenForNFC` starts listening for NFC tags and attempts login if one is read.
@@ -556,10 +544,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.receivedDuoToken("DuoToken"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidVerificationCode
-        ))
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
     }
 
     /// `perform(_:)` with `.receivedDuoToken` handles a two-factor error correctly.
@@ -631,7 +616,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertNil(coordinator.loadingOverlaysShown.last)
-        XCTAssertNil(subject.state.toast?.text, Localizations.verificationEmailSent)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `perform(_:)` with `.resendEmailTapped` sends the email and displays the toast.
@@ -643,7 +628,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.submitting))
-        XCTAssertEqual(subject.state.toast?.text, Localizations.verificationEmailSent)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.verificationEmailSent))
     }
 
     /// `perform(_:)` with `.tryAgainTapped` starts reading NFC tags.
@@ -709,7 +694,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

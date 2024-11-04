@@ -130,7 +130,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
            let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
            case .autofillFido2Credential = fido2AppExtensionDelegate.extensionMode {
             showTransparentController()
-            didCompleteAuth()
+            didCompleteAuth(rehydratableTarget: nil)
             return
         }
 
@@ -207,7 +207,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
         } else {
             guard let rootNavigator else { return }
-            let tabNavigator = UITabBarController()
+            let tabNavigator = BitwardenTabBarController()
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
                 rootNavigator: rootNavigator,
@@ -305,7 +305,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 // MARK: - AuthCoordinatorDelegate
 
 extension AppCoordinator: AuthCoordinatorDelegate {
-    func didCompleteAuth() {
+    func didCompleteAuth(rehydratableTarget: RehydratableTarget?) {
         appExtensionDelegate?.didCompleteAuth()
 
         switch appContext {
@@ -319,6 +319,18 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             navigate(to: route)
         case .mainApp:
             showTab(route: .vault(.list))
+
+            if let rehydratableTarget {
+                navigate(to: rehydratableTarget.appRoute)
+                Task {
+                    do {
+                        try await services.rehydrationHelper.clearAppRehydrationState()
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                }
+                return
+            }
 
             if let authCompletionRoute {
                 navigate(to: authCompletionRoute)
@@ -363,6 +375,15 @@ extension AppCoordinator: SendItemDelegate {
 // MARK: - SettingsCoordinatorDelegate
 
 extension AppCoordinator: SettingsCoordinatorDelegate {
+    func didCompleteLoginsImport() {
+        navigate(to: .tab(.vault(.list)))
+        showToast(
+            Localizations.loginsImported,
+            subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer,
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
+    }
+
     func didDeleteAccount() {
         Task {
             await handleAuthEvent(.didDeleteAccount)

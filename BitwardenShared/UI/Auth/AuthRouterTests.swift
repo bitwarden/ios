@@ -11,6 +11,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     var biometricsRepository: MockBiometricsRepository!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var rehydrationHelper: MockRehydrationHelper!
     var stateService: MockStateService!
     var subject: AuthRouter!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -24,6 +25,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        rehydrationHelper = MockRehydrationHelper()
         stateService = MockStateService()
         vaultTimeoutService = MockVaultTimeoutService()
 
@@ -34,6 +36,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 biometricsRepository: biometricsRepository,
                 configService: configService,
                 errorReporter: errorReporter,
+                rehydrationHelper: rehydrationHelper,
                 stateService: stateService,
                 vaultTimeoutService: vaultTimeoutService
             )
@@ -47,6 +50,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         biometricsRepository = nil
         configService = nil
         errorReporter = nil
+        rehydrationHelper = nil
         stateService = nil
         subject = nil
         vaultTimeoutService = nil
@@ -178,10 +182,68 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertTrue(stateService.introCarouselShown)
     }
 
+    /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.vaultUnlockSetup` and sets the
+    /// carousel shown flag if the carousel feature flag is on and the carousel hasn't been shown yet.
+    @MainActor
+    func test_handleAndRoute_didCompleteAuth_carouselShown_vaultUnlockSetup() async {
+        authRepository.activeAccount = .fixture()
+        configService.featureFlagsBool[.nativeCarouselFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .incomplete
+
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+
+        XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
+        XCTAssertTrue(stateService.introCarouselShown)
+    }
+
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to complete the auth flow if the account
     /// doesn't require an updated password.
     func test_handleAndRoute_didCompleteAuth_complete() async {
         authRepository.activeAccount = .fixture()
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .complete)
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to complete with rehydration the auth flow if the account
+    /// doesn't require an updated password and there's a rehydratable target saved.
+    func test_handleAndRoute_didCompleteAuth_completeWithRehydration() async {
+        authRepository.activeAccount = .fixture()
+        rehydrationHelper.getSavedRehydratableTargetResult = .success(.viewCipher(cipherId: "1"))
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .completeWithRehydration(.viewCipher(cipherId: "1")))
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to complete the auth flow if the account
+    /// doesn't require an updated password when getting the saved rehydratable target throws, logging its error.
+    func test_handleAndRoute_didCompleteAuth_completeRehydrationThrows() async {
+        authRepository.activeAccount = .fixture()
+        rehydrationHelper.getSavedRehydratableTargetResult = .failure(BitwardenTestError.example)
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .complete)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to complete the auth flow if the account
+    /// doesn't require an updated password and there's a rehydratable target saved
+    /// but it's in the app extension context.
+    @MainActor
+    func test_handleAndRoute_didCompleteAuth_completeWithRehydrationNotCalledAppExtension() async {
+        subject = AuthRouter(
+            isInAppExtension: true,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                biometricsRepository: biometricsRepository,
+                configService: configService,
+                errorReporter: errorReporter,
+                rehydrationHelper: rehydrationHelper,
+                stateService: stateService,
+                vaultTimeoutService: vaultTimeoutService
+            )
+        )
+
+        authRepository.activeAccount = .fixture()
+        rehydrationHelper.getSavedRehydratableTargetResult = .success(.viewCipher(cipherId: "1"))
         let route = await subject.handleAndRoute(.didCompleteAuth)
         XCTAssertEqual(route, .complete)
     }
@@ -196,6 +258,23 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .autofillSetup)
     }
 
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.complete` if the user still
+    /// needs to set up autofill but is within the app extension.
+    @MainActor
+    func test_handleAndRoute_didCompleteAuth_incompleteAutofill_withinAppExtension() async {
+        subject = AuthRouter(
+            isInAppExtension: true,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository
+            )
+        )
+        authRepository.activeAccount = .fixture()
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupAutofill["1"] = .incomplete
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .complete)
+    }
+
     /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.vaultUnlockSetup` if the user still
     /// needs to set up a vault unlock method.
     func test_handleAndRoute_didCompleteAuth_incompleteVaultSetup() async {
@@ -203,7 +282,24 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         stateService.activeAccount = .fixture()
         stateService.accountSetupVaultUnlock["1"] = .incomplete
         let route = await subject.handleAndRoute(.didCompleteAuth)
-        XCTAssertEqual(route, .vaultUnlockSetup)
+        XCTAssertEqual(route, .vaultUnlockSetup(.createAccount))
+    }
+
+    /// `handleAndRoute(_:)` redirects `.didCompleteAuth` to `.complete` if the user still
+    /// needs to set up a vault unlock method but is within the app extension.
+    @MainActor
+    func test_handleAndRoute_didCompleteAuth_incomplete_withinAppExtension() async {
+        subject = AuthRouter(
+            isInAppExtension: true,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository
+            )
+        )
+        authRepository.activeAccount = .fixture()
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .incomplete
+        let route = await subject.handleAndRoute(.didCompleteAuth)
+        XCTAssertEqual(route, .complete)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didCompleteAuth` to `.landing` when there are no accounts.
@@ -941,7 +1037,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.vaultUnlock`
-    ///     if the account session has timed out and the action is lock.
+    /// if the account session has timed out and the action is lock and saves
+    /// rehydration state if needed.
     func test_handleAndRoute_didTimeout_sessionExpired_lock() async {
         let account = Account.fixture()
         authRepository.activeAccount = account
@@ -963,6 +1060,48 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 didSwitchAccountAutomatically: false
             )
         )
+        XCTAssertTrue(rehydrationHelper.saveRehydrationStateIfNeededCalled)
+    }
+
+    /// `handleAndRoute(_ :)` in app extension redirects `.didTimeout` to `.vaultUnlock`
+    /// if the account session has timed out and the action is lock but doesn't save
+    /// rehydration state.
+    @MainActor
+    func test_handleAndRoute_didTimeout_sessionExpired_lock_inAppExtension() async {
+        subject = AuthRouter(
+            isInAppExtension: true,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                biometricsRepository: biometricsRepository,
+                configService: configService,
+                errorReporter: errorReporter,
+                rehydrationHelper: rehydrationHelper,
+                stateService: stateService,
+                vaultTimeoutService: vaultTimeoutService
+            )
+        )
+
+        let account = Account.fixture()
+        authRepository.activeAccount = account
+        vaultTimeoutService.vaultTimeout = [
+            account.profile.userId: .fiveMinutes,
+        ]
+        stateService.isAuthenticated[account.profile.userId] = true
+        stateService.timeoutAction = [
+            account.profile.userId: .lock,
+        ]
+        authRepository.logoutResult = .success(())
+        let route = await subject.handleAndRoute(.didTimeout(userId: account.profile.userId))
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                account,
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+        XCTAssertFalse(rehydrationHelper.saveRehydrationStateIfNeededCalled)
     }
 
     /// `handleAndRoute(_ :)` redirects `.didTimeout` to `.landing`
@@ -1034,6 +1173,33 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             )
         )
         XCTAssertEqual(route, .complete)
+        XCTAssertEqual(authRepository.setActiveAccountId, active.profile.userId)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.switchAccount()` to `.vaultUnlock` when switching to a
+    /// locked inactive account.
+    func test_handleAndRoute_switchAccount_toInactive() async {
+        let active = Account.fixture()
+        let inactive = Account.fixture(profile: .fixture(userId: "2"))
+        authRepository.activeAccount = active
+        authRepository.altAccounts = [inactive]
+        authRepository.isLockedResult = .success(true)
+        stateService.isAuthenticated["2"] = true
+        let route = await subject.handleAndRoute(
+            .action(
+                .switchAccount(isAutomatic: true, userId: inactive.profile.userId)
+            )
+        )
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                inactive,
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: true
+            )
+        )
+        XCTAssertEqual(authRepository.setActiveAccountId, inactive.profile.userId)
     }
 
     /// `handleAndRoute(_ :)` redirects `.switchAccount()` to `.landingSoftLoggedOut` when that
@@ -1050,5 +1216,6 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             )
         )
         XCTAssertEqual(route, .landingSoftLoggedOut(email: account.profile.email))
+        XCTAssertEqual(authRepository.setActiveAccountId, account.profile.userId)
     }
 }

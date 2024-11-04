@@ -91,7 +91,7 @@ class VaultAutofillListProcessor: StateProcessor<
                     await onCipherForFido2CredentialPicked(cipher: cipher)
                 } else {
                     await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
-                        self?.state.toast = Toast(text: toastText)
+                        self?.state.toast = Toast(title: toastText)
                     }
                 }
             case .group:

@@ -20,7 +20,7 @@ enum AuthCoordinatorError: Error {
 protocol AuthCoordinatorDelegate: AnyObject {
     /// Called when the auth flow has been completed.
     ///
-    func didCompleteAuth()
+    func didCompleteAuth(rehydratableTarget: RehydratableTarget?)
 }
 
 // MARK: - AuthCoordinator
@@ -32,6 +32,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     HasStackNavigator,
     HasRouter {
     // MARK: Types
+
+    /// The module types required by this coordinator for creating child coordinators.
+    typealias Module = PasswordAutoFillModule
 
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
@@ -71,6 +74,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// the auth flow should be dismissed.
     private weak var delegate: (any AuthCoordinatorDelegate)?
 
+    /// The module used to create child coordinators.
+    private let module: Module
+
     /// A delegate used to communicate the WebAuthn result when the auth has been completed. This is assigned
     /// on a webAuthn navigation casted from the provided context.
     private weak var webAuthnFlowDelegate: (any WebAuthnFlowDelegate)?
@@ -94,6 +100,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator. Used to signal when auth has been completed.
+    ///   - module: The module used to create child coordinators.
     ///   - rootNavigator: The root navigator used to display this coordinator's interface.
     ///   - router: The router used by this coordinator to handle events.
     ///   - services: The services used by this coordinator.
@@ -101,14 +108,16 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///
     init(
         appExtensionDelegate: AppExtensionDelegate?,
-        delegate: AuthCoordinatorDelegate,
-        rootNavigator: RootNavigator,
+        delegate: AuthCoordinatorDelegate?,
+        module: Module,
+        rootNavigator: RootNavigator?,
         router: AnyRouter<AuthEvent, AuthRoute>,
         services: Services,
         stackNavigator: StackNavigator
     ) {
         self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
+        self.module = module
         self.rootNavigator = rootNavigator
         self.router = router
         self.services = services
@@ -131,13 +140,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showCheckEmail(email)
         case .complete,
              .completeWithNeverUnlockKey:
-            if stackNavigator?.isPresenting == true {
-                stackNavigator?.dismiss {
-                    self.delegate?.didCompleteAuth()
-                }
-            } else {
-                delegate?.didCompleteAuth()
-            }
+            completeAuth()
         case let .completeRegistration(emailVerificationToken, userEmail):
             showCompleteRegistration(
                 emailVerificationToken: emailVerificationToken,
@@ -153,6 +156,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                     fromEmail: fromEmail
                 )
             }
+        case let .completeWithRehydration(rehydratableTarget):
+            completeAuth(rehydratableTarget: rehydratableTarget)
         case .createAccount:
             showCreateAccount()
         case .startRegistration:
@@ -160,7 +165,11 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         case .startRegistrationFromExpiredLink:
             showStartRegistrationFromExpiredLink()
         case .dismiss:
-            stackNavigator?.dismiss()
+            if stackNavigator?.isPresenting == false {
+                stackNavigator?.pop()
+            } else {
+                stackNavigator?.dismiss()
+            }
         case .dismissPresented:
             stackNavigator?.rootViewController?.topmostViewController().dismiss(animated: true)
         case let .dismissWithAction(onDismiss):
@@ -237,8 +246,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 attemptAutmaticBiometricUnlock: attemptAutomaticBiometricUnlock,
                 didSwitchAccountAutomatically: didSwitch
             )
-        case .vaultUnlockSetup:
-            showVaultUnlockSetup()
+        case let .vaultUnlockSetup(accountSetupFlow):
+            showVaultUnlockSetup(accountSetupFlow: accountSetupFlow)
         }
     }
 
@@ -248,6 +257,18 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     }
 
     // MARK: Private Methods
+
+    /// Completes the auth flow.
+    /// - Parameter rehydratableTarget: The rehydratable target, if any to restore after unlocking if needed.
+    private func completeAuth(rehydratableTarget: RehydratableTarget? = nil) {
+        if stackNavigator?.isPresenting == true {
+            stackNavigator?.dismiss {
+                self.delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+            }
+        } else {
+            delegate?.didCompleteAuth(rehydratableTarget: rehydratableTarget)
+        }
+    }
 
     /// Configures the app with an active account.
     ///
@@ -269,14 +290,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     /// Shows the password autofill screen.
     ///
     private func showAutoFillSetup() {
-        let processor = PasswordAutoFillProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: .init(mode: .onboarding)
+        guard let stackNavigator else { return }
+        let coordinator = module.makePasswordAutoFillCoordinator(
+            delegate: self,
+            stackNavigator: stackNavigator
         )
-
-        let view = PasswordAutoFillView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
+        coordinator.start()
+        coordinator.navigate(to: .passwordAutofill(mode: .onboarding))
     }
 
     /// Shows the captcha screen.
@@ -449,6 +469,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     private func showIntroCarousel() {
         let processor = IntroCarouselProcessor(
             coordinator: asAnyCoordinator(),
+            services: services,
             state: IntroCarouselState()
         )
         let view = IntroCarouselView(store: Store(processor: processor))
@@ -845,21 +866,29 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let view = VaultUnlockView(store: Store(processor: processor))
         stackNavigator?.replace(view, animated: animated)
         if didSwitchAccountAutomatically {
-            processor.state.toast = Toast(text: Localizations.accountSwitchedAutomatically)
+            processor.state.toast = Toast(title: Localizations.accountSwitchedAutomatically)
         }
     }
 
     /// Shows the vault unlock setup screen.
     ///
-    func showVaultUnlockSetup() {
+    /// - Parameter accountSetupFlow: The account setup flow that the user is in.
+    ///
+    func showVaultUnlockSetup(accountSetupFlow: AccountSetupFlow) {
         let processor = VaultUnlockSetupProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: VaultUnlockSetupState(),
+            state: VaultUnlockSetupState(accountSetupFlow: accountSetupFlow),
             vaultUnlockSetupHelper: DefaultVaultUnlockSetupHelper(services: services)
         )
         let view = VaultUnlockSetupView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
+        switch accountSetupFlow {
+        case .createAccount:
+            stackNavigator?.replace(view)
+        case .settings:
+            let viewController = UIHostingController(rootView: view)
+            stackNavigator?.push(viewController, navigationTitle: Localizations.setUpUnlock)
+        }
     }
 
     /// Show the WebAuthn two factor authentication view.
@@ -1010,5 +1039,13 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
     /// Handle errors during the creation of the attestation
     func authorizationController(controller _: ASAuthorizationController, didCompleteWithError error: Error) {
         webAuthnFlowDelegate?.webAuthnErrored(error: error)
+    }
+}
+
+// MARK: PasswordAutoFillCoordinatorDelegate
+
+extension AuthCoordinator: PasswordAutoFillCoordinatorDelegate {
+    func didCompleteAuth() {
+        delegate?.didCompleteAuth(rehydratableTarget: nil)
     }
 } // swiftlint:disable:this file_length

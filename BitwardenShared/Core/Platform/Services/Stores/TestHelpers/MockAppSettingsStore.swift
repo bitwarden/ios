@@ -3,13 +3,15 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockAppSettingsStore: AppSettingsStore {
+class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accountSetupAutofill = [String: AccountSetupProgress]()
+    var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?
+    var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
     var disableWebIcons = false
     var introCarouselShown = false
@@ -61,12 +63,20 @@ class MockAppSettingsStore: AppSettingsStore {
         accountSetupAutofill[userId]
     }
 
+    func accountSetupImportLogins(userId: String) -> AccountSetupProgress? {
+        accountSetupImportLogins[userId]
+    }
+
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
         accountSetupVaultUnlock[userId]
     }
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func appRehydrationState(userId: String) -> BitwardenShared.AppRehydrationState? {
+        appRehydrationState[userId]
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -150,12 +160,24 @@ class MockAppSettingsStore: AppSettingsStore {
         accountSetupAutofill[userId] = autofillSetup
     }
 
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String) {
+        accountSetupImportLogins[userId] = importLoginsSetup
+    }
+
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String) {
         accountSetupVaultUnlock[userId] = vaultUnlockSetup
     }
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
+    }
+
+    func setAppRehydrationState(_ state: BitwardenShared.AppRehydrationState?, userId: String) {
+        guard state != nil else {
+            appRehydrationState.removeValue(forKey: userId)
+            return
+        }
+        appRehydrationState[userId] = state
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {

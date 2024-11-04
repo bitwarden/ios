@@ -5,6 +5,7 @@ import XCTest
 class IntroCarouselProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var subject: IntroCarouselProcessor!
 
@@ -13,10 +14,14 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator()
 
         subject = IntroCarouselProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            services: ServiceContainer.withMocks(
+                configService: configService
+            ),
             state: IntroCarouselState()
         )
     }
@@ -24,17 +29,27 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `receive(_:)` with `.createAccount` navigates to the create account view.
+    /// `perform(_:)` with `.createAccount` navigates to the create account view.
     @MainActor
-    func test_receive_createAccount() {
-        subject.receive(.createAccount)
+    func test_perform_createAccount() async {
+        await subject.perform(.createAccount)
         XCTAssertEqual(coordinator.routes.last, .createAccount)
+    }
+
+    /// `perform(_:)` with `.createAccount` navigates to the start registration view if email
+    /// verification is enabled.
+    @MainActor
+    func test_perform_createAccount_emailVerificationEnabled() async {
+        configService.featureFlagsBool[.emailVerification] = true
+        await subject.perform(.createAccount)
+        XCTAssertEqual(coordinator.routes.last, .startRegistration)
     }
 
     /// `receive(_:)` with `.currentPageIndexChanged` updates the current page index.

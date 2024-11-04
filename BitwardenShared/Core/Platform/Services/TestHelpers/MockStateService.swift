@@ -7,6 +7,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var accountEncryptionKeys = [String: AccountEncryptionKeys]()
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupAutofillError: Error?
+    var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var accountTokens: Account.AccountTokens?
     var accountVolatileData: [String: AccountVolatileData] = [:]
@@ -17,6 +18,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var appLanguage: LanguageOption = .default
+    var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
@@ -66,10 +68,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     // swiftlint:disable:next identifier_name
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
     var setAccountSetupAutofillCalled = false
+    var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
-    var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(
-        SettingsBadgeState(autofillSetupProgress: nil, badgeValue: nil, vaultUnlockSetupProgress: nil)
-    )
+    var setBiometricIntegrityStateError: Error?
+    var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
@@ -155,6 +157,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountSetupAutofill[userId]
     }
 
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress? {
+        accountSetupImportLogins[userId]
+    }
+
     func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
         accountSetupVaultUnlock[userId]
     }
@@ -173,6 +179,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getAddSitePromptShown() async -> Bool {
         addSitePromptShown
+    }
+
+    func getAppRehydrationState(userId: String?) async throws -> BitwardenShared.AppRehydrationState? {
+        let userId = try unwrapUserId(userId)
+        return appRehydrationState[userId]
     }
 
     func getAppTheme() async -> AppTheme {
@@ -366,6 +377,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountSetupAutofill[userId] = autofillSetup
     }
 
+    func setAccountSetupImportLogins(_ importLoginsSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        accountSetupImportLogins[userId] = importLoginsSetup
+    }
+
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         accountSetupVaultUnlock[userId] = vaultUnlockSetup
@@ -388,6 +404,22 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
+    }
+
+    func setAppRehydrationState(
+        _ rehydrationState: BitwardenShared.AppRehydrationState?,
+        userId: String?
+    ) async throws {
+        if let setAppRehydrationStateError {
+            throw setAppRehydrationStateError
+        }
+
+        let userId = try unwrapUserId(userId)
+        guard let rehydrationState else {
+            appRehydrationState.removeValue(forKey: userId)
+            return
+        }
+        appRehydrationState[userId] = rehydrationState
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {

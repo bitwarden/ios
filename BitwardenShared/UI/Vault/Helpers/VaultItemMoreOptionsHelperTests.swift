@@ -276,8 +276,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(pasteboardService.copiedString, "123321")
         XCTAssertEqual(
-            toastToDisplay?.text,
-            Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)
+            toastToDisplay,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
         )
     }
 
@@ -360,8 +360,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(pasteboardService.copiedString, "123321")
         XCTAssertEqual(
-            toastToDisplay?.text,
-            Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp)
+            toastToDisplay,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCodeTotp))
         )
     }
 

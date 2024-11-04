@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - VaultListProcessor
 
 /// The processor used to manage state and handle actions for the vault list screen.
@@ -15,6 +17,7 @@ final class VaultListProcessor: StateProcessor<
     typealias Services = HasApplication
         & HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasNotificationService
@@ -66,6 +69,8 @@ final class VaultListProcessor: StateProcessor<
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+        case .dismissImportLoginsActionCard:
+            await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
                 for: item,
@@ -84,6 +89,8 @@ final class VaultListProcessor: StateProcessor<
             await refreshVault(isManualRefresh: true)
         case let .search(text):
             state.searchResults = await searchVault(for: text)
+        case .streamAccountSetupProgress:
+            await streamAccountSetupProgress()
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
@@ -126,6 +133,8 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
+        case .showImportLogins:
+            coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
             state.toast = newValue
         case .totpCodeExpired:
@@ -258,6 +267,19 @@ extension VaultListProcessor {
         return []
     }
 
+    /// Sets the user's import logins progress.
+    ///
+    /// - Parameter progress: The user's import logins progress.
+    ///
+    private func setImportLoginsProgress(_ progress: AccountSetupProgress) async {
+        do {
+            try await services.stateService.setAccountSetupImportLogins(progress)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(error: error))
+        }
+    }
+
     /// Sets the visibility of the profiles view and updates accessibility focus.
     ///
     /// - Parameter visible: the intended visibility of the view.
@@ -267,6 +289,19 @@ extension VaultListProcessor {
             state.profileSwitcherState.hasSetAccessibilityFocus = false
         }
         state.profileSwitcherState.isVisible = visible
+    }
+
+    /// Streams the user's account setup progress.
+    ///
+    private func streamAccountSetupProgress() async {
+        guard await services.configService.getFeatureFlag(.importLoginsFlow) else { return }
+        do {
+            for await badgeState in try await services.stateService.settingsBadgePublisher().values {
+                state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Streams the user's organizations.
@@ -296,6 +331,11 @@ extension VaultListProcessor {
                     // Otherwise mark the state as `.loading` until the sync is complete.
                     state.loadingState = .loading(value)
                 }
+
+                // Dismiss the import logins action card once the vault has items in it.
+                if !value.isEmpty, await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+                    await setImportLoginsProgress(.complete)
+                }
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -307,15 +347,15 @@ extension VaultListProcessor {
 
 extension VaultListProcessor: CipherItemOperationDelegate {
     func itemDeleted() {
-        state.toast = Toast(text: Localizations.itemDeleted)
+        state.toast = Toast(title: Localizations.itemDeleted)
     }
 
     func itemSoftDeleted() {
-        state.toast = Toast(text: Localizations.itemSoftDeleted)
+        state.toast = Toast(title: Localizations.itemSoftDeleted)
     }
 
     func itemRestored() {
-        state.toast = Toast(text: Localizations.itemRestored)
+        state.toast = Toast(title: Localizations.itemRestored)
     }
 }
 

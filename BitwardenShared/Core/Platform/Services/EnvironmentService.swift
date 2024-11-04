@@ -59,7 +59,7 @@ protocol EnvironmentService {
 ///
 class DefaultEnvironmentService: EnvironmentService {
     // MARK: Properties
-    
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 

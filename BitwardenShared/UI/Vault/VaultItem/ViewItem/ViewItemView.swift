@@ -41,10 +41,13 @@ struct ViewItemView: View {
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toast(store.binding(
-            get: \.toast,
-            send: ViewItemAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: ViewItemAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 closeToolbarButton {
@@ -78,6 +81,11 @@ struct ViewItemView: View {
                 )
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            editItemFloatingActionButton {
+                store.send(.editPressed)
+            }
+        }
         .task {
             await store.perform(.appeared)
         }
@@ -107,6 +115,7 @@ struct ViewItemView: View {
                 )
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 }

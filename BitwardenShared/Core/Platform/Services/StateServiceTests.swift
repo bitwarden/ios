@@ -323,6 +323,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getAccountSetupImportLogins()` returns the user's import logins setup progress.
+    func test_getAccountSetupImportLogins() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupImportLogins()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupImportLogins["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupImportLogins()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupImportLogins()` throws an error if there isn't an active account.
+    func test_getAccountSetupImportLogins_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupImportLogins()
+        }
+    }
+
     /// `getAccountSetupVaultUnlock()` returns the user's vault unlock setup progress.
     func test_getAccountSetupVaultUnlock() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -460,6 +479,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture())
         let value = try await subject.getAllowSyncOnRefresh()
         XCTAssertFalse(value)
+    }
+
+    /// `getAppRehydrationState(userId:)` returns the app rehydration state for the active account.
+    func test_getAppRehydrationState() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.appRehydrationState["1"] = AppRehydrationState(
+            target: .viewCipher(cipherId: "1"),
+            expirationTime: .now
+        )
+        let value = try await subject.getAppRehydrationState()
+        XCTAssertEqual(value?.target, .viewCipher(cipherId: "1"))
+    }
+
+    /// `getAppRehydrationState(userId:)` throws when there's no active account.
+    func test_getAppRehydrationState_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAppRehydrationState()
+        }
     }
 
     /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
@@ -980,6 +1017,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(vaultTimeout, .never)
     }
 
+    /// `getVaultTimeout(userId:)` returns the default timeout if the user has a never lock value
+    /// stored but the never lock key doesn't exist.
+    func test_getVaultTimeout_neverLock_missingKey() async throws {
+        appSettingsStore.vaultTimeout["1"] = -2
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let vaultTimeout = try await subject.getVaultTimeout()
+        XCTAssertEqual(vaultTimeout, .fifteenMinutes)
+    }
+
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1378,6 +1426,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
     }
 
+    /// `setAppRehydrationState(_:userId:)` sets the app rehydration state for the given account.
+    func test_setAppRehydrationState() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setAppRehydrationState(
+            AppRehydrationState(
+                target: .viewCipher(cipherId: "1"),
+                expirationTime: .now
+            ),
+            userId: "1"
+        )
+        let value = appSettingsStore.appRehydrationState["1"]
+        XCTAssertEqual(value?.target, .viewCipher(cipherId: "1"))
+    }
+
+    /// `setAppRehydrationState(_:userId:)` throws when there's no active account.
+    func test_setAppRehydrationState_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.setAppRehydrationState(nil)
+        }
+    }
+
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -1521,6 +1590,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setAccountSetupAutofill(.complete, userId: "1")
         XCTAssertEqual(appSettingsStore.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `setAccountSetupImportLogins(_:)` sets the user's import logins setup progress.
+    func test_setAccountSetupImportLogins() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupImportLogins(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupImportLogins, ["1": .incomplete])
+
+        try await subject.setAccountSetupImportLogins(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupImportLogins, ["1": .complete])
     }
 
     /// `setAccountSetupVaultUnlock(_:)` sets the user's vault unlock setup progress.
@@ -1700,7 +1780,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `settingsBadgePublisher()` publishes the settings badge value for the active user.
-    func test_settingsBadgePublisher() async throws {
+    func test_settingsBadgePublisher() async throws { // swiftlint:disable:this function_body_length
         await subject.addAccount(.fixture())
 
         var publishedValues = [SettingsBadgeState]()
@@ -1711,12 +1791,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         defer { publisher.cancel() }
 
         try await subject.setAccountSetupAutofill(.setUpLater)
+        try await subject.setAccountSetupImportLogins(.setUpLater)
         try await subject.setAccountSetupVaultUnlock(.setUpLater)
 
         try await subject.setAccountSetupAutofill(.complete)
+        try await subject.setAccountSetupImportLogins(.complete)
         try await subject.setAccountSetupVaultUnlock(.complete)
 
-        XCTAssertEqual(publishedValues.count, 5)
+        XCTAssertEqual(publishedValues.count, 7)
         XCTAssertEqual(publishedValues[0], .fixture())
         XCTAssertEqual(publishedValues[1], .fixture(autofillSetupProgress: .setUpLater, badgeValue: "1"))
         XCTAssertEqual(
@@ -1724,20 +1806,43 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .fixture(
                 autofillSetupProgress: .setUpLater,
                 badgeValue: "2",
-                vaultUnlockSetupProgress: .setUpLater
+                importLoginsSetupProgress: .setUpLater
             )
         )
         XCTAssertEqual(
             publishedValues[3],
             .fixture(
-                autofillSetupProgress: .complete,
-                badgeValue: "1",
+                autofillSetupProgress: .setUpLater,
+                badgeValue: "3",
+                importLoginsSetupProgress: .setUpLater,
                 vaultUnlockSetupProgress: .setUpLater
             )
         )
         XCTAssertEqual(
             publishedValues[4],
-            .fixture(autofillSetupProgress: .complete, vaultUnlockSetupProgress: .complete)
+            .fixture(
+                autofillSetupProgress: .complete,
+                badgeValue: "2",
+                importLoginsSetupProgress: .setUpLater,
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[5],
+            .fixture(
+                autofillSetupProgress: .complete,
+                badgeValue: "1",
+                importLoginsSetupProgress: .complete,
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[6],
+            .fixture(
+                autofillSetupProgress: .complete,
+                importLoginsSetupProgress: .complete,
+                vaultUnlockSetupProgress: .complete
+            )
         )
     }
 

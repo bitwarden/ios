@@ -155,7 +155,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         do {
             try await services.authRepository.requestOtp()
             state.isSendCodeButtonDisabled = true
-            state.toast = Toast(text: Localizations.codeSent)
+            state.toast = Toast(title: Localizations.codeSent)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)

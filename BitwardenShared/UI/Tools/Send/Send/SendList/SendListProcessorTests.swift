@@ -173,8 +173,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
         XCTAssertEqual(pasteboardService.copiedString, "https://example.com")
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.valueHasBeenCopied(Localizations.sendLink)
+            subject.state.toast,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
         )
     }
 
@@ -191,7 +191,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendDeleted)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendDeleted))
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
@@ -215,7 +215,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             coordinator.loadingOverlaysShown.last?.title,
             Localizations.deleting
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendDeleted)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendDeleted))
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
@@ -234,7 +234,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             coordinator.loadingOverlaysShown.last?.title,
             Localizations.removingSendPassword
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendPasswordRemoved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
@@ -258,7 +258,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             coordinator.loadingOverlaysShown.last?.title,
             Localizations.removingSendPassword
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendPasswordRemoved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendPasswordRemoved))
     }
 
     /// `perform(_:)` with `sendListItemRow(shareLinkPressed())` uses the send repository to generate
@@ -413,7 +413,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.
     @MainActor
     func test_receive_toastShown() {
-        subject.state.toast = Toast(text: "toasty")
+        subject.state.toast = Toast(title: "toasty")
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
     }
@@ -454,6 +454,6 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     @MainActor
     func test_sendItemDeleted() {
         subject.sendItemDeleted()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.sendDeleted)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.sendDeleted))
     }
 }

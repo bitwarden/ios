@@ -115,7 +115,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         client.results = [.httpSuccess(testData: .emptyResponse)]
         subject.state.fromEmail = true
         await subject.perform(.appeared)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.emailVerified))
     }
 
     /// `perform(.appeared)` verify user email show no toast.
@@ -171,7 +171,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
 
         try await alert.tapAction(title: Localizations.tryAgain)
 
-        XCTAssertEqual(subject.state.toast?.text, Localizations.emailVerified)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.emailVerified))
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(
             string: "https://example.com/identity/accounts/register/verification-email-clicked"
@@ -538,7 +538,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         dismissAction?.action()
         XCTAssertEqual(coordinator.routes.count, 2)
         XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com", isNewAccount: true))
-        XCTAssertEqual(coordinator.toastsShown, [Localizations.accountSuccessfullyCreated])
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.accountSuccessfullyCreated)])
     }
 
     /// `perform(_:)` with `.completeRegistration` navigates to login if the create account and
@@ -569,7 +569,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         dismissAction?.action()
         XCTAssertEqual(coordinator.routes.count, 2)
         XCTAssertEqual(coordinator.routes[1], .login(username: "email@example.com", isNewAccount: true))
-        XCTAssertEqual(coordinator.toastsShown, [Localizations.accountSuccessfullyCreated])
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.accountSuccessfullyCreated)])
     }
 
     /// `perform(_:)` with `.completeRegistration` presents an alert when there is no internet connection.
@@ -784,8 +784,9 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.showToast` show toast.
     @MainActor
     func test_receive_showToast() {
-        subject.receive(.toastShown(Toast(text: "example")))
-        XCTAssertEqual(subject.state.toast?.text, "example")
+        let toast = Toast(title: "example")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
     }
 
     /// Tests `didUpdateMasterPassword` correctly updates the state and navigates correctly.

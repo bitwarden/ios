@@ -121,68 +121,117 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_icon() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .card))?.icon.name,
-            Asset.Images.creditCard.name
+            Asset.Images.card24.name
         )
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .identity))?.icon.name,
-            Asset.Images.id.name
+            Asset.Images.idCard24.name
         )
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .login))?.icon.name,
-            Asset.Images.globe.name
+            Asset.Images.globe24.name
         )
         XCTAssertEqual(
             VaultListItem(
                 cipherView: .fixture(type: .login),
                 fido2CredentialAutofillView: .fixture()
             )?.icon.name,
-            Asset.Images.passkey.name
+            Asset.Images.passkey24.name
         )
         XCTAssertEqual(
             VaultListItem(cipherView: .fixture(type: .secureNote))?.icon.name,
-            Asset.Images.doc.name
+            Asset.Images.file24.name
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .sshKey))?.icon.name,
+            Asset.Images.key24.name
         )
 
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.card, 1)).icon.name,
-            Asset.Images.creditCard.name
+            Asset.Images.card24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.collection(id: "", name: "", organizationId: "1"), 1)).icon.name,
-            Asset.Images.collections.name
+            Asset.Images.collections24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.folder(id: "", name: ""), 1)).icon.name,
-            Asset.Images.folderClosed.name
+            Asset.Images.folder24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.identity, 1)).icon.name,
-            Asset.Images.id.name
+            Asset.Images.idCard24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.login, 1)).icon.name,
-            Asset.Images.globe.name
+            Asset.Images.globe24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.secureNote, 1)).icon.name,
-            Asset.Images.doc.name
+            Asset.Images.file24.name
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.sshKey, 1)).icon.name,
+            Asset.Images.key24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.totp, 1)).icon.name,
-            Asset.Images.clock.name
+            Asset.Images.clock24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.trash, 1)).icon.name,
-            Asset.Images.trash.name
+            Asset.Images.trash24.name
         )
         XCTAssertEqual(
             VaultListItem(id: "", itemType: .group(.trash, 1)).icon.name,
-            Asset.Images.trash.name
+            Asset.Images.trash24.name
         )
 
         XCTAssertEqual(
             VaultListItem.fixtureTOTP(totp: .fixture()).icon.name,
-            Asset.Images.clock.name
+            Asset.Images.clock24.name
+        )
+    }
+
+    /// `getter:iconAccessibilityId` gets the appropriate id for each icon.
+    func test_iconAccessibilityId() {
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .card))?.iconAccessibilityId,
+            "CardCipherIcon"
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .identity))?.iconAccessibilityId,
+            "IdentityCipherIcon"
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .login))?.iconAccessibilityId,
+            "LoginCipherIcon"
+        )
+        XCTAssertEqual(
+            VaultListItem(
+                cipherView: .fixture(type: .login),
+                fido2CredentialAutofillView: .fixture()
+            )?.iconAccessibilityId,
+            "LoginCipherIcon"
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .secureNote))?.iconAccessibilityId,
+            "SecureNoteCipherIcon"
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .sshKey))?.iconAccessibilityId,
+            "SSHKeyCipherIcon"
+        )
+
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.card, 1)).iconAccessibilityId,
+            ""
+        )
+
+        XCTAssertEqual(
+            VaultListItem.fixtureTOTP(totp: .fixture()).iconAccessibilityId,
+            ""
         )
     }
 
@@ -301,6 +350,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
 
         XCTAssertNil(VaultListItem(cipherView: .fixture(type: .secureNote))?.subtitle)
+        XCTAssertNil(VaultListItem(cipherView: .fixture(type: .sshKey))?.subtitle)
 
         XCTAssertNil(VaultListItem(id: "1", itemType: .group(.card, 1)).subtitle)
         XCTAssertNil(VaultListItem.fixtureTOTP(totp: .fixture()).subtitle)
