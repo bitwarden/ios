@@ -255,11 +255,14 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             return
         }
 
-        if !vaultTimeoutService.isLocked(userId: userId) {
-            try await createAuthenticatorKeyIfNeeded()
-            try await createAuthenticatorVaultKeyIfNeeded(userId: userId)
-            subscribeToCipherUpdates(userId: userId)
+        guard !vaultTimeoutService.isLocked(userId: userId) else { return }
+
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            group.addTask { try await self.createAuthenticatorKeyIfNeeded() }
+            group.addTask { try await self.createAuthenticatorVaultKeyIfNeeded(userId: userId) }
+            try await group.waitForAll()
         }
+        subscribeToCipherUpdates(userId: userId)
     }
 
     /// Create a task for the given userId to listen for Cipher updates and sync to the Authenticator store.

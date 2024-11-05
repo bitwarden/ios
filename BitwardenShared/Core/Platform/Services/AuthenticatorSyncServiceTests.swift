@@ -51,6 +51,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     override func tearDown() {
         super.tearDown()
 
+        subject = nil
         authBridgeItemService = nil
         authRepository = nil
         cipherDataStore = nil
@@ -60,7 +61,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         keychainRepository = nil
         sharedKeychainRepository = nil
         stateService = nil
-        subject = nil
         vaultTimeoutService = nil
     }
 
