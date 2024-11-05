@@ -32,7 +32,7 @@ struct VaultListSectionView<Content: View>: View {
                     itemContent(item)
                 }
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }

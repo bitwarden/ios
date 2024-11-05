@@ -144,7 +144,7 @@ class AddEditSendItemProcessor:
         guard let url = try? await services.sendRepository.shareURL(for: sendView) else { return }
 
         services.pasteboardService.copy(url.absoluteString)
-        state.toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.sendLink))
+        state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
     }
 
     /// Deletes the provided send.
@@ -228,7 +228,7 @@ class AddEditSendItemProcessor:
             state = newState
 
             coordinator.hideLoadingOverlay()
-            state.toast = Toast(text: Localizations.sendPasswordRemoved)
+            state.toast = Toast(title: Localizations.sendPasswordRemoved)
         } catch {
             let alert = Alert.networkResponseError(error) { [weak self] in
                 await self?.removePassword(sendView)

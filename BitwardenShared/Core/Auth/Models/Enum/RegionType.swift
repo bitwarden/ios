@@ -40,4 +40,13 @@ public enum RegionType: CaseIterable, Sendable {
             return nil
         }
     }
+
+    /// The name to be used by the error reporter.
+    var errorReporterName: String {
+        switch self {
+        case .europe: return "EU"
+        case .selfHosted: return "Self-Hosted"
+        case .unitedStates: return "US"
+        }
+    }
 }

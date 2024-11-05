@@ -48,34 +48,82 @@ public enum UI {
 
     /// Sets up the default global appearances used throughout the app.
     ///
-    public static func applyDefaultAppearances() {
+    public static func applyDefaultAppearances() { // swiftlint:disable:this function_body_length
+        let bodyFont = UIFontMetrics(forTextStyle: .body).scaledFont(
+            for: FontFamily.DMSans.regular.font(size: 15)
+        )
+        let bodyBoldFont = UIFontMetrics(forTextStyle: .body).scaledFont(
+            for: FontFamily.DMSans.bold.font(size: 15)
+        )
+        let largeTitleFont = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
+            for: FontFamily.DMSans.bold.font(size: 26)
+        )
+        let iconBadgeBackground = Asset.Colors.iconBadgeBackground.color
+        let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
+            .font: FontFamily.DMSans.bold.font(size: 12),
+            .foregroundColor: Asset.Colors.iconBadgeForeground.color,
+        ]
+
         let navigationBarAppearance = UINavigationBarAppearance()
-        navigationBarAppearance.backgroundColor = Asset.Colors.primaryContrastBitwarden.color
+        navigationBarAppearance.backgroundColor = Asset.Colors.backgroundSecondary.color
+        navigationBarAppearance.buttonAppearance.normal.titleTextAttributes = [.font: bodyFont]
+        navigationBarAppearance.largeTitleTextAttributes = [.font: largeTitleFont]
+        navigationBarAppearance.titleTextAttributes = [.font: bodyBoldFont]
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
         UINavigationBar.appearance().standardAppearance = navigationBarAppearance
 
         UIPageControl.appearance().currentPageIndicatorTintColor = Asset.Colors.textPrimary.color
         UIPageControl.appearance().pageIndicatorTintColor = Asset.Colors.textPrimary.color.withAlphaComponent(0.3)
 
-        UIBarButtonItem.appearance().tintColor = Asset.Colors.primaryBitwarden.color
+        UIBarButtonItem.appearance().tintColor = Asset.Colors.textInteraction.color
 
         // Make the tab bar opaque.
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithOpaqueBackground()
+        tabBarAppearance.backgroundColor = Asset.Colors.backgroundSecondary.color
+        tabBarAppearance.compactInlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
+        tabBarAppearance.compactInlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
+        tabBarAppearance.compactInlineLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: Asset.Colors.iconSecondary.color,
+        ]
+        tabBarAppearance.compactInlineLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: Asset.Colors.iconPrimary.color,
+        ]
+        tabBarAppearance.inlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
+        tabBarAppearance.inlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
+        tabBarAppearance.inlineLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: Asset.Colors.iconSecondary.color,
+        ]
+        tabBarAppearance.inlineLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: Asset.Colors.iconPrimary.color,
+        ]
+        tabBarAppearance.stackedLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
+        tabBarAppearance.stackedLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
+        tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
+            .foregroundColor: Asset.Colors.iconSecondary.color,
+        ]
+        tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [
+            .foregroundColor: Asset.Colors.iconPrimary.color,
+        ]
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
         UITabBar.appearance().standardAppearance = tabBarAppearance
-        UITabBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
+        UITabBar.appearance().tintColor = Asset.Colors.iconSecondary.color
+        UITabBar.appearance().unselectedItemTintColor = Asset.Colors.iconPrimary.color
 
         UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).title = Localizations.cancel
-        UISearchBar.appearance().tintColor = Asset.Colors.primaryBitwarden.color
+        UIBarButtonItem.appearance(whenContainedInInstancesOf: [UISearchBar.self]).setTitleTextAttributes(
+            [.font: FontFamily.DMSans.regular.font(size: 15)],
+            for: .normal
+        )
+
+        UISearchBar.appearance().tintColor = Asset.Colors.textInteraction.color
         // Explicitly tint the image so that it does not assume the tint color assigned to the entire search bar.
-        let image = Asset.Images.cancelRound.image
+        let image = Asset.Images.circleX16.image
         let tintedImage = image.withTintColor(Asset.Colors.textSecondary.color, renderingMode: .alwaysOriginal)
         UISearchBar.appearance().setImage(tintedImage, for: .clear, state: .normal)
-        UISearchBar.appearance().setImage(Asset.Images.magnifyingGlass.image, for: .search, state: .normal)
+        UISearchBar.appearance().setImage(Asset.Images.search16.image, for: .search, state: .normal)
 
-        // Adjust the appearance of `UITextView` for `BitwardenMultilineTextField` instances on
-        // iOS 15.
+        // Adjust the appearance of `UITextView` for `BitwardenUITextField` instances on iOS 15.
         UITextView.appearance().isScrollEnabled = false
         UITextView.appearance().backgroundColor = .clear
         UITextView.appearance().textContainerInset = .zero

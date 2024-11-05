@@ -118,7 +118,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertNotNil(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleDisplayToast)
         XCTAssertNotNil(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL)
 
-        let toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.password))
         vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleDisplayToast?(toast)
         XCTAssertEqual(subject.state.toast, toast)
 
@@ -436,14 +436,6 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
     }
 
-    /// `receive(_:)` with `.profileSwitcher(.scrollOffsetChanged)` updates the scroll offset.
-    @MainActor
-    func test_receive_profileSwitcher_scrollOffset() {
-        subject.state.profileSwitcherState.scrollOffset = .zero
-        subject.receive(.profileSwitcher(.scrollOffsetChanged(CGPoint(x: 10, y: 10))))
-        XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, CGPoint(x: 10, y: 10))
-    }
-
     /// `receive(_:)` with `.searchStateChanged` updates the state when the search state changes.
     @MainActor
     func test_receive_searchStateChanged() {
@@ -482,7 +474,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

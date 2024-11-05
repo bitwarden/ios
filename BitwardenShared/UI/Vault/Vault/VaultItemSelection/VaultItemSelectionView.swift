@@ -108,6 +108,11 @@ private struct VaultItemSelectionSearchableView: View {
                 || !store.state.searchResults.isEmpty
 
             contentView()
+                .overlay(alignment: .bottomTrailing) {
+                    addItemFloatingActionButton {
+                        store.send(.addTapped)
+                    }
+                }
                 .hidden(isSearching)
 
             searchContentView()
@@ -133,11 +138,14 @@ private struct VaultItemSelectionSearchableView: View {
         .task(id: store.state.searchText) {
             await store.perform(.search(store.state.searchText))
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultItemSelectionAction.toastShown
-        ))
-        .background(Color(asset: Asset.Colors.backgroundSecondary).ignoresSafeArea())
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: VaultItemSelectionAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
+        .background(Color(asset: Asset.Colors.backgroundPrimary).ignoresSafeArea())
     }
 
     // MARK: Private Views
@@ -147,7 +155,7 @@ private struct VaultItemSelectionSearchableView: View {
     private func contentView() -> some View {
         if store.state.vaultListSections.isEmpty {
             EmptyContentView(
-                image: Asset.Images.openSource.swiftUIImage,
+                image: Asset.Images.Illustrations.items.swiftUIImage,
                 text: emptyViewMessage
             ) {
                 Button {
@@ -156,9 +164,9 @@ private struct VaultItemSelectionSearchableView: View {
                     Label {
                         Text(Localizations.newItem)
                     } icon: {
-                        Asset.Images.plus.swiftUIImage
+                        Asset.Images.plus16.swiftUIImage
                             .imageStyle(.accessoryIcon(
-                                color: Asset.Colors.textPrimaryInverted.swiftUIColor,
+                                color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                 scaleWithFont: true
                             ))
                     }
@@ -181,6 +189,7 @@ private struct VaultItemSelectionSearchableView: View {
                 }
             }
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         .scrollView()
     }
 
@@ -203,7 +212,7 @@ private struct VaultItemSelectionSearchableView: View {
                     vaultListItemView(item, hasDivider: store.state.searchResults.last != item)
                 }
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         }
     }
 
@@ -249,6 +258,23 @@ private struct VaultItemSelectionSearchableView: View {
     }
 }
 
+#Preview("Search Results") {
+    NavigationView {
+        VaultItemSelectionView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultItemSelectionState(
+                        iconBaseURL: nil,
+                        otpAuthModel: .fixtureExample,
+                        searchResults: [.init(id: "1", itemType: .cipher(.fixture()))],
+                        searchText: "Search"
+                    )
+                )
+            )
+        )
+    }
+}
+
 #Preview("Matching Items") {
     NavigationView {
         let ciphers: [CipherView] = [
@@ -264,6 +290,34 @@ private struct VaultItemSelectionSearchableView: View {
             ),
             .fixture(
                 id: "3",
+                name: "Company XYZ"
+            ),
+            .fixture(
+                id: "4",
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Apple"
+            ),
+            .fixture(
+                id: "5",
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Bitwarden"
+            ),
+            .fixture(
+                id: "6",
+                name: "Company XYZ"
+            ),
+            .fixture(
+                id: "7",
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Apple"
+            ),
+            .fixture(
+                id: "8",
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Bitwarden"
+            ),
+            .fixture(
+                id: "9",
                 name: "Company XYZ"
             ),
         ]

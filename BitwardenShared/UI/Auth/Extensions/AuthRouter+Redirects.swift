@@ -18,22 +18,39 @@ extension AuthRouter {
         return try await services.authRepository.setActiveAccount(userId: alternate.profile.userId)
     }
 
-    /// Handles the `didComplete` route by navigating the user to the update master password screen
-    /// if their password needs to be updated or completes the auth flow by navigating the user to
-    /// the vault.
+    /// Handles the `didComplete` route by navigating the user to the corresponding screen
+    /// after the auth flow completes. Normally, this ends up redirecting to `.complete` route.
     ///
-    /// - Returns: A redirect route to either `.complete` or `.updateMasterPassword`.
+    /// - Returns: A redirect route to either `.complete` or some other alternative depending on the context.
     ///
     func completeAuthRedirect() async -> AuthRoute {
         guard let account = try? await services.authRepository.getAccount() else {
             return .landing
         }
+
+        await setCarouselShownIfEnabled()
+
         if account.profile.forcePasswordResetReason != nil {
             return .updateMasterPassword
-        } else {
-            await setCarouselShownIfEnabled()
-            return .complete
         }
+
+        if !isInAppExtension {
+            if await (try? services.stateService.getAccountSetupVaultUnlock()) == .incomplete {
+                return .vaultUnlockSetup(.createAccount)
+            } else if await (try? services.stateService.getAccountSetupAutofill()) == .incomplete {
+                return .autofillSetup
+            }
+
+            do {
+                if let rehydratableTarget = try await services.rehydrationHelper.getSavedRehydratableTarget() {
+                    return .completeWithRehydration(rehydratableTarget)
+                }
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+
+        return .complete
     }
 
     /// Handles the `.didDeleteAccount`route and redirects the user to the correct screen
@@ -209,7 +226,10 @@ extension AuthRouter {
     func preparedStartRoute() async -> AuthRoute {
         guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
             // If no account can be set to active, go to the landing or carousel screen.
-            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+            let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(
+                .nativeCarouselFlow,
+                isPreAuth: true
+            )
             let introCarouselShown = await services.stateService.getIntroCarouselShown()
             let shouldShowCarousel = isCarouselEnabled && !introCarouselShown && !isInAppExtension
             return shouldShowCarousel ? .introCarousel : .landing
@@ -261,6 +281,11 @@ extension AuthRouter {
                 guard let activeAccount = try? await services.authRepository.getAccount() else {
                     return .landing
                 }
+
+                if !isInAppExtension {
+                    await services.rehydrationHelper.saveRehydrationStateIfNeeded()
+                }
+
                 // Setup the check route for the active account.
                 let event = AuthEvent.accountBecameActive(
                     activeAccount,
@@ -293,17 +318,6 @@ extension AuthRouter {
     /// - Returns: A suggested route for the active account with state pre-configured.
     ///
     func switchAccountRedirect(isAutomatic: Bool, userId: String) async -> AuthRoute {
-        if let account = try? await services.authRepository.getAccount(),
-           userId == account.profile.userId {
-            return await handleAndRoute(
-                .accountBecameActive(
-                    account,
-                    animated: false,
-                    attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
-                )
-            )
-        }
         do {
             let activeAccount = try await services.authRepository.setActiveAccount(userId: userId)
             // Setup the unlock route for the active account.
@@ -325,7 +339,7 @@ extension AuthRouter {
     /// - Parameters:
     ///    - activeAccount: The active account.
     ///    - animated: If the suggested route can be animated, use this value.
-    ///    - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic bioemtrics unlock,
+    ///    - shouldAttemptAutomaticBiometricUnlock: If the route uses automatic biometrics unlock,
     ///      this value enables or disables the feature.
     ///    - shouldAttemptAccountSwitch: Should the application automatically switch accounts for the user?
     /// - Returns: A suggested route for the active account with state pre-configured.
@@ -354,7 +368,6 @@ extension AuthRouter {
                     return .landingSoftLoggedOut(email: activeAccount.profile.email)
                 }
 
-                // Otherwise, return `.vaultUnlock`.
                 return .vaultUnlock(
                     activeAccount,
                     animated: animated,
@@ -379,10 +392,10 @@ extension AuthRouter {
     /// existing account or once logging in or creating an account is successful.
     ///
     private func setCarouselShownIfEnabled() async {
-        let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow)
+        let isCarouselEnabled: Bool = await services.configService.getFeatureFlag(.nativeCarouselFlow, isPreAuth: true)
         let introCarouselShown = await services.stateService.getIntroCarouselShown()
         if isCarouselEnabled, !introCarouselShown {
             await services.stateService.setIntroCarouselShown(true)
         }
     }
-}
+} // swiftlint:disable:this file_length

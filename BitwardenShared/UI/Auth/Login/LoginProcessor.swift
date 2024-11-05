@@ -32,6 +32,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         & HasAuthRepository
         & HasAuthService
         & HasCaptchaService
+        & HasConfigService
         & HasDeviceAPIService
         & HasErrorReporter
         & HasPolicyService
@@ -107,7 +108,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
     /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
     ///   with hCaptcha.
     ///
-    private func launchCaptchaFlow(with siteKey: String) {
+    private func launchCaptchaFlow(with siteKey: String) async {
         do {
             let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
             coordinator.navigate(
@@ -118,8 +119,7 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 context: self
             )
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
+            await handleErrorResponse(error)
         }
     }
 
@@ -140,7 +140,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             try await services.authService.loginWithMasterPassword(
                 state.masterPassword,
                 username: state.username,
-                captchaToken: captchaToken
+                captchaToken: captchaToken,
+                isNewAccount: state.isNewAccount
             )
 
             // Unlock the vault.
@@ -153,15 +154,14 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
         } catch let error as IdentityTokenRequestError {
             switch error {
             case let .captchaRequired(hCaptchaSiteCode):
-                launchCaptchaFlow(with: hCaptchaSiteCode)
+                await launchCaptchaFlow(with: hCaptchaSiteCode)
             case let .twoFactorRequired(authMethodsData, _, _):
                 coordinator.navigate(
                     to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil)
                 )
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
+            await handleErrorResponse(error)
         }
     }
 
@@ -184,9 +184,28 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             )
             state.isLoginWithDeviceVisible = isKnownDevice
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
+            await handleErrorResponse(error)
         }
+    }
+
+    /// Handles network error responses.
+    ///
+    /// Determines whether the Bitwarden server is official or unofficial and passes this information
+    /// along with the error to the coordinator to display an appropriate alert on the main thread.
+    /// The error is also logged using the error reporter.
+    ///
+    /// - Parameter error: The error received from the network request.
+    ///
+    private func handleErrorResponse(_ error: Error) async {
+        services.errorReporter.log(error: error)
+        let serverConfig = await services.configService.getConfig(isPreAuth: true)
+        let isOfficialBitwardenServer = serverConfig?.isOfficialBitwardenServer() ?? true
+        coordinator.showAlert(
+            .networkResponseError(
+                error,
+                isOfficialBitwardenServer: isOfficialBitwardenServer
+            )
+        )
     }
 }
 
@@ -202,12 +221,12 @@ extension LoginProcessor: CaptchaFlowDelegate {
     func captchaErrored(error: Error) {
         guard (error as NSError).code != ASWebAuthenticationSessionError.canceledLogin.rawValue else { return }
 
-        services.errorReporter.log(error: error)
-
         // Show the alert after a delay to ensure it doesn't try to display over the
         // closing captcha view.
         DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            self.coordinator.showAlert(.networkResponseError(error))
+            Task {
+                await self.handleErrorResponse(error)
+            }
         }
     }
 }

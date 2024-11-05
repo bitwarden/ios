@@ -13,6 +13,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
     var clientAuth: MockClientAuth!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var subject: StartRegistrationProcessor!
@@ -28,6 +29,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
         clientAuth = MockClientAuth()
+        configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -40,6 +42,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 authRepository: authRepository,
                 captchaService: captchaService,
                 clientService: MockClientService(auth: clientAuth),
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 httpClient: client,
@@ -55,6 +58,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         captchaService = nil
         clientAuth = nil
         client = nil
+        configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
@@ -89,6 +93,93 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(alert.alertActions[2].title, Localizations.selfHosted)
         try await alert.tapAction(title: Localizations.selfHosted)
         XCTAssertEqual(coordinator.routes.last, .selfHosted(currentRegion: .europe))
+    }
+
+    /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.
+    @MainActor
+    func test_perform_startRegistration_setPreAuthUrls_checkEmail() async throws {
+        subject.state = .fixture()
+        client.result = .httpSuccess(testData: .nilResponse)
+        stateService.preAuthEnvironmentUrls = .defaultEU
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
+        XCTAssertEqual(coordinator.routes.last, .checkEmail(
+            email: "example@email.com"
+        ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+        XCTAssertEqual(stateService.accountCreationEnvironmentUrls["example@email.com"], .defaultEU)
+    }
+
+    /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.
+    @MainActor
+    func test_perform_startRegistration_setPreAuthUrls_checkEmail_emailWithSpaceAndCapitals() async throws {
+        subject.state = .fixture(emailText: "  example@EMAIL.com   ")
+        client.result = .httpSuccess(testData: .nilResponse)
+        stateService.preAuthEnvironmentUrls = .defaultEU
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
+        XCTAssertEqual(coordinator.routes.last, .checkEmail(
+            email: "example@email.com"
+        ))
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
+        XCTAssertEqual(stateService.accountCreationEnvironmentUrls["example@email.com"], .defaultEU)
+    }
+
+    /// `perform(_:)` with `.startRegistration` fails if preAuthUrls cannot be loaded.
+    @MainActor
+    func test_perform_startRegistration_setPreAuthUrls_checkEmail_noUrls() async throws {
+        subject.state = .fixture()
+        client.result = .httpSuccess(testData: .nilResponse)
+        stateService.preAuthEnvironmentUrls = nil
+
+        await subject.perform(.startRegistration)
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url,
+            URL(string: "https://example.com/identity/accounts/register/send-verification-email")
+        )
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation
+            )
+        )
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.creatingAccount),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.startRegistration` presents an alert when the email has already been taken.
@@ -320,6 +411,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .completeRegistration(
+                    emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
+                    userEmail: "example@email.com"
+                ),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.startRegistration` and a valid email surrounded by whitespace trims the whitespace and
@@ -340,6 +440,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .completeRegistration(
+                    emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
+                    userEmail: "email@example.com"
+                ),
+            ]
+        )
     }
 
     /// `perform(_:)` with `.startRegistration` and a valid email with uppercase characters
@@ -360,6 +469,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         )
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .completeRegistration(
+                    emailVerificationToken: "0018A45C4D1DEF81644B54AB7F969B88D65\n",
+                    userEmail: "email@example.com"
+                ),
+            ]
+        )
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
@@ -399,7 +517,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         subject.state.region = .unitedStates
         await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
-        XCTAssertEqual(subject.state.toast?.text, Localizations.environmentSaved)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
             environmentService.setPreAuthEnvironmentUrlsData,
             EnvironmentUrlData(base: .example)
@@ -413,6 +531,20 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         await subject.didSaveEnvironment(urls: EnvironmentUrlData())
         XCTAssertEqual(subject.state.region, .unitedStates)
         XCTAssertNil(environmentService.setPreAuthEnvironmentUrlsData)
+    }
+
+    /// `perform(.appeared)` loads the feature flags needed by the processor.
+    @MainActor
+    func test_perform_appeared_loadFeatureFlags() async {
+        XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
+
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isCreateAccountFeatureFlagEnabled)
+
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
     }
 
     /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.

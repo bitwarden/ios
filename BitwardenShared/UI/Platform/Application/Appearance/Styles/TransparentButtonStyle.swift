@@ -11,13 +11,14 @@ struct TransparentButtonStyle: ButtonStyle {
     /// images.
     var foregroundColor: Color {
         isEnabled
-            ? Asset.Colors.primaryBitwarden.swiftUIColor
-            : Asset.Colors.textTertiary.swiftUIColor
+            ? Asset.Colors.textInteraction.swiftUIColor
+            : Asset.Colors.Legacy.textTertiary.swiftUIColor
     }
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
+            .styleGuide(.bodyBold)
             .padding(.vertical, 14)
             .padding(.horizontal, 20)
             .frame(maxWidth: .infinity)
@@ -39,14 +40,14 @@ extension ButtonStyle where Self == TransparentButtonStyle {
 // MARK: Previews
 
 #if DEBUG
-#Preview("Enabled") {
-    Button("Hello World!") {}
-        .buttonStyle(.transparent)
-}
+#Preview {
+    VStack {
+        Button("Hello World!") {}
 
-#Preview("Disabled") {
-    Button("Hello World!") {}
-        .buttonStyle(.transparent)
-        .disabled(true)
+        Button("Hello World!") {}
+            .disabled(true)
+    }
+    .buttonStyle(.transparent)
+    .padding()
 }
 #endif

@@ -155,7 +155,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         do {
             try await services.authRepository.requestOtp()
             state.isSendCodeButtonDisabled = true
-            state.toast = Toast(text: Localizations.codeSent)
+            state.toast = Toast(title: Localizations.codeSent)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
@@ -172,7 +172,8 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         Task {
             state.filePasswordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: "",
-                password: state.filePasswordText
+                password: state.filePasswordText,
+                isPreAuth: false
             )
         }
     }

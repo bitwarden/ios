@@ -56,15 +56,15 @@ extension View {
             .frame(minWidth: 22, alignment: .center)
             .background {
                 if initials == nil {
-                    Asset.Images.horizontalDots.swiftUIImage
+                    Asset.Images.horizontalDots16.swiftUIImage
                         .padding(.vertical, 10)
                         .padding(.horizontal, 14)
                         .opacity(initials == nil ? 1.0 : 0.0)
                         .accessibilityHidden(initials != nil)
                 }
             }
-            .foregroundColor(textColor ?? Asset.Colors.primaryBitwarden.swiftUIColor)
-            .background(color ?? Asset.Colors.primaryBitwarden.swiftUIColor.opacity(0.12))
+            .foregroundColor(textColor ?? Asset.Colors.textInteraction.swiftUIColor)
+            .background(color ?? Asset.Colors.backgroundTertiary.swiftUIColor)
             .clipShape(Circle())
     }
 }

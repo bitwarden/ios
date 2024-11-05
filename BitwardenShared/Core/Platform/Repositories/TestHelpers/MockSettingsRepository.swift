@@ -22,6 +22,8 @@ class MockSettingsRepository: SettingsRepository {
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
     var lastSyncTimeError: Error?
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
+    var syncToAuthenticator = false
+    var syncToAuthenticatorResult: Result<Void, Error> = .success(())
     var updateDefaultUriMatchTypeValue: BitwardenShared.UriMatchType?
     var updateDefaultUriMatchTypeResult: Result<Void, Error> = .success(())
     var updateDisableAutoTotpCopyValue: Bool?
@@ -77,6 +79,11 @@ class MockSettingsRepository: SettingsRepository {
         return lastSyncTimeSubject.eraseToAnyPublisher().values
     }
 
+    func getSyncToAuthenticator() async throws -> Bool {
+        try syncToAuthenticatorResult.get()
+        return syncToAuthenticator
+    }
+
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         self.allowSyncOnRefresh = allowSyncOnRefresh
         try allowSyncOnRefreshResult.get()
@@ -95,6 +102,11 @@ class MockSettingsRepository: SettingsRepository {
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         updateDisableAutoTotpCopyValue = disableAutoTotpCopy
         try updateDisableAutoTotpCopyResult.get()
+    }
+
+    func updateSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
+        self.syncToAuthenticator = syncToAuthenticator
+        try syncToAuthenticatorResult.get()
     }
 
     func validatePassword(_ password: String) async throws -> Bool {

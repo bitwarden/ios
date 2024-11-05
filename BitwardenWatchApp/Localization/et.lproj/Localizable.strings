@@ -1,10 +1,10 @@
 "ThereAreNoItemsToList" = "Puuduvad kirjed, mida kuvada";
 "ToViewVerificationCodesUpgradeToPremium" = "Kinnituskoodide nägemiseks on vajalik Premium versioon";
-"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Add 2 factor authentication to an item to view the verification codes";
-"LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "Log in to Bitwarden on your iPhone to view verification codes";
-"SyncingItemsContainingVerificationCodes" = "Syncing items containing verification codes";
-"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "Unlock Bitwarden on your iPhone to view verification codes";
-"SetUpBitwardenToViewItemsContainingVerificationCodes" = "Set up Bitwarden to view items containing verification codes";
+"Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Lisa kahe-astmeline sisselogimine kirjele, et vaadata kinnituskoode";
+"LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "Logi sisse Bitwardenisse oma iPhone-st, et vaadata kinnituskoode";
+"SyncingItemsContainingVerificationCodes" = "Sünkroniseerin kinnituskoode sisaldavaid kirjeid";
+"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "Ava Bitwarden oma iPhone-s, et vaadata kinnituskoode";
+"SetUpBitwardenToViewItemsContainingVerificationCodes" = "Seadista Bitwarden, et vaadata kinnituskoode sisaldavaid kirjeid";
 "Search" = "Otsi";
-"NoItemsFound" = "No items found";
-"SetUpAppleWatchPasscodeInOrderToUseBitwarden" = "Set up Apple Watch passcode in order to use Bitwarden";
+"NoItemsFound" = "Ühtki kirjet ei leitud";
+"SetUpAppleWatchPasscodeInOrderToUseBitwarden" = "Seadista pääsukood Apple Watch-ile, et kasutada Bitwardenit";

@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftUIIntrospect
 
 // MARK: - BitwardenTextField
 
@@ -6,6 +7,7 @@ import SwiftUI
 /// configured to act as a password field with visibility toggling, and supports
 /// displaying additional content on the trailing edge of the text field.
 ///
+@MainActor
 struct BitwardenTextField<TrailingContent: View>: View {
     // MARK: Private Properties
 
@@ -61,8 +63,8 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 if let isPasswordVisible, canViewPassword {
                     AccessoryButton(
                         asset: isPasswordVisible.wrappedValue
-                            ? Asset.Images.hidden
-                            : Asset.Images.visible,
+                            ? Asset.Images.eyeSlash16
+                            : Asset.Images.eye16,
                         accessibilityLabel: isPasswordVisible.wrappedValue
                             ? Localizations.passwordIsVisibleTapToHide
                             : Localizations.passwordIsNotVisibleTapToShow
@@ -99,6 +101,9 @@ struct BitwardenTextField<TrailingContent: View>: View {
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
+                    .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
+                        textField.smartDashesType = isPassword ? .no : .default
+                    }
                 if isPassword, !isPasswordVisible {
                     SecureField(placeholder, text: $text)
                         .focused($isSecureFieldFocused)
@@ -112,14 +117,13 @@ struct BitwardenTextField<TrailingContent: View>: View {
             Button {
                 text = ""
             } label: {
-                Asset.Images.cancelRound.swiftUIImage
-                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                    .frame(width: 14, height: 14)
+                Asset.Images.circleX16.swiftUIImage
+                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
             }
             .padding(.vertical, 5)
             .hidden(text.isEmpty || !isFocused)
         }
-        .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+        .tint(Asset.Colors.tintPrimary.swiftUIColor)
         .onAppear {
             isSecureFieldFocused = isPasswordAutoFocused
         }
@@ -250,7 +254,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
             title: "Title",
             text: .constant("Text field text")
         ) {
-            AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
+            AccessoryButton(asset: Asset.Images.cog16, accessibilityLabel: "") {}
         }
         .padding()
     }
@@ -265,7 +269,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
             footer: Localizations.vaultLockedMasterPassword,
             isPasswordVisible: .constant(false)
         ) {
-            AccessoryButton(asset: Asset.Images.gear, accessibilityLabel: "") {}
+            AccessoryButton(asset: Asset.Images.cog16, accessibilityLabel: "") {}
         }
         .padding()
     }

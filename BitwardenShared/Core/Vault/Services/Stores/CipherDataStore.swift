@@ -7,6 +7,12 @@ import CoreData
 /// A protocol for a data store that handles performing data requests for ciphers.
 ///
 protocol CipherDataStore: AnyObject {
+    /// Returns the count of ciphers in the data store belonging to the specified user ID.
+    ///
+    /// - Parameter userId: The user ID of the user associated with the ciphers.
+    ///
+    func cipherCount(userId: String) async throws -> Int
+
     /// Deletes all `Cipher` objects for a specific user.
     ///
     /// - Parameter userId: The user ID of the user associated with the objects to delete.
@@ -62,6 +68,13 @@ protocol CipherDataStore: AnyObject {
 }
 
 extension DataStore: CipherDataStore {
+    func cipherCount(userId: String) async throws -> Int {
+        try await backgroundContext.perform {
+            let fetchRequest = CipherData.fetchByUserIdRequest(userId: userId)
+            return try self.backgroundContext.count(for: fetchRequest)
+        }
+    }
+
     func deleteAllCiphers(userId: String) async throws {
         try await executeBatchDelete(CipherData.deleteByUserIdRequest(userId: userId))
     }

@@ -25,7 +25,7 @@ struct LoginView: View {
             .padding(.top, 16)
             .frame(maxWidth: .infinity)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.bitwarden)
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
@@ -71,7 +71,7 @@ struct LoginView: View {
             }
             .styleGuide(.subheadline)
             .accessibilityIdentifier("GetMasterPasswordHintLabel")
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
         }
     }
 
@@ -91,7 +91,7 @@ struct LoginView: View {
                     store.send(.loginWithDevicePressed)
                 } label: {
                     HStack(spacing: 8) {
-                        Image(decorative: Asset.Images.mobile)
+                        Image(decorative: Asset.Images.mobile16)
                             .imageStyle(.accessoryIcon(scaleWithFont: true))
                         Text(Localizations.logInWithDevice)
                     }
@@ -104,7 +104,7 @@ struct LoginView: View {
                 store.send(.enterpriseSingleSignOnPressed)
             } label: {
                 HStack(spacing: 8) {
-                    Image(decorative: Asset.Images.bwiProvider)
+                    Image(decorative: Asset.Images.provider16)
                         .imageStyle(.accessoryIcon(scaleWithFont: true))
                     Text(Localizations.logInSso)
                 }
@@ -128,7 +128,7 @@ struct LoginView: View {
                 store.send(.notYouPressed)
             }
             .accessibilityIdentifier("NotYouLabel")
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
         }
         .styleGuide(.footnote)
     }

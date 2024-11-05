@@ -13,6 +13,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var application: MockApplication!
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var notificationService: MockNotificationService!
@@ -36,6 +37,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         notificationService = MockNotificationService()
@@ -49,6 +51,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             application: application,
             authRepository: authRepository,
             authService: authService,
+            configService: configService,
             errorReporter: errorReporter,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
@@ -71,6 +74,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         authRepository = nil
         authService = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         pasteboardService = nil
@@ -89,7 +93,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast)
 
         subject.itemDeleted()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemDeleted)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemDeleted))
     }
 
     /// `itemSoftDeleted()` delegate method shows the expected toast.
@@ -98,7 +102,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast)
 
         subject.itemSoftDeleted()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemSoftDeleted)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemSoftDeleted))
     }
 
     /// `itemRestored()` delegate method shows the expected toast.
@@ -107,7 +111,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNil(subject.state.toast)
 
         subject.itemRestored()
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemRestored)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemRestored))
     }
 
     /// `init()` has default values set in the state.
@@ -377,6 +381,28 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
+    /// `perform(_:)` with `.dismissImportLoginsActionCard` sets the user's import logins setup
+    /// progress to complete.
+    @MainActor
+    func test_perform_dismissSetUpUnlockActionCard() async {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupImportLogins["1"] = .incomplete
+
+        await subject.perform(.dismissImportLoginsActionCard)
+
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .setUpLater)
+    }
+
+    /// `perform(_:)` with `.dismissImportLoginsActionCard` logs an error and shows an alert if an
+    /// error occurs.
+    @MainActor
+    func test_perform_dismissSetUpUnlockActionCard_error() async {
+        await subject.perform(.dismissImportLoginsActionCard)
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(error: StateServiceError.noActiveAccount)])
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
     /// `perform(_:)` with `.morePressed` has the vault item more options helper display the alert.
     @MainActor
     func test_perform_morePressed() async throws {
@@ -386,7 +412,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertNotNil(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleDisplayToast)
         XCTAssertNotNil(vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleOpenURL)
 
-        let toast = Toast(text: Localizations.valueHasBeenCopied(Localizations.password))
+        let toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.password))
         vaultItemMoreOptionsHelper.showMoreOptionsAlertHandleDisplayToast?(toast)
         XCTAssertEqual(subject.state.toast, toast)
 
@@ -599,6 +625,49 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// `perform(_:)` with `.streamAccountSetupProgress` updates the state's import logins process
+    /// whenever it changes.
+    @MainActor
+    func test_perform_streamAccountSetupProgress() {
+        configService.featureFlagsBool[.importLoginsFlow] = true
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamAccountSetupProgress)
+        }
+        defer { task.cancel() }
+
+        let badgeState = SettingsBadgeState.fixture(importLoginsSetupProgress: .complete)
+        stateService.settingsBadgeSubject.send(badgeState)
+        waitFor { subject.state.importLoginsSetupProgress == .complete }
+
+        XCTAssertEqual(subject.state.importLoginsSetupProgress, .complete)
+    }
+
+    /// `perform(_:)` with `.streamAccountSetupProgress` logs an error if streaming the account
+    /// setup progress fails.
+    @MainActor
+    func test_perform_streamAccountSetupProgress_error() async {
+        configService.featureFlagsBool[.importLoginsFlow] = true
+
+        await subject.perform(.streamAccountSetupProgress)
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `perform(_:)` with `.streamAccountSetupProgress` doesn't load the account setup progress
+    /// if the import logins feature flag is disabled.
+    @MainActor
+    func test_perform_streamAccountSetupProgress_importLoginsFlowDisabled() async {
+        configService.featureFlagsBool[.importLoginsFlow] = false
+        stateService.activeAccount = .fixture()
+        stateService.settingsBadgeSubject.send(.fixture())
+
+        await subject.perform(.streamAccountSetupProgress)
+
+        XCTAssertNil(subject.state.importLoginsSetupProgress)
+    }
+
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
     @MainActor
     func test_perform_streamOrganizations() {
@@ -670,6 +739,45 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let sections = try XCTUnwrap(subject.state.loadingState.data)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[0].items, [vaultListItem])
+    }
+
+    /// `perform(_:)` with `.streamVaultList` dismisses the import logins action card if the
+    /// vault list isn't empty.
+    @MainActor
+    func test_perform_streamVaultList_dismissImportLoginsActionCard() async throws {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupImportLogins["1"] = .incomplete
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+        defer { task.cancel() }
+
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        vaultRepository.vaultListSubject.send([section])
+        try await waitForAsync { self.subject.state.loadingState == .data([section]) }
+
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` doesn't dismiss the import logins action card if the
+    /// vault list is empty.
+    @MainActor
+    func test_perform_streamVaultList_emptyImportLoginsActionCard() async throws {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupImportLogins["1"] = .incomplete
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+        defer { task.cancel() }
+
+        vaultRepository.vaultListSubject.send([])
+        try await waitForAsync { self.subject.state.loadingState == .data([]) }
+
+        XCTAssertEqual(stateService.accountSetupImportLogins["1"], .incomplete)
     }
 
     /// `perform(_:)` with `.streamVaultList` records any errors.
@@ -787,7 +895,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         // Verify the results.
         XCTAssertEqual(coordinator.events.last, .lockVault(userId: otherProfile.userId))
-        XCTAssertEqual(subject.state.toast?.text, Localizations.accountLockedSuccessfully)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from locking the account.
@@ -875,7 +983,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             coordinator.events.last,
             .logout(userId: otherProfile.userId, userInitiated: true)
         )
-        XCTAssertEqual(subject.state.toast?.text, Localizations.accountLoggedOutSuccessfully)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLoggedOutSuccessfully))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` records any errors from logging out the
@@ -993,14 +1101,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
-    /// `receive(_:)` with `ProfileSwitcherAction.scrollOffsetChanged` updates the scroll offset.
-    @MainActor
-    func test_receive_profileSwitcherScrollOffset() {
-        subject.state.profileSwitcherState.scrollOffset = .zero
-        subject.receive(.profileSwitcher(.scrollOffsetChanged(CGPoint(x: 10, y: 10))))
-        XCTAssertEqual(subject.state.profileSwitcherState.scrollOffset, CGPoint(x: 10, y: 10))
-    }
-
     /// `receive(_:)` with `.searchStateChanged(isSearching: false)` hides the profile switcher
     @MainActor
     func test_receive_searchTextChanged_false_noProfilesChange() {
@@ -1050,10 +1150,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
+    /// `receive(_:)` with `showImportLogins(:)` has the coordinator navigate to the import logins
+    /// screen.
+    @MainActor
+    func test_receive_showImportLogins() throws {
+        subject.receive(.showImportLogins)
+
+        XCTAssertEqual(coordinator.routes, [.importLogins])
+    }
+
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {
-        let toast = Toast(text: "toast!")
+        let toast = Toast(title: "toast!")
         subject.receive(.toastShown(toast))
         XCTAssertEqual(subject.state.toast, toast)
 

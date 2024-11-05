@@ -71,8 +71,57 @@ class InvocationMocker<TParam> {
 /// to return the correct result.
 class InvocationMockerWithThrowingResult<TParam, TResult> {
     var called = false
+    var invokedParam: TParam?
     var result: (TParam) throws -> TResult = { _ in throw InvocationMockerError.resultNotSet }
     var verification: (TParam) -> Bool = { _ in true }
+
+    /// Asserts by verifying the parameter which was passed to the invoked function.
+    /// - Parameters:
+    ///   - verification: Verification to run.
+    ///   - message: Message if fails.
+    ///   - file: File where this was originated.
+    ///   - line: Line number where this was originated.
+    func assert(
+        verification: (TParam?) -> Bool,
+        _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        XCTAssert(verification(invokedParam), message(), file: file, line: line)
+    }
+
+    /// Asserts by verifying the parameter which was passed to the invoked function.
+    /// This unwraps the parameter, but if can't be done then fails.
+    /// - Parameters:
+    ///   - verification: Verification to run.
+    ///   - message: Message if fails.
+    ///   - file: File where this was originated.
+    ///   - line: Line number where this was originated.
+    func assertUnwrapping(
+        verification: (TParam) -> Bool,
+        _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        guard let invokedParam else {
+            XCTFail("\(TParam.self) verification failed because parameter has not been set.")
+            return
+        }
+        XCTAssert(verification(invokedParam), message(), file: file, line: line)
+    }
+
+    /// Executes the `verification` and if it passes returns the `result`, throwing otherwise.
+    /// - Parameter param: The parameter of the function to invoke.
+    /// - Returns: Returns the result setup.
+    func invoke(param: TParam) throws -> TResult {
+        called = true
+        guard verification(param) else {
+            XCTFail("\(TParam.self) verification failed.")
+            throw InvocationMockerError.paramVerificationFailed
+        }
+        invokedParam = param
+        return try result(param)
+    }
 
     /// Sets up a verification to be executed and needs to pass in order to return the result.
     /// - Parameter verification: Verification to run.
@@ -107,17 +156,5 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     func throwing(_ error: Error) -> Self {
         result = { _ in throw error }
         return self
-    }
-
-    /// Executes the `verification` and if it passes returns the `result`, throwing otherwise.
-    /// - Parameter param: The parameter of the function to invoke.
-    /// - Returns: Returns the result setup.
-    func invoke(param: TParam) throws -> TResult {
-        called = true
-        guard verification(param) else {
-            XCTFail("\(TParam.self) verification failed.")
-            throw InvocationMockerError.paramVerificationFailed
-        }
-        return try result(param)
     }
 }

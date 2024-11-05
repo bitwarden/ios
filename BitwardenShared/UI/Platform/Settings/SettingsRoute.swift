@@ -40,6 +40,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to view the folders in the vault.
     case folders
 
+    /// A route to the import logins screen.
+    case importLogins
+
     /// A route to view a login request.
     ///
     /// - Parameter loginRequest: The login request to display.
@@ -69,4 +72,7 @@ public enum SettingsRoute: Equatable, Hashable {
 
     /// A route to the vault settings view.
     case vault
+
+    /// A route to the vault unlock setup screen.
+    case vaultUnlockSetup
 }

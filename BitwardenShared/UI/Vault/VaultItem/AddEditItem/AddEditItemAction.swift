@@ -58,6 +58,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The password field was changed.
     case passwordChanged(String)
 
+    /// The ssh key item action.
+    case sshKeyItemAction(ViewSSHKeyItemAction)
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 

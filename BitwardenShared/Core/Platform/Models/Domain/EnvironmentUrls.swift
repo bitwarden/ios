@@ -42,7 +42,14 @@ extension EnvironmentUrls {
     /// - Parameter environmentUrlData: The environment URLs used to initialize `EnvironmentUrls`.
     ///
     init(environmentUrlData: EnvironmentUrlData) {
-        if let base = environmentUrlData.base {
+        // Use the default URLs if the region matches US or EU.
+        let environmentUrlData: EnvironmentUrlData = switch environmentUrlData.region {
+        case .europe: .defaultEU
+        case .unitedStates: .defaultUS
+        case .selfHosted: environmentUrlData
+        }
+
+        if environmentUrlData.region == .selfHosted, let base = environmentUrlData.base {
             apiURL = base.appendingPathComponent("api")
             baseURL = base
             eventsURL = base.appendingPathComponent("events")

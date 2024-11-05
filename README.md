@@ -1,7 +1,7 @@
-# Bitwarden iOS (BETA)
+# Bitwarden iOS
 
 > [!TIP]
-> This repo has the new native iOS app, currently in [Beta](https://community.bitwarden.com/t/about-the-beta-program/39185). Looking for the legacy .NET MAUI apps? Head on over to [bitwarden/mobile](https://github.com/bitwarden/mobile)
+> This repo has the new native iOS app. Looking for the legacy .NET MAUI apps? Head on over to [bitwarden/mobile](https://github.com/bitwarden/mobile)
 
 ## Contents
 
@@ -15,7 +15,7 @@
 - **Minimum iOS**: 15.0
 - **Target SDK**: 15.0
 - **Device Types Supported**: iPhone, iPad
-- **Screen Sizes Supported**: iPhone SE to iPhone 15 Pro Max, iPad Mini to iPad Pro 12.9"
+- **Screen Sizes Supported**: iPhone SE to iPhone 16 Pro Max, iPad Mini to iPad Pro 12.9"
 - **Orientations Supported**: Portrait, Landscape
 
 ## Setup
@@ -46,6 +46,9 @@
     $ Scripts/bootstrap.sh
     ```
 
+    > **Hint**
+    > For development purposes it's possible to use a local build of the Bitwarden SDK by setting the environment variable `LOCAL_SDK` to `true` before running the bootstrap script. Review [Linking SDK to clients](https://contributing.bitwarden.com/getting-started/sdk/#linking-the-sdk-to-clients) for more details.
+
     > **Note**
     > Because `Scripts/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
 
@@ -58,12 +61,12 @@
 
 ### Run the App
 
-1. Open the project in Xcode 15.4+.
+1. Open the project in Xcode 16.1+.
 2. Run the app in the Simulator with the `Bitwarden` target.
 
 ### Running Tests
 
-Due to slight snapshot test variations between iOS version, the test target requires running in an iPhone 15 Pro simulator (iOS 17.0.1).
+The test target requires running in an iPhone 16 Pro simulator running iOS 18.1. While our snapshot tests work off of enforced device dimensions, small differences can still arise between devices and iOS versions, and this makes sure our snapshots are as consistent as we can make them in testing.
 
 1. In Xcode's toolbar, select the project and a connected device or simulator.
    - The `Generic iOS Device` used for builds will not work for testing.

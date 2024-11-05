@@ -20,10 +20,11 @@ struct CompleteRegistrationView: View {
         VStack(spacing: 16) {
             if store.state.nativeCreateAccountFeatureFlag {
                 PageHeaderView(
-                    image: Asset.Images.createAccountPassword,
+                    image: Asset.Images.Illustrations.lock,
                     title: Localizations.chooseYourMasterPassword,
                     message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe
                 )
+                .padding(.top, 40)
 
                 learnMoreSection
                     .padding(.vertical, 16)
@@ -99,10 +100,8 @@ struct CompleteRegistrationView: View {
     /// The section where the user can learn more about passwords.
     private var learnMoreSection: some View {
         HStack(alignment: .center, spacing: 16) {
-            Image(decorative: Asset.Images.questionRound)
-                .resizable()
-                .frame(width: 24, height: 24)
-                .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            Image(decorative: Asset.Images.questionCircle24)
+                .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(Localizations.whatMakesAPasswordStrong)
@@ -115,13 +114,13 @@ struct CompleteRegistrationView: View {
                 } label: {
                     Text(Localizations.learnMore)
                         .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(16)
-        .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
@@ -167,7 +166,7 @@ struct CompleteRegistrationView: View {
                         store.send(.preventAccountLockTapped)
                     } label: {
                         Text(Localizations.learnAboutWaysToPreventAccountLockout)
-                            .foregroundColor(Color(asset: Asset.Colors.primaryBitwardenLight))
+                            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
                             .styleGuide(.footnote, weight: .bold)
                             .multilineTextAlignment(.leading)
                     }

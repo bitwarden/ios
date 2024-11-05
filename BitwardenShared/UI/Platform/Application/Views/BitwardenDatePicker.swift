@@ -87,8 +87,8 @@ struct BitwardenDatePicker: View {
                 .styleGuide(.subheadline)
                 .frame(maxWidth: .infinity)
                 .padding(8)
-                .background(Asset.Colors.fillTertiary.swiftUIColor)
-                .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .background(Asset.Colors.Legacy.fillTertiary.swiftUIColor)
+                .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                 .clipShape(Capsule())
                 // Turn off hit testing here so that the DatePicker above receives all user interaction.
                 .allowsHitTesting(false)

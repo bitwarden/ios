@@ -21,6 +21,8 @@ struct SearchVaultFilterRowView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text(store.state.searchVaultFilterType.filterTitle)
+                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .styleGuide(.body)
 
                     Spacer()
 
@@ -37,7 +39,7 @@ struct SearchVaultFilterRowView: View {
                             EmptyView()
                         }
                     } label: {
-                        Asset.Images.horizontalKabob.swiftUIImage
+                        Asset.Images.ellipsisHorizontal24.swiftUIImage
                             .imageStyle(.rowIcon)
                             .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())
@@ -50,7 +52,7 @@ struct SearchVaultFilterRowView: View {
                 .padding(.vertical, 9)
                 .frame(minHeight: 60)
                 .accessibilityIdentifier(accessibilityID ?? "")
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
 
                 if hasDivider {
                     Divider()

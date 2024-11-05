@@ -85,7 +85,7 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
 // MARK: - Duo
 
 /// Struct with information regarding Duo two factor authentication
-public struct Duo: Codable, Equatable {
+public struct Duo: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case authUrl = "AuthUrl"
         case host = "Host"
@@ -110,7 +110,7 @@ public struct Email: Codable, Equatable, Sendable {
 // MARK: - WebAuthn
 
 /// Struct with information regarding WebAuthn two factor authentication
-public struct WebAuthn: Codable, Equatable {
+public struct WebAuthn: Codable, Equatable, Sendable {
     /// Credentials allowed to be used to solve the challenge
     let allowCredentials: [AllowCredential]?
 
@@ -136,7 +136,7 @@ public struct WebAuthn: Codable, Equatable {
 // MARK: - AllowCredential
 
 /// Struct with information regarding user credentials for WebAuthn two factor authentication
-public struct AllowCredential: Codable, Equatable {
+public struct AllowCredential: Codable, Equatable, Sendable {
     /// Public key identifier
     let id: String?
 
@@ -147,7 +147,7 @@ public struct AllowCredential: Codable, Equatable {
 // MARK: - Yubikey
 
 /// Struct with information for two factor authentication with Yubikeys
-public struct Yubikey: Codable, Equatable {
+public struct Yubikey: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case nfc = "Nfc"
     }

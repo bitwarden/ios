@@ -86,37 +86,40 @@ extension VaultListItem {
         case let .cipher(cipherItem, fido2CredentialAutofillView):
             switch cipherItem.type {
             case .card:
-                Asset.Images.creditCard
+                Asset.Images.card24
             case .identity:
-                Asset.Images.id
+                Asset.Images.idCard24
             case .login:
-                fido2CredentialAutofillView != nil ? Asset.Images.passkey : Asset.Images.globe
+                fido2CredentialAutofillView != nil ? Asset.Images.passkey24 : Asset.Images.globe24
             case .secureNote:
-                Asset.Images.doc
+                Asset.Images.file24
+            case .sshKey:
+                Asset.Images.key24
             }
         case let .group(group, _):
             switch group {
             case .card:
-                Asset.Images.creditCard
+                Asset.Images.card24
             case .collection:
-                Asset.Images.collections
-            case .folder:
-                Asset.Images.folderClosed
+                Asset.Images.collections24
+            case .folder,
+                 .noFolder:
+                Asset.Images.folder24
             case .identity:
-                Asset.Images.id
+                Asset.Images.idCard24
             case .login:
-                Asset.Images.globe
-            case .noFolder:
-                Asset.Images.folderClosed
+                Asset.Images.globe24
             case .secureNote:
-                Asset.Images.doc
+                Asset.Images.file24
+            case .sshKey:
+                Asset.Images.key24
             case .totp:
-                Asset.Images.clock
+                Asset.Images.clock24
             case .trash:
-                Asset.Images.trash
+                Asset.Images.trash24
             }
         case .totp:
-            Asset.Images.clock
+            Asset.Images.clock24
         }
     }
 
@@ -133,6 +136,8 @@ extension VaultListItem {
                 return "LoginCipherIcon"
             case .secureNote:
                 return "SecureNoteCipherIcon"
+            case .sshKey:
+                return "SSHKeyCipherIcon"
             }
         default:
             return ""
@@ -199,6 +204,8 @@ extension CipherView {
         case .login:
             return login?.username
         case .secureNote:
+            return nil
+        case .sshKey:
             return nil
         }
     }

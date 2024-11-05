@@ -119,9 +119,24 @@ struct LoginDecryptionOptionsView: View {
                 await store.perform(.notYouPressed)
             }
             .accessibilityIdentifier("NotYouButton")
-            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
         }
         .styleGuide(.footnote)
         .padding(.top, 24)
     }
 }
+
+// MARK: - Previews
+
+#if DEBUG
+#Preview {
+    NavigationView {
+        LoginDecryptionOptionsView(store: Store(processor: StateProcessor(
+            state: LoginDecryptionOptionsState(
+                shouldShowContinueButton: true,
+                email: "user@example.com"
+            )
+        )))
+    }
+}
+#endif

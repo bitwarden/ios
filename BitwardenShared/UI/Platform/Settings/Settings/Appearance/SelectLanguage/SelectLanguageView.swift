@@ -18,7 +18,7 @@ struct SelectLanguageView: View {
                 languageOptionRow(languageOption)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .cornerRadius(10)
         .scrollView()
         .navigationBar(title: Localizations.selectLanguage, titleDisplayMode: .inline)
@@ -35,7 +35,7 @@ struct SelectLanguageView: View {
     @ViewBuilder
     private func checkmarkView(_ languageOption: LanguageOption) -> some View {
         if languageOption == store.state.currentLanguage {
-            Image(asset: Asset.Images.check)
+            Image(asset: Asset.Images.check24)
                 .imageStyle(.rowIcon)
         }
     }

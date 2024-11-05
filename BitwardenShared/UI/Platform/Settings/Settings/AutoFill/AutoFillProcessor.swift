@@ -5,8 +5,10 @@
 final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, AutoFillEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasSettingsRepository
+        & HasStateService
 
     // MARK: Properties
 
@@ -39,8 +41,12 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
 
     override func perform(_ effect: AutoFillEffect) async {
         switch effect {
+        case .dismissSetUpAutofillActionCard:
+            await dismissSetUpAutofillActionCard()
         case .fetchSettingValues:
             await fetchSettingValues()
+        case .streamSettingsBadge:
+            await streamSettingsBadge()
         }
     }
 
@@ -55,6 +61,8 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             }
         case .passwordAutoFillTapped:
             coordinator.navigate(to: .passwordAutoFill)
+        case .showSetUpAutofill:
+            coordinator.navigate(to: .passwordAutoFill)
         case let .toggleCopyTOTPToggle(isOn):
             state.isCopyTOTPToggleOn = isOn
             Task {
@@ -65,6 +73,17 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
 
     // MARK: Private
 
+    /// Dismisses the set up autofill action card by marking the user's vault autofill setup progress complete.
+    ///
+    private func dismissSetUpAutofillActionCard() async {
+        do {
+            try await services.stateService.setAccountSetupAutofill(.complete)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
+    }
+
     /// Fetches the initial stored setting values for the view.
     ///
     private func fetchSettingValues() async {
@@ -73,6 +92,19 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             state.isCopyTOTPToggleOn = try await !services.settingsRepository.getDisableAutoTotpCopy()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the state of the badges in the settings tab.
+    ///
+    private func streamSettingsBadge() async {
+        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
+        do {
+            for await badgeState in try await services.stateService.settingsBadgePublisher().values {
+                state.badgeState = badgeState
+            }
+        } catch {
             services.errorReporter.log(error: error)
         }
     }

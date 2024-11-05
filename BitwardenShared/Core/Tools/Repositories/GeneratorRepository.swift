@@ -25,6 +25,12 @@ protocol GeneratorRepository: AnyObject {
 
     // MARK: Generator
 
+    /// Generates a master password.
+    ///
+    /// - Returns: The generated master password.
+    ///
+    func generateMasterPassword() async throws -> String
+
     /// Generates a passphrase based on the passphrase settings.
     ///
     /// - Parameter settings: The settings used to generate the passphrase.
@@ -164,16 +170,27 @@ extension DefaultGeneratorRepository: GeneratorRepository {
 
     // MARK: Generator
 
+    func generateMasterPassword() async throws -> String {
+        try await clientService.generators(isPreAuth: false).passphrase(
+            settings: PassphraseGeneratorRequest(
+                numWords: 3,
+                wordSeparator: "-",
+                capitalize: true,
+                includeNumber: true
+            )
+        )
+    }
+
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
-        try await clientService.generators().passphrase(settings: settings)
+        try await clientService.generators(isPreAuth: false).passphrase(settings: settings)
     }
 
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
-        try await clientService.generators().password(settings: settings)
+        try await clientService.generators(isPreAuth: false).password(settings: settings)
     }
 
     func generateUsername(settings: UsernameGeneratorRequest) async throws -> String {
-        try await clientService.generators().username(settings: settings)
+        try await clientService.generators(isPreAuth: false).username(settings: settings)
     }
 
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions {

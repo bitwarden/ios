@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import Foundation
 
 // MARK: - KeychainService
@@ -36,7 +37,7 @@ protocol KeychainService: AnyObject {
 
 // MARK: - KeychainServiceError
 
-enum KeychainServiceError: Error, Equatable {
+enum KeychainServiceError: Error, Equatable, CustomNSError {
     /// When creating an accessControl fails.
     ///
     /// - Parameter CFError: The potential system error.
@@ -54,6 +55,18 @@ enum KeychainServiceError: Error, Equatable {
     /// - Parameter OSStatus: The `OSStatus` returned from a keychain operation.
     ///
     case osStatusError(OSStatus)
+
+    /// The user-info dictionary.
+    public var errorUserInfo: [String: Any] {
+        switch self {
+        case .accessControlFailed:
+            return [:]
+        case let .keyNotFound(keychainItem):
+            return ["Keychain Item": keychainItem.unformattedKey]
+        case let .osStatusError(osStatus):
+            return ["OS Status": osStatus]
+        }
+    }
 }
 
 // MARK: - DefaultKeychainService
@@ -113,3 +126,7 @@ class DefaultKeychainService: KeychainService {
         }
     }
 }
+
+// MARK: - AuthenticatorKeychainService
+
+extension DefaultKeychainService: AuthenticatorKeychainService {}

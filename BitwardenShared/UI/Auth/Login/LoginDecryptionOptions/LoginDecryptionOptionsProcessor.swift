@@ -102,7 +102,7 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
                 rememberDevice: state.isRememberDeviceToggleOn
             )
 
-            coordinator.navigate(to: .complete)
+            await coordinator.handleEvent(.didCompleteAuth)
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
@@ -145,8 +145,8 @@ class LoginDecryptionOptionsProcessor: StateProcessor<
                 && !state.shouldShowApproveMasterPasswordButton
 
             if try await hasApprovedPendingAdminRequest() {
-                state.toast = Toast(text: Localizations.loginApproved)
-                coordinator.navigate(to: .complete)
+                state.toast = Toast(title: Localizations.loginApproved)
+                await coordinator.handleEvent(.didCompleteAuth)
             }
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))

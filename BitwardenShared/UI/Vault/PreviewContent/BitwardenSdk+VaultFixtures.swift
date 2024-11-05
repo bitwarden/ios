@@ -49,6 +49,7 @@ extension Cipher {
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         secureNote: SecureNote? = nil,
+        sshKey: SshKey? = nil,
         type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true
     ) -> Cipher {
@@ -65,6 +66,7 @@ extension Cipher {
             identity: identity,
             card: card,
             secureNote: secureNote,
+            sshKey: sshKey,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -105,6 +107,7 @@ extension CipherView {
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         secureNote: SecureNoteView? = nil,
+        sshKey: SshKeyView? = nil,
         type: BitwardenSdk.CipherType = .login,
         viewPassword: Bool = true
     ) -> CipherView {
@@ -121,6 +124,7 @@ extension CipherView {
             identity: identity,
             card: card,
             secureNote: secureNote,
+            sshKey: sshKey,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -171,6 +175,7 @@ extension CipherView {
             identity: nil,
             card: card,
             secureNote: nil,
+            sshKey: nil,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -221,6 +226,7 @@ extension CipherView {
             identity: nil,
             card: nil,
             secureNote: nil,
+            sshKey: nil,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
@@ -244,6 +250,7 @@ extension Collection {
         name: String = "",
         externalId: String = "",
         hidePasswords: Bool = false,
+        manage: Bool = false,
         readOnly: Bool = false
     ) -> Collection {
         Collection(
@@ -252,7 +259,8 @@ extension Collection {
             name: name,
             externalId: externalId,
             hidePasswords: hidePasswords,
-            readOnly: readOnly
+            readOnly: readOnly,
+            manage: manage
         )
     }
 }
@@ -284,6 +292,7 @@ extension CollectionView {
         id: String = "collection-view-1",
         name: String = "",
         organizationId: String = "",
+        manage: Bool = false,
         readOnly: Bool = false
     ) -> CollectionView {
         CollectionView(
@@ -292,7 +301,8 @@ extension CollectionView {
             name: name,
             externalId: externalId,
             hidePasswords: hidePasswords,
-            readOnly: readOnly
+            readOnly: readOnly,
+            manage: manage
         )
     }
 }
@@ -383,6 +393,22 @@ extension Fido2CredentialView {
     }
 }
 
+extension BitwardenSdk.FieldView {
+    static func fixture(
+        name: String? = "Name",
+        value: String? = "1",
+        type: BitwardenSdk.FieldType = BitwardenSdk.FieldType.hidden,
+        linkedId: BitwardenSdk.LinkedIdType? = nil
+    ) -> BitwardenSdk.FieldView {
+        BitwardenSdk.FieldView(
+            name: name,
+            value: value,
+            type: type,
+            linkedId: linkedId
+        )
+    }
+}
+
 extension BitwardenSdk.Login {
     static func fixture(
         autofillOnPageLoad: Bool? = nil,
@@ -452,6 +478,26 @@ extension BitwardenSdk.LoginUriView {
             match: match,
             uriChecksum: uriChecksum
         )
+    }
+}
+
+extension BitwardenSdk.SshKey {
+    static func fixture(
+        privateKey: String = "privateKey",
+        publicKey: String = "publicKey",
+        fingerprint: String = "fingerprint"
+    ) -> SshKey {
+        SshKey(privateKey: privateKey, publicKey: publicKey, fingerprint: fingerprint)
+    }
+}
+
+extension BitwardenSdk.SshKeyView {
+    static func fixture(
+        privateKey: String = "privateKey",
+        publicKey: String = "publicKey",
+        fingerprint: String = "fingerprint"
+    ) -> SshKeyView {
+        SshKeyView(privateKey: privateKey, publicKey: publicKey, fingerprint: fingerprint)
     }
 }
 

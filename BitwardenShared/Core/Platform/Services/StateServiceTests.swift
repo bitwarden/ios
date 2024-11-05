@@ -8,6 +8,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     var appSettingsStore: MockAppSettingsStore!
     var dataStore: DataStore!
+    var errorReporter: MockErrorReporter!
     var keychainRepository: MockKeychainRepository!
     var subject: DefaultStateService!
 
@@ -18,11 +19,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = MockAppSettingsStore()
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
+        errorReporter = MockErrorReporter()
         keychainRepository = MockKeychainRepository()
 
         subject = DefaultStateService(
             appSettingsStore: appSettingsStore,
             dataStore: dataStore,
+            errorReporter: errorReporter,
             keychainRepository: keychainRepository
         )
     }
@@ -32,6 +35,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         appSettingsStore = nil
         dataStore = nil
+        errorReporter = nil
         keychainRepository = nil
         subject = nil
     }
@@ -300,6 +304,63 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getAccountSetupAutofill()` returns the user's autofill setup progress.
+    func test_getAccountSetupAutofill() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupAutofill()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupAutofill["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupAutofill()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupAutofill()` throws an error if there isn't an active account.
+    func test_getAccountSetupAutofill_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupAutofill()
+        }
+    }
+
+    /// `getAccountSetupImportLogins()` returns the user's import logins setup progress.
+    func test_getAccountSetupImportLogins() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupImportLogins()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupImportLogins["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupImportLogins()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupImportLogins()` throws an error if there isn't an active account.
+    func test_getAccountSetupImportLogins_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupImportLogins()
+        }
+    }
+
+    /// `getAccountSetupVaultUnlock()` returns the user's vault unlock setup progress.
+    func test_getAccountSetupVaultUnlock() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let initialValue = try await subject.getAccountSetupVaultUnlock()
+        XCTAssertNil(initialValue)
+
+        appSettingsStore.accountSetupVaultUnlock["1"] = .setUpLater
+        let setUpLater = try await subject.getAccountSetupVaultUnlock()
+        XCTAssertEqual(setUpLater, .setUpLater)
+    }
+
+    /// `getAccountSetupVaultUnlock()` throws an error if there isn't an active account.
+    func test_getAccountSetupVaultUnlock_noAccount() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAccountSetupVaultUnlock()
+        }
+    }
+
     /// `getActiveAccount()` returns the active account.
     func test_getActiveAccount() async throws {
         let account = Account.fixture(profile: .fixture(userId: "2"))
@@ -420,6 +481,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getAppRehydrationState(userId:)` returns the app rehydration state for the active account.
+    func test_getAppRehydrationState() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.appRehydrationState["1"] = AppRehydrationState(
+            target: .viewCipher(cipherId: "1"),
+            expirationTime: .now
+        )
+        let value = try await subject.getAppRehydrationState()
+        XCTAssertEqual(value?.target, .viewCipher(cipherId: "1"))
+    }
+
+    /// `getAppRehydrationState(userId:)` throws when there's no active account.
+    func test_getAppRehydrationState_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAppRehydrationState()
+        }
+    }
+
     /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
     func test_getClearClipboardValue() async throws {
         await subject.addAccount(.fixture())
@@ -442,36 +521,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getBiometricAuthenticationEnabled_error() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getBiometricAuthenticationEnabled()
-        }
-    }
-
-    /// `getBiometricIntegrityState(:)` returns biometric integrity state of the active user.
-    func test_getBiometricIntegrityState_active() async throws {
-        await subject.addAccount(.fixture())
-        appSettingsStore.biometricIntegrityStates = [
-            "1": "Expected State",
-        ]
-        let value = try await subject.getBiometricIntegrityState()
-        XCTAssertEqual(value, "Expected State")
-    }
-
-    /// `getBiometricIntegrityState(:)` returns the expected value.
-    func test_getBiometricIntegrityState() async throws {
-        await subject.addAccount(.fixture())
-        appSettingsStore.biometricIntegrityStates = [
-            "2": "Expected State",
-        ]
-        let value = try await subject.getBiometricIntegrityState()
-        XCTAssertNil(value, "Expected State")
-    }
-
-    /// `getBiometricIntegrityState(:)` returns biometric integrity state of the active user.
-    func test_getBiometricIntegrityState_error() async throws {
-        appSettingsStore.biometricIntegrityStates = [
-            "2": "Expected State",
-        ]
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getBiometricIntegrityState()
         }
     }
 
@@ -572,6 +621,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.eventsByUserId["1"] = events
         let actual = try await subject.getEvents(userId: "1")
         XCTAssertEqual(actual, events)
+    }
+
+    /// `init()` subscribes to active account publisher and sets the user id on the error reporter.
+    func test_init_activeAccountSubscription() async throws {
+        appSettingsStore.state = State(
+            accounts: [
+                "1": .fixture(profile: .fixture(email: "user1@bitwarden.com", userId: "1")),
+                "2": .fixture(profile: .fixture(email: "user2@bitwarden.com", userId: "2")),
+                "3": .fixture(profile: .fixture(email: "user3@bitwarden.com", userId: "3")),
+            ],
+            activeUserId: "2"
+        )
+        try await waitForAsync {
+            self.errorReporter.currentUserId == "2"
+        }
+        appSettingsStore.activeIdSubject.send(nil)
+        try await waitForAsync {
+            self.errorReporter.currentUserId == nil
+        }
     }
 
     /// `getIntroCarouselShown()` returns whether the intro carousel screen has been shown.
@@ -688,6 +756,45 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(urls)
     }
 
+    /// `getAccountCreationEnvironmentUrls` returns the saved pre-auth URLs for a given email.
+    func test_getAccountCreationEnvironmentUrls() async {
+        let email = "example@email.com"
+        let urls = EnvironmentUrlData(base: .example)
+        appSettingsStore.setAccountCreationEnvironmentUrls(environmentUrlData: urls, email: email)
+        let preAuthUrls = await subject.getAccountCreationEnvironmentUrls(email: email)
+        XCTAssertEqual(preAuthUrls, urls)
+    }
+
+    /// `getAccountCreationEnvironmentUrls` returns `nil` if the URLs haven't been set for a given email.
+    func test_getAccountCreationEnvironmentUrls_notSet() async {
+        let urls = await subject.getAccountCreationEnvironmentUrls(email: "example@email.com")
+        XCTAssertNil(urls)
+    }
+
+    /// `getPreAuthServerConfig` returns the saved pre-auth server config.
+    func test_getPreAuthServerConfig() async {
+        let config = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238192",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+
+        appSettingsStore.preAuthServerConfig = config
+        let preAuthConfig = await subject.getPreAuthServerConfig()
+        XCTAssertEqual(preAuthConfig, config)
+    }
+
+    /// `getPreAuthServerConfig` returns `nil` if the server config hasn't been set.
+    func test_getPreAuthServerConfig_notSet() async {
+        let config = await subject.getPreAuthServerConfig()
+        XCTAssertNil(config)
+    }
+
     /// `getServerConfig(:)` returns the config values
     func test_getServerConfig() async throws {
         await subject.addAccount(.fixture())
@@ -712,6 +819,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let value = await subject.getShowWebIcons()
         XCTAssertFalse(value)
+    }
+
+    /// `getSyncToAuthenticator()` returns the sync to authenticator value for the active account.
+    func test_getSyncToAuthenticator() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.syncToAuthenticatorByUserId["1"] = true
+        let value = try await subject.getSyncToAuthenticator()
+        XCTAssertTrue(value)
     }
 
     /// `.getTimeoutAction(userId:)` returns the session timeout action.
@@ -902,6 +1017,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(vaultTimeout, .never)
     }
 
+    /// `getVaultTimeout(userId:)` returns the default timeout if the user has a never lock value
+    /// stored but the never lock key doesn't exist.
+    func test_getVaultTimeout_neverLock_missingKey() async throws {
+        appSettingsStore.vaultTimeout["1"] = -2
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let vaultTimeout = try await subject.getVaultTimeout()
+        XCTAssertEqual(vaultTimeout, .fifteenMinutes)
+    }
+
     /// `lastSyncTimePublisher()` returns a publisher for the user's last sync time.
     func test_lastSyncTimePublisher() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1050,7 +1176,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             encryptedPrivateKey: "PRIVATE_KEY",
             encryptedUserKey: "USER_KEY"
         ))
-        try await subject.setBiometricIntegrityState("BiometricIntegrityState")
         try await subject.setBiometricAuthenticationEnabled(true)
         try await subject.setDefaultUriMatchType(.never)
         try await subject.setDisableAutoTotpCopy(true)
@@ -1083,7 +1208,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.logoutAccount(userInitiated: true)
 
-        XCTAssertEqual(appSettingsStore.biometricIntegrityStates, [:])
         XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
         XCTAssertEqual(appSettingsStore.encryptedPrivateKeys, [:])
         XCTAssertEqual(appSettingsStore.encryptedUserKeys, [:])
@@ -1302,6 +1426,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
     }
 
+    /// `setAppRehydrationState(_:userId:)` sets the app rehydration state for the given account.
+    func test_setAppRehydrationState() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setAppRehydrationState(
+            AppRehydrationState(
+                target: .viewCipher(cipherId: "1"),
+                expirationTime: .now
+            ),
+            userId: "1"
+        )
+        let value = appSettingsStore.appRehydrationState["1"]
+        XCTAssertEqual(value?.target, .viewCipher(cipherId: "1"))
+    }
+
+    /// `setAppRehydrationState(_:userId:)` throws when there's no active account.
+    func test_setAppRehydrationState_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.setAppRehydrationState(nil)
+        }
+    }
+
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.
     func test_setBiometricAuthenticationEnabled_default() async throws {
         await subject.addAccount(.fixture())
@@ -1325,19 +1470,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
         try await subject.setBiometricAuthenticationEnabled(false)
         XCTAssertFalse(appSettingsStore.isBiometricAuthenticationEnabled(userId: "1"))
-    }
-
-    /// `setBiometricIntegrityState(:)` sets biometric unlock preference for a user id.
-    func test_setBiometricIntegrityState_userID() async throws {
-        await subject.addAccount(.fixture())
-        try await subject.setBiometricIntegrityState("SetStateValue")
-        XCTAssertEqual(
-            appSettingsStore.biometricIntegrityState(userId: "1"),
-            "SetStateValue"
-        )
-        XCTAssertNil(appSettingsStore.biometricIntegrityState(userId: "2"))
-        try await subject.setBiometricIntegrityState(nil)
-        XCTAssertNil(appSettingsStore.biometricIntegrityState(userId: "1"))
     }
 
     /// `setClearClipboardValue(_:userId:)` sets the clear clipboard value for a user.
@@ -1449,6 +1581,39 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `setAccountSetupAutofill(_:)` sets the user's autofill setup progress.
+    func test_setAccountSetupAutofill() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupAutofill(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupAutofill, ["1": .incomplete])
+
+        try await subject.setAccountSetupAutofill(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `setAccountSetupImportLogins(_:)` sets the user's import logins setup progress.
+    func test_setAccountSetupImportLogins() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupImportLogins(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupImportLogins, ["1": .incomplete])
+
+        try await subject.setAccountSetupImportLogins(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupImportLogins, ["1": .complete])
+    }
+
+    /// `setAccountSetupVaultUnlock(_:)` sets the user's vault unlock setup progress.
+    func test_setAccountSetupVaultUnlock() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setAccountSetupVaultUnlock(.incomplete)
+        XCTAssertEqual(appSettingsStore.accountSetupVaultUnlock, ["1": .incomplete])
+
+        try await subject.setAccountSetupVaultUnlock(.complete, userId: "1")
+        XCTAssertEqual(appSettingsStore.accountSetupVaultUnlock, ["1": .complete])
+    }
+
     /// `setActiveAccount(userId: )` succeeds if there is a matching account
     func test_setActiveAccount_match_multi() async throws {
         let account1 = Account.fixture(profile: .fixture(userId: "1"))
@@ -1552,6 +1717,31 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
     }
 
+    /// `test_setAccountCreationEnvironmentUrls` saves the pre-auth URLs for email for a given email.
+    func test_setAccountCreationEnvironmentUrls() async {
+        let email = "example@email.com"
+        let urls = EnvironmentUrlData(base: .example)
+        await subject.setAccountCreationEnvironmentUrls(urls: urls, email: email)
+        XCTAssertEqual(appSettingsStore.accountCreationEnvironmentUrls(email: email), urls)
+    }
+
+    /// `setPreAuthServerConfig(config:)` saves the pre-auth server config.
+    func test_setPreAuthServerConfig() async {
+        let config = ServerConfig(
+            date: Date(timeIntervalSince1970: 100),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "1234",
+                server: nil,
+                version: "1.2.3.4"
+            )
+        )
+
+        await subject.setPreAuthServerConfig(config: config)
+        XCTAssertEqual(appSettingsStore.preAuthServerConfig, config)
+    }
+
     /// `setServerConfig(_:)` sets the config values.
     func test_setServerConfig() async throws {
         await subject.addAccount(.fixture())
@@ -1579,6 +1769,88 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setShowWebIcons() async {
         await subject.setShowWebIcons(false)
         XCTAssertTrue(appSettingsStore.disableWebIcons)
+    }
+
+    /// `setSyncToAuthenticator(_:userId:)` sets the sync to authenticator value for a user.
+    func test_setSyncToAuthenticator() async throws {
+        await subject.addAccount(.fixture())
+
+        try await subject.setSyncToAuthenticator(true)
+        XCTAssertTrue(appSettingsStore.syncToAuthenticator(userId: "1"))
+    }
+
+    /// `settingsBadgePublisher()` publishes the settings badge value for the active user.
+    func test_settingsBadgePublisher() async throws { // swiftlint:disable:this function_body_length
+        await subject.addAccount(.fixture())
+
+        var publishedValues = [SettingsBadgeState]()
+        let publisher = try await subject.settingsBadgePublisher()
+            .sink { badgeState in
+                publishedValues.append(badgeState)
+            }
+        defer { publisher.cancel() }
+
+        try await subject.setAccountSetupAutofill(.setUpLater)
+        try await subject.setAccountSetupImportLogins(.setUpLater)
+        try await subject.setAccountSetupVaultUnlock(.setUpLater)
+
+        try await subject.setAccountSetupAutofill(.complete)
+        try await subject.setAccountSetupImportLogins(.complete)
+        try await subject.setAccountSetupVaultUnlock(.complete)
+
+        XCTAssertEqual(publishedValues.count, 7)
+        XCTAssertEqual(publishedValues[0], .fixture())
+        XCTAssertEqual(publishedValues[1], .fixture(autofillSetupProgress: .setUpLater, badgeValue: "1"))
+        XCTAssertEqual(
+            publishedValues[2],
+            .fixture(
+                autofillSetupProgress: .setUpLater,
+                badgeValue: "2",
+                importLoginsSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[3],
+            .fixture(
+                autofillSetupProgress: .setUpLater,
+                badgeValue: "3",
+                importLoginsSetupProgress: .setUpLater,
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[4],
+            .fixture(
+                autofillSetupProgress: .complete,
+                badgeValue: "2",
+                importLoginsSetupProgress: .setUpLater,
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[5],
+            .fixture(
+                autofillSetupProgress: .complete,
+                badgeValue: "1",
+                importLoginsSetupProgress: .complete,
+                vaultUnlockSetupProgress: .setUpLater
+            )
+        )
+        XCTAssertEqual(
+            publishedValues[6],
+            .fixture(
+                autofillSetupProgress: .complete,
+                importLoginsSetupProgress: .complete,
+                vaultUnlockSetupProgress: .complete
+            )
+        )
+    }
+
+    /// `settingsBadgePublisher()` throws an error if there's no active account.
+    func test_settingsBadgePublisher_error() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.settingsBadgePublisher()
+        }
     }
 
     /// `setTwoFactorToken(_:email:)` sets the two-factor code for the email.
@@ -1647,6 +1919,59 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setUsesKeyConnector(true)
         XCTAssertEqual(appSettingsStore.usesKeyConnector["1"], true)
+    }
+
+    /// `syncToAuthenticatorPublisher()` returns a publisher for the user's sync to authenticator settings.
+    func test_syncToAuthenticatorPublisher() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        try await subject.setSyncToAuthenticator(true)
+
+        XCTAssertEqual(publishedValues[0].userId, "1")
+        XCTAssertEqual(publishedValues[0].shouldSync, false)
+        XCTAssertEqual(publishedValues[1].userId, "1")
+        XCTAssertEqual(publishedValues[1].shouldSync, true)
+    }
+
+    /// `syncToAuthenticatorPublisher()` gets the initial stored value if a cached value doesn't exist.
+    func test_syncToAuthenticatorPublisher_fetchesInitialValue() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        appSettingsStore.syncToAuthenticatorByUserId["1"] = true
+
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        try await subject.setSyncToAuthenticator(false)
+
+        XCTAssertEqual(publishedValues[0].userId, "1")
+        XCTAssertEqual(publishedValues[0].shouldSync, true)
+        XCTAssertEqual(publishedValues[1].userId, "1")
+        XCTAssertEqual(publishedValues[1].shouldSync, false)
+    }
+
+    /// `syncToAuthenticatorPublisher()` returns false if the user is not logged in.
+    func test_syncToAuthenticatorPublisher_notLoggedIn() async throws {
+        var publishedValues = [(userId: String?, shouldSync: Bool)]()
+        let publisher = await subject.syncToAuthenticatorPublisher()
+            .sink(receiveValue: { userId, shouldSync in
+                publishedValues.append((userId: userId, shouldSync: shouldSync))
+            })
+        defer { publisher.cancel() }
+
+        XCTAssertNil(publishedValues[0].userId)
+        XCTAssertFalse(publishedValues[0].shouldSync)
     }
 
     /// `.setActiveAccount(userId:)` sets the action that occurs when there's a session timeout.

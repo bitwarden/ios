@@ -117,6 +117,8 @@ struct TwoFactorAuthView: View {
 
             if let detailImageAsset = store.state.detailImageAsset {
                 Image(decorative: detailImageAsset)
+                    .resizable()
+                    .frame(width: 124, height: 124)
             }
         }
     }

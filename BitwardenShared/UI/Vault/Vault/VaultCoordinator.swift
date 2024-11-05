@@ -56,6 +56,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = GeneratorModule
+        & ImportLoginsModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -64,12 +65,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasAutofillCredentialService
         & HasCameraService
         & HasClientService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasLocalAuthService
         & HasNotificationService
+        & HasSettingsRepository
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -138,7 +141,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         }
     }
 
-    func navigate(to route: VaultRoute, context: AnyObject?) {
+    func navigate(to route: VaultRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
@@ -165,10 +168,23 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                     delegate: context as? CipherItemOperationDelegate
                 )
             }
+        case let .editItemFrom(id):
+            Task {
+                do {
+                    guard let cipher = try await services.vaultRepository.fetchCipher(withId: id) else {
+                        return
+                    }
+                    navigate(to: .editItem(cipher))
+                } catch {
+                    services.errorReporter.log(error: error)
+                }
+            }
         case .dismiss:
             stackNavigator?.dismiss()
         case let .group(group, filter):
             showGroup(group, filter: filter)
+        case .importLogins:
+            showImportLogins()
         case .list:
             showList()
         case let .loginRequest(loginRequest):
@@ -240,6 +256,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         )
     }
 
+    /// Shows the import login items screen.
+    ///
+    private func showImportLogins() {
+        let navigationController = UINavigationController()
+        navigationController.modalPresentationStyle = .fullScreen
+        let coordinator = module.makeImportLoginsCoordinator(
+            delegate: self,
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        coordinator.navigate(to: .importLogins(.vault))
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the vault list screen.
     ///
     private func showList() {
@@ -304,6 +334,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         let view = VaultItemSelectionView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.present(UINavigationController(rootViewController: viewController))
+    }
+}
+
+// MARK: - ImportLoginsCoordinatorDelegate
+
+extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
+    func didCompleteLoginsImport() {
+        stackNavigator?.dismiss {
+            self.showToast(
+                Localizations.loginsImported,
+                subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer,
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            )
+        }
     }
 }
 

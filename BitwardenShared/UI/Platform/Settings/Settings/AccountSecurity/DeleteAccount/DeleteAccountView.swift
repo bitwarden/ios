@@ -14,12 +14,11 @@ struct DeleteAccountView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            Image(asset: Asset.Images.exclamationTriangle)
-                .scaledFrame(width: 24, height: 24)
-                .foregroundColor(Color(asset: Asset.Colors.loadingRed))
+            Image(asset: Asset.Images.warning24)
+                .foregroundColor(Color(asset: Asset.Colors.error))
 
             Text(Localizations.deletingYourAccountIsPermanent)
-                .foregroundColor(Color(asset: Asset.Colors.loadingRed))
+                .foregroundColor(Color(asset: Asset.Colors.error))
                 .styleGuide(.headline, weight: .semibold)
 
             Text(Localizations.deleteAccountExplanation)

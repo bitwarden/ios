@@ -106,9 +106,11 @@ protocol AuthRepository: AnyObject {
     /// - Parameters:
     ///   - email: The user's email.
     ///   - password: The user's password.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).
     /// - Returns: The password strength of the password.
     ///
-    func passwordStrength(email: String, password: String) async throws -> UInt8
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8
 
     /// Gets the profiles state for a user.
     ///
@@ -191,6 +193,14 @@ protocol AuthRepository: AnyObject {
     ///   - masterPasswordHash: The master password hash from the approved auth request.
     ///
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws
+
+    /// Unlocks the Vault with the user's previously stored Authenticator Vault Key.
+    ///
+    /// User must have a previously stored Authenticator Vault Key or this method will throw.
+    ///
+    /// - Parameter userId: The account whose vault is being unlocked.
+    ///
+    func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws
 
     /// Attempts to unlock the user's vault with biometrics.
     ///
@@ -589,8 +599,9 @@ extension DefaultAuthRepository: AuthRepository {
         await vaultTimeoutService.remove(userId: userId)
     }
 
-    func passwordStrength(email: String, password: String) async throws -> UInt8 {
-        try await clientService.auth().passwordStrength(password: password, email: email, additionalInputs: [])
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
+        try await clientService.auth(isPreAuth: isPreAuth)
+            .passwordStrength(password: password, email: email, additionalInputs: [])
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
@@ -754,6 +765,11 @@ extension DefaultAuthRepository: AuthRepository {
                 method: method
             )
         )
+    }
+
+    func unlockVaultWithAuthenticatorVaultKey(userId: String) async throws {
+        let authenticatorKey = try await keychainService.getAuthenticatorVaultKey(userId: userId)
+        try await unlockVault(method: .decryptedKey(decryptedUserKey: authenticatorKey), hadUserInteraction: false)
     }
 
     func unlockVaultWithBiometrics() async throws {
@@ -931,46 +947,21 @@ extension DefaultAuthRepository: AuthRepository {
         case .authRequest:
             // Remove admin pending login request if exists
             try await authService.setPendingAdminLoginRequest(nil, userId: nil)
-        case .decryptedKey:
-            // No-op: nothing extra to do for decryptedKey.
-            break
-        case .deviceKey:
-            // No-op: nothing extra (for now).
-            break
-        case .keyConnector:
-            // No-op: nothing extra to do for Key Connector.
-            break
         case let .password(password, _):
             let hashedPassword = try await authService.hashPassword(
                 password: password,
                 purpose: .localAuthorization
             )
             try await stateService.setMasterPasswordHash(hashedPassword)
-
-            // If the user has a pin, but requires master password after restart, set the pin
-            // protected user key in memory for future unlocks prior to app restart.
-            if let encryptedPin = try await stateService.getEncryptedPin() {
-                let pinProtectedUserKey = try await clientService.crypto().derivePinUserKey(
-                    encryptedPin: encryptedPin
-                )
-                try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
-            }
-
-            // Re-enable biometrics, if required.
-            let biometricUnlockStatus = try? await biometricsRepository.getBiometricUnlockStatus()
-            switch biometricUnlockStatus {
-            case .available(_, true, false):
-                try await biometricsRepository.configureBiometricIntegrity()
-                try await biometricsRepository.setBiometricUnlockKey(
-                    authKey: clientService.crypto().getUserEncryptionKey()
-                )
-            default:
-                break
-            }
-        case .pin:
-            // No-op: nothing extra to do for pin unlock.
+        case .decryptedKey,
+             .deviceKey,
+             .keyConnector,
+             .pin:
+            // No-op: nothing extra to do.
             break
         }
+
+        try await configurePinUnlockIfNeeded(method: method)
 
         _ = try await trustDeviceService.trustDeviceIfNeeded()
         try await vaultTimeoutService.unlockVault(
@@ -1027,8 +1018,37 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.setForcePasswordResetReason(nil)
     }
 
+    /// Returns the provided user ID if it exists, otherwise fetches the active account's ID.
+    ///
+    /// - Parameter maybeId: The optional user ID to check.
+    /// - Returns: The user ID if provided, otherwise the active account's ID.
+    /// - Throws: An error if fetching the active account ID fails.
+    ///
     private func userIdOrActive(_ maybeId: String?) async throws -> String {
         if let maybeId { return maybeId }
         return try await stateService.getActiveAccountId()
+    }
+
+    /// Configures PIN unlock if the user requires master password or biometrics after an app restart.
+    ///
+    /// - Parameter method: The unlocking `InitUserCryptoMethod` method.
+    ///
+    private func configurePinUnlockIfNeeded(method: InitUserCryptoMethod) async throws {
+        switch method {
+        case .authRequest,
+             .deviceKey,
+             .keyConnector,
+             .pin:
+            break
+        case .decryptedKey,
+             .password:
+            // If the user has a pin, but requires master password after restart, set the pin
+            // protected user key in memory for future unlocks prior to app restart.
+            guard let encryptedPin = try await stateService.getEncryptedPin() else { break }
+            let pinProtectedUserKey = try await clientService.crypto().derivePinUserKey(
+                encryptedPin: encryptedPin
+            )
+            try await stateService.setPinProtectedUserKeyToMemory(pinProtectedUserKey)
+        }
     }
 }

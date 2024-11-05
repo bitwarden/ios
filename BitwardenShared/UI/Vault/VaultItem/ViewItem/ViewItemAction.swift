@@ -36,6 +36,9 @@ enum ViewItemAction: Equatable, Sendable {
     /// The password visibility button was pressed.
     case passwordVisibilityPressed
 
+    /// The ssh key item action.
+    case sshKeyItemAction(ViewSSHKeyItemAction)
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 
@@ -49,7 +52,8 @@ enum ViewItemAction: Equatable, Sendable {
              .downloadAttachment,
              .editPressed,
              .morePressed,
-             .passwordVisibilityPressed:
+             .passwordVisibilityPressed,
+             .sshKeyItemAction:
             true
         case let .copyPressed(_, field):
             field.requiresMasterPasswordReprompt
@@ -81,6 +85,15 @@ enum CopyableField {
     /// The security code field.
     case securityCode
 
+    /// The key fingerprint of the SSH key item.
+    case sshKeyFingerprint
+
+    /// The private key field of an SSH key item.
+    case sshPrivateKey
+
+    /// The public key of the SSH key item.
+    case sshPublicKey
+
     /// The totp field.
     case totp
 
@@ -89,6 +102,33 @@ enum CopyableField {
 
     /// The username field.
     case username
+
+    /// The identity name field.
+    case identityName
+
+    /// The company field.
+    case company
+
+    /// The social security number field.
+    case socialSecurityNumber
+
+    /// The passport number field.
+    case passportNumber
+
+    /// The license number field.
+    case licenseNumber
+
+    /// The email field.
+    case email
+
+    /// The identity phone field.
+    case phone
+
+    /// The identity address field.
+    case fullAddress
+
+    /// The notes field.
+    case notes
 
     /// The event to collect when copying the field.
     var eventOnCopy: EventType? {
@@ -99,6 +139,7 @@ enum CopyableField {
             .cipherClientCopiedPassword
         case .securityCode:
             .cipherClientCopiedCardCode
+        // TODO: PM-11977 add SSH private key copied event
         default:
             nil
         }
@@ -112,9 +153,21 @@ enum CopyableField {
              .customHiddenField,
              .password,
              .securityCode,
+             .sshPrivateKey,
              .totp:
             true
-        case .customTextField,
+        case .company,
+             .customTextField,
+             .email,
+             .fullAddress,
+             .identityName,
+             .licenseNumber,
+             .notes,
+             .passportNumber,
+             .phone,
+             .socialSecurityNumber,
+             .sshKeyFingerprint,
+             .sshPublicKey,
              .uri,
              .username:
             false
@@ -133,12 +186,36 @@ enum CopyableField {
             Localizations.password
         case .securityCode:
             Localizations.securityCode
+        case .sshKeyFingerprint:
+            Localizations.fingerprint
+        case .sshPrivateKey:
+            Localizations.privateKey
+        case .sshPublicKey:
+            Localizations.publicKey
         case .totp:
             Localizations.totp
         case .uri:
             Localizations.uri
         case .username:
             Localizations.username
+        case .identityName:
+            Localizations.identityName
+        case .company:
+            Localizations.company
+        case .socialSecurityNumber:
+            Localizations.ssn
+        case .passportNumber:
+            Localizations.passportNumber
+        case .licenseNumber:
+            Localizations.licenseNumber
+        case .email:
+            Localizations.email
+        case .phone:
+            Localizations.phone
+        case .fullAddress:
+            Localizations.address
+        case .notes:
+            Localizations.notes
         }
     }
 }

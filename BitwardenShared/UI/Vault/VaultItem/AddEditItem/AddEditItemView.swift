@@ -16,6 +16,9 @@ struct AddEditItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
+    /// The height of the notes field
+    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
+
     /// Whether to show that a policy is in effect.
     var isPolicyEnabled: Bool {
         store.state.isPersonalOwnershipDisabled && store.state.configuration == .add
@@ -73,7 +76,7 @@ struct AddEditItemView: View {
         .animation(.default, value: store.state.collectionsForOwner)
         .dismissKeyboardImmediately()
         .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            Asset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
@@ -137,7 +140,7 @@ struct AddEditItemView: View {
                 BitwardenMenuField(
                     title: Localizations.type,
                     accessibilityIdentifier: "ItemTypePicker",
-                    options: CipherType.allCases,
+                    options: CipherType.canCreateCases,
                     selection: store.binding(
                         get: \.type,
                         send: AddEditItemAction.typeChanged
@@ -163,6 +166,8 @@ struct AddEditItemView: View {
                 EmptyView()
             case .identity:
                 identityItems
+            case .sshKey:
+                sshKeyItems
             }
         }
     }
@@ -189,6 +194,17 @@ struct AddEditItemView: View {
                 },
                 mapAction: { $0 },
                 mapEffect: { $0 }
+            )
+        )
+    }
+
+    @ViewBuilder private var sshKeyItems: some View {
+        ViewSSHKeyItemView(
+            showCopyButtons: false,
+            store: store.child(
+                state: { _ in store.state.sshKeyState },
+                mapAction: { .sshKeyItemAction($0) },
+                mapEffect: nil
             )
         )
     }
@@ -223,9 +239,9 @@ private extension AddEditItemView {
                         Button {
                             openURL(ExternalLinksConstants.protectIndividualItems)
                         } label: {
-                            Asset.Images.questionRound.swiftUIImage
+                            Asset.Images.questionCircle16.swiftUIImage
                         }
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                         .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
                     }
                 }
@@ -237,13 +253,17 @@ private extension AddEditItemView {
 
     var notesSection: some View {
         SectionView(Localizations.notes) {
-            BitwardenMultilineTextField(
-                text: store.binding(
-                    get: \.notes,
-                    send: AddEditItemAction.notesChanged
+            BitwardenField {
+                BitwardenUITextView(
+                    text: store.binding(
+                        get: \.notes,
+                        send: AddEditItemAction.notesChanged
+                    ),
+                    calculatedHeight: $notesDynamicHeight
                 )
-            )
-            .accessibilityLabel(Localizations.notes)
+                .frame(minHeight: notesDynamicHeight)
+                .accessibilityLabel(Localizations.notes)
+            }
         }
     }
 
@@ -289,12 +309,6 @@ private extension AddEditItemView {
 }
 
 #if DEBUG
-private let multilineText =
-    """
-    I should really keep this safe.
-    Is that right?
-    """
-
 struct AddEditItemView_Previews: PreviewProvider {
     static var cipherState: CipherItemState {
         var state = CipherItemState(
@@ -340,6 +354,21 @@ struct AddEditItemView_Previews: PreviewProvider {
             AddEditItemView(
                 store: Store(
                     processor: StateProcessor(
+                        state: {
+                            var state = cipherState
+                            state.notes = "This is a nice note"
+                            return state
+                        }()
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Edit Notes")
+
+        NavigationView {
+            AddEditItemView(
+                store: Store(
+                    processor: StateProcessor(
                         state: CipherItemState(
                             addItem: .card,
                             hasPremium: true
@@ -374,7 +403,6 @@ struct AddEditItemView_Previews: PreviewProvider {
                             copy.isFavoriteOn = false
                             copy.isMasterPasswordRePromptOn = true
                             copy.owner = .personal(email: "security@bitwarden.com")
-                            copy.notes = multilineText
                             return copy.addEditState
                         }()
                     )
@@ -401,7 +429,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                         state: {
                             var state = cipherState
                             state.loginState.totpState = .init("JBSWY3DPEHPK3PXP")
-                            state.toast = Toast(text: "Authenticator key added.")
+                            state.toast = Toast(title: "Authenticator key added.")
                             return state
                         }()
                     )

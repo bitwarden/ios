@@ -11,7 +11,7 @@ class MockClientFido2Client: ClientFido2ClientProtocol {
     )
 
     func authenticate(
-        origin: String,
+        origin: BitwardenSdk.Origin,
         request: String,
         clientData: BitwardenSdk.ClientData
     ) async throws -> BitwardenSdk.PublicKeyCredentialAuthenticatorAssertionResponse {
@@ -19,7 +19,7 @@ class MockClientFido2Client: ClientFido2ClientProtocol {
     }
 
     func register(
-        origin: String,
+        origin: BitwardenSdk.Origin,
         request: String,
         clientData: BitwardenSdk.ClientData
     ) async throws -> BitwardenSdk.PublicKeyCredentialAuthenticatorAttestationResponse {

@@ -45,7 +45,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
                     .frame(maxWidth: .infinity, minHeight: 28, alignment: .leading)
                     .padding(.horizontal, 16)
                     .padding(.vertical, verticalPadding)
-                    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                    .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 if let accessoryContent {

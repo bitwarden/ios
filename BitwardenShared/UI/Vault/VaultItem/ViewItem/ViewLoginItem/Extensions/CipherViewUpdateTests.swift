@@ -3,23 +3,30 @@ import XCTest
 
 @testable import BitwardenShared
 
-final class CipherViewUpdateTests: BitwardenTestCase {
+final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherItemState: CipherItemState!
+    var now: Date!
+    var timeProvider: MockTimeProvider!
     var subject: BitwardenSdk.CipherView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
+
+        now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
         subject = CipherView.loginFixture()
+        timeProvider = MockTimeProvider(.mockTime(now))
         cipherItemState = .init(hasPremium: true)
     }
 
     override func tearDown() {
         super.tearDown()
+
         subject = nil
+        timeProvider = nil
         cipherItemState = nil
     }
 
@@ -54,6 +61,51 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
         let loginItemState = cipherView.loginItemState(excludeFido2Credentials: true, showTOTP: false)
         XCTAssertTrue(loginItemState.fido2Credentials.isEmpty)
+    }
+
+    /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView.
+    func test_sshKeyItemState() {
+        let cipherView = CipherView.fixture(
+            sshKey: .fixture(),
+            type: .sshKey,
+            viewPassword: true
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertTrue(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "privateKey")
+        XCTAssertEqual(sshKeyItemState.publicKey, "publicKey")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "fingerprint")
+    }
+
+    /// `sshKeyItemState()` returns nil if there's no `sshKey` in the cipher view.
+    func test_sshKeyItemState_nil() {
+        let cipherView = CipherView.fixture(
+            sshKey: nil,
+            viewPassword: true
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertFalse(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "")
+        XCTAssertEqual(sshKeyItemState.publicKey, "")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "")
+    }
+
+    /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView
+    /// when `viewPassword` is `false`.
+    func test_sshKeyItemState_cantViewPassword() {
+        let cipherView = CipherView.fixture(
+            sshKey: .fixture(),
+            type: .sshKey,
+            viewPassword: false
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertFalse(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "privateKey")
+        XCTAssertEqual(sshKeyItemState.publicKey, "publicKey")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "fingerprint")
     }
 
     /// Tests that the update succeeds with new properties.
@@ -94,6 +146,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.identity)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
 
         XCTAssertEqual(comparison.cardItemState(), expectedCardState)
 
@@ -145,6 +198,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
     }
 
     /// Tests that the update succeeds with new properties.
@@ -171,6 +225,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
 
     /// Tests that the update succeeds with new properties.
     func test_update_login_edits_succeeds() {
+        subject = CipherView.loginFixture()
         cipherItemState.type = .login
         cipherItemState.notes = "I have a note"
         cipherItemState.loginState.username = "PASTA"
@@ -183,6 +238,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.identity)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
 
         XCTAssertEqual(comparison.id, subject.id)
         XCTAssertEqual(comparison.organizationId, subject.organizationId)
@@ -193,6 +249,7 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertEqual(comparison.login?.password, cipherItemState.loginState.password)
         XCTAssertEqual(comparison.notes, cipherItemState.notes)
         XCTAssertEqual(comparison.secureNote, subject.secureNote)
+        XCTAssertEqual(comparison.sshKey, subject.sshKey)
         XCTAssertEqual(comparison.favorite, cipherItemState.isFavoriteOn)
         XCTAssertEqual(
             comparison.reprompt,
@@ -227,6 +284,119 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertEqual(newerPasswordHistory?.last?.password, "New password")
     }
 
+    /// Tests that the update succeeds when a hidden field change modifies the password history.
+    func test_update_login_passwordHistory_hiddenField_succeeds() {
+        subject = CipherView.loginFixture(fields: [
+            FieldView(
+                name: "Name",
+                value: "1",
+                type: BitwardenSdk.FieldType.hidden,
+                linkedId: nil
+            ),
+        ])
+        cipherItemState.customFieldsState.customFields = [
+            CustomFieldState(fieldView: .fixture(value: "2")),
+        ]
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let newPasswordHistory = comparison.passwordHistory
+
+        XCTAssertEqual(newPasswordHistory?.last?.password, "Name: 1")
+
+        cipherItemState.customFieldsState.customFields = [
+            CustomFieldState(fieldView: .fixture(value: "3")),
+        ]
+
+        let secondComparison = comparison.updatedView(with: cipherItemState)
+        let newerPasswordHistory = secondComparison.passwordHistory
+
+        XCTAssertEqual(newerPasswordHistory?.last?.password, "Name: 2")
+    }
+
+    /// Tests that the update succeeds when a hidden field is deleted modifies the password history..
+    func test_update_login_passwordHistory_deleteHiddenField_succeeds() {
+        subject = CipherView.loginFixture(fields: [
+            FieldView(
+                name: "Name",
+                value: "1",
+                type: BitwardenSdk.FieldType.hidden,
+                linkedId: nil
+            ),
+        ])
+        cipherItemState.customFieldsState.customFields = [
+            CustomFieldState(fieldView: .fixture()),
+            CustomFieldState(fieldView: .fixture(name: "NewField", value: "1")),
+        ]
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let newPasswordHistory = comparison.passwordHistory
+
+        XCTAssertNil(newPasswordHistory)
+
+        cipherItemState.customFieldsState.customFields = [
+            CustomFieldState(fieldView: .fixture()),
+        ]
+
+        let secondComparison = comparison.updatedView(with: cipherItemState)
+        let newerPasswordHistory = secondComparison.passwordHistory
+
+        XCTAssertEqual(newerPasswordHistory?.last?.password, "NewField: 1")
+    }
+
+    /// Tests a new hidden field doesn't update the password history.
+    func test_update_login_passwordHistory_newHiddenField_succeeds() {
+        subject = CipherView.loginFixture(fields: [
+            FieldView(
+                name: "Name",
+                value: "1",
+                type: BitwardenSdk.FieldType.hidden,
+                linkedId: nil
+            ),
+        ])
+        cipherItemState.customFieldsState.customFields = [
+            CustomFieldState(fieldView: .fixture()),
+            CustomFieldState(fieldView: .fixture(name: "NewField", value: "1")),
+        ]
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let newPasswordHistory = comparison.passwordHistory
+
+        XCTAssertNil(newPasswordHistory)
+    }
+
+    /// Tests that the update succeeds with a new password updating the password revision date.
+    func test_update_login_passwordRevisionDate_succeeds() throws {
+        subject = CipherView.loginFixture(
+            login: .fixture(
+                password: "Old password",
+                passwordRevisionDate: DateTime.distantPast
+            )
+        )
+        cipherItemState.loginState.password = "New password"
+
+        let comparison = subject.updatedView(with: cipherItemState, timeProvider: timeProvider)
+        let passwordRevisionDate = try XCTUnwrap(comparison.login?.passwordRevisionDate)
+
+        XCTAssertEqual(passwordRevisionDate, now)
+    }
+
+    /// Tests that the password revision date doesn't get updated if the password hasn't changed
+    func test_update_login_passwordRevisionDate_noUpdateIfNoNewPassword() throws {
+        subject = CipherView.loginFixture(
+            login: .fixture(
+                password: "Old password",
+                passwordRevisionDate: DateTime.distantPast
+            )
+        )
+        cipherItemState.loginState.password = "Old password"
+        cipherItemState.loginState.username = "New username"
+
+        let comparison = subject.updatedView(with: cipherItemState)
+        let passwordRevisionDate = try XCTUnwrap(comparison.login?.passwordRevisionDate)
+
+        XCTAssertEqual(passwordRevisionDate, DateTime.distantPast)
+    }
+
     /// Tests that the update succeeds with updated properties.
     func test_update_secureNote_succeeds() {
         cipherItemState.type = .secureNote
@@ -235,6 +405,18 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.identity)
+        XCTAssertNil(comparison.sshKey)
+    }
+
+    /// Tests that the update succeeds with updated properties on SSH key type.
+    func test_update_sshKey_succeeds() {
+        cipherItemState.type = .sshKey
+        let comparison = subject.updatedView(with: cipherItemState)
+        XCTAssertEqual(comparison.type, .sshKey)
+        XCTAssertNil(comparison.card)
+        XCTAssertNil(comparison.login)
+        XCTAssertNil(comparison.identity)
+        XCTAssertNil(comparison.secureNote)
     }
 
     /// Tests that the update succeeds with new properties.
@@ -278,4 +460,4 @@ final class CipherViewUpdateTests: BitwardenTestCase {
         XCTAssertNil(identity.postalCode)
         XCTAssertNil(identity.country)
     }
-}
+} // swiftlint:disable:this file_length

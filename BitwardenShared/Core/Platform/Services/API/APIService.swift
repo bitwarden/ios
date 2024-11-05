@@ -21,6 +21,9 @@ class APIService {
     /// The API service used for user identity requests.
     let identityService: HTTPService
 
+    /// The service used by the application to manage account state
+    let stateService: StateService
+
     // MARK: Private Properties
 
     /// A `TokenProvider` that gets the access token for the current account and can refresh it when
@@ -45,15 +48,18 @@ class APIService {
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
+    ///   - stateService: The service used by the application to manage account state.
     ///   - tokenService: The `TokenService` which manages accessing and updating the active
     ///     account's tokens.
     ///
     init(
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
+        stateService: StateService,
         tokenService: TokenService
     ) {
         self.client = client
+        self.stateService = stateService
 
         defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
             appName: "Bitwarden_Mobile",

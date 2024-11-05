@@ -2,7 +2,7 @@
 
 /// Data model for a section of items in the send list.
 ///
-public struct SendListSection: Equatable, Identifiable {
+public struct SendListSection: Equatable, Identifiable, Sendable {
     // MARK: Properties
 
     /// The identifier for the section.

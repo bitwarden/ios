@@ -10,7 +10,7 @@ class AddEditLoginItemViewTests: BitwardenTestCase {
     func test_snapshot_addEditLoginItemView() {
         for preview in AddEditLoginItemView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [
                     .defaultPortrait,
                     .defaultPortraitDark,

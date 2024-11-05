@@ -21,8 +21,8 @@ struct LoadingOverlayView: View {
         .frame(width: 270, alignment: .center)
         .background(
             ZStack {
-                Asset.Colors.materialRegularBase.swiftUIColor
-                Asset.Colors.materialRegularBlend.swiftUIColor
+                Asset.Colors.Legacy.materialRegularBase.swiftUIColor
+                Asset.Colors.Legacy.materialRegularBlend.swiftUIColor
                     .blendMode(colorScheme == .light ? .colorDodge : .overlay)
             }
             .compositingGroup()
@@ -30,7 +30,7 @@ struct LoadingOverlayView: View {
         .cornerRadius(14)
         .controlSize(.large)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .background(Asset.Colors.backgroundDimmed.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.Legacy.backgroundDimmed.swiftUIColor.ignoresSafeArea())
     }
 }
 

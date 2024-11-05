@@ -17,6 +17,29 @@ enum AlertError: LocalizedError {
 }
 
 extension Alert {
+    /// Simulates tapping the cancel button of the alert.
+    func tapCancel() async throws {
+        try await tapAction(title: Localizations.cancel)
+    }
+
+    /// Simulates a user interaction with the alert action that is in the specified index and matches the title.
+    /// - Parameters:
+    ///   - byIndex: The index to get the alert action.
+    ///   - withTitle: The title of the alert action to trigger.
+    ///   - alertTextFields: `AlertTextField` list to execute the action
+    /// - Throws: Throws an `AlertError` if the alert action cannot be found.
+    func tapAction(
+        byIndex: Int,
+        withTitle: String,
+        _ alertTextFields: [AlertTextField]? = nil
+    ) async throws {
+        let alertAction = alertActions[byIndex]
+        guard alertAction.title == withTitle else {
+            throw AlertError.alertActionNotFound(title: withTitle)
+        }
+        await alertAction.handler?(alertAction, alertTextFields ?? self.alertTextFields)
+    }
+
     /// Simulates a user interaction with the alert action that matches the provided title.
     ///
     /// - Parameters:
@@ -48,7 +71,21 @@ extension Alert {
         }
 
         let simulatedTextField = UITextField()
-        simulatedTextField.text = "1234"
+        simulatedTextField.text = text
         textField.textChanged(in: simulatedTextField)
+    }
+
+    /// Fills the "password" TextField with the `with` parameter and simulatess tapping the "Submit" button.
+    /// - Parameter with: Value to enter into the TextField.
+    func submitMasterPasswordReprompt(with password: String) async throws {
+        try await tapAction(
+            title: Localizations.submit,
+            alertTextFields: [
+                AlertTextField(
+                    id: "password",
+                    text: password
+                ),
+            ]
+        )
     }
 }

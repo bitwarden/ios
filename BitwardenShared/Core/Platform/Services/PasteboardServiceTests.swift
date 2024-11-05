@@ -19,12 +19,18 @@ class PasteboardServiceTests: BitwardenTestCase {
         pasteboard = UIPasteboard.withUniqueName()
         stateService = MockStateService()
         stateService.activeAccount = .fixture()
+        stateService.clearClipboardValues["1"] = .oneMinute
 
         subject = DefaultPasteboardService(
             errorReporter: errorReporter,
             pasteboard: pasteboard,
             stateService: stateService
         )
+
+        // Wait for the `DefaultPasteboardService.init` task to set the initial clear clipboard
+        // value for the active account, otherwise there's a potential race condition between that
+        // and the tests below.
+        waitFor { subject.clearClipboardValue == .oneMinute }
     }
 
     override func tearDown() {
@@ -63,6 +69,7 @@ class PasteboardServiceTests: BitwardenTestCase {
 
         stateService.activeIdSubject.send(nil)
 
+        waitFor { subject.clearClipboardValue == .never }
         XCTAssertEqual(subject.clearClipboardValue, .never)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }

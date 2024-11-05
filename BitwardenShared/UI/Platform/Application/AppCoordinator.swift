@@ -11,6 +11,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     /// The types of modules used by this coordinator.
     typealias Module = AuthModule
+        & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
         & LoginRequestModule
@@ -87,6 +88,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         switch route {
         case let .auth(authRoute):
             showAuth(authRoute)
+        case .debugMenu:
+            showDebugMenu()
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
         case let .loginRequest(loginRequest):
@@ -127,7 +130,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
            let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
            case .autofillFido2Credential = autofillAppExtensionDelegate.extensionMode {
             showTransparentController()
-            didCompleteAuth()
+            didCompleteAuth(rehydratableTarget: nil)
             return
         }
 
@@ -204,7 +207,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
         } else {
             guard let rootNavigator else { return }
-            let tabNavigator = UITabBarController()
+            let tabNavigator = BitwardenTabBarController()
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
                 rootNavigator: rootNavigator,
@@ -274,12 +277,35 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             rootNavigator?.show(child: stackNavigator)
         }
     }
+
+    /// Configures and presents the debug menu.
+    ///
+    /// Initializes feedback generator for haptic feedback. Sets up a `UINavigationController`
+    /// and creates / starts a `DebugMenuCoordinator` to manage the debug menu flow.
+    /// Presents the navigation controller and triggers haptic feedback upon completion.
+    ///
+    private func showDebugMenu() {
+        let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+        feedbackGenerator.prepare()
+        let stackNavigator = UINavigationController()
+        stackNavigator.navigationBar.prefersLargeTitles = true
+        stackNavigator.modalPresentationStyle = .fullScreen
+        let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
+        debugMenuCoordinator.start()
+        childCoordinator = debugMenuCoordinator
+
+        rootNavigator?.rootViewController?.topmostViewController().present(
+            stackNavigator,
+            animated: true,
+            completion: { feedbackGenerator.impactOccurred() }
+        )
+    }
 }
 
 // MARK: - AuthCoordinatorDelegate
 
 extension AppCoordinator: AuthCoordinatorDelegate {
-    func didCompleteAuth() {
+    func didCompleteAuth(rehydratableTarget: RehydratableTarget?) {
         appExtensionDelegate?.didCompleteAuth()
 
         switch appContext {
@@ -293,6 +319,18 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             navigate(to: route)
         case .mainApp:
             showTab(route: .vault(.list))
+
+            if let rehydratableTarget {
+                navigate(to: rehydratableTarget.appRoute)
+                Task {
+                    do {
+                        try await services.rehydrationHelper.clearAppRehydrationState()
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                }
+                return
+            }
 
             if let authCompletionRoute {
                 navigate(to: authCompletionRoute)
@@ -337,6 +375,15 @@ extension AppCoordinator: SendItemDelegate {
 // MARK: - SettingsCoordinatorDelegate
 
 extension AppCoordinator: SettingsCoordinatorDelegate {
+    func didCompleteLoginsImport() {
+        navigate(to: .tab(.vault(.list)))
+        showToast(
+            Localizations.loginsImported,
+            subtitle: Localizations.rememberToDeleteYourImportedPasswordFileFromYourComputer,
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
+    }
+
     func didDeleteAccount() {
         Task {
             await handleAuthEvent(.didDeleteAccount)

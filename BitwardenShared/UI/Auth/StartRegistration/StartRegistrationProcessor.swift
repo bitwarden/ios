@@ -27,6 +27,9 @@ enum StartRegistrationError: Error {
 
     /// The email is invalid.
     case invalidEmail
+
+    /// The pre auth environment urls are nil.
+    case preAuthUrlsEmpty
 }
 
 // MARK: - StartRegistrationProcessor
@@ -43,6 +46,7 @@ class StartRegistrationProcessor: StateProcessor<
     typealias Services = HasAccountAPIService
         & HasAuthRepository
         & HasClientService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -93,6 +97,7 @@ class StartRegistrationProcessor: StateProcessor<
         case .appeared:
             await regionHelper.loadRegion()
             state.isReceiveMarketingToggleOn = state.region == .unitedStates
+            await loadFeatureFlags()
         case .regionTapped:
             await regionHelper.presentRegionSelectorAlert(
                 title: Localizations.creatingOn,
@@ -119,6 +124,15 @@ class StartRegistrationProcessor: StateProcessor<
     }
 
     // MARK: Private methods
+
+    /// Sets the feature flags to be used.
+    ///
+    private func loadFeatureFlags() async {
+        state.isCreateAccountFeatureFlagEnabled = await services.configService.getFeatureFlag(
+            .nativeCreateAccountFlow,
+            isPreAuth: true
+        )
+    }
 
     /// Initiates the first step of the registration.
     ///
@@ -151,10 +165,15 @@ class StartRegistrationProcessor: StateProcessor<
                !token.isEmpty {
                 coordinator.navigate(to: .completeRegistration(
                     emailVerificationToken: token,
-                    userEmail: state.emailText
+                    userEmail: email
                 ))
             } else {
-                coordinator.navigate(to: .checkEmail(email: state.emailText))
+                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentUrls() else {
+                    throw StartRegistrationError.preAuthUrlsEmpty
+                }
+
+                await services.stateService.setAccountCreationEnvironmentUrls(urls: preAuthUrls, email: email)
+                coordinator.navigate(to: .checkEmail(email: email))
             }
         } catch let error as StartRegistrationError {
             showStartRegistrationErrorAlert(error)
@@ -177,6 +196,11 @@ class StartRegistrationProcessor: StateProcessor<
             coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.email))
         case .invalidEmail:
             coordinator.showAlert(.invalidEmail)
+        case .preAuthUrlsEmpty:
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.thePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation
+            ))
         }
     }
 }
@@ -186,7 +210,7 @@ class StartRegistrationProcessor: StateProcessor<
 extension StartRegistrationProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
         await setRegion(.selfHosted, urls)
-        state.toast = Toast(text: Localizations.environmentSaved)
+        state.toast = Toast(title: Localizations.environmentSaved)
     }
 }
 

@@ -118,28 +118,61 @@ extension CipherView {
         )
     }
 
+    /// Creates an `SSHKeyItemState` representation of the cipher.
+    ///
+    /// This function converts the `sshKey` information of the cipher into an `SSHKeyItemState`,
+    /// which is used to manage and display SSH key data in the UI.
+    ///
+    /// - Returns: An `SSHKeyItemState` representing the SSH key information of the cipher.
+    ///
+    func sshKeyItemState() -> SSHKeyItemState {
+        guard let sshKey else { return .init() }
+        return SSHKeyItemState(
+            canViewPrivateKey: viewPassword,
+            isPrivateKeyVisible: false,
+            privateKey: sshKey.privateKey,
+            publicKey: sshKey.publicKey,
+            keyFingerprint: sshKey.fingerprint
+        )
+    }
+
     /// Updates the cipher view with the state information from `AddEditItemState`.
-    ///
-    /// - Parameter addEditState: The `AddEditItemState` containing the updated state information.
+    /// - Parameters:
+    ///   - addEditState: The `AddEditItemState` containing the updated state information.
+    ///   - timeProvider: The `TimeProvider` to use to get current time.
     /// - Returns: An updated `CipherView` reflecting the changes from the `AddEditItemState`.
-    ///
-    func updatedView(with addEditState: AddEditItemState) -> CipherView {
-        // Update the password history if the password has changed.
+    func updatedView(with addEditState: AddEditItemState, timeProvider: TimeProvider = CurrentTime()) -> CipherView {
+        var loginState = addEditState.loginState
+
+        // Update the password updated date and the password history if the password has changed.
         var passwordHistory = passwordHistory
+        let lastUsedDate = timeProvider.presentTime
         if addEditState.type == .login,
            let previousPassword = login?.password,
            addEditState.loginState.password != previousPassword {
+            loginState.passwordUpdatedDate = lastUsedDate
+
             // Update the password history list.
-            let newPasswordHistoryView = PasswordHistoryView(password: previousPassword, lastUsedDate: Date())
+            let newPasswordHistoryView = PasswordHistoryView(password: previousPassword, lastUsedDate: lastUsedDate)
             if passwordHistory == nil {
                 passwordHistory = [newPasswordHistoryView]
             } else {
                 passwordHistory!.append(newPasswordHistoryView)
             }
-
-            // Cap the size of the password history list to 5.
-            passwordHistory = passwordHistory?.suffix(5)
         }
+
+        // Map new fields
+        let newFields = mapToCustomFieldViews(from: addEditState.customFieldsState.customFields)
+
+        passwordHistory = updatePasswordHistoryWithHiddenFields(
+            passwordHistory: passwordHistory,
+            oldFields: fields,
+            newFields: newFields,
+            lastUsedDate: lastUsedDate
+        )
+
+        // Cap the size of the password history list to 5.
+        passwordHistory = passwordHistory?.suffix(5)
 
         // Return the updated cipher.
         return CipherView(
@@ -151,10 +184,11 @@ extension CipherView {
             name: addEditState.name,
             notes: addEditState.notes.nilIfEmpty,
             type: BitwardenSdk.CipherType(addEditState.type),
-            login: (addEditState.type == .login) ? .init(loginView: login, loginState: addEditState.loginState) : nil,
+            login: (addEditState.type == .login) ? .init(loginView: login, loginState: loginState) : nil,
             identity: (addEditState.type == .identity) ? addEditState.identityState.identityView : nil,
             card: (addEditState.type == .card) ? addEditState.cardItemState.cardView : nil,
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,
+            sshKey: (addEditState.type == .sshKey) ? sshKey : nil,
             favorite: addEditState.isFavoriteOn,
             reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: organizationUseTotp,
@@ -162,20 +196,51 @@ extension CipherView {
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
-            fields: addEditState.customFieldsState.customFields.isEmpty ?
-                nil : addEditState.customFieldsState.customFields.map { customField in
-                    FieldView(
-                        name: customField.name,
-                        value: customField.value,
-                        type: .init(fieldType: customField.type),
-                        linkedId: customField.linkedIdType?.rawValue
-                    )
-                },
+            fields: newFields,
             passwordHistory: passwordHistory,
             creationDate: creationDate,
             deletedDate: deletedDate,
             revisionDate: revisionDate
         )
+    }
+
+    private func updatePasswordHistoryWithHiddenFields(
+        passwordHistory: [PasswordHistoryView]?,
+        oldFields: [FieldView]?,
+        newFields: [FieldView]?,
+        lastUsedDate: Date
+    ) -> [PasswordHistoryView]? {
+        guard let oldFields else {
+            return passwordHistory
+        }
+        let newPasswordHistoryFields: [PasswordHistoryView] = oldFields
+            .filter { field in
+                FieldType(fieldType: field.type) == FieldType.hidden &&
+                    !field.name.isEmptyOrNil &&
+                    !field.value.isEmptyOrNil &&
+                    !(newFields?.contains(field) ?? false)
+            }.compactMap { hiddenField in
+                PasswordHistoryView(
+                    password: "\(hiddenField.name ?? ""): \(hiddenField.value ?? "")",
+                    lastUsedDate: lastUsedDate
+                )
+            }
+        guard !newPasswordHistoryFields.isEmpty else {
+            return passwordHistory
+        }
+        guard let passwordHistory else {
+            return newPasswordHistoryFields
+        }
+        return passwordHistory + newPasswordHistoryFields
+    }
+
+    /// Maps the array of `CustomFieldState` into the an array of `FieldView`.
+    private func mapToCustomFieldViews(from customFields: [CustomFieldState]) -> [FieldView]? {
+        guard !customFields.isEmpty else {
+            return nil
+        }
+
+        return customFields.map { FieldView(customFieldState: $0) }
     }
 }
 
@@ -272,6 +337,7 @@ extension CipherView {
             identity: identity,
             card: card,
             secureNote: secureNote,
+            sshKey: sshKey,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,

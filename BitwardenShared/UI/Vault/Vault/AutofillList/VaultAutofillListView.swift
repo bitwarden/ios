@@ -106,10 +106,13 @@ private struct VaultAutofillListSearchableView: View {
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
-            .toast(store.binding(
-                get: \.toast,
-                send: VaultAutofillListAction.toastShown
-            ))
+            .toast(
+                store.binding(
+                    get: \.toast,
+                    send: VaultAutofillListAction.toastShown
+                ),
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            )
     }
 
     // MARK: Private Views
@@ -117,12 +120,16 @@ private struct VaultAutofillListSearchableView: View {
     /// A view for displaying a list of ciphers.
     @ViewBuilder
     private func cipherListView(_ sections: [VaultListSection]) -> some View {
-        if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
-            cipherCombinedListView(sections)
-        } else {
-            let items = sections.first?.items ?? []
-            cipherSimpleListView(items)
+        Group {
+            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
+                cipherCombinedListView(sections)
+            } else {
+                let items = sections.first?.items ?? []
+                cipherSimpleListView(items)
+            }
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView()
     }
 
     /// A view for displaying a list of sections with ciphers.
@@ -142,7 +149,6 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .scrollView()
     }
 
     /// A view for displaying a list of ciphers without sections.
@@ -157,9 +163,8 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.
@@ -193,41 +198,48 @@ private struct VaultAutofillListSearchableView: View {
     /// The content displayed in the view.
     @ViewBuilder
     private func contentView() -> some View {
-        if isSearching {
-            searchContentView()
-        } else {
-            vaultContentView()
-        }
-    }
+        ZStack {
+            let isSearching = isSearching
+                || !store.state.searchText.isEmpty
+                || !store.state.ciphersForSearch.isEmpty
 
-    /// A view for displaying the vault cipher results.
-    @ViewBuilder
-    private func vaultContentView() -> some View {
-        if store.state.vaultListSections.isEmpty {
-            EmptyContentView(
-                image: Asset.Images.openSource.swiftUIImage,
-                text: store.state.emptyViewMessage
-            ) {
-                if store.state.isAutofillingFido2List {
-                    EmptyView()
-                } else {
-                    Button {
-                        store.send(.addTapped(fromToolbar: false))
-                    } label: {
-                        Label {
-                            Text(store.state.emptyViewButtonText)
-                        } icon: {
-                            Asset.Images.plus.swiftUIImage
-                                .imageStyle(.accessoryIcon(
-                                    color: Asset.Colors.textPrimaryInverted.swiftUIColor,
-                                    scaleWithFont: true
-                                ))
+            Group {
+                if store.state.vaultListSections.isEmpty {
+                    EmptyContentView(
+                        image: Asset.Images.Illustrations.items.swiftUIImage,
+                        text: store.state.emptyViewMessage
+                    ) {
+                        if store.state.isAutofillingFido2List {
+                            EmptyView()
+                        } else {
+                            Button {
+                                store.send(.addTapped(fromToolbar: false))
+                            } label: {
+                                Label {
+                                    Text(store.state.emptyViewButtonText)
+                                } icon: {
+                                    Asset.Images.plus16.swiftUIImage
+                                        .imageStyle(.accessoryIcon(
+                                            color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+                                            scaleWithFont: true
+                                        ))
+                                }
+                            }
                         }
                     }
+                } else {
+                    cipherListView(store.state.vaultListSections)
                 }
             }
-        } else {
-            cipherListView(store.state.vaultListSections)
+            .overlay(alignment: .bottomTrailing) {
+                addItemFloatingActionButton {
+                    store.send(.addTapped(fromToolbar: false))
+                }
+            }
+            .hidden(isSearching)
+
+            searchContentView()
+                .hidden(!isSearching)
         }
     }
 
@@ -258,6 +270,35 @@ private struct VaultAutofillListSearchableView: View {
     }
 }
 
+#Preview("Searching") {
+    NavigationView {
+        VaultAutofillListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultAutofillListState(
+                        ciphersForSearch: [
+                            VaultListSection(
+                                id: "Passwords",
+                                items: (1 ... 12).map { id in
+                                    .init(
+                                        cipherView: .fixture(
+                                            id: String(id),
+                                            login: .fixture(),
+                                            name: "Bitwarden"
+                                        )
+                                    )!
+                                },
+                                name: "Passwords"
+                            ),
+                        ],
+                        searchText: "Test"
+                    )
+                )
+            )
+        )
+    }
+}
+
 #Preview("Logins") {
     NavigationView {
         VaultAutofillListView(
@@ -267,22 +308,15 @@ private struct VaultAutofillListSearchableView: View {
                         vaultListSections: [
                             VaultListSection(
                                 id: "Passwords",
-                                items: [
-                                    .init(cipherView: .fixture(
-                                        id: "1",
-                                        login: .fixture(username: "user@bitwarden.com"),
-                                        name: "Apple"
-                                    ))!,
-                                    .init(cipherView: .fixture(
-                                        id: "2",
-                                        login: .fixture(username: "user@bitwarden.com"),
-                                        name: "Bitwarden"
-                                    ))!,
-                                    .init(cipherView: .fixture(
-                                        id: "3",
-                                        name: "Company XYZ"
-                                    ))!,
-                                ],
+                                items: (1 ... 12).map { id in
+                                    .init(
+                                        cipherView: .fixture(
+                                            id: String(id),
+                                            login: .fixture(),
+                                            name: "Bitwarden"
+                                        )
+                                    )!
+                                },
                                 name: "Passwords"
                             ),
                         ]
@@ -357,6 +391,14 @@ private struct VaultAutofillListSearchableView: View {
                                     ))!,
                                     .init(cipherView: .fixture(
                                         id: "3",
+                                        name: "Company XYZ"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "4",
+                                        name: "Company XYZ"
+                                    ))!,
+                                    .init(cipherView: .fixture(
+                                        id: "5",
                                         name: "Company XYZ"
                                     ))!,
                                 ],

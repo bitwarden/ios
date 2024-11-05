@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - VaultListViewTests
 
-class VaultListViewTests: BitwardenTestCase {
+class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<VaultListState, VaultListAction, VaultListEffect>!
@@ -59,12 +59,20 @@ class VaultListViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
-    /// Tapping the add an item button dispatches the `.addItemPressed` action.
+    /// Tapping the add the new login button dispatches the `.addItemPressed` action.
     @MainActor
-    func test_addAnItemButton_tap() throws {
+    func test_newLoginButton_tap() throws {
         processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.addAnItem)
+        let button = try subject.inspect().find(button: Localizations.newLogin)
         try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+    }
+
+    /// Tapping the floating action button dispatches the `.addItemPressed` action.`
+    @MainActor
+    func test_addItemFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.button().tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
@@ -74,7 +82,7 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
-        try accountRow.labelView().callOnLongPressGesture()
+        try accountRow.labelView().recursiveCallOnLongPressGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.accountLongPressed(currentAccount)))
@@ -86,7 +94,7 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
-        try accountRow.labelView().callOnTapGesture()
+        try accountRow.labelView().recursiveCallOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.accountPressed(currentAccount)))
@@ -101,6 +109,55 @@ class VaultListViewTests: BitwardenTestCase {
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.addAccountPressed))
+    }
+
+    /// The action card is hidden if the import logins setup progress is set up later or complete.
+    @MainActor
+    func test_importLoginsActionCard_hidden() {
+        processor.state.loadingState = .data([])
+
+        // Hidden by default when set up progress is `nil`.
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+
+        processor.state.importLoginsSetupProgress = .setUpLater
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+
+        processor.state.importLoginsSetupProgress = .complete
+        XCTAssertThrowsError(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+    }
+
+    /// The action card is visible if the import logins setup progress is incomplete.
+    @MainActor
+    func test_importLoginsActionCard_visible() async throws {
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.loadingState = .data([])
+        XCTAssertNoThrow(try subject.inspect().find(actionCard: Localizations.importSavedLogins))
+    }
+
+    /// Tapping the dismiss button in the import logins action card sends the
+    /// `.dismissImportLoginsActionCard` effect.
+    @MainActor
+    func test_importLoginsActionCard_visible_tapDismiss() async throws {
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.loadingState = .data([])
+        let actionCard = try subject.inspect().find(actionCard: Localizations.importSavedLogins)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissImportLoginsActionCard])
+    }
+
+    /// Tapping the get started button in the set up unlock action card sends the
+    /// `.showSetUpUnlock` action.
+    @MainActor
+    func test_importLoginsActionCard_visible_tapGetStarted() async throws {
+        processor.state.importLoginsSetupProgress = .incomplete
+        processor.state.loadingState = .data([])
+        let actionCard = try subject.inspect().find(actionCard: Localizations.importSavedLogins)
+
+        let button = try actionCard.find(asyncButton: Localizations.getStarted)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.showImportLogins])
     }
 
     /// Tapping the profile button dispatches the `.requestedProfileSwitcher` effect.
@@ -176,7 +233,7 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.isVisible = false
         processor.state.loadingState = .data([])
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultLandscape])
     }
 
     @MainActor
@@ -184,7 +241,7 @@ class VaultListViewTests: BitwardenTestCase {
         processor.state.profileSwitcherState.isVisible = true
         processor.state.loadingState = .data([])
 
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
     }
 
     @MainActor
@@ -295,7 +352,7 @@ class VaultListViewTests: BitwardenTestCase {
     func test_snapshot_vaultListView_previews() {
         for preview in VaultListView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [.defaultPortrait]
             )
         }

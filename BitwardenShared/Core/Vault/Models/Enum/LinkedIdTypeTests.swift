@@ -56,4 +56,10 @@ class LinkedIdTypeTests: BitwardenTestCase {
         let expected: [LinkedIdType] = []
         XCTAssertEqual(result, expected)
     }
+
+    func test_getLinkedIdType_sshKey() {
+        let result = LinkedIdType.getLinkedIdType(for: .sshKey)
+        let expected: [LinkedIdType] = []
+        XCTAssertEqual(result, expected)
+    }
 }

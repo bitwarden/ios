@@ -2,6 +2,17 @@ import Foundation
 import SwiftUI
 import ViewInspector
 
+/// A generic type wrapper around `ActionCard` to allow `ViewInspector` to find instances of
+/// `ActionCard` without needing to know the details of it's implementation.
+///
+struct ActionCardType: BaseViewType {
+    static var typePrefix: String = "ActionCard"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.ActionCard",
+    ]
+}
+
 /// A generic type wrapper around `AsyncButton` to allow `ViewInspector` to find instances of `AsyncButton` without
 /// needing to know the type of its `Label`.
 ///
@@ -35,15 +46,15 @@ struct BitwardenMenuFieldType: BaseViewType {
     ]
 }
 
-/// A generic type wrapper around `BitwardenMultilineTextField` to allow `ViewInspector` to find
-/// instances of `BitwardenMultilineTextField` without needing to know the details of it's
+/// A generic type wrapper around `BitwardenUITextViewType` to allow `ViewInspector` to find
+/// instances of `BitwardenUITextViewType` without needing to know the details of it's
 /// implementation.
 ///
-struct BitwardenMultilineTextFieldType: BaseViewType {
-    static var typePrefix: String = "BitwardenMultilineTextField"
+struct BitwardenUITextViewType: BaseViewType {
+    static var typePrefix: String = "BitwardenUITextView"
 
     static var namespacedPrefixes: [String] = [
-        "BitwardenShared.BitwardenMultilineTextField",
+        "BitwardenShared.BitwardenUITextView",
     ]
 }
 
@@ -62,6 +73,18 @@ struct SettingsMenuFieldType: BaseViewType {
 
 extension InspectableView {
     // MARK: Methods
+
+    /// Attempts to locate an action card with the provided title.
+    ///
+    /// - Parameters:
+    ///   - title: The title to use while searching for a button.
+    ///   - locale: The locale for text extraction.
+    /// - Returns: An async button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(actionCard title: String) throws -> InspectableView<ActionCardType> {
+        try find(ActionCardType.self, containing: title)
+    }
 
     /// Attempts to locate an async button with the provided title.
     ///
@@ -108,21 +131,6 @@ extension InspectableView {
         locale: Locale = .testsDefault
     ) throws -> InspectableView<BitwardenMenuFieldType> {
         try find(BitwardenMenuFieldType.self, containing: title, locale: locale)
-    }
-
-    /// Attempts to locate a bitwarden multiline text field with the provided title.
-    ///
-    /// - Parameters:
-    ///   - title: The title to use while searching for a text field.
-    ///   - locale: The locale for text extraction.
-    /// - Returns: A `BitwardenMultilineTextFieldType`, if one can be located.
-    /// - Throws: Throws an error if a view was unable to be located.
-    ///
-    func find(
-        bitwardenMultilineTextField title: String,
-        locale: Locale = .testsDefault
-    ) throws -> InspectableView<BitwardenMultilineTextFieldType> {
-        try find(BitwardenMultilineTextFieldType.self, containing: title, locale: locale)
     }
 
     /// Attempts to locate a bitwarden text field with the provided title.
@@ -264,6 +272,58 @@ extension InspectableView {
     }
 }
 
+extension InspectableView where View: SingleViewContent {
+    /// Overrides the default `button` method in order to find a text field
+    /// that might be buried beneath added `AnyView` objects.
+    func button() throws -> InspectableView<ViewType.Button> {
+        try find(ViewType.Button.self)
+    }
+
+    /// Overrides the default `secureField` method in order to find a text field
+    /// that might be buried beneath added `AnyView` objects.
+    func secureField() throws -> InspectableView<ViewType.SecureField> {
+        try find(ViewType.SecureField.self)
+    }
+
+    /// Overrides the default `text` method in order to find a text field
+    /// that might be buried beneath added `AnyView` objects.
+    func text() throws -> InspectableView<ViewType.Text> {
+        try find(ViewType.Text.self)
+    }
+
+    /// Overrides the default `textField` method in order to find a text field
+    /// that might be buried beneath added `AnyView` objects.
+    func textField() throws -> InspectableView<ViewType.TextField> {
+        try find(ViewType.TextField.self)
+    }
+}
+
+extension InspectableView where View: SingleViewContent {
+    /// Recursively traverses a child view hierarchy of `AnyView` objects until
+    /// it finds one that will take a long press gesture, and performs the gesture.
+    /// This is necessary because Xcode 16 adds additional `AnyView` objects in
+    /// debug mode.
+    func recursiveCallOnLongPressGesture() throws {
+        do {
+            try callOnLongPressGesture()
+        } catch {
+            try implicitAnyView().recursiveCallOnLongPressGesture()
+        }
+    }
+
+    /// Recursively traverses a child view hierarchy of `AnyView` objects until
+    /// it finds one that will take a tap gesture, and performs the gesture.
+    /// This is necessary because Xcode 16 adds additional `AnyView` objects in
+    /// debug mode.
+    func recursiveCallOnTapGesture() throws {
+        do {
+            try callOnTapGesture()
+        } catch {
+            try implicitAnyView().recursiveCallOnTapGesture()
+        }
+    }
+}
+
 extension InspectableView where View == AsyncButtonType {
     /// Simulates a tap on an `AsyncButton`. This method is asynchronous and allows the entire `async` `action` on the
     /// button to run before returning.
@@ -298,7 +358,7 @@ extension InspectableView where View == BitwardenTextFieldType {
     }
 }
 
-extension InspectableView where View == BitwardenMultilineTextFieldType {
+extension InspectableView where View == BitwardenUITextViewType {
     /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
     ///
     func inputBinding() throws -> Binding<String> {
@@ -308,7 +368,7 @@ extension InspectableView where View == BitwardenMultilineTextFieldType {
         } else {
             throw InspectionError.attributeNotFound(
                 label: "_text",
-                type: String(describing: BitwardenMultilineTextFieldType.self)
+                type: String(describing: BitwardenUITextViewType.self)
             )
         }
     }

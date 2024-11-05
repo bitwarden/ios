@@ -28,12 +28,6 @@ protocol BiometricsService: AnyObject {
     /// - Returns: The a `BiometricAuthorizationStatus`.
     ///
     func getBiometricAuthStatus() -> BiometricAuthorizationStatus
-
-    /// Returns the `Data` for device evaluatedPolicyDomainState.
-    ///
-    /// - Returns: The `Data` for evaluatedPolicyDomainState.
-    ///
-    func getBiometricIntegrityState() -> Data?
 }
 
 extension BiometricsService {
@@ -120,13 +114,6 @@ class DefaultBiometricsService: BiometricsService {
             }
             return errorStatus(biometricAuthType: biometricAuthType, error: error)
         }
-    }
-
-    func getBiometricIntegrityState() -> Data? {
-        let context = LAContext()
-        var error: NSError?
-        context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
-        return context.evaluatedPolicyDomainState
     }
 
     // MARK: Private Methods

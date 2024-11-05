@@ -41,11 +41,14 @@ private struct SearchableVaultListView: View {
             search
                 .hidden(!isSearching)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultListAction.toastShown
-        ))
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: VaultListAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -54,15 +57,7 @@ private struct SearchableVaultListView: View {
         .onChange(of: isSearching) { newValue in
             store.send(.searchStateChanged(isSearching: newValue))
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultListAction.toastShown
-        ))
         .animation(.default, value: isSearching)
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultListAction.toastShown
-        ))
     }
 
     // MARK: Private Properties
@@ -72,26 +67,59 @@ private struct SearchableVaultListView: View {
         GeometryReader { reader in
             ScrollView {
                 VStack(spacing: 24) {
-                    vaultFilterRow
-                        .padding(.top, 16)
+                    Group {
+                        importLoginsActionCard
+
+                        vaultFilterRow
+                    }
+                    .padding(.top, 16)
 
                     Spacer()
 
-                    Text(Localizations.noItems)
-                        .multilineTextAlignment(.center)
-                        .styleGuide(.callout)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    PageHeaderView(
+                        image: Asset.Images.Illustrations.items,
+                        title: Localizations.saveAndProtectYourData,
+                        message: Localizations
+                            .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere
+                    )
+                    .padding(.horizontal, 16)
 
-                    Button(Localizations.addAnItem) {
+                    Button {
                         store.send(.addItemPressed)
+                    } label: {
+                        HStack {
+                            Image(decorative: Asset.Images.plus16)
+                                .resizable()
+                                .frame(width: 16, height: 16)
+                            Text(Localizations.newLogin)
+                        }
+                        .padding(.horizontal, 24)
                     }
-                    .buttonStyle(.tertiary())
+                    .buttonStyle(.primary(shouldFillWidth: false))
 
                     Spacer()
                 }
+                .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .setUpLater)
+                .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .complete)
                 .padding(.horizontal, 16)
                 .frame(minHeight: reader.size.height)
             }
+        }
+    }
+
+    /// The action card for importing login items.
+    @ViewBuilder private var importLoginsActionCard: some View {
+        if store.state.shouldShowImportLoginsActionCard {
+            ActionCard(
+                title: Localizations.importSavedLogins,
+                message: Localizations.importSavedLoginsDescriptionLong,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                    store.send(.showImportLogins)
+                },
+                dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                    await store.perform(.dismissImportLoginsActionCard)
+                }
+            )
         }
     }
 
@@ -111,7 +139,7 @@ private struct SearchableVaultListView: View {
                                 for: item,
                                 isLastInSection: store.state.searchResults.last == item
                             )
-                            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         }
                         .accessibilityIdentifier("CipherCell")
                     }
@@ -149,6 +177,11 @@ private struct SearchableVaultListView: View {
                 vaultContents(with: sections)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.addItemPressed)
+            }
+        }
     }
 
     /// Displays the vault filter row if the user is a member of any.
@@ -180,7 +213,7 @@ private struct SearchableVaultListView: View {
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
         ScrollView {
-            VStack(spacing: 20) {
+            LazyVStack(spacing: 20) {
                 vaultFilterRow
 
                 ForEach(sections) { section in
@@ -194,6 +227,7 @@ private struct SearchableVaultListView: View {
                 }
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 
@@ -262,6 +296,7 @@ struct VaultListView: View {
                 placement: .navigationBarDrawer(displayMode: .always),
                 prompt: Localizations.search
             )
+            .autocorrectionDisabled(true)
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
@@ -300,6 +335,9 @@ struct VaultListView: View {
         }
         .task {
             await store.perform(.appeared)
+        }
+        .task {
+            await store.perform(.streamAccountSetupProgress)
         }
         .task {
             await store.perform(.streamOrganizations)
@@ -401,6 +439,21 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
+                            importLoginsSetupProgress: .incomplete,
+                            loadingState: .data([])
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }
+        .previewDisplayName("Empty - Import Logins")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
                             loadingState: .data([
                                 VaultListSection(
                                     id: "1",
@@ -436,6 +489,10 @@ struct VaultListView_Previews: PreviewProvider {
                                         VaultListItem(
                                             id: "24",
                                             itemType: .group(.secureNote, 0)
+                                        ),
+                                        VaultListItem(
+                                            id: "25",
+                                            itemType: .group(.sshKey, 4)
                                         ),
                                     ],
                                     name: "Types"
@@ -478,6 +535,42 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "CollectionItems",
                                     items: [
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
+                                        .init(cipherView: .fixture(
+                                            id: UUID().uuidString,
+                                            login: .fixture(username: "email@example.com"),
+                                            name: "Example",
+                                            organizationId: "1"
+                                        ))!,
                                         .init(cipherView: .fixture(
                                             id: UUID().uuidString,
                                             login: .fixture(username: "email@example.com"),

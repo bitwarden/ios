@@ -11,6 +11,9 @@ class MockGeneratorRepository: GeneratorRepository {
 
     var passwordHistorySubject = CurrentValueSubject<[PasswordHistoryView], Error>([])
 
+    var masterPasswordGeneratorCalled = false
+    var masterPasswordGeneratorResult: Result<String, Error> = .success("MASTER_PASSWORD")
+
     var passphraseGeneratorRequest: PassphraseGeneratorRequest?
     var passphraseResult: Result<String, Error> = .success("PASSPHRASE")
 
@@ -53,6 +56,11 @@ class MockGeneratorRepository: GeneratorRepository {
     }
 
     // MARK: Generator
+
+    func generateMasterPassword() async throws -> String {
+        masterPasswordGeneratorCalled = true
+        return try masterPasswordGeneratorResult.get()
+    }
 
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
         passphraseGeneratorRequest = settings

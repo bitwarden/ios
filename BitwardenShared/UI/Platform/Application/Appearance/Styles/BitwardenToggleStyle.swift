@@ -9,7 +9,7 @@ struct BitwardenToggleStyle: ToggleStyle {
         Toggle(configuration)
             .styleGuide(.body)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .tint(Asset.Colors.iconSecondary.swiftUIColor)
     }
 }
 

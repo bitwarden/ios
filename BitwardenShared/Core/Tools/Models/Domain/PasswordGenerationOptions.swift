@@ -48,6 +48,9 @@ struct PasswordGenerationOptions: Codable, Equatable {
 
     /// The separator to put between words in the passphrase.
     var wordSeparator: String?
+
+    /// Whether the password type should be enforced or not
+    var overridePasswordType: Bool?
 }
 
 extension PasswordGenerationOptions {

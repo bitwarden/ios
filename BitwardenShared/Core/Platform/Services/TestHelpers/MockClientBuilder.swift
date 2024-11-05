@@ -4,9 +4,13 @@ import BitwardenSdk
 
 final class MockClientBuilder: ClientBuilder {
     var clients = [MockClient]()
+    var setupClientOnCreation: ((MockClient) -> Void)?
 
     func buildClient() -> BitwardenSdkClient {
         let client = MockClient()
+        if let setupClientOnCreation {
+            setupClientOnCreation(client)
+        }
         clients.append(client)
         return client
     }

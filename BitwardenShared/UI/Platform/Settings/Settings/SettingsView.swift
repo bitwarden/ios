@@ -22,30 +22,28 @@ struct SettingsView: View {
 
     /// The chevron shown in the settings list item.
     private var chevron: some View {
-        Image(asset: Asset.Images.rightAngle)
-            .resizable()
-            .scaledFrame(width: 12, height: 12)
+        Image(asset: Asset.Images.chevronRight16)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
     }
 
     /// The settings items.
     private var settingsItems: some View {
         VStack(spacing: 0) {
-            SettingsListItem(Localizations.accountSecurity) {
+            SettingsListItem(Localizations.accountSecurity, badgeValue: store.state.accountSecurityBadgeValue) {
                 store.send(.accountSecurityPressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("AccountSecuritySettingsButton")
 
-            SettingsListItem(Localizations.autofill) {
+            SettingsListItem(Localizations.autofill, badgeValue: store.state.autofillBadgeValue) {
                 store.send(.autoFillPressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("AutofillSettingsButton")
 
-            SettingsListItem(Localizations.vault) {
+            SettingsListItem(Localizations.vault, badgeValue: store.state.vaultBadgeValue) {
                 store.send(.vaultPressed)
             } trailingContent: {
                 chevron

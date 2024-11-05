@@ -12,6 +12,9 @@ enum CipherType: Int, Codable {
 
     /// Personal information for filling out forms.
     case identity = 4
+
+    /// An SSH key.
+    case sshKey = 5
 }
 
 extension CipherType {
@@ -29,6 +32,8 @@ extension CipherType {
             self = .login
         case .secureNote:
             self = .secureNote
+        case .sshKey:
+            self = .sshKey
         case .collection,
              .folder,
              .noFolder,
@@ -40,7 +45,7 @@ extension CipherType {
 }
 
 extension CipherType: CaseIterable {
-    static let allCases: [CipherType] = [.login, .card, .identity, .secureNote]
+    static let allCases: [CipherType] = [.login, .card, .identity, .secureNote, .sshKey]
 }
 
 extension CipherType: Menuable {
@@ -50,6 +55,22 @@ extension CipherType: Menuable {
         case .identity: return Localizations.typeIdentity
         case .login: return Localizations.typeLogin
         case .secureNote: return Localizations.typeSecureNote
+        case .sshKey: return Localizations.sshKey
+        }
+    }
+}
+
+extension CipherType {
+    /// These are the cases of `CipherType` that the user can use to create a cipher.
+    static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote]
+
+    /// The allowed custom field types per cipher type.
+    var allowedFieldTypes: [FieldType] {
+        switch self {
+        case .card, .identity, .login:
+            return [.text, .hidden, .boolean, .linked]
+        case .secureNote, .sshKey:
+            return [.text, .hidden, .boolean]
         }
     }
 }

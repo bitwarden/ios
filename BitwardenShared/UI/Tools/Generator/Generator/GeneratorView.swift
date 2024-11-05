@@ -28,7 +28,7 @@ struct GeneratorView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
         .navigationTitle(Localizations.generator)
         .task { await store.perform(.appeared) }
@@ -100,7 +100,7 @@ struct GeneratorView: View {
                 case let .menuPasswordGeneratorType(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.passwordGeneratorTypeChanged(newValue))
-                    }
+                    }.disabled(store.state.policyOptions?.overridePasswordType ?? false)
                 case let .menuUsernameForwardedEmailService(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.usernameForwardedEmailServiceChanged(newValue))
@@ -159,7 +159,7 @@ struct GeneratorView: View {
             Button {
                 store.send(.copyGeneratedValue)
             } label: {
-                Asset.Images.copy.swiftUIImage
+                Asset.Images.copy16.swiftUIImage
                     .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
@@ -169,7 +169,7 @@ struct GeneratorView: View {
             Button {
                 store.send(.refreshGeneratedValue)
             } label: {
-                Asset.Images.restart2.swiftUIImage
+                Asset.Images.generate16.swiftUIImage
                     .imageStyle(.accessoryIcon)
             }
             .buttonStyle(.accessory)
@@ -191,9 +191,7 @@ struct GeneratorView: View {
             Button {
                 openURL(ExternalLinksConstants.generatorUsernameTypes)
             } label: {
-                Asset.Images.questionRound.swiftUIImage
-                    .resizable()
-                    .frame(width: 14, height: 14)
+                Asset.Images.questionCircle16.swiftUIImage
             }
             .buttonStyle(.accessory)
             .accessibilityLabel(Localizations.learnMore)

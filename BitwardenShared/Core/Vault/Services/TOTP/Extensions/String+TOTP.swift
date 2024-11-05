@@ -9,6 +9,11 @@ extension String {
         return range(of: regex, options: .regularExpression) != nil
     }
 
+    /// A Boolean value indicating whether the string represents the "otpauth" scheme.
+    var isOtpAuthScheme: Bool {
+        self == "otpauth"
+    }
+
     /// `true` if prefixed with `steam://` and followed by a base 32 string.
     var isSteamUri: Bool {
         guard let keyIndexOffset = steamURIKeyIndexOffset else {

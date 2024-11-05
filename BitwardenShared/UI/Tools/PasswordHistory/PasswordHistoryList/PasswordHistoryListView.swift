@@ -21,7 +21,7 @@ struct PasswordHistoryListView: View {
                 passwordHistoryList()
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.passwordHistory)
         .toast(store.binding(
             get: \.toast,
@@ -81,7 +81,7 @@ struct PasswordHistoryListView: View {
                     .accessibilityIdentifier("GeneratedPasswordRow")
                 }
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .cornerRadius(16)
             .padding(16)
         }
@@ -105,7 +105,7 @@ struct PasswordHistoryListView: View {
             Button {
                 store.send(.copyPassword(passwordHistory))
             } label: {
-                Image(asset: Asset.Images.copy)
+                Image(asset: Asset.Images.copy24)
                     .imageStyle(.rowIcon)
             }
             .accessibilityLabel(Localizations.copyPassword)

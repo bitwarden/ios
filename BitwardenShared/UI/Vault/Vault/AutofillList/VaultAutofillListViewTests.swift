@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class VaultAutofillListViewTests: BitwardenTestCase {
+class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>!
@@ -35,6 +35,14 @@ class VaultAutofillListViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.add)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: true))
+    }
+
+    /// Tapping the add item floating acrtion button dispatches the `.addItemPressed` action.`
+    @MainActor
+    func test_addItemFloatingActionButton_tap() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.button().tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: false))
     }
 
     /// Tapping the add an item button dispatches the `.addTapped` action.
@@ -277,6 +285,44 @@ class VaultAutofillListViewTests: BitwardenTestCase {
                 name: "Passwords for myApp.com"
             ),
         ]
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The view renders correctly when searching a term with populated results.
+    @MainActor
+    func test_snapshot_vaultAutofillList_searching_populated() {
+        processor.state.searchText = "Bitwarden"
+        processor.state.ciphersForSearch = [
+            VaultListSection(
+                id: "Passwords",
+                items: (1 ... 5).map { id in
+                    .init(
+                        cipherView: .fixture(
+                            id: String(id),
+                            login: .fixture(),
+                            name: "Bitwarden"
+                        )
+                    )!
+                },
+                name: "Passwords"
+            ),
+        ]
+
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The view renders correctly when searching a term with no results.
+    @MainActor
+    func test_snapshot_vaultAutofillList_searching_noResults() {
+        processor.state.searchText = "Bitwarden"
+        processor.state.showNoResults = true
+
         assertSnapshots(
             of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]

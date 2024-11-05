@@ -67,6 +67,9 @@ struct VaultUnlockSetupState: Equatable {
 
     // MARK: Properties
 
+    /// The account setup flow that the user is in.
+    var accountSetupFlow: AccountSetupFlow
+
     /// The biometric auth status for the user.
     var biometricsStatus: BiometricsUnlockStatus?
 
@@ -78,8 +81,8 @@ struct VaultUnlockSetupState: Equatable {
     /// Whether biometric unlock (Face ID / Touch ID) is turned on.
     var isBiometricUnlockOn: Bool {
         switch biometricsStatus {
-        case let .available(_, enabled, hasValidIntegrity):
-            return enabled && hasValidIntegrity
+        case let .available(_, enabled):
+            return enabled
         case nil, .notAvailable:
             return false
         }
@@ -90,9 +93,24 @@ struct VaultUnlockSetupState: Equatable {
         isBiometricUnlockOn || isPinUnlockOn
     }
 
+    /// The title to display in the navigation bar.
+    var navigationBarTitle: String {
+        switch accountSetupFlow {
+        case .createAccount:
+            Localizations.accountSetup
+        case .settings:
+            Localizations.setUpUnlock
+        }
+    }
+
+    /// Whether the set up later button should be displayed.
+    var shouldDisplaySetUpLaterButton: Bool {
+        accountSetupFlow == .createAccount
+    }
+
     /// The available unlock methods to show in the UI.
     var unlockMethods: [UnlockMethod] {
-        guard case let .available(biometricsType, _, _) = biometricsStatus else {
+        guard case let .available(biometricsType, _) = biometricsStatus else {
             return [.pin]
         }
         return [.biometrics(biometricsType), .pin]

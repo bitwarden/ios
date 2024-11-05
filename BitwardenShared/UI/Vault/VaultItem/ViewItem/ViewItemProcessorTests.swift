@@ -15,6 +15,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var pasteboardService: MockPasteboardService!
+    var rehydrationHelper: MockRehydrationHelper!
     var stateService: MockStateService!
     var subject: ViewItemProcessor!
     var vaultRepository: MockVaultRepository!
@@ -30,6 +31,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         errorReporter = MockErrorReporter()
         eventService = MockEventService()
         pasteboardService = MockPasteboardService()
+        rehydrationHelper = MockRehydrationHelper()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
@@ -38,6 +40,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             eventService: eventService,
             httpClient: client,
             pasteboardService: pasteboardService,
+            rehydrationHelper: rehydrationHelper,
             stateService: stateService,
             vaultRepository: vaultRepository
         )
@@ -58,6 +61,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         errorReporter = nil
         eventService = nil
         pasteboardService = nil
+        rehydrationHelper = nil
         stateService = nil
         subject = nil
         vaultRepository = nil
@@ -73,8 +77,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(
-            subject.state.toast?.text,
-            Localizations.movedItemToOrg("Bitwarden Password", "Organization")
+            subject.state.toast,
+            Toast(title: Localizations.movedItemToOrg("Bitwarden Password", "Organization"))
         )
     }
 
@@ -85,7 +89,36 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         waitFor { subject.state.toast != nil }
 
-        XCTAssertEqual(subject.state.toast?.text, Localizations.itemUpdated)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
+    }
+
+    /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with editing configuration
+    /// doesn't add itself as a rehydratable target.
+    @MainActor
+    func test_init_editingConfiguration() {
+        rehydrationHelper.rehydratableTargets.removeAll()
+
+        let services = ServiceContainer.withMocks(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            eventService: eventService,
+            httpClient: client,
+            pasteboardService: pasteboardService,
+            rehydrationHelper: rehydrationHelper,
+            stateService: stateService,
+            vaultRepository: vaultRepository
+        )
+        subject = ViewItemProcessor(
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            itemId: "id",
+            services: services,
+            state: ViewItemState()
+        )
+        waitFor(
+            !rehydrationHelper.rehydratableTargets.isEmpty
+                && rehydrationHelper.rehydratableTargets[0] is ViewItemProcessor
+        )
     }
 
     /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository.
@@ -415,37 +448,37 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
         XCTAssertEqual(pasteboardService.copiedString, "card number")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.number))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.number)))
 
         subject.receive(.copyPressed(value: "hidden field value", field: .customHiddenField))
         XCTAssertEqual(pasteboardService.copiedString, "hidden field value")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.value)))
         waitFor(eventService.collectEventType == .cipherClientCopiedHiddenField)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "text field value", field: .customTextField))
         XCTAssertEqual(pasteboardService.copiedString, "text field value")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.value))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.value)))
 
         subject.receive(.copyPressed(value: "password", field: .password))
         XCTAssertEqual(pasteboardService.copiedString, "password")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.password))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.password)))
         waitFor(eventService.collectEventType == .cipherClientCopiedPassword)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "security code", field: .securityCode))
         XCTAssertEqual(pasteboardService.copiedString, "security code")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.securityCode))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.securityCode)))
         waitFor(eventService.collectEventType == .cipherClientCopiedCardCode)
         XCTAssertEqual(eventService.collectCipherId, "123")
 
         subject.receive(.copyPressed(value: "totp", field: .totp))
         XCTAssertEqual(pasteboardService.copiedString, "totp")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.totp))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.totp)))
 
         subject.receive(.copyPressed(value: "username", field: .username))
         XCTAssertEqual(pasteboardService.copiedString, "username")
-        XCTAssertEqual(subject.state.toast?.text, Localizations.valueHasBeenCopied(Localizations.username))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.username)))
     }
 
     /// `recieve` with `.copyPressed` doesn't copy if the data isn't loaded.
@@ -453,7 +486,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_receive_copyPressed_notLoaded() {
         subject.receive(.copyPressed(value: "card number", field: .cardNumber))
         XCTAssertNil(pasteboardService.copiedString)
-        XCTAssertNil(subject.state.toast?.text)
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive` with `.customFieldVisibilityPressed()` toggles custom field visibility.
@@ -765,6 +798,48 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             .networkResponseError(TestError())
         )
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
+    }
+
+    /// `perform(_:)` with `.restorePressed` reprompts the user for their master password if reprompt
+    /// is enabled prior to restore the item and displays toast if restoring succeeds.
+    @MainActor
+    func test_perform_restorePressed_masterPasswordReprompt() async throws {
+        let cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123", reprompt: .password),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        vaultRepository.softDeleteCipherResult = .success(())
+        await subject.perform(.restorePressed)
+
+        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(repromptAlert, .masterPasswordPrompt(completion: { _ in }))
+        repromptAlert.alertTextFields = [AlertTextField(id: "password", text: "password")]
+        try await repromptAlert.tapAction(title: Localizations.submit)
+
+        // Ensure the alert is shown.
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
+        XCTAssertNil(alert?.message)
+
+        // Tap the "Yes" button on the alert.
+        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
+        await action.handler?(action, [])
+
+        XCTAssertNil(errorReporter.errors.first)
+        // Ensure the cipher is restored and the view is dismissed.
+        XCTAssertEqual(vaultRepository.restoredCipher.last?.id, "123")
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = coordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        XCTAssertTrue(delegate.itemRestoredCalled)
     }
 
     /// `perform(_:)` with `.restorePressed` presents the confirmation alert before restore the item and displays
@@ -1184,10 +1259,135 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.alertShown.last, .masterPasswordPrompt(completion: { _ in }))
     }
 
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
+    /// the visibility of the `privateKey` field.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressed() {
+        initializeSshKeyState()
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == true)
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
+    /// the visibility of the `privateKey` field when master password required.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedWithPaasswordReprompt() async throws {
+        initializeSshKeyState(reprompt: .password)
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.submitMasterPasswordReprompt(with: "password1234")
+
+        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
+
+        XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == true)
+        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  toggles
+    /// the visibility of the `privateKey` field when master password required.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedWithPaasswordRepromptCancelled() async throws {
+        initializeSshKeyState(reprompt: .password)
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapCancel()
+
+        XCTAssertTrue(subject.state.loadingState.data?.sshKeyState.isPrivateKeyVisible == false)
+        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  but data is not loaded yet
+    /// throws.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedLoadingLogsError() async throws {
+        subject.state.loadingState = .loading(nil)
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        XCTAssertEqual(
+            errorReporter.errors.last as? ViewItemProcessor.ActionError,
+            .dataNotLoaded("Cannot handle SSH key action without loaded data")
+        )
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.privateKeyVisibilityPressed`  but data is not loaded yet
+    /// throws.
+    @MainActor
+    func test_receive_sshKeyItemAction_privateKeyVisibilityPressedNotSshKeyTypeLogsError() async throws {
+        var cipherItemState = CipherItemState(
+            existing: .fixture(),
+            hasPremium: true
+        )!
+        cipherItemState.type = .login
+        subject.state.loadingState = .data(cipherItemState)
+
+        subject.receive(.sshKeyItemAction(.privateKeyVisibilityPressed))
+
+        XCTAssertEqual(
+            errorReporter.errors.last as? ViewItemProcessor.ActionError,
+            .nonSshKeyTypeToggle("Cannot handle SSH key action on non SSH key type")
+        )
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field.
+    @MainActor
+    func test_receive_sshKeyItemAction_copyPressed() async throws {
+        initializeSshKeyState(reprompt: .none)
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
+        XCTAssertEqual(pasteboardService.copiedString, "privateKey")
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.privateKey)))
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "publicKey", field: .sshPublicKey)))
+        XCTAssertEqual(pasteboardService.copiedString, "publicKey")
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.publicKey)))
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "fingerprint", field: .sshKeyFingerprint)))
+        XCTAssertEqual(pasteboardService.copiedString, "fingerprint")
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.fingerprint)))
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field when
+    /// needing password reprompt and is correct.
+    @MainActor
+    func test_receive_sshKeyItemAction_copyPressedWithPasswordReprompt() async throws {
+        initializeSshKeyState(reprompt: .password)
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.submitMasterPasswordReprompt(with: "password1234")
+
+        XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
+        XCTAssertTrue(subject.state.hasVerifiedMasterPassword)
+
+        XCTAssertEqual(pasteboardService.copiedString, "privateKey")
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.privateKey)))
+    }
+
+    /// `receive(_:)` with `.sshKeyItemAction` with `.copyPressed`  copies the corresponding field when
+    /// needing password reprompt and is cancelled.
+    @MainActor
+    func test_receive_sshKeyItemAction_copyPressedWithPasswordRepromptCancelled() async throws {
+        initializeSshKeyState(reprompt: .password)
+
+        subject.receive(.sshKeyItemAction(.copyPressed(value: "privateKey", field: .sshPrivateKey)))
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapCancel()
+
+        XCTAssertFalse(subject.state.hasVerifiedMasterPassword)
+
+        XCTAssertNil(pasteboardService.copiedString)
+        XCTAssertNil(subject.state.toast)
+    }
+
     /// `receive(_:)` with `.toastShown` with a value updates the state correctly.
     @MainActor
     func test_receive_toastShown_withValue() {
-        let toast = Toast(text: "123")
+        let toast = Toast(title: "123")
         subject.receive(.toastShown(toast))
 
         XCTAssertEqual(subject.state.toast, toast)
@@ -1220,9 +1420,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.passwordVisibilityPressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertNotNil(alert.alertTextFields.first)
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [AlertTextField(id: "password", text: "password1234")])
+        try await alert.submitMasterPasswordReprompt(with: "password1234")
 
         XCTAssertEqual(authRepository.validatePasswordPasswords, ["password1234"])
 
@@ -1278,5 +1476,45 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let invalidPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(invalidPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
+    }
+
+    /// `getter:rehydrationState` returns the proper state with the cipher id.
+    @MainActor
+    func test_rehydrationState() {
+        XCTAssertEqual(subject.rehydrationState?.target, .viewCipher(cipherId: "id"))
+    }
+
+    // MARK: Private
+
+    /// Initializes the state for a cipher of type `.sshKey`.
+    @MainActor
+    private func initializeSshKeyState(reprompt: BitwardenSdk.CipherRepromptType = .none) {
+        let cipherView = CipherView.fixture(
+            id: "123",
+            login: BitwardenSdk.LoginView(
+                username: nil,
+                password: nil,
+                passwordRevisionDate: nil,
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
+            ),
+            name: "name",
+            reprompt: reprompt,
+            revisionDate: Date()
+        )
+        var cipherItemState = CipherItemState(
+            existing: cipherView,
+            hasPremium: true
+        )!
+        cipherItemState.type = .sshKey
+        cipherItemState.sshKeyState = SSHKeyItemState(
+            isPrivateKeyVisible: false,
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            keyFingerprint: "fingerprint"
+        )
+        subject.state.loadingState = .data(cipherItemState)
     }
 } // swiftlint:disable:this file_length

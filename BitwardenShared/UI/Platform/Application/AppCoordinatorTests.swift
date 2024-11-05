@@ -8,7 +8,9 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var errorReporter: MockErrorReporter!
     var module: MockAppModule!
+    var rehydrationHelper: MockRehydrationHelper!
     var rootNavigator: MockRootNavigator!
     var router: MockRouter<AuthEvent, AuthRoute>!
     var services: Services!
@@ -20,11 +22,16 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.setUp()
 
         appExtensionDelegate = MockAppExtensionDelegate()
+        errorReporter = MockErrorReporter()
+        rehydrationHelper = MockRehydrationHelper()
         router = MockRouter(routeForEvent: { _ in .landing })
         module = MockAppModule()
         module.authRouter = router
         rootNavigator = MockRootNavigator()
-        services = ServiceContainer.withMocks()
+        services = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
+            rehydrationHelper: rehydrationHelper
+        )
 
         subject = AppCoordinator(
             appContext: .mainApp,
@@ -37,8 +44,11 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     override func tearDown() {
         super.tearDown()
+
         appExtensionDelegate = nil
+        errorReporter = nil
         module = nil
+        rehydrationHelper = nil
         rootNavigator = nil
         services = nil
         subject = nil
@@ -49,7 +59,7 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `didCompleteAuth()` starts the tab coordinator and navigates to the proper tab route.
     @MainActor
     func test_didCompleteAuth() {
-        subject.didCompleteAuth()
+        subject.didCompleteAuth(rehydratableTarget: nil)
         XCTAssertTrue(module.tabCoordinator.isStarted)
         XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
     }
@@ -67,12 +77,12 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
 
         appExtensionDelegate.authCompletionRoute = .vault(.autofillList)
-        subject.didCompleteAuth()
+        subject.didCompleteAuth(rehydratableTarget: nil)
         XCTAssertTrue(module.vaultCoordinator.isStarted)
         XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
 
         appExtensionDelegate.authCompletionRoute = .extensionSetup(.extensionActivation(type: .autofillExtension))
-        subject.didCompleteAuth()
+        subject.didCompleteAuth(rehydratableTarget: nil)
         XCTAssertTrue(module.vaultCoordinator.isStarted)
         XCTAssertEqual(module.vaultCoordinator.routes, [.autofillList])
 
@@ -85,11 +95,43 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.handleEvent(.setAuthCompletionRoute(.tab(.vault(.addAccount))))
         XCTAssertNotNil(subject.authCompletionRoute)
 
-        subject.didCompleteAuth()
+        subject.didCompleteAuth(rehydratableTarget: nil)
 
         XCTAssertTrue(module.tabCoordinator.isStarted)
         XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list), .vault(.addAccount)])
         XCTAssertNil(subject.authCompletionRoute)
+    }
+
+    /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the rehydratable target route
+    /// and clearing the app rehydration state.
+    @MainActor
+    func test_didCompleteAuth_rehydrationRoute() {
+        subject.didCompleteAuth(rehydratableTarget: .viewCipher(cipherId: "1"))
+
+        XCTAssertTrue(module.tabCoordinator.isStarted)
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list), .vault(.viewItem(id: "1"))])
+        waitFor(rehydrationHelper.clearAppRehydrationStateCalled)
+    }
+
+    /// `didCompleteAuth()` starts the tab coordinator and navigates to the vault list and the rehydratable target route
+    /// but clearing the app rehydration state throws so it gets logged.
+    @MainActor
+    func test_didCompleteAuth_rehydrationRouteClearingThrowing() {
+        rehydrationHelper.clearAppRehydrationStateError = BitwardenTestError.example
+        subject.didCompleteAuth(rehydratableTarget: .viewCipher(cipherId: "1"))
+
+        XCTAssertTrue(module.tabCoordinator.isStarted)
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list), .vault(.viewItem(id: "1"))])
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `didCompleteLoginsImport()` navigates to the vault list.
+    @MainActor
+    func test_didCompleteLoginsImport() {
+        subject.didCompleteLoginsImport()
+        XCTAssertTrue(module.tabCoordinator.isStarted)
+        XCTAssertEqual(module.tabCoordinator.routes, [.vault(.list)])
     }
 
     /// `didDeleteAccount(otherAccounts:)` navigates to the `didDeleteAccount` route.
@@ -204,6 +246,14 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         waitFor(module.authCoordinator.routes.count > 1)
         XCTAssertEqual(module.authCoordinator.routes, [.landing, .landing])
+    }
+
+    /// `navigate(to:)` with `.debugMenu` starts the auth coordinator and navigates to the proper debug menu route.
+    @MainActor
+    func test_navigateTo_debugMenu() throws {
+        subject.navigate(to: .debugMenu)
+
+        waitFor(module.debugMenuCoordinator.isStarted)
     }
 
     /// `navigate(to:)` with `.extensionSetup(.extensionActivation))` starts the extension setup
@@ -336,6 +386,20 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(window.viewWithTag(LoadingOverlayDisplayHelper.overlayViewTag))
     }
 
+    /// `showToast(_:subtitle)` shows the toast in the navigator.
+    @MainActor
+    func test_showToast() {
+        let viewController = UIViewController()
+        let window = UIWindow()
+        window.rootViewController = viewController
+        window.makeKeyAndVisible()
+        rootNavigator.rootViewController = viewController
+
+        subject.showToast("Title", subtitle: "Subtitle")
+
+        XCTAssertNotNil(window.viewWithTag(ToastDisplayHelper.toastTag))
+    }
+
     /// `start()` doesn't navigate anywhere (first route is managed by AppProcessor).
     @MainActor
     func test_start() {
@@ -363,4 +427,4 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(module.authCoordinator.routes, [AuthRoute.landing])
     }
-}
+} // swiftlint:disable:this file_length

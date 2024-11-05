@@ -136,8 +136,8 @@ struct AttachmentsView: View {
                 Button {
                     store.send(.deletePressed(attachment))
                 } label: {
-                    Image(asset: Asset.Images.trash)
-                        .imageStyle(.rowIcon(color: Asset.Colors.primaryBitwarden.swiftUIColor))
+                    Image(asset: Asset.Images.trash24)
+                        .imageStyle(.rowIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
                 }
                 .accessibilityLabel(Localizations.delete)
             }
@@ -148,7 +148,7 @@ struct AttachmentsView: View {
                     .padding(.leading, 16)
             }
         }
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityIdentifier("AttachmentRow")
     }
 }

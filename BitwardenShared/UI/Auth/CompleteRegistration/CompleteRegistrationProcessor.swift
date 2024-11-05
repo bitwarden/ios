@@ -4,6 +4,18 @@ import Combine
 import Foundation
 import OSLog
 
+// MARK: - MasterPasswordUpdateDelegate
+
+/// A delegate protocol for handling master password updates during registration completion.
+///
+protocol MasterPasswordUpdateDelegate: AnyObject {
+    /// Called when the master password is updated.
+    ///
+    /// - Parameter password: The new master password.
+    ///
+    func didUpdateMasterPassword(password: String)
+}
+
 // MARK: - CompleteRegistrationError
 
 /// Enumeration of errors that may occur when completing registration for an account.
@@ -17,6 +29,9 @@ enum CompleteRegistrationError: Error {
 
     /// The password does not meet the minimum length requirement.
     case passwordIsTooShort
+
+    /// The environment urls to complete the registration are empty
+    case preAuthUrlsEmpty
 }
 
 // MARK: - CompleteRegistrationProcessor
@@ -97,7 +112,10 @@ class CompleteRegistrationProcessor: StateProcessor<
         case let .togglePasswordVisibility(newValue):
             state.arePasswordsVisible = newValue
         case .learnMoreTapped:
-            break
+            coordinator.navigate(
+                to: .masterPasswordGuidance,
+                context: self
+            )
         case .preventAccountLockTapped:
             coordinator.navigate(to: .preventAccountLock)
         }
@@ -162,13 +180,13 @@ class CompleteRegistrationProcessor: StateProcessor<
     private func createAccount(captchaToken: String?) async throws {
         let kdfConfig = KdfConfig()
 
-        let keys = try await services.clientService.auth().makeRegisterKeys(
+        let keys = try await services.clientService.auth(isPreAuth: true).makeRegisterKeys(
             email: state.userEmail,
             password: state.passwordText,
             kdf: kdfConfig.sdkKdf
         )
 
-        let hashedPassword = try await services.clientService.auth().hashPassword(
+        let hashedPassword = try await services.clientService.auth(isPreAuth: true).hashPassword(
             email: state.userEmail,
             password: state.passwordText,
             kdfParams: kdfConfig.sdkKdf,
@@ -190,6 +208,8 @@ class CompleteRegistrationProcessor: StateProcessor<
                 )
             )
         )
+
+        state.didCreateAccount = true
     }
 
     /// Creates the user's account with their provided credentials.
@@ -217,34 +237,60 @@ class CompleteRegistrationProcessor: StateProcessor<
             try await services.authService.loginWithMasterPassword(
                 state.passwordText,
                 username: state.userEmail,
-                captchaToken: captchaToken
+                captchaToken: captchaToken,
+                isNewAccount: true
             )
 
             try await services.authRepository.unlockVaultWithPassword(password: state.passwordText)
 
             await coordinator.handleEvent(.didCompleteAuth)
+            coordinator.navigate(to: .dismiss)
         } catch let error as CompleteRegistrationError {
             showCompleteRegistrationErrorAlert(error)
         } catch {
+            guard !state.didCreateAccount else {
+                // If an error occurs after the account was created, dismiss the view and navigate
+                // the user to the login screen to complete login.
+                coordinator.navigate(to: .dismissWithAction(DismissAction {
+                    self.coordinator.navigate(to: .login(username: self.state.userEmail, isNewAccount: true))
+                    self.coordinator.showToast(Localizations.accountSuccessfullyCreated)
+                }))
+                return
+            }
+
             coordinator.showAlert(.networkResponseError(error) {
                 await self.completeRegistration(captchaToken: captchaToken)
             })
         }
     }
 
-    /// Sets the URLs to use.
+    /// Sets the URLs to use if user came from an email link.
     ///
     private func setRegion() async {
-        guard state.region != nil,
-              let urls = state.region?.defaultURLs else { return }
+        do {
+            guard state.fromEmail else {
+                return
+            }
 
-        await services.environmentService.setPreAuthURLs(urls: urls)
+            guard
+                let urls = await services.stateService.getAccountCreationEnvironmentUrls(email: state.userEmail)
+            else { throw CompleteRegistrationError.preAuthUrlsEmpty }
+
+            await services.environmentService.setPreAuthURLs(urls: urls)
+        } catch let error as CompleteRegistrationError {
+            showCompleteRegistrationErrorAlert(error)
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
     }
 
     /// Sets the feature flag value to be used.
     ///
     private func loadFeatureFlag() async {
-        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(.nativeCreateAccountFlow)
+        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
+            .nativeCreateAccountFlow,
+            isPreAuth: true
+        )
     }
 
     /// Shows a `CompleteRegistrationError` alert.
@@ -259,6 +305,11 @@ class CompleteRegistrationProcessor: StateProcessor<
             coordinator.showAlert(.validationFieldRequired(fieldName: Localizations.masterPassword))
         case .passwordIsTooShort:
             coordinator.showAlert(.passwordIsTooShort)
+        case .preAuthUrlsEmpty:
+            coordinator.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded
+            ))
         }
     }
 
@@ -272,7 +323,8 @@ class CompleteRegistrationProcessor: StateProcessor<
         Task {
             state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
                 email: state.userEmail,
-                password: state.passwordText
+                password: state.passwordText,
+                isPreAuth: true
             )
         }
     }
@@ -291,7 +343,7 @@ class CompleteRegistrationProcessor: StateProcessor<
                     email: state.userEmail,
                     emailVerificationToken: state.emailVerificationToken
                 )
-                state.toast = Toast(text: Localizations.emailVerified)
+                state.toast = Toast(title: Localizations.emailVerified)
             } catch VerifyEmailTokenRequestError.tokenExpired {
                 coordinator.navigate(to: .expiredLink)
             } catch {
@@ -300,5 +352,14 @@ class CompleteRegistrationProcessor: StateProcessor<
                 })
             }
         }
+    }
+}
+
+// MARK: - CompleteRegistrationDelegate
+
+extension CompleteRegistrationProcessor: MasterPasswordUpdateDelegate {
+    func didUpdateMasterPassword(password: String) {
+        state.passwordText = password
+        state.retypePasswordText = password
     }
 }

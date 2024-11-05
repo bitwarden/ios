@@ -23,6 +23,7 @@ extension DefaultAppModule: ExtensionSetupModule {
     ) -> AnyCoordinator<ExtensionSetupRoute, Void> {
         ExtensionSetupCoordinator(
             appExtensionDelegate: appExtensionDelegate,
+            services: services,
             stackNavigator: stackNavigator
         ).asAnyCoordinator()
     }

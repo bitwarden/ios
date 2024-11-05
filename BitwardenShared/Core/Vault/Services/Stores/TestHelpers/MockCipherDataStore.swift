@@ -4,6 +4,9 @@ import Combine
 @testable import BitwardenShared
 
 class MockCipherDataStore: CipherDataStore {
+    var cipherCountUserId: String?
+    var cipherCountResult: Result<Int, Error> = .success(0)
+
     var deleteAllCiphersUserId: String?
 
     var deleteCipherId: String?
@@ -15,13 +18,18 @@ class MockCipherDataStore: CipherDataStore {
     var fetchCipherId: String?
     var fetchCipherResult: Cipher?
 
-    var cipherSubject = CurrentValueSubject<[Cipher], Error>([])
+    var cipherSubjectByUserId: [String: CurrentValueSubject<[Cipher], Error>] = [:]
 
     var replaceCiphersValue: [Cipher]?
     var replaceCiphersUserId: String?
 
     var upsertCipherValue: Cipher?
     var upsertCipherUserId: String?
+
+    func cipherCount(userId: String) async throws -> Int {
+        cipherCountUserId = userId
+        return try cipherCountResult.get()
+    }
 
     func deleteAllCiphers(userId: String) async throws {
         deleteAllCiphersUserId = userId
@@ -42,8 +50,14 @@ class MockCipherDataStore: CipherDataStore {
         return fetchCipherResult
     }
 
-    func cipherPublisher(userId _: String) -> AnyPublisher<[Cipher], Error> {
-        cipherSubject.eraseToAnyPublisher()
+    func cipherPublisher(userId: String) -> AnyPublisher<[Cipher], Error> {
+        if let subject = cipherSubjectByUserId[userId] {
+            return subject.eraseToAnyPublisher()
+        } else {
+            let subject = CurrentValueSubject<[Cipher], Error>([])
+            cipherSubjectByUserId[userId] = subject
+            return subject.eraseToAnyPublisher()
+        }
     }
 
     func replaceCiphers(_ ciphers: [Cipher], userId: String) async throws {

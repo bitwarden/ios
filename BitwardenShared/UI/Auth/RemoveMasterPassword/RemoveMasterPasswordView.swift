@@ -15,6 +15,8 @@ struct RemoveMasterPasswordView: View {
     var body: some View {
         VStack(spacing: 24) {
             Text(Localizations.removeMasterPasswordMessage(store.state.organizationName))
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .styleGuide(.body)
 
             BitwardenTextField(
                 title: Localizations.masterPassword,

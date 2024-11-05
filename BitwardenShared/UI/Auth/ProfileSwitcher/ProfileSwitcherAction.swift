@@ -17,7 +17,4 @@ enum ProfileSwitcherAction: Equatable {
 
     /// The user tapped the background area of the view
     case backgroundPressed
-
-    /// The offset of the scrollView Changed
-    case scrollOffsetChanged(CGPoint)
 }

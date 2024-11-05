@@ -15,16 +15,17 @@ struct VaultUnlockSetupView: View {
     var body: some View {
         VStack(spacing: 32) {
             PageHeaderView(
-                image: Asset.Images.biometricsPhone,
+                image: Asset.Images.Illustrations.biometricsPhone,
                 title: Localizations.setUpUnlock,
                 message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
             )
+            .padding(.top, 40)
 
             VStack(spacing: 0) {
                 ForEach(store.state.unlockMethods) { unlockMethod in
-                    Toggle(isOn: store.binding(
+                    Toggle(isOn: store.bindingAsync(
                         get: { $0[keyPath: unlockMethod.keyPath] },
-                        send: { VaultUnlockSetupAction.toggleUnlockMethod(unlockMethod, newValue: $0) }
+                        perform: { VaultUnlockSetupEffect.toggleUnlockMethod(unlockMethod, newValue: $0) }
                     )) {
                         Text(unlockMethod.title)
                             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
@@ -39,25 +40,27 @@ struct VaultUnlockSetupView: View {
                     }
                 }
             }
-            .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
 
             VStack(spacing: 12) {
-                Button(Localizations.continue) {
-                    store.send(.continueFlow)
+                AsyncButton(Localizations.continue) {
+                    await store.perform(.continueFlow)
                 }
                 .buttonStyle(.primary())
                 .disabled(!store.state.isContinueButtonEnabled)
 
-                Button(Localizations.setUpLater) {
-                    store.send(.setUpLater)
+                if store.state.shouldDisplaySetUpLaterButton {
+                    Button(Localizations.setUpLater) {
+                        store.send(.setUpLater)
+                    }
+                    .buttonStyle(.transparent)
                 }
-                .buttonStyle(.transparent)
             }
             .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .navigationBar(title: Localizations.accountSetup, titleDisplayMode: .inline)
+        .navigationBar(title: store.state.navigationBarTitle, titleDisplayMode: .inline)
         .scrollView()
         .task {
             await store.perform(.loadData)
@@ -68,7 +71,17 @@ struct VaultUnlockSetupView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview("VaultUnlockSetup") {
-    VaultUnlockSetupView(store: Store(processor: StateProcessor(state: VaultUnlockSetupState())))
+#Preview("Create Account Flow") {
+    VaultUnlockSetupView(store: Store(processor: StateProcessor(state: VaultUnlockSetupState(
+        accountSetupFlow: .createAccount
+    ))))
+    .navStackWrapped
+}
+
+#Preview("Settings Flow") {
+    VaultUnlockSetupView(store: Store(processor: StateProcessor(state: VaultUnlockSetupState(
+        accountSetupFlow: .settings
+    ))))
+    .navStackWrapped
 }
 #endif

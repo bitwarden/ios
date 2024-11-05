@@ -51,7 +51,7 @@ struct ManualEntryView: View {
             footer
         }
         .background(
-            Asset.Colors.backgroundSecondary.swiftUIColor
+            Asset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .scrollView()
@@ -78,7 +78,7 @@ struct ManualEntryView: View {
                     await store.perform(.scanCodePressed)
                 } label: {
                     Text(Localizations.scanQRCode)
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                        .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
                         .styleGuide(.callout)
                 }
                 .buttonStyle(InlineButtonStyle())

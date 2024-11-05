@@ -14,10 +14,8 @@ struct LoginState: Equatable {
     /// A flag indicating if the login with device button should be displayed or not.
     var isLoginWithDeviceVisible: Bool = false
 
-    /// The password visibility icon used in the view's text field.
-    var passwordVisibleIcon: ImageAsset {
-        isMasterPasswordRevealed ? Asset.Images.hidden : Asset.Images.visible
-    }
+    /// Whether the user is logging into a newly created account.
+    var isNewAccount = false
 
     /// The server URL that is hosting the user's session.
     var serverURLString: String = ""

@@ -38,13 +38,16 @@ struct ViewItemView: View {
                 details(for: viewState)
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toast(store.binding(
-            get: \.toast,
-            send: ViewItemAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: ViewItemAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 closeToolbarButton {
@@ -78,6 +81,11 @@ struct ViewItemView: View {
                 )
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            editItemFloatingActionButton {
+                store.send(.editPressed)
+            }
+        }
         .task {
             await store.perform(.appeared)
         }
@@ -107,6 +115,7 @@ struct ViewItemView: View {
                 )
             }
             .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
     }
 }
@@ -165,7 +174,6 @@ struct ViewItemView_Previews: PreviewProvider {
         state.type = CipherType.card
         state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
-        state.notes = "Why are we so consumption focused?"
         state.cardItemState = CardItemState(
             brand: .custom(.americanExpress),
             cardholderName: "Bitwarden User",
@@ -193,7 +201,6 @@ struct ViewItemView_Previews: PreviewProvider {
         ]
         state.isMasterPasswordRePromptOn = false
         state.name = "Example"
-        state.notes = "This is a long note so that it goes to the next line!"
         state.loginState.fido2Credentials = [
             .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
         ]
@@ -212,6 +219,21 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         )
         state.loginState.username = "email@example.com"
+        return state
+    }
+
+    static var sshKeyState: CipherItemState {
+        var state = CipherItemState(
+            existing: cipher,
+            hasPremium: true
+        )!
+        state.name = "Example"
+        state.type = .sshKey
+        state.sshKeyState = SSHKeyItemState(
+            privateKey: "ajsdfopij1ZXCVZXC12312QW",
+            publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
+            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw"
+        )
         return state
     }
 
@@ -239,6 +261,8 @@ struct ViewItemView_Previews: PreviewProvider {
         cardPreview
 
         loginPreview
+
+        sshKeyPreview
     }
 
     @ViewBuilder static var cardPreview: some View {
@@ -283,6 +307,28 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Login")
+    }
+
+    @ViewBuilder static var sshKeyPreview: some View {
+        NavigationView {
+            ViewItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ViewItemState(
+                            loadingState: .data(sshKeyState)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_011
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("SSH Key")
     }
 }
 #endif

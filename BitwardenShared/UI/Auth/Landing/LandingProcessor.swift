@@ -102,13 +102,23 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
 
     // MARK: Private Methods
 
+    /// Refreshes the configuration by forcing a refresh from the config service
+    /// and loads the latest feature flags.
+    ///
+    private func refreshConfig() async {
+        await services.configService.getConfig(
+            forceRefresh: true,
+            isPreAuth: true
+        )
+        await loadFeatureFlag()
+    }
+
     /// Sets the feature flag value to be used.
     ///
     private func loadFeatureFlag() async {
         state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
             FeatureFlag.emailVerification,
-            defaultValue: false,
-            forceRefresh: true
+            defaultValue: false
         )
     }
 
@@ -197,7 +207,7 @@ extension LandingProcessor: ProfileSwitcherHandler {
 extension LandingProcessor: SelfHostedProcessorDelegate {
     func didSaveEnvironment(urls: EnvironmentUrlData) async {
         await setRegion(.selfHosted, urls)
-        state.toast = Toast(text: Localizations.environmentSaved)
+        state.toast = Toast(title: Localizations.environmentSaved)
         await regionHelper.loadRegion()
     }
 }
@@ -223,9 +233,13 @@ extension LandingProcessor: RegionDelegate {
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
-        // After setting a new region, feature flags need to be reloaded
+
+        // - Using `Task` for `refreshConfig` ensures that this call doesn’t delay other operations,
+        //   such as closing the Self-host settings view or triggering `.appeared` events. These issues
+        //   arose because `refreshConfig` was awaited directly, leading to delays when internet speed
+        //   was low.
         Task {
-            await loadFeatureFlag()
+            await refreshConfig()
         }
     }
 }

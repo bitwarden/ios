@@ -76,16 +76,16 @@ final class FoldersProcessor: StateProcessor<FoldersState, FoldersAction, Folder
 extension FoldersProcessor: AddEditFolderDelegate {
     /// Show the toast that the folder was successfully added.
     func folderAdded() {
-        state.toast = Toast(text: Localizations.folderCreated)
+        state.toast = Toast(title: Localizations.folderCreated)
     }
 
     /// Show the toast that the folder was successfully deleted.
     func folderDeleted() {
-        state.toast = Toast(text: Localizations.folderDeleted)
+        state.toast = Toast(title: Localizations.folderDeleted)
     }
 
     /// Show the toast that the folder was successfully edited.
     func folderEdited() {
-        state.toast = Toast(text: Localizations.folderUpdated)
+        state.toast = Toast(title: Localizations.folderUpdated)
     }
 }

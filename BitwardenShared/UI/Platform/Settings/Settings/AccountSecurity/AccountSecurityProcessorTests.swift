@@ -8,6 +8,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     var appSettingsStore: MockAppSettingsStore!
     var authRepository: MockAuthRepository!
     var biometricsRepository: MockBiometricsRepository!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var policyService: MockPolicyService!
@@ -16,6 +17,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     var twoStepLoginService: MockTwoStepLoginService!
     var vaultTimeoutService: MockVaultTimeoutService!
     var subject: AccountSecurityProcessor!
+    var vaultUnlockSetupHelper: MockVaultUnlockSetupHelper!
 
     // MARK: Setup & Teardown
 
@@ -25,6 +27,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         appSettingsStore = MockAppSettingsStore()
         authRepository = MockAuthRepository()
         biometricsRepository = MockBiometricsRepository()
+        configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         policyService = MockPolicyService()
@@ -32,12 +35,14 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         stateService = MockStateService()
         twoStepLoginService = MockTwoStepLoginService()
         vaultTimeoutService = MockVaultTimeoutService()
+        vaultUnlockSetupHelper = MockVaultUnlockSetupHelper()
 
         subject = AccountSecurityProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 biometricsRepository: biometricsRepository,
+                configService: configService,
                 errorReporter: errorReporter,
                 policyService: policyService,
                 settingsRepository: settingsRepository,
@@ -45,7 +50,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 twoStepLoginService: twoStepLoginService,
                 vaultTimeoutService: vaultTimeoutService
             ),
-            state: AccountSecurityState()
+            state: AccountSecurityState(),
+            vaultUnlockSetupHelper: vaultUnlockSetupHelper
         )
     }
 
@@ -55,11 +61,13 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         appSettingsStore = nil
         authRepository = nil
         biometricsRepository = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         policyService = nil
         settingsRepository = nil
         subject = nil
+        vaultUnlockSetupHelper = nil
     }
 
     // MARK: Tests
@@ -166,6 +174,28 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         )
     }
 
+    /// `perform(_:)` with `.dismissSetUpUnlockActionCard` sets the user's vault unlock setup
+    /// progress to complete.
+    @MainActor
+    func test_perform_dismissSetUpUnlockActionCard() async {
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+
+        await subject.perform(.dismissSetUpUnlockActionCard)
+
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.dismissSetUpUnlockActionCard` logs an error and shows an alert if an
+    /// error occurs.
+    @MainActor
+    func test_perform_dismissSetUpUnlockActionCard_error() async {
+        await subject.perform(.dismissSetUpUnlockActionCard)
+
+        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
     /// `perform(_:)` with `.loadData` loads the initial data for the view.
     @MainActor
     func test_perform_loadData() async {
@@ -177,6 +207,30 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
     }
 
+    /// `perform(_:)` with `.loadData` updates the state.
+    @MainActor
+    func test_perform_loadData_biometricsValue() async {
+        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true)
+        biometricsRepository.biometricUnlockStatus = .success(
+            biometricUnlockStatus
+        )
+        subject.state.biometricUnlockStatus = .notAvailable
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
+    }
+
+    /// `perform(_:)` with `.loadData` updates the state.
+    @MainActor
+    func test_perform_loadData_biometricsValue_error() async {
+        struct TestError: Error {}
+        biometricsRepository.biometricUnlockStatus = .failure(TestError())
+        subject.state.biometricUnlockStatus = .notAvailable
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, .notAvailable)
+    }
+
     /// `perform(_:)` with `.loadData` records any errors.
     func test_perform_loadData_error() async {
         authRepository.isPinUnlockAvailableResult = .failure(StateServiceError.noActiveAccount)
@@ -184,6 +238,69 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.loadData)
 
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `perform(_:)` with `.loadData` updates the state. The `isAuthenticatorSyncEnabled`
+    /// should be set to the user's current `syncToAuthenticator` setting.
+    @MainActor
+    func test_perform_loadData_isAuthenticatorSyncEnabled() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
+
+        stateService.syncToAuthenticatorByUserId[Account.fixture().profile.userId] = false
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isAuthenticatorSyncEnabled)
+
+        stateService.syncToAuthenticatorByUserId[Account.fixture().profile.userId] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isAuthenticatorSyncEnabled)
+    }
+
+    /// `perform(_:)` with `.loadData` updates the state. The processor should update
+    /// `shouldShowAuthenticatorSyncSection` based on the value of the `enableAuthenticatorSync`
+    /// feature flag.
+    @MainActor
+    func test_perform_loadData_shouldShowAuthenticatorSync() async {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.shouldShowAuthenticatorSyncSection)
+
+        configService.featureFlagsBool[.enableAuthenticatorSync] = false
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.shouldShowAuthenticatorSyncSection)
+    }
+
+    /// `perform(_:)` with `.loadData` completes the vault unlock setup progress if biometrics are enabled.
+    @MainActor
+    func test_perform_loadData_vaultUnlockSetupProgress_biometrics() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        await subject.perform(.loadData)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
+
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        await subject.perform(.loadData)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.loadData` completes the vault unlock setup progress if pin unlock is enabled.
+    @MainActor
+    func test_perform_loadData_vaultUnlockSetupProgress_pin() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+
+        authRepository.isPinUnlockAvailableResult = .success(false)
+        await subject.perform(.loadData)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
+
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        await subject.perform(.loadData)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
     }
 
     /// `perform(_:)` with `.lockVault` locks the user's vault.
@@ -196,6 +313,47 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(authRepository.lockVaultUserId, nil)
         XCTAssertEqual(coordinator.events.last, .authAction(.lockVault(userId: nil)))
+    }
+
+    /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
+    @MainActor
+    func test_perform_streamSettingsBadge() {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamSettingsBadge)
+        }
+        defer { task.cancel() }
+
+        let badgeState = SettingsBadgeState.fixture(vaultUnlockSetupProgress: .setUpLater)
+        stateService.settingsBadgeSubject.send(badgeState)
+        waitFor { subject.state.badgeState == badgeState }
+
+        XCTAssertEqual(subject.state.badgeState, badgeState)
+    }
+
+    /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
+    @MainActor
+    func test_perform_streamSettingsBadge_error() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+
+        await subject.perform(.streamSettingsBadge)
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `perform(_:)` with `.streamSettingsBadge` doesn't load the badge state if the create account
+    /// feature flag is disabled.
+    @MainActor
+    func test_perform_streamSettingsBadge_nativeCreateAccountFlowDisabled() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        stateService.activeAccount = .fixture()
+        stateService.settingsBadgeSubject.send(.fixture())
+
+        await subject.perform(.streamSettingsBadge)
+
+        XCTAssertNil(subject.state.badgeState)
     }
 
     /// `perform(_:)` with `.accountFingerprintPhrasePressed` navigates to the web app
@@ -237,6 +395,212 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
                 title: Localizations.anErrorHasOccurred
             )
         )
+    }
+
+    /// `perform(_:)` with `.toggleSyncWithAuthenticator` disables authenticator sync and updates the state.
+    @MainActor
+    func test_perform_toggleSyncWithAuthenticator_disable() async throws {
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
+        stateService.activeAccount = .fixture()
+        subject.state.isAuthenticatorSyncEnabled = true
+
+        await subject.perform(.toggleSyncWithAuthenticator(false))
+        waitFor { !subject.state.isAuthenticatorSyncEnabled }
+
+        let syncEnabled = try await stateService.getSyncToAuthenticator()
+        XCTAssertFalse(syncEnabled)
+    }
+
+    /// `perform(_:)` with `.toggleSyncWithAuthenticator` enables authenticator sync and updates the state.
+    @MainActor
+    func test_perform_toggleSyncWithAuthenticator_enable() async throws {
+        configService.featureFlagsBool[.enableAuthenticatorSync] = true
+        stateService.activeAccount = .fixture()
+        subject.state.isAuthenticatorSyncEnabled = false
+
+        await subject.perform(.toggleSyncWithAuthenticator(true))
+        waitFor { subject.state.isAuthenticatorSyncEnabled }
+
+        let syncEnabled = try await stateService.getSyncToAuthenticator()
+        XCTAssertTrue(syncEnabled)
+    }
+
+    /// `perform(_:)` with `.toggleSyncWithAuthenticator` correctly handles and logs errors.
+    @MainActor
+    func test_perform_toggleSyncWithAuthenticator_error() async throws {
+        subject.state.isAuthenticatorSyncEnabled = false
+        stateService.syncToAuthenticatorResult = .failure(BitwardenTestError.example)
+        await subject.perform(.toggleSyncWithAuthenticator(true))
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertFalse(subject.state.isAuthenticatorSyncEnabled)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithBiometrics` disables biometrics unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockWithBiometrics_disable() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
+        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
+            .faceID,
+            enabled: false
+        )
+
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+        waitFor { !subject.state.biometricUnlockStatus.isEnabled }
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
+        XCTAssertTrue(stateService.accountSetupVaultUnlock.isEmpty)
+        XCTAssertFalse(subject.state.biometricUnlockStatus.isEnabled)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithBiometrics` disables biometrics unlock and updates the
+    /// state, refreshing the user's timeout action in case the user doesn't have a password and no
+    /// other unlock method.
+    @MainActor
+    func test_perform_toggleUnlockWithBiometrics_disable_noPassword() async {
+        authRepository.activeAccount = .fixtureWithTdeNoPassword()
+        authRepository.sessionTimeoutAction["1"] = .logout
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
+        subject.state.sessionTimeoutAction = .lock
+        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
+            .faceID,
+            enabled: false
+        )
+
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+        waitFor { !subject.state.biometricUnlockStatus.isEnabled }
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
+        XCTAssertTrue(stateService.accountSetupVaultUnlock.isEmpty)
+        XCTAssertFalse(subject.state.biometricUnlockStatus.isEnabled)
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithBiometrics` enables biometrics unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockWithBiometrics_enable() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
+        vaultUnlockSetupHelper.setBiometricUnlockStatus = .available(
+            .faceID,
+            enabled: true
+        )
+
+        await subject.perform(.toggleUnlockWithBiometrics(true))
+        waitFor { subject.state.biometricUnlockStatus.isEnabled }
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setBiometricUnlockCalled)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock, ["1": .complete])
+        XCTAssertTrue(subject.state.biometricUnlockStatus.isEnabled)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` disables pin unlock and updates the state.
+    @MainActor
+    func test_perform_toggleUnlockWithPINCode_disable() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        vaultUnlockSetupHelper.setPinUnlockResult = true
+
+        await subject.perform(.toggleUnlockWithPINCode(false))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertTrue(stateService.accountSetupVaultUnlock.isEmpty)
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` disables pin unlock and updates the state,
+    /// refreshing the user's timeout action in case the user doesn't have a password and no other
+    /// unlock method.
+    @MainActor
+    func test_perform_toggleUnlockWithPINCode_disable_noPassword() async {
+        authRepository.activeAccount = .fixtureWithTdeNoPassword()
+        authRepository.sessionTimeoutAction["1"] = .logout
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        subject.state.sessionTimeoutAction = .lock
+        vaultUnlockSetupHelper.setPinUnlockResult = true
+
+        await subject.perform(.toggleUnlockWithPINCode(false))
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertTrue(stateService.accountSetupVaultUnlock.isEmpty)
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+        XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` enables pin unlock and updates the state.
+    @MainActor
+    func test_receive_toggleUnlockWithPINCode_enable() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+        subject.state.isUnlockWithPINCodeOn = true
+        vaultUnlockSetupHelper.setPinUnlockResult = false
+
+        await subject.perform(.toggleUnlockWithPINCode(true))
+        waitFor { !subject.state.isUnlockWithPINCodeOn }
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock, ["1": .complete])
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` doesn't update the user's vault unlock setup
+    /// progress if the native create account feature flag is disabled.
+    @MainActor
+    func test_receive_toggleUnlockWithPINCode_enable_nativeCreateAccountDisabled() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+        subject.state.isUnlockWithPINCodeOn = true
+        vaultUnlockSetupHelper.setPinUnlockResult = false
+
+        await subject.perform(.toggleUnlockWithPINCode(true))
+        waitFor { !subject.state.isUnlockWithPINCodeOn }
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock, ["1": .setUpLater])
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` doesn't update the user's vault unlock setup
+    /// progress if they don't yet have any progress.
+    @MainActor
+    func test_receive_toggleUnlockWithPINCode_enable_noVaultUnlockSetupProgress() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        stateService.activeAccount = .fixture()
+        subject.state.isUnlockWithPINCodeOn = true
+        vaultUnlockSetupHelper.setPinUnlockResult = false
+
+        await subject.perform(.toggleUnlockWithPINCode(true))
+        waitFor { !subject.state.isUnlockWithPINCodeOn }
+
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertTrue(stateService.accountSetupVaultUnlock.isEmpty)
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
+    }
+
+    /// `perform(_:)` with `.toggleUnlockWithPINCode` logs an error if one occurs updating the
+    /// user's vault unlock setup progress.
+    @MainActor
+    func test_receive_toggleUnlockWithPINCode_enable_vaultUnlockSetupError() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+        subject.state.isUnlockWithPINCodeOn = true
+        vaultUnlockSetupHelper.setPinUnlockResult = false
+
+        await subject.perform(.toggleUnlockWithPINCode(true))
+        waitFor { !subject.state.isUnlockWithPINCodeOn }
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertTrue(vaultUnlockSetupHelper.setPinUnlockCalled)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock, ["1": .setUpLater])
+        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` clears the two step login URL.
@@ -474,212 +838,13 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
     }
 
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` updates the state when submit has been pressed.
+    /// `receive(_:)` with `showSetUpUnlock(:)` has the coordinator navigate to the vault unlock
+    /// setup screen.
     @MainActor
-    func test_receive_toggleUnlockWithPINCode_toggleOff() {
-        subject.state.isUnlockWithPINCodeOn = true
+    func test_receive_showSetUpUnlock() throws {
+        subject.receive(.showSetUpUnlock)
 
-        let task = Task {
-            subject.receive(.toggleUnlockWithPINCode(false))
-        }
-
-        waitFor(subject.state.isUnlockWithPINCodeOn == false)
-        task.cancel()
-
-        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
-        XCTAssertTrue(coordinator.routes.isEmpty)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
-    /// pressed and the user has entered in a pin.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_toggleOn_withPIN() async throws {
-        stateService.activeAccount = .fixture()
-        biometricsRepository.getBiometricAuthenticationTypeResult = .faceID
-        subject.state.isUnlockWithPINCodeOn = false
-        subject.receive(.toggleUnlockWithPINCode(true))
-
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
-        try alert.setText("1234", forTextFieldWithId: "pin")
-        try await alert.tapAction(title: Localizations.submit)
-
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID))
-        try await alert.tapAction(title: Localizations.yes)
-        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
-    /// pressed but an empty pin was passed.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_toggleOn_withEmptyPIN() async throws {
-        stateService.activeAccount = .fixture()
-        subject.state.isUnlockWithPINCodeOn = false
-        subject.receive(.toggleUnlockWithPINCode(true))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.submit)
-        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when submit has been
-    /// pressed but an empty pin was passed.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_toggleOn_withWhitespacePIN() async throws {
-        stateService.activeAccount = .fixture()
-        subject.state.isUnlockWithPINCodeOn = false
-        subject.receive(.toggleUnlockWithPINCode(true))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try alert.setText(" ", forTextFieldWithId: "pin")
-        try await alert.tapAction(title: Localizations.submit)
-        XCTAssertFalse(subject.state.isUnlockWithPINCodeOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while setting
-    /// the user's pin.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_toggleOn_error() async throws {
-        authRepository.setPinsResult = .failure(BitwardenTestError.example)
-        stateService.activeAccount = .fixture()
-        subject.state.isUnlockWithPINCodeOn = false
-
-        subject.receive(.toggleUnlockWithPINCode(true))
-
-        let enterPinAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try enterPinAlert.setText("1234", forTextFieldWithId: "pin")
-        try await enterPinAlert.tapAction(title: Localizations.submit)
-
-        let requireMasterPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try await requireMasterPasswordAlert.tapAction(title: Localizations.no)
-
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(errorAlert, .defaultAlert(title: Localizations.anErrorHasOccurred))
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an alert and updates the state when
-    /// submit has been pressed without displaying the master password prompt alert.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_toggleOn_userWithoutMasterPassword() async throws {
-        stateService.activeAccount = .fixture()
-        stateService.userHasMasterPassword["1"] = false
-        subject.state.isUnlockWithPINCodeOn = false
-        subject.receive(.toggleUnlockWithPINCode(true))
-
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try alert.setText("1234", forTextFieldWithId: "pin")
-        try await alert.tapAction(title: Localizations.submit)
-
-        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` turns the toggle off and clears the user's pins.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_off() {
-        let account: Account = .fixture()
-        stateService.activeAccount = account
-        stateService.pinProtectedUserKeyValue[account.profile.userId] = "123"
-
-        subject.state.isUnlockWithPINCodeOn = true
-        let task = Task {
-            subject.receive(.toggleUnlockWithPINCode(false))
-        }
-        waitFor(!subject.state.isUnlockWithPINCodeOn)
-        task.cancel()
-        XCTAssertTrue(authRepository.clearPinsCalled)
-    }
-
-    /// `receive(_:)` with `.toggleUnlockWithPINCode` displays an error if one occurs while getting
-    /// whether the user has a master password.
-    @MainActor
-    func test_receive_toggleUnlockWithPINCode_userHasMasterPasswordError() async throws {
-        subject.state.isUnlockWithPINCodeOn = false
-
-        subject.receive(.toggleUnlockWithPINCode(true))
-
-        let enterPinAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try enterPinAlert.setText("1234", forTextFieldWithId: "pin")
-        try await enterPinAlert.tapAction(title: Localizations.submit)
-
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(errorAlert, .defaultAlert(title: Localizations.anErrorHasOccurred))
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [StateServiceError.noActiveAccount])
-    }
-
-    /// `perform(_:)` with `.loadData` updates the state.
-    @MainActor
-    func test_perform_loadData_biometricsValue() async {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsRepository.biometricUnlockStatus = .success(
-            biometricUnlockStatus
-        )
-        subject.state.biometricUnlockStatus = .notAvailable
-        await subject.perform(.loadData)
-
-        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
-    }
-
-    /// `perform(_:)` with `.loadData` updates the state.
-    @MainActor
-    func test_perform_loadData_biometricsValue_error() async {
-        struct TestError: Error {}
-        biometricsRepository.biometricUnlockStatus = .failure(TestError())
-        subject.state.biometricUnlockStatus = .notAvailable
-        await subject.perform(.loadData)
-
-        XCTAssertEqual(subject.state.biometricUnlockStatus, .notAvailable)
-    }
-
-    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    @MainActor
-    func test_perform_toggleUnlockWithBiometrics_authRepositoryFailure() async throws {
-        struct TestError: Error, Equatable {}
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.touchID, enabled: false, hasValidIntegrity: false)
-        )
-
-        authRepository.allowBiometricUnlockResult = .failure(TestError())
-        subject.state.biometricUnlockStatus = biometricUnlockStatus
-        await subject.perform(.toggleUnlockWithBiometrics(false))
-
-        let error = try XCTUnwrap(errorReporter.errors.first as? TestError)
-        XCTAssertEqual(error, TestError())
-        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
-    }
-
-    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    @MainActor
-    func test_perform_toggleUnlockWithBiometrics_biometricsRepositoryFailure() async throws {
-        struct TestError: Error, Equatable {}
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: true, hasValidIntegrity: true)
-        biometricsRepository.biometricUnlockStatus = .failure(TestError())
-
-        authRepository.allowBiometricUnlockResult = .success(())
-        subject.state.biometricUnlockStatus = biometricUnlockStatus
-        await subject.perform(.toggleUnlockWithBiometrics(false))
-
-        let error = try XCTUnwrap(errorReporter.errors.first as? TestError)
-        XCTAssertEqual(error, TestError())
-        XCTAssertEqual(subject.state.biometricUnlockStatus, biometricUnlockStatus)
-    }
-
-    /// `perform(_:)` with `.toggleUnlockWithBiometrics` updates the state.
-    @MainActor
-    func test_perform_toggleUnlockWithBiometrics_success() async {
-        let biometricUnlockStatus = BiometricsUnlockStatus.available(.faceID, enabled: false, hasValidIntegrity: true)
-        biometricsRepository.biometricUnlockStatus = .success(
-            biometricUnlockStatus
-        )
-        authRepository.allowBiometricUnlockResult = .success(())
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
-        await subject.perform(.toggleUnlockWithBiometrics(false))
-
-        XCTAssertEqual(
-            subject.state.biometricUnlockStatus,
-            biometricUnlockStatus
-        )
+        XCTAssertEqual(coordinator.routes, [.vaultUnlockSetup])
     }
 
     /// `receive(_:)` with `.twoStepLoginPressed` shows the two step login alert.
@@ -704,21 +869,16 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// The vault timeout action is refreshed after turning off pin unlock to handle users without
     /// a master password when a lock timeout action may not be available.
     @MainActor
-    func test_refreshVaultTimeoutAction_withoutMasterPassword_pinOff() {
+    func test_refreshVaultTimeoutAction_withoutMasterPassword_pinOff() async {
         authRepository.activeAccount = .fixtureWithTdeNoPassword()
         authRepository.sessionTimeoutAction["1"] = .lock
         subject.state.isUnlockWithPINCodeOn = true
 
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor { subject.state.sessionTimeoutAction == .lock }
-        task.cancel()
+        await subject.perform(.appeared)
 
         authRepository.sessionTimeoutAction["1"] = .logout
 
-        subject.receive(.toggleUnlockWithPINCode(false))
-        waitFor { subject.state.sessionTimeoutAction == .logout }
+        await subject.perform(.toggleUnlockWithPINCode(false))
 
         XCTAssertEqual(subject.state.sessionTimeoutAction, .logout)
     }
@@ -729,7 +889,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_refreshVaultTimeoutAction_withoutMasterPassword_biometricsOff() async {
         authRepository.activeAccount = .fixtureWithTdeNoPassword()
         authRepository.sessionTimeoutAction["1"] = .lock
-        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true)
 
         await subject.perform(.appeared)
         waitFor { subject.state.sessionTimeoutAction == .lock }

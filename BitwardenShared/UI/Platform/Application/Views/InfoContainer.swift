@@ -35,7 +35,7 @@ struct InfoContainer<Content: View>: View {
             .padding(16)
             .overlay {
                 RoundedRectangle(cornerRadius: 4)
-                    .strokeBorder(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .strokeBorder(Asset.Colors.strokeBorder.swiftUIColor)
             }
     }
 

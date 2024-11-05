@@ -53,6 +53,27 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
     func getAccountHasBeenUnlockedInteractively(userId: String?) async throws -> Bool
 
+    /// Gets the user's progress for setting up autofill.
+    ///
+    /// - Parameter userId: The user ID associated with the autofill setup progress.
+    /// - Returns: The user's autofill setup progress.
+    ///
+    func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress?
+
+    /// Gets the user's progress for importing logins.
+    ///
+    /// - Parameter userId: The user ID associated with the import logins setup progress.
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress?
+
+    /// Gets the user's progress for setting up vault unlock.
+    ///
+    /// - Parameter userId: The user ID associated with the vault unlock setup progress.
+    /// - Returns: The user's vault unlock setup progress.
+    ///
+    func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress?
+
     /// Gets all accounts.
     ///
     /// - Returns: The known user accounts.
@@ -91,6 +112,11 @@ protocol StateService: AnyObject {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
+    /// Gets the app rehydration state.
+    /// - Parameter userId: The user ID associated with this state.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState?
+
     /// Get the app theme.
     ///
     /// - Returns: The app theme.
@@ -104,12 +130,6 @@ protocol StateService: AnyObject {
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
     func getBiometricAuthenticationEnabled() async throws -> Bool
-
-    /// Gets the BiometricIntegrityState for the active user.
-    ///
-    /// - Returns: An optional base64 string encoding of the BiometricIntegrityState `Data` as last stored for the user.
-    ///
-    func getBiometricIntegrityState() async throws -> String?
 
     /// Gets the clear clipboard value for an account.
     ///
@@ -224,6 +244,17 @@ protocol StateService: AnyObject {
     ///
     func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
 
+    /// Gets the environment URLs for a given email during account creation.
+    ///
+    /// - Parameter email: The email used to start the account creation.
+    /// - Returns: The environment URLs used prior to start the account creation.
+    ///
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData?
+
+    /// Gets the server config used by the app prior to the user authenticating.
+    /// - Returns: The server config used prior to user authentication.
+    func getPreAuthServerConfig() async -> ServerConfig?
+
     /// Gets the server config for a user ID, as set by the server.
     ///
     /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
@@ -242,6 +273,14 @@ protocol StateService: AnyObject {
     /// - Returns: Whether to show the website icons.
     ///
     func getShowWebIcons() async -> Bool
+
+    /// Gets the sync to Authenticator value for an account.
+    ///
+    /// - Parameter userId: The user ID associated with the sync to Authenticator value. Defaults to the active
+    ///   account if `nil`
+    /// - Returns: Whether to sync TOPT codes to the Authenticator app.
+    ///
+    func getSyncToAuthenticator(userId: String?) async throws -> Bool
 
     /// Gets the session timeout action.
     ///
@@ -336,6 +375,30 @@ protocol StateService: AnyObject {
     ///   - value: Whether the user has unlocked their account in the current session.
     func setAccountHasBeenUnlockedInteractively(userId: String?, value: Bool) async throws
 
+    /// Sets the user's progress for setting up autofill.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's autofill setup progress.
+    ///   - userId: The user ID associated with the autofill setup progress.
+    ///
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws
+
+    /// Sets the user's progress for setting up import logins.
+    ///
+    /// - Parameters:
+    ///   - importLogins: The user's import logins setup progress.
+    ///   - userId: The user ID associated with the import logins setup progress.
+    ///
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?, userId: String?) async throws
+
+    /// Sets the user's progress for setting up vault unlock.
+    ///
+    /// - Parameters:
+    ///   - autofillSetup: The user's vault unlock setup progress.
+    ///   - userId: The user ID associated with the vault unlock setup progress.
+    ///
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws
+
     /// Sets the active account.
     ///
     /// - Parameter userId: The user Id of the account to set as active.
@@ -369,12 +432,6 @@ protocol StateService: AnyObject {
     ///     If `false`, the device should not attempt biometric authentication for authorization events.
     ///
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws
-
-    /// Sets the BiometricIntegrityState for the active user.
-    ///
-    /// - Parameter base64State: A base64 string encoding of the BiometricIntegrityState `Data`.
-    ///
-    func setBiometricIntegrityState(_ base64State: String?) async throws
 
     /// Sets the clear clipboard value for an account.
     ///
@@ -501,6 +558,23 @@ protocol StateService: AnyObject {
     ///
     func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
 
+    /// Sets the environment URLs for a given email during account creation.
+    /// - Parameters:
+    ///   - urls: The environment urls used to start the account creation.
+    ///   - email: The email used to start the account creation.
+    ///
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async
+
+    /// Sets the server config used prior to user authentication
+    /// - Parameter config: The server config to use prior to user authentication.
+    func setPreAuthServerConfig(config: ServerConfig) async
+
+    /// Sets the app rehydration state for the active account.
+    /// - Parameters:
+    ///   - rehydrationState: The app rehydration state.
+    ///   - userId: The user ID of the rehydration state.
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
+
     /// Sets the server configuration as provided by a server for a user ID.
     ///
     /// - Parameters:
@@ -520,6 +594,14 @@ protocol StateService: AnyObject {
     /// - Parameter showWebIcons: Whether to show the website icons.
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
+
+    /// Sets the sync to authenticator value for an account.
+    ///
+    /// - Parameters:
+    ///   - syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws
 
     /// Sets the session timeout action.
     ///
@@ -608,11 +690,23 @@ protocol StateService: AnyObject {
     ///
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
 
+    /// A publisher for showing badges in the settings tab.
+    ///
+    /// - Returns: A publisher for showing badges in the settings tab.
+    ///
+    func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never>
+
     /// A publisher for whether or not to show the web icons.
     ///
     /// - Returns: A publisher for whether or not to show the web icons.
     ///
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never>
+
+    /// A publisher for the sync to authenticator value.
+    ///
+    /// - Returns: A publisher for the sync to authenticator value.
+    ///
+    func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never>
 }
 
 extension StateService {
@@ -638,6 +732,30 @@ extension StateService {
     ///
     func getAccountIdOrActiveId(userId: String?) async throws -> String {
         try await getAccount(userId: userId).profile.userId
+    }
+
+    /// Gets the active user's progress for setting up autofill.
+    ///
+    /// - Returns: The user's autofill setup progress.
+    ///
+    func getAccountSetupAutofill() async throws -> AccountSetupProgress? {
+        try await getAccountSetupAutofill(userId: getActiveAccountId())
+    }
+
+    /// Gets the active user's progress for importing logins.
+    ///
+    /// - Returns: The user's import logins setup progress.
+    ///
+    func getAccountSetupImportLogins() async throws -> AccountSetupProgress? {
+        try await getAccountSetupImportLogins(userId: getActiveAccountId())
+    }
+
+    /// Gets the active user's progress for setting up vault unlock.
+    ///
+    /// - Returns: The user's vault unlock setup progress.
+    ///
+    func getAccountSetupVaultUnlock() async throws -> AccountSetupProgress? {
+        try await getAccountSetupVaultUnlock(userId: getActiveAccountId())
     }
 
     /// Gets the active account id.
@@ -666,6 +784,12 @@ extension StateService {
     ///
     func getAllowSyncOnRefresh() async throws -> Bool {
         try await getAllowSyncOnRefresh(userId: nil)
+    }
+
+    /// Gets the app rehydration state for the active account.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState() async throws -> AppRehydrationState? {
+        try await getAppRehydrationState(userId: nil)
     }
 
     /// Gets the clear clipboard value for the active account.
@@ -766,6 +890,14 @@ extension StateService {
         try await getServerConfig(userId: nil)
     }
 
+    /// Gets the sync to authenticator value for the active account.
+    ///
+    /// - Returns: Whether to sync TOTP codes to the Authenticator app.
+    ///
+    func getSyncToAuthenticator() async throws -> Bool {
+        try await getSyncToAuthenticator(userId: nil)
+    }
+
     /// Gets the session timeout action.
     ///
     /// - Returns: The action to perform when a session timeout occurs.
@@ -856,6 +988,30 @@ extension StateService {
         try await setAccountHasBeenUnlockedInteractively(userId: nil, value: value)
     }
 
+    /// Sets the active user's progress for setting up autofill.
+    ///
+    /// - Parameter autofillSetup: The user's autofill setup progress.
+    ///
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?) async throws {
+        try await setAccountSetupAutofill(autofillSetup, userId: nil)
+    }
+
+    /// Sets the active user's progress for importing logins.
+    ///
+    /// - Parameter importLogins: The user's import logins progress.
+    ///
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?) async throws {
+        try await setAccountSetupImportLogins(importLogins, userId: nil)
+    }
+
+    /// Sets the active user's progress for setting up vault unlock.
+    ///
+    /// - Parameter vaultUnlockSetup: The user's vault unlock setup progress.
+    ///
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?) async throws {
+        try await setAccountSetupVaultUnlock(vaultUnlockSetup, userId: nil)
+    }
+
     /// Sets the allow sync on refresh value for the active account.
     ///
     /// - Parameter allowSyncOnRefresh: The allow sync on refresh value.
@@ -944,12 +1100,28 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
+    /// Sets the app rehydration state for the active account.
+    ///
+    /// - Parameter rehydrationState: The app rehydration state.
+    ///
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?) async throws {
+        try await setAppRehydrationState(rehydrationState, userId: nil)
+    }
+
     /// Sets the server config for the active account.
     ///
     /// - Parameter config: The server config.
     ///
     func setServerConfig(_ config: ServerConfig?) async throws {
         try await setServerConfig(config, userId: nil)
+    }
+
+    /// Sets the sync to authenticator value for the active account.
+    ///
+    /// - Parameter syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
+    ///
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
+        try await setSyncToAuthenticator(syncToAuthenticator, userId: nil)
     }
 
     /// Sets the session timeout action.
@@ -997,7 +1169,7 @@ extension StateService {
 
 /// The errors thrown from a `StateService`.
 ///
-enum StateServiceError: Error {
+enum StateServiceError: LocalizedError {
     /// There are no known accounts.
     case noAccounts
 
@@ -1012,6 +1184,15 @@ enum StateServiceError: Error {
 
     /// The user has no user key.
     case noEncUserKey
+
+    var errorDescription: String? {
+        switch self {
+        case .noActiveAccount:
+            Localizations.noAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError
+        default:
+            nil
+        }
+    }
 }
 
 // MARK: - DefaultStateService
@@ -1056,8 +1237,14 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// A service used to access data in the keychain.
     private let keychainRepository: KeychainRepository
 
+    /// A subject containing the settings badge value mapped to user ID.
+    private let settingsBadgeByUserIdSubject = CurrentValueSubject<[String: SettingsBadgeState], Never>([:])
+
     /// A subject containing whether to show the website icons.
     private var showWebIconsSubject: CurrentValueSubject<Bool, Never>
+
+    /// A subject containing the sync to authenticator value.
+    private var syncToAuthenticatorByUserIdSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     // MARK: Initialization
 
@@ -1066,11 +1253,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
     ///  - dataStore: The data store that handles performing data requests.
+    ///  - errorReporter: The service used by the application to report non-fatal errors.
     ///  - keychainRepository: A service used to access data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
         dataStore: DataStore,
+        errorReporter: ErrorReporter,
         keychainRepository: KeychainRepository
     ) {
         self.appSettingsStore = appSettingsStore
@@ -1079,6 +1268,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
+
+        Task {
+            for await activeUserId in self.appSettingsStore.activeAccountIdPublisher().values {
+                errorReporter.setUserId(activeUserId)
+            }
+        }
     }
 
     // MARK: Methods
@@ -1143,6 +1338,18 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return accountVolatileData[userId]?.hasBeenUnlockedInteractively == true
     }
 
+    func getAccountSetupAutofill(userId: String) async -> AccountSetupProgress? {
+        appSettingsStore.accountSetupAutofill(userId: userId)
+    }
+
+    func getAccountSetupImportLogins(userId: String) async -> AccountSetupProgress? {
+        appSettingsStore.accountSetupImportLogins(userId: userId)
+    }
+
+    func getAccountSetupVaultUnlock(userId: String) async -> AccountSetupProgress? {
+        appSettingsStore.accountSetupVaultUnlock(userId: userId)
+    }
+
     func getAccounts() throws -> [Account] {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -1164,6 +1371,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
+    }
+
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.appRehydrationState(userId: userId)
     }
 
     func getAppTheme() async -> AppTheme {
@@ -1246,6 +1458,14 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls
     }
 
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+        appSettingsStore.accountCreationEnvironmentUrls(email: email)
+    }
+
+    func getPreAuthServerConfig() async -> ServerConfig? {
+        appSettingsStore.preAuthServerConfig
+    }
+
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.serverConfig(userId: userId)
@@ -1257,6 +1477,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getShowWebIcons() async -> Bool {
         !appSettingsStore.disableWebIcons
+    }
+
+    func getSyncToAuthenticator(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.syncToAuthenticator(userId: userId)
     }
 
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
@@ -1299,11 +1524,19 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
+        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
         guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
-            let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-            return userAuthKey == nil ? .fifteenMinutes : .never
+            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
+            // So if the never lock key exists, set the timeout to never, otherwise to default.
+            return userAuthKey != nil ? .never : .fifteenMinutes
         }
-        return SessionTimeoutValue(rawValue: rawValue)
+
+        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
+        if timeoutValue == .never, userAuthKey == nil {
+            // If never lock but no key (possibly due to logging out), return the default timeout.
+            return .fifteenMinutes
+        }
+        return timeoutValue
     }
 
     func isAuthenticated(userId: String?) async throws -> Bool {
@@ -1331,7 +1564,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         }
 
         appSettingsStore.setBiometricAuthenticationEnabled(nil, for: knownUserId)
-        appSettingsStore.setBiometricIntegrityState(nil, userId: knownUserId)
         appSettingsStore.setDefaultUriMatchType(nil, userId: knownUserId)
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
@@ -1360,6 +1592,24 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             userId,
             default: AccountVolatileData()
         ].hasBeenUnlockedInteractively = value
+    }
+
+    func setAccountSetupAutofill(_ autofillSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupAutofill(autofillSetup, userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
+    }
+
+    func setAccountSetupImportLogins(_ importLogins: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupImportLogins(importLogins, userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
+    }
+
+    func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAccountSetupVaultUnlock(vaultUnlockSetup, userId: userId)
+        await updateSettingsBadgePublisher(userId: userId)
     }
 
     func setActiveAccount(userId: String) async throws {
@@ -1483,6 +1733,22 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthEnvironmentUrls = urls
     }
 
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async {
+        appSettingsStore.setAccountCreationEnvironmentUrls(
+            environmentUrlData: urls,
+            email: email
+        )
+    }
+
+    func setPreAuthServerConfig(config: ServerConfig) async {
+        appSettingsStore.preAuthServerConfig = config
+    }
+
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
@@ -1495,6 +1761,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setShowWebIcons(_ showWebIcons: Bool) async {
         appSettingsStore.disableWebIcons = !showWebIcons
         showWebIconsSubject.send(showWebIcons)
+    }
+
+    func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setSyncToAuthenticator(syncToAuthenticator, userId: userId)
+        syncToAuthenticatorByUserIdSubject.value[userId] = syncToAuthenticator
     }
 
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
@@ -1586,8 +1858,27 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
     }
 
+    func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {
+        let userId = try getActiveAccountUserId()
+        await updateSettingsBadgePublisher(userId: userId)
+        return settingsBadgeByUserIdSubject.compactMap { $0[userId] }.eraseToAnyPublisher()
+    }
+
     func showWebIconsPublisher() async -> AnyPublisher<Bool, Never> {
         showWebIconsSubject.eraseToAnyPublisher()
+    }
+
+    func syncToAuthenticatorPublisher() async -> AnyPublisher<(String?, Bool), Never> {
+        activeAccountIdPublisher().flatMap { userId in
+            self.syncToAuthenticatorByUserIdSubject.map { values in
+                guard let userId else {
+                    return (nil, false)
+                }
+                let userValue = values[userId] ?? self.appSettingsStore.syncToAuthenticator(userId: userId)
+                return (userId, userValue)
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
     // MARK: Private
@@ -1601,6 +1892,29 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             throw StateServiceError.noActiveAccount
         }
         return activeUserId
+    }
+
+    /// Updates the settings badge publisher by determining the settings badge count for the user.
+    ///
+    /// - Parameter userId: The user ID whose settings badge count should be updated.
+    ///
+    private func updateSettingsBadgePublisher(userId: String) async {
+        let autofillSetupProgress = await getAccountSetupAutofill(userId: userId)
+        let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
+        let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
+        var badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
+            .compactMap { $0 }
+            .filter { $0 != .complete }
+            .count
+        if importLoginsSetupProgress == .setUpLater {
+            badgeCount += 1
+        }
+        settingsBadgeByUserIdSubject.value[userId] = SettingsBadgeState(
+            autofillSetupProgress: autofillSetupProgress,
+            badgeValue: badgeCount > 0 ? String(badgeCount) : nil,
+            importLoginsSetupProgress: importLoginsSetupProgress,
+            vaultUnlockSetupProgress: vaultUnlockSetupProgress
+        )
     }
 }
 
@@ -1624,18 +1938,8 @@ extension DefaultStateService {
         return appSettingsStore.isBiometricAuthenticationEnabled(userId: userId)
     }
 
-    func getBiometricIntegrityState() async throws -> String? {
-        let userId = try getActiveAccountUserId()
-        return appSettingsStore.biometricIntegrityState(userId: userId)
-    }
-
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?) async throws {
         let userId = try getActiveAccountUserId()
         appSettingsStore.setBiometricAuthenticationEnabled(isEnabled, for: userId)
-    }
-
-    func setBiometricIntegrityState(_ base64State: String?) async throws {
-        let userId = try getActiveAccountUserId()
-        appSettingsStore.setBiometricIntegrityState(base64State, userId: userId)
     }
 }

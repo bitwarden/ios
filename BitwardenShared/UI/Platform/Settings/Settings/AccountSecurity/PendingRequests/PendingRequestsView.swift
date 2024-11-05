@@ -53,7 +53,7 @@ struct PendingRequestsView: View {
             HStack(spacing: 4) {
                 Spacer()
 
-                Image(decorative: Asset.Images.trash)
+                Image(decorative: Asset.Images.trash16)
                     .imageStyle(.accessoryIcon(scaleWithFont: true))
 
                 Text(Localizations.declineAllRequests)
@@ -69,7 +69,9 @@ struct PendingRequestsView: View {
     /// The empty view.
     private var empty: some View {
         VStack(spacing: 20) {
-            Image(decorative: Asset.Images.pendingLoginRequestsEmpty)
+            Image(decorative: Asset.Images.Illustrations.devices)
+                .resizable()
+                .frame(width: 100, height: 100)
 
             Text(Localizations.noPendingRequests)
                 .styleGuide(.body)
@@ -114,7 +116,7 @@ struct PendingRequestsView: View {
 
                     Text(pendingRequest.fingerprintPhrase ?? "")
                         .styleGuide(.caption2Monospaced)
-                        .foregroundStyle(Asset.Colors.fingerprint.swiftUIColor)
+                        .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .accessibilityIdentifier("FingerprintPhraseValue")
@@ -141,7 +143,7 @@ struct PendingRequestsView: View {
                 }
             }
         }
-        .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityIdentifier("LoginRequestCell")
     }
 }

@@ -32,7 +32,7 @@ struct PasswordHintView: View {
             }
             .padding(16)
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.passwordHint)
         .toolbar {
             cancelToolbarItem {

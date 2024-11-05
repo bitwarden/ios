@@ -194,6 +194,8 @@ extension LinkedIdType {
             ]
         case .secureNote:
             []
+        case .sshKey:
+            []
         }
     }
 }

@@ -36,7 +36,7 @@ struct VaultListItemRowView: View {
                                     .accessibilityIdentifier("CipherNameLabel")
 
                                 if cipherItem.organizationId != nil {
-                                    Asset.Images.collections.swiftUIImage
+                                    Asset.Images.collections16.swiftUIImage
                                         .imageStyle(.accessoryIcon(
                                             color: Asset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true
@@ -46,7 +46,7 @@ struct VaultListItemRowView: View {
                                 }
 
                                 if cipherItem.attachments?.isEmpty == false {
-                                    Asset.Images.paperclip.swiftUIImage
+                                    Asset.Images.paperclip16.swiftUIImage
                                         .imageStyle(.accessoryIcon(
                                             color: Asset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true
@@ -81,7 +81,7 @@ struct VaultListItemRowView: View {
                             AsyncButton {
                                 await store.perform(.morePressed)
                             } label: {
-                                Asset.Images.horizontalKabob.swiftUIImage
+                                Asset.Images.ellipsisHorizontal24.swiftUIImage
                                     .imageStyle(.rowIcon)
                             }
                             .accessibilityLabel(Localizations.more)
@@ -151,11 +151,11 @@ struct VaultListItemRowView: View {
                         store.send(.copyTOTPCode(model.totpCode.code))
                     }
                 } label: {
-                    Asset.Images.copy.swiftUIImage
+                    Asset.Images.copy24.swiftUIImage
                 }
-                .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
+                .foregroundColor(Asset.Colors.iconPrimary.swiftUIColor)
                 .accessibilityLabel(Localizations.copyTotp)
-            }
+            }            
         }
     }
 }

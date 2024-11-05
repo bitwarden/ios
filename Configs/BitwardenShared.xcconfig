@@ -1,4 +1,0 @@
-#include "./Common.xcconfig"
-#include? "./Local.xcconfig"
-
-PRODUCT_BUNDLE_IDENTIFIER = $(BASE_BUNDLE_ID).bitwarden-shared

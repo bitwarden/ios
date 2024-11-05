@@ -17,22 +17,39 @@ options:
 settings:
   MARKETING_VERSION: 2024.6.0    # Bump this for a new version update.
   CURRENT_PROJECT_VERSION: 1
+include:
+  - path: Configs/local-sdk.yml
+    relativePaths: false
+    enable: ${LOCAL_SDK}
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: aee1a04b2b14bd23c8d1284b3667ff10f57e41d2
+    revision: a0d9312fc1fc63f146064dae88b0a39cbaf7e0c5
+    branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.24.0
   Networking:
     path: Networking
+  SwiftUIIntrospect:
+    url: https://github.com/siteline/SwiftUI-Introspect
+    exactVersion: 1.3.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.15.4
+    exactVersion: 1.17.5
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.9.10
+    exactVersion: 0.10.0
 schemes:
+  AuthenticatorBridgeKit:
+    build:
+      targets:
+        AuthenticatorBridgeKit: all
+        AuthenticatorBridgeKitTests: [test]
+    test:
+      gatherCoverageData: true
+      targets:
+        - AuthenticatorBridgeKitTests
   Bitwarden:
     build:
       targets:
@@ -47,12 +64,14 @@ schemes:
       language: en
       region: US
       coverageTargets:
+        - AuthenticatorBridgeKit
         - Bitwarden
         - BitwardenActionExtension
         - BitwardenAutoFillExtension
         - BitwardenShareExtension
         - BitwardenShared
       targets:
+        - AuthenticatorBridgeKitTests
         - BitwardenTests
         - BitwardenActionExtensionTests
         - BitwardenAutoFillExtensionTests
@@ -122,6 +141,33 @@ schemes:
       targets:
         BitwardenWatchWidgetExtension: all
 targets:
+  AuthenticatorBridgeKit:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/AuthenticatorBridgeKit.xcconfig
+      Release: Configs/AuthenticatorBridgeKit.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: AuthenticatorBridgeKit/Info.plist
+    sources:
+      - path: AuthenticatorBridgeKit
+        excludes:
+          - "**/Tests/*"
+  AuthenticatorBridgeKitTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: AuthenticatorBridgeKit/Tests/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorBridgeKit
+        includes:
+          - "**/Tests/*"
+    dependencies:
+      - target: AuthenticatorBridgeKit
+    randomExecutionOrder: true
   Bitwarden:
     type: application
     platform: iOS
@@ -151,6 +197,7 @@ targets:
       - path: swiftgen.yml
         buildPhase: none
     dependencies:
+      - target: AuthenticatorBridgeKit
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
@@ -203,6 +250,7 @@ targets:
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
+      - target: AuthenticatorBridgeKit
       - target: Bitwarden
       - target: BitwardenShared
       - package: SnapshotTesting
@@ -321,13 +369,14 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs/BitwardenShared.xcconfig
-      Release: Configs/BitwardenShared.xcconfig
+      Debug: Configs/BitwardenShared-Debug.xcconfig
+      Release: Configs/BitwardenShared-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
         DEVELOPMENT_ASSET_PATHS: 
           - BitwardenShared/UI/Auth/PreviewContent
+          - BitwardenShared/UI/Platform/PreviewContent
           - BitwardenShared/UI/Tools/PreviewContent
           - BitwardenShared/UI/Vault/PreviewContent
         INFOPLIST_FILE: BitwardenShared/UI/Platform/Application/Support/Info.plist
@@ -344,12 +393,16 @@ targets:
         buildPhase: none
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
         optional: true
+      - path: BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
+        optional: true
       - path: BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
         optional: true
       - path: BitwardenWatchShared
     dependencies:
+      - target: AuthenticatorBridgeKit
       - package: BitwardenSdk
       - package: Networking
+      - package: SwiftUIIntrospect
     preBuildScripts:
       - name: SwiftGen
         script: |
@@ -360,6 +413,7 @@ targets:
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Assets.swift
+          - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Fonts.swift
           - $(SRCROOT)/BitwardenShared/UI/Platform/Application/Support/Generated/Localizations.swift
   BitwardenSharedTests:
     type: bundle.unit-test

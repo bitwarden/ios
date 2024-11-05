@@ -16,7 +16,7 @@ struct FoldersView: View {
         VStack(alignment: .leading, spacing: 16) {
             if store.state.folders.isEmpty {
                 empty
-                    .background(Color(asset: Asset.Colors.backgroundSecondary))
+                    .background(Color(asset: Asset.Colors.backgroundPrimary))
             } else {
                 folders
                     .scrollView()
@@ -28,13 +28,21 @@ struct FoldersView: View {
                 store.send(.add)
             }
         }
+        .overlay(alignment: .bottomTrailing) {
+            addItemFloatingActionButton {
+                store.send(.add)
+            }
+        }
         .task {
             await store.perform(.streamFolders)
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: FoldersAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: FoldersAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
     }
 
     // MARK: Private views
@@ -73,5 +81,26 @@ struct FoldersView: View {
             }
         }
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
     }
 }
+
+#if DEBUG
+#Preview {
+    FoldersView(
+        store: Store(
+            processor: StateProcessor(
+                state: .init(
+                    folders: (1 ... 12).map { id in
+                        .init(
+                            id: String(id),
+                            name: "Test Folder",
+                            revisionDate: .now
+                        )
+                    }
+                )
+            )
+        )
+    )
+}
+#endif

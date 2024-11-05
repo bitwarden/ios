@@ -167,7 +167,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_notesTextField_updateValue() throws {
         let textField = try subject.inspect().find(
-            type: BitwardenMultilineTextFieldType.self,
+            type: BitwardenUITextViewType.self,
             accessibilityLabel: Localizations.notes
         )
         try textField.inputBinding().wrappedValue = "text"
@@ -796,7 +796,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_previews_addEditItemView() {
         for preview in AddEditItemView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [
                     .tallPortrait,
                     .tallPortraitAX5(heightMultiple: 5),
@@ -804,5 +804,70 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 ]
             )
         }
+    }
+
+    /// Snapshots the previews for SSH key type.
+    @MainActor
+    func test_snapshot_sshKey() {
+        processor.state = sshKeyCipherItemState(
+            canViewPrivateKey: true,
+            isPrivateKeyVisible: false
+        )
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// Snapshots the previews for SSH key type when private key is visible.
+    @MainActor
+    func test_snapshot_sshKeyPrivateKeyVisible() {
+        processor.state = sshKeyCipherItemState(
+            canViewPrivateKey: true,
+            isPrivateKeyVisible: true
+        )
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// Snapshots the previews for SSH key type when `canViewPrivateKey` is `false`.
+    @MainActor
+    func test_snapshot_sshKeyCantViewPrivateKey() {
+        processor.state = sshKeyCipherItemState(
+            canViewPrivateKey: false,
+            isPrivateKeyVisible: false
+        )
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    // MARK: Private
+
+    /// Creates a `CipherItemState` for an SSH key item.
+    /// - Parameters:
+    ///   - canViewPrivateKey: Whether the private key can be viewed.
+    ///   - isPrivateKeyVisible: Whether the private key is visible.
+    /// - Returns: The `CipherItemState` for SSH key item.
+    private func sshKeyCipherItemState(canViewPrivateKey: Bool, isPrivateKeyVisible: Bool) -> CipherItemState {
+        var state = CipherItemState(
+            existing: .fixture(
+                id: "fake-id"
+            ),
+            hasPremium: true
+        )!
+        state.name = "Example"
+        state.type = .sshKey
+        state.sshKeyState = SSHKeyItemState(
+            canViewPrivateKey: canViewPrivateKey,
+            isPrivateKeyVisible: isPrivateKeyVisible,
+            privateKey: "ajsdfopij1ZXCVZXC12312QW",
+            publicKey: "ssh-ed25519 AAAAA/asdjfoiwejrpo23323j23ASdfas",
+            keyFingerprint: "SHA-256:2qwer233ADJOIq1adfweqe21321qw"
+        )
+        return state
     }
 } // swiftlint:disable:this file_length

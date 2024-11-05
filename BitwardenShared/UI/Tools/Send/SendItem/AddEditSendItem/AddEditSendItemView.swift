@@ -14,6 +14,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
+    /// The height of the notes textfield
+    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
+
+    /// The height of the text send attributes textfield
+    @SwiftUI.State private var textSendDynamicHeight: CGFloat = 28
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -49,7 +55,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             profileSwitcher
         }
         .dismissKeyboardInteractively()
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
             title: store.state.mode.navigationTitle,
             titleDisplayMode: .inline
@@ -291,7 +297,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         store.send(.clearExpirationDatePressed)
                     }
                     .accessibilityIdentifier("Clear")
-                    .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    .tint(Asset.Colors.textInteraction.swiftUIColor)
                     .accessibilityIdentifier("SendClearExpirationDateButton")
                 }
             }
@@ -392,14 +398,20 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
         .textFieldConfiguration(.password)
 
-        BitwardenMultilineTextField(
+        BitwardenField(
             title: Localizations.notes,
-            text: store.binding(
-                get: \.notes,
-                send: AddEditSendItemAction.notesChanged
-            ),
             footer: Localizations.notesInfo
-        )
+        ) {
+            BitwardenUITextView(
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditSendItemAction.notesChanged
+                ),
+                calculatedHeight: $notesDynamicHeight
+            )
+            .frame(minHeight: notesDynamicHeight)
+            .accessibilityLabel(Localizations.notes)
+        }
 
         Toggle(Localizations.hideEmail, isOn: store.binding(
             get: \.isHideMyEmailOn,
@@ -426,12 +438,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 Text(Localizations.options)
                     .styleGuide(.body)
 
-                Asset.Images.downAngle.swiftUIImage
+                Asset.Images.chevronDown16.swiftUIImage
                     .imageStyle(.accessoryIcon)
                     .rotationEffect(store.state.isOptionsExpanded ? Angle(degrees: 180) : .zero)
             }
             .padding(.vertical, 12)
-            .foregroundStyle(Asset.Colors.primaryBitwarden.swiftUIColor)
+            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
         }
         .accessibilityIdentifier("SendShowHideOptionsButton")
     }
@@ -459,15 +471,21 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
-        BitwardenMultilineTextField(
+        BitwardenField(
             title: Localizations.text,
-            text: store.binding(
-                get: \.text,
-                send: AddEditSendItemAction.textChanged
-            ),
-            footer: Localizations.typeTextInfo,
-            accessibilityIdentifier: "SendTextContentEntry"
-        )
+            footer: Localizations.typeTextInfo
+        ) {
+            BitwardenUITextView(
+                text: store.binding(
+                    get: \.text,
+                    send: AddEditSendItemAction.textChanged
+                ),
+                calculatedHeight: $textSendDynamicHeight
+            )
+            .frame(minHeight: textSendDynamicHeight)
+            .accessibilityLabel(Localizations.text)
+            .accessibilityIdentifier("SendTextContentEntry")
+        }
 
         Toggle(Localizations.hideTextByDefault, isOn: store.binding(
             get: \.isHideTextByDefaultOn,

@@ -12,7 +12,7 @@ struct IntroCarouselView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<IntroCarouselState, IntroCarouselAction, Void>
+    @ObservedObject var store: Store<IntroCarouselState, IntroCarouselAction, IntroCarouselEffect>
 
     // MARK: View
 
@@ -32,8 +32,8 @@ struct IntroCarouselView: View {
             .animation(.default, value: store.state.currentPageIndex)
 
             VStack(spacing: 12) {
-                Button(Localizations.createAccount) {
-                    store.send(.createAccount)
+                AsyncButton(Localizations.createAccount) {
+                    await store.perform(.createAccount)
                 }
                 .buttonStyle(.primary())
 
@@ -60,31 +60,35 @@ struct IntroCarouselView: View {
         @ViewBuilder imageContent: () -> some View,
         @ViewBuilder textContent: () -> some View
     ) -> some View {
-        if verticalSizeClass == .regular {
-            VStack(spacing: 80) {
-                imageContent()
-                textContent()
-            }
-            .padding(.vertical, 16)
-            .frame(maxWidth: .infinity, minHeight: minHeight)
-            .scrollView(addVerticalPadding: false)
-        } else {
-            HStack(alignment: .top, spacing: 40) {
-                VStack(spacing: 0) {
-                    Spacer(minLength: 0)
+        Group {
+            if verticalSizeClass == .regular {
+                VStack(spacing: 80) {
                     imageContent()
-                        .padding(.leading, 36)
-                        .padding(.vertical, 16)
-                    Spacer(minLength: 0)
+                    textContent()
                 }
-                .frame(minHeight: minHeight)
+                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity, minHeight: minHeight)
+            } else {
+                HStack(alignment: .top, spacing: 40) {
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 0)
+                        imageContent()
+                            .padding(.leading, 36)
+                            .padding(.vertical, 16)
+                        Spacer(minLength: 0)
+                    }
+                    .frame(minHeight: minHeight)
 
-                textContent()
-                    .padding(.vertical, 16)
-                    .frame(maxWidth: .infinity, minHeight: minHeight)
-                    .scrollView(addVerticalPadding: false)
+                    textContent()
+                        .padding(.vertical, 16)
+                        .frame(maxWidth: .infinity, minHeight: minHeight)
+                }
             }
         }
+        .scrollView(
+            addVerticalPadding: false,
+            backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor
+        )
     }
 
     /// A view that displays a carousel page.
@@ -95,8 +99,8 @@ struct IntroCarouselView: View {
                 page.image
                     .resizable()
                     .frame(
-                        width: verticalSizeClass == .regular ? 200 : 132,
-                        height: verticalSizeClass == .regular ? 200 : 132
+                        width: verticalSizeClass == .regular ? 152 : 124,
+                        height: verticalSizeClass == .regular ? 152 : 124
                     )
                     .accessibilityHidden(true)
             } textContent: {

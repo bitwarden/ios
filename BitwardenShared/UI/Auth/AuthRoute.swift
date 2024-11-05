@@ -4,6 +4,9 @@ import Foundation
 
 /// A route to a specific screen in the authentication flow.
 public enum AuthRoute: Equatable {
+    /// A route to the autofill setup screen.
+    case autofillSetup
+
     /// A route to the captcha screen.
     case captcha(url: URL, callbackUrlScheme: String)
 
@@ -25,17 +28,20 @@ public enum AuthRoute: Equatable {
     ///    - emailVerificationToken: Token needed to complete registration.
     ///    - userEmail: The user's email.
     ///    - fromEmail: The user opened the app from an email AppLink.
-    ///    - region: Region where the complete registration should happen.
     ///
     case completeRegistrationFromAppLink(
         emailVerificationToken: String,
         userEmail: String,
-        fromEmail: Bool,
-        region: RegionType
+        fromEmail: Bool
     )
 
     /// Dismisses the auth flow becuase the vault was unlocked with the never unlock key.
     case completeWithNeverUnlockKey
+
+    /// Dismisses the auth flow.
+    /// - Parameters:
+    ///   - rehydratableTarget: The target that we want to restore and rehydrate after the vault is unlocked..
+    case completeWithRehydration(_ rehydratableTarget: RehydratableTarget)
 
     /// A route to the create account screen.
     case createAccount
@@ -77,9 +83,11 @@ public enum AuthRoute: Equatable {
 
     /// A route to the login screen.
     ///
-    /// - Parameter username: The username to display on the login screen.
+    /// - Parameters:
+    ///   - username: The username to display on the login screen.
+    ///   - isNewAccount: Whether the user is logging into a newly created account.
     ///
-    case login(username: String)
+    case login(username: String, isNewAccount: Bool = false)
 
     /// A route to the login decryption options screen.
     ///
@@ -103,6 +111,12 @@ public enum AuthRoute: Equatable {
     ///    - isAuthenticated: If the user came from sso and is already authenticated
     ///
     case loginWithDevice(email: String, authRequestType: AuthRequestType, isAuthenticated: Bool)
+
+    /// A route to the generate master password view.
+    case masterPasswordGenerator
+
+    /// A route to the master password guidance view.
+    case masterPasswordGuidance
 
     /// A route to the master password hint screen for the provided username.
     ///
@@ -170,7 +184,7 @@ public enum AuthRoute: Equatable {
     )
 
     /// A route to the vault unlock setup screen.
-    case vaultUnlockSetup
+    case vaultUnlockSetup(AccountSetupFlow)
 
     /// A route to the WebAuthn two factor authentication.
     ///

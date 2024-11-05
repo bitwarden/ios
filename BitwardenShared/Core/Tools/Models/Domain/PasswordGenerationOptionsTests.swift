@@ -23,7 +23,8 @@ class PasswordGenerationOptionsTests: BitwardenTestCase {
           "special": true,
           "type": "passphrase",
           "uppercase": true,
-          "wordSeparator": "-"
+          "wordSeparator": "-",
+          "overridePasswordType": false
         }
         """
         let data = try XCTUnwrap(json.data(using: .utf8))
@@ -45,7 +46,8 @@ class PasswordGenerationOptionsTests: BitwardenTestCase {
                 special: true,
                 type: .passphrase,
                 uppercase: true,
-                wordSeparator: "-"
+                wordSeparator: "-",
+                overridePasswordType: false
             )
         )
     }

@@ -30,4 +30,18 @@ final class CrashlyticsErrorReporter: ErrorReporter {
 
         Crashlytics.crashlytics().record(error: error)
     }
+
+    func setRegion(_ region: String, isPreAuth: Bool) {
+        guard isEnabled else {
+            return
+        }
+        Crashlytics.crashlytics().setCustomValue(region, forKey: isPreAuth ? "PreAuthRegion" : "Region")
+    }
+
+    func setUserId(_ userId: String?) {
+        guard isEnabled else {
+            return
+        }
+        Crashlytics.crashlytics().setUserID(userId)
+    }
 }

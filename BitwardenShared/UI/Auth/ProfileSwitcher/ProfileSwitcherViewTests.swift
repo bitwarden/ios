@@ -42,7 +42,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_accountRow_longPress_currentAccount() throws {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        try accountRow.labelView().callOnLongPressGesture()
+        try accountRow.labelView().recursiveCallOnLongPressGesture()
         let currentAccount = processor.state.activeAccountProfile!
         waitFor(!processor.effects.isEmpty)
 
@@ -54,14 +54,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_accountRow_longPress_currentAccount_noLockOrLogout() throws {
         processor.state.allowLockAndLogout = false
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        XCTAssertThrowsError(try accountRow.labelView().callOnLongPressGesture())
+        XCTAssertThrowsError(try accountRow.labelView().recursiveCallOnLongPressGesture())
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
     @MainActor
     func test_accountRow_tap_currentAccount() throws {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        try accountRow.labelView().callOnTapGesture()
+        try accountRow.labelView().recursiveCallOnTapGesture()
         let currentAccount = processor.state.activeAccountProfile!
         waitFor(!processor.effects.isEmpty)
 
@@ -96,7 +96,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             isVisible: true
         )
         let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try alternateRow.labelView().callOnLongPressGesture()
+        try alternateRow.labelView().recursiveCallOnLongPressGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .accountLongPressed(alternate))
@@ -121,7 +121,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
         _ = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        XCTAssertThrowsError(try alternateRow.labelView().callOnLongPressGesture())
+        XCTAssertThrowsError(try alternateRow.labelView().recursiveCallOnLongPressGesture())
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
@@ -142,7 +142,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try addAccountRow.labelView().callOnTapGesture()
+        try addAccountRow.labelView().recursiveCallOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .accountPressed(alternate))
@@ -169,7 +169,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "")
-        try addAccountRow.labelView().callOnTapGesture()
+        try addAccountRow.labelView().recursiveCallOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .accountPressed(secondAlternate))
@@ -179,7 +179,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_background_tap() throws {
         let view = try subject.inspect().view(ProfileSwitcherView.self)
-        let background = view.first
+        let background = try view.implicitAnyView().first
         try background?.callOnTapGesture()
 
         XCTAssertEqual(processor.dispatchedActions.last, .backgroundPressed)
@@ -236,7 +236,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Snapshots
 
     func test_snapshot_singleAccount() {
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
@@ -267,19 +267,19 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_multiAccount_unlocked_atMaximum() {
         processor.state = ProfileSwitcherState.maximumAccounts
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_multiAccount_unlocked_atMaximum_largeText() {
         processor.state = ProfileSwitcherState.maximumAccounts
-        assertSnapshot(matching: subject, as: .defaultPortraitAX5)
+        assertSnapshot(of: subject, as: .defaultPortraitAX5)
     }
 
     @MainActor
@@ -310,7 +310,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
@@ -347,14 +347,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             allowLockAndLogout: true,
             isVisible: true
         )
-        assertSnapshot(matching: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the ProfileSwitcherView previews.
     func test_snapshot_profileSwitcherView_previews() {
         for preview in ProfileSwitcherView_Previews._allPreviews {
             assertSnapshots(
-                matching: preview.content,
+                of: preview.content,
                 as: [.defaultPortrait]
             )
         }
