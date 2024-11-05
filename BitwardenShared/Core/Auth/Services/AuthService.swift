@@ -593,7 +593,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         // Save the master password hash.
         try await saveMasterPasswordHash(password: masterPassword)
 
-        try await checkMasterPasswordPolicies(masterPassword, false, username, token.masterPasswordPolicy)
+        try await checkMasterPasswordPolicies(
+            isPreAuth: false,
+            masterPassword: masterPassword,
+            masterPasswordPolicy: token.masterPasswordPolicy,
+            username: username
+        )
 
         if isNewAccount, await configService.getFeatureFlag(.nativeCreateAccountFlow) {
             do {
@@ -618,10 +623,10 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///  - masterPasswordPolicy: The master password policies that the org has active.
     ///
     private func checkMasterPasswordPolicies(
-        _ masterPassword: String,
-        _ isPreAuth: Bool,
-        _ username: String,
-        _ masterPasswordPolicy: MasterPasswordPolicyResponseModel?
+        isPreAuth: Bool,
+        masterPassword: String,
+        masterPasswordPolicy: MasterPasswordPolicyResponseModel?,
+        username: String
     ) async throws {
         var policy: MasterPasswordPolicyOptions?
         if let model = masterPasswordPolicy {
@@ -907,7 +912,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                 // Form the resend email request in case the user needs to resend the verification code email.
                 var passwordHash: String?
                 if case let .password(_, password) = request?.authenticationMethod { passwordHash = password
-                    try await checkMasterPasswordPolicies(masterPassword!, true, email, masterPasswordPolicyResponseModel)
+                    try await checkMasterPasswordPolicies(
+                        isPreAuth: true,
+                        masterPassword: masterPassword!,
+                        masterPasswordPolicy: masterPasswordPolicyResponseModel,
+                        username: email
+                    )
                 }
                 resendEmailModel = .init(
                     deviceIdentifier: appID,
