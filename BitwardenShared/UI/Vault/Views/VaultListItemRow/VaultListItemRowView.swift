@@ -155,7 +155,7 @@ struct VaultListItemRowView: View {
                 }
                 .foregroundColor(Asset.Colors.iconPrimary.swiftUIColor)
                 .accessibilityLabel(Localizations.copyTotp)
-            }            
+            }
         }
     }
 }

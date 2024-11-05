@@ -294,7 +294,8 @@ private struct VaultAutofillListSearchableView: View {
                         searchText: "Test"
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
@@ -412,4 +413,4 @@ private struct VaultAutofillListSearchableView: View {
         )
     }
 }
-#endif
+#endif // swiftlint:disable:this file_length

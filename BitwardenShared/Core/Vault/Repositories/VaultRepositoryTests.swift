@@ -519,10 +519,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(
                 id: "1",
                 login: .fixture(
-                    uris: [.fixture(
-                        uri: "https://bitwarden.com",
-                        match: .exact
-                    )]
+                    uris: [
+                        .fixture(
+                            uri: "https://bitwarden.com",
+                            match: .exact
+                        ),
+                    ]
                 ),
                 name: "Bitwarden"
             ),
@@ -530,10 +532,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 creationDate: Date(year: 2024, month: 1, day: 1),
                 id: "2",
                 login: .fixture(
-                    uris: [.fixture(
-                        uri: "https://example.com",
-                        match: .exact
-                    )],
+                    uris: [
+                        .fixture(
+                            uri: "https://example.com",
+                            match: .exact
+                        ),
+                    ],
                     totp: "123"
                 ),
                 name: "Example",

@@ -22,7 +22,7 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// Whether the extension mode is preparing for autofill from Fido2 list.
     var isAutofillingFido2List: Bool = false
-    
+
     /// Whether the extension mode is preparing for autofill from Totp items.
     var isAutofillingTotpList: Bool = false
 
@@ -46,7 +46,7 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// The list of sections to display for matching vault items.
     var vaultListSections = [VaultListSection]()
-    
+
     /// Whether to show the add item button.
     var showAddItemButton: Bool {
         !isAutofillingFido2List && !isAutofillingTotpList

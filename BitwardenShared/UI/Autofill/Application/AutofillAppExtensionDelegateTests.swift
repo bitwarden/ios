@@ -58,7 +58,7 @@ class AutofillAppExtensionDelegateTests: BitwardenTestCase {
     @MainActor
     func test_isAutofillingOTP_true() async throws {
         subject.extensionMode = .autofillOTP([])
-        XCTAssertFalse(subject.isAutofillingOTP)
+        XCTAssertTrue(subject.isAutofillingOTP)
     }
 
     /// `getter:isAutofillingOTP`  returns `false`
