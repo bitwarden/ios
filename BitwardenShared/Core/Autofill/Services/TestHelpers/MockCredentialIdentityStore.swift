@@ -75,7 +75,6 @@ enum CredentialIdentity: Equatable {
                 recordIdentifier: passkeyIdentity.recordIdentifier
             )
         default:
-            #if compiler(>=6)
             if #available(iOS 18, *), case let .oneTimeCode(oneTimeCodeIdentity) = self {
                 return ASOneTimeCodeCredentialIdentity(
                     serviceIdentifier: ASCredentialServiceIdentifier(
@@ -88,9 +87,6 @@ enum CredentialIdentity: Equatable {
             } else {
                 return nil
             }
-            #else
-            return nil
-            #endif
         }
     }
 
@@ -106,15 +102,11 @@ enum CredentialIdentity: Equatable {
         case let passkeyIdentity as ASPasskeyCredentialIdentity:
             self = .passkey(PasskeyCredentialIdentity(passkeyIdentity))
         default:
-            #if compiler(>=6)
             if #available(iOS 18, *), let oneTimeCodeIdentity = identity as? ASOneTimeCodeCredentialIdentity {
                 self = .oneTimeCode(OneTimeCodeCredentialIdentity(oneTimeCodeIdentity))
             } else {
                 return nil
             }
-            #else
-            return nil
-            #endif
         }
     }
 }
@@ -164,7 +156,6 @@ struct OneTimeCodeCredentialIdentity: Equatable {
     let serviceIdentifier: String
 }
 
-#if compiler(>=6)
 extension OneTimeCodeCredentialIdentity {
     @available(iOS 18.0, *)
     init(_ identity: ASOneTimeCodeCredentialIdentity) {
@@ -173,4 +164,3 @@ extension OneTimeCodeCredentialIdentity {
         serviceIdentifier = identity.serviceIdentifier.identifier
     }
 }
-#endif

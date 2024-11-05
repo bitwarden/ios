@@ -453,7 +453,6 @@ private extension CipherView {
         )
     }
 
-    #if compiler(>=6)
     @available(iOSApplicationExtension 18.0, *)
     var oneTimeCodeCredentialIdentity: ASCredentialIdentity? {
         guard let serviceIdentifier = serviceIdentifierFromLoginUris,
@@ -467,12 +466,6 @@ private extension CipherView {
             recordIdentifier: id
         )
     }
-    #else
-    @available(iOSApplicationExtension 17.0, *)
-    var oneTimeCodeCredentialIdentity: ASCredentialIdentity? {
-        nil
-    }
-    #endif
 
     /// Gets the service identifier based on the first login uri, if there's one.
     var serviceIdentifierFromLoginUris: ASCredentialServiceIdentifier? {

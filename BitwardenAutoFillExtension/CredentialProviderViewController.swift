@@ -217,14 +217,12 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
 // MARK: - iOS 18
 
-#if compiler(>=6)
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 18.0, *)
     override func prepareOneTimeCodeCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
         initializeApp(with: DefaultCredentialProviderContext(.autofillOTP(serviceIdentifiers)))
     }
 }
-#endif
 
 // MARK: - AppExtensionDelegate
 
@@ -264,12 +262,10 @@ extension CredentialProviderViewController: AppExtensionDelegate {
         extensionContext.completeRequest(withSelectedCredential: passwordCredential)
     }
 
-    #if compiler(>=6)
     @available(iOSApplicationExtension 18.0, *)
     func completeOTPRequest(code: String) {
         extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: code))
     }
-    #endif
 
     func didCancel() {
         cancel()

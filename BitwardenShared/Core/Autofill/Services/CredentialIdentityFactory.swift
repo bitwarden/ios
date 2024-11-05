@@ -72,7 +72,6 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
             return nil
         }
 
-        #if compiler(>=6)
         guard let serviceIdentifier = createServiceIdentifierFromFirstLoginUri(of: cipher),
               cipher.login?.totp != nil else {
             return nil
@@ -83,9 +82,5 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
             label: cipher.name,
             recordIdentifier: cipher.id
         )
-
-        #else
-        return nil
-        #endif
     }
 }
