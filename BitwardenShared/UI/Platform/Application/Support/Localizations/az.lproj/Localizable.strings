@@ -1049,8 +1049,13 @@
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Hesab tapılmadı. Bu xətanı görməyə davam etsəniz lütfən yenidən giriş edin.";
 "ImportError" = "Daxilə köçürmə xətası";
 "NoLoginsWereImported" = "Heç bir giriş daxilə köçürülmədi";
-"ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
+"ThisIsNotARecognizedServerDescriptionLong" = "Bu, bilinən Bitwarden serveri deyil. Provayderinizi yoxlamağınız və ya serverinizi güncəlləməyiniz lazım gələ bilər.";
 "LoginsImported" = "Girişlər daxilə köçürüldü";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Kompüterinizdən daxilə köçürdüyünüz parol faylını silməyi unutmayın.";
 "SomethingWentWrong" = "Nəsə səhv getdi";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Seçilmiş element daşına bilmir. Lütfən yenidən sınayın.";
+"Done" = "Bitdi";
+"CopyPublicKey" = "Public açarı kopyala";
+"CopyPrivateKey" = "Private açarı kopyala";
+"CopyFingerprint" = "Barmaq izini kopyala";
+"SSHKeys" = "SSH keys";

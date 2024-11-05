@@ -84,7 +84,7 @@
 "AppExtension" = "செயலி நீட்டிப்பு";
 "AutofillAccessibilityDescription" = "செயலிகள் மற்றும் இணையம் முழுதுமுள்ள உமது உள்நுழைவுகளைத் தன்னிரப்ப Bitwarden அணுகல்தன்மை சேவையைப் பயன்படுத்து.";
 "AutofillService" = "தன்னிரப்பி சேவை";
-"SetBitwardenAsPasskeyManagerDescription" = "Set Bitwarden as your passkey provider in device settings.";
+"SetBitwardenAsPasskeyManagerDescription" = "Bitwarden-ஐ உமது கடவுவிசை வழங்குநராகச் சாதன அமைவுகளில் அமை.";
 "AvoidAmbiguousCharacters" = "தெளிவற்ற எழுத்துக்களைத் தவிர்";
 "BitwardenAppExtension" = "Bitwarden செயலி நீட்டிப்பு";
 "BitwardenAppExtensionAlert2" = "உம் பெட்டகத்திற்கு புதிய உள்நுழைவுகளைச் சேர்ப்பதற்கான மிக எளிய வழி பிட்வார்டன் செயலி நீட்டிப்பிலிருந்தே. \"அமைப்புகள்\" திரைக்குச் சென்று பிட்வார்டன் செயலி நீட்டிப்பைப் பயன்படுத்துவது பற்றி மேலுமறிக.";
@@ -528,7 +528,7 @@
 "TermsOfService" = "சேவை விதிமுறைகள்";
 "PrivacyPolicy" = "தனியுரிமை கொள்கை";
 "AccessibilityDrawOverPermissionAlert" = "Bitwardenக்கு கவனம் தேவை - Bitwarden அமைப்புகளிலிருந்து \"தன்னிரப்பி சேவைகள்\"-இல் \"மேலே-வரைதல்\"-ஐ இயக்குக";
-"PasskeyManagement" = "Passkey management";
+"PasskeyManagement" = "கடவுவிசை நிர்வகிப்பு";
 "AutofillServices" = "தன்னிரப்பி சேவைகள்";
 "InlineAutofill" = "உள்ளக தன்னிரப்பி பயன்படுத்து";
 "InlineAutofillDescription" = "உம் தேர்ந்தெடுத்த IME (விசைப்பலகை) ஆதரித்தால் உள்வரி தன்னிரப்பி பயன்படுத்துக. உம் உள்ளமைவு ஆதரிக்கப்படவில்லையெனில் (அ இவ்விருப்பம் முடங்கியிருப்பின்), இயல்பிருப்பு தன்னிரப்பி மேலடுக்கு பயன்படுத்தப்படும்.";
@@ -1026,7 +1026,7 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "You’ll delete this file after import is complete.";
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
 "LogInToBitwarden" = "Log in to Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Log in to the Bitwarden web app.**";
 "ImportLoginsToBitwarden" = "Import logins to Bitwarden";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "In the Bitwarden navigation, **find the Tools option** and **select Import data.**";
@@ -1039,7 +1039,7 @@
 "DownloadTheBrowserExtension" = "Download the browser extension";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Go to bitwarden.com/download to integrate Bitwarden into your favorite browser for a seamless experience.";
 "UseTheWebApp" = "Use the web app";
-"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings";
+"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings.";
 "AutofillPasswords" = "Autofill passwords";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
 "GotIt" = "Got it";
@@ -1055,3 +1055,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
+"Done" = "Done";
+"CopyPublicKey" = "Copy public key";
+"CopyPrivateKey" = "Copy private key";
+"CopyFingerprint" = "Copy fingerprint";
+"SSHKeys" = "SSH keys";
