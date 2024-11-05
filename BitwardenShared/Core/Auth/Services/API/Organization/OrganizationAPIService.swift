@@ -23,10 +23,10 @@ protocol OrganizationAPIService {
     ///
     func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse
 
-    /// Checks for the verfied organization domains of an email for single sign on purposes.
+    /// Checks for the verified organization domains of an email for single sign on purposes.
     /// - Parameter email: The user's email address
     /// - Returns: A `SingleSignOnDomainsVerifiedResponse` with the verified domains list.
-    func getSingleSignOnVerifiedDomainsBy(email: String) async throws -> SingleSignOnDomainsVerifiedResponse
+    func getSingleSignOnVerifiedDomains(email: String) async throws -> SingleSignOnDomainsVerifiedResponse
 }
 
 extension APIService: OrganizationAPIService {
@@ -42,7 +42,7 @@ extension APIService: OrganizationAPIService {
         try await apiUnauthenticatedService.send(SingleSignOnDetailsRequest(email: email))
     }
 
-    func getSingleSignOnVerifiedDomainsBy(email: String) async throws -> SingleSignOnDomainsVerifiedResponse {
+    func getSingleSignOnVerifiedDomains(email: String) async throws -> SingleSignOnDomainsVerifiedResponse {
         try await apiUnauthenticatedService.send(SingleSignOnDomainsVerifiedRequest(email: email))
     }
 }

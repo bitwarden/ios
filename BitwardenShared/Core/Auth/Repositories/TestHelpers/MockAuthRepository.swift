@@ -167,7 +167,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         )
     }
 
-    func getSingleSignOnOrganizationIdentifierBy(email: String) async throws -> String? {
+    func getSingleSignOnOrganizationIdentifier(email: String) async throws -> String? {
         try getSSOOrganizationIdentifierByResult.get()
     }
 

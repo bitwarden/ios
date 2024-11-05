@@ -66,7 +66,7 @@ protocol AuthRepository: AnyObject {
     /// Gets the organization identifier by email for the single sign on process.
     /// - Parameter email: The email to get the organization identifier.
     /// - Returns: The organization identifier, if any that complies with verified domains. Also `nil` if empty.
-    func getSingleSignOnOrganizationIdentifierBy(email: String) async throws -> String?
+    func getSingleSignOnOrganizationIdentifier(email: String) async throws -> String?
 
     /// Check if the user has a master password
     ///
@@ -570,7 +570,7 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func getSingleSignOnOrganizationIdentifierBy(email: String) async throws -> String? {
+    func getSingleSignOnOrganizationIdentifier(email: String) async throws -> String? {
         guard !email.isEmpty else {
             return nil
         }
@@ -589,7 +589,7 @@ extension DefaultAuthRepository: AuthRepository {
             return organizationIdentifier
         }
 
-        let verifiedDomainsResponse = try await organizationAPIService.getSingleSignOnVerifiedDomainsBy(email: email)
+        let verifiedDomainsResponse = try await organizationAPIService.getSingleSignOnVerifiedDomains(email: email)
         return verifiedDomainsResponse.verifiedDomains?.first?.organizationIdentifier?.nilIfEmpty
     }
 

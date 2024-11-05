@@ -73,11 +73,11 @@ class OrganizationAPIServiceTests: BitwardenTestCase {
         )
     }
 
-    /// `getSingleSignOnVerifiedDomainsBy(email:)` successfully decodes the single sign on verified domains response.
-    func test_getSingleSignOnVerifiedDomainsBy() async throws {
+    /// `getSingleSignOnVerifiedDomains(email:)` successfully decodes the single sign on verified domains response.
+    func test_getSingleSignOnVerifiedDomains() async throws {
         client.result = .httpSuccess(testData: .singleSignOnDomainsVerified)
 
-        let response = try await subject.getSingleSignOnVerifiedDomainsBy(email: "example@email.com")
+        let response = try await subject.getSingleSignOnVerifiedDomains(email: "example@email.com")
 
         XCTAssertEqual(
             response,

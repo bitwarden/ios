@@ -13,8 +13,6 @@ struct SingleSignOnDomainsVerifiedResponse: JSONResponse, Equatable {
         case verifiedDomains = "data"
     }
 
-    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
-
     // MARK: Properties
 
     /// The verified domains for the organization single sign on.

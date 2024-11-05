@@ -141,7 +141,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
 
         // Get the single sign on details for the user.
         do {
-            if let organizationIdentifier = try await services.authRepository.getSingleSignOnOrganizationIdentifierBy(
+            if let organizationIdentifier = try await services.authRepository.getSingleSignOnOrganizationIdentifier(
                 email: state.email
             ) {
                 state.identifierText = organizationIdentifier
