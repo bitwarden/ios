@@ -130,3 +130,5 @@
 "LocalCodes" = "Local codes";
 "AccountsSyncedFromBitwardenApp" = "Accounts synced from Bitwarden app";
 "MoveToBitwarden" = "Move to Bitwarden";
+"AddCodeToBitwarden" = "Add code to Bitwarden";
+"AddCodeLocally" = "Add code locally";

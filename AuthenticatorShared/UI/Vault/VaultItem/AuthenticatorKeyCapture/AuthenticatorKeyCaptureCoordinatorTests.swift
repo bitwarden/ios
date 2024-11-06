@@ -47,14 +47,29 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.addManual` instructs the delegate that the capture flow has
-    /// completed.
+    /// completed. Passing `false` to `sendToBitwarden` passes `false` to the delegate.
     func test_navigateTo_addManual() {
+        delegate.didCompleteManualCaptureSendToBitwarden = true
         let name = "manual name"
         let entry = "manuallyManagedMagic"
-        subject.navigate(to: .addManual(key: entry, name: name))
+        subject.navigate(to: .addManual(key: entry, name: name, sendToBitwarden: false))
         XCTAssertTrue(delegate.didCompleteManualCaptureCalled)
         XCTAssertEqual(delegate.didCompleteManualCaptureKey, entry)
         XCTAssertEqual(delegate.didCompleteManualCaptureName, name)
+        XCTAssertFalse(delegate.didCompleteManualCaptureSendToBitwarden)
+        XCTAssertNotNil(delegate.capturedCaptureCoordinator)
+    }
+
+    /// `navigate(to:)` with `.addManual` instructs the delegate that the capture flow has
+    /// completed. Passing `true` to `sendToBitwarden` passes `true` to the delegate.
+    func test_navigateTo_addManual_sendToBitwarden() {
+        let name = "manual name"
+        let entry = "manuallyManagedMagic"
+        subject.navigate(to: .addManual(key: entry, name: name, sendToBitwarden: true))
+        XCTAssertTrue(delegate.didCompleteManualCaptureCalled)
+        XCTAssertEqual(delegate.didCompleteManualCaptureKey, entry)
+        XCTAssertEqual(delegate.didCompleteManualCaptureName, name)
+        XCTAssertTrue(delegate.didCompleteManualCaptureSendToBitwarden)
         XCTAssertNotNil(delegate.capturedCaptureCoordinator)
     }
 
@@ -237,6 +252,7 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     var didCompleteManualCaptureCalled = false
     var didCompleteManualCaptureKey: String?
     var didCompleteManualCaptureName: String?
+    var didCompleteManualCaptureSendToBitwarden = false
 
     /// A flag to capture a `showCameraScan` call.
     var didRequestCamera: Bool = false
@@ -271,12 +287,14 @@ class MockAuthenticatorKeyCaptureDelegate: AuthenticatorKeyCaptureDelegate {
     func didCompleteManualCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
-        name: String
+        name: String,
+        sendToBitwarden: Bool
     ) {
         didCompleteManualCaptureCalled = true
         capturedCaptureCoordinator = captureCoordinator
         didCompleteManualCaptureKey = key
         didCompleteManualCaptureName = name
+        didCompleteManualCaptureSendToBitwarden = sendToBitwarden
     }
 
     func showCameraScan(

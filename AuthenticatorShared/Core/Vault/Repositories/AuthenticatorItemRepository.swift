@@ -54,6 +54,13 @@ protocol AuthenticatorItemRepository: AnyObject {
     ///
     func refreshTotpCodes(on items: [ItemListItem]) async throws -> [ItemListItem]
 
+    /// Create a temporary shared item based on a `AuthenticatorItemView` for sharing with the PM app.
+    /// This method will store it as a temporary item in the shared store.
+    ///
+    /// - Parameter item: The item to be shared with the PM app
+    ///
+    func saveTemporarySharedItem(_ item: AuthenticatorItemView) async throws
+
     /// Updates an item in the user's storage
     ///
     /// - Parameters:
@@ -80,13 +87,6 @@ protocol AuthenticatorItemRepository: AnyObject {
     /// - Returns: A publisher for the list of a user's items
     ///
     func itemListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[ItemListSection], Error>>
-
-    /// Create a temporary shared item based on a `ItemListItem` for sharing with the PM app. This method will store it
-    /// as a temporary item in the shared store.
-    ///
-    /// - Parameter item: The item to be shared with the PM app
-    ///
-    func saveTemporarySharedItem(_ item: ItemListItem) async throws
 
     /// A publisher for searching a user's cipher objects based on the specified search text and filter type.
     ///
@@ -306,17 +306,15 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         }
     }
 
-    func saveTemporarySharedItem(_ item: ItemListItem) async throws {
-        guard case let .totp(model) = item.itemType else { return }
-
+    func saveTemporarySharedItem(_ item: AuthenticatorItemView) async throws {
         try await sharedItemService.insertTemporaryItem(AuthenticatorBridgeItemDataView(
             accountDomain: nil,
             accountEmail: nil,
             favorite: false,
             id: item.id,
             name: item.name,
-            totpKey: model.itemView.totpKey,
-            username: item.accountName
+            totpKey: item.totpKey,
+            username: item.username
         ))
     }
 

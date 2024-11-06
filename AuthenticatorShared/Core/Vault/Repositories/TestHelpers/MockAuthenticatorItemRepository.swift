@@ -28,7 +28,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
 
     var searchItemListSubject = CurrentValueSubject<[ItemListItem], Error>([])
 
-    var tempItem: ItemListItem?
+    var tempItem: AuthenticatorItemView?
     var tempItemErrorToThrow: Error?
 
     var timeProvider: TimeProvider = MockTimeProvider(.currentTime)
@@ -67,7 +67,7 @@ class MockAuthenticatorItemRepository: AuthenticatorItemRepository {
         return try refreshTotpCodesResult.get()
     }
 
-    func saveTemporarySharedItem(_ item: ItemListItem) async throws {
+    func saveTemporarySharedItem(_ item: AuthenticatorItemView) async throws {
         if let tempItemErrorToThrow {
             throw tempItemErrorToThrow
         }

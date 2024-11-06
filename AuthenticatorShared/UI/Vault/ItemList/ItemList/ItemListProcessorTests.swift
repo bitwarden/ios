@@ -279,12 +279,13 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     func test_perform_moveToBitwardenPressed_localItem() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = true
-        let localItem = ItemListItem.fixture()
+        let expected = AuthenticatorItemView.fixture()
+        let localItem = ItemListItem.fixture(totp: .fixture(itemView: expected))
 
         await subject.perform(.moveToBitwardenPressed(localItem))
 
         waitFor(authItemRepository.tempItem != nil)
-        XCTAssertEqual(authItemRepository.tempItem, localItem)
+        XCTAssertEqual(authItemRepository.tempItem, expected)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
     }
 
@@ -640,6 +641,90 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         }
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
+    }
+
+    /// `didCompleteManualCapture` failure
+    func test_didCompleteManualCapture_failure() {
+        totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteManualCapture(captureCoordinator.asAnyCoordinator(),
+                                         key: "1234",
+                                         name: "name",
+                                         sendToBitwarden: false)
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        waitFor(!coordinator.alertShown.isEmpty)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            Alert(
+                title: Localizations.keyReadError,
+                message: nil,
+                alertActions: [
+                    AlertAction(title: Localizations.ok, style: .default),
+                ]
+            )
+        )
+        XCTAssertEqual(authItemRepository.addAuthItemAuthItems, [])
+        XCTAssertNil(subject.state.toast)
+    }
+
+    /// `didCompleteManualCapture` success with a locally saved item
+    func test_didCompleteManualCapture_localSuccess() throws {
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteManualCapture(captureCoordinator.asAnyCoordinator(),
+                                         key: key,
+                                         name: "name",
+                                         sendToBitwarden: false)
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
+        waitFor(subject.state.loadingState != .loading(nil))
+        guard let item = authItemRepository.addAuthItemAuthItems.first
+        else {
+            XCTFail("Unable to get authenticator item")
+            return
+        }
+        XCTAssertEqual(item.name, "name")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+    }
+
+    /// `didCompleteManualCapture` success with `sendToBitwarden` item
+    func test_didCompleteManualCapture_sendToBitwardenSuccess() throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        application.canOpenUrlResponse = true
+        let key = String.otpAuthUriKeyComplete
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        let expected = AuthenticatorItemView.fixture(name: "name", totpKey: key)
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteManualCapture(captureCoordinator.asAnyCoordinator(),
+                                         key: key,
+                                         name: "name",
+                                         sendToBitwarden: true)
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+
+        waitFor(authItemRepository.tempItem != nil)
+        XCTAssertEqual(authItemRepository.tempItem?.totpKey, expected.totpKey)
+        XCTAssertEqual(authItemRepository.tempItem?.name, expected.name)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
     }
 
     /// Tests that the `itemListCardState` is set to `none` if the download card has been closed.

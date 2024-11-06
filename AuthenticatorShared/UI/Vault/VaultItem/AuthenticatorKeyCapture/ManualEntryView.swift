@@ -21,21 +21,48 @@ struct ManualEntryView: View {
                     store.send(.dismissPressed)
                 }
             }
+            .task {
+                await store.perform(.appeared)
+            }
     }
 
     /// A button to trigger an `.addPressed(:)` action.
     ///
     private var addButton: some View {
-        Button(Localizations.addCode) {
+        let title = store.state.isPasswordManagerSyncActive ?
+            Localizations.addCodeLocally :
+            Localizations.addCode
+
+        return Button(title) {
             store.send(
                 ManualEntryAction.addPressed(
                     code: store.state.authenticatorKey,
-                    name: store.state.name
+                    name: store.state.name,
+                    sendToBitwarden: false
                 )
             )
         }
         .buttonStyle(.tertiary())
         .accessibilityIdentifier("ManualEntryAddCodeButton")
+    }
+
+    /// A button to trigger an `.addPressed(:)` action.
+    ///
+    ///
+    @ViewBuilder private var addToBitwardenButton: some View {
+        if store.state.isPasswordManagerSyncActive {
+            Button(Localizations.addCodeToBitwarden) {
+                store.send(
+                    ManualEntryAction.addPressed(
+                        code: store.state.authenticatorKey,
+                        name: store.state.name,
+                        sendToBitwarden: true
+                    )
+                )
+            }
+            .buttonStyle(.primary())
+            .accessibilityIdentifier("ManualEntryAddCodeToBitwardenButton")
+        }
     }
 
     /// The main content of the view.
@@ -61,6 +88,7 @@ struct ManualEntryView: View {
                 )
             )
             .accessibilityIdentifier("ManualEntryKeyField")
+            addToBitwardenButton
             addButton
             footer
         }
@@ -108,6 +136,8 @@ struct ManualEntryView_Previews: PreviewProvider {
 
         var deviceSupportsCamera: Bool = true
 
+        var isPasswordManagerSyncActive: Bool = false
+
         var manualEntryState: ManualEntryState {
             self
         }
@@ -118,6 +148,7 @@ struct ManualEntryView_Previews: PreviewProvider {
     static var previews: some View {
         empty
         textAdded
+        syncActive
     }
 
     @ViewBuilder static var empty: some View {
@@ -141,6 +172,21 @@ struct ManualEntryView_Previews: PreviewProvider {
                         state: PreviewState(
                             authenticatorKey: "manualEntry",
                             name: "Manual Name"
+                        ).manualEntryState
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Text Added")
+    }
+
+    @ViewBuilder static var syncActive: some View {
+        NavigationView {
+            ManualEntryView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: PreviewState(
+                            isPasswordManagerSyncActive: true
                         ).manualEntryState
                     )
                 )

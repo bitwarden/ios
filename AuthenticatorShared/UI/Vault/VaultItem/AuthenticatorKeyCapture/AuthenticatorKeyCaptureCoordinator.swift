@@ -22,14 +22,17 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
     /// Called when the manual key entry flow has been completed.
     ///
     /// - Parameters:
-    ///   - coordinator: The coordinator sending the action.
+    ///   - captureCoordinator: The coordinator sending the action.
     ///   - key: The key the user input.
     ///   - name: The name the user input.
+    ///   - sendToBitwarden: `true` if the code should be sent to the Password Manager app,
+    ///     `false` is it should be stored locally.
     ///
     func didCompleteManualCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
-        name: String
+        name: String,
+        sendToBitwarden: Bool
     )
 
     /// Called when the scan flow requests the scan code screen.
@@ -56,7 +59,9 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
 final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasCameraService
+    typealias Services = HasAuthenticatorItemRepository
+        & HasCameraService
+        & HasConfigService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -121,11 +126,12 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss(completion: {
                 onDismiss?.action()
             })
-        case let .addManual(key: authKey, name: name):
+        case let .addManual(key: authKey, name: name, sendToBitwarden: sendToBitwarden):
             delegate?.didCompleteManualCapture(
                 asAnyCoordinator(),
                 key: authKey,
-                name: name
+                name: name,
+                sendToBitwarden: sendToBitwarden
             )
         case .manualKeyEntry:
             guard let stackNavigator else { return }

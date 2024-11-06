@@ -10,7 +10,9 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     // MARK: Types
 
     /// A typealias for the services required by this processor.
-    typealias Services = HasErrorReporter
+    typealias Services = HasAuthenticatorItemRepository
+        & HasConfigService
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -20,7 +22,7 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     /// The services used by this processor, including camera authorization and error reporting.
     private let services: Services
 
-    // MARK: Intialization
+    // MARK: Initialization
 
     /// Creates a new `ManualEntryProcessor`.
     ///
@@ -41,6 +43,14 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
 
     override func perform(_ effect: ManualEntryEffect) async {
         switch effect {
+        case .appeared:
+            guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
+                  await services.authenticatorItemRepository.isPasswordManagerSyncActive()
+            else {
+                state.isPasswordManagerSyncActive = false
+                break
+            }
+            state.isPasswordManagerSyncActive = true
         case .scanCodePressed:
             await coordinator.handleEvent(.showScanCode, context: nil)
         }
@@ -50,8 +60,8 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
         switch action {
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
-        case let .addPressed(code: authKey, name: name):
-            addItem(key: authKey, name: name)
+        case let .addPressed(code: authKey, name: name, sendToBitwarden: sendToBitwarden):
+            addItem(key: authKey, name: name, sendToBitwarden: sendToBitwarden)
         case let .authenticatorKeyChanged(newKey):
             state.authenticatorKey = newKey
         case let .nameChanged(newName):
@@ -61,13 +71,13 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
 
     /// Adds the item
     ///
-    private func addItem(key: String, name: String) {
+    private func addItem(key: String, name: String, sendToBitwarden: Bool) {
         do {
             try EmptyInputValidator(fieldName: Localizations.service)
                 .validate(input: state.name)
             try EmptyInputValidator(fieldName: Localizations.key)
                 .validate(input: state.authenticatorKey)
-            coordinator.navigate(to: .addManual(key: key, name: name))
+            coordinator.navigate(to: .addManual(key: key, name: name, sendToBitwarden: sendToBitwarden))
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
             return

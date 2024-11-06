@@ -233,20 +233,10 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         }
     }
 
-    /// `saveTemporarySharedItem(_)` doesn't allow shared items to be stored as temporary items
-    func test_saveTemporarySharedItem_sharedItemsIgnored() async throws {
-        let item = ItemListItem.fixtureShared()
-
-        try await subject.saveTemporarySharedItem(item)
-        let result = sharedItemService.tempItem
-
-        XCTAssertNil(result)
-    }
-
     /// `saveTemporarySharedItem(_)` saves a temporary item into the Authenticator Bridge shared store.
     func test_saveTemporarySharedItem_success() async throws {
         let totpKey = "TOTP Key"
-        let item = ItemListItem.fixture(totp: .fixture(itemView: .fixture(totpKey: totpKey)))
+        let item = AuthenticatorItemView.fixture(totpKey: totpKey)
 
         try await subject.saveTemporarySharedItem(item)
         let result = try XCTUnwrap(sharedItemService.tempItem)
@@ -255,12 +245,12 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         XCTAssertEqual(result.id, item.id)
         XCTAssertEqual(result.name, item.name)
         XCTAssertEqual(result.totpKey, totpKey)
-        XCTAssertEqual(result.username, item.accountName)
+        XCTAssertEqual(result.username, item.username)
     }
 
     /// `saveTemporarySharedItem(_)` throws errors received from the `AuthenticatorBridgeItemService`.
     func test_saveTemporarySharedItem_throwsError() async throws {
-        let item = ItemListItem.fixture(totp: .fixture())
+        let item = AuthenticatorItemView.fixture()
         let error = AuthenticatorTestError.example
 
         sharedItemService.errorToThrow = error

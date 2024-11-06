@@ -123,7 +123,8 @@ extension ImportItemsProcessor: AuthenticatorKeyCaptureDelegate {
     func didCompleteManualCapture(
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String,
-        name: String
+        name: String,
+        sendToBitwarden: Bool
     ) {}
 
     func showCameraScan(
