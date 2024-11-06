@@ -21,6 +21,11 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
+    /// The last published active user ID by `activeAccountIdPublisher` in the current process.
+    /// If this is different than the active user ID in the `State`, the active user was likely
+    /// switched in an extension and the main app should update accordingly.
+    var cachedActiveUserId: String? { get }
+
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -816,6 +821,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
+    }
+
+    var cachedActiveUserId: String? {
+        activeAccountIdSubject.value
     }
 
     var disableWebIcons: Bool {

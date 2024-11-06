@@ -13,6 +13,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var appLocale: String?
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
+    var cachedActiveUserId: String?
     var disableWebIcons = false
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
