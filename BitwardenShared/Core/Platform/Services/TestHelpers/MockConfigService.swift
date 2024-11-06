@@ -11,8 +11,11 @@ class MockConfigService: ConfigService {
     var configSubject = CurrentValueSubject<BitwardenShared.MetaServerConfig?, Never>(nil)
     var debugFeatureFlags = [DebugMenuFeatureFlag]()
     var featureFlagsBool = [FeatureFlag: Bool]()
+    var featureFlagsBoolPreAuth = [FeatureFlag: Bool]()
     var featureFlagsInt = [FeatureFlag: Int]()
+    var featureFlagsIntPreAuth = [FeatureFlag: Int]()
     var featureFlagsString = [FeatureFlag: String]()
+    var featureFlagsStringPreAuth = [FeatureFlag: String]()
     var getDebugFeatureFlagsCalled = false
     var refreshDebugFeatureFlagsCalled = false
     var toggleDebugFeatureFlagCalled = false
@@ -31,11 +34,13 @@ class MockConfigService: ConfigService {
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool, forceRefresh: Bool, isPreAuth: Bool) async -> Bool {
-        featureFlagsBool[flag] ?? defaultValue
+        let value = isPreAuth ? featureFlagsBoolPreAuth[flag] : featureFlagsBool[flag]
+        return value ?? defaultValue
     }
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int, forceRefresh: Bool, isPreAuth: Bool) async -> Int {
-        featureFlagsInt[flag] ?? defaultValue
+        let value = isPreAuth ? featureFlagsInt[flag] : featureFlagsInt[flag]
+        return value ?? defaultValue
     }
 
     func getFeatureFlag(
@@ -44,7 +49,8 @@ class MockConfigService: ConfigService {
         forceRefresh: Bool,
         isPreAuth: Bool
     ) async -> String? {
-        featureFlagsString[flag] ?? defaultValue
+        let value = isPreAuth ? featureFlagsString[flag] : featureFlagsString[flag]
+        return value ?? defaultValue
     }
 
     func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {

@@ -46,7 +46,7 @@ class ExtensionActivationProcessorTests: BitwardenTestCase {
     /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
     @MainActor
     func test_perform_appeared_loadFeatureFlag_true() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = true
         subject.state.isNativeCreateAccountFeatureFlagEnabled = false
 
         await subject.perform(.appeared)
