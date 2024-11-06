@@ -464,7 +464,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         // Unsubscribe from sync, wait for items to be deleted
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
-        waitFor((authBridgeItemService.storedItems["1"]?.isEmpty) ?? false)
+        try await waitForAsync {
+            (self.authBridgeItemService.storedItems["1"]?.isEmpty) ?? false
+        }
 
         // Sending additional updates should not appear in Store
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
