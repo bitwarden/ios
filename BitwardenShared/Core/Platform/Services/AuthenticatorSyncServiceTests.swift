@@ -481,6 +481,37 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertTrue(authBridgeItemService.storedItems["1"]?.isEmpty ?? false)
     }
 
+    /// The sync service should be properly handling multiple publishes which could happen on multiple threads.
+    /// By generating a `send` on both the sync status and the vault unlock, the service will receive two
+    /// simultaneous attempts to determine syncing.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_threadSafetyCheck() async throws {
+        setupInitialState()
+        await subject.start()
+
+        for _ in 0 ..< 4 {
+            async let result1: Void = stateService.syncToAuthenticatorSubject.send(("1", true))
+            async let result2: Void = vaultTimeoutService.vaultLockStatusSubject.send(
+                VaultLockStatus(isVaultLocked: false, userId: "1")
+            )
+            await _ = (result1, result2)
+        }
+
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp"
+                )
+            ),
+        ])
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
+    }
+
     /// When user "1" has sync turned on and user "2" unlocks their vault, the service should not take
     /// any action because "1" has a locked vault and "2" doesn't have sync turned on.
     ///

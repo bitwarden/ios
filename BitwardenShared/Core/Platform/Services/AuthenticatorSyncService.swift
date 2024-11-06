@@ -47,6 +47,13 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// A task that sets up syncing for a user.
+    ///
+    /// Using an actor-protected `Task` ensures that multiple threads don't attempt
+    /// to setup sync at the same time. `enableSyncForUserId(_)` `await`s
+    /// the result of this task before adding the next sync setup to the end of it.
+    private var enableSyncTask: Task<Void, Never>?
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -246,23 +253,35 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
-        guard try await stateService.getSyncToAuthenticator(userId: userId) else {
+        if try await stateService.getSyncToAuthenticator(userId: userId) {
+            enableSyncForUserId(userId)
+        } else {
             cipherPublisherTasks[userId]?.cancel()
             cipherPublisherTasks.removeValue(forKey: userId)
             try await keychainRepository.deleteAuthenticatorVaultKey(userId: userId)
             try await authBridgeItemService.deleteAllForUserId(userId)
             try await deleteKeyIfSyncingIsOff()
-            return
         }
+    }
 
+    /// Enable sync for the provided userId.
+    ///
+    /// - Parameter userId: The userId of the user whose sync is being enabled.
+    ///
+    private func enableSyncForUserId(_ userId: String) {
         guard !vaultTimeoutService.isLocked(userId: userId) else { return }
 
-        try await withThrowingTaskGroup(of: Void.self) { group in
-            group.addTask { try await self.createAuthenticatorKeyIfNeeded() }
-            group.addTask { try await self.createAuthenticatorVaultKeyIfNeeded(userId: userId) }
-            try await group.waitForAll()
+        enableSyncTask = Task { [enableSyncTask] in
+            _ = await enableSyncTask?.result
+
+            do {
+                try await createAuthenticatorKeyIfNeeded()
+                try await createAuthenticatorVaultKeyIfNeeded(userId: userId)
+                subscribeToCipherUpdates(userId: userId)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
-        subscribeToCipherUpdates(userId: userId)
     }
 
     /// Create a task for the given userId to listen for Cipher updates and sync to the Authenticator store.
