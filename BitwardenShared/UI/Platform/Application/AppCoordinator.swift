@@ -81,6 +81,16 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             await handleAuthEvent(.didTimeout(userId: userId))
         case let .setAuthCompletionRoute(route):
             authCompletionRoute = route
+        case let .switchAccounts(userId, isAutomatic):
+            await handleAuthEvent(
+                .action(
+                    .switchAccount(
+                        isAutomatic: isAutomatic,
+                        userId: userId,
+                        authCompletionRoute: nil
+                    )
+                )
+            )
         }
     }
 

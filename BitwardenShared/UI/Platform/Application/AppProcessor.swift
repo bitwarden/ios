@@ -82,6 +82,7 @@ public class AppProcessor {
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
+                await checkIfExtensionSwitchedAccounts()
                 await checkAccountsForTimeout()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
@@ -348,6 +349,22 @@ extension AppProcessor {
             }
         } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
             // No-op: nothing to do if there's no accounts or an active account.
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Checks if the active account was switched while in the extension. If this occurs, the app
+    /// needs to also switch to the updated active account.
+    ///
+    private func checkIfExtensionSwitchedAccounts() async {
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+        do {
+            guard try await services.stateService.didAccountSwitchInExtension() == true else { return }
+            let userId = try await services.stateService.getActiveAccountId()
+            await coordinator?.handleEvent(.switchAccounts(userId: userId, isAutomatic: false))
+        } catch StateServiceError.noActiveAccount {
+            await coordinator?.handleEvent(.didStart)
         } catch {
             services.errorReporter.log(error: error)
         }
