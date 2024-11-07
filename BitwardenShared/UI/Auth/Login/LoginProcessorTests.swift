@@ -4,6 +4,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - LoginProcessorTests
 
 class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -13,6 +15,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var captchaService: MockCaptchaService!
+    var configService: MockConfigService!
     var client: MockHTTPClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
@@ -27,6 +30,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         captchaService = MockCaptchaService()
+        configService = MockConfigService()
         client = MockHTTPClient()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
@@ -41,6 +45,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 authRepository: authRepository,
                 authService: authService,
                 captchaService: captchaService,
+                configService: configService,
                 errorReporter: errorReporter,
                 httpClient: client
             ),
@@ -55,6 +60,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         authRepository = nil
         authService = nil
         captchaService = nil
+        configService = nil
         client = nil
         coordinator = nil
         errorReporter = nil
@@ -107,7 +113,94 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
         XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
-        // TODO: BIT-709 Add assertion for error state.
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.appeared` and an error occurs with an unofficial server and the error isn't expected.
+    @MainActor
+    func test_perform_appeared_failure_unofficialServer() async throws {
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                responseModel: ConfigResponseModel(
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: "75238191",
+                    server: .init(name: "Vaultwarden", url: "example.com"),
+                    version: "2024.4.0"
+                )
+            )
+        )
+        subject.state.isLoginWithDeviceVisible = false
+        client.results = [
+            .httpFailure(BitwardenTestError.example),
+        ]
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
+        XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .networkResponseError(
+                BitwardenTestError.example,
+                isOfficialBitwardenServer: false
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.appeared` and an error occurs with an unofficial server but the error is expected.
+    @MainActor
+    func test_perform_appeared_failure_supportedErrorWithUnofficialServer() async throws {
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                responseModel: ConfigResponseModel(
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: "75238191",
+                    server: .init(name: "Vaultwarden", url: "example.com"),
+                    version: "2024.4.0"
+                )
+            )
+        )
+        subject.state.isLoginWithDeviceVisible = false
+
+        let validationResponse = ResponseValidationErrorModel(
+            error: "Invalid credentials",
+            errorDescription: "an error occured",
+            errorModel: .init(
+                message: "message",
+                object: "object"
+            )
+        )
+
+        client.results = [
+            .httpFailure(
+                ServerError.validationError(
+                    validationErrorResponse: validationResponse
+                )
+            ),
+        ]
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loading)])
+        XCTAssertFalse(subject.state.isLoginWithDeviceVisible)
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .networkResponseError(
+                ServerError.validationError(validationErrorResponse: validationResponse),
+                isOfficialBitwardenServer: false
+            )
+        )
+        XCTAssertEqual(
+            errorReporter.errors.last as? ServerError,
+            .validationError(validationErrorResponse: validationResponse)
+        )
     }
 
     /// `perform(_:)` with `.appeared` and a true result shows the login with device button.
@@ -262,6 +355,42 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` and a captcha flow error shows an unofficial server error.
+    @MainActor
+    func test_perform_loginWithMasterPasswordPressed_captchaFlowError_unofficialServer() async {
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                responseModel: ConfigResponseModel(
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: "75238191",
+                    server: .init(name: "Vaultwarden", url: "example.com"),
+                    version: "2024.4.0"
+                )
+            )
+        )
+        subject.state.masterPassword = "Test"
+        authService.loginWithMasterPasswordResult = .failure(
+            IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: "token")
+        )
+        captchaService.generateCaptchaUrlResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
+        XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
+
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .networkResponseError(
+                BitwardenTestError.example,
+                isOfficialBitwardenServer: false
+            )
+        )
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` records non captcha errors.
     @MainActor
     func test_perform_loginWithMasterPasswordPressed_error() async throws {
@@ -273,6 +402,37 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
 
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` records an error for an unofficial bitwarden server.
+    @MainActor
+    func test_perform_loginWithMasterPasswordPressed_unofficialBitwardenServer() async throws {
+        configService.configMocker.withResult(
+            ServerConfig(
+                date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                responseModel: ConfigResponseModel(
+                    environment: nil,
+                    featureStates: [:],
+                    gitHash: "75238191",
+                    server: .init(name: "Vaultwarden", url: "example.com"),
+                    version: "2024.4.0"
+                )
+            )
+        )
+        subject.state.masterPassword = "Test"
+        authService.loginWithMasterPasswordResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .networkResponseError(
+                BitwardenTestError.example,
+                isOfficialBitwardenServer: false
+            )
+        )
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 

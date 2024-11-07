@@ -271,6 +271,38 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(subject.state.shouldShowAuthenticatorSyncSection)
     }
 
+    /// `perform(_:)` with `.loadData` completes the vault unlock setup progress if biometrics are enabled.
+    @MainActor
+    func test_perform_loadData_vaultUnlockSetupProgress_biometrics() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: false))
+        await subject.perform(.loadData)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
+
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        await subject.perform(.loadData)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.loadData` completes the vault unlock setup progress if pin unlock is enabled.
+    @MainActor
+    func test_perform_loadData_vaultUnlockSetupProgress_pin() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+        stateService.accountSetupVaultUnlock["1"] = .setUpLater
+
+        authRepository.isPinUnlockAvailableResult = .success(false)
+        await subject.perform(.loadData)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .setUpLater)
+
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        await subject.perform(.loadData)
+        XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
+    }
+
     /// `perform(_:)` with `.lockVault` locks the user's vault.
     @MainActor
     func test_perform_lockVault() async {

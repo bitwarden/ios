@@ -51,7 +51,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     AddEditItemState,
     AddEditItemAction,
     AddEditItemEffect
-> {
+>, Rehydratable {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -62,11 +62,19 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
         & HasPolicyService
+        & HasRehydrationHelper
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
 
-    // MARK: Properties
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        guard let id = state.cipher.id else { return nil }
+        return RehydrationState(target: .editCipher(cipherId: id))
+    }
+
+    // MARK: Private Properties
 
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
@@ -104,6 +112,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
 
         super.init(state: state)
+
+        if !state.configuration.isAdding {
+            Task {
+                await self.services.rehydrationHelper.addRehydratableTarget(self)
+            }
+        }
     }
 
     // MARK: Methods
@@ -470,9 +484,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// to the `.alert` route.
     ///
     private func presentCustomFieldAlert() {
-        let fieldTypes: [FieldType] = state.type != .secureNote ? [.text, .hidden, .boolean, .linked]
-            : [.text, .hidden, .boolean]
-        let actions = fieldTypes.map { type in
+        let actions = state.type.allowedFieldTypes.map { type in
             AlertAction(title: type.localizedName, style: .default) { [weak self] _ in
                 guard let self else { return }
                 receive(

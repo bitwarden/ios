@@ -82,6 +82,7 @@ public class AppProcessor {
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
+                await checkIfExtensionSwitchedAccounts()
                 await checkAccountsForTimeout()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
@@ -353,6 +354,22 @@ extension AppProcessor {
         }
     }
 
+    /// Checks if the active account was switched while in the extension. If this occurs, the app
+    /// needs to also switch to the updated active account.
+    ///
+    private func checkIfExtensionSwitchedAccounts() async {
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+        do {
+            guard try await services.stateService.didAccountSwitchInExtension() == true else { return }
+            let userId = try await services.stateService.getActiveAccountId()
+            await coordinator?.handleEvent(.switchAccounts(userId: userId, isAutomatic: false))
+        } catch StateServiceError.noActiveAccount {
+            await coordinator?.handleEvent(.didStart)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// If the native create account feature flag and the autofill extension are enabled, this marks
     /// any user's autofill account setup completed. This should be called on app startup.
     ///
@@ -383,14 +400,24 @@ extension AppProcessor {
     /// - Returns: an `AppRoute` if one was successfully built from the URL passed in, `nil` if not.
     ///
     private func getBitwardenUrlRoute(url: URL) async -> AppRoute? {
-        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
-              let scheme = components.scheme,
-              scheme.isBitwardenAppScheme,
-              components.host == "settings",
-              components.path == "/account_security"
-        else { return nil }
+        guard let scheme = url.scheme, scheme.isBitwardenAppScheme else { return nil }
 
-        return AppRoute.tab(.settings(.accountSecurity))
+        switch url.absoluteString {
+        case BitwardenDeepLinkConstants.accountSecurity:
+            return AppRoute.tab(.settings(.accountSecurity))
+        case BitwardenDeepLinkConstants.authenticatorNewItem:
+            guard let item = await services.authenticatorSyncService?.getTemporaryTotpItem(),
+                  let totpKey = item.totpKey,
+                  let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else {
+                coordinator?.showAlert(.defaultAlert(title: Localizations.somethingWentWrong,
+                                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
+                return nil
+            }
+
+            return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+        default:
+            return nil
+        }
     }
 
     /// Attempt to create an `AppRoute` from an "otpauth://" url.

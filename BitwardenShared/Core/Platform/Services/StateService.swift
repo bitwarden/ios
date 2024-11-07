@@ -29,6 +29,13 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Returns whether the active account was switched in the extension. This compares the current
+    /// active account in memory with what's stored on disk to determine if the account was switched.
+    ///
+    /// - Returns: Whether the active was switched in the extension.
+    ///
+    func didAccountSwitchInExtension() async throws -> Bool
+
     /// Returns whether the active user account has access to premium features.
     ///
     /// - Returns: Whether the active account has access to premium features.
@@ -111,6 +118,11 @@ protocol StateService: AnyObject {
     /// - Returns: The allow sync on refresh value.
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
+
+    /// Gets the app rehydration state.
+    /// - Parameter userId: The user ID associated with this state.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState?
 
     /// Get the app theme.
     ///
@@ -564,6 +576,12 @@ protocol StateService: AnyObject {
     /// - Parameter config: The server config to use prior to user authentication.
     func setPreAuthServerConfig(config: ServerConfig) async
 
+    /// Sets the app rehydration state for the active account.
+    /// - Parameters:
+    ///   - rehydrationState: The app rehydration state.
+    ///   - userId: The user ID of the rehydration state.
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
+
     /// Sets the server configuration as provided by a server for a user ID.
     ///
     /// - Parameters:
@@ -773,6 +791,12 @@ extension StateService {
     ///
     func getAllowSyncOnRefresh() async throws -> Bool {
         try await getAllowSyncOnRefresh(userId: nil)
+    }
+
+    /// Gets the app rehydration state for the active account.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState() async throws -> AppRehydrationState? {
+        try await getAppRehydrationState(userId: nil)
     }
 
     /// Gets the clear clipboard value for the active account.
@@ -1083,6 +1107,14 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
+    /// Sets the app rehydration state for the active account.
+    ///
+    /// - Parameter rehydrationState: The app rehydration state.
+    ///
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?) async throws {
+        try await setAppRehydrationState(rehydrationState, userId: nil)
+    }
+
     /// Sets the server config for the active account.
     ///
     /// - Parameter config: The server config.
@@ -1144,7 +1176,7 @@ extension StateService {
 
 /// The errors thrown from a `StateService`.
 ///
-enum StateServiceError: Error {
+enum StateServiceError: LocalizedError {
     /// There are no known accounts.
     case noAccounts
 
@@ -1159,6 +1191,15 @@ enum StateServiceError: Error {
 
     /// The user has no user key.
     case noEncUserKey
+
+    var errorDescription: String? {
+        switch self {
+        case .noActiveAccount:
+            Localizations.noAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError
+        default:
+            nil
+        }
+    }
 }
 
 // MARK: - DefaultStateService
@@ -1263,6 +1304,18 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try await logoutAccount(userInitiated: true)
     }
 
+    func didAccountSwitchInExtension() async throws -> Bool {
+        do {
+            return try getActiveAccountUserId() != appSettingsStore.cachedActiveUserId
+        } catch StateServiceError.noActiveAccount {
+            let cachedActiveUserId = appSettingsStore.cachedActiveUserId
+            // If the user was logged out in the extension, but there's a cached active user,
+            // reset the state to update the cached active user.
+            appSettingsStore.state = appSettingsStore.state
+            return cachedActiveUserId != nil
+        }
+    }
+
     func doesActiveAccountHavePremium() async throws -> Bool {
         let account = try await getActiveAccount()
         let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
@@ -1337,6 +1390,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
+    }
+
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.appRehydrationState(userId: userId)
     }
 
     func getAppTheme() async -> AppTheme {
@@ -1485,11 +1543,19 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getVaultTimeout(userId: String?) async throws -> SessionTimeoutValue {
         let userId = try getAccount(userId: userId).profile.userId
+        let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
         guard let rawValue = appSettingsStore.vaultTimeout(userId: userId) else {
-            let userAuthKey = try? await keychainRepository.getUserAuthKeyValue(for: .neverLock(userId: userId))
-            return userAuthKey == nil ? .fifteenMinutes : .never
+            // If there isn't a stored value, it may be because MAUI stored `nil` for never timeout.
+            // So if the never lock key exists, set the timeout to never, otherwise to default.
+            return userAuthKey != nil ? .never : .fifteenMinutes
         }
-        return SessionTimeoutValue(rawValue: rawValue)
+
+        let timeoutValue = SessionTimeoutValue(rawValue: rawValue)
+        if timeoutValue == .never, userAuthKey == nil {
+            // If never lock but no key (possibly due to logging out), return the default timeout.
+            return .fifteenMinutes
+        }
+        return timeoutValue
     }
 
     func isAuthenticated(userId: String?) async throws -> Bool {
@@ -1697,6 +1763,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthServerConfig = config
     }
 
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
@@ -1850,10 +1921,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         let autofillSetupProgress = await getAccountSetupAutofill(userId: userId)
         let importLoginsSetupProgress = await getAccountSetupImportLogins(userId: userId)
         let vaultUnlockSetupProgress = await getAccountSetupVaultUnlock(userId: userId)
-        let badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
+        var badgeCount = [autofillSetupProgress, vaultUnlockSetupProgress]
             .compactMap { $0 }
             .filter { $0 != .complete }
             .count
+        if importLoginsSetupProgress == .setUpLater {
+            badgeCount += 1
+        }
         settingsBadgeByUserIdSubject.value[userId] = SettingsBadgeState(
             autofillSetupProgress: autofillSetupProgress,
             badgeValue: badgeCount > 0 ? String(badgeCount) : nil,

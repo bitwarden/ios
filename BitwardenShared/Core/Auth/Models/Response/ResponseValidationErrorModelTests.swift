@@ -23,4 +23,32 @@ class ResponseValidationErrorModelTests: BitwardenTestCase {
         let subject = try ResponseValidationErrorModel.decoder.decode(ResponseValidationErrorModel.self, from: json)
         XCTAssertEqual(subject.errorModel.message, "Username or password is incorrect. Try again.")
     }
+
+    /// Tests the successful decoding of a JSON response with no error description.
+    func test_decode_success_missingErrorDescription() throws {
+        let json = """
+        {
+          "error": "invalid_grant",
+          "ErrorModel": {
+            "Message": "Two-step token is invalid. Try again.",
+            "Object": "error"
+          }
+        }
+        """
+        let subject = try ResponseValidationErrorModel.decoder.decode(
+            ResponseValidationErrorModel.self,
+            from: XCTUnwrap(json.data(using: .utf8))
+        )
+        XCTAssertEqual(
+            subject,
+            ResponseValidationErrorModel(
+                error: "invalid_grant",
+                errorDescription: nil,
+                errorModel: ErrorModel(
+                    message: "Two-step token is invalid. Try again.",
+                    object: "error"
+                )
+            )
+        )
+    }
 }

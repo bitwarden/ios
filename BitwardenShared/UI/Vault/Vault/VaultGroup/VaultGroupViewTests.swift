@@ -134,6 +134,13 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     @MainActor
+    func test_snapshot_emptySSHKey() {
+        processor.state.group = .sshKey
+        processor.state.loadingState = .data([])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
     func test_snapshot_emptyTrash() {
         processor.state.group = .trash
         processor.state.loadingState = .data([])

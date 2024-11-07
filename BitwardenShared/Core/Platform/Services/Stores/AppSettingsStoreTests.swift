@@ -154,6 +154,49 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appLocale"))
     }
 
+    /// `appRehydrationState(userId:)` is initially `nil`
+    func test_appRehydrationState_isInitiallyNil() {
+        XCTAssertNil(subject.appRehydrationState(userId: "-1"))
+    }
+
+    /// `appRehydrationState(userId:)` is initially `nil`
+    func test_appRehydrationState_withValue() {
+        subject.setAppRehydrationState(
+            AppRehydrationState(target: .viewCipher(cipherId: "1"), expirationTime: .now),
+            userId: "1"
+        )
+        subject.setAppRehydrationState(
+            AppRehydrationState(target: .viewCipher(cipherId: "2"), expirationTime: .now),
+            userId: "2"
+        )
+
+        XCTAssertEqual(subject.appRehydrationState(userId: "1")?.target, .viewCipher(cipherId: "1"))
+        XCTAssertEqual(subject.appRehydrationState(userId: "2")?.target, .viewCipher(cipherId: "2"))
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                AppRehydrationState.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:appRehydrationState_1")?
+                        .data(using: .utf8)
+                )
+            ).target,
+            .viewCipher(cipherId: "1")
+        )
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                AppRehydrationState.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:appRehydrationState_2")?
+                        .data(using: .utf8)
+                )
+            ).target,
+            .viewCipher(cipherId: "2")
+        )
+    }
+
     /// `appTheme` returns `nil` if there isn't a previously stored value.
     func test_appTheme_isInitiallyNil() {
         XCTAssertNil(subject.appTheme)
@@ -168,6 +211,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.appTheme = nil
         XCTAssertNil(subject.appTheme)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
+    }
+
+    /// `cachedActiveUserId` returns `nil` if there isn't a cached active user.
+    func test_cachedActiveUserId_isInitiallyNil() {
+        XCTAssertNil(subject.cachedActiveUserId)
+    }
+
+    /// `cachedActiveUserId` returns the user ID of the last active user ID in the current process.
+    func test_cachedActiveUserId_withValue() {
+        subject.state = State(accounts: ["1": .fixture()], activeUserId: "1")
+        XCTAssertEqual(subject.cachedActiveUserId, "1")
+
+        subject.state = State(
+            accounts: [
+                "1": .fixture(profile: .fixture(userId: "1")),
+                "2": .fixture(profile: .fixture(userId: "2")),
+            ],
+            activeUserId: "2"
+        )
+        XCTAssertEqual(subject.cachedActiveUserId, "2")
     }
 
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.

@@ -113,16 +113,19 @@ extension View {
     /// - Parameters:
     ///   - addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
     ///   - backgroundColor: The background color to apply to the scroll view. Defaults to `backgroundPrimary`.
+    ///   - showsIndicators: Whether or not the scroll indicators are shown.
     ///
     /// - Returns: A view within a `ScrollView`.
     ///
     func scrollView(
         addVerticalPadding: Bool = true,
-        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor
+        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
+        showsIndicators: Bool = true
     ) -> some View {
         modifier(ScrollViewModifier(
             addVerticalPadding: addVerticalPadding,
-            backgroundColor: backgroundColor
+            backgroundColor: backgroundColor,
+            showsIndicators: showsIndicators
         ))
     }
 
@@ -137,7 +140,7 @@ extension View {
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
-            image: Asset.Images.plus.swiftUIImage,
+            image: Asset.Images.plus32.swiftUIImage,
             action: action
         )
         .accessibilityLabel(Localizations.add)
@@ -155,7 +158,7 @@ extension View {
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
-            image: Asset.Images.pencil.swiftUIImage,
+            image: Asset.Images.pencil32.swiftUIImage,
             action: action
         )
         .accessibilityLabel(Localizations.edit)

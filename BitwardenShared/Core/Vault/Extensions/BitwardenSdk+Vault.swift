@@ -80,6 +80,7 @@ extension CipherDetailsResponseModel {
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
             revisionDate: cipher.revisionDate,
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
+            sshKey: cipher.sshKey.map(CipherSSHKeyModel.init),
             type: BitwardenShared.CipherType(type: cipher.type),
             viewPassword: cipher.viewPassword
         )
@@ -192,6 +193,16 @@ extension CipherSecureNoteModel {
     }
 }
 
+extension CipherSSHKeyModel {
+    init(sshKey: BitwardenSdk.SshKey) {
+        self.init(
+            keyFingerprint: sshKey.fingerprint,
+            privateKey: sshKey.privateKey,
+            publicKey: sshKey.publicKey
+        )
+    }
+}
+
 extension CipherType {
     init(type: BitwardenSdk.CipherType) {
         switch type {
@@ -203,6 +214,8 @@ extension CipherType {
             self = .login
         case .secureNote:
             self = .secureNote
+        case .sshKey:
+            self = .sshKey
         }
     }
 }
@@ -300,6 +313,7 @@ extension BitwardenSdk.Cipher {
             identity: model.identity.map(Identity.init),
             card: model.card.map(Card.init),
             secureNote: model.secureNote.map(SecureNote.init),
+            sshKey: model.sshKey.map(SshKey.init),
             favorite: model.favorite,
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
@@ -347,6 +361,7 @@ extension BitwardenSdk.CipherView: Identifiable {
             identity: nil,
             card: nil,
             secureNote: nil,
+            sshKey: nil,
             favorite: false,
             reprompt: .none,
             organizationUseTotp: false,
@@ -375,8 +390,7 @@ extension BitwardenSdk.CipherType {
         case .identity:
             self = .identity
         case .sshKey:
-            // TODO: PM-10401 set self = .sshKey when SDK is ready.
-            self = .init(rawValue: 5)!
+            self = .sshKey
         }
     }
 }
@@ -528,6 +542,16 @@ extension BitwardenSdk.SecureNoteType {
     }
 }
 
+extension BitwardenSdk.SshKey {
+    init(sshKeyModel model: CipherSSHKeyModel) {
+        self.init(
+            privateKey: model.privateKey,
+            publicKey: model.publicKey,
+            fingerprint: model.keyFingerprint
+        )
+    }
+}
+
 extension BitwardenSdk.UriMatchType {
     init(type: UriMatchType) {
         switch type {
@@ -556,6 +580,7 @@ extension CollectionDetailsResponseModel {
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             id: id,
+            manage: collection.manage,
             name: collection.name,
             organizationId: collection.organizationId,
             readOnly: collection.readOnly
@@ -580,7 +605,8 @@ extension BitwardenSdk.Collection {
             name: model.name,
             externalId: model.externalId,
             hidePasswords: model.hidePasswords,
-            readOnly: model.readOnly
+            readOnly: model.readOnly,
+            manage: model.manage
         )
     }
 }

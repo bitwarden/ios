@@ -43,7 +43,9 @@ struct ServerConfig: Equatable, Codable, Sendable {
     // MARK: Methods
 
     /// Whether the server supports cipher key encryption.
+    ///
     /// - Returns: `true` if it's supported, `false` otherwise.
+    ///
     func supportsCipherKeyEncryption() -> Bool {
         guard let minVersion = ServerVersion(Constants.cipherKeyEncryptionMinServerVersion),
               let serverVersion = ServerVersion(version),
@@ -51,6 +53,14 @@ struct ServerConfig: Equatable, Codable, Sendable {
             return false
         }
         return true
+    }
+
+    /// Checks if the server is an official Bitwarden server.
+    ///
+    /// - Returns: `true` if the server is `nil`, indicating an official Bitwarden server, otherwise `false`.
+    ///
+    func isOfficialBitwardenServer() -> Bool {
+        server == nil
     }
 }
 

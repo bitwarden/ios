@@ -9,23 +9,27 @@ class VaultCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var delegate: MockVaultCoordinatorDelegate!
+    var errorReporter: MockErrorReporter!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
+        errorReporter = MockErrorReporter()
         delegate = MockVaultCoordinatorDelegate()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
+        vaultRepository = MockVaultRepository()
         subject = VaultCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: delegate,
             module: module,
-            services: ServiceContainer.withMocks(),
+            services: ServiceContainer.withMocks(errorReporter: errorReporter, vaultRepository: vaultRepository),
             stackNavigator: stackNavigator
         )
     }
@@ -34,12 +38,23 @@ class VaultCoordinatorTests: BitwardenTestCase {
         super.tearDown()
 
         delegate = nil
+        errorReporter = nil
         module = nil
         stackNavigator = nil
         subject = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
+
+    /// `didCompleteLoginsImport()` dismisses the import logins flow.
+    @MainActor
+    func test_didCompleteLoginsImport() throws {
+        subject.didCompleteLoginsImport()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
 
     /// `handleEvent(_:context:)` with `.switchAccount` notifies the delegate to switch to the
     /// specified account.
@@ -104,6 +119,43 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(.fixture(), true))
     }
 
+    /// `.navigate(to:)` with `.editItemFrom` presents the edit item screen.
+    @MainActor
+    func test_navigateTo_editItemFrom() throws {
+        vaultRepository.fetchCipherResult = .success(.fixture())
+        subject.navigate(to: .editItemFrom(id: "1"))
+
+        waitFor(!stackNavigator.actions.isEmpty)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(.fixture(), true))
+    }
+
+    /// `.navigate(to:)` with `.editItemFrom` doesn't find the cipher id so it doesn't navigate there.
+    @MainActor
+    func test_navigateTo_editItemFromNotFound() throws {
+        vaultRepository.fetchCipherResult = .success(nil)
+        subject.navigate(to: .editItemFrom(id: "1"))
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+        XCTAssertTrue(!module.vaultItemCoordinator.isStarted)
+    }
+
+    /// `.navigate(to:)` with `.editItemFrom` throws fetching the cipher and it gets logged.
+    @MainActor
+    func test_navigateTo_editItemFromThrowsInternallyAndLogs() throws {
+        vaultRepository.fetchCipherResult = .failure(BitwardenTestError.example)
+        subject.navigate(to: .editItemFrom(id: "1"))
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+        XCTAssertTrue(!module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
     /// navigator.
     @MainActor
@@ -133,19 +185,9 @@ class VaultCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ImportLoginsView>)
-    }
-
-    /// `navigate(to:)` with `.importLoginsSuccess` presents the import logins success view onto the stack navigator.
-    @MainActor
-    func test_navigateTo_importLoginsSuccess() throws {
-        subject.navigate(to: .importLoginsSuccess)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ImportLoginsSuccessView>)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.importLoginsCoordinator.isStarted)
+        XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.vault))
     }
 
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.

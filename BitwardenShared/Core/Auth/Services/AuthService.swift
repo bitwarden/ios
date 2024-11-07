@@ -407,11 +407,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             minNumber: 1,
             minSpecial: 0
         )
-        codeVerifier = try await clientService.generators().password(settings: passwordSettings)
+        codeVerifier = try await clientService.generators(isPreAuth: true).password(settings: passwordSettings)
         let codeChallenge = Data(codeVerifier.utf8)
             .generatedHashBase64Encoded(using: SHA256.self)
             .urlEncoded()
-        let state = try await clientService.generators().password(settings: passwordSettings)
+        let state = try await clientService.generators(isPreAuth: true).password(settings: passwordSettings)
 
         let queryItems = [
             URLQueryItem(name: "client_id", value: Constants.clientType),
@@ -602,7 +602,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             do {
                 let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
                 try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)
-                try await stateService.setAccountSetupImportLogins(.incomplete)
+                if await configService.getFeatureFlag(.importLoginsFlow) {
+                    try await stateService.setAccountSetupImportLogins(.incomplete)
+                }
                 try await stateService.setAccountSetupVaultUnlock(.incomplete)
             } catch {
                 errorReporter.log(error: error)

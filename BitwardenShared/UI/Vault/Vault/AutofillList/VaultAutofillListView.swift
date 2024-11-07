@@ -100,10 +100,13 @@ private struct VaultAutofillListSearchableView: View {
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
             }
-            .toast(store.binding(
-                get: \.toast,
-                send: VaultAutofillListAction.toastShown
-            ))
+            .toast(
+                store.binding(
+                    get: \.toast,
+                    send: VaultAutofillListAction.toastShown
+                ),
+                additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+            )
     }
 
     // MARK: Private Views
@@ -111,12 +114,16 @@ private struct VaultAutofillListSearchableView: View {
     /// A view for displaying a list of ciphers.
     @ViewBuilder
     private func cipherListView(_ sections: [VaultListSection]) -> some View {
-        if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
-            cipherCombinedListView(sections)
-        } else {
-            let items = sections.first?.items ?? []
-            cipherSimpleListView(items)
+        Group {
+            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
+                cipherCombinedListView(sections)
+            } else {
+                let items = sections.first?.items ?? []
+                cipherSimpleListView(items)
+            }
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView()
     }
 
     /// A view for displaying a list of sections with ciphers.
@@ -192,7 +199,7 @@ private struct VaultAutofillListSearchableView: View {
             Group {
                 if store.state.vaultListSections.isEmpty {
                     EmptyContentView(
-                        image: Asset.Images.items.swiftUIImage,
+                        image: Asset.Images.Illustrations.items.swiftUIImage,
                         text: store.state.emptyViewMessage
                     ) {
                         Button {
@@ -201,7 +208,7 @@ private struct VaultAutofillListSearchableView: View {
                             Label {
                                 Text(store.state.emptyViewButtonText)
                             } icon: {
-                                Asset.Images.plus.swiftUIImage
+                                Asset.Images.plus16.swiftUIImage
                                     .imageStyle(.accessoryIcon(
                                         color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                         scaleWithFont: true
@@ -211,19 +218,17 @@ private struct VaultAutofillListSearchableView: View {
                     }
                 } else {
                     cipherListView(store.state.vaultListSections)
-                        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-                        .scrollView()
+                }
+            }
+            .overlay(alignment: .bottomTrailing) {
+                addItemFloatingActionButton {
+                    store.send(.addTapped(fromToolbar: false))
                 }
             }
             .hidden(isSearching)
 
             searchContentView()
                 .hidden(!isSearching)
-        }
-        .overlay(alignment: .bottomTrailing) {
-            addItemFloatingActionButton {
-                store.send(.addTapped(fromToolbar: false))
-            }
         }
     }
 
@@ -252,7 +257,24 @@ private struct VaultAutofillListSearchableView: View {
         VaultAutofillListView(
             store: Store(
                 processor: StateProcessor(
-                    state: VaultAutofillListState(searchText: "Test")
+                    state: VaultAutofillListState(
+                        ciphersForSearch: [
+                            VaultListSection(
+                                id: "Passwords",
+                                items: (1 ... 12).map { id in
+                                    .init(
+                                        cipherView: .fixture(
+                                            id: String(id),
+                                            login: .fixture(),
+                                            name: "Bitwarden"
+                                        )
+                                    )!
+                                },
+                                name: "Passwords"
+                            ),
+                        ],
+                        searchText: "Test"
+                    )
                 )
             )
         )

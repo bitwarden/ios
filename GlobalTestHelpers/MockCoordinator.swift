@@ -41,7 +41,7 @@ class MockCoordinator<Route, Event>: Coordinator {
         loadingOverlaysShown.append(state)
     }
 
-    func showToast(_ title: String, subtitle: String?) {
+    func showToast(_ title: String, subtitle: String?, additionalBottomPadding: CGFloat) {
         toastsShown.append(Toast(title: title, subtitle: subtitle))
     }
 

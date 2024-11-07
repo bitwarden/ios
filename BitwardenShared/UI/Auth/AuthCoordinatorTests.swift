@@ -17,6 +17,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     var authService: MockAuthService!
     var authRouter: AuthRouter!
     var errorReporter: MockErrorReporter!
+    var module: MockAppModule!
     var rootNavigator: MockRootNavigator!
     var stackNavigator: MockStackNavigator!
     var stateService: MockStateService!
@@ -32,6 +33,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         errorReporter = MockErrorReporter()
+        module = MockAppModule()
         rootNavigator = MockRootNavigator()
         stackNavigator = MockStackNavigator()
         stateService = MockStateService()
@@ -51,6 +53,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject = AuthCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
+            module: module,
             rootNavigator: rootNavigator,
             router: authRouter.asAnyRouter(),
             services: services,
@@ -65,6 +68,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         authRepository = nil
         authService = nil
         errorReporter = nil
+        module = nil
         rootNavigator = nil
         stackNavigator = nil
         stateService = nil
@@ -74,12 +78,22 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Tests
 
+    /// `didCompleteAuth()` notifies the delegate that auth has completed.
+    @MainActor
+    func test_didCompleteAuth() {
+        subject.didCompleteAuth()
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+    }
+
     /// `navigate(to:)` with `.autofillSetup` pushes the password autofill view onto the navigation stack.
     @MainActor
-    func test_navigate_autofillSetup() {
+    func test_navigate_autofillSetup() throws {
         subject.navigate(to: .autofillSetup)
-        XCTAssertEqual(stackNavigator.actions.last?.type, .replaced)
-        XCTAssertTrue(stackNavigator.actions.last?.view is PasswordAutoFillView)
+
+        XCTAssertTrue(module.passwordAutoFillCoordinator.isStarted)
+        XCTAssertEqual(module.passwordAutoFillCoordinator.routes, [.passwordAutofill(mode: .onboarding)])
+        XCTAssertIdentical(module.passwordAutoFillCoordinatorDelegate, subject)
+        XCTAssertIdentical(module.passwordAutoFillCoordinatorStackNavigator, stackNavigator)
     }
 
     /// `navigate(to:)` with `.complete` notifies the delegate that auth has completed.
@@ -87,6 +101,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_complete() {
         subject.navigate(to: .complete)
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
     }
 
     /// `navigate(to:)` with `.complete` dismisses a presented view and notifies the delegate that
@@ -96,6 +111,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .updateMasterPassword)
         subject.navigate(to: .complete)
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
         XCTAssertEqual(stackNavigator.actions.last?.type, .dismissedWithCompletionHandler)
     }
 
@@ -114,6 +130,27 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_completeWithNeverUnlockKey() {
         subject.navigate(to: .completeWithNeverUnlockKey)
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
+    }
+
+    /// `navigate(to:)` with `.completeWithRehydration` notifies the delegate that auth has completed passing
+    /// the rehydratable target.
+    @MainActor
+    func test_navigate_completeWithRehydration() {
+        subject.navigate(to: .completeWithRehydration(.viewCipher(cipherId: "1")))
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertEqual(authDelegate.didCompleteAuthRehydratableTarget, .viewCipher(cipherId: "1"))
+    }
+
+    /// `navigate(to:)` with `.completeWithRehydration` dismisses a presented view and notifies the delegate that
+    /// auth has completed passing the rehydratable target.
+    @MainActor
+    func test_navigate_completeWithRehydrationWithPresented() {
+        subject.navigate(to: .updateMasterPassword)
+        subject.navigate(to: .completeWithRehydration(.viewCipher(cipherId: "1")))
+        XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertEqual(authDelegate.didCompleteAuthRehydratableTarget, .viewCipher(cipherId: "1"))
+        XCTAssertEqual(stackNavigator.actions.last?.type, .dismissedWithCompletionHandler)
     }
 
     /// `navigate(to:)` with `.createAccount` pushes the create account view onto the stack navigator.
@@ -471,6 +508,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         task.cancel()
 
         XCTAssertTrue(authDelegate.didCompleteAuthCalled)
+        XCTAssertNil(authDelegate.didCompleteAuthRehydratableTarget)
     }
 
     /// `navigate(to:)` with `.switchAccount` with an unknown lock status account navigates to vault unlock.
@@ -680,6 +718,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject = AuthCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: authDelegate,
+            module: MockAppModule(),
             rootNavigator: rootNavigator!,
             router: MockRouter(routeForEvent: { _ in .landing }).asAnyRouter(),
             services: ServiceContainer.withMocks(),
@@ -719,8 +758,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
 class MockAuthDelegate: AuthCoordinatorDelegate {
     var didCompleteAuthCalled = false
+    var didCompleteAuthRehydratableTarget: RehydratableTarget?
 
-    func didCompleteAuth() {
+    func didCompleteAuth(rehydratableTarget: RehydratableTarget?) {
         didCompleteAuthCalled = true
+        didCompleteAuthRehydratableTarget = rehydratableTarget
     }
 }

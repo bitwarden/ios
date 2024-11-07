@@ -16,79 +16,28 @@ struct StartRegistrationView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            if store.state.isCreateAccountFeatureFlagEnabled {
-                Image(decorative: Asset.Images.vaultIllustration)
-                    .resizable()
-                    .frame(width: 132, height: 132)
-                    .padding(.top, 24)
-                    .padding(.bottom, 32)
+        mainContent
+            .navigationBar(
+                title: Localizations.createAccount,
+                titleDisplayMode: .inline
+            )
+            .task {
+                await store.perform(.appeared)
             }
-
-            name
-
-            VStack(alignment: .leading, spacing: 0) {
-                email
-                    .padding(.bottom, 8)
-
-                RegionSelector(
-                    selectorLabel: Localizations.creatingOn,
-                    regionName: store.state.region.baseUrlDescription
-                ) {
-                    await store.perform(.regionTapped)
+            .toolbar {
+                cancelToolbarItem {
+                    store.send(.dismiss)
                 }
             }
-
-            receiveMarketingToggle
-
-            continueButton
-
-            termsAndPrivacyText
-                .frame(maxWidth: .infinity)
-        }
-        .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
-        .scrollView()
-        .task {
-            await store.perform(.appeared)
-        }
-        .toolbar {
-            cancelToolbarItem {
-                store.send(.dismiss)
-            }
-        }
-        .toast(store.binding(
-            get: \.toast,
-            send: StartRegistrationAction.toastShown
-        ))
+            .toast(
+                store.binding(
+                    get: \.toast,
+                    send: StartRegistrationAction.toastShown
+                )
+            )
     }
 
     // MARK: Private views
-
-    /// The text fields for the user's email and password.
-    private var email: some View {
-        BitwardenTextField(
-            title: Localizations.emailAddress,
-            text: store.binding(
-                get: \.emailText,
-                send: StartRegistrationAction.emailTextChanged
-            ),
-            accessibilityIdentifier: "EmailAddressEntry"
-        )
-        .textFieldConfiguration(.email)
-    }
-
-    /// The text fields for the user's email and password.
-    private var name: some View {
-        BitwardenTextField(
-            title: Localizations.name,
-            text: store.binding(
-                get: \.nameText,
-                send: StartRegistrationAction.nameTextChanged
-            ),
-            accessibilityIdentifier: "nameEntry"
-        )
-        .textFieldConfiguration(.username)
-    }
 
     /// The button pressed when the user attempts to create the account.
     private var continueButton: some View {
@@ -103,14 +52,56 @@ struct StartRegistrationView: View {
         .buttonStyle(.primary())
     }
 
-    /// The button pressed when the user attempts to create the account.
-    private var termsAndPrivacyText: some View {
-        Text(LocalizedStringKey(store.state.termsAndPrivacyDisclaimerText))
-            .styleGuide(.footnote)
-            .tint(Asset.Colors.textInteraction.swiftUIColor)
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .padding([.bottom], 32)
-            .multilineTextAlignment(.center)
+    /// The text fields for the user's email and password.
+    private var email: some View {
+        BitwardenTextField(
+            title: Localizations.emailAddress,
+            text: store.binding(
+                get: \.emailText,
+                send: StartRegistrationAction.emailTextChanged
+            ),
+            accessibilityIdentifier: "EmailAddressEntry"
+        )
+        .textFieldConfiguration(.email)
+    }
+
+    /// The main content view that displays a scrollable layout of registration details.
+    private var mainContent: some View {
+        GeometryReader { proxy in
+            VStack(spacing: 0) {
+                if store.state.isCreateAccountFeatureFlagEnabled {
+                    Spacer(minLength: 24)
+
+                    Image(decorative: Asset.Images.logo)
+                        .resizable()
+                        .scaledToFit()
+                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
+                        .frame(maxWidth: .infinity, maxHeight: 34)
+                        .padding(.horizontal, 12)
+
+                    Spacer(minLength: 24)
+                }
+
+                registrationDetails
+            }
+            .padding(.top, store.state.isCreateAccountFeatureFlagEnabled ? 0 : 16)
+            .padding(.bottom, 16)
+            .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? proxy.size.height : 0)
+            .scrollView(addVerticalPadding: false, showsIndicators: false)
+        }
+    }
+
+    /// The text fields for the user's email and password.
+    private var name: some View {
+        BitwardenTextField(
+            title: Localizations.name,
+            text: store.binding(
+                get: \.nameText,
+                send: StartRegistrationAction.nameTextChanged
+            ),
+            accessibilityIdentifier: "nameEntry"
+        )
+        .textFieldConfiguration(.username)
     }
 
     /// A toggle for the terms and privacy agreement.
@@ -130,6 +121,40 @@ struct StartRegistrationView: View {
             .toggleStyle(.bitwarden)
             .id(ViewIdentifier.StartRegistration.receiveMarketing)
         }
+    }
+
+    /// The section of the view containing input fields, and action buttons.
+    private var registrationDetails: some View {
+        VStack(spacing: 16) {
+            name
+
+            VStack(alignment: .leading, spacing: 0) {
+                email
+                    .padding(.bottom, 8)
+
+                RegionSelector(
+                    selectorLabel: Localizations.creatingOn,
+                    regionName: store.state.region.baseUrlDescription
+                ) {
+                    await store.perform(.regionTapped)
+                }
+            }
+
+            receiveMarketingToggle
+            continueButton
+            termsAndPrivacyText
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    /// The button pressed when the user attempts to create the account.
+    private var termsAndPrivacyText: some View {
+        Text(LocalizedStringKey(store.state.termsAndPrivacyDisclaimerText))
+            .styleGuide(.footnote)
+            .tint(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            .padding([.bottom], 32)
+            .multilineTextAlignment(.center)
     }
 }
 

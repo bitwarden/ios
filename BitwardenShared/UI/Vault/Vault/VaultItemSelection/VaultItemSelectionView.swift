@@ -138,10 +138,13 @@ private struct VaultItemSelectionSearchableView: View {
         .task(id: store.state.searchText) {
             await store.perform(.search(store.state.searchText))
         }
-        .toast(store.binding(
-            get: \.toast,
-            send: VaultItemSelectionAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: VaultItemSelectionAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
         .background(Color(asset: Asset.Colors.backgroundPrimary).ignoresSafeArea())
     }
 
@@ -152,7 +155,7 @@ private struct VaultItemSelectionSearchableView: View {
     private func contentView() -> some View {
         if store.state.vaultListSections.isEmpty {
             EmptyContentView(
-                image: Asset.Images.items.swiftUIImage,
+                image: Asset.Images.Illustrations.items.swiftUIImage,
                 text: emptyViewMessage
             ) {
                 Button {
@@ -161,7 +164,7 @@ private struct VaultItemSelectionSearchableView: View {
                     Label {
                         Text(Localizations.newItem)
                     } icon: {
-                        Asset.Images.plus.swiftUIImage
+                        Asset.Images.plus16.swiftUIImage
                             .imageStyle(.accessoryIcon(
                                 color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                 scaleWithFont: true

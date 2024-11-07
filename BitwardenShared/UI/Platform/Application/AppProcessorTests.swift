@@ -1,4 +1,5 @@
 import AuthenticationServices
+import AuthenticatorBridgeKit
 import Foundation
 import XCTest
 
@@ -11,6 +12,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
+    var authenticatorSyncService: MockAuthenticatorSyncService!
     var autofillCredentialService: MockAutofillCredentialService!
     var clientService: MockClientService!
     var configService: MockConfigService!
@@ -40,6 +42,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         router = MockRouter(routeForEvent: { _ in .landing })
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
+        authenticatorSyncService = MockAuthenticatorSyncService()
         autofillCredentialService = MockAutofillCredentialService()
         clientService = MockClientService()
         configService = MockConfigService()
@@ -64,6 +67,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             debugWillEnterForeground: { [weak self] in self?.willEnterForegroundCalled += 1 },
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                authenticatorSyncService: authenticatorSyncService,
                 autofillCredentialService: autofillCredentialService,
                 clientService: clientService,
                 configService: configService,
@@ -243,6 +247,101 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
     }
 
+    /// `init()` subscribes to will enter foreground events and logs an error if one occurs while
+    /// checking if the active account was changed in an extension.
+    @MainActor
+    func test_init_appForeground_checkIfExtensionSwitchedAccounts_error() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+
+        stateService.didAccountSwitchInExtensionResult = .failure(BitwardenTestError.example)
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertTrue(coordinator.events.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `init()` subscribes to will enter foreground events and doesn't make any navigation changes
+    /// if the active account wasn't changed in the extension.
+    @MainActor
+    func test_init_appForeground_checkIfExtensionSwitchedAccounts_accountNotSwitched() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+
+        stateService.didAccountSwitchInExtensionResult = .success(false)
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `init()` subscribes to will enter foreground events and handles switching accounts if the
+    /// active account was changed in the extension.
+    @MainActor
+    func test_init_appForeground_checkIfExtensionSwitchedAccounts_accountSwitched() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "2"))
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: "2", isAutomatic: false)])
+    }
+
+    /// `init()` subscribes to will enter foreground events and doesn't check for an account switch
+    /// when running in the extension.
+    @MainActor
+    func test_init_appForeground_checkIfExtensionSwitchedAccounts_inExtension() async throws {
+        let delegate = MockAppExtensionDelegate()
+        delegate.isInAppExtension = true
+        let notificationCenterService = MockNotificationCenterService()
+        let stateService = MockStateService()
+
+        var willEnterForegroundCalled = 0
+        _ = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            debugWillEnterForeground: { willEnterForegroundCalled += 1 },
+            services: ServiceContainer.withMocks(
+                notificationCenterService: notificationCenterService,
+                stateService: stateService
+            )
+        )
+        try await waitForAsync { willEnterForegroundCalled == 1 }
+
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { willEnterForegroundCalled == 2 }
+
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `init()` subscribes to will enter foreground events and restarts the app is there's no
+    /// active account.
+    @MainActor
+    func test_init_appForeground_checkIfExtensionSwitchedAccounts_noActiveAccount() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(coordinator.events, [.didStart])
+    }
+
     /// `init()` sets the `AppProcessor` as the delegate of any necessary services.
     func test_init_setDelegates() {
         XCTAssertIdentical(notificationService.delegate, subject)
@@ -412,6 +511,94 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.openUrl(.bitwardenAccountSecurity)
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.settings(.accountSecurity)))])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link with the vault unlocked and an
+    /// invalid item is found. It shows a generic error alert and does not produce a route.
+    @MainActor
+    func test_openUrl_bitwardenAuthenticatorNewItem_invalidItem() async throws {
+        let account = Account.fixture()
+        let otpKey: String = .otpAuthUriKeyNoSecret
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        authenticatorSyncService.tempItem = AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: "",
+            name: "",
+            totpKey: otpKey,
+            username: nil
+        )
+
+        await subject.openUrl(.bitwardenAuthenticatorNewItem)
+        XCTAssertEqual(coordinator.alertShown.first,
+                       .defaultAlert(title: Localizations.somethingWentWrong,
+                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link when no temporary item is
+    /// found in the shared store. It shows a generic error alert and does not produce a route.
+    @MainActor
+    func test_openUrl_bitwardenAuthenticatorNewItem_noItemFound() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        authenticatorSyncService.tempItem = nil
+
+        await subject.openUrl(.bitwardenAuthenticatorNewItem)
+        XCTAssertEqual(coordinator.alertShown.first,
+                       .defaultAlert(title: Localizations.somethingWentWrong,
+                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link with the vault unlocked and the
+    /// item is found, but the item has no TOTP key.  It shows a generic error alert and does not produce a route.
+    @MainActor
+    func test_openUrl_bitwardenAuthenticatorNewItem_noTotpKey() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        authenticatorSyncService.tempItem = AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: "",
+            name: "",
+            totpKey: nil,
+            username: nil
+        )
+
+        await subject.openUrl(.bitwardenAuthenticatorNewItem)
+        XCTAssertEqual(coordinator.alertShown.first,
+                       .defaultAlert(title: Localizations.somethingWentWrong,
+                                     message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `openUrl(_:)` handles receiving a bitwarden Authenticator new item deep link with the vault unlocked and the
+    /// item is found.
+    @MainActor
+    func test_openUrl_bitwardenAuthenticatorNewItem_success() async throws {
+        let account = Account.fixture()
+        let otpKey: String = .otpAuthUriKeyComplete
+        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        authenticatorSyncService.tempItem = AuthenticatorBridgeItemDataView(
+            accountDomain: nil,
+            accountEmail: nil,
+            favorite: false,
+            id: "",
+            name: "",
+            totpKey: otpKey,
+            username: nil
+        )
+
+        await subject.openUrl(.bitwardenAuthenticatorNewItem)
+        XCTAssertEqual(coordinator.routes.last, .tab(.vault(.vaultItemSelection(model))))
     }
 
     /// `openUrl(_:)` handles receiving a bitwarden link with an invalid path and

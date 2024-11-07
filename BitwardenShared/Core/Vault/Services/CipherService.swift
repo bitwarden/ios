@@ -13,6 +13,10 @@ protocol CipherService {
     ///
     func addCipherWithServer(_ cipher: Cipher) async throws
 
+    /// Returns the count of ciphers in the data store for the current user.
+    ///
+    func cipherCount() async throws -> Int
+
     /// Delete a cipher's attachment for the current user both in the backend and in local storage.
     ///
     /// - Parameters:
@@ -189,6 +193,11 @@ extension DefaultCipherService {
 
         // Add the cipher in local storage.
         try await cipherDataStore.upsertCipher(Cipher(responseModel: response), userId: userId)
+    }
+
+    func cipherCount() async throws -> Int {
+        let userId = try await stateService.getActiveAccountId()
+        return try await cipherDataStore.cipherCount(userId: userId)
     }
 
     func deleteAttachmentWithServer(attachmentId: String, cipherId: String) async throws -> Cipher? {

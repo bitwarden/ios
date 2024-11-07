@@ -42,4 +42,7 @@ public enum AppEvent: Equatable {
 
     /// Allows setting a route that should be navigated to after the user's vault is unlocked.
     case setAuthCompletionRoute(AppRoute)
+
+    /// Switches to the specified account.
+    case switchAccounts(userId: String, isAutomatic: Bool)
 }

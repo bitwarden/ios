@@ -41,10 +41,13 @@ struct ViewItemView: View {
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .toast(store.binding(
-            get: \.toast,
-            send: ViewItemAction.toastShown
-        ))
+        .toast(
+            store.binding(
+                get: \.toast,
+                send: ViewItemAction.toastShown
+            ),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
+        )
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 closeToolbarButton {
@@ -171,7 +174,6 @@ struct ViewItemView_Previews: PreviewProvider {
         state.type = CipherType.card
         state.isMasterPasswordRePromptOn = true
         state.name = "Points ALL Day"
-        state.notes = "Why are we so consumption focused?"
         state.cardItemState = CardItemState(
             brand: .custom(.americanExpress),
             cardholderName: "Bitwarden User",
@@ -199,7 +201,6 @@ struct ViewItemView_Previews: PreviewProvider {
         ]
         state.isMasterPasswordRePromptOn = false
         state.name = "Example"
-        state.notes = "This is a long note so that it goes to the next line!"
         state.loginState.fido2Credentials = [
             .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
         ]
