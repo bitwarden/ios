@@ -63,6 +63,51 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertTrue(loginItemState.fido2Credentials.isEmpty)
     }
 
+    /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView.
+    func test_sshKeyItemState() {
+        let cipherView = CipherView.fixture(
+            sshKey: .fixture(),
+            type: .sshKey,
+            viewPassword: true
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertTrue(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "privateKey")
+        XCTAssertEqual(sshKeyItemState.publicKey, "publicKey")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "fingerprint")
+    }
+
+    /// `sshKeyItemState()` returns nil if there's no `sshKey` in the cipher view.
+    func test_sshKeyItemState_nil() {
+        let cipherView = CipherView.fixture(
+            sshKey: nil,
+            viewPassword: true
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertFalse(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "")
+        XCTAssertEqual(sshKeyItemState.publicKey, "")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "")
+    }
+
+    /// `sshKeyItemState()` returns the correct SSH key item state based on the CIpherView
+    /// when `viewPassword` is `false`.
+    func test_sshKeyItemState_cantViewPassword() {
+        let cipherView = CipherView.fixture(
+            sshKey: .fixture(),
+            type: .sshKey,
+            viewPassword: false
+        )
+        let sshKeyItemState = cipherView.sshKeyItemState()
+        XCTAssertFalse(sshKeyItemState.canViewPrivateKey)
+        XCTAssertFalse(sshKeyItemState.isPrivateKeyVisible)
+        XCTAssertEqual(sshKeyItemState.privateKey, "privateKey")
+        XCTAssertEqual(sshKeyItemState.publicKey, "publicKey")
+        XCTAssertEqual(sshKeyItemState.keyFingerprint, "fingerprint")
+    }
+
     /// Tests that the update succeeds with new properties.
     func test_update_card_edits_succeeds() {
         cipherItemState.type = .card
@@ -101,6 +146,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.identity)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
 
         XCTAssertEqual(comparison.cardItemState(), expectedCardState)
 
@@ -152,6 +198,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
     }
 
     /// Tests that the update succeeds with new properties.
@@ -191,6 +238,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.identity)
         XCTAssertNil(comparison.secureNote)
+        XCTAssertNil(comparison.sshKey)
 
         XCTAssertEqual(comparison.id, subject.id)
         XCTAssertEqual(comparison.organizationId, subject.organizationId)
@@ -201,6 +249,7 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(comparison.login?.password, cipherItemState.loginState.password)
         XCTAssertEqual(comparison.notes, cipherItemState.notes)
         XCTAssertEqual(comparison.secureNote, subject.secureNote)
+        XCTAssertEqual(comparison.sshKey, subject.sshKey)
         XCTAssertEqual(comparison.favorite, cipherItemState.isFavoriteOn)
         XCTAssertEqual(
             comparison.reprompt,
@@ -356,6 +405,18 @@ final class CipherViewUpdateTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertNil(comparison.card)
         XCTAssertNil(comparison.login)
         XCTAssertNil(comparison.identity)
+        XCTAssertNil(comparison.sshKey)
+    }
+
+    /// Tests that the update succeeds with updated properties on SSH key type.
+    func test_update_sshKey_succeeds() {
+        cipherItemState.type = .sshKey
+        let comparison = subject.updatedView(with: cipherItemState)
+        XCTAssertEqual(comparison.type, .sshKey)
+        XCTAssertNil(comparison.card)
+        XCTAssertNil(comparison.login)
+        XCTAssertNil(comparison.identity)
+        XCTAssertNil(comparison.secureNote)
     }
 
     /// Tests that the update succeeds with new properties.

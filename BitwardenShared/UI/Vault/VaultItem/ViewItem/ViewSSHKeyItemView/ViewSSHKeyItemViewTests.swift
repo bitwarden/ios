@@ -14,16 +14,7 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(
-            state: SSHKeyItemState(
-                privateKey: "privateKey",
-                publicKey: "publicKey",
-                keyFingerprint: "fingerprint"
-            )
-        )
-        let store = Store(processor: processor)
-
-        subject = ViewSSHKeyItemView(showCopyButtons: true, store: store)
+        initSubject(canViewPrivateKey: true, showCopyButtons: true)
     }
 
     override func tearDown() {
@@ -51,6 +42,28 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .copyPressed(value: "privateKey", field: .sshPrivateKey))
     }
 
+    /// The PrivateKeyVisibilityToggle is not found when can't view private key.
+    @MainActor
+    func test_privateKeyVisibilityToggle_notFoundIfCantViewPrivateKey() throws {
+        initSubject(canViewPrivateKey: false, showCopyButtons: true)
+        XCTAssertThrowsError(
+            try subject.inspect().find(
+                viewWithAccessibilityIdentifier: "PrivateKeyVisibilityToggle"
+            ).button()
+        )
+    }
+
+    /// The SSHKeyCopyPrivateKeyButton is not found when can't view private key.
+    @MainActor
+    func test_copyPrivateKeyButton_notFoundIfCantViewPrivateKey() throws {
+        initSubject(canViewPrivateKey: false, showCopyButtons: true)
+        XCTAssertThrowsError(
+            try subject.inspect().find(
+                viewWithAccessibilityIdentifier: "SSHKeyCopyPrivateKeyButton"
+            ).button()
+        )
+    }
+
     /// The processor gets the action when copying the public key.
     @MainActor
     func test_copyPublicKeyButton_pressed() throws {
@@ -70,7 +83,7 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
     /// Copy buttons are not shown when `showCopyButtons` is `false`.
     @MainActor
     func test_copy_notShown() throws {
-        subject = ViewSSHKeyItemView(showCopyButtons: false, store: Store(processor: processor))
+        initSubject(canViewPrivateKey: true, showCopyButtons: false)
 
         XCTAssertThrowsError(
             try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyPrivateKeyButton")
@@ -81,5 +94,26 @@ class ViewSSHKeyItemViewTests: BitwardenTestCase {
         XCTAssertThrowsError(
             try subject.inspect().find(viewWithAccessibilityIdentifier: "SSHKeyCopyFingerprintButton")
         )
+    }
+
+    // MARK: Private
+
+    /// Inits the subject with customization
+    /// - Parameters:
+    ///   - canViewPrivateKey: Whether the private key can be viewed.
+    ///   - showCopyButtons: Whether to show copy buttons.
+    @MainActor
+    func initSubject(canViewPrivateKey: Bool, showCopyButtons: Bool) {
+        processor = MockProcessor(
+            state: SSHKeyItemState(
+                canViewPrivateKey: canViewPrivateKey,
+                privateKey: "privateKey",
+                publicKey: "publicKey",
+                keyFingerprint: "fingerprint"
+            )
+        )
+        let store = Store(processor: processor)
+
+        subject = ViewSSHKeyItemView(showCopyButtons: showCopyButtons, store: store)
     }
 }

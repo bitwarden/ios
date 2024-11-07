@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -119,6 +120,88 @@ class AlertVaultTests: BitwardenTestCase {
 
         try await subject.tapAction(title: Localizations.confirm)
         XCTAssertTrue(actionCalled)
+    }
+
+    /// `static moreOptions(canCopyTotp:cipherView:hasMasterPassword:id:showEdit:action:)` returns
+    /// the appropirate options for `.sshKey` type
+    @MainActor
+    func test_moreOptions_sshKey() async throws { // swiftlint:disable:this function_body_length
+        var capturedAction: MoreOptionsAction?
+        let action: (MoreOptionsAction) -> Void = { action in
+            capturedAction = action
+        }
+        let cipher = CipherView.fixture(
+            edit: false,
+            id: "123",
+            name: "Test Cipher",
+            sshKey: .fixture(),
+            type: .sshKey,
+            viewPassword: true
+        )
+        let alert = Alert.moreOptions(
+            canCopyTotp: false,
+            cipherView: cipher,
+            hasMasterPassword: false,
+            id: cipher.id!,
+            showEdit: true,
+            action: action
+        )
+        XCTAssertEqual(alert.title, cipher.name)
+        XCTAssertEqual(alert.preferredStyle, .actionSheet)
+        XCTAssertEqual(alert.alertActions.count, 6)
+
+        try await alert.tapAction(byIndex: 0, withTitle: Localizations.view)
+        XCTAssertEqual(capturedAction, .view(id: "123"))
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 1, withTitle: Localizations.edit)
+        XCTAssertEqual(
+            capturedAction,
+            .edit(cipherView: cipher, requiresMasterPasswordReprompt: false)
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 2, withTitle: Localizations.copyPublicKey)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.publicKey,
+                value: "publicKey",
+                requiresMasterPasswordReprompt: false,
+                logEvent: nil,
+                cipherId: "123"
+            )
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 3, withTitle: Localizations.copyPrivateKey)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.privateKey,
+                value: "privateKey",
+                requiresMasterPasswordReprompt: false,
+                logEvent: nil,
+                cipherId: "123"
+            )
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 4, withTitle: Localizations.copyFingerprint)
+        XCTAssertEqual(
+            capturedAction,
+            .copy(
+                toast: Localizations.fingerprint,
+                value: "fingerprint",
+                requiresMasterPasswordReprompt: false,
+                logEvent: nil,
+                cipherId: "123"
+            )
+        )
+        capturedAction = nil
+
+        try await alert.tapAction(byIndex: 5, withTitle: Localizations.cancel)
+        XCTAssertNil(capturedAction)
     }
 
     /// `passwordAutofillInformation()` constructs an `Alert` that informs the user about password

@@ -154,6 +154,49 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:appLocale"))
     }
 
+    /// `appRehydrationState(userId:)` is initially `nil`
+    func test_appRehydrationState_isInitiallyNil() {
+        XCTAssertNil(subject.appRehydrationState(userId: "-1"))
+    }
+
+    /// `appRehydrationState(userId:)` is initially `nil`
+    func test_appRehydrationState_withValue() {
+        subject.setAppRehydrationState(
+            AppRehydrationState(target: .viewCipher(cipherId: "1"), expirationTime: .now),
+            userId: "1"
+        )
+        subject.setAppRehydrationState(
+            AppRehydrationState(target: .viewCipher(cipherId: "2"), expirationTime: .now),
+            userId: "2"
+        )
+
+        XCTAssertEqual(subject.appRehydrationState(userId: "1")?.target, .viewCipher(cipherId: "1"))
+        XCTAssertEqual(subject.appRehydrationState(userId: "2")?.target, .viewCipher(cipherId: "2"))
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                AppRehydrationState.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:appRehydrationState_1")?
+                        .data(using: .utf8)
+                )
+            ).target,
+            .viewCipher(cipherId: "1")
+        )
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                AppRehydrationState.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:appRehydrationState_2")?
+                        .data(using: .utf8)
+                )
+            ).target,
+            .viewCipher(cipherId: "2")
+        )
+    }
+
     /// `appTheme` returns `nil` if there isn't a previously stored value.
     func test_appTheme_isInitiallyNil() {
         XCTAssertNil(subject.appTheme)

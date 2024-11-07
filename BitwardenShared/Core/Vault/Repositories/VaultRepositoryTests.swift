@@ -760,6 +760,33 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(isDisabled)
     }
 
+    /// `needsSync()` Calls the sync service to check it.
+    func test_needsSync() async throws {
+        stateService.activeAccount = .fixture()
+        syncService.needsSyncResult = .success(true)
+        let needsSync = try await subject.needsSync()
+        XCTAssertTrue(needsSync)
+        XCTAssertTrue(syncService.needsSyncOnlyCheckLocalData)
+    }
+
+    /// `needsSync()` throws when no active account.
+    func test_needsSync_throwsNoActiveAccount() async throws {
+        stateService.activeAccount = nil
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.needsSync()
+        }
+    }
+
+    /// `needsSync()` throws when sync service throws.
+    func test_needsSync_throwsSyncService() async throws {
+        stateService.activeAccount = .fixture()
+        syncService.needsSyncResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.needsSync()
+        }
+        XCTAssertTrue(syncService.needsSyncOnlyCheckLocalData)
+    }
+
     /// `isVaultEmpty()` throws an error if one occurs.
     func test_isVaultEmpty_error() async {
         cipherService.cipherCountResult = .failure(BitwardenTestError.example)
@@ -1385,6 +1412,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "one time cafefe",
                 type: .login
             ),
+            .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[0]))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
@@ -1421,6 +1449,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "one time cafefe",
                 type: .login
             ),
+            .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
@@ -1462,6 +1491,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "one time cafefe",
                 type: .login
             ),
+            .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[4]))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
@@ -1507,6 +1537,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "one time cafefe",
                 type: .login
             ),
+            .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[4]))
         let expectedSearchResult = try [XCTUnwrap(VaultListItem(cipherView: cipherView))]
@@ -1548,6 +1579,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "one time cafefe",
                 type: .login
             ),
+            .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
         let expectedSearchResult = try [
             XCTUnwrap(
@@ -1599,6 +1631,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 name: "one time cafefe",
                 type: .login
             ),
+            .fixture(id: "6", name: "Some sshkey", type: .sshKey),
         ]
         let expectedSearchResult = try [
             XCTUnwrap(
@@ -1621,6 +1654,97 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .sshKey, filterType:)`
+    /// returns search matching cipher name for SSH key items.
+    @MainActor
+    func test_searchVaultListPublisher_searchText_sshKey() async throws {
+        configService.featureFlagsBool[.sshKeyVaultItem] = true
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .card),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(
+                folderId: "coffee",
+                id: "0",
+                name: "Best Cafes",
+                type: .secureNote
+            ),
+            .fixture(
+                collectionIds: ["123", "meep"],
+                id: "4",
+                name: "Café Friend",
+                type: .identity
+            ),
+            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
+            .fixture(
+                id: "6",
+                login: .fixture(totp: .standardTotpKey),
+                name: "one time cafefe",
+                type: .login
+            ),
+            .fixture(id: "7", name: "cafe", type: .sshKey),
+        ]
+        let expectedSearchResult = try [
+            XCTUnwrap(
+                VaultListItem(
+                    cipherView: CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[7]))
+                )
+            ),
+        ]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .sshKey,
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, expectedSearchResult)
+    }
+
+    /// `searchVaultListPublisher(searchText:, group: .sshKey, filterType:)`
+    /// returns 0 search matching cipher name for SSH key items when `.sshKeyVaultItem` flag is disabled.
+    @MainActor
+    func test_searchVaultListPublisher_searchText_sshKeyWithFlagDisabled() async throws {
+        configService.featureFlagsBool[.sshKeyVaultItem] = false
+        stateService.activeAccount = .fixture()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "café", type: .card),
+            .fixture(id: "2", name: "cafepass", type: .login),
+            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
+            .fixture(
+                folderId: "coffee",
+                id: "0",
+                name: "Best Cafes",
+                type: .secureNote
+            ),
+            .fixture(
+                collectionIds: ["123", "meep"],
+                id: "4",
+                name: "Café Friend",
+                type: .identity
+            ),
+            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
+            .fixture(
+                id: "6",
+                login: .fixture(totp: .standardTotpKey),
+                name: "one time cafefe",
+                type: .login
+            ),
+            .fixture(id: "7", name: "cafe", type: .sshKey),
+        ]
+        var iterator = try await subject
+            .searchVaultListPublisher(
+                searchText: "cafe",
+                group: .sshKey,
+                filterType: .allVaults
+            )
+            .makeAsyncIterator()
+        let ciphers = try await iterator.next()
+        XCTAssertEqual(ciphers, [])
     }
 
     /// `searchVaultListPublisher(searchText:, group: .totp, filterType:)`
@@ -2235,6 +2359,26 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items on SSH key group.
+    func test_vaultListPublisher_groups_sshKey() async throws {
+        let cipher = Cipher.fixture(id: "1", type: .sshKey)
+        cipherService.ciphersSubject.send([cipher])
+
+        var iterator = try await subject.vaultListPublisher(group: .sshKey, filter: .allVaults).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+
+        XCTAssertEqual(
+            vaultListSections,
+            [
+                VaultListSection(
+                    id: "Items",
+                    items: [.fixture(cipherView: .init(cipher: cipher))],
+                    name: Localizations.items
+                ),
+            ]
+        )
+    }
+
     /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items for premium accounts.
     func test_vaultListPublisher_groups_totp_premium() async throws {
         stateService.activeAccount = premiumAccount
@@ -2683,6 +2827,47 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections and folders, with no filter.
+    @MainActor
+    func test_vaultListPublisher_withCollections_allWithSSHKeyFlagEnabled() async throws {
+        configService.featureFlagsBool[.sshKeyVaultItem] = true
+        stateService.activeAccount = .fixture()
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
+        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
+
+        var iterator = try await subject.vaultListPublisher(filter: .allVaults).makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Favorites
+              - Cipher: Apple
+            Section: Types
+              - Group: Login (6)
+              - Group: Card (1)
+              - Group: Identity (1)
+              - Group: Secure note (1)
+              - Group: SSH key (1)
+            Section: Folders
+              - Group: Development (0)
+              - Group: Internal (1)
+              - Group: Social (2)
+              - Group: No Folder (6)
+            Section: Collections
+              - Group: Design (2)
+              - Group: Engineering (3)
+            Section: Trash
+              - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections with the my vault filter.
     func test_vaultListPublisher_withCollections_myVault() async throws {
         stateService.activeAccount = .fixture()
@@ -2709,6 +2894,44 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Section: No Folder
               - Cipher: Bitwarden User
               - Cipher: Top Secret Note
+              - Cipher: Visa
+            Section: Trash
+              - Group: Trash (1)
+            """
+        }
+    }
+
+    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
+    /// displayed in the vault for a vault that contains collections with the my vault filter with SSH Key flag enabled.
+    @MainActor
+    func test_vaultListPublisher_withCollections_myVaultWithSSHKeyFlagEnabled() async throws {
+        configService.featureFlagsBool[.sshKeyVaultItem] = true
+        stateService.activeAccount = .fixture()
+        let syncResponse = try JSONDecoder.defaultDecoder.decode(
+            SyncResponseModel.self,
+            from: APITestData.syncWithCiphersCollections.data
+        )
+        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
+        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
+        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
+
+        var iterator = try await subject.vaultListPublisher(filter: .myVault).makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
+            """
+            Section: Types
+              - Group: Login (1)
+              - Group: Card (1)
+              - Group: Identity (1)
+              - Group: Secure note (1)
+              - Group: SSH key (1)
+            Section: Folders
+              - Group: Social (1)
+            Section: No Folder
+              - Cipher: Bitwarden User
+              - Cipher: Top Secret Note
+              - Cipher: Top SSH Key
               - Cipher: Visa
             Section: Trash
               - Group: Trash (1)

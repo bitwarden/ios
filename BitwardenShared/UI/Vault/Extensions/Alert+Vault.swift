@@ -161,7 +161,7 @@ extension Alert {
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count
+    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count cyclomatic_complexity line_length
         canCopyTotp: Bool,
         cipherView: CipherView,
         hasMasterPassword: Bool,
@@ -260,6 +260,38 @@ extension Alert {
                         requiresMasterPasswordReprompt: false,
                         logEvent: nil,
                         cipherId: nil
+                    ))
+                })
+            }
+        case .sshKey:
+            if let sshKey = cipherView.sshKey {
+                alertActions.append(AlertAction(title: Localizations.copyPublicKey, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.publicKey,
+                        value: sshKey.publicKey,
+                        requiresMasterPasswordReprompt: false,
+                        logEvent: nil,
+                        cipherId: cipherView.id
+                    ))
+                })
+                if cipherView.viewPassword {
+                    alertActions.append(AlertAction(title: Localizations.copyPrivateKey, style: .default) { _, _ in
+                        await action(.copy(
+                            toast: Localizations.privateKey,
+                            value: sshKey.privateKey,
+                            requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+                            logEvent: nil,
+                            cipherId: cipherView.id
+                        ))
+                    })
+                }
+                alertActions.append(AlertAction(title: Localizations.copyFingerprint, style: .default) { _, _ in
+                    await action(.copy(
+                        toast: Localizations.fingerprint,
+                        value: sshKey.fingerprint,
+                        requiresMasterPasswordReprompt: false,
+                        logEvent: nil,
+                        cipherId: cipherView.id
                     ))
                 })
             }

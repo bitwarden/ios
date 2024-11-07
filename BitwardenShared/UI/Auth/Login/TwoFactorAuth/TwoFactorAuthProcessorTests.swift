@@ -394,10 +394,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.verifying)])
         XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "Test")
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidVerificationCode
-        ))
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -455,7 +452,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertTrue(authRepository.unlockVaultWithDeviceKeyCalled)
-        XCTAssertEqual(coordinator.routes, [.complete])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.continueTapped` logs in and unlocks the vault successfully when using
@@ -471,7 +468,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(coordinator.routes, [.complete])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
     }
 
     /// `perform(_:)` with `.continueTapped` throws an error if the organization identifier is
@@ -486,15 +483,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(
-            coordinator.alertShown,
-            [
-                .defaultAlert(
-                    title: Localizations.anErrorHasOccurred,
-                    message: Localizations.invalidVerificationCode
-                ),
-            ]
-        )
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(TwoFactorAuthError.missingOrgIdentifier))
         XCTAssertEqual(coordinator.routes, [])
         XCTAssertEqual(errorReporter.errors as? [TwoFactorAuthError], [.missingOrgIdentifier])
     }
@@ -502,18 +491,14 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.
     @MainActor
     func test_perform_continueTapped_twoFactorError() async {
+        let error = IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil, nil)
         subject.state.verificationCode = "Test"
-        authService.loginWithTwoFactorCodeResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil, nil)
-        )
+        authService.loginWithTwoFactorCodeResult = .failure(error)
 
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidVerificationCode
-        ))
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(error))
     }
 
     /// `perform(_:)` with `.listenForNFC` starts listening for NFC tags and attempts login if one is read.
@@ -559,10 +544,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.receivedDuoToken("DuoToken"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(
-            title: Localizations.anErrorHasOccurred,
-            message: Localizations.invalidVerificationCode
-        ))
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
     }
 
     /// `perform(_:)` with `.receivedDuoToken` handles a two-factor error correctly.

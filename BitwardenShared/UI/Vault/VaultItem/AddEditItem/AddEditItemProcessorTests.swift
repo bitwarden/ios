@@ -19,6 +19,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
+    var rehydrationHelper: MockRehydrationHelper!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
@@ -41,6 +42,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         eventService = MockEventService()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        rehydrationHelper = MockRehydrationHelper()
         stateService = MockStateService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
@@ -56,6 +58,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 httpClient: client,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
                 stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
@@ -83,6 +86,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         errorReporter = nil
         eventService = nil
         pasteboardService = nil
+        rehydrationHelper = nil
         stateService = nil
         subject = nil
         totpService = nil
@@ -330,6 +334,22 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
     }
 
+    /// `receive(_:)` with `customField(.newCustomFieldPressed)` navigates to the `.alert` route
+    /// to select the new custom field type for SSH key.
+    @MainActor
+    func test_receive_newCustomFieldPressed_forSSHKey() async throws {
+        subject.state.type = .sshKey
+        subject.receive(.customField(.newCustomFieldPressed))
+
+        // Validate that select custom field type action sheet is shown.
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 4)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.fieldTypeText)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.fieldTypeHidden)
+        XCTAssertEqual(alert.alertActions[2].title, Localizations.fieldTypeBoolean)
+        XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
+    }
+
     /// `receive(_:)` with `.customField(.removeCustomFieldPressed(index:))` will remove
     /// the  custom field from given index.
     @MainActor
@@ -547,6 +567,70 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
+    }
+
+    /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with adding configuration
+    /// doesn't add itself as a rehydratable target.
+    @MainActor
+    func test_init_addingConfiguration() {
+        rehydrationHelper.rehydratableTargets.removeAll()
+
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                addItem: .login,
+                hasPremium: false
+            )
+        )
+        XCTAssertTrue(rehydrationHelper.rehydratableTargets.isEmpty)
+    }
+
+    /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with editing configuration
+    /// doesn't add itself as a rehydratable target.
+    @MainActor
+    func test_init_editingConfiguration() {
+        rehydrationHelper.rehydratableTargets.removeAll()
+
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                existing: CipherView.fixture(),
+                hasPremium: false
+            )!
+        )
+        waitFor(
+            !rehydrationHelper.rehydratableTargets.isEmpty
+                && rehydrationHelper.rehydratableTargets[0] is AddEditItemProcessor
+        )
     }
 
     /// `perform(_:)` with `.appeared` doesn't show the password autofill alert if it has already been shown.
@@ -1002,6 +1086,26 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
+    /// `perform(_:)` with `.savePressed` saves the item for SSH Key
+    @MainActor
+    func test_perform_savePressed_sshKey() async {
+        subject.state.type = .sshKey
+        subject.state.name = "sshKey"
+
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).type,
+            .sshKey
+        )
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
+            "sshKey"
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
     /// `perform(_:)` with `.savePressed` saves the item.
     @MainActor
     func test_perform_savePressed_card() async throws {
@@ -1033,6 +1137,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNil(added.identity)
         XCTAssertNil(added.login)
         XCTAssertNil(added.secureNote)
+        XCTAssertNil(added.sshKey)
         XCTAssertNotNil(added.card)
         XCTAssertEqual(added.cardItemState(), expectedCardState)
         let unwrappedState = try XCTUnwrap(subject.state as? CipherItemState)
@@ -2184,6 +2289,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.identityFieldChanged(.countryChanged("")))
 
         XCTAssertEqual(subject.state.identityState.country, "")
+    }
+
+    /// `getter:rehydrationState` returns the proper state with the cipher id.
+    @MainActor
+    func test_rehydrationState() {
+        subject.state = CipherItemState(existing: .fixture(id: "1"), hasPremium: false)!
+        XCTAssertEqual(subject.rehydrationState?.target, .editCipher(cipherId: "1"))
+    }
+
+    /// `getter:rehydrationState` returns the proper state with the cipher id.
+    @MainActor
+    func test_rehydrationState_nil() {
+        subject.state = CipherItemState(addItem: .login, hasPremium: false)
+        XCTAssertNil(subject.rehydrationState?.target)
     }
 }
 

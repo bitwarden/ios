@@ -47,6 +47,7 @@ class AddItemStateTests: XCTestCase {
               - reprompt: CipherRepromptType.none
               - revisionDate: 2023-10-20T00:00:00Z
               - secureNote: Optional<SecureNoteView>.none
+              - sshKey: Optional<SshKeyView>.none
               - type: CipherType.login
               - viewPassword: true
 
@@ -107,6 +108,7 @@ class AddItemStateTests: XCTestCase {
               - reprompt: CipherRepromptType.password
               - revisionDate: 2023-09-01T00:00:00Z
               - secureNote: Optional<SecureNoteView>.none
+              - sshKey: Optional<SshKeyView>.none
               - type: CipherType.login
               - viewPassword: true
 

@@ -126,12 +126,13 @@ extension CipherView {
     /// - Returns: An `SSHKeyItemState` representing the SSH key information of the cipher.
     ///
     func sshKeyItemState() -> SSHKeyItemState {
-        // TODO: PM-10401 create state when SDK is updated
-        SSHKeyItemState(
+        guard let sshKey else { return .init() }
+        return SSHKeyItemState(
+            canViewPrivateKey: viewPassword,
             isPrivateKeyVisible: false,
-            privateKey: "Test",
-            publicKey: "Test",
-            keyFingerprint: "Test"
+            privateKey: sshKey.privateKey,
+            publicKey: sshKey.publicKey,
+            keyFingerprint: sshKey.fingerprint
         )
     }
 
@@ -187,6 +188,7 @@ extension CipherView {
             identity: (addEditState.type == .identity) ? addEditState.identityState.identityView : nil,
             card: (addEditState.type == .card) ? addEditState.cardItemState.cardView : nil,
             secureNote: (addEditState.type == .secureNote) ? secureNote : nil,
+            sshKey: (addEditState.type == .sshKey) ? sshKey : nil,
             favorite: addEditState.isFavoriteOn,
             reprompt: addEditState.isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: organizationUseTotp,
@@ -335,6 +337,7 @@ extension CipherView {
             identity: identity,
             card: card,
             secureNote: secureNote,
+            sshKey: sshKey,
             favorite: favorite,
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,

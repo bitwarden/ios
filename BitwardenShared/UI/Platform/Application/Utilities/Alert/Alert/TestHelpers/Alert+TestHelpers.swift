@@ -22,6 +22,24 @@ extension Alert {
         try await tapAction(title: Localizations.cancel)
     }
 
+    /// Simulates a user interaction with the alert action that is in the specified index and matches the title.
+    /// - Parameters:
+    ///   - byIndex: The index to get the alert action.
+    ///   - withTitle: The title of the alert action to trigger.
+    ///   - alertTextFields: `AlertTextField` list to execute the action
+    /// - Throws: Throws an `AlertError` if the alert action cannot be found.
+    func tapAction(
+        byIndex: Int,
+        withTitle: String,
+        _ alertTextFields: [AlertTextField]? = nil
+    ) async throws {
+        let alertAction = alertActions[byIndex]
+        guard alertAction.title == withTitle else {
+            throw AlertError.alertActionNotFound(title: withTitle)
+        }
+        await alertAction.handler?(alertAction, alertTextFields ?? self.alertTextFields)
+    }
+
     /// Simulates a user interaction with the alert action that matches the provided title.
     ///
     /// - Parameters:

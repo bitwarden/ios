@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Vault timeout action";
 "VaultTimeoutLogOutConfirmation" = "Logging out will remove all access to your vault and requires online authentication after the timeout period. Are you sure you want to use this setting?";
 "LoggingIn" = "Logging in...";
-"LoginOrCreateNewAccount" = "Log in or create a new account to access your secure vault.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Manage";
 "MasterPasswordConfirmationValMessage" = "Password confirmation is not correct.";
 "MasterPasswordDescription" = "The master password is the password you use to access your vault. It is very important that you do not forget your master password. There is no way to recover the password in the event that you forget it.";
@@ -1055,3 +1055,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
+"CopyPublicKey" = "Copy public key";
+"CopyPrivateKey" = "Copy private key";
+"CopyFingerprint" = "Copy fingerprint";
+"SSHKeys" = "SSH keys";
