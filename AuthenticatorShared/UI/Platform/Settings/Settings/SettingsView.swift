@@ -110,8 +110,9 @@ struct SettingsView: View {
                         externalLinkRow(
                             Localizations.syncWithTheBitwardenApp,
                             action: .syncWithBitwardenAppTapped,
-                            hasDivider: false
+                            hasDivider: store.state.shouldShowDefaultSaveOption
                         )
+                        defaultSaveOption
                     }
                 }
                 .cornerRadius(10)
@@ -153,6 +154,22 @@ struct SettingsView: View {
             copyrightNotice
         }
         .cornerRadius(10)
+    }
+
+    /// The application's default save option picker view
+    @ViewBuilder private var defaultSaveOption: some View {
+        if store.state.shouldShowDefaultSaveOption {
+            SettingsMenuField(
+                title: Localizations.defaultSaveOption,
+                options: DefaultSaveOption.allCases,
+                hasDivider: false,
+                selection: store.binding(
+                    get: \.defaultSaveOption,
+                    send: SettingsAction.defaultSaveChanged
+                )
+            )
+            .accessibilityIdentifier("DefaultSaveOptionChooser")
+        }
     }
 
     /// The application's color theme picker view
@@ -226,21 +243,48 @@ struct SettingsView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview {
-    NavigationView {
-        SettingsView(
-            store: Store(
-                processor: StateProcessor(
-                    state: SettingsState(
-                        biometricUnlockStatus: .available(
-                            .faceID,
-                            enabled: false,
-                            hasValidIntegrity: true
+struct SettingsView_Previews: PreviewProvider {
+    static var previews: some View {
+        NavigationView {
+            SettingsView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: SettingsState(
+                            biometricUnlockStatus: .available(
+                                .faceID,
+                                enabled: false,
+                                hasValidIntegrity: true
+                            )
                         )
                     )
                 )
             )
-        )
+        }.previewDisplayName("SettingsView")
+
+        NavigationView {
+            SettingsView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: SettingsState(
+                            shouldShowSyncButton: true
+                        )
+                    )
+                )
+            )
+        }.previewDisplayName("With Sync Row")
+
+        NavigationView {
+            SettingsView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: SettingsState(
+                            shouldShowDefaultSaveOption: true,
+                            shouldShowSyncButton: true
+                        )
+                    )
+                )
+            )
+        }.previewDisplayName("With Sync & Default Options")
     }
 }
 #endif

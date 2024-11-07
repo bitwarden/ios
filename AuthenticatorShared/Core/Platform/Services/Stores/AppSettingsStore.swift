@@ -21,6 +21,12 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// The default save location for new keys.
+    var defaultSaveOption: DefaultSaveOption { get set }
+
+    /// Whether the user has seen the default save options prompt.
+    var hasSeenDefaultSaveOptionPrompt: Bool { get }
+
     /// Whether the user has seen the welcome tutorial.
     var hasSeenWelcomeTutorial: Bool { get set }
 
@@ -296,6 +302,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case cardClosedState(card: ItemListCard)
         case clearClipboardValue(userId: String)
         case debugFeatureFlag(name: String)
+        case defaultSaveOption
         case disableWebIcons
         case hasSeenWelcomeTutorial
         case hasSyncedAccount(name: String)
@@ -324,6 +331,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "clearClipboard_\(userId)"
             case let .debugFeatureFlag(name):
                 key = "debugFeatureFlag_\(name)"
+            case .defaultSaveOption:
+                key = "defaultSaveOption"
             case .disableWebIcons:
                 key = "disableFavicon"
             case .hasSeenWelcomeTutorial:
@@ -361,6 +370,21 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
+    }
+
+    var defaultSaveOption: DefaultSaveOption {
+        get {
+            guard let rawValue: String = fetch(for: .defaultSaveOption),
+                  let value = DefaultSaveOption(rawValue: rawValue)
+            else { return .none }
+
+            return value
+        }
+        set { store(newValue.rawValue, for: .defaultSaveOption) }
+    }
+
+    var hasSeenDefaultSaveOptionPrompt: Bool {
+        fetch(for: .defaultSaveOption) != nil
     }
 
     var hasSeenWelcomeTutorial: Bool {

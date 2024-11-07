@@ -277,7 +277,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     /// `perform(:_)` with `.moveToBitwardenPressed()` with a local item stores the item in the shared
     /// store and launches the Bitwarden app via the new item  deep link.
     func test_perform_moveToBitwardenPressed_localItem() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
         let expected = AuthenticatorItemView.fixture()
         let localItem = ItemListItem.fixture(totp: .fixture(itemView: expected))
@@ -292,7 +292,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     /// `perform(:_)` with `.moveToBitwardenPressed()` captures any errors thrown, logs them, and shows an
     /// error alert.
     func test_perform_moveToBitwardenPressed_error() async throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
         let localItem = ItemListItem.fixture()
         authItemRepository.tempItemErrorToThrow = AuthenticatorTestError.example
@@ -592,11 +592,14 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     // MARK: AuthenticatorKeyCaptureDelegate Tests
 
-    /// `didCompleteAutomaticCapture` failure
+    /// `didCompleteAutomaticCapture` failure when the user has opted to save locally by default.
     func test_didCompleteAutomaticCapture_failure() {
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
+        appSettingsStore.defaultSaveOption = .saveLocally
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: "1234")
+        waitFor(captureCoordinator.routes.last != nil)
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
             dismissAction = onDismiss
@@ -618,27 +621,326 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNil(subject.state.toast)
     }
 
-    /// `didCompleteAutomaticCapture` success
-    func test_didCompleteAutomaticCapture_success() throws {
+    /// `didCompleteAutomaticCapture` success when the user has opted to be asked by default and
+    /// chooses the save locally option.
+    func test_didCompleteAutomaticCapture_hasSeenPrompt_noneLocalSaveChosen() async throws {
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = true
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
+        appSettingsStore.defaultSaveOption = .none
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
         authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        let saveLocallyOption = try XCTUnwrap(alert.alertActions.first)
+        XCTAssertEqual(saveLocallyOption.title, Localizations.saveHere)
+        await saveLocallyOption.handler?(saveLocallyOption, [])
+
         var dismissAction: DismissAction?
         if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
             dismissAction = onDismiss
         }
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
-        waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
-        waitFor(subject.state.loadingState != .loading(nil))
-        guard let item = authItemRepository.addAuthItemAuthItems.first
-        else {
-            XCTFail("Unable to get authenticator item")
-            return
+
+        try await waitForAsync { !self.authItemRepository.addAuthItemAuthItems.isEmpty }
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
+        let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
+        XCTAssertEqual(item.name, "")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+    }
+
+    /// `didCompleteAutomaticCapture` success when the user has opted to be asked by default and
+    /// chooses the save locally option.
+    func test_didCompleteAutomaticCapture_hasSeenPrompt_noneSaveToBitwardenChosen() async throws {
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = true
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
+        appSettingsStore.defaultSaveOption = .none
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        let saveLocallyOption = try XCTUnwrap(alert.alertActions[1])
+        XCTAssertEqual(saveLocallyOption.title, Localizations.takeMeToBitwarden)
+        await saveLocallyOption.handler?(saveLocallyOption, [])
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
         }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+
+        try await waitForAsync { self.authItemRepository.tempItem != nil }
+        let item = try XCTUnwrap(authItemRepository.tempItem)
+        XCTAssertEqual(item.name, "")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+
+        try await waitForAsync { self.subject.state.url != nil }
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
+    }
+
+    /// `didCompleteAutomaticCapture` success when the user has opted to save locally by default.
+    func test_didCompleteAutomaticCapture_hasSeenPrompt_saveLocally() async throws {
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
+        appSettingsStore.defaultSaveOption = .saveLocally
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { captureCoordinator.routes.last != nil }
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        try await waitForAsync { !self.authItemRepository.addAuthItemAuthItems.isEmpty }
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
+        let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
+        XCTAssertEqual(item.name, "")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+    }
+
+    /// `didCompleteAutomaticCapture` success when the user has opted to save to Bitwarden by default.
+    func test_didCompleteAutomaticCapture_hasSeenPrompt_saveToBitwarden() async throws {
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = true
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
+        appSettingsStore.defaultSaveOption = .saveToBitwarden
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { captureCoordinator.routes.last != nil }
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        try await waitForAsync { self.authItemRepository.tempItem != nil }
+        try await waitForAsync { self.subject.state.url != nil }
+        let item = try XCTUnwrap(authItemRepository.tempItem)
+        XCTAssertEqual(item.name, "")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
+    }
+
+    /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
+    /// to save locally and choose to not set that as their default.
+    func test_didCompleteAutomaticCapture_noDefault_saveLocally_noToDefault() async throws {
+        authItemRepository.pmSyncEnabled = true
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = false
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        let saveLocallyOption = try XCTUnwrap(alert.alertActions.first)
+        XCTAssertEqual(saveLocallyOption.title, Localizations.saveHere)
+        await saveLocallyOption.handler?(saveLocallyOption, [])
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+
+        try await waitForAsync { self.coordinator.alertShown.count > 1 }
+
+        let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
+        XCTAssertEqual(secondAlert.alertActions.count, 2)
+        let noOption = try XCTUnwrap(secondAlert.alertActions[1])
+        XCTAssertEqual(noOption.title, Localizations.noAskMe)
+        Task {
+            await noOption.handler?(noOption, [])
+        }
+
+        try await waitForAsync { !self.authItemRepository.addAuthItemAuthItems.isEmpty }
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
+        let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
+        XCTAssertEqual(item.name, "")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+        XCTAssertEqual(appSettingsStore.defaultSaveOption, .none)
+    }
+
+    /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
+    /// to save locally and choose to set that as their default.
+    func test_didCompleteAutomaticCapture_noDefault_saveLocally_yesToDefault() async throws {
+        authItemRepository.pmSyncEnabled = true
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = false
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        let saveLocallyOption = try XCTUnwrap(alert.alertActions.first)
+        XCTAssertEqual(saveLocallyOption.title, Localizations.saveHere)
+        await saveLocallyOption.handler?(saveLocallyOption, [])
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+
+        try await waitForAsync { self.coordinator.alertShown.count > 1 }
+
+        let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
+        XCTAssertEqual(secondAlert.alertActions.count, 2)
+        let yesOption = try XCTUnwrap(secondAlert.alertActions.first)
+        XCTAssertEqual(yesOption.title, Localizations.yesSetDefault)
+        Task {
+            await yesOption.handler?(yesOption, [])
+        }
+
+        try await waitForAsync { !self.authItemRepository.addAuthItemAuthItems.isEmpty }
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
+        let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
+        XCTAssertEqual(item.name, "")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+        XCTAssertEqual(appSettingsStore.defaultSaveOption, .saveLocally)
+    }
+
+    /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
+    /// to save to Bitwarden and choose to not set that as their default.
+    func test_didCompleteAutomaticCapture_noDefault_saveToBitwarden_noToDefault() async throws {
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = true
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = false
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        let saveToBitwardenOption = try XCTUnwrap(alert.alertActions[1])
+        XCTAssertEqual(saveToBitwardenOption.title, Localizations.takeMeToBitwarden)
+        await saveToBitwardenOption.handler?(saveToBitwardenOption, [])
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+
+        try await waitForAsync { self.coordinator.alertShown.count > 1 }
+
+        let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
+        XCTAssertEqual(secondAlert.alertActions.count, 2)
+        let noOption = try XCTUnwrap(secondAlert.alertActions[1])
+        XCTAssertEqual(noOption.title, Localizations.noAskMe)
+        await noOption.handler?(noOption, [])
+
+        try await waitForAsync { self.authItemRepository.tempItem != nil }
+        try await waitForAsync { self.subject.state.url != nil }
+        let item = try XCTUnwrap(authItemRepository.tempItem)
+        XCTAssertEqual(item.name, "")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
+        XCTAssertEqual(appSettingsStore.defaultSaveOption, .none)
+    }
+
+    /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
+    /// to save to Bitwarden and choose to set that as their default.
+    func test_didCompleteAutomaticCapture_noDefault_saveToBitwarden_yesToDefault() async throws {
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = true
+        appSettingsStore.hasSeenDefaultSaveOptionPrompt = false
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { !self.coordinator.alertShown.isEmpty }
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(alert.alertActions.count, 2)
+        let saveLocallyOption = try XCTUnwrap(alert.alertActions[1])
+        XCTAssertEqual(saveLocallyOption.title, Localizations.takeMeToBitwarden)
+        await saveLocallyOption.handler?(saveLocallyOption, [])
+
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+
+        try await waitForAsync { self.coordinator.alertShown.count > 1 }
+
+        let secondAlert = try XCTUnwrap(coordinator.alertShown[1])
+        XCTAssertEqual(secondAlert.alertActions.count, 2)
+        let yesOption = try XCTUnwrap(secondAlert.alertActions.first)
+        XCTAssertEqual(yesOption.title, Localizations.yesSetDefault)
+        await yesOption.handler?(yesOption, [])
+
+        try await waitForAsync { self.authItemRepository.tempItem != nil }
+        try await waitForAsync { self.subject.state.url != nil }
+        let item = try XCTUnwrap(authItemRepository.tempItem)
+        XCTAssertEqual(item.name, "")
+        XCTAssertEqual(item.totpKey, String.base32Key)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)
+        XCTAssertEqual(appSettingsStore.defaultSaveOption, .saveToBitwarden)
+    }
+
+    /// `didCompleteAutomaticCapture` should not show any prompts or look at the defaults when the sync
+    /// is not active (either feature flag is disabled, or the user hasn't yet turned sync on). It should revert to the
+    /// pre-existing behavior and save the code locally.
+    func test_didCompleteAutomaticCapture_syncNotActive() async throws {
+        authItemRepository.pmSyncEnabled = false
+        let key = String.base32Key
+        let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
+        totpService.getTOTPConfigResult = .success(keyConfig)
+        authItemRepository.itemListSubject.value = [ItemListSection.fixture()]
+        let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
+        subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: key)
+        try await waitForAsync { captureCoordinator.routes.last != nil }
+        var dismissAction: DismissAction?
+        if case let .dismiss(onDismiss) = captureCoordinator.routes.last {
+            dismissAction = onDismiss
+        }
+        XCTAssertNotNil(dismissAction)
+        dismissAction?.action()
+        try await waitForAsync { !self.authItemRepository.addAuthItemAuthItems.isEmpty }
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
+        let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
     }
@@ -702,7 +1004,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `didCompleteManualCapture` success with `sendToBitwarden` item
     func test_didCompleteManualCapture_sendToBitwardenSuccess() throws {
-        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
         let key = String.otpAuthUriKeyComplete
         let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))

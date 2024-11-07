@@ -42,6 +42,16 @@ class SettingsViewTests: AuthenticatorTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .appThemeChanged(.dark))
     }
 
+    /// Updating the value of the default save option sends the  `.defaultSaveOptionChanged()` action.
+    func test_defaultSaveOptionChanged_updateValue() throws {
+        processor.state.shouldShowDefaultSaveOption = true
+        processor.state.shouldShowSyncButton = true
+        processor.state.defaultSaveOption = .none
+        let menuField = try subject.inspect().find(settingsMenuField: Localizations.defaultSaveOption)
+        try menuField.select(newValue: DefaultSaveOption.saveToBitwarden)
+        XCTAssertEqual(processor.dispatchedActions.last, .defaultSaveChanged(.saveToBitwarden))
+    }
+
     /// Tapping the backup button dispatches the `.backupTapped` action.
     func test_backupButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.backup)
@@ -102,6 +112,16 @@ class SettingsViewTests: AuthenticatorTestCase {
 
     /// Tests the view renders correctly with the `shouldShowSyncButton` set to `true`.
     func test_viewRenderWithSyncRow() {
+        processor.state.shouldShowSyncButton = true
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// Tests the view renders correctly with `shouldShowDefaultSaveOption` and `shouldShowSyncButton` set to `true`.
+    func test_viewRenderWithSyncRowAndDefaultSaveOption() {
+        processor.state.shouldShowDefaultSaveOption = true
         processor.state.shouldShowSyncButton = true
         assertSnapshots(
             of: subject,

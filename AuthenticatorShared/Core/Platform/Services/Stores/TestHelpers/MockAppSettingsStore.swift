@@ -10,6 +10,8 @@ class MockAppSettingsStore: AppSettingsStore {
     var appLocale: String?
     var appTheme: String?
     var disableWebIcons = false
+    var defaultSaveOption: DefaultSaveOption = .none
+    var hasSeenDefaultSaveOptionPrompt = false
     var hasSeenWelcomeTutorial = false
     var lastUserShouldConnectToWatch = false
     var localUserId: String = "localtest"

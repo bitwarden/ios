@@ -132,3 +132,16 @@
 "MoveToBitwarden" = "Move to Bitwarden";
 "AddCodeToBitwarden" = "Add code to Bitwarden";
 "AddCodeLocally" = "Add code locally";
+"ScanComplete" = "Scan complete";
+"SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Save this authenticator key here, or add it to a login in your Bitwarden app.";
+"SaveHere" = "Save here";
+"TakeMeToBitwarden" = "Take me to Bitwarden";
+"SetSaveToBitwardenAsYourDefaultSaveOption" = "Set \"Save to Bitwarden\" as your default save option?";
+"SetSaveLocallyAsYourDefaultSaveOption" = "Set \"Save locally\" as your default save option?";
+"YouCanUpdateYourDefaultAnytimeInSettings" = "You can update your default anytime in settings.";
+"YesSetDefault" = "Yes, set default";
+"NoAskMe" = "No, ask me";
+"DefaultSaveOption" = "Default save option";
+"SaveToBitwarden" = "Save to Bitwarden";
+"SaveLocally" = "Save locally";
+"None" = "None";

@@ -172,7 +172,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     /// - Parameter item: the item to be moved.
     ///
     private func moveItemToBitwarden(item: AuthenticatorItemView) async {
-        guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
+        guard await services.authenticatorItemRepository.isPasswordManagerSyncActive(),
               let application = services.application,
               application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)
         else { return }
@@ -429,15 +429,52 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         _ captureCoordinator: AnyCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>,
         key: String
     ) {
-        let dismissAction = DismissAction(action: { [weak self] in
-            Task {
-                await self?.parseAndValidateAutomaticCaptureKey(key)
+        Task {
+            guard await services.authenticatorItemRepository.isPasswordManagerSyncActive() else {
+                captureCoordinator.navigate(
+                    to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false))
+                )
+                return
             }
-        })
-        captureCoordinator.navigate(to: .dismiss(dismissAction))
+
+            if services.appSettingsStore.hasSeenDefaultSaveOptionPrompt {
+                switch services.appSettingsStore.defaultSaveOption {
+                case .saveLocally:
+                    captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false)))
+                case .saveToBitwarden:
+                    captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: true)))
+                case .none:
+                    coordinator.showAlert(.determineScanSaveLocation(
+                        saveLocallyAction: { [weak self] in
+                            captureCoordinator.navigate(
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: false))
+                            )
+                        }, sendToBitwardenAction: { [weak self] in
+                            captureCoordinator.navigate(
+                                to: .dismiss(self?.parseKeyAndDismiss(key, sendToBitwarden: true))
+                            )
+                        }
+                    ))
+                }
+            } else {
+                coordinator.showAlert(.determineScanSaveLocation(
+                    saveLocallyAction: { [weak self] in
+                        let dismissAction = DismissAction(action: { [weak self] in
+                            self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: false)
+                        })
+                        captureCoordinator.navigate(to: .dismiss(dismissAction))
+                    }, sendToBitwardenAction: { [weak self] in
+                        let dismissAction = DismissAction(action: { [weak self] in
+                            self?.confirmDefaultSaveAlert(key: key, sendToBitwarden: true)
+                        })
+                        captureCoordinator.navigate(to: .dismiss(dismissAction))
+                    }
+                ))
+            }
+        }
     }
 
-    func parseAndValidateAutomaticCaptureKey(_ key: String) async {
+    func parseAndValidateAutomaticCaptureKey(_ key: String, sendToBitwarden: Bool) async {
         do {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             let loginTotpState = LoginTOTPState(authKeyModel: authKeyModel)
@@ -454,9 +491,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 totpKey: key,
                 username: accountName
             )
-            try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
-            state.toast = Toast(text: Localizations.verificationCodeAdded)
-            await perform(.refresh)
+            try await storeNewItem(newItem, sendToBitwarden: sendToBitwarden)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -500,13 +535,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
                 totpKey: key,
                 username: nil
             )
-            if sendToBitwarden {
-                await moveItemToBitwarden(item: newItem)
-            } else {
-                try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
-                state.toast = Toast(text: Localizations.verificationCodeAdded)
-                await perform(.refresh)
-            }
+            try await storeNewItem(newItem, sendToBitwarden: sendToBitwarden)
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
@@ -532,6 +561,69 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
             self?.coordinator.navigate(to: .setupTotpManual, context: self)
         })
         captureCoordinator.navigate(to: .dismiss(dismissAction))
+    }
+
+    /// Display an alert asking the user if they would like to save their choice as their default save option.
+    ///
+    /// After handling their answer to this and saving the option to the `AppSettingsStore`, the key will be
+    /// processed and handled based on what is passed in `sendToBitwarden`.
+    ///
+    /// - Parameters:
+    ///   - key: The key that was captured
+    ///   - sendToBitwarden: `true` if the user previously chose to save the key to the Bitwarden app,
+    ///     `false` if they have chosen to store it locally.
+    ///
+    private func confirmDefaultSaveAlert(key: String, sendToBitwarden: Bool) {
+        let title = sendToBitwarden ?
+            Localizations.setSaveToBitwardenAsYourDefaultSaveOption :
+            Localizations.setSaveLocallyAsYourDefaultSaveOption
+        let option: DefaultSaveOption = sendToBitwarden ? .saveToBitwarden : .saveLocally
+
+        coordinator.showAlert(.confirmDefaultSaveOption(
+            title: title,
+            yesAction: { [weak self] in
+                self?.services.appSettingsStore.defaultSaveOption = option
+                await self?.parseAndValidateAutomaticCaptureKey(key, sendToBitwarden: sendToBitwarden)
+            }, noAction: { [weak self] in
+                self?.services.appSettingsStore.defaultSaveOption = .none
+                await self?.parseAndValidateAutomaticCaptureKey(key, sendToBitwarden: sendToBitwarden)
+            }
+        ))
+    }
+
+    /// Wrap the `parseAndValidateAutomaticCaptureKey` call in a dismiss action so that the coordinator first dismisses
+    /// the QR code scan screen and then parses and handles the `key`.
+    ///
+    /// - Parameters:
+    ///   - key: The key that was captured by the QR code scan.
+    ///   - sendToBitwarden: `true` if the code should be sent to the Bitwarden app,
+    ///     `false` if it should be stored locally.
+    /// - Returns: The `DismissAction` to pass to the `.`dismiss` route of the capture coordinator.
+    ///
+    private func parseKeyAndDismiss(_ key: String, sendToBitwarden: Bool) -> DismissAction {
+        DismissAction(action: { [weak self] in
+            Task {
+                await self?.parseAndValidateAutomaticCaptureKey(key, sendToBitwarden: sendToBitwarden)
+            }
+        })
+    }
+
+    /// Store the new item - either send it to the Bitwarden app (if `sendToBitwarden` is `true`) or
+    /// store it locally (if `sendToBitwarden` is `false`)
+    ///
+    /// - Parameters:
+    ///   - newItem: The new `AuthenticatorItemView` that was parsed from a manual or automatic capture.
+    ///   - sendToBitwarden: `true` if the item should be sent to the Bitwarden app,
+    ///     `false` if it should be stored locally.
+    ///
+    private func storeNewItem(_ newItem: AuthenticatorItemView, sendToBitwarden: Bool) async throws {
+        if sendToBitwarden {
+            await moveItemToBitwarden(item: newItem)
+        } else {
+            try await services.authenticatorItemRepository.addAuthenticatorItem(newItem)
+            state.toast = Toast(text: Localizations.verificationCodeAdded)
+            await perform(.refresh)
+        }
     }
 }
 

@@ -17,6 +17,13 @@ struct SettingsState: Equatable {
     /// The current language selection.
     var currentLanguage: LanguageOption = .default
 
+    /// The current default save option.
+    var defaultSaveOption: DefaultSaveOption = .none
+
+    /// A flag to indicate if we should show the default save option menu.
+    /// Defaults to false, which indicates we should not show the menu.
+    var shouldShowDefaultSaveOption = false
+
     /// A flag to indicate if we should show the "Sync with the Bitwarden app" button
     /// Defaults to false, which indicates we should not show the button.
     var shouldShowSyncButton = false

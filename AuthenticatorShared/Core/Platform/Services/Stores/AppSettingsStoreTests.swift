@@ -141,6 +141,39 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         XCTAssertEqual(userDefaults.integer(forKey: "bwaPreferencesStorage:clearClipboard_2"), -1)
     }
 
+    /// `defaultSaveOption` returns `.none` if there isn't a previously stored value or if a previously
+    /// stored value is not a valid option
+    func test_defaultSaveOption_isInitiallyNone() {
+        XCTAssertEqual(subject.defaultSaveOption, .none)
+
+        userDefaults.set("An invalid value", forKey: "bwaPreferencesStorage:defaultSaveOption")
+        XCTAssertEqual(subject.defaultSaveOption, .none)
+    }
+
+    /// `defaultSaveOption` can be used to get and set the default save option..
+    func test_defaultSaveOption_withValue() {
+        subject.defaultSaveOption = .saveToBitwarden
+        XCTAssertEqual(subject.defaultSaveOption, .saveToBitwarden)
+        XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "saveToBitwarden")
+
+        subject.defaultSaveOption = .saveLocally
+        XCTAssertEqual(subject.defaultSaveOption, .saveLocally)
+        XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "saveLocally")
+
+        subject.defaultSaveOption = .none
+        XCTAssertEqual(subject.defaultSaveOption, .none)
+        XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "none")
+    }
+
+    /// `hasSeenDefaultSaveOptionPrompt` returns `false` if there isn't a 'defaultSaveOption` value stored, and `true`
+    /// when there is a value stored.
+    func test_hasSeenDefaultSaveOptionPrompt() {
+        XCTAssertFalse(subject.hasSeenDefaultSaveOptionPrompt)
+
+        subject.defaultSaveOption = .none
+        XCTAssertTrue(subject.hasSeenDefaultSaveOptionPrompt)
+    }
+
     /// `disableWebIcons` returns `false` if there isn't a previously stored value.
     func test_disableWebIcons_isInitiallyFalse() {
         XCTAssertFalse(subject.disableWebIcons)
