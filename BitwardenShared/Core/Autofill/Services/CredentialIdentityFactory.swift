@@ -7,7 +7,7 @@ protocol CredentialIdentityFactory {
     /// - Parameter cipher: The cipher to get the identities from.
     /// - Returns: An array of `ASCredentialIdenitty` (password or one time code)
     @available(iOS 17.0, *)
-    func createCredentialIdentities(from cipher: CipherView) async throws -> [ASCredentialIdentity]
+    func createCredentialIdentities(from cipher: CipherView) async -> [ASCredentialIdentity]
 
     /// Tries to create a `ASPasswordCredentialIdentity` from the given `cipher`
     /// - Parameter cipher: CIpher to create the password identity.
@@ -18,7 +18,7 @@ protocol CredentialIdentityFactory {
 /// Default implemenation of `CredentialIdentityFactory` to create credential identities.
 struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
     @available(iOS 17.0, *)
-    func createCredentialIdentities(from cipher: CipherView) async throws -> [ASCredentialIdentity] {
+    func createCredentialIdentities(from cipher: CipherView) async -> [ASCredentialIdentity] {
         var identities = [ASCredentialIdentity]()
 
         if let oneTimeCodeIdentity = tryCreateOneTimeCodeIdentity(from: cipher) {
@@ -54,7 +54,7 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
     // MARK: Private
 
     /// Gets the service identifier based on the first login uri, if there's one.
-    func createServiceIdentifierFromFirstLoginUri(of cipher: CipherView) -> ASCredentialServiceIdentifier? {
+    private func createServiceIdentifierFromFirstLoginUri(of cipher: CipherView) -> ASCredentialServiceIdentifier? {
         let uris = cipher.login?.uris?.filter { $0.match != .never && $0.uri.isEmptyOrNil == false }
         guard let uri = uris?.first?.uri else {
             return nil
@@ -67,7 +67,7 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
     /// - Parameter cipher: The cipher to get the one time code identity.
     /// - Returns: An `ASOneTimeCodeCredentialIdentity` if possible, `nil` otherwise.
     @available(iOS 17.0, *)
-    func tryCreateOneTimeCodeIdentity(from cipher: CipherView) -> ASCredentialIdentity? {
+    private func tryCreateOneTimeCodeIdentity(from cipher: CipherView) -> ASCredentialIdentity? {
         guard #available(iOSApplicationExtension 18.0, *) else {
             return nil
         }

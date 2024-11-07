@@ -223,7 +223,7 @@ class DefaultAutofillCredentialService {
             if #available(iOS 17, *) {
                 var identities = [ASCredentialIdentity]()
                 for cipher in decryptedCiphers {
-                    let newIdentities = try await credentialIdentityFactory.createCredentialIdentities(from: cipher)
+                    let newIdentities = await credentialIdentityFactory.createCredentialIdentities(from: cipher)
                     identities.append(contentsOf: newIdentities)
                 }
 
@@ -425,62 +425,6 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             #endif
             throw error
         }
-    }
-}
-
-// MARK: - CipherView
-
-private extension CipherView {
-    @available(iOS 17, *)
-    var credentialIdentity: (any ASCredentialIdentity)? {
-        guard shouldGetPasswordCredentialIdentity else {
-            return nil
-        }
-        return passwordCredentialIdentity
-    }
-
-    var passwordCredentialIdentity: ASPasswordCredentialIdentity? {
-        guard let serviceIdentifier = serviceIdentifierFromLoginUris,
-              let username = login?.username, !username.isEmpty
-        else {
-            return nil
-        }
-
-        return ASPasswordCredentialIdentity(
-            serviceIdentifier: serviceIdentifier,
-            user: username,
-            recordIdentifier: id
-        )
-    }
-
-    @available(iOSApplicationExtension 18.0, *)
-    var oneTimeCodeCredentialIdentity: ASCredentialIdentity? {
-        guard let serviceIdentifier = serviceIdentifierFromLoginUris,
-              login?.totp != nil else {
-            return nil
-        }
-
-        return ASOneTimeCodeCredentialIdentity(
-            serviceIdentifier: serviceIdentifier,
-            label: name,
-            recordIdentifier: id
-        )
-    }
-
-    /// Gets the service identifier based on the first login uri, if there's one.
-    var serviceIdentifierFromLoginUris: ASCredentialServiceIdentifier? {
-        let uris = login?.uris?.filter { $0.match != .never && $0.uri.isEmptyOrNil == false }
-        guard let uri = uris?.first?.uri else {
-            return nil
-        }
-
-        return ASCredentialServiceIdentifier(identifier: uri, type: .URL)
-    }
-
-    /// Whether the `ASPasswordCredentialIdentity` should be gotten.
-    /// Otherwise a passkey identity will be provided.
-    var shouldGetPasswordCredentialIdentity: Bool {
-        !hasFido2Credentials || login?.password != nil
     }
 }
 

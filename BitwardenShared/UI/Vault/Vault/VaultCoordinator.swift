@@ -75,6 +75,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasSettingsRepository
         & HasStateService
         & HasTimeProvider
+        & HasTOTPExpirationManagerFactory
         & HasVaultRepository
         & VaultItemCoordinator.Services
 

@@ -22,6 +22,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPasteboardService
         & HasStateService
         & HasTimeProvider
+        & HasTOTPExpirationManagerFactory
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -103,8 +104,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     // MARK: Methods
 
     func initTotpExpirationManagers() {
-        vaultItemsTotpExpirationManager = .init(
-            timeProvider: services.timeProvider,
+        vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
                 Task {
@@ -112,8 +112,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 }
             }
         )
-        searchTotpExpirationManager = .init(
-            timeProvider: services.timeProvider,
+        searchTotpExpirationManager = services.totpExpirationManagerFactory.create(
             onExpiration: { [weak self] expiredSearchItems in
                 guard let self else { return }
                 Task {

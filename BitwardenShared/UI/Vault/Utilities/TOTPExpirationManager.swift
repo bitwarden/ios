@@ -1,8 +1,30 @@
 import Foundation
 
+/// A protocol to manage TOTP code expirations for `VaultListItem`s and batch refresh calls.
+///
+protocol TOTPExpirationManager {
+    // MARK: Properties
+
+    /// A closure to call on expiration
+    ///
+    var onExpiration: (([VaultListItem]) -> Void)? { get }
+
+    // MARK: Methods
+
+    /// Removes any outstanding timers
+    ///
+    func cleanup()
+
+    /// Configures TOTP code refresh scheduling
+    ///
+    /// - Parameter items: The vault list items that may require code expiration tracking.
+    ///
+    func configureTOTPRefreshScheduling(for items: [VaultListItem])
+}
+
 /// A class to manage TOTP code expirations for `VaultListItem`s and batch refresh calls.
 ///
-class TOTPExpirationManager {
+class DefaultTOTPExpirationManager: TOTPExpirationManager {
     // MARK: Properties
 
     /// A closure to call on expiration
@@ -52,10 +74,6 @@ class TOTPExpirationManager {
 
     // MARK: Methods
 
-    /// Configures TOTP code refresh scheduling
-    ///
-    /// - Parameter items: The vault list items that may require code expiration tracking.
-    ///
     func configureTOTPRefreshScheduling(for items: [VaultListItem]) {
         var newItemsByInterval = [UInt32: [VaultListItem]]()
         items.forEach { item in
@@ -65,12 +83,12 @@ class TOTPExpirationManager {
         itemsByInterval = newItemsByInterval
     }
 
-    /// A function to remove any outstanding timers
-    ///
     func cleanup() {
         updateTimer?.invalidate()
         updateTimer = nil
     }
+
+    // MARK: Private
 
     private func checkForExpirations() {
         var expired = [VaultListItem]()

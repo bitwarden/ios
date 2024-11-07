@@ -60,7 +60,7 @@ final class VaultGroupProcessor: StateProcessor<
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
-        groupTotpExpirationManager = .init(
+        groupTotpExpirationManager = DefaultTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
@@ -69,7 +69,7 @@ final class VaultGroupProcessor: StateProcessor<
                 }
             }
         )
-        searchTotpExpirationManager = .init(
+        searchTotpExpirationManager = DefaultTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredSearchItems in
                 guard let self else { return }
