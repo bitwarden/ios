@@ -21,6 +21,11 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
+    /// The last published active user ID by `activeAccountIdPublisher` in the current process.
+    /// If this is different than the active user ID in the `State`, the active user was likely
+    /// switched in an extension and the main app should update accordingly.
+    var cachedActiveUserId: String? { get }
+
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -80,6 +85,11 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the vault should sync on refreshing.
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
+
+    /// Gets the app rehydration state.
+    /// - Parameter userId: The user ID associated with this state.
+    /// - Returns: The rehydration state.
+    func appRehydrationState(userId: String) -> AppRehydrationState?
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -251,6 +261,12 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the stored autofill setup progress.
     ///
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String)
+
+    /// Sets the app rehydration state to be used after timeout lock and user unlock.
+    /// - Parameters:
+    ///   - state: The state to save.
+    ///   - userId: The user ID the state belongs to.
+    func setAppRehydrationState(_ state: AppRehydrationState?, userId: String)
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -649,6 +665,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
+        case appRehydrationState(userId: String)
         case appTheme
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
@@ -705,6 +722,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appId"
             case .appLocale:
                 key = "appLocale"
+            case let .appRehydrationState(userId):
+                key = "appRehydrationState_\(userId)"
             case .appTheme:
                 key = "theme"
             case let .biometricAuthEnabled(userId):
@@ -804,6 +823,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .appTheme) }
     }
 
+    var cachedActiveUserId: String? {
+        activeAccountIdSubject.value
+    }
+
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
@@ -871,6 +894,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         fetch(for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func appRehydrationState(userId: String) -> AppRehydrationState? {
+        fetch(for: .appRehydrationState(userId: userId))
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -969,6 +996,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {
+        store(state, for: .appRehydrationState(userId: userId))
     }
 
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {

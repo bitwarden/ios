@@ -126,12 +126,13 @@ extension CipherView {
     /// - Returns: An `SSHKeyItemState` representing the SSH key information of the cipher.
     ///
     func sshKeyItemState() -> SSHKeyItemState {
-        // TODO: PM-10401 create state when SDK is updated
-        SSHKeyItemState(
+        guard let sshKey else { return .init() }
+        return SSHKeyItemState(
+            canViewPrivateKey: viewPassword,
             isPrivateKeyVisible: false,
-            privateKey: "Test",
-            publicKey: "Test",
-            keyFingerprint: "Test"
+            privateKey: sshKey.privateKey,
+            publicKey: sshKey.publicKey,
+            keyFingerprint: sshKey.fingerprint
         )
     }
 

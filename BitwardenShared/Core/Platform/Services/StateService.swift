@@ -29,6 +29,13 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Returns whether the active account was switched in the extension. This compares the current
+    /// active account in memory with what's stored on disk to determine if the account was switched.
+    ///
+    /// - Returns: Whether the active was switched in the extension.
+    ///
+    func didAccountSwitchInExtension() async throws -> Bool
+
     /// Returns whether the active user account has access to premium features.
     ///
     /// - Returns: Whether the active account has access to premium features.
@@ -111,6 +118,11 @@ protocol StateService: AnyObject {
     /// - Returns: The allow sync on refresh value.
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
+
+    /// Gets the app rehydration state.
+    /// - Parameter userId: The user ID associated with this state.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState?
 
     /// Get the app theme.
     ///
@@ -564,6 +576,12 @@ protocol StateService: AnyObject {
     /// - Parameter config: The server config to use prior to user authentication.
     func setPreAuthServerConfig(config: ServerConfig) async
 
+    /// Sets the app rehydration state for the active account.
+    /// - Parameters:
+    ///   - rehydrationState: The app rehydration state.
+    ///   - userId: The user ID of the rehydration state.
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
+
     /// Sets the server configuration as provided by a server for a user ID.
     ///
     /// - Parameters:
@@ -773,6 +791,12 @@ extension StateService {
     ///
     func getAllowSyncOnRefresh() async throws -> Bool {
         try await getAllowSyncOnRefresh(userId: nil)
+    }
+
+    /// Gets the app rehydration state for the active account.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState() async throws -> AppRehydrationState? {
+        try await getAppRehydrationState(userId: nil)
     }
 
     /// Gets the clear clipboard value for the active account.
@@ -1083,6 +1107,14 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
+    /// Sets the app rehydration state for the active account.
+    ///
+    /// - Parameter rehydrationState: The app rehydration state.
+    ///
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?) async throws {
+        try await setAppRehydrationState(rehydrationState, userId: nil)
+    }
+
     /// Sets the server config for the active account.
     ///
     /// - Parameter config: The server config.
@@ -1272,6 +1304,18 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try await logoutAccount(userInitiated: true)
     }
 
+    func didAccountSwitchInExtension() async throws -> Bool {
+        do {
+            return try getActiveAccountUserId() != appSettingsStore.cachedActiveUserId
+        } catch StateServiceError.noActiveAccount {
+            let cachedActiveUserId = appSettingsStore.cachedActiveUserId
+            // If the user was logged out in the extension, but there's a cached active user,
+            // reset the state to update the cached active user.
+            appSettingsStore.state = appSettingsStore.state
+            return cachedActiveUserId != nil
+        }
+    }
+
     func doesActiveAccountHavePremium() async throws -> Bool {
         let account = try await getActiveAccount()
         let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
@@ -1346,6 +1390,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
+    }
+
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.appRehydrationState(userId: userId)
     }
 
     func getAppTheme() async -> AppTheme {
@@ -1712,6 +1761,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthServerConfig(config: ServerConfig) async {
         appSettingsStore.preAuthServerConfig = config
+    }
+
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {

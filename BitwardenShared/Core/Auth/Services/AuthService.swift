@@ -407,11 +407,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             minNumber: 1,
             minSpecial: 0
         )
-        codeVerifier = try await clientService.generators().password(settings: passwordSettings)
+        codeVerifier = try await clientService.generators(isPreAuth: true).password(settings: passwordSettings)
         let codeChallenge = Data(codeVerifier.utf8)
             .generatedHashBase64Encoded(using: SHA256.self)
             .urlEncoded()
-        let state = try await clientService.generators().password(settings: passwordSettings)
+        let state = try await clientService.generators(isPreAuth: true).password(settings: passwordSettings)
 
         let queryItems = [
             URLQueryItem(name: "client_id", value: Constants.clientType),

@@ -22,7 +22,7 @@
 "EnterPIN" = "Inserisci il tuo PIN.";
 "Favorites" = "Preferiti";
 "FileBugReport" = "Segnala un bug";
-"FileBugReportDescription" = "Segnala un problema nella nostra repository su GitHub.";
+"FileBugReportDescription" = "Segnala un problema nel nostro repository su GitHub.";
 "FingerprintDirection" = "Usa la tua impronta digitale per verificare.";
 "Folder" = "Cartella";
 "FolderCreated" = "Nuova cartella creata.";
@@ -45,7 +45,7 @@
 "RemoveAccount" = "Rimuovi account";
 "RemoveAccountConfirmation" = "Sei sicuro di voler rimuovere questo account?";
 "AccountAlreadyAdded" = "Account già aggiunto";
-"SwitchToAlreadyAddedAccountConfirmation" = "Vuoi passarci adesso?";
+"SwitchToAlreadyAddedAccountConfirmation" = "Vuoi cambiarlo ora?";
 "MasterPassword" = "Password principale";
 "More" = "Altro";
 "MyVault" = "La mia cassaforte";
@@ -79,7 +79,7 @@
 "Website" = "Sito web";
 "Yes" = "Sì";
 "Account" = "Account";
-"AccountCreated" = "Il tuo nuovo account è stato creato! Ora puoi fare il login.";
+"AccountCreated" = "Il tuo nuovo account è stato creato! Ora puoi effettuare il log in.";
 "AddAnItem" = "Aggiungi un elemento";
 "AppExtension" = "Estensione app";
 "AutofillAccessibilityDescription" = "Usa il servizio di accessibilità di Bitwarden per il riempimento automatico dei tuoi login su app e web.";
@@ -117,7 +117,7 @@
 "GetPasswordHint" = "Ottieni il suggerimento per la password principale";
 "ImportItems" = "Importa elementi";
 "ImportItemsConfirmation" = "Puoi importare in massa i tuoi login dalla cassaforte online di bitwarden.com. Vuoi visitare ora il sito?";
-"ImportItemsDescription" = "Importa rapidamente i tuoi elementi in massa da altri gestori di password.";
+"ImportItemsDescription" = "Importa rapidamente in massa i tuoi elementi da altri password manager.";
 "LastSync" = "Ultima sincronizzazione:";
 "Length" = "Lunghezza";
 "Lock" = "Blocca";
@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Azione timeout cassaforte";
 "VaultTimeoutLogOutConfirmation" = "Uscire rimuoverà tutti gli accessi alla tua cassaforte e richiede l'autenticazione online dopo il periodo di timeout. Sei sicuro di voler usare questa opzione?";
 "LoggingIn" = "Accesso in corso...";
-"LoginOrCreateNewAccount" = "Accedi o crea un nuovo account per aprire la tua cassaforte.";
+"LoginOrCreateNewAccount" = "Entra o crea un nuovo account per accedere alla tua cassaforte.";
 "Manage" = "Gestisci";
 "MasterPasswordConfirmationValMessage" = "Le password principali non corrispondono.";
 "MasterPasswordDescription" = "La password principale ti serve per accedere alla tua cassaforte. È molto importante non dimenticarla. Non possiamo aiutarti a recuperare questa password se la dimentichi.";
@@ -154,7 +154,7 @@
 "PasswordGenerated" = "Password generata";
 "PasswordGenerator" = "Generatore di password";
 "PasswordHint" = "Suggerimento password";
-"PasswordHintAlert" = "Ti abbiamo inviato un'email con il suggerimento per la password principale.";
+"PasswordHintAlert" = "Ti abbiamo inviato un'email con il tuo suggerimento per la password principale.";
 "PasswordOverrideAlert" = "Sei sicuro di voler sovrascrivere la password corrente?";
 "PushNotificationAlert" = "Bitwarden sincronizza la tua cassaforte automaticamente utilizzando le notifiche push. Per la migliore esperienza possibile, clicca \"Consenti\" nel menu seguente quando ti è richiesto di abilitare le notifiche push.";
 "RateTheApp" = "Valuta l'app";
@@ -173,12 +173,12 @@
 "SyncingLogins" = "Syncing logins...";
 "SyncingComplete" = "Sincronizzazione completata";
 "SyncingFailed" = "Sincronizzazione fallita";
-"SyncVaultNow" = "Sincronizza cassaforte ora";
+"SyncVaultNow" = "Sincronizza cassaforte";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "Verifica in due passaggi";
 "UnlockWith" = "Sblocca con %1$@";
 "UnlockWithPIN" = "Sblocca con codice PIN";
-"Validating" = "Convalida";
+"Validating" = "Verifica in corso...";
 "VerificationCode" = "Codice di verifica";
 "ViewItem" = "Visualizza elemento";
 "WebVault" = "Cassaforte web di Bitwarden";
@@ -194,8 +194,8 @@
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Apri impostazioni di accessibilità";
 "BitwardenAutofillServiceStep1" = "1. Nelle impostazioni di accessibilità di Android, clicca \"Bitwarden\" sotto Servizi.";
 "BitwardenAutofillServiceStep2" = "2. Attiva l'interruttore e clicca Consenti per accettare.";
-"Disabled" = "Disabilitato";
-"Enabled" = "Attivo";
+"Disabled" = "Disattivato";
+"Enabled" = "Attivato";
 "Off" = "No";
 "On" = "Sì";
 "Status" = "Stato";
@@ -216,7 +216,7 @@
 "NoTwoStepAvailable" = "La verifica in due passaggi è abilitata per il tuo account, ma nessuno dei metodi configurati è supportato da questo dispositivo. Usa un dispositivo supportato o aggiungi un metodo supportato sui tuoi dispositivi (come un'app di autenticazione).";
 "RecoveryCodeTitle" = "Codice di recupero";
 "RememberMe" = "Ricordami";
-"SendVerificationCodeAgain" = "Invia email con codice di verifica di nuovo";
+"SendVerificationCodeAgain" = "Invia di nuovo l'email con codice di verifica";
 "TwoStepLoginOptions" = "Opzioni di verifica in due passaggi";
 "UseAnotherTwoStepMethod" = "Usa un altro metodo di verifica in due passaggi";
 "VerificationEmailNotSent" = "Impossibile inviare l'email con il codice di verifica. Riprova.";
@@ -284,7 +284,7 @@
 "Company" = "Azienda";
 "Country" = "Nazione";
 "December" = "Dicembre";
-"Dr" = "Dott";
+"Dr" = "Dr";
 "ExpirationMonth" = "Mese di scadenza";
 "ExpirationYear" = "Anno di scadenza";
 "February" = "Febbraio";
@@ -319,7 +319,7 @@
 "AutofillWithBitwarden" = "Riempi automaticamente con Bitwarden";
 "VaultIsLocked" = "La cassaforte è bloccata";
 "GoToMyVault" = "Vai alla mia cassaforte";
-"Collections" = "Raccolte";
+"Collections" = "Collezioni";
 "NoItemsCollection" = "Non ci sono elementi in questa raccolta.";
 "NoItemsFolder" = "Non ci sono elementi in questa cartella.";
 "NoItemsTrash" = "Non ci sono elementi nel cestino.";
@@ -771,7 +771,7 @@
 "ExposedMasterPassword" = "Password principale violata";
 "PasswordFoundInADataBreachAlertDescription" = "Password trovata una violazione dei dati. Usa una password unica per proteggere il tuo account. Sei sicuro di voler usare una password violata?";
 "WeakAndExposedMasterPassword" = "Password principale debole e violata";
-"WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Password debole e trovata una violazione dei dati. Usa una password forte e unica per proteggere il tuo account. Sei sicuro di voler usare questa password?";
+"WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "Password debole e trovata in una violazione dei dati. Usa una password forte e unica per proteggere il tuo account. Sei sicuro di voler usare questa password?";
 "OrganizationSsoIdentifierRequired" = "Identificatore SSO dell'organizzazione obbligatorio.";
 "AddTheKeyToAnExistingOrNewItem" = "Aggiungi la chiave a un elemento nuovo o esistente";
 "ThereAreNoItemsInYourVaultThatMatchX" = "Nessun elemento nella tua cassaforte corrisponde a \"%1$@\"";
@@ -1025,7 +1025,7 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "You’ll delete this file after import is complete.";
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
 "LogInToBitwarden" = "Log in to Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Log in to the Bitwarden web app.**";
 "ImportLoginsToBitwarden" = "Import logins to Bitwarden";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "In the Bitwarden navigation, **find the Tools option** and **select Import data.**";
@@ -1038,7 +1038,7 @@
 "DownloadTheBrowserExtension" = "Download the browser extension";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Go to bitwarden.com/download to integrate Bitwarden into your favorite browser for a seamless experience.";
 "UseTheWebApp" = "Use the web app";
-"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings";
+"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings.";
 "AutofillPasswords" = "Riempi automaticamente password";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Imposta il riempimento automatico su tutti i tuoi dispositivi per accedere con un solo tocco ovunque.";
 "GotIt" = "Got it";
@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
+"Done" = "Done";
+"CopyPublicKey" = "Copy public key";
+"CopyPrivateKey" = "Copy private key";
+"CopyFingerprint" = "Copy fingerprint";
+"SSHKeys" = "SSH keys";

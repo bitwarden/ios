@@ -1049,8 +1049,13 @@
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Не е намерена регистрация. Впишете се отново, ако продължавате да виждате тази грешка.";
 "ImportError" = "Грешка при внасянето";
 "NoLoginsWereImported" = "Не бяха внесени никакви елементи за вписване";
-"ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
+"ThisIsNotARecognizedServerDescriptionLong" = "Това не изглежда да е познат сървър на Битуорден. Може да се наложи да го проверите при доставчика си или да обновите сървъра си.";
 "LoginsImported" = "Данните за вписване са внесени";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Не забравяйте да изтриете файла с паролите за внасяне от компютъра си.";
-"SomethingWentWrong" = "Something went wrong";
-"UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
+"SomethingWentWrong" = "Нещо се обърка";
+"UnableToMoveTheSelectedItemPleaseTryAgain" = "Избраният елемент не може да бъде преместен. Моля, опитайте отново.";
+"Done" = "Готово";
+"CopyPublicKey" = "Копиране на публичния ключ";
+"CopyPrivateKey" = "Копиране на частния ключ";
+"CopyFingerprint" = "Копиране на отпечатъка";
+"SSHKeys" = "SSH keys";

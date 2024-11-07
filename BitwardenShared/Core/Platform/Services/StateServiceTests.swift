@@ -129,6 +129,46 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(state.activeUserId)
     }
 
+    /// `didAccountSwitchInExtension` returns `false` if there's no active user.
+    func test_didAccountSwitchInExtension_noActiveUser() async throws {
+        let didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertFalse(didSwitch)
+    }
+
+    /// `didAccountSwitchInExtension` returns `true` if there's a cached active user but no active
+    /// user in the state.
+    func test_didAccountSwitchInExtension_noActiveUser_cachedActiveUserId() async throws {
+        appSettingsStore.cachedActiveUserId = "1"
+        appSettingsStore.activeIdSubject.send("1")
+
+        var publishedValues = [String?]()
+        let publisher = appSettingsStore.activeIdSubject
+            .sink(receiveValue: { publishedValues.append($0) })
+        defer { publisher.cancel() }
+
+        let didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+        XCTAssertEqual(publishedValues, ["1", nil])
+    }
+
+    /// `didAccountSwitchInExtension` returns whether the active account was switched in the
+    /// extension.
+    func test_didAccountSwitchInExtension() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        appSettingsStore.cachedActiveUserId = nil
+
+        var didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+
+        appSettingsStore.cachedActiveUserId = "1"
+        didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertFalse(didSwitch)
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+    }
+
     /// `doesActiveAccountHavePremium()` with premium personally and no organizations returns true.
     func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
@@ -479,6 +519,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.addAccount(.fixture())
         let value = try await subject.getAllowSyncOnRefresh()
         XCTAssertFalse(value)
+    }
+
+    /// `getAppRehydrationState(userId:)` returns the app rehydration state for the active account.
+    func test_getAppRehydrationState() async throws {
+        await subject.addAccount(.fixture())
+        appSettingsStore.appRehydrationState["1"] = AppRehydrationState(
+            target: .viewCipher(cipherId: "1"),
+            expirationTime: .now
+        )
+        let value = try await subject.getAppRehydrationState()
+        XCTAssertEqual(value?.target, .viewCipher(cipherId: "1"))
+    }
+
+    /// `getAppRehydrationState(userId:)` throws when there's no active account.
+    func test_getAppRehydrationState_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getAppRehydrationState()
+        }
     }
 
     /// `getClearClipboardValue()` returns the clear clipboard value for the active account.
@@ -1406,6 +1464,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setAllowSyncOnRefresh(true)
         XCTAssertEqual(appSettingsStore.allowSyncOnRefreshes["1"], true)
+    }
+
+    /// `setAppRehydrationState(_:userId:)` sets the app rehydration state for the given account.
+    func test_setAppRehydrationState() async throws {
+        await subject.addAccount(.fixture())
+        try await subject.setAppRehydrationState(
+            AppRehydrationState(
+                target: .viewCipher(cipherId: "1"),
+                expirationTime: .now
+            ),
+            userId: "1"
+        )
+        let value = appSettingsStore.appRehydrationState["1"]
+        XCTAssertEqual(value?.target, .viewCipher(cipherId: "1"))
+    }
+
+    /// `setAppRehydrationState(_:userId:)` throws when there's no active account.
+    func test_setAppRehydrationState_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.setAppRehydrationState(nil)
+        }
     }
 
     /// `setBiometricAuthenticationEnabled(isEnabled:)` sets biometric unlock preference for the default user.

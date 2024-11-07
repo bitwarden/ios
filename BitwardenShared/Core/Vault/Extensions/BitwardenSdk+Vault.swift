@@ -580,6 +580,7 @@ extension CollectionDetailsResponseModel {
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             id: id,
+            manage: collection.manage,
             name: collection.name,
             organizationId: collection.organizationId,
             readOnly: collection.readOnly
@@ -604,7 +605,8 @@ extension BitwardenSdk.Collection {
             name: model.name,
             externalId: model.externalId,
             hidePasswords: model.hidePasswords,
-            readOnly: model.readOnly
+            readOnly: model.readOnly,
+            manage: model.manage
         )
     }
 }

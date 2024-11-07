@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Lembre-se de eliminar o ficheiro da palavra-passe importada do seu computador.";
 "SomethingWentWrong" = "Alguma coisa correu mal";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Não foi possível mover o item selecionado. Por favor, tente novamente.";
+"Done" = "Concluído";
+"CopyPublicKey" = "Copiar chave pública";
+"CopyPrivateKey" = "Copiar chave privada";
+"CopyFingerprint" = "Copiar impressão digital";
+"SSHKeys" = "Chaves SSH";

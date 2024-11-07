@@ -1049,8 +1049,13 @@
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Không tìm thấy tài khoản. Thử đăng nhập lại nếu bạn tiếp tục thấy lỗi này.";
 "ImportError" = "Lỗi nhập";
 "NoLoginsWereImported" = "Chưa nhập lượt đăng nhập nào";
-"ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
+"ThisIsNotARecognizedServerDescriptionLong" = "Đây là một máy chủ Bitwarden chưa rõ. Bạn có thể cần kiểm tra với nhà cung cấp hoặc cập nhật máy chủ của mình.";
 "LoginsImported" = "Đã nhập lượt đăng nhập";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Nhớ xóa file mật khẩu đã nhập khỏi máy tính.";
-"SomethingWentWrong" = "Something went wrong";
-"UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
+"SomethingWentWrong" = "Đã xảy ra lỗi";
+"UnableToMoveTheSelectedItemPleaseTryAgain" = "Không thể chuyển. Thử lại sau.";
+"Done" = "Xong";
+"CopyPublicKey" = "Chép khóa công khai";
+"CopyPrivateKey" = "Chép khóa riêng tư";
+"CopyFingerprint" = "Chép vân tay";
+"SSHKeys" = "SSH keys";

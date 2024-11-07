@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Jāatceras datorā izdzēst savu ievietoto paroļu datni.";
 "SomethingWentWrong" = "Kaut kas nogājis greizi";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Nebija iespējams pārvietot atlasīto vienumu. Lūgumus mēģināt vēlreiz.";
+"Done" = "Darīts";
+"CopyPublicKey" = "Ievietot starpliktuvē publisko atslēgu";
+"CopyPrivateKey" = "Ievietot starpliktuvē privāto atslēgu";
+"CopyFingerprint" = "Ievietot starpliktuvē pirkstu nospiedumu";
+"SSHKeys" = "SSH keys";
