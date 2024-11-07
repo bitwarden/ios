@@ -16,6 +16,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     var configService: MockConfigService!
     var coordinator: MockCoordinator<ItemListRoute, ItemListEvent>!
     var errorReporter: MockErrorReporter!
+    var notificationCenterService: MockNotificationCenterService!
     var pasteboardService: MockPasteboardService!
     var totpService: MockTOTPService!
     var subject: ItemListProcessor!
@@ -32,6 +33,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        notificationCenterService = MockNotificationCenterService()
         pasteboardService = MockPasteboardService()
         totpService = MockTOTPService()
 
@@ -42,6 +44,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
             cameraService: cameraService,
             configService: configService,
             errorReporter: errorReporter,
+            notificationCenterService: notificationCenterService,
             pasteboardService: pasteboardService,
             totpService: totpService
         )
@@ -56,6 +59,15 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     override func tearDown() {
         super.tearDown()
 
+        application = nil
+        appSettingsStore = nil
+        authItemRepository = nil
+        cameraService = nil
+        configService = nil
+        errorReporter = nil
+        notificationCenterService = nil
+        pasteboardService = nil
+        totpService = nil
         coordinator = nil
         subject = nil
     }
@@ -590,6 +602,20 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         XCTAssertNil(subject.state.url)
     }
 
+    /// `setupForegroundNotification()` is called as part of `init()` and subscribes to any
+    ///  foreground notification, performing `.refresh` when it receives a notification.
+    func test_setupForegroundNotification() async throws {
+        let item = ItemListItem.fixture()
+        let resultSection = ItemListSection(id: "", items: [item], name: "Items")
+        authItemRepository.itemListSubject.send([resultSection])
+        authItemRepository.refreshTotpCodesResult = .success([item])
+
+        notificationCenterService.willEnterForegroundSubject.send()
+
+        try await waitForAsync { self.subject.state.loadingState != .loading(nil) }
+        XCTAssertEqual(subject.state.loadingState, .data([resultSection]))
+    }
+
     // MARK: AuthenticatorKeyCaptureDelegate Tests
 
     /// `didCompleteAutomaticCapture` failure when the user has opted to save locally by default.
@@ -993,11 +1019,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         dismissAction?.action()
         waitFor(!authItemRepository.addAuthItemAuthItems.isEmpty)
         waitFor(subject.state.loadingState != .loading(nil))
-        guard let item = authItemRepository.addAuthItemAuthItems.first
-        else {
-            XCTFail("Unable to get authenticator item")
-            return
-        }
+        let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
         XCTAssertEqual(item.name, "name")
         XCTAssertEqual(item.totpKey, String.base32Key)
     }

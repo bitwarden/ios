@@ -11,6 +11,7 @@ typealias Services = HasAppSettingsStore
     & HasErrorReporter
     & HasExportItemsService
     & HasImportItemsService
+    & HasNotificationCenterService
     & HasPasteboardService
     & HasStateService
     & HasTOTPService
@@ -83,6 +84,13 @@ protocol HasExportItemsService {
 protocol HasImportItemsService {
     /// The service used to import items.
     var importItemsService: ImportItemsService { get }
+}
+
+/// Protocol for an object that provides a `NotificationCenterService`.
+///
+protocol HasNotificationCenterService {
+    ///  The service used to receive foreground and background notifications.
+    var notificationCenterService: NotificationCenterService { get }
 }
 
 /// Protocol for an object that provides a `PasteboardService`.

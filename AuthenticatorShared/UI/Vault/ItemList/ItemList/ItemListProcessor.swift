@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 // swiftlint:disable file_length
@@ -6,6 +7,8 @@ import Foundation
 
 /// A `Processor` that can process `ItemListAction` and `ItemListEffect` objects.
 final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, ItemListEffect> {
+    // swiftlint:disable:previous type_body_length
+
     // MARK: Types
 
     typealias Services = HasAppSettingsStore
@@ -14,11 +17,15 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
         & HasCameraService
         & HasConfigService
         & HasErrorReporter
+        & HasNotificationCenterService
         & HasPasteboardService
         & HasTOTPService
         & HasTimeProvider
 
     // MARK: Private Properties
+
+    /// The set to hold Combine cancellables.
+    private var cancellables = Set<AnyCancellable>()
 
     /// The `Coordinator` for this processor.
     private var coordinator: AnyCoordinator<ItemListRoute, ItemListEvent>
@@ -56,6 +63,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 }
             }
         )
+        setupForegroundNotification()
     }
 
     deinit {
@@ -257,6 +265,20 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
             services.errorReporter.log(error: error)
         }
         return []
+    }
+
+    /// Subscribe to receive foreground notifications so that we can refresh the item list when the app is relaunched.
+    ///
+    private func setupForegroundNotification() {
+        services.notificationCenterService
+            .willEnterForegroundPublisher()
+            .sink { [weak self] in
+                guard let self else { return }
+                Task {
+                    await self.perform(.refresh)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     /// Determine if the user has synced with this account previously. If they have not synced previously,
