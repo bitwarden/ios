@@ -46,4 +46,21 @@ extension MasterPasswordPolicyOptions {
 
         return policySummary
     }
+
+    /// Initialize a `MasterPasswordPolicyOptions` using API response model for master password policies.
+    ///
+    /// - Parameter responseModel: API response model for master password policies.
+    ///
+    init?(responseModel: MasterPasswordPolicyResponseModel?) {
+        guard let responseModel else { return nil }
+        self.init(
+            minComplexity: responseModel.minComplexity ?? 0,
+            minLength: responseModel.minLength ?? 0,
+            requireUpper: responseModel.requireUpper ?? false,
+            requireLower: responseModel.requireLower ?? false,
+            requireNumbers: responseModel.requireNumbers ?? false,
+            requireSpecial: responseModel.requireSpecial ?? false,
+            enforceOnLogin: responseModel.enforceOnLogin ?? false
+        )
+    }
 }

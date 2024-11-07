@@ -628,18 +628,8 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         masterPasswordPolicy: MasterPasswordPolicyResponseModel?,
         username: String
     ) async throws {
-        var policy: MasterPasswordPolicyOptions?
-        if let model = masterPasswordPolicy {
-            policy = MasterPasswordPolicyOptions(
-                minComplexity: model.minComplexity ?? 0,
-                minLength: model.minLength ?? 0,
-                requireUpper: model.requireUpper ?? false,
-                requireLower: model.requireLower ?? false,
-                requireNumbers: model.requireNumbers ?? false,
-                requireSpecial: model.requireSpecial ?? false,
-                enforceOnLogin: model.enforceOnLogin ?? false
-            )
-        }
+        let policy = MasterPasswordPolicyOptions(responseModel: masterPasswordPolicy)
+
         if try await requirePasswordChange(
             email: username,
             isPreAuth: isPreAuth,
@@ -849,7 +839,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     ///   - captchaToken: The optional captcha token. Defaults to `nil`.
     ///   - request: The cached request, if resending a login request with two-factor codes. Defaults to `nil`.
     ///
-    private func getIdentityTokenResponse(
+    private func getIdentityTokenResponse( // swiftlint:disable:this function_body_length
         authenticationMethod: IdentityTokenRequestModel.AuthenticationMethod? = nil,
         email: String,
         captchaToken: String? = nil,
@@ -909,16 +899,28 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                 twoFactorRequest = request
                 twoFactorRequest?.captchaToken = captchaBypassToken
 
-                // Form the resend email request in case the user needs to resend the verification code email.
                 var passwordHash: String?
                 if case let .password(_, password) = request?.authenticationMethod { passwordHash = password
+                    // Ensure masterPassword has a value before proceeding.
+                    guard let masterPassword else {
+                        // Otherwise, log the error.
+                        errorReporter.log(error: BitwardenError.generalError(
+                            type: "AuthService: Get Identity Token Failed.",
+                            message: "Master password is nil for 2FA after authenticating with username and password."
+                        ))
+                        throw error
+                    }
+
+                    // Perform password policy checks
                     try await checkMasterPasswordPolicies(
                         isPreAuth: true,
-                        masterPassword: masterPassword!,
+                        masterPassword: masterPassword,
                         masterPasswordPolicy: masterPasswordPolicyResponseModel,
                         username: email
                     )
                 }
+
+                // Form the resend email request in case the user needs to resend the verification code email.
                 resendEmailModel = .init(
                     deviceIdentifier: appID,
                     email: email,
