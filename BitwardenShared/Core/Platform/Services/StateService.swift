@@ -29,6 +29,13 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Returns whether the active account was switched in the extension. This compares the current
+    /// active account in memory with what's stored on disk to determine if the account was switched.
+    ///
+    /// - Returns: Whether the active was switched in the extension.
+    ///
+    func didAccountSwitchInExtension() async throws -> Bool
+
     /// Returns whether the active user account has access to premium features.
     ///
     /// - Returns: Whether the active account has access to premium features.
@@ -1295,6 +1302,18 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func deleteAccount() async throws {
         try await logoutAccount(userInitiated: true)
+    }
+
+    func didAccountSwitchInExtension() async throws -> Bool {
+        do {
+            return try getActiveAccountUserId() != appSettingsStore.cachedActiveUserId
+        } catch StateServiceError.noActiveAccount {
+            let cachedActiveUserId = appSettingsStore.cachedActiveUserId
+            // If the user was logged out in the extension, but there's a cached active user,
+            // reset the state to update the cached active user.
+            appSettingsStore.state = appSettingsStore.state
+            return cachedActiveUserId != nil
+        }
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
