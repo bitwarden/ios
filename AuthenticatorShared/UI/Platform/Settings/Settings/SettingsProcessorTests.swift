@@ -5,6 +5,7 @@ import XCTest
 class SettingsProcessorTests: AuthenticatorTestCase {
     // MARK: Properties
 
+    var application: MockApplication!
     var appSettingsStore: MockAppSettingsStore!
     var authItemRepository: MockAuthenticatorItemRepository!
     var configService: MockConfigService!
@@ -16,6 +17,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     override func setUp() {
         super.setUp()
 
+        application = MockApplication()
         appSettingsStore = MockAppSettingsStore()
         authItemRepository = MockAuthenticatorItemRepository()
         configService = MockConfigService()
@@ -23,6 +25,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
         subject = SettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                application: application,
                 appSettingsStore: appSettingsStore,
                 authenticatorItemRepository: authItemRepository,
                 configService: configService
@@ -34,6 +37,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     override func tearDown() {
         super.tearDown()
 
+        application = nil
         appSettingsStore = nil
         authItemRepository = nil
         configService = nil
@@ -123,9 +127,19 @@ class SettingsProcessorTests: AuthenticatorTestCase {
 
     /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings URL to the state to
     /// navigate the user to the PM app's settings.
-    func test_receive_syncWithBitwardenAppTapped() {
+    func test_receive_syncWithBitwardenAppTapped_installed() {
+        application.canOpenUrlResponse = true
         subject.receive(.syncWithBitwardenAppTapped)
 
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerSettings)
+    }
+
+    /// Receiving `.syncWithBitwardenAppTapped` adds the Password Manager settings App Store URL to
+    /// the state to navigate the user to the App Store when the PM app is not installed..
+    func test_receive_syncWithBitwardenAppTapped_notInstalled() {
+        application.canOpenUrlResponse = false
+        subject.receive(.syncWithBitwardenAppTapped)
+
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerLink)
     }
 }
