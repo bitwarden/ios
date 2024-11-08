@@ -155,14 +155,31 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_didLockVault() {
         let account: Account = .fixtureAccountLogin()
 
-        subject.lockVault(userId: account.profile.userId)
+        subject.lockVault(userId: account.profile.userId, isManuallyLocking: false)
 
         waitFor(module.authCoordinator.isStarted)
         waitFor(!router.events.isEmpty)
         XCTAssertEqual(
             router.events,
             [
-                .action(.lockVault(userId: account.profile.userId)),
+                .action(.lockVault(userId: account.profile.userId, isManuallyLocking: false)),
+            ]
+        )
+    }
+
+    /// `lockVault(_:)` passes the lock event to the router with manual locking.
+    @MainActor
+    func test_didLockVault_onManualLocking() {
+        let account: Account = .fixtureAccountLogin()
+
+        subject.lockVault(userId: account.profile.userId, isManuallyLocking: true)
+
+        waitFor(module.authCoordinator.isStarted)
+        waitFor(!router.events.isEmpty)
+        XCTAssertEqual(
+            router.events,
+            [
+                .action(.lockVault(userId: account.profile.userId, isManuallyLocking: true)),
             ]
         )
     }

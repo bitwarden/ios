@@ -29,6 +29,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
+    var didAccountSwitchInExtensionResult = false
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
@@ -51,6 +52,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
+    var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
@@ -110,6 +112,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accounts?.removeAll(where: { account in
             account == activeAccount
         })
+    }
+
+    func didAccountSwitchInExtension() async throws -> Bool {
+        didAccountSwitchInExtensionResult
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
@@ -252,6 +258,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getLoginRequest() async -> LoginRequestNotification? {
         loginRequest
+    }
+
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return manuallyLockedAccounts[userId] ?? false
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -494,6 +505,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
         self.loginRequest = loginRequest
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        manuallyLockedAccounts[userId] = isLocked
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {

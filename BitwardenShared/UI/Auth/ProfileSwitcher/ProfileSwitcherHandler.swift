@@ -168,7 +168,7 @@ private extension ProfileSwitcherHandler {
         do {
             // Lock the vault of the selected account.
             let activeAccountId = try await profileServices.authRepository.getUserId()
-            await handleAuthEvent(.action(.lockVault(userId: account.userId)))
+            await handleAuthEvent(.action(.lockVault(userId: account.userId, isManuallyLocking: true)))
 
             // No navigation is necessary, since the user is already on the unlock
             // vault view, but if it was the non-active account, display a success toast
