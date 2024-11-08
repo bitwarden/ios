@@ -118,7 +118,8 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
     private func loadFeatureFlag() async {
         state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
             FeatureFlag.emailVerification,
-            defaultValue: false
+            defaultValue: false,
+            isPreAuth: true
         )
     }
 
