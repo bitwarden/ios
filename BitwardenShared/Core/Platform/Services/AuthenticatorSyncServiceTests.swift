@@ -113,7 +113,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
     /// When the user has subscribed to sync and has an unlocked vault, the
     /// `createAuthenticatorVaultKeyIfNeeded` method successfully handles an
-    /// error in retrieving the user's vault key..
+    /// error in retrieving the user's vault key.
     ///
     @MainActor
     func test_createAuthenticatorVaultKeyIfNeeded_cryptoError() async throws {
@@ -145,7 +145,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
     /// When the user has subscribed to sync and has an unlocked vault, the
     /// `createAuthenticatorVaultKeyIfNeeded` method successfully handles an
-    /// error in storing the user's vault key in the keychain..
+    /// error in storing the user's vault key in the keychain.
     ///
     @MainActor
     func test_createAuthenticatorVaultKeyIfNeeded_keychainError() async throws {
@@ -876,7 +876,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     }
 
     /// Verify that `writeCiphers()` correctly catches and logs errors that occur in `decryptTOTPs`. The user's vault is
-    /// re-locked at the end of error handling..
+    /// re-locked at the end of error handling.
     ///
     @MainActor
     func test_writeCiphers_vaultLockedDecryptTOTPsError() async throws {

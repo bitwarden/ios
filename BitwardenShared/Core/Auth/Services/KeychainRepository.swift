@@ -25,10 +25,10 @@ enum KeychainItem: Equatable {
     /// The keychain item for a user's refresh token.
     case refreshToken(userId: String)
 
-    /// The `SecAccessControlCreateFlags` protection level for this keychain item.
+    /// The `SecAccessControlCreateFlags` level for this keychain item.
     ///     If `nil`, no extra protection is applied.
     ///
-    var protection: SecAccessControlCreateFlags? {
+    var accessControlFlags: SecAccessControlCreateFlags? {
         switch self {
         case .accessToken,
              .authenticatorVaultKey,
@@ -39,6 +39,21 @@ enum KeychainItem: Equatable {
             nil
         case .biometrics:
             .biometryCurrentSet
+        }
+    }
+
+    /// The protection level for this keychain item.
+    var protection: CFTypeRef {
+        switch self {
+        case .biometrics,
+             .deviceKey,
+             .neverLock,
+             .pendingAdminLoginRequest,
+             .refreshToken:
+            kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        case .accessToken,
+             .authenticatorVaultKey:
+            kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         }
     }
 
@@ -317,7 +332,8 @@ class DefaultKeychainRepository: KeychainRepository {
     ///
     func setValue(_ value: String, for item: KeychainItem) async throws {
         let accessControl = try keychainService.accessControl(
-            for: item.protection ?? []
+            protection: item.protection,
+            for: item.accessControlFlags ?? []
         )
         let query = await keychainQueryValues(
             for: item,

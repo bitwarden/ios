@@ -15,6 +15,19 @@ protocol KeychainService: AnyObject {
         for flags: SecAccessControlCreateFlags
     ) throws -> SecAccessControl
 
+    /// Creates an access control for a given set of flags.
+    ///
+    /// - Parameters:
+    ///   - protection: Protection class to be used for the item. Use one of the values that go with the
+    ///     `kSecAttrAccessible` attribute key.
+    ///   - flags: The `SecAccessControlCreateFlags` for the access control.
+    /// - Returns: The SecAccessControl.
+    ///
+    func accessControl(
+        protection: CFTypeRef,
+        for flags: SecAccessControlCreateFlags
+    ) throws -> SecAccessControl
+
     /// Adds a set of attributes.
     ///
     /// - Parameter attributes: Attributes to add.
@@ -33,6 +46,12 @@ protocol KeychainService: AnyObject {
     /// - Returns: The search results.
     ///
     func search(query: CFDictionary) throws -> AnyObject?
+}
+
+extension KeychainService {
+    func accessControl(for flags: SecAccessControlCreateFlags) throws -> SecAccessControl {
+        try accessControl(protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly, for: flags)
+    }
 }
 
 // MARK: - KeychainServiceError
@@ -75,12 +94,13 @@ class DefaultKeychainService: KeychainService {
     // MARK: Methods
 
     func accessControl(
+        protection: CFTypeRef,
         for flags: SecAccessControlCreateFlags
     ) throws -> SecAccessControl {
         var error: Unmanaged<CFError>?
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
-            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            protection,
             flags,
             &error
         )

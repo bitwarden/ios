@@ -72,7 +72,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// A Task to hold the subscription that waits for sync to be turned on/off.
     private var syncSubscriber: Task<Void, Never>?
 
-    /// A Task to hold the subscription that waits for the vault to be locked/unlocked..
+    /// A Task to hold the subscription that waits for the vault to be locked/unlocked.
     private var vaultSubscriber: Task<Void, Never>?
 
     /// The service used by the application to manage vault access.

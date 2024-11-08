@@ -6,6 +6,7 @@ class MockKeychainService {
     // MARK: Properties
 
     var accessControlFlags: SecAccessControlCreateFlags?
+    var accessControlProtection: CFTypeRef?
     var accessControlResult: Result<SecAccessControl, KeychainServiceError> = .failure(.accessControlFailed(nil))
     var addAttributes: CFDictionary?
     var addResult: Result<Void, KeychainServiceError> = .success(())
@@ -18,8 +19,9 @@ class MockKeychainService {
 // MARK: KeychainService
 
 extension MockKeychainService: KeychainService {
-    func accessControl(for flags: SecAccessControlCreateFlags) throws -> SecAccessControl {
+    func accessControl(protection: CFTypeRef, for flags: SecAccessControlCreateFlags) throws -> SecAccessControl {
         accessControlFlags = flags
+        accessControlProtection = protection
         return try accessControlResult.get()
     }
 
