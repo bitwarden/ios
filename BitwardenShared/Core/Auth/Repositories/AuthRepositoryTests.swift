@@ -531,6 +531,57 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `getProfilesState()` can return locked accounts correctly on timeout `.never`.
+    func test_getProfilesState_lockedOnNeverLock() async {
+        stateService.accounts = [
+            anneAccount,
+            beeAccount,
+            empty,
+            shortEmail,
+            shortName,
+        ]
+        vaultTimeoutService.isClientLocked = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+            empty.profile.userId: false,
+            shortEmail.profile.userId: false,
+            shortName.profile.userId: true,
+        ]
+        stateService.vaultTimeout = [
+            anneAccount.profile.userId: .never,
+            beeAccount.profile.userId: .never,
+            empty.profile.userId: .never,
+            shortEmail.profile.userId: .never,
+            shortName.profile.userId: .fifteenMinutes,
+        ]
+        stateService.manuallyLockedAccounts = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: false,
+            empty.profile.userId: true,
+            shortEmail.profile.userId: false,
+            shortName.profile.userId: true,
+        ]
+        let profiles = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: true,
+            showPlaceholderToolbarIcon: true
+        ).accounts
+        let unlockedStatuses = profiles.map { profile in
+            profile.isUnlocked
+        }
+        XCTAssertEqual(
+            unlockedStatuses,
+            [
+                false,
+                true,
+                true,
+                true,
+                false,
+            ]
+        )
+    }
+
     /// `getProfilesState()` can return logged out accounts correctly.
     func test_getProfilesState_loggedOut() async {
         stateService.accounts = [

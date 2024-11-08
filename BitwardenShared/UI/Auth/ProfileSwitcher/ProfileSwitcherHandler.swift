@@ -144,12 +144,9 @@ private extension ProfileSwitcherHandler {
     ///
     func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) async {
         profileSwitcherState.isVisible = false
-        let sessionTimeout = try? await profileServices.authRepository.sessionTimeoutValue(userId: account.userId)
-        let hasNeverLock = sessionTimeout == .never
         showAlert(
             .accountOptions(
                 account,
-                hasNeverLock: hasNeverLock,
                 lockAction: {
                     await self.lock(account)
                 },

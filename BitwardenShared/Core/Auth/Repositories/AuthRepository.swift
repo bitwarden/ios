@@ -918,7 +918,11 @@ extension DefaultAuthRepository: AuthRepository {
         let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
         let isAuthenticated = await (try? stateService.isAuthenticated(userId: account.profile.userId)) == true
         let hasNeverLock = await (try? stateService.getVaultTimeout(userId: account.profile.userId)) == .never
-        let displayAsUnlocked = !isLocked || hasNeverLock
+        let isManuallyLocked = await (try? stateService.getManuallyLockedAccount(
+            userId: account.profile.userId
+        )) == true
+        let unlockedOnNeverLock = hasNeverLock && !isManuallyLocked
+        let displayAsUnlocked = !isLocked || unlockedOnNeverLock
 
         let color = if let avatarColor = account.profile.avatarColor {
             Color(hex: avatarColor)
