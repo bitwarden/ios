@@ -1,19 +1,6 @@
 /// API response model for master password policies.
 ///
 struct MasterPasswordPolicyResponseModel: Codable, Equatable {
-    // MARK: Types
-
-    /// Key names used for encoding and decoding.
-    enum CodingKeys: String, CodingKey {
-        case enforceOnLogin = "EnforceOnLogin"
-        case minComplexity = "MinComplexity"
-        case minLength = "MinLength"
-        case requireLower = "RequireLower"
-        case requireNumbers = "RequireNumbers"
-        case requireSpecial = "RequireSpecial"
-        case requireUpper = "RequireUpper"
-    }
-
     // MARK: Properties
 
     /// Whether the policy needs to be enforced on login.
