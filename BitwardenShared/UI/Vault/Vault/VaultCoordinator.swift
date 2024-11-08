@@ -9,9 +9,11 @@ import SwiftUI
 public protocol VaultCoordinatorDelegate: AnyObject {
     /// Called when the user locks their vault.
     ///
-    /// - Parameter userId: The id of the account to lock.
+    /// - Parameters:
+    ///   - userId: The user Id of the selected account. Defaults to the active user id if nil.
+    ///   - isManuallyLocking: Whether the user is manually locking the account.
     ///
-    func lockVault(userId: String?)
+    func lockVault(userId: String?, isManuallyLocking: Bool)
 
     /// Called when the user has been logged out.
     ///
@@ -130,8 +132,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch event {
         case let .logout(userId, userInitiated):
             delegate?.logout(userId: userId, userInitiated: userInitiated)
-        case let .lockVault(userId):
-            delegate?.lockVault(userId: userId)
+        case let .lockVault(userId, isManuallyLocking):
+            delegate?.lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
         case let .switchAccount(isAutomatic, userId, authCompletionRoute):
             delegate?.switchAccount(
                 userId: userId,

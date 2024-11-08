@@ -391,11 +391,11 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         }
     }
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         Task {
             await handleAuthEvent(
                 .action(
-                    .lockVault(userId: userId)
+                    .lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
                 )
             )
         }
