@@ -129,6 +129,46 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(state.activeUserId)
     }
 
+    /// `didAccountSwitchInExtension` returns `false` if there's no active user.
+    func test_didAccountSwitchInExtension_noActiveUser() async throws {
+        let didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertFalse(didSwitch)
+    }
+
+    /// `didAccountSwitchInExtension` returns `true` if there's a cached active user but no active
+    /// user in the state.
+    func test_didAccountSwitchInExtension_noActiveUser_cachedActiveUserId() async throws {
+        appSettingsStore.cachedActiveUserId = "1"
+        appSettingsStore.activeIdSubject.send("1")
+
+        var publishedValues = [String?]()
+        let publisher = appSettingsStore.activeIdSubject
+            .sink(receiveValue: { publishedValues.append($0) })
+        defer { publisher.cancel() }
+
+        let didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+        XCTAssertEqual(publishedValues, ["1", nil])
+    }
+
+    /// `didAccountSwitchInExtension` returns whether the active account was switched in the
+    /// extension.
+    func test_didAccountSwitchInExtension() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        appSettingsStore.cachedActiveUserId = nil
+
+        var didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+
+        appSettingsStore.cachedActiveUserId = "1"
+        didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertFalse(didSwitch)
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+    }
+
     /// `doesActiveAccountHavePremium()` with premium personally and no organizations returns true.
     func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))

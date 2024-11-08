@@ -5,9 +5,6 @@ import Foundation
 struct ProfileOrganizationResponseModel: Codable, Equatable {
     // MARK: Properties
 
-    /// Whether the user can access secrets manager.
-    let accessSecretsManager: Bool
-
     /// Whether the profile organization is enabled.
     let enabled: Bool
 

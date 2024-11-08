@@ -213,6 +213,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
     }
 
+    /// `cachedActiveUserId` returns `nil` if there isn't a cached active user.
+    func test_cachedActiveUserId_isInitiallyNil() {
+        XCTAssertNil(subject.cachedActiveUserId)
+    }
+
+    /// `cachedActiveUserId` returns the user ID of the last active user ID in the current process.
+    func test_cachedActiveUserId_withValue() {
+        subject.state = State(accounts: ["1": .fixture()], activeUserId: "1")
+        XCTAssertEqual(subject.cachedActiveUserId, "1")
+
+        subject.state = State(
+            accounts: [
+                "1": .fixture(profile: .fixture(userId: "1")),
+                "2": .fixture(profile: .fixture(userId: "2")),
+            ],
+            activeUserId: "2"
+        )
+        XCTAssertEqual(subject.cachedActiveUserId, "2")
+    }
+
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
     func test_clearClipboardValue_isInitiallyNever() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
