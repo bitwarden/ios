@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Acció quan acabe el temps d'espera de la caixa forta";
 "VaultTimeoutLogOutConfirmation" = "En tancar la sessió s'eliminarà tot l'accés a la vostra caixa forta i es requerirà una autenticació en línia després del període de temps d'espera. Esteu segur que voleu utilitzar aquesta configuració?";
 "LoggingIn" = "S'està iniciant sessió...";
-"LoginOrCreateNewAccount" = "Inicieu sessió o creeu un compte nou per accedir a la caixa forta.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Administra";
 "MasterPasswordConfirmationValMessage" = "La confirmació de la contrasenya no és correcta.";
 "MasterPasswordDescription" = "La contrasenya mestra és la clau que utilitzeu per accedir a la vostra caixa forta. És molt important que no la oblideu. No hi ha manera de recuperar-la en cas de perdre-la.";

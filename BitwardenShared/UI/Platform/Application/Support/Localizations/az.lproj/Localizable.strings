@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Seyf vaxtının bitmə əməliyyatı";
 "VaultTimeoutLogOutConfirmation" = "Çıxış etdikdə, seyfinizə bütün müraciətiniz dayanacaq və vaxt bitməsindən sonra onlayn kimlik doğrulaması tələb olunacaq. Bu ayarı istifadə etmək istədiyinizə əminsiniz?";
 "LoggingIn" = "Giriş edilir...";
-"LoginOrCreateNewAccount" = "Güvənli seyfinizə müraciət etmək üçün giriş edin və ya yeni bir hesab yaradın.";
+"LogInToBitwarden" = "Bitwarden-ə giriş edin";
 "Manage" = "İdarə et";
 "MasterPasswordConfirmationValMessage" = "Parol təsdiqləmə doğru deyil.";
 "MasterPasswordDescription" = "Ana parol, seyfinizə müraciət etmək üçün istifadə edəcəyiniz paroldur. Ana parolu yadda saxlamaq çox vacibdir. Unutsanız, parolu bərpa etməyin heç bir yolu yoxdur.";
@@ -1058,4 +1058,4 @@
 "CopyPublicKey" = "Public açarı kopyala";
 "CopyPrivateKey" = "Private açarı kopyala";
 "CopyFingerprint" = "Barmaq izini kopyala";
-"SSHKeys" = "SSH keys";
+"SSHKeys" = "SSH açarları";

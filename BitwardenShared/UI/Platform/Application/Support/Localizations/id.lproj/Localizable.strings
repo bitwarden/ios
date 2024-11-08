@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Aksi Batas Waktu Penyimpanan";
 "VaultTimeoutLogOutConfirmation" = "Keluar akan menghapus semua akses ke Brankas Anda dan memerlukan otentikasi online setelah batas waktu yang ditentukan. Anda yakin ingin menggunakan pengaturan ini?";
 "LoggingIn" = "Sedang masuk...";
-"LoginOrCreateNewAccount" = "Masuk atau buat akun baru untuk mengakses brankas Anda.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Kelola";
 "MasterPasswordConfirmationValMessage" = "Konfirmasi kata sandi tidak benar.";
 "MasterPasswordDescription" = "Kata sandi utama adalah kata sandi yang Anda gunakan untuk mengakses brankas Anda. Sangat penting bahwa Anda tidak lupa kata sandi utama Anda. Tidak ada cara untuk memulihkan kata sandi jika Anda melupakannya.";

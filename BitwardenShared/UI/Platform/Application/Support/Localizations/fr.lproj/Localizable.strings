@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Action après délai d'expiration du coffre";
 "VaultTimeoutLogOutConfirmation" = "La déconnexion supprimera tout accès à votre coffre et nécessitera une authentification en ligne après la période d'expiration. Êtes-vous sûr de vouloir utiliser ce paramètre ?";
 "LoggingIn" = "Identification...";
-"LoginOrCreateNewAccount" = "Identifiez-vous ou créez un nouveau compte pour accéder à votre coffre sécurisé.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Gérer";
 "MasterPasswordConfirmationValMessage" = "La confirmation du mot de passe est erronée.";
 "MasterPasswordDescription" = "Le mot de passe principal est le mot de passe que vous utilisez pour accéder à votre coffre. Il est très important de ne pas oublier votre mot de passe principal. Il n'existe aucun moyen de récupérer le mot de passe si vous l'oubliez.";
