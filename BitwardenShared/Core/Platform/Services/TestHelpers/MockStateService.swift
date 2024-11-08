@@ -29,7 +29,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
-    var didAccountSwitchInExtensionResult = false
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
@@ -112,10 +111,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accounts?.removeAll(where: { account in
             account == activeAccount
         })
-    }
-
-    func didAccountSwitchInExtension() async throws -> Bool {
-        didAccountSwitchInExtensionResult
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
