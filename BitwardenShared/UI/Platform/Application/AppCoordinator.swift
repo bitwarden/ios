@@ -302,7 +302,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         stackNavigator.modalPresentationStyle = .fullScreen
         let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
         debugMenuCoordinator.start()
-        childCoordinator = debugMenuCoordinator
 
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
