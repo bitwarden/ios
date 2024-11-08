@@ -217,11 +217,6 @@ protocol StateService: AnyObject {
     ///
     func getLoginRequest() async -> LoginRequestNotification?
 
-    /// Gets whether the account belonging to the user Id has been manually locked.
-    /// - Parameter userId: The user ID associated with the account.
-    /// - Returns: `true` if manually locked, `false` otherwise.
-    func getManuallyLockedAccount(userId: String?) async throws -> Bool
-
     /// Gets the master password hash for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the master password hash.
@@ -513,13 +508,6 @@ protocol StateService: AnyObject {
     /// - Parameter loginRequest: The pending login request data.
     ///
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async
-
-    /// Sets whether the account belonging to the user Id has been manually locked.
-    /// - Parameters
-    ///   - isLocked: Whether the account has been locked manually.
-    ///   - userId: The user ID associated with the account.
-    /// - Returns: `true` if manually locked, `false` otherwise.
-    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws
 
     /// Sets the master password hash for a user ID.
     ///
@@ -1451,11 +1439,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.loginRequest
     }
 
-    func getManuallyLockedAccount(userId: String?) async throws -> Bool {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.manuallyLockedAccount(userId: userId)
-    }
-
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.masterPasswordHash(userId: userId)
@@ -1709,11 +1692,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
         appSettingsStore.loginRequest = loginRequest
-    }
-
-    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setManuallyLockedAccount(isLocked, userId: userId)
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
