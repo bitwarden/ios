@@ -1,7 +1,7 @@
 import BitwardenShared
 import UIKit
 
-extension UIApplication: Application {
+extension UIApplication: @retroactive Application {
     public func startBackgroundTask(withName: String?, expirationHandler: (() -> Void)?) -> UIBackgroundTaskIdentifier {
         // Because the annotations for `UIApplication.beginBackgroundTask(::)` changed
         // between Xcode 15.4 and Xcode 16 and also between Swift 5 and Swift 6,
