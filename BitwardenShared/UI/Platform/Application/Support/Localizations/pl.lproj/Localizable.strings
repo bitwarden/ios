@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Sposób blokowania sejfu";
 "VaultTimeoutLogOutConfirmation" = "Po wylogowaniu się z sejfu musisz ponownie zalogować się, aby uzyskać do niego dostęp. Czy na pewno chcesz użyć tego ustawienia?";
 "LoggingIn" = "Logowanie...";
-"LoginOrCreateNewAccount" = "Zaloguj się lub utwórz nowe konto, aby uzyskać dostęp do Twojego bezpiecznego sejfu.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Zarządzaj";
 "MasterPasswordConfirmationValMessage" = "Potwierdzenie hasła nie pasuje.";
 "MasterPasswordDescription" = "Hasło główne zapewnia dostęp do sejfu. To bardzo ważne, aby je pamiętać, ponieważ zapomnianego hasła nie będzie można odzyskać.";
