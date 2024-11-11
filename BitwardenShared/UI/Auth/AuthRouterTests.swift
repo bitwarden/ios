@@ -109,6 +109,37 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(route, .completeWithNeverUnlockKey)
     }
 
+    /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.vaultUnlock`
+    /// when timeout `.never` and manually locked.
+    func test_handleAndRoute_accountBecameActive_neverLock_successOnManuallyLocked() async {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.isAuthenticated[active.profile.userId] = true
+        authRepository.isLockedResult = .success(true)
+        vaultTimeoutService.vaultTimeout = [
+            active.profile.userId: .never,
+        ]
+        authRepository.unlockVaultWithNeverlockResult = .success(())
+        stateService.manuallyLockedAccounts[active.profile.userId] = true
+        let route = await subject.handleAndRoute(
+            .accountBecameActive(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                active,
+                animated: true,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
     /// `handleAndRoute(_ :)` redirects `.accountBecameActive()` to `.complete`
     ///     when the account is unlocked.
     func test_handleAndRoute_accountBecameActive_unlocked() async {
@@ -625,6 +656,34 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             )
         )
 
+        XCTAssertFalse(authRepository.hasManuallyLocked)
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                main,
+                animated: false,
+                attemptAutomaticBiometricUnlock: false,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.lockVault()` to `.vaultUnlock`
+    /// when the active account is locked with manual locking.
+    func test_handleAndRoute_lock_active_successWithManualLocking() async {
+        let main = Account.fixture()
+        authRepository.activeAccount = main
+        authRepository.isLockedResult = .success(true)
+
+        let route = await subject.handleAndRoute(
+            .action(
+                .lockVault(userId: main.profile.userId, isManuallyLocking: true)
+            )
+        )
+
+        XCTAssertTrue(authRepository.hasManuallyLocked)
+
         XCTAssertEqual(
             route,
             .vaultUnlock(
@@ -650,6 +709,8 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
                 .lockVault(userId: alt.profile.userId)
             )
         )
+
+        XCTAssertFalse(authRepository.hasManuallyLocked)
 
         XCTAssertEqual(
             route,
@@ -959,6 +1020,31 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let route = await subject.handleAndRoute(.didStart)
 
         XCTAssertEqual(route, .completeWithNeverUnlockKey)
+        XCTAssertTrue(stateService.introCarouselShown)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didStart` to `.vaultUnlock` if there's an
+    /// existing account with never lock enabled on manually locked and sets the intro carousel as shown.
+    @MainActor
+    func test_handleAndRoute_didStart_carouselFlow_existingAccountNeverLockOnManuallylocked() async {
+        let account = Account.fixture()
+        authRepository.activeAccount = .fixture()
+        configService.featureFlagsBoolPreAuth[.nativeCarouselFlow] = true
+        vaultTimeoutService.vaultTimeout[account.profile.userId] = .never
+        stateService.isAuthenticated[account.profile.userId] = true
+        stateService.manuallyLockedAccounts[account.profile.userId] = true
+
+        let route = await subject.handleAndRoute(.didStart)
+
+        XCTAssertEqual(
+            route,
+            .vaultUnlock(
+                account,
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
         XCTAssertTrue(stateService.introCarouselShown)
     }
 

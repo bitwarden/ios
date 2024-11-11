@@ -22,6 +22,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var activeAccount: Account?
     var altAccounts = [Account]()
     var getAccountError: Error?
+    var hasManuallyLocked = false
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
@@ -185,8 +186,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         return passwordStrengthResult
     }
 
-    func lockVault(userId: String?) async {
+    func lockVault(userId: String?, isManuallyLocking: Bool) async {
         lockVaultUserId = userId
+        hasManuallyLocked = isManuallyLocking
     }
 
     func logout(userId: String?, userInitiated: Bool) async throws {

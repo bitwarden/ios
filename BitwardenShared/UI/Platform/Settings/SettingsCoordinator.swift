@@ -18,10 +18,11 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
     func didDeleteAccount()
 
     /// Called when the user has requested an account vault be locked.
+    /// - Parameters:
+    ///   - userId: The user Id of the selected account. Defaults to the active user id if nil.
+    ///   - isManuallyLocking: Whether the user is manually locking the account.
     ///
-    /// - Parameter userId: The id of the user to lock.
-    ///
-    func lockVault(userId: String?)
+    func lockVault(userId: String?, isManuallyLocking: Bool)
 
     /// Called when the user has requested an account be logged out.
     ///
@@ -117,8 +118,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         switch event {
         case let .authAction(action):
             switch action {
-            case let .lockVault(userId):
-                delegate?.lockVault(userId: userId)
+            case let .lockVault(userId, isManuallyLocking):
+                delegate?.lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
             case let .logout(userId, userInitiated):
                 delegate?.logout(userId: userId, userInitiated: userInitiated)
             case let .switchAccount(isAutomatic, userId, _):

@@ -549,7 +549,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         // Verify the results.
         XCTAssertEqual(
             coordinator.events.last,
-            .action(.lockVault(userId: otherProfile.userId))
+            .action(.lockVault(userId: otherProfile.userId, isManuallyLocking: true))
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }
