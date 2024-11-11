@@ -18,6 +18,14 @@ struct ViewItemView: View {
         return cipher.organizationId != nil
     }
 
+    /// Whether to show the delete option in the toolbar menu.
+    var isDeleteEnabled: Bool {
+        guard let collections = store.state.loadingState.data?.collections else { return false }
+        guard let collectionIds = store.state.loadingState.data?.collectionIds else { return false }
+        let cipherCollections = collections.filter { collectionIds.contains($0.id ?? "") }
+        return cipherCollections.map(\.manage).contains(true)
+    }
+
     /// Whether to show the move to organization option in the toolbar menu.
     var isMoveToOrganizationEnabled: Bool {
         guard let cipher = store.state.loadingState.data?.cipher else { return false }
@@ -72,6 +80,7 @@ struct ViewItemView: View {
                 VaultItemManagementMenuView(
                     isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
+                    isDeleteEnabled: isDeleteEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
                     store: store.child(
                         state: { _ in },

@@ -533,6 +533,7 @@ private extension ViewItemProcessor {
 
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
+                    itemState.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
