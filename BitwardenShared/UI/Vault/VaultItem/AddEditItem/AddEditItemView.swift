@@ -19,14 +19,6 @@ struct AddEditItemView: View {
     /// The height of the notes field
     @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
 
-    /// Whether to show the delete option in the toolbar menu.
-    var isDeleteEnabled: Bool {
-        let collections = store.state.collections
-        let collectionIds = store.state.collectionIds
-        let cipherCollections = collections.filter { collectionIds.contains($0.id ?? "") }
-        return cipherCollections.reduce(false, { $0 || $1.manage })
-    }
-
     /// Whether to show that a policy is in effect.
     var isPolicyEnabled: Bool {
         store.state.isPersonalOwnershipDisabled && store.state.configuration == .add
@@ -131,7 +123,7 @@ struct AddEditItemView: View {
                     VaultItemManagementMenuView(
                         isCloneEnabled: false,
                         isCollectionsEnabled: store.state.cipher.organizationId != nil,
-                        isDeleteEnabled: isDeleteEnabled,
+                        isDeleteEnabled: store.state.canBeDeleted,
                         isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
                         store: store.child(
                             state: { _ in },

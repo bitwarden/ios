@@ -20,10 +20,7 @@ struct ViewItemView: View {
 
     /// Whether to show the delete option in the toolbar menu.
     var isDeleteEnabled: Bool {
-        guard let collections = store.state.loadingState.data?.collections else { return false }
-        guard let collectionIds = store.state.loadingState.data?.collectionIds else { return false }
-        let cipherCollections = collections.filter { collectionIds.contains($0.id ?? "") }
-        return cipherCollections.map(\.manage).contains(true)
+        store.state.loadingState.data?.canBeDeleted ?? false
     }
 
     /// Whether to show the move to organization option in the toolbar menu.

@@ -107,6 +107,12 @@ struct CipherItemState: Equatable {
         self
     }
 
+    /// Whether or not this item can be deleted by the user.
+    var canBeDeleted: Bool {
+        let cipherCollections = collections.filter { collectionIds.contains($0.id ?? "") }
+        return cipherCollections.map(\.manage).contains(true)
+    }
+
     /// The list of collections that can be selected from for the current owner.
     var collectionsForOwner: [CollectionView] {
         guard let owner, !owner.isPersonal else { return [] }
