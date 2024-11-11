@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Akce při vypršení časového limitu trezoru";
 "VaultTimeoutLogOutConfirmation" = "Po vypršení časového limitu dojde k odhlášení. Přístup k trezoru bude odebrán a pro opětovné přihlášení bude vyžadováno online ověření. Opravdu chcete použít toto nastavení?";
 "LoggingIn" = "Přihlašování…";
-"LoginOrCreateNewAccount" = "Pro přístup do Vašeho bezpečného trezoru se přihlaste nebo si vytvořte nový účet.";
+"LogInToBitwarden" = "Přihlásit se do Bitwardenu";
 "Manage" = "Správa";
 "MasterPasswordConfirmationValMessage" = "Potvrzení hesla se neshoduje.";
 "MasterPasswordDescription" = "Hlavní heslo je heslo, které používáte k přístupu do Vašeho trezoru. Je velmi důležité, abyste jej nezapomněli. Neexistuje totiž žádný způsob, jak heslo obnovit v případě, že jste jej zapomněli.";

@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Acción de tiempo de espera de la caja fuerte";
 "VaultTimeoutLogOutConfirmation" = "Cerrar sesión quitará todo el acceso a su caja fuerte y requiere autenticación en línea después del tiempo de espera. ¿Está seguro de que quiere usar este ajuste?";
 "LoggingIn" = "Iniciando sesión...";
-"LoginOrCreateNewAccount" = "Identifícate o crea una nueva cuenta para acceder a tu caja fuerte.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Gestionar";
 "MasterPasswordConfirmationValMessage" = "La confirmación de la contraseña no es correcta.";
 "MasterPasswordDescription" = "La contraseña maestra es la clave que utilizas para acceder a tu caja fuerte. Es muy importante que no olvides tu contraseña maestra. No hay forma de recuperarla si la olvidas.";

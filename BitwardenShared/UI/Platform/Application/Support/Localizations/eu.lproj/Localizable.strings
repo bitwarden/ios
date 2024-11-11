@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Kutxa gotorraren itxaronaldiaren ekintza";
 "VaultTimeoutLogOutConfirmation" = "Saioa ixteak kutxa gotorreko sarrera guztia kenduko du eta itxaronaldiaren ondoren lineako autentifikazioa eskatuko du. Ziur al zaude hau egin nahi duzula?";
 "LoggingIn" = "Saioa hasten...";
-"LoginOrCreateNewAccount" = "Saioa hasi edo sortu kontu berri bat zure kutxa gotorrera sartzeko.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Kudeatu";
 "MasterPasswordConfirmationValMessage" = "Pasahitzaren baieztapena ez da zuzena.";
 "MasterPasswordDescription" = "Pasahitz nagusia, kutxa gotorrera sartzeko erabiltzen duzun pasahitza da. Oso garrantzitsua da ez ahaztea, ahazten baduzu, ez dago pasahitza berreskuratzeko modurik.";
