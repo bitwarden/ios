@@ -24,8 +24,27 @@ class DefaultValueTests: BitwardenTestCase {
         XCTAssertEqual(String(data: data, encoding: .utf8), #"{"value":"two"}"#)
     }
 
-    /// Decoding a `DefaultValue` wrapped value will use the default value if the value is unknown.
-    func test_decode_invalid() throws {
+    /// Decoding a `DefaultValue` wrapped value will use the default value if an array cannot be
+    /// initialized to the type.
+    func test_decode_invalidArray() throws {
+        let json = #"{"value": ["three"]}"#
+        let data = try XCTUnwrap(json.data(using: .utf8))
+        let subject = try JSONDecoder().decode(Model.self, from: data)
+        XCTAssertEqual(subject, Model(value: .one))
+    }
+
+    /// Decoding a `DefaultValue` wrapped value will use the default value if an int value cannot
+    /// be initialized to the type.
+    func test_decode_invalidInt() throws {
+        let json = #"{"value": 5}"#
+        let data = try XCTUnwrap(json.data(using: .utf8))
+        let subject = try JSONDecoder().decode(Model.self, from: data)
+        XCTAssertEqual(subject, Model(value: .one))
+    }
+
+    /// Decoding a `DefaultValue` wrapped value will use the default value if a string value cannot
+    /// be initialized to the type.
+    func test_decode_invalidString() throws {
         let json = #"{"value": "unknown"}"#
         let data = try XCTUnwrap(json.data(using: .utf8))
         let subject = try JSONDecoder().decode(Model.self, from: data)
