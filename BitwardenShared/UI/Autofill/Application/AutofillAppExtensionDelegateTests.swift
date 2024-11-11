@@ -31,6 +31,9 @@ class AutofillAppExtensionDelegateTests: BitwardenTestCase {
         subject.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
         XCTAssertEqual(subject.autofillListMode, .combinedMultipleSections)
 
+        subject.extensionMode = .autofillOTP([])
+        XCTAssertEqual(subject.autofillListMode, .totp)
+
         subject.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         XCTAssertEqual(subject.autofillListMode, .combinedSingleSection)
 
@@ -51,21 +54,6 @@ class AutofillAppExtensionDelegateTests: BitwardenTestCase {
     @MainActor
     func test_isCreatingFido2Credential_false() async throws {
         XCTAssertFalse(subject.isCreatingFido2Credential)
-    }
-
-    /// `getter:isAutofillingOTP`  returns `true`
-    /// when there it's autofilling OTP.
-    @MainActor
-    func test_isAutofillingOTP_true() async throws {
-        subject.extensionMode = .autofillOTP([])
-        XCTAssertTrue(subject.isAutofillingOTP)
-    }
-
-    /// `getter:isAutofillingOTP`  returns `false`
-    /// when there it's not autofilling OTP.
-    @MainActor
-    func test_isAutofillingOTP_false() async throws {
-        XCTAssertFalse(subject.isAutofillingOTP)
     }
 
     /// `getter:rpID`  returns the proper rpID

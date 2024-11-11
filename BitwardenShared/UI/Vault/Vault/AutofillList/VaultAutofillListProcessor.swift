@@ -9,7 +9,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     VaultAutofillListState,
     VaultAutofillListAction,
     VaultAutofillListEffect
-> {
+>, HasTOTPCodesSections {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -21,8 +21,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
         & HasStateService
-        & HasTimeProvider
         & HasTOTPExpirationManagerFactory
+        & HasTimeProvider
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -49,16 +49,17 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Gets the mode in which this autofill list should run.
     private var autofillListMode: AutofillListMode {
-        if autofillAppExtensionDelegate?.isAutofillingOTP == true {
-            return .totp
-        }
-        return autofillAppExtensionDelegate?.autofillListMode ?? .passwords
+        autofillAppExtensionDelegate?.autofillListMode ?? .passwords
     }
 
     /// A delegate that is used to handle actions and retrieve information from within an Autofill extension
     /// on Fido2 flows.
     private var autofillAppExtensionDelegate: AutofillAppExtensionDelegate? {
         appExtensionDelegate as? AutofillAppExtensionDelegate
+    }
+
+    var vaultRepository: VaultRepository {
+        services.vaultRepository
     }
 
     // MARK: Initialization
@@ -102,25 +103,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     }
 
     // MARK: Methods
-
-    func initTotpExpirationManagers() {
-        vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
-            onExpiration: { [weak self] expiredItems in
-                guard let self else { return }
-                Task {
-                    await self.refreshTOTPCodes(for: expiredItems)
-                }
-            }
-        )
-        searchTotpExpirationManager = services.totpExpirationManagerFactory.create(
-            onExpiration: { [weak self] expiredSearchItems in
-                guard let self else { return }
-                Task {
-                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
-                }
-            }
-        )
-    }
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
@@ -254,6 +236,26 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Initilaizes the TOTP expiration managers so the TOTP codes are refreshed automatically.
+    func initTotpExpirationManagers() {
+        vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
+            onExpiration: { [weak self] expiredItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(for: expiredItems)
+                }
+            }
+        )
+        searchTotpExpirationManager = services.totpExpirationManagerFactory.create(
+            onExpiration: { [weak self] expiredSearchItems in
+                guard let self else { return }
+                Task {
+                    await self.refreshTOTPCodes(searchItems: expiredSearchItems)
+                }
+            }
+        )
+    }
+
     /// Refreshes the vault group's TOTP Codes.
     ///
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
@@ -261,13 +263,12 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             return
         }
 
-        let currentSections = state.vaultListSections
         do {
-            let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
-            let updatedSections = currentSections.updated(with: refreshedItems)
-            let allItems = updatedSections.flatMap(\.items)
-            vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
-            state.vaultListSections = updatedSections
+            state.vaultListSections = try await refreshTOTPCodes(
+                for: items,
+                in: state.vaultListSections,
+                using: vaultItemsTotpExpirationManager
+            )
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -278,12 +279,13 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     private func refreshTOTPCodes(searchItems: [VaultListItem]) async {
         let currentSearchResults = state.ciphersForSearch.first?.items ?? []
         do {
-            let refreshedSearchResults = try await services.vaultRepository.refreshTOTPCodes(for: searchItems)
-            let allSearchResults = currentSearchResults.updated(with: refreshedSearchResults)
-            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: allSearchResults)
-            state.ciphersForSearch = [
-                VaultListSection(id: "", items: allSearchResults, name: ""),
-            ]
+            state.ciphersForSearch = try await refreshTOTPCodes(
+                for: searchItems,
+                in: [
+                    VaultListSection(id: "", items: currentSearchResults, name: ""),
+                ],
+                using: searchTotpExpirationManager
+            )
         } catch {
             services.errorReporter.log(error: error)
         }

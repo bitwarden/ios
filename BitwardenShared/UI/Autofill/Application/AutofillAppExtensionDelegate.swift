@@ -39,6 +39,8 @@ extension AutofillAppExtensionDelegate {
         switch extensionMode {
         case .autofillFido2VaultList:
             .combinedMultipleSections
+        case .autofillOTP:
+            .totp
         case .registerFido2Credential:
             .combinedSingleSection
         default:
@@ -57,14 +59,6 @@ extension AutofillAppExtensionDelegate {
     /// Whether the autofill extension is autofilling a Fido2 credential from list.
     var isAutofillingFido2CredentialFromList: Bool {
         guard case .autofillFido2VaultList = extensionMode else {
-            return false
-        }
-        return true
-    }
-
-    /// Whether the autofill extension is autofiling an OTP code.
-    var isAutofillingOTP: Bool {
-        guard case .autofillOTP = extensionMode else {
             return false
         }
         return true

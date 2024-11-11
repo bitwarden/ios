@@ -71,18 +71,16 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     }
 
     public var serviceIdentifiers: [ASCredentialServiceIdentifier] {
-        if case let .autofillOTP(serviceIdentifiers) = extensionMode {
-            return serviceIdentifiers
+        return switch extensionMode {
+        case let .autofillOTP(serviceIdentifiers):
+            serviceIdentifiers
+        case let .autofillVaultList(serviceIdentifiers):
+            serviceIdentifiers
+        case let .autofillFido2VaultList(serviceIdentifiers, _):
+            serviceIdentifiers
+        default:
+            []
         }
-
-        if case let .autofillVaultList(serviceIdentifiers) = extensionMode {
-            return serviceIdentifiers
-        }
-
-        if case let .autofillFido2VaultList(serviceIdentifiers, _) = extensionMode {
-            return serviceIdentifiers
-        }
-        return []
     }
 
     /// Initializes the context.

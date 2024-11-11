@@ -147,9 +147,7 @@ struct VaultListItemRowView: View {
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
             if store.state.showTotpCopyButton {
                 Button {
-                    Task { @MainActor in
-                        store.send(.copyTOTPCode(model.totpCode.code))
-                    }
+                    store.send(.copyTOTPCode(model.totpCode.code))
                 } label: {
                     Asset.Images.copy24.swiftUIImage
                 }

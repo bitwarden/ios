@@ -8,7 +8,7 @@ final class VaultGroupProcessor: StateProcessor<
     VaultGroupState,
     VaultGroupAction,
     VaultGroupEffect
-> {
+>, HasTOTPCodesSections {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -38,6 +38,10 @@ final class VaultGroupProcessor: StateProcessor<
 
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
+
+    var vaultRepository: VaultRepository {
+        services.vaultRepository
+    }
 
     // MARK: Initialization
 
@@ -166,10 +170,11 @@ final class VaultGroupProcessor: StateProcessor<
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
         guard case let .data(currentSections) = state.loadingState else { return }
         do {
-            let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
-            let updatedSections = currentSections.updated(with: refreshedItems)
-            let allItems = updatedSections.flatMap(\.items)
-            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
+            let updatedSections = try await refreshTOTPCodes(
+                for: items,
+                in: currentSections,
+                using: groupTotpExpirationManager
+            )
             state.loadingState = .data(updatedSections)
         } catch {
             services.errorReporter.log(error: error)
@@ -181,10 +186,14 @@ final class VaultGroupProcessor: StateProcessor<
     private func refreshTOTPCodes(searchItems: [VaultListItem]) async {
         let currentSearchResults = state.searchResults
         do {
-            let refreshedSearchResults = try await services.vaultRepository.refreshTOTPCodes(for: searchItems)
-            let allSearchResults = currentSearchResults.updated(with: refreshedSearchResults)
-            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: allSearchResults)
-            state.searchResults = allSearchResults
+            let updatedSections = try await refreshTOTPCodes(
+                for: searchItems,
+                in: [
+                    VaultListSection(id: "", items: currentSearchResults, name: ""),
+                ],
+                using: searchTotpExpirationManager
+            )
+            state.searchResults = updatedSections[0].items
         } catch {
             services.errorReporter.log(error: error)
         }

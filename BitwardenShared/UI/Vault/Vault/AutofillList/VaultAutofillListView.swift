@@ -209,7 +209,7 @@ private struct VaultAutofillListSearchableView: View {
                         image: Asset.Images.Illustrations.items.swiftUIImage,
                         text: store.state.emptyViewMessage
                     ) {
-                        if store.state.isAutofillingFido2List {
+                        if store.state.isAutofillingTotpList {
                             EmptyView()
                         } else {
                             Button {

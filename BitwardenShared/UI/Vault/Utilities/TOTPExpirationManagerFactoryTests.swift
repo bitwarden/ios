@@ -32,7 +32,7 @@ class TOTPExpirationManagerFactoryTests: BitwardenTestCase {
     /// given expiration closure.
     func test_create() {
         var called = false
-        var expirationClosure: ([VaultListItem]) -> Void = { _ in
+        let expirationClosure: ([VaultListItem]) -> Void = { _ in
             called = true
         }
         let result = subject.create(onExpiration: expirationClosure)
