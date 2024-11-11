@@ -46,7 +46,7 @@ extension VaultFilterType {
     /// - Parameter cipher: The `CipherView` to determine if it should be in the vault list.
     /// - Returns: Whether the cipher should be displayed in the vault list.
     ///
-    func cipherFilter(_ cipher: CipherView) -> Bool {
+    func cipherFilter(_ cipher: CipherListView) -> Bool {
         switch self {
         case .allVaults:
             true
@@ -82,7 +82,7 @@ extension VaultFilterType {
     ///   - ciphers: The `CipherView` objects used to determine if a folder is empty.
     /// - Returns: Whether the folder should be displayed in the vault list.
     ///
-    func folderFilter(_ folder: FolderView, ciphers: [CipherView]) -> Bool {
+    func folderFilter(_ folder: FolderView, ciphers: [CipherListView]) -> Bool {
         switch self {
         case .allVaults:
             return true

@@ -45,7 +45,7 @@ struct VaultListItemRowView: View {
                                         .accessibilityIdentifier("CipherInCollectionIcon")
                                 }
 
-                                if cipherItem.attachments?.isEmpty == false {
+                                if cipherItem.attachments > 0 {
                                     Asset.Images.paperclip16.swiftUIImage
                                         .imageStyle(.accessoryIcon(
                                             color: Asset.Colors.textSecondary.swiftUIColor,

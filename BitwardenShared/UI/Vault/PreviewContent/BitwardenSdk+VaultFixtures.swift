@@ -243,6 +243,46 @@ extension CipherView {
     }
 }
 
+extension CipherListView {
+    static func fixture(
+        attachments: UInt32 = 0,
+        collectionIds: [String] = [],
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        deletedDate: Date? = nil,
+        edit: Bool = true,
+        favorite: Bool = false,
+        folderId: String? = nil,
+        id: String? = "1",
+        key: String? = nil,
+        name: String = "Bitwarden",
+        organizationId: String? = nil,
+        reprompt: BitwardenSdk.CipherRepromptType = .none,
+        revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        type: BitwardenSdk.CipherListViewType = .login(hasFido2: false, totp: nil),
+        viewPassword: Bool = true,
+        subtitle: String = "subtitle"
+    ) -> CipherListView {
+        CipherListView(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            subTitle: subtitle,
+            type: type,
+            favorite: favorite,
+            reprompt: reprompt,
+            edit: edit,
+            viewPassword: viewPassword,
+            attachments: attachments,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate
+        )
+    }
+}
+
 extension Collection {
     static func fixture(
         id: String? = "",

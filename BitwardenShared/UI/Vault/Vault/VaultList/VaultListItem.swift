@@ -15,7 +15,7 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
         ///   - Fido2CredentialAutofillView: Additional data from the main Fido2 credential
         ///   of the `CipherView` to be displayed when needed (Optional).
         ///
-        case cipher(CipherView, Fido2CredentialAutofillView? = nil)
+        case cipher(CipherListView, Fido2CredentialAutofillView? = nil)
 
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
@@ -52,7 +52,7 @@ extension VaultListItem {
     ///
     /// - Parameter cipherView: The `CipherView` used to initialize the `VaultListItem`.
     ///
-    init?(cipherView: CipherView) {
+    init?(cipherView: CipherListView) {
         guard let id = cipherView.id else { return nil }
         self.init(id: id, itemType: .cipher(cipherView))
     }
@@ -61,8 +61,8 @@ extension VaultListItem {
     /// - Parameters:
     ///   - cipherView: The `CipherView` used to initialize the `VaultListItem`.
     ///   - fido2CredentialAutofillView: The main Fido2 credential of the `cipherView` prepared for UI display.
-    init?(cipherView: CipherView, fido2CredentialAutofillView: Fido2CredentialAutofillView) {
-        guard let id = cipherView.id, cipherView.type == .login else { return nil }
+    init?(cipherView: CipherListView, fido2CredentialAutofillView: Fido2CredentialAutofillView) {
+        guard let id = cipherView.id, case .login = cipherView.type else { return nil }
         self.init(id: id, itemType: .cipher(cipherView, fido2CredentialAutofillView))
     }
 }
@@ -148,7 +148,8 @@ extension VaultListItem {
     var loginView: BitwardenSdk.LoginView? {
         switch itemType {
         case let .cipher(cipherView, _):
-            cipherView.login
+            // cipherView.login
+            nil
         case .group:
             nil
         case let .totp(_, totpModel):
@@ -175,7 +176,7 @@ extension VaultListItem {
     var subtitle: String? {
         switch itemType {
         case let .cipher(cipherView, fido2CredentialAutofillView):
-            fido2CredentialAutofillView?.userNameForUi ?? cipherView.subtitle
+            fido2CredentialAutofillView?.userNameForUi ?? cipherView.subTitle
         case .group:
             nil
         case .totp:

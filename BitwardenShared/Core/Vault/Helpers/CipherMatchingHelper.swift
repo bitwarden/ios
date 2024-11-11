@@ -49,7 +49,7 @@ class CipherMatchingHelper {
     ///   - ciphers: The list of ciphers to filter.
     /// - Returns: The list of ciphers that match the URI.
     ///
-    func ciphersMatching(uri: String?, ciphers: [CipherView]) async -> [CipherView] {
+    func ciphersMatching(uri: String?, ciphers: [CipherListView]) async -> [CipherListView] {
         guard let uri else { return [] }
 
         let matchURL = URL(string: uri)
@@ -64,30 +64,31 @@ class CipherMatchingHelper {
             matchUri: uri
         )
         let defaultMatchType = await (try? stateService.getDefaultUriMatchType()) ?? .domain
-
-        let matchingCiphers = ciphers.reduce(
-            into: (exact: [CipherView], fuzzy: [CipherView])([], [])
-        ) { result, cipher in
-            let match = checkForCipherMatch(
-                cipher: cipher,
-                defaultMatchType: defaultMatchType,
-                isApp: matchIsApp,
-                matchUri: uri,
-                matchingDomains: matchingDomains,
-                matchingFuzzyDomains: matchingFuzzyDomains
-            )
-            switch match {
-            case .exact:
-                result.exact.append(cipher)
-            case .fuzzy:
-                result.fuzzy.append(cipher)
-            case .none:
-                // No-op: don't add non-matching ciphers.
-                break
-            }
-        }
-
-        return matchingCiphers.exact + matchingCiphers.fuzzy
+        return []
+        // let matchingCiphers = ciphers.reduce(
+        //    into: (exact: [CipherView], fuzzy: [CipherView])([], [])
+        // ) { result, cipher in
+        //    let match = checkForCipherMatch(
+        //        cipher: cipher,
+        //        defaultMatchType: defaultMatchType,
+        //        isApp: matchIsApp,
+        //        matchUri: uri,
+        //        matchingDomains: matchingDomains,
+        //        matchingFuzzyDomains: matchingFuzzyDomains
+        //    )
+        //    switch match {
+        //    case .exact:
+        //        result.exact.append(cipher)
+        //    case .fuzzy:
+        //        result.fuzzy.append(cipher)
+        //    case .none:
+        //        // No-op: don't add non-matching ciphers.
+        //        break
+        //    }
+        // }
+        //
+        // return matchingCiphers.exact + matchingCiphers.fuzzy
+        // 
     }
 
     // MARK: Private

@@ -85,15 +85,17 @@ class VaultAutofillListProcessor: StateProcessor<
         case let .vaultItemTapped(vaultItem):
             switch vaultItem.itemType {
             case let .cipher(cipher, fido2CredentialAutofillView):
-                if #available(iOSApplicationExtension 17.0, *),
-                   let fido2AppExtensionDelegate,
-                   fido2CredentialAutofillView != nil || fido2AppExtensionDelegate.isCreatingFido2Credential {
-                    await onCipherForFido2CredentialPicked(cipher: cipher)
-                } else {
-                    await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
-                        self?.state.toast = Toast(title: toastText)
-                    }
-                }
+                // if #available(iOSApplicationExtension 17.0, *),
+                //   let fido2AppExtensionDelegate,
+                //   fido2CredentialAutofillView != nil || fido2AppExtensionDelegate.isCreatingFido2Credential {
+                //    await onCipherForFido2CredentialPicked(cipher: cipher)
+                // } else {
+                //    await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
+                //        self?.state.toast = Toast(title: toastText)
+                //    }
+                // }
+                //
+                break
             case .group:
                 return
             case .totp:
@@ -217,52 +219,54 @@ class VaultAutofillListProcessor: StateProcessor<
             state.showNoResults = false
             return
         }
-        do {
-            let searchResult = try await services.vaultRepository.searchCipherAutofillPublisher(
-                availableFido2CredentialsPublisher: services
-                    .fido2UserInterfaceHelper
-                    .availableCredentialsForAuthenticationPublisher(),
-                mode: autofillListMode,
-                filterType: .allVaults,
-                rpID: fido2AppExtensionDelegate?.rpID,
-                searchText: searchText
-            )
-            for try await sections in searchResult {
-                state.ciphersForSearch = sections
-                state.showNoResults = sections.isEmpty
-            }
-        } catch {
-            state.ciphersForSearch = []
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
+        // do {
+        //    let searchResult = try await services.vaultRepository.searchCipherAutofillPublisher(
+        //        availableFido2CredentialsPublisher: services
+        //            .fido2UserInterfaceHelper
+        //            .availableCredentialsForAuthenticationPublisher(),
+        //        mode: autofillListMode,
+        //        filterType: .allVaults,
+        //        rpID: fido2AppExtensionDelegate?.rpID,
+        //        searchText: searchText
+        //    )
+        //    for try await sections in searchResult {
+        //        state.ciphersForSearch = sections
+        //        state.showNoResults = sections.isEmpty
+        //    }
+        // } catch {
+        //    state.ciphersForSearch = []
+        //    coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        //    services.errorReporter.log(error: error)
+        // }
+        // 
     }
 
     /// Streams the list of autofill items.
     ///
     private func streamAutofillItems() async {
-        do {
-            var uri = appExtensionDelegate?.uri
-            if let fido2AppExtensionDelegate,
-               fido2AppExtensionDelegate.isCreatingFido2Credential,
-               let rpID = fido2AppExtensionDelegate.rpID {
-                uri = "https://\(rpID)"
-            }
-
-            for try await sections in try await services.vaultRepository.ciphersAutofillPublisher(
-                availableFido2CredentialsPublisher: services
-                    .fido2UserInterfaceHelper
-                    .availableCredentialsForAuthenticationPublisher(),
-                mode: autofillListMode,
-                rpID: fido2AppExtensionDelegate?.rpID,
-                uri: uri
-            ) {
-                state.vaultListSections = sections
-            }
-        } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
+        // do {
+        //    var uri = appExtensionDelegate?.uri
+        //    if let fido2AppExtensionDelegate,
+        //       fido2AppExtensionDelegate.isCreatingFido2Credential,
+        //       let rpID = fido2AppExtensionDelegate.rpID {
+        //        uri = "https://\(rpID)"
+        //    }
+        //
+        //    for try await sections in try await services.vaultRepository.ciphersAutofillPublisher(
+        //        availableFido2CredentialsPublisher: services
+        //            .fido2UserInterfaceHelper
+        //            .availableCredentialsForAuthenticationPublisher(),
+        //        mode: autofillListMode,
+        //        rpID: fido2AppExtensionDelegate?.rpID,
+        //        uri: uri
+        //    ) {
+        //        state.vaultListSections = sections
+        //    }
+        // } catch {
+        //    coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        //    services.errorReporter.log(error: error)
+        // }
+        // 
     }
 }
 
@@ -505,26 +509,27 @@ extension VaultAutofillListProcessor {
         for cipher: CipherView,
         fido2CreationOptions: BitwardenSdk.CheckUserOptions
     ) async {
-        do {
-            let result = try await services.fido2UserInterfaceHelper.checkUser(
-                userVerificationPreference: fido2CreationOptions.requireVerification,
-                credential: cipher,
-                shouldThrowEnforcingRequiredVerification: true
-            )
-
-            services.fido2UserInterfaceHelper.pickedCredentialForCreation(
-                result: .success(
-                    CheckUserAndPickCredentialForCreationResult(
-                        cipher: CipherViewWrapper(cipher: cipher),
-                        checkUserResult: CheckUserResult(userPresent: true, userVerified: result.userVerified)
-                    )
-                )
-            )
-        } catch UserVerificationError.cancelled {
-            return
-        } catch {
-            coordinator.showAlert(.networkResponseError(error))
-            services.errorReporter.log(error: error)
-        }
+        // do {
+        //    let result = try await services.fido2UserInterfaceHelper.checkUser(
+        //        userVerificationPreference: fido2CreationOptions.requireVerification,
+        //        credential: cipher,
+        //        shouldThrowEnforcingRequiredVerification: true
+        //    )
+        //
+        //    services.fido2UserInterfaceHelper.pickedCredentialForCreation(
+        //        result: .success(
+        //            CheckUserAndPickCredentialForCreationResult(
+        //                cipher: CipherViewWrapper(cipher: cipher),
+        //                checkUserResult: CheckUserResult(userPresent: true, userVerified: result.userVerified)
+        //            )
+        //        )
+        //    )
+        // } catch UserVerificationError.cancelled {
+        //    return
+        // } catch {
+        //    coordinator.showAlert(.networkResponseError(error))
+        //    services.errorReporter.log(error: error)
+        // }
+        // 
     }
 } // swiftlint:disable:this file_length

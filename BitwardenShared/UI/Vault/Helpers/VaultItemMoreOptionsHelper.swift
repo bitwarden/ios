@@ -74,7 +74,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
-                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
+                canCopyTotp: hasPremium /* || cipherView.organizationUseTotp */,
                 cipherView: cipherView,
                 hasMasterPassword: hasMasterPassword,
                 id: item.id,
@@ -154,13 +154,15 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 await generateAndCopyTotpCode(totpKey: totpKey, handleDisplayToast: handleDisplayToast)
             }
         case let .edit(cipherView, requiresMasterPasswordReprompt):
-            if requiresMasterPasswordReprompt {
-                presentMasterPasswordRepromptAlert {
-                    self.coordinator.navigate(to: .editItem(cipherView), context: self)
-                }
-            } else {
-                coordinator.navigate(to: .editItem(cipherView), context: self)
-            }
+            // if requiresMasterPasswordReprompt {
+            //    presentMasterPasswordRepromptAlert {
+            //        self.coordinator.navigate(to: .editItem(cipherView), context: self)
+            //    }
+            // } else {
+            //    coordinator.navigate(to: .editItem(cipherView), context: self)
+            // }
+            // 
+            break
         case let .launch(url):
             handleOpenURL(url.sanitized)
         case let .view(id):
