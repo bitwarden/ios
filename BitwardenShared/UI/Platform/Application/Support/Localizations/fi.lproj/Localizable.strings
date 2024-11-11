@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Holvin aikakatkaisutoiminto";
 "VaultTimeoutLogOutConfirmation" = "Uloskirjautuminen estää pääsyn holviisi ja vaatii ajan umpeuduttua tunnistautumisen Internet-yhteyden välityksellä. Haluatko varmasti käyttää asetusta?";
 "LoggingIn" = "Kirjaudutaan sisään…";
-"LoginOrCreateNewAccount" = "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili.";
+"LogInToBitwarden" = "Kirjaudu Bitwardeniin";
 "Manage" = "Hallinta";
 "MasterPasswordConfirmationValMessage" = "Salasanan vahvistus ei täsmää.";
 "MasterPasswordDescription" = "Pääsalasanalla pääset käsiksi holviisi. On erittäin tärkeää, että muistat pääsalasanasi, koska sen palautus ei ole mahdollista, jos unohdat sen.";
@@ -1015,7 +1015,7 @@
 "ImportLoginsLater" = "Tuo kirjautumistiedot myöhemmin";
 "ImportLoginsLaterQuestion" = "Tuodaanko kirjautumistietoja myöhemmin?";
 "YouCanReturnToCompleteThisStepAnytimeInVaultUnderSettings" = "You can return to complete this step anytime in Vault under Settings.";
-"DoYouHaveAComputerAvailable" = "Do you have a computer available?";
+"DoYouHaveAComputerAvailable" = "Onko käytettävissäsi tietokonetta?";
 "DoYouHaveAComputerAvailableDescriptionLong" = "The following instructions will guide you through importing logins from your desktop or laptop computer.";
 "StepXOfY" = "Vaihe %1$@ / %2$@";
 "ExportYourSavedLogins" = "Vie tallennettuja kirjautumistietojasi";
@@ -1043,7 +1043,7 @@
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
 "GotIt" = "Selvä";
 "GenerateCrash" = "Generate crash";
-"GenerateErrorReport" = "Generate error report";
+"GenerateErrorReport" = "Luo virheraportti";
 "AllowAuthenticatorSyncing" = "Allow authenticator syncing";
 "AuthenticatorSync" = "Authenticator sync";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Tiliä ei löytynyt. Kirjaudu sisään uudelleen, jos tämä virhe toistuu.";
@@ -1058,4 +1058,4 @@
 "CopyPublicKey" = "Kopioi julkinen avain";
 "CopyPrivateKey" = "Kopioi yksityinen avain";
 "CopyFingerprint" = "Kopioi sormenjälki";
-"SSHKeys" = "SSH keys";
+"SSHKeys" = "SSH-avaimet";

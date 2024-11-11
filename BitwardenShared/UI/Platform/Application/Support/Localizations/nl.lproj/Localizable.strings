@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Actie bij time-out";
 "VaultTimeoutLogOutConfirmation" = "Uitloggen ontneemt je de toegang tot je kluis en vereist online authenticatie na een periode van time-out. Weet je zeker dat je deze instelling wilt gebruiken?";
 "LoggingIn" = "Inloggen...";
-"LoginOrCreateNewAccount" = "Log in of maak een nieuw account aan om toegang te krijgen tot je beveiligde kluis.";
+"LogInToBitwarden" = "Inloggen op Bitwarden";
 "Manage" = "Beheer";
 "MasterPasswordConfirmationValMessage" = "De wachtwoorden komen niet overeen.";
 "MasterPasswordDescription" = "Het hoofdwachtwoord is het wachtwoord waarmee je toegang krijgt tot je beveiligde kluis. Het is belangrijk dat je het hoofdwachtwoord niet vergeet, want er is geen manier om het te herstellen.";
@@ -1058,4 +1058,4 @@
 "CopyPublicKey" = "Publieke sleutel kopiëren";
 "CopyPrivateKey" = "Privésleutel kopiëren";
 "CopyFingerprint" = "Vingerafdruk kopiëren";
-"SSHKeys" = "SSH keys";
+"SSHKeys" = "SSH-sleutels";

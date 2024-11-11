@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Széf időkifutás művelet";
 "VaultTimeoutLogOutConfirmation" = "Kijelentkezve az összes széf elérés eltávolításra kerül és webes hitelesítésre van szükség az időkifutás után. Biztosan szeretnénk használni ezt a beállítást?";
 "LoggingIn" = "Bejelentkezés...";
-"LoginOrCreateNewAccount" = "Jelentkezz be vagy készíts új fiókot a biztonsági széfed eléréshez.";
+"LogInToBitwarden" = "Bejelentkezés a Bitwardenbe";
 "Manage" = "Kezelés";
 "MasterPasswordConfirmationValMessage" = "A megadott két jelszó nem egyezik.";
 "MasterPasswordDescription" = "A mesterjelszó az a jelszó amit a széfed eléréséhez fogsz használni. Nagyon fontos, hogy ne felejtsd el a mesterjelszavad, mert nincs lehetőséged visszaállítani ha elfelejtetted.";
@@ -1058,4 +1058,4 @@
 "CopyPublicKey" = "Nyilvános kulcs másolása";
 "CopyPrivateKey" = "Személyes kulcs másolása";
 "CopyFingerprint" = "Ujjlenyomat másolása";
-"SSHKeys" = "SSH keys";
+"SSHKeys" = "SSH kulcsok";

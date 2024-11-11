@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "פעולה לביצוע בכספת בתום זמן החיבור";
 "VaultTimeoutLogOutConfirmation" = "יציאה תגרום להסרת כל גישה שיש לך לכספת ודורשת אימות אונליין לאחר משך זמן מסויים. האם אתה בטוח שברצונך להשתמש באפשרות זו?";
 "LoggingIn" = "מתחבר...";
-"LoginOrCreateNewAccount" = "היכנס או צור חשבון חדש כדי לגשת לכספת המאובטחת שלך.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "נהל";
 "MasterPasswordConfirmationValMessage" = "שדה אימות סיסמה שגוי.";
 "MasterPasswordDescription" = "הסיסמה הראשית היא הסיסמה שבאמצעותה תיגש לכספת שלך. חשוב מאוד שלא תשכח את הסיסמה הזו. אין שום דרך לשחזר אותה במקרה ושכחת אותה.";
