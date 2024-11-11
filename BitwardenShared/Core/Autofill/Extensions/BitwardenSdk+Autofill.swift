@@ -54,7 +54,7 @@ extension GetAssertionRequest {
 
 // MARK: - MakeCredentialRequest
 
-extension BitwardenSdk.MakeCredentialRequest: CustomDebugStringConvertible {
+extension BitwardenSdk.MakeCredentialRequest: @retroactive CustomDebugStringConvertible {
     public var debugDescription: String {
         let rpName = rp.name ?? "nil"
         let excludeList = excludeList?.description ?? "nil"
@@ -78,7 +78,7 @@ extension BitwardenSdk.MakeCredentialRequest: CustomDebugStringConvertible {
 
 // MARK: - MakeCredentialResult
 
-extension BitwardenSdk.MakeCredentialResult: CustomDebugStringConvertible {
+extension BitwardenSdk.MakeCredentialResult: @retroactive CustomDebugStringConvertible {
     public var debugDescription: String {
         [
             "AuthenticatorData: \(authenticatorData.asHexString())",
