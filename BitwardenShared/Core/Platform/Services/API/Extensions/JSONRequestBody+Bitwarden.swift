@@ -9,7 +9,7 @@ public extension JSONRequestBody {
 // MARK: - Array + RequestBody
 
 /// Conforms `Array` to `RequestBody`.
-extension Array: RequestBody, JSONRequestBody where Element: Codable {
+extension Array: @retroactive RequestBody, @retroactive JSONRequestBody where Element: Codable {
     public var additionalHeaders: [String: String] {
         ["Content-Type": "application/json"]
     }
