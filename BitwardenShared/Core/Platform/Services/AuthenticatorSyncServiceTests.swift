@@ -708,6 +708,40 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.id, "1234")
     }
 
+    /// Verifies that the AuthSyncService uses the previously stored AuthenticatorVaultKey
+    /// when the user's vault is locked at the initial startup of the service - i.e. if the  AuthenticatorVaultKey
+    /// exists, there's no need to wait for vault unlock.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_vaultLockedAtStartup() async throws {
+        setupInitialState(vaultLocked: true)
+        let key = try await clientService.crypto().getUserEncryptionKey()
+        try await keychainRepository.setAuthenticatorVaultKey(key, userId: "1")
+        await subject.start()
+
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp"
+                )
+            ),
+        ])
+
+        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+
+        let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
+        XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
+        XCTAssertEqual(item.accountEmail, "user@bitwarden.com")
+        XCTAssertEqual(item.favorite, false)
+        XCTAssertEqual(item.id, "1234")
+        XCTAssertEqual(item.name, "Bitwarden")
+        XCTAssertEqual(item.totpKey, "totp")
+        XCTAssertEqual(item.username, "masked@example.com")
+    }
+
     /// When the `AuthenticatorBridgeItemService` throws an error , `getTemporaryTotpItem()`  returns `nil`.
     ///
     @MainActor
