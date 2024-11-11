@@ -621,7 +621,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     /// `didCompleteAutomaticCapture` failure when the user has opted to save locally by default.
     func test_didCompleteAutomaticCapture_failure() {
         appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
-        appSettingsStore.defaultSaveOption = .saveLocally
+        appSettingsStore.defaultSaveOption = .saveHere
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject.didCompleteAutomaticCapture(captureCoordinator.asAnyCoordinator(), key: "1234")
@@ -700,7 +700,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(alert.alertActions.count, 2)
         let saveLocallyOption = try XCTUnwrap(alert.alertActions[1])
-        XCTAssertEqual(saveLocallyOption.title, Localizations.takeMeToBitwarden)
+        XCTAssertEqual(saveLocallyOption.title, Localizations.saveToBitwarden)
         await saveLocallyOption.handler?(saveLocallyOption, [])
 
         var dismissAction: DismissAction?
@@ -722,7 +722,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     /// `didCompleteAutomaticCapture` success when the user has opted to save locally by default.
     func test_didCompleteAutomaticCapture_hasSeenPrompt_saveLocally() async throws {
         appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
-        appSettingsStore.defaultSaveOption = .saveLocally
+        appSettingsStore.defaultSaveOption = .saveHere
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
         totpService.getTOTPConfigResult = .success(keyConfig)
@@ -855,7 +855,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         let item = try XCTUnwrap(authItemRepository.addAuthItemAuthItems.first)
         XCTAssertEqual(item.name, "")
         XCTAssertEqual(item.totpKey, String.base32Key)
-        XCTAssertEqual(appSettingsStore.defaultSaveOption, .saveLocally)
+        XCTAssertEqual(appSettingsStore.defaultSaveOption, .saveHere)
     }
 
     /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
@@ -875,7 +875,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(alert.alertActions.count, 2)
         let saveToBitwardenOption = try XCTUnwrap(alert.alertActions[1])
-        XCTAssertEqual(saveToBitwardenOption.title, Localizations.takeMeToBitwarden)
+        XCTAssertEqual(saveToBitwardenOption.title, Localizations.saveToBitwarden)
         await saveToBitwardenOption.handler?(saveToBitwardenOption, [])
 
         var dismissAction: DismissAction?
@@ -919,7 +919,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         let alert = try XCTUnwrap(coordinator.alertShown.first)
         XCTAssertEqual(alert.alertActions.count, 2)
         let saveLocallyOption = try XCTUnwrap(alert.alertActions[1])
-        XCTAssertEqual(saveLocallyOption.title, Localizations.takeMeToBitwarden)
+        XCTAssertEqual(saveLocallyOption.title, Localizations.saveToBitwarden)
         await saveLocallyOption.handler?(saveLocallyOption, [])
 
         var dismissAction: DismissAction?
@@ -1046,6 +1046,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         dismissAction?.action()
 
         waitFor(authItemRepository.tempItem != nil)
+        waitFor(subject.state.url != nil)
         XCTAssertEqual(authItemRepository.tempItem?.totpKey, expected.totpKey)
         XCTAssertEqual(authItemRepository.tempItem?.name, expected.name)
         XCTAssertEqual(subject.state.url, ExternalLinksConstants.passwordManagerNewItem)

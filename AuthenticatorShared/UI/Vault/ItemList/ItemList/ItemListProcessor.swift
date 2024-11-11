@@ -461,7 +461,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
 
             if services.appSettingsStore.hasSeenDefaultSaveOptionPrompt {
                 switch services.appSettingsStore.defaultSaveOption {
-                case .saveLocally:
+                case .saveHere:
                     captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: false)))
                 case .saveToBitwarden:
                     captureCoordinator.navigate(to: .dismiss(parseKeyAndDismiss(key, sendToBitwarden: true)))
@@ -599,7 +599,7 @@ extension ItemListProcessor: AuthenticatorKeyCaptureDelegate {
         let title = sendToBitwarden ?
             Localizations.setSaveToBitwardenAsYourDefaultSaveOption :
             Localizations.setSaveLocallyAsYourDefaultSaveOption
-        let option: DefaultSaveOption = sendToBitwarden ? .saveToBitwarden : .saveLocally
+        let option: DefaultSaveOption = sendToBitwarden ? .saveToBitwarden : .saveHere
 
         coordinator.showAlert(.confirmDefaultSaveOption(
             title: title,

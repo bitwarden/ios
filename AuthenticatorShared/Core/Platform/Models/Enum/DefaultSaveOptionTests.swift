@@ -11,7 +11,7 @@ class DefaultSaveOptionTests: AuthenticatorTestCase {
             DefaultSaveOption.allCases,
             [
                 .saveToBitwarden,
-                .saveLocally,
+                .saveHere,
                 .none,
             ]
         )
@@ -20,14 +20,14 @@ class DefaultSaveOptionTests: AuthenticatorTestCase {
     /// `localizedName` returns the correct values.
     func test_localizedName() {
         XCTAssertEqual(DefaultSaveOption.none.localizedName, Localizations.none)
-        XCTAssertEqual(DefaultSaveOption.saveLocally.localizedName, Localizations.saveLocally)
+        XCTAssertEqual(DefaultSaveOption.saveHere.localizedName, Localizations.saveHere)
         XCTAssertEqual(DefaultSaveOption.saveToBitwarden.localizedName, Localizations.saveToBitwarden)
     }
 
     /// `rawValue` returns the correct values.
     func test_rawValues() {
         XCTAssertEqual(DefaultSaveOption.none.rawValue, "none")
-        XCTAssertEqual(DefaultSaveOption.saveLocally.rawValue, "saveLocally")
+        XCTAssertEqual(DefaultSaveOption.saveHere.rawValue, "saveHere")
         XCTAssertEqual(DefaultSaveOption.saveToBitwarden.rawValue, "saveToBitwarden")
     }
 }

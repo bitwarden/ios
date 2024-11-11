@@ -112,10 +112,10 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     /// Receiving `.defaultSaveChanged` updates the user's `defaultSaveOption` app setting.
     func test_receive_defaultSaveChanged() {
         subject.state.defaultSaveOption = .none
-        subject.receive(.defaultSaveChanged(.saveLocally))
+        subject.receive(.defaultSaveChanged(.saveHere))
 
-        XCTAssertEqual(appSettingsStore.defaultSaveOption, .saveLocally)
-        XCTAssertEqual(subject.state.defaultSaveOption, .saveLocally)
+        XCTAssertEqual(appSettingsStore.defaultSaveOption, .saveHere)
+        XCTAssertEqual(subject.state.defaultSaveOption, .saveHere)
     }
 
     /// Receiving `.exportItemsTapped` navigates to the export vault screen.

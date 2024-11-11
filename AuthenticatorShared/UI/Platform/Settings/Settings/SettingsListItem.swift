@@ -56,7 +56,7 @@ struct SettingsListItem<Content: View>: View {
             }
         }
         .accessibilityIdentifier(accessibilityIdentifier ?? "")
-        .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
     }
 
     // MARK: Initialization

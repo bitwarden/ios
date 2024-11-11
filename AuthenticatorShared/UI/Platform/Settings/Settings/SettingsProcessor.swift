@@ -7,8 +7,8 @@ import OSLog
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, SettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasApplication
-        & HasAppSettingsStore
+    typealias Services = HasAppSettingsStore
+        & HasApplication
         & HasAuthenticatorItemRepository
         & HasBiometricsRepository
         & HasConfigService

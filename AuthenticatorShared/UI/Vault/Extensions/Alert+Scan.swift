@@ -17,7 +17,7 @@ extension Alert {
             message: Localizations.saveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp,
             alertActions: [
                 AlertAction(title: Localizations.saveHere, style: .default) { _, _ in await saveLocallyAction() },
-                AlertAction(title: Localizations.takeMeToBitwarden,
+                AlertAction(title: Localizations.saveToBitwarden,
                             style: .default) { _, _ in await sendToBitwardenAction() },
             ]
         )

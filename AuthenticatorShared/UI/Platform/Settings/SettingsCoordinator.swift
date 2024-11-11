@@ -11,8 +11,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
     typealias Module = FileSelectionModule
         & TutorialModule
 
-    typealias Services = HasApplication
-        & HasAppSettingsStore
+    typealias Services = HasAppSettingsStore
+        & HasApplication
         & HasAuthenticatorItemRepository
         & HasBiometricsRepository
         & HasCameraService

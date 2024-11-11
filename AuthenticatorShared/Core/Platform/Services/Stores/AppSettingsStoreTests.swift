@@ -156,9 +156,9 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         XCTAssertEqual(subject.defaultSaveOption, .saveToBitwarden)
         XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "saveToBitwarden")
 
-        subject.defaultSaveOption = .saveLocally
-        XCTAssertEqual(subject.defaultSaveOption, .saveLocally)
-        XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "saveLocally")
+        subject.defaultSaveOption = .saveHere
+        XCTAssertEqual(subject.defaultSaveOption, .saveHere)
+        XCTAssertEqual(userDefaults.string(forKey: "bwaPreferencesStorage:defaultSaveOption"), "saveHere")
 
         subject.defaultSaveOption = .none
         XCTAssertEqual(subject.defaultSaveOption, .none)

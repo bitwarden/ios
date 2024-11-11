@@ -9,7 +9,7 @@ enum DefaultSaveOption: String, Equatable, Menuable {
     case none
 
     /// Save the code locally without showing any prompt.
-    case saveLocally
+    case saveHere
 
     /// Take the user to the Bitwarden PM app to save the code without prompt.
     case saveToBitwarden
@@ -17,7 +17,7 @@ enum DefaultSaveOption: String, Equatable, Menuable {
     /// All of the cases to show in the menu, in order.
     public static let allCases: [Self] = [
         .saveToBitwarden,
-        .saveLocally,
+        .saveHere,
         .none,
     ]
 
@@ -26,8 +26,8 @@ enum DefaultSaveOption: String, Equatable, Menuable {
         switch self {
         case .none:
             Localizations.none
-        case .saveLocally:
-            Localizations.saveLocally
+        case .saveHere:
+            Localizations.saveHere
         case .saveToBitwarden:
             Localizations.saveToBitwarden
         }

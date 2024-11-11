@@ -56,7 +56,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     /// Tapping the add to Bitwarden button dispatches the `.addPressed(:)` action.
     func test_addToBitwardenButton_tap_empty() throws {
         processor.state.isPasswordManagerSyncActive = true
-        let button = try subject.inspect().find(button: Localizations.addCodeToBitwarden)
+        let button = try subject.inspect().find(button: Localizations.saveToBitwarden)
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -69,7 +69,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
         processor.state.name = "wayne"
         processor.state.authenticatorKey = "pasta-batman"
         processor.state.isPasswordManagerSyncActive = true
-        let button = try subject.inspect().find(button: Localizations.addCodeToBitwarden)
+        let button = try subject.inspect().find(button: Localizations.saveToBitwarden)
         try button.tap()
         XCTAssertEqual(
             processor.dispatchedActions.last,
