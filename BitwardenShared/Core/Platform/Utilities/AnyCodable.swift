@@ -69,7 +69,7 @@ extension AnyCodable {
         return boolValue
     }
 
-    /// Returns the associated int value if the type is `double` or could be converted to `Double`.
+    /// Returns the associated double value if the type is `double` or could be converted to `Double`.
     var doubleValue: Double? {
         switch self {
         case let .bool(boolValue):

@@ -35,14 +35,14 @@ extension DefaultValue: Decodable {
             if let intValue = try? container.decode(Int.self) {
                 Logger.application.warning(
                     """
-                    Cannot initialize \(T.self) from invalid Int value \(intValue), \
+                    Cannot initialize \(T.self) from invalid Int value \(intValue, privacy: .private), \
                     defaulting to \(String(describing: T.defaultValue)).
                     """
                 )
             } else if let stringValue = try? container.decode(String.self) {
                 Logger.application.warning(
                     """
-                    Cannot initialize \(T.self) from invalid String value \(stringValue), \
+                    Cannot initialize \(T.self) from invalid String value \(stringValue, privacy: .private), \
                     defaulting to \(String(describing: T.defaultValue))
                     """
                 )
