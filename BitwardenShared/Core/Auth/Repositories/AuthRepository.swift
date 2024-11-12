@@ -80,12 +80,11 @@ protocol AuthRepository: AnyObject {
     ///
     func isLocked(userId: String?) async throws -> Bool
 
-    /// Locks the user's vault and clears decrypted data from memory.
-    ///
-    ///  - Parameter userId: The userId of the account to lock.
-    ///     Defaults to active account if nil.
-    ///
-    func lockVault(userId: String?) async
+    /// Locks the user's vault and clears decrypted data from memory
+    /// - Parameters:
+    ///   - userId: The userId of the account to lock. Defaults to active account if nil
+    ///   - isManuallyLocking: Whether the user is manually locking the account.
+    func lockVault(userId: String?, isManuallyLocking: Bool) async
 
     /// Logs the user out of the specified account.
     ///
@@ -291,6 +290,13 @@ extension AuthRepository {
     ///
     func isLocked() async throws -> Bool {
         try await isLocked(userId: nil)
+    }
+
+    /// Locks the user's vault and clears decrypted data from memory
+    /// - Parameters:
+    ///   - userId: The userId of the account to lock. Defaults to active account if nil
+    func lockVault(userId: String?) async {
+        await lockVault(userId: userId, isManuallyLocking: false)
     }
 
     /// Logs the user out of the active account.
@@ -579,8 +585,15 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.pinProtectedUserKey() != nil
     }
 
-    func lockVault(userId: String?) async {
+    func lockVault(userId: String?, isManuallyLocking: Bool) async {
         await vaultTimeoutService.lockVault(userId: userId)
+        if isManuallyLocking {
+            do {
+                try await stateService.setManuallyLockedAccount(true, userId: userId)
+            } catch {
+                errorReporter.log(error: error)
+            }
+        }
     }
 
     func migrateUserToKeyConnector(password: String) async throws {
@@ -905,7 +918,11 @@ extension DefaultAuthRepository: AuthRepository {
         let isLocked = await (try? isLocked(userId: account.profile.userId)) ?? true
         let isAuthenticated = await (try? stateService.isAuthenticated(userId: account.profile.userId)) == true
         let hasNeverLock = await (try? stateService.getVaultTimeout(userId: account.profile.userId)) == .never
-        let displayAsUnlocked = !isLocked || hasNeverLock
+        let isManuallyLocked = await (try? stateService.getManuallyLockedAccount(
+            userId: account.profile.userId
+        )) == true
+        let unlockedOnNeverLock = hasNeverLock && !isManuallyLocked
+        let displayAsUnlocked = !isLocked || unlockedOnNeverLock
 
         let color = if let avatarColor = account.profile.avatarColor {
             Color(hex: avatarColor)
@@ -969,6 +986,11 @@ extension DefaultAuthRepository: AuthRepository {
             hadUserInteraction: hadUserInteraction
         )
         try await organizationService.initializeOrganizationCrypto()
+        do {
+            try await stateService.setManuallyLockedAccount(false, userId: account.profile.userId)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func updateMasterPassword(
