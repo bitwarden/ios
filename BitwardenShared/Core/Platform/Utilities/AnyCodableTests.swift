@@ -27,7 +27,8 @@ class AnyCodableTests: BitwardenTestCase {
           "requireNumbers": false,
           "requireSpecial": false,
           "enforceOnLogin": false,
-          "type": "password"
+          "type": "password",
+          "minutes": 1.5
         }
         """
 
@@ -45,8 +46,31 @@ class AnyCodableTests: BitwardenTestCase {
                 "requireSpecial": AnyCodable.bool(false),
                 "enforceOnLogin": AnyCodable.bool(false),
                 "type": AnyCodable.string("password"),
+                "minutes": AnyCodable.double(1.5),
             ]
         )
+    }
+
+    /// `doubleValue` returns the double associated value if the type is a `double` or could be
+    /// converted to `Double`.
+    func test_doubleValue() {
+        XCTAssertEqual(AnyCodable.bool(true).doubleValue, 1)
+        XCTAssertEqual(AnyCodable.bool(false).doubleValue, 0)
+
+        XCTAssertEqual(AnyCodable.double(2).doubleValue, 2)
+        XCTAssertEqual(AnyCodable.double(3.1).doubleValue, 3.1)
+        XCTAssertEqual(AnyCodable.double(3.8).doubleValue, 3.8)
+        XCTAssertEqual(AnyCodable.double(-5.5).doubleValue, -5.5)
+
+        XCTAssertEqual(AnyCodable.int(1).doubleValue, 1)
+        XCTAssertEqual(AnyCodable.int(5).doubleValue, 5)
+        XCTAssertEqual(AnyCodable.int(15).doubleValue, 15)
+
+        XCTAssertNil(AnyCodable.null.doubleValue)
+
+        XCTAssertEqual(AnyCodable.string("1").doubleValue, 1)
+        XCTAssertEqual(AnyCodable.string("1.5").doubleValue, 1.5)
+        XCTAssertNil(AnyCodable.string("abc").doubleValue)
     }
 
     /// `AnyCodable` can be used to encode JSON.
@@ -60,6 +84,7 @@ class AnyCodableTests: BitwardenTestCase {
             "requireSpecial": AnyCodable.bool(false),
             "enforceOnLogin": AnyCodable.bool(false),
             "type": AnyCodable.string("password"),
+            "minutes": AnyCodable.double(1.5),
         ]
 
         let encoder = JSONEncoder()
@@ -74,6 +99,7 @@ class AnyCodableTests: BitwardenTestCase {
               "enforceOnLogin" : false,
               "minComplexity" : null,
               "minLength" : 12,
+              "minutes" : 1.5,
               "requireLower" : true,
               "requireNumbers" : false,
               "requireSpecial" : false,
@@ -84,13 +110,25 @@ class AnyCodableTests: BitwardenTestCase {
         )
     }
 
-    /// `intValue` returns the int associated value if the type is an `int`.
+    /// `intValue` returns the int associated value if the type is an `int` or could be converted
+    /// to `Int`.
     func test_intValue() {
+        XCTAssertEqual(AnyCodable.bool(true).intValue, 1)
+        XCTAssertEqual(AnyCodable.bool(false).intValue, 0)
+
+        XCTAssertEqual(AnyCodable.double(2).intValue, 2)
+        XCTAssertEqual(AnyCodable.double(3.1).intValue, 3)
+        XCTAssertEqual(AnyCodable.double(3.8).intValue, 3)
+        XCTAssertEqual(AnyCodable.double(-5.5).intValue, -5)
+
         XCTAssertEqual(AnyCodable.int(1).intValue, 1)
         XCTAssertEqual(AnyCodable.int(5).intValue, 5)
+        XCTAssertEqual(AnyCodable.int(15).intValue, 15)
 
-        XCTAssertNil(AnyCodable.bool(false).intValue)
         XCTAssertNil(AnyCodable.null.intValue)
+
+        XCTAssertEqual(AnyCodable.string("1").intValue, 1)
+        XCTAssertNil(AnyCodable.string("1.5").intValue)
         XCTAssertNil(AnyCodable.string("abc").intValue)
     }
 

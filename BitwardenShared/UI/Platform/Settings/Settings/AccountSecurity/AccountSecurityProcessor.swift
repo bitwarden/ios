@@ -70,9 +70,7 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         case .lockVault:
             await coordinator.handleEvent(
                 .authAction(
-                    .lockVault(
-                        userId: nil
-                    )
+                    .lockVault(userId: nil, isManuallyLocking: true)
                 )
             )
         case .streamSettingsBadge:

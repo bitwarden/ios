@@ -274,8 +274,11 @@ class DefaultAutofillCredentialService {
     private func tryUnlockVaultWithoutUserInteraction(delegate: AutofillCredentialServiceDelegate) async throws {
         let userId = try await stateService.getActiveAccountId()
         let isLocked = vaultTimeoutService.isLocked(userId: userId)
+        let isManuallyLocked = await (try? stateService.getManuallyLockedAccount(userId: userId)) == true
         let vaultTimeout = try? await vaultTimeoutService.sessionTimeoutValue(userId: nil)
-        guard vaultTimeout == .never, isLocked else { return }
+        guard vaultTimeout == .never, isLocked, !isManuallyLocked else {
+            return
+        }
         try await delegate.unlockVaultWithNeverlockKey()
     }
 }

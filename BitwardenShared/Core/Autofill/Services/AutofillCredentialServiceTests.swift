@@ -190,6 +190,30 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertNil(pasteboardService.copiedString)
     }
 
+    /// `provideCredential(for:)` doesn't unlock the user's vault if they use never lock
+    /// but it has been manually locked.
+    func test_provideCredential_neverLockManuallyLocked() async throws {
+        autofillCredentialServiceDelegate.unlockVaultWithNaverlockHandler = { [weak self] in
+            self?.vaultTimeoutService.isClientLocked["1"] = false
+        }
+        cipherService.fetchCipherResult = .success(
+            .fixture(login: .fixture(password: "password123", username: "user@bitwarden.com"))
+        )
+        stateService.activeAccount = .fixture()
+        stateService.manuallyLockedAccounts["1"] = true
+        vaultTimeoutService.isClientLocked["1"] = true
+        vaultTimeoutService.vaultTimeout["1"] = .never
+
+        await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
+            _ = try await subject.provideCredential(
+                for: "1",
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                repromptPasswordValidated: false
+            )
+        }
+        XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
+    }
+
     /// `provideCredential(for:)` throws an error if reprompt is required.
     func test_provideCredential_repromptRequired() async throws {
         stateService.activeAccount = .fixture()
@@ -424,6 +448,31 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(result.clientDataHash, passkeyRequest.clientDataHash)
         XCTAssertEqual(result.authenticatorData, expectedAssertionResult.authenticatorData)
         XCTAssertEqual(result.credentialID, expectedAssertionResult.credentialId)
+    }
+
+    /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
+    /// throws when unlocking with never key but is manually locked.
+    @available(iOS 17.0, *)
+    func test_provideFido2Credential_throwsWithUnlockingNeverKeyAndManuallyLocked() async throws {
+        autofillCredentialServiceDelegate.unlockVaultWithNaverlockHandler = { [weak self] in
+            self?.vaultTimeoutService.isClientLocked["1"] = false
+        }
+        stateService.activeAccount = .fixture()
+        stateService.manuallyLockedAccounts["1"] = true
+        vaultTimeoutService.isClientLocked["1"] = true
+        vaultTimeoutService.vaultTimeout["1"] = .never
+
+        let passkeyIdentity = ASPasskeyCredentialIdentity.fixture()
+        let passkeyRequest = ASPasskeyCredentialRequest.fixture(credentialIdentity: passkeyIdentity)
+
+        await assertAsyncThrows(error: Fido2Error.userInteractionRequired) {
+            _ = try await subject.provideFido2Credential(
+                for: passkeyRequest,
+                autofillCredentialServiceDelegate: autofillCredentialServiceDelegate,
+                fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
+            )
+        }
+        XCTAssertFalse(autofillCredentialServiceDelegate.unlockVaultWithNeverlockKeyCalled)
     }
 
     /// `provideFido2Credential(for:autofillCredentialServiceDelegate:fido2UserVerificationMediatorDelegate:)`
