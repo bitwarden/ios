@@ -542,9 +542,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
                 } else if cipherView.subtitle.lowercased()
                     .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
                     lowPriorityMatchedCiphers.append(cipherView)
-                } // else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
-                //    lowPriorityMatchedCiphers.append(cipherView)
-                // }
+                } else if case let .login(login) = cipherView.type, login.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
+                    lowPriorityMatchedCiphers.append(cipherView)
+                }
             }
 
             // Return the result.
@@ -573,7 +573,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             .filter { cipher in
                 switch cipher.type {
                 case let .login(loginView):
-                    return loginView.totp != nil && hasPremiumFeaturesAccess // || cipher.organizationUseTotp
+                    return loginView.totp != nil && (hasPremiumFeaturesAccess || cipher.organizationUseTotp)
                 default:
                     return false
                 }
