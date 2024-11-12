@@ -1,8 +1,5 @@
 # Bitwarden iOS
 
-> [!TIP]
-> This repo has the new native iOS app. Looking for the legacy .NET MAUI apps? Head on over to [bitwarden/mobile](https://github.com/bitwarden/mobile)
-
 ## Contents
 
 - [Compatibility](#compatibility)
@@ -133,15 +130,6 @@ The following dependencies are used in the development environment only. They ar
 - **XcodeGen**
     - https://github.com/yonaskolb/XcodeGen
     - Purpose: Generates the Xcode project using the folder structure and a project spec.
-    - License: MIT
-
-### CI/CD Dependencies
-
-The following is a list of additional third-party dependencies used as part of the CI/CD workflows. These are not present in the final packaged application.
-
-- **yeetd**
-    - https://github.com/biscuitehh/yeetd
-    - Purpose: Improves the performance of Xcode 15 simulators while executing unit tests in a CI environment.
     - License: MIT
 
 ## Project Structure
