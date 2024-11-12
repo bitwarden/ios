@@ -49,6 +49,6 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// Whether to show the add item button.
     var showAddItemButton: Bool {
-        !isAutofillingFido2List && !isAutofillingTotpList
+        !isAutofillingTotpList
     }
 }
