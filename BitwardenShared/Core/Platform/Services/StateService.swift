@@ -29,6 +29,13 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Returns whether the active account was switched in the extension. This compares the current
+    /// active account in memory with what's stored on disk to determine if the account was switched.
+    ///
+    /// - Returns: Whether the active was switched in the extension.
+    ///
+    func didAccountSwitchInExtension() async throws -> Bool
+
     /// Returns whether the active user account has access to premium features.
     ///
     /// - Returns: Whether the active account has access to premium features.
@@ -216,6 +223,11 @@ protocol StateService: AnyObject {
     /// - Returns: The pending login request data from a push notification.
     ///
     func getLoginRequest() async -> LoginRequestNotification?
+
+    /// Gets whether the account belonging to the user Id has been manually locked.
+    /// - Parameter userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool
 
     /// Gets the master password hash for a user ID.
     ///
@@ -508,6 +520,13 @@ protocol StateService: AnyObject {
     /// - Parameter loginRequest: The pending login request data.
     ///
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async
+
+    /// Sets whether the account belonging to the user Id has been manually locked.
+    /// - Parameters
+    ///   - isLocked: Whether the account has been locked manually.
+    ///   - userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws
 
     /// Sets the master password hash for a user ID.
     ///
@@ -1297,6 +1316,18 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try await logoutAccount(userInitiated: true)
     }
 
+    func didAccountSwitchInExtension() async throws -> Bool {
+        do {
+            return try getActiveAccountUserId() != appSettingsStore.cachedActiveUserId
+        } catch StateServiceError.noActiveAccount {
+            let cachedActiveUserId = appSettingsStore.cachedActiveUserId
+            // If the user was logged out in the extension, but there's a cached active user,
+            // reset the state to update the cached active user.
+            appSettingsStore.state = appSettingsStore.state
+            return cachedActiveUserId != nil
+        }
+    }
+
     func doesActiveAccountHavePremium() async throws -> Bool {
         let account = try await getActiveAccount()
         let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
@@ -1437,6 +1468,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getLoginRequest() async -> LoginRequestNotification? {
         appSettingsStore.loginRequest
+    }
+
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.manuallyLockedAccount(userId: userId)
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -1692,6 +1728,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
         appSettingsStore.loginRequest = loginRequest
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setManuallyLockedAccount(isLocked, userId: userId)
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {

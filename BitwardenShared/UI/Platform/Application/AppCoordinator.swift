@@ -81,6 +81,16 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             await handleAuthEvent(.didTimeout(userId: userId))
         case let .setAuthCompletionRoute(route):
             authCompletionRoute = route
+        case let .switchAccounts(userId, isAutomatic):
+            await handleAuthEvent(
+                .action(
+                    .switchAccount(
+                        isAutomatic: isAutomatic,
+                        userId: userId,
+                        authCompletionRoute: nil
+                    )
+                )
+            )
         }
     }
 
@@ -292,7 +302,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         stackNavigator.modalPresentationStyle = .fullScreen
         let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
         debugMenuCoordinator.start()
-        childCoordinator = debugMenuCoordinator
 
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
@@ -392,11 +401,11 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         }
     }
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         Task {
             await handleAuthEvent(
                 .action(
-                    .lockVault(userId: userId)
+                    .lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
                 )
             )
         }

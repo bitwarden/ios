@@ -155,14 +155,31 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_didLockVault() {
         let account: Account = .fixtureAccountLogin()
 
-        subject.lockVault(userId: account.profile.userId)
+        subject.lockVault(userId: account.profile.userId, isManuallyLocking: false)
 
         waitFor(module.authCoordinator.isStarted)
         waitFor(!router.events.isEmpty)
         XCTAssertEqual(
             router.events,
             [
-                .action(.lockVault(userId: account.profile.userId)),
+                .action(.lockVault(userId: account.profile.userId, isManuallyLocking: false)),
+            ]
+        )
+    }
+
+    /// `lockVault(_:)` passes the lock event to the router with manual locking.
+    @MainActor
+    func test_didLockVault_onManualLocking() {
+        let account: Account = .fixtureAccountLogin()
+
+        subject.lockVault(userId: account.profile.userId, isManuallyLocking: true)
+
+        waitFor(module.authCoordinator.isStarted)
+        waitFor(!router.events.isEmpty)
+        XCTAssertEqual(
+            router.events,
+            [
+                .action(.lockVault(userId: account.profile.userId, isManuallyLocking: true)),
             ]
         )
     }
@@ -227,6 +244,23 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_handleEvent_didLogout() async {
         await subject.handleEvent(.didLogout(userId: "1", userInitiated: false))
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
+    }
+
+    /// `handleEvent(_:)` with `.switchAccounts` has the router handle switching accounts.
+    @MainActor
+    func test_handleEvent_switchAccounts() async {
+        await subject.handleEvent(.switchAccounts(userId: "1", isAutomatic: false))
+        XCTAssertEqual(
+            router.events,
+            [.action(.switchAccount(isAutomatic: false, userId: "1", authCompletionRoute: nil))]
+        )
+        router.events.removeAll()
+
+        await subject.handleEvent(.switchAccounts(userId: "2", isAutomatic: true))
+        XCTAssertEqual(
+            router.events,
+            [.action(.switchAccount(isAutomatic: true, userId: "2", authCompletionRoute: nil))]
+        )
     }
 
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.

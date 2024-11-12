@@ -88,7 +88,6 @@ extension Alert {
     ///
     static func accountOptions(
         _ item: ProfileSwitcherItem,
-        hasNeverLock: Bool = false,
         lockAction: @escaping () async -> Void,
         logoutAction: @escaping () async -> Void
     ) -> Alert {
@@ -101,8 +100,7 @@ extension Alert {
                 handler: { _, _ in await logoutAction() }
             ),
         ]
-        if item.isUnlocked,
-           !hasNeverLock {
+        if item.isUnlocked {
             alertActions.insert(
                 AlertAction(
                     title: Localizations.lock,

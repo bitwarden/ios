@@ -51,6 +51,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     override func tearDown() {
         super.tearDown()
 
+        subject = nil
         authBridgeItemService = nil
         authRepository = nil
         cipherDataStore = nil
@@ -60,7 +61,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         keychainRepository = nil
         sharedKeychainRepository = nil
         stateService = nil
-        subject = nil
         vaultTimeoutService = nil
     }
 
@@ -464,7 +464,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         // Unsubscribe from sync, wait for items to be deleted
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
-        waitFor((authBridgeItemService.storedItems["1"]?.isEmpty) ?? false)
+        try await waitForAsync {
+            (self.authBridgeItemService.storedItems["1"]?.isEmpty) ?? false
+        }
 
         // Sending additional updates should not appear in Store
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
@@ -479,6 +481,37 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         try await Task.sleep(nanoseconds: 10_000_000)
         XCTAssertTrue(authBridgeItemService.storedItems["1"]?.isEmpty ?? false)
+    }
+
+    /// The sync service should be properly handling multiple publishes which could happen on multiple threads.
+    /// By generating a `send` on both the sync status and the vault unlock, the service will receive two
+    /// simultaneous attempts to determine syncing.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_threadSafetyCheck() async throws {
+        setupInitialState()
+        await subject.start()
+
+        for _ in 0 ..< 4 {
+            async let result1: Void = stateService.syncToAuthenticatorSubject.send(("1", true))
+            async let result2: Void = vaultTimeoutService.vaultLockStatusSubject.send(
+                VaultLockStatus(isVaultLocked: false, userId: "1")
+            )
+            await _ = (result1, result2)
+        }
+
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp"
+                )
+            ),
+        ])
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
     }
 
     /// When user "1" has sync turned on and user "2" unlocks their vault, the service should not take

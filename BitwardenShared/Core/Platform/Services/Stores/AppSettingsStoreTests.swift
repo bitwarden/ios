@@ -213,6 +213,26 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:theme"))
     }
 
+    /// `cachedActiveUserId` returns `nil` if there isn't a cached active user.
+    func test_cachedActiveUserId_isInitiallyNil() {
+        XCTAssertNil(subject.cachedActiveUserId)
+    }
+
+    /// `cachedActiveUserId` returns the user ID of the last active user ID in the current process.
+    func test_cachedActiveUserId_withValue() {
+        subject.state = State(accounts: ["1": .fixture()], activeUserId: "1")
+        XCTAssertEqual(subject.cachedActiveUserId, "1")
+
+        subject.state = State(
+            accounts: [
+                "1": .fixture(profile: .fixture(userId: "1")),
+                "2": .fixture(profile: .fixture(userId: "2")),
+            ],
+            activeUserId: "2"
+        )
+        XCTAssertEqual(subject.cachedActiveUserId, "2")
+    }
+
     /// `clearClipboardValue(userId:)` returns `.never` if there isn't a previously stored value.
     func test_clearClipboardValue_isInitiallyNever() {
         XCTAssertEqual(subject.clearClipboardValue(userId: "0"), .never)
@@ -527,6 +547,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             loginRequest
         )
+    }
+
+    /// `manuallyLockedAccount(userId:)` returns `false` if there isn't a previously stored value.
+    func test_manuallyLockedAccount_isInitiallyFalse() {
+        XCTAssertFalse(subject.manuallyLockedAccount(userId: "-1"))
+    }
+
+    /// `manuallyLockedAccount(userId:)` can be used to get whether the account has been manually locked.
+    func test_manuallyLockedAccount_withValue() {
+        subject.setManuallyLockedAccount(false, userId: "1")
+        subject.setManuallyLockedAccount(true, userId: "2")
+
+        XCTAssertFalse(subject.manuallyLockedAccount(userId: "1"))
+        XCTAssertTrue(subject.manuallyLockedAccount(userId: "2"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:manuallyLockedAccount_1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:manuallyLockedAccount_2"))
+
+        subject.setManuallyLockedAccount(true, userId: "1")
+        subject.setManuallyLockedAccount(false, userId: "2")
+
+        XCTAssertTrue(subject.manuallyLockedAccount(userId: "1"))
+        XCTAssertFalse(subject.manuallyLockedAccount(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:manuallyLockedAccount_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:manuallyLockedAccount_2"))
     }
 
     /// `migrationVersion` returns `0` if there isn't a previously stored value.

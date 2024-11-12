@@ -129,6 +129,46 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(state.activeUserId)
     }
 
+    /// `didAccountSwitchInExtension` returns `false` if there's no active user.
+    func test_didAccountSwitchInExtension_noActiveUser() async throws {
+        let didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertFalse(didSwitch)
+    }
+
+    /// `didAccountSwitchInExtension` returns `true` if there's a cached active user but no active
+    /// user in the state.
+    func test_didAccountSwitchInExtension_noActiveUser_cachedActiveUserId() async throws {
+        appSettingsStore.cachedActiveUserId = "1"
+        appSettingsStore.activeIdSubject.send("1")
+
+        var publishedValues = [String?]()
+        let publisher = appSettingsStore.activeIdSubject
+            .sink(receiveValue: { publishedValues.append($0) })
+        defer { publisher.cancel() }
+
+        let didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+        XCTAssertEqual(publishedValues, ["1", nil])
+    }
+
+    /// `didAccountSwitchInExtension` returns whether the active account was switched in the
+    /// extension.
+    func test_didAccountSwitchInExtension() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        appSettingsStore.cachedActiveUserId = nil
+
+        var didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+
+        appSettingsStore.cachedActiveUserId = "1"
+        didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertFalse(didSwitch)
+
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        didSwitch = try await subject.didAccountSwitchInExtension()
+        XCTAssertTrue(didSwitch)
+    }
+
     /// `doesActiveAccountHavePremium()` with premium personally and no organizations returns true.
     func test_doesActiveAccountHavePremium_personalTrue_noOrganization() async throws {
         await subject.addAccount(.fixture(profile: .fixture(hasPremiumPersonally: true)))
@@ -684,6 +724,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.loginRequest = loginRequest
         let value = await subject.getLoginRequest()
         XCTAssertEqual(value, loginRequest)
+    }
+
+    /// `getManuallyLockedAccount(userId:)` returns whether the account has been manually locked.
+    func test_getManuallyLockedAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let noManuallyLockedAccount = try await subject.getManuallyLockedAccount(userId: "1")
+        XCTAssertFalse(noManuallyLockedAccount)
+
+        appSettingsStore.manuallyLockedAccounts["1"] = true
+        let manuallyLockedAccount = try await subject.getManuallyLockedAccount(userId: "1")
+        XCTAssertTrue(manuallyLockedAccount)
+    }
+
+    /// `getManuallyLockedAccount(userId:)` throws because no active account.
+    func test_getManuallyLockedAccount_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getManuallyLockedAccount(userId: nil)
+        }
     }
 
     /// `getMasterPasswordHash()` returns the user's master password hash.
@@ -1663,6 +1722,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let loginRequest = LoginRequestNotification(id: "1", userId: "10")
         await subject.setLoginRequest(loginRequest)
         XCTAssertEqual(appSettingsStore.loginRequest, loginRequest)
+    }
+
+    /// `setManuallyLockedAccount(_:userId:)` sets if the account has been manually locked for a user.
+    func test_setManuallyLockedAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setManuallyLockedAccount(true, userId: nil)
+        XCTAssertEqual(appSettingsStore.manuallyLockedAccounts, ["1": true])
+
+        try await subject.setManuallyLockedAccount(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.manuallyLockedAccounts, ["1": false])
+
+        try await subject.setManuallyLockedAccount(true, userId: "1")
+        XCTAssertEqual(appSettingsStore.manuallyLockedAccounts, ["1": true])
+    }
+
+    /// `setManuallyLockedAccount(_:userId:)` throws when setting if the account has been manually locked for a user.
+    func test_setManuallyLockedAccount_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setManuallyLockedAccount(true, userId: nil)
+        }
     }
 
     /// `setMasterPasswordHash(_:)` sets the master password hash for a user.

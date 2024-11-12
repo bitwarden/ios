@@ -21,6 +21,11 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
+    /// The last published active user ID by `activeAccountIdPublisher` in the current process.
+    /// If this is different than the active user ID in the `State`, the active user was likely
+    /// switched in an extension and the main app should update accordingly.
+    var cachedActiveUserId: String? { get }
+
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -177,6 +182,11 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The time of the last sync for the user.
     ///
     func lastSyncTime(userId: String) -> Date?
+
+    /// Gets whether the account belonging to the user Id has been manually locked.
+    /// - Parameter userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func manuallyLockedAccount(userId: String) -> Bool
 
     /// Gets the master password hash for the user ID.
     ///
@@ -362,6 +372,12 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the last sync time.
     ///
     func setLastSyncTime(_ date: Date?, userId: String)
+
+    /// Sets whether the account belonging to the user Id has been manually locked.
+    /// - Parameters
+    ///   - isLocked: Whether the account has been locked manually.
+    ///   - userId: The user ID associated with the account.
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String)
 
     /// Sets the master password hash for a user ID.
     ///
@@ -678,6 +694,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
         case loginRequest
+        case manuallyLockedAccount(userId: String)
         case masterPasswordHash(userId: String)
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
@@ -753,6 +770,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "lastUserShouldConnectToWatch"
             case .loginRequest:
                 key = "passwordlessLoginNotificationKey"
+            case let .manuallyLockedAccount(userId):
+                key = "manuallyLockedAccount_\(userId)"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
             case .migrationVersion:
@@ -816,6 +835,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
+    }
+
+    var cachedActiveUserId: String? {
+        activeAccountIdSubject.value
     }
 
     var disableWebIcons: Bool {
@@ -943,6 +966,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
+    func manuallyLockedAccount(userId: String) -> Bool {
+        fetch(for: .manuallyLockedAccount(userId: userId))
+    }
+
     func masterPasswordHash(userId: String) -> String? {
         fetch(for: .masterPasswordHash(userId: userId))
     }
@@ -1035,6 +1062,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
+        store(isLocked, for: .manuallyLockedAccount(userId: userId))
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String) {
