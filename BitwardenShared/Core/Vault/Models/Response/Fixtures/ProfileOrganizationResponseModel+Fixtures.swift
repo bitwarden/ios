@@ -4,7 +4,6 @@ import Foundation
 
 extension ProfileOrganizationResponseModel {
     static func fixture(
-        accessSecretsManager: Bool = false,
         enabled: Bool = true,
         familySponsorshipAvailable: Bool = false,
         familySponsorshipFriendlyName: String? = nil,
@@ -49,7 +48,6 @@ extension ProfileOrganizationResponseModel {
         usersGetPremium: Bool = false
     ) -> ProfileOrganizationResponseModel {
         self.init(
-            accessSecretsManager: accessSecretsManager,
             enabled: enabled,
             familySponsorshipAvailable: familySponsorshipAvailable,
             familySponsorshipFriendlyName: familySponsorshipFriendlyName,

@@ -112,7 +112,7 @@ extension AuthRouter {
     ///   - Parameter userId: The id of the user that should be locked.
     ///   - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
     ///
-    func lockVaultRedirect(userId: String?) async -> AuthRoute {
+    func lockVaultRedirect(userId: String?, isManuallyLocking: Bool = false) async -> AuthRoute {
         let activeAccount = try? await services.authRepository.getAccount(for: nil)
         guard let accountToLock = try? await services.authRepository.getAccount(for: userId) else {
             if let activeAccount {
@@ -128,7 +128,7 @@ extension AuthRouter {
                 return .landing
             }
         }
-        await services.authRepository.lockVault(userId: userId)
+        await services.authRepository.lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
         guard let activeAccount else { return .landing }
         guard activeAccount.profile.userId == accountToLock.profile.userId else {
             return await handleAndRoute(
@@ -353,15 +353,16 @@ extension AuthRouter {
         let userId = activeAccount.profile.userId
         do {
             let isLocked = try? await services.authRepository.isLocked(userId: userId)
+            let isManuallyLocked = try? await services.stateService.getManuallyLockedAccount(userId: userId) == true
             let vaultTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(userId: userId)
 
-            switch (vaultTimeout, isLocked) {
-            case (.never, true):
+            switch (vaultTimeout, isLocked, isManuallyLocked) {
+            case (.never, true, false):
                 // If the user has enabled Never Lock, but the vault is locked,
                 // unlock the vault and return `.complete`.
                 try await services.authRepository.unlockVaultWithNeverlockKey()
                 return .completeWithNeverUnlockKey
-            case (_, false):
+            case (_, false, _):
                 return .complete
             default:
                 guard try await services.stateService.isAuthenticated(userId: userId) else {

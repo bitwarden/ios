@@ -62,7 +62,7 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
 
     /// Whether the user needs to be re-prompted for their master password prior to autofilling the
     /// cipher's password.
-    let reprompt: CipherRepromptType
+    @DefaultValue var reprompt: CipherRepromptType
 
     /// The date the cipher was last updated.
     let revisionDate: Date

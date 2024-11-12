@@ -726,6 +726,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, loginRequest)
     }
 
+    /// `getManuallyLockedAccount(userId:)` returns whether the account has been manually locked.
+    func test_getManuallyLockedAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        let noManuallyLockedAccount = try await subject.getManuallyLockedAccount(userId: "1")
+        XCTAssertFalse(noManuallyLockedAccount)
+
+        appSettingsStore.manuallyLockedAccounts["1"] = true
+        let manuallyLockedAccount = try await subject.getManuallyLockedAccount(userId: "1")
+        XCTAssertTrue(manuallyLockedAccount)
+    }
+
+    /// `getManuallyLockedAccount(userId:)` throws because no active account.
+    func test_getManuallyLockedAccount_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getManuallyLockedAccount(userId: nil)
+        }
+    }
+
     /// `getMasterPasswordHash()` returns the user's master password hash.
     func test_getMasterPasswordHash() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1703,6 +1722,27 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let loginRequest = LoginRequestNotification(id: "1", userId: "10")
         await subject.setLoginRequest(loginRequest)
         XCTAssertEqual(appSettingsStore.loginRequest, loginRequest)
+    }
+
+    /// `setManuallyLockedAccount(_:userId:)` sets if the account has been manually locked for a user.
+    func test_setManuallyLockedAccount() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+
+        try await subject.setManuallyLockedAccount(true, userId: nil)
+        XCTAssertEqual(appSettingsStore.manuallyLockedAccounts, ["1": true])
+
+        try await subject.setManuallyLockedAccount(false, userId: "1")
+        XCTAssertEqual(appSettingsStore.manuallyLockedAccounts, ["1": false])
+
+        try await subject.setManuallyLockedAccount(true, userId: "1")
+        XCTAssertEqual(appSettingsStore.manuallyLockedAccounts, ["1": true])
+    }
+
+    /// `setManuallyLockedAccount(_:userId:)` throws when setting if the account has been manually locked for a user.
+    func test_setManuallyLockedAccount_throws() async throws {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.setManuallyLockedAccount(true, userId: nil)
+        }
     }
 
     /// `setMasterPasswordHash(_:)` sets the master password hash for a user.

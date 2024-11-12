@@ -37,6 +37,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var featureFlags = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
+    var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
@@ -122,6 +123,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func lastSyncTime(userId: String) -> Date? {
         lastSyncTimeByUserId[userId]
+    }
+
+    func manuallyLockedAccount(userId: String) -> Bool {
+        manuallyLockedAccounts[userId] ?? false
     }
 
     func masterPasswordHash(userId: String) -> String? {
@@ -227,6 +232,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         lastSyncTimeByUserId[userId] = date
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
+        manuallyLockedAccounts[userId] = isLocked
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String) {
