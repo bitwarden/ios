@@ -11,7 +11,10 @@ class KeychainServiceErrorTests: BitwardenTestCase {
     func test_accessControl_default() throws {
         let subject = DefaultKeychainService()
 
-        let accessControl = try subject.accessControl(for: [])
+        let accessControl = try subject.accessControl(
+            protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            for: []
+        )
         var error: Unmanaged<CFError>?
         let expected = SecAccessControlCreateWithFlags(
             nil,
@@ -26,7 +29,10 @@ class KeychainServiceErrorTests: BitwardenTestCase {
     func test_accessControl_withBiometrics() throws {
         let subject = DefaultKeychainService()
 
-        let accessControl = try subject.accessControl(for: .biometryCurrentSet)
+        let accessControl = try subject.accessControl(
+            protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            for: .biometryCurrentSet
+        )
         var error: Unmanaged<CFError>?
         let expected = SecAccessControlCreateWithFlags(
             nil,

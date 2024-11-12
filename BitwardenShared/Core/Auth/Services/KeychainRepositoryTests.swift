@@ -388,7 +388,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         keychainService.accessControlResult = .success(
             SecAccessControlCreateWithFlags(
                 nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                 [],
                 nil
             )!
@@ -401,6 +401,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
             "REFRESH_TOKEN"
         )
+        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
+        XCTAssertEqual(protection, String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
     }
 
     /// `setRefreshToken(userId:)` throws an error if one occurs.

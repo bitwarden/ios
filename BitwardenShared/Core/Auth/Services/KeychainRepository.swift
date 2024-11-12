@@ -48,11 +48,11 @@ enum KeychainItem: Equatable {
         case .biometrics,
              .deviceKey,
              .neverLock,
-             .pendingAdminLoginRequest,
-             .refreshToken:
+             .pendingAdminLoginRequest:
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         case .accessToken,
-             .authenticatorVaultKey:
+             .authenticatorVaultKey,
+             .refreshToken:
             kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         }
     }

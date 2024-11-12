@@ -8,15 +8,6 @@ import Foundation
 protocol KeychainService: AnyObject {
     /// Creates an access control for a given set of flags.
     ///
-    /// - Parameter flags: The `SecAccessControlCreateFlags` for the access control.
-    /// - Returns: The SecAccessControl.
-    ///
-    func accessControl(
-        for flags: SecAccessControlCreateFlags
-    ) throws -> SecAccessControl
-
-    /// Creates an access control for a given set of flags.
-    ///
     /// - Parameters:
     ///   - protection: Protection class to be used for the item. Use one of the values that go with the
     ///     `kSecAttrAccessible` attribute key.
@@ -46,12 +37,6 @@ protocol KeychainService: AnyObject {
     /// - Returns: The search results.
     ///
     func search(query: CFDictionary) throws -> AnyObject?
-}
-
-extension KeychainService {
-    func accessControl(for flags: SecAccessControlCreateFlags) throws -> SecAccessControl {
-        try accessControl(protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly, for: flags)
-    }
 }
 
 // MARK: - KeychainServiceError
