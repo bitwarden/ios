@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Glabātavas noildzes darbība";
 "VaultTimeoutLogOutConfirmation" = "Atteikšanās noņems piekļuvi glabātavai un pieprasīs tiešsaistes pieteikšanos pēc noildzes laika. Vai tiešām izmantot šo iestatījumu?";
 "LoggingIn" = "Notiek pieteikšanās...";
-"LoginOrCreateNewAccount" = "Jāpiesakās vai jāizveido jauns konts, lai piekļūtu drošajai glabātavai.";
+"LogInToBitwarden" = "Pieteikties Bitwarden";
 "Manage" = "Pārvaldīt";
 "MasterPasswordConfirmationValMessage" = "Paroles apstiprinājums nav pareizs.";
 "MasterPasswordDescription" = "Galvenā parole ir parole, kas tiek izmantota, lai piekļūtu glabātavai. Ir ļoti svarīgi, ka tā netiek aizmirsta, jo tādā gadījumā to nav iespējams atgūt.";
@@ -1058,4 +1058,4 @@
 "CopyPublicKey" = "Ievietot starpliktuvē publisko atslēgu";
 "CopyPrivateKey" = "Ievietot starpliktuvē privāto atslēgu";
 "CopyFingerprint" = "Ievietot starpliktuvē pirkstu nospiedumu";
-"SSHKeys" = "SSH keys";
+"SSHKeys" = "SSH atslēgas";

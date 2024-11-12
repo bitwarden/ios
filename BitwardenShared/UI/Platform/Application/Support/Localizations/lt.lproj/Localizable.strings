@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Saugyklos skirtojo laiko veiksmas";
 "VaultTimeoutLogOutConfirmation" = "Atsijungus bus pašalinta visa prieiga prie saugyklos, o pasibaigus skirtajam laikotarpiui reikės autentifikuoti prisijungus. Ar tikrai norite naudoti šį nustatymą?";
 "LoggingIn" = "Prisijungiama...";
-"LoginOrCreateNewAccount" = "Prisijunkite arba sukurkite naują paskyrą, kad galėtumėte pasiekti saugyklą.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Tvarkyti";
 "MasterPasswordConfirmationValMessage" = "Slaptažodžio patvirtinimas neteisingas.";
 "MasterPasswordDescription" = "Pagrindinis slaptažodis yra slaptažodis, kurį naudojate norėdami pasiekti savo saugyklą. Labai svarbu nepamiršti pagrindinio slaptažodžio. Negalėsite atkurti slaptažodį, jei jį pamiršote.";

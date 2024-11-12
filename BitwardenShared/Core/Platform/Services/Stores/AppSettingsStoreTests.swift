@@ -549,6 +549,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
+    /// `manuallyLockedAccount(userId:)` returns `false` if there isn't a previously stored value.
+    func test_manuallyLockedAccount_isInitiallyFalse() {
+        XCTAssertFalse(subject.manuallyLockedAccount(userId: "-1"))
+    }
+
+    /// `manuallyLockedAccount(userId:)` can be used to get whether the account has been manually locked.
+    func test_manuallyLockedAccount_withValue() {
+        subject.setManuallyLockedAccount(false, userId: "1")
+        subject.setManuallyLockedAccount(true, userId: "2")
+
+        XCTAssertFalse(subject.manuallyLockedAccount(userId: "1"))
+        XCTAssertTrue(subject.manuallyLockedAccount(userId: "2"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:manuallyLockedAccount_1"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:manuallyLockedAccount_2"))
+
+        subject.setManuallyLockedAccount(true, userId: "1")
+        subject.setManuallyLockedAccount(false, userId: "2")
+
+        XCTAssertTrue(subject.manuallyLockedAccount(userId: "1"))
+        XCTAssertFalse(subject.manuallyLockedAccount(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:manuallyLockedAccount_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:manuallyLockedAccount_2"))
+    }
+
     /// `migrationVersion` returns `0` if there isn't a previously stored value.
     func test_migrationVersion_isInitiallyZero() {
         XCTAssertEqual(subject.migrationVersion, 0)

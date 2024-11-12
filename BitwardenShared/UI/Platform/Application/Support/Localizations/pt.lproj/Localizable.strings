@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Ação de tempo limite do cofre";
 "VaultTimeoutLogOutConfirmation" = "Ao terminar sessão removerá todo o acesso ao seu cofre e requer autenticação online após o período de tempo limite. Tem a certeza de que pretende utilizar esta definição?";
 "LoggingIn" = "A iniciar sessão...";
-"LoginOrCreateNewAccount" = "Inicie sessão ou crie uma nova conta para aceder ao seu cofre seguro.";
+"LogInToBitwarden" = "Iniciar sessão no Bitwarden";
 "Manage" = "Gerir";
 "MasterPasswordConfirmationValMessage" = "A confirmação da palavra-passe não está correta.";
 "MasterPasswordDescription" = "A palavra-passe mestra é a palavra-passe que utiliza para aceder ao seu cofre. É muito importante que não se esqueça da sua palavra-passe mestra. Não há forma de recuperar a palavra-passe no caso de a esquecer.";

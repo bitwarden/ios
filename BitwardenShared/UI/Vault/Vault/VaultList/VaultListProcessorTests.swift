@@ -864,7 +864,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await lockAction.handler?(lockAction, [])
 
         // Verify the results.
-        XCTAssertEqual(coordinator.events.last, .lockVault(userId: activeProfile.userId))
+        XCTAssertEqual(coordinator.events.last, .lockVault(userId: activeProfile.userId, isManuallyLocking: true))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
@@ -894,7 +894,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await lockAction.handler?(lockAction, [])
 
         // Verify the results.
-        XCTAssertEqual(coordinator.events.last, .lockVault(userId: otherProfile.userId))
+        XCTAssertEqual(coordinator.events.last, .lockVault(userId: otherProfile.userId, isManuallyLocking: true))
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }
 

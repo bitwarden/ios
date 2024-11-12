@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Kasa zaman aşımı eylemi";
 "VaultTimeoutLogOutConfirmation" = "Çıkış yaptığınızda kasanıza erişiminiz tamamen sonlanacak ve zaman aşımının ardından çevrimiçi kimlik doğrulaması yapmanız gerekecek. Bu ayarı kullanmak istediğinizden emin misiniz?";
 "LoggingIn" = "Giriş yapılıyor...";
-"LoginOrCreateNewAccount" = "Güvenli kasanıza ulaşmak için giriş yapın veya yeni bir hesap oluşturun.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Yönet";
 "MasterPasswordConfirmationValMessage" = "Parola onayı doğru değil.";
 "MasterPasswordDescription" = "Ana parola, kasanıza ulaşmak için kullanacağınız paroladır. Ana parolanızı unutmamanız çok önemlidir. Unutursanız parolalarınızı asla kurtaramazsınız.";

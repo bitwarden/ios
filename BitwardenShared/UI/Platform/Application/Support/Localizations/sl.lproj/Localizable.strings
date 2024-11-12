@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Dejanje po časovni omejitvi trezorja";
 "VaultTimeoutLogOutConfirmation" = "Logging out will remove all access to your vault and requires online authentication after the timeout period. Are you sure you want to use this setting?";
 "LoggingIn" = "Prijava poteka...";
-"LoginOrCreateNewAccount" = "Prijavite se ali ustvarite nov račun za dostop do trezorja.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Upravljaj";
 "MasterPasswordConfirmationValMessage" = "Potrditev gesla ni pravilna. ";
 "MasterPasswordDescription" = "The master password is the password you use to access your vault. It is very important that you do not forget your master password. There is no way to recover the password in the event that you forget it.";

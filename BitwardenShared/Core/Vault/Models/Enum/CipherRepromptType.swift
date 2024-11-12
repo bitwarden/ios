@@ -7,3 +7,9 @@ enum CipherRepromptType: Int, Codable {
     /// The user should be prompted for their master password prior to using the cipher password.
     case password = 1
 }
+
+// MARK: - DefaultValueProvider
+
+extension CipherRepromptType: DefaultValueProvider {
+    static var defaultValue: CipherRepromptType { .none }
+}
