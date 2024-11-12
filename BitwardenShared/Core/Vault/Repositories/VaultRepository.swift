@@ -539,7 +539,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
                     matchedCiphers.append(cipherView)
                 } else if query.count >= 8, cipherView.id?.starts(with: query) == true {
                     lowPriorityMatchedCiphers.append(cipherView)
-                } else if cipherView.subTitle.lowercased()
+                } else if cipherView.subtitle.lowercased()
                     .folding(options: .diacriticInsensitive, locale: nil).contains(query) == true {
                     lowPriorityMatchedCiphers.append(cipherView)
                 } // else if cipherView.login?.uris?.contains(where: { $0.uri?.contains(query) == true }) == true {
@@ -572,8 +572,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             .filter { $0.deletedDate == nil }
             .filter { cipher in
                 switch cipher.type {
-                case let .login(_, totp):
-                    return totp != nil && hasPremiumFeaturesAccess // || cipher.organizationUseTotp
+                case let .login(loginView):
+                    return loginView.totp != nil && hasPremiumFeaturesAccess // || cipher.organizationUseTotp
                 default:
                     return false
                 }
@@ -595,8 +595,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///
     private func totpItem(for cipherView: CipherListView) async throws -> VaultListItem? {
         guard let id = cipherView.id,
-              case let .login(_, key) = cipherView.type,
-              let key
+              case let .login(loginView) = cipherView.type,
+              let key = loginView.totp
         else {
             return nil
         }
@@ -1316,8 +1316,8 @@ extension DefaultVaultRepository: VaultRepository {
             case .sshKey:
                 return cipher.type == .sshKey
             case .totp:
-                if case let .login(_, totp) = cipher.type {
-                    return totp != nil
+                if case let .login(loginView) = cipher.type {
+                    return loginView.totp != nil
                 }
                 return false
             case .trash:
@@ -1439,7 +1439,7 @@ extension DefaultVaultRepository: VaultRepository {
     ) async throws -> VaultListSection {
         let vaultItems = try await ciphers
             .asyncMap { cipher in
-                guard case let .login(hasFido, _) = cipher.type else {
+                guard case let .login(loginView) = cipher.type, loginView.hasFido2 else {
                     return VaultListItem(cipherView: cipher)
                 }
                 return try await createFido2VaultListItem(from: cipher)

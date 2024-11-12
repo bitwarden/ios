@@ -74,7 +74,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
             coordinator.showAlert(.moreOptions(
-                canCopyTotp: hasPremium /* || cipherView.organizationUseTotp */,
+                canCopyTotp: hasPremium || cipherView.organizationUseTotp,
                 cipherView: cipherView,
                 hasMasterPassword: hasMasterPassword,
                 id: item.id,

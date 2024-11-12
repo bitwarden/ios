@@ -176,7 +176,7 @@ extension VaultListItem {
     var subtitle: String? {
         switch itemType {
         case let .cipher(cipherView, fido2CredentialAutofillView):
-            fido2CredentialAutofillView?.userNameForUi ?? cipherView.subTitle
+            fido2CredentialAutofillView?.userNameForUi ?? cipherView.subtitle
         case .group:
             nil
         case .totp:

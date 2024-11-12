@@ -257,8 +257,9 @@ extension CipherListView {
         name: String = "Bitwarden",
         organizationId: String? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
+        organizationUseTotp: Bool = false,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
-        type: BitwardenSdk.CipherListViewType = .login(hasFido2: false, totp: nil),
+        type: BitwardenSdk.CipherListViewType = .login(LoginListView(hasFido2: false, totp: nil, uris: [])),
         viewPassword: Bool = true,
         subtitle: String = "subtitle"
     ) -> CipherListView {
@@ -269,10 +270,11 @@ extension CipherListView {
             collectionIds: collectionIds,
             key: key,
             name: name,
-            subTitle: subtitle,
+            subtitle: subtitle,
             type: type,
             favorite: favorite,
             reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
             edit: edit,
             viewPassword: viewPassword,
             attachments: attachments,

@@ -64,31 +64,30 @@ class CipherMatchingHelper {
             matchUri: uri
         )
         let defaultMatchType = await (try? stateService.getDefaultUriMatchType()) ?? .domain
-        return []
-        // let matchingCiphers = ciphers.reduce(
-        //    into: (exact: [CipherView], fuzzy: [CipherView])([], [])
-        // ) { result, cipher in
-        //    let match = checkForCipherMatch(
-        //        cipher: cipher,
-        //        defaultMatchType: defaultMatchType,
-        //        isApp: matchIsApp,
-        //        matchUri: uri,
-        //        matchingDomains: matchingDomains,
-        //        matchingFuzzyDomains: matchingFuzzyDomains
-        //    )
-        //    switch match {
-        //    case .exact:
-        //        result.exact.append(cipher)
-        //    case .fuzzy:
-        //        result.fuzzy.append(cipher)
-        //    case .none:
-        //        // No-op: don't add non-matching ciphers.
-        //        break
-        //    }
-        // }
-        //
-        // return matchingCiphers.exact + matchingCiphers.fuzzy
-        // 
+
+        let matchingCiphers = ciphers.reduce(
+            into: (exact: [CipherListView], fuzzy: [CipherListView])([], [])
+        ) { result, cipher in
+            let match = checkForCipherMatch(
+                cipher: cipher,
+                defaultMatchType: defaultMatchType,
+                isApp: matchIsApp,
+                matchUri: uri,
+                matchingDomains: matchingDomains,
+                matchingFuzzyDomains: matchingFuzzyDomains
+            )
+            switch match {
+            case .exact:
+                result.exact.append(cipher)
+            case .fuzzy:
+                result.fuzzy.append(cipher)
+            case .none:
+                // No-op: don't add non-matching ciphers.
+                break
+            }
+        }
+
+        return matchingCiphers.exact + matchingCiphers.fuzzy
     }
 
     // MARK: Private
@@ -139,15 +138,14 @@ class CipherMatchingHelper {
     /// - Returns: The result of the match for the cipher and URI.
     ///
     private func checkForCipherMatch( // swiftlint:disable:this function_parameter_count
-        cipher: CipherView,
+        cipher: CipherListView,
         defaultMatchType: UriMatchType,
         isApp: Bool,
         matchUri: String,
         matchingDomains: Set<String>,
         matchingFuzzyDomains: Set<String>
     ) -> MatchResult {
-        guard cipher.type == .login,
-              let login = cipher.login,
+        guard case let .login(login) = cipher.type,
               let loginUris = login.uris,
               cipher.deletedDate == nil else {
             return .none
