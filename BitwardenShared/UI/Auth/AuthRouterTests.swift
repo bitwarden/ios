@@ -352,28 +352,24 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to another account
     ///     when there are more accounts.
     @MainActor
-    func test_handleAndRoute_didDeleteAccount_alternateAccount() {
-        let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [alt]
-        stateService.isAuthenticated[alt.profile.userId] = true
-        authRepository.altAccounts = [alt]
-        var route: AuthRoute?
-        let task = Task {
-            route = await subject.handleAndRoute(.didDeleteAccount)
-        }
-        waitFor(authRepository.setActiveAccountId != nil)
-        stateService.activeAccount = alt
-        waitFor(route != nil)
-        task.cancel()
+    func test_handleAndRoute_didDeleteAccount_alternateAccount() async {
+        let activeAccount = Account.fixture()
+        stateService.activeAccount = activeAccount
+        stateService.isAuthenticated[activeAccount.profile.userId] = true
+        authRepository.altAccounts = [activeAccount]
+
+        let route = await subject.handleAndRoute(.didDeleteAccount)
+
         XCTAssertEqual(
             route,
             .vaultUnlock(
-                alt,
+                activeAccount,
                 animated: false,
                 attemptAutomaticBiometricUnlock: true,
                 didSwitchAccountAutomatically: true
             )
         )
+        XCTAssertEqual(authRepository.activeAccount, activeAccount)
     }
 
     /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to `.landing`
