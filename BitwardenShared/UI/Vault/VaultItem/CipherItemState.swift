@@ -109,6 +109,7 @@ struct CipherItemState: Equatable {
 
     /// Whether or not this item can be deleted by the user.
     var canBeDeleted: Bool {
+        guard !collectionIds.isEmpty else { return true }
         let cipherCollections = collections.filter { collectionIds.contains($0.id ?? "") }
         return cipherCollections.map(\.manage).contains(true)
     }
