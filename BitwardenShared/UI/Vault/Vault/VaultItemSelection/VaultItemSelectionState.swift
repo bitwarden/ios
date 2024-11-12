@@ -11,9 +11,6 @@ struct VaultItemSelectionState: Equatable {
     /// The base url used to fetch icons.
     let iconBaseURL: URL?
 
-    /// The parsed OTP key used to find matching ciphers to add the key to.
-    let otpAuthModel: OTPAuthModel
-
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty(shouldAlwaysHideAddAccount: true)
 
@@ -32,6 +29,9 @@ struct VaultItemSelectionState: Equatable {
     /// A toast message to show in the view.
     var toast: Toast?
 
+    /// The parsed TOTP Key used to find matching ciphers to add the key to.
+    var totpKeyModel: TOTPKeyModel
+
     /// The url to open in the device's web browser.
     var url: URL?
 
@@ -42,6 +42,11 @@ struct VaultItemSelectionState: Equatable {
 
     /// The search term used to find ciphers that match the OTP key.
     var ciphersMatchingName: String? {
-        otpAuthModel.issuer ?? otpAuthModel.accountName
+        switch totpKeyModel.totpKey {
+        case let .otpAuthUri(otpAuthModel):
+            return otpAuthModel.issuer ?? otpAuthModel.accountName
+        case .standard, .steamUri:
+            return nil
+        }
     }
 }

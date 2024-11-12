@@ -17,7 +17,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
-            otpAuthModel: .fixtureExample
+            totpKeyModel: .fixtureExample
         ))
         let store = Store(processor: processor)
 
@@ -84,7 +84,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     func test_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
-            otpAuthModel: .fixtureMinimum
+            totpKeyModel: .fixtureMinimum
         ))
         subject = VaultItemSelectionView(store: Store(processor: processor))
 

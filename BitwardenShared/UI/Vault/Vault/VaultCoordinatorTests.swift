@@ -267,8 +267,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.
     @MainActor
     func test_navigateTo_vaultItemSelection() throws {
-        let otpAuthModel = try XCTUnwrap(OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete))
-        subject.navigate(to: .vaultItemSelection(otpAuthModel))
+        subject.navigate(to: .vaultItemSelection(.fixtureExample))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)

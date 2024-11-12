@@ -191,8 +191,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
-        case let .vaultItemSelection(otpAuthModel):
-            showVaultItemSelection(otpAuthModel: otpAuthModel)
+        case let .vaultItemSelection(totpKeyModel):
+            showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id):
             showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):
@@ -309,9 +309,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the vault item selection screen.
     ///
-    /// - Parameter otpAuthModel: The parsed OTP data to search for matching ciphers.
+    /// - Parameter totpKeyModel: The parsed TOTP data to search for matching ciphers.
     ///
-    func showVaultItemSelection(otpAuthModel: OTPAuthModel) {
+    func showVaultItemSelection(totpKeyModel: TOTPKeyModel) {
         let userVerificationHelper = DefaultUserVerificationHelper(
             authRepository: services.authRepository,
             errorReporter: services.errorReporter,
@@ -324,7 +324,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             services: services,
             state: VaultItemSelectionState(
                 iconBaseURL: services.environmentService.iconsURL,
-                otpAuthModel: otpAuthModel
+                totpKeyModel: totpKeyModel
             ),
             userVerificationHelper: userVerificationHelper,
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
