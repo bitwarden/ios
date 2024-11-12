@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "보관함 시간 제한 초과시 동작";
 "VaultTimeoutLogOutConfirmation" = "로그아웃하면 보관함에 대한 모든 접근이 제거되며 시간 제한을 초과하면 온라인 인증을 요구합니다. 정말로 이 설정을 사용하시겠습니까?";
 "LoggingIn" = "로그인 중...";
-"LoginOrCreateNewAccount" = "안전 보관함에 접근하려면 로그인하거나 새 계정을 만드세요.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "관리";
 "MasterPasswordConfirmationValMessage" = "비밀번호 확인과 비밀번호가 일치하지 않습니다.";
 "MasterPasswordDescription" = "마스터 비밀번호는 보관함을 열 때 필요한 비밀번호입니다. 절대 마스터 비밀번호를 잊어버리지 마세요. 잊어버리면 복구할 수 있는 방법이 없습니다.";

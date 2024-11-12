@@ -7,12 +7,18 @@ class MockVaultUnlockSetupHelper: VaultUnlockSetupHelper {
     var setPinUnlockCalled = false
     var setPinUnlockResult: Bool?
 
-    func setBiometricUnlock(enabled: Bool, showAlert: @escaping (Alert) -> Void) async -> BiometricsUnlockStatus? {
+    func setBiometricUnlock(
+        enabled: Bool,
+        showAlert: @escaping @MainActor (Alert) -> Void
+    ) async -> BiometricsUnlockStatus? {
         setBiometricUnlockCalled = true
         return setBiometricUnlockStatus
     }
 
-    func setPinUnlock(enabled: Bool, showAlert: @escaping (Alert) -> Void) async -> Bool {
+    func setPinUnlock(
+        enabled: Bool,
+        showAlert: @escaping @MainActor (Alert) -> Void
+    ) async -> Bool {
         setPinUnlockCalled = true
         return setPinUnlockResult ?? !enabled
     }

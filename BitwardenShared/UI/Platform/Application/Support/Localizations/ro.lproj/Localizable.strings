@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Acțiune la expirarea seifului";
 "VaultTimeoutLogOutConfirmation" = "După expirare, accesul la seiful dvs. va fi restricționat și va fi necesară autentificarea online. Sigur doriți să utilizați această setare?";
 "LoggingIn" = "Autentificare...";
-"LoginOrCreateNewAccount" = "Autentificați-vă sau creați un cont nou pentru a accesa seiful.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Gestionare";
 "MasterPasswordConfirmationValMessage" = "Confirmarea parolei nu este corectă.";
 "MasterPasswordDescription" = "Parola principală este parola pe care o utilizați pentru a vă accesa seiful. Este foarte important să nu uitați această parolă. Nu există nicio modalitate de a recupera parola în cazul în care ați uitat-o.";

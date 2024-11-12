@@ -194,6 +194,17 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         await subject.handleEvent(.authAction(.lockVault(userId: "")))
 
         XCTAssertTrue(delegate.didLockVaultCalled)
+        XCTAssertFalse(delegate.hasManuallyLockedVault)
+    }
+
+    /// `navigate(to:)` with `.lockVault` calls the delegate to handle locking vault
+    /// on manually locked.
+    @MainActor
+    func test_navigateTo_lockVaultManually() async throws {
+        await subject.handleEvent(.authAction(.lockVault(userId: "", isManuallyLocking: true)))
+
+        XCTAssertTrue(delegate.didLockVaultCalled)
+        XCTAssertTrue(delegate.hasManuallyLockedVault)
     }
 
     /// `navigate(to:)` with `.loginRequest` pushes the login request view onto the stack navigator.
@@ -359,6 +370,7 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
     var didDeleteAccountCalled = false
     var didLockVaultCalled = false
     var didLogoutCalled = false
+    var hasManuallyLockedVault = false
     var lockedId: String?
     var loggedOutId: String?
     var switchAccountCalled = false
@@ -374,9 +386,10 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
         didDeleteAccountCalled = true
     }
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         lockedId = userId
         didLockVaultCalled = true
+        hasManuallyLockedVault = isManuallyLocking
     }
 
     func logout(userId: String?, userInitiated: Bool) {
@@ -390,4 +403,4 @@ class MockSettingsCoordinatorDelegate: SettingsCoordinatorDelegate {
         wasSwitchAutomatic = isAutomatic
         switchUserId = userId
     }
-}
+} // swiftlint:disable:this file_length

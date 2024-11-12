@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "ভল্টের সময়সীমা কর্ম";
 "VaultTimeoutLogOutConfirmation" = "লগ আউট করা আপনার ভল্টের সমস্ত অ্যাক্সেস সরিয়ে ফেলবে এবং সময়সীমার পরে অনলাইন প্রমাণীকরণের প্রয়োজন। আপনি কি নিশ্চিত যে এই সেটিংটি ব্যবহার করবেন?";
 "LoggingIn" = "লগইন হচ্ছে...";
-"LoginOrCreateNewAccount" = "আপনার সুরক্ষিত ভল্টে প্রবেশ করতে লগ ইন করুন অথবা একটি নতুন অ্যাকাউন্ট তৈরি করুন।";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "পরিচালনা";
 "MasterPasswordConfirmationValMessage" = "Password confirmation is not correct.";
 "MasterPasswordDescription" = "প্রধান পাসওয়ার্ড হল সেই পাসওয়ার্ডটি যা আপনি নিজের ভল্ট ব্যাবহার করতে ব্যবহার করেন। এটি খুব গুরুত্বপূর্ণ যে আপনি নিজের প্রধান পাসওয়ার্ডটি ভুলে যাবেন না। আপনি যদি ভুলে গিয়ে থাকেন তবে পাসওয়ার্ডটি পুনরুদ্ধার করার কোনও উপায় নেই।";

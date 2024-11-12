@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Khi hết thời gian mở kho";
 "VaultTimeoutLogOutConfirmation" = "Đăng xuất sẽ xóa tất cả quyền truy cập vào kho của bạn và yêu cầu xác minh trực tuyến sau khi hết thời gian chờ. Bạn có chắc chắn muốn sử dụng cài đặt này không?";
 "LoggingIn" = "Đang đăng nhập...";
-"LoginOrCreateNewAccount" = "Đăng nhập hoặc tạo tài khoản mới để truy cập kho mật khẩu của bạn.";
+"LogInToBitwarden" = "Đăng nhập Bitwarden";
 "Manage" = "Quản lý";
 "MasterPasswordConfirmationValMessage" = "Mật khẩu nhập lại không trùng khớp.";
 "MasterPasswordDescription" = "Mật khẩu chính là mật khẩu bạn sử dụng để truy cập kho mật khẩu của bạn. Nó rất quan trọng vì sẽ không có cách nào để lấy lại mật khẩu nếu bạn quên.";
@@ -1058,4 +1058,4 @@
 "CopyPublicKey" = "Chép khóa công khai";
 "CopyPrivateKey" = "Chép khóa riêng tư";
 "CopyFingerprint" = "Chép vân tay";
-"SSHKeys" = "SSH keys";
+"SSHKeys" = "Khóa SSH";

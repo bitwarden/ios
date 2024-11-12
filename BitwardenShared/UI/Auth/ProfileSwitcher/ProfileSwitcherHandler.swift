@@ -144,12 +144,9 @@ private extension ProfileSwitcherHandler {
     ///
     func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) async {
         profileSwitcherState.isVisible = false
-        let sessionTimeout = try? await profileServices.authRepository.sessionTimeoutValue(userId: account.userId)
-        let hasNeverLock = sessionTimeout == .never
         showAlert(
             .accountOptions(
                 account,
-                hasNeverLock: hasNeverLock,
                 lockAction: {
                     await self.lock(account)
                 },
@@ -168,7 +165,7 @@ private extension ProfileSwitcherHandler {
         do {
             // Lock the vault of the selected account.
             let activeAccountId = try await profileServices.authRepository.getUserId()
-            await handleAuthEvent(.action(.lockVault(userId: account.userId)))
+            await handleAuthEvent(.action(.lockVault(userId: account.userId, isManuallyLocking: true)))
 
             // No navigation is necessary, since the user is already on the unlock
             // vault view, but if it was the non-active account, display a success toast
