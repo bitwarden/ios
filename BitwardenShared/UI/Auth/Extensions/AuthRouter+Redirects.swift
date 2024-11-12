@@ -76,6 +76,8 @@ extension AuthRouter {
             )
             // Handle any vault unlock redirects for this active account.
             return await handleAndRoute(event)
+        } catch StateServiceError.noActiveAccount {
+            return .landing
         } catch {
             services.errorReporter.log(error: error)
             return .landing

@@ -377,21 +377,19 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_handleAndRoute_didDeleteAccount_noAccounts() async {
         let route = await subject.handleAndRoute(.didDeleteAccount)
         XCTAssertEqual(route, .landing)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `handleAndRoute(_ :)` redirects`.didDeleteAccount` to `.landing`
     ///     when an error occurs setting a new active account.
     func test_handleAndRoute_didDeleteAccount_setActiveFail() async {
         let alt = Account.fixtureAccountLogin()
-        stateService.accounts = [
-            alt,
-        ]
+        stateService.accounts = [alt]
+        stateService.activeAccount = alt
         authRepository.setActiveAccountError = BitwardenTestError.example
         let route = await subject.handleAndRoute(.didDeleteAccount)
-        XCTAssertEqual(
-            route,
-            .landing
-        )
+        XCTAssertEqual(route, .landing)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `handleAndRoute(_ :)` delivers the locked active user to `.vaultUnlock`
