@@ -11,7 +11,10 @@ protocol VaultUnlockSetupHelper: AnyObject {
     ///     vault unlock.
     /// - Returns: The biometric unlock status after vault unlock has been updated.
     ///
-    func setBiometricUnlock(enabled: Bool, showAlert: @escaping (Alert) -> Void) async -> BiometricsUnlockStatus?
+    func setBiometricUnlock(
+        enabled: Bool,
+        showAlert: @escaping @MainActor (Alert) -> Void
+    ) async -> BiometricsUnlockStatus?
 
     /// Enables or disables pin vault unlock.
     ///
@@ -20,7 +23,10 @@ protocol VaultUnlockSetupHelper: AnyObject {
     ///   - showAlert: A closure used to handle showing an alert if needed while toggling pin vault unlock.
     /// - Returns: Whether pin unlock is enabled after vault unlock has been updated.
     ///
-    func setPinUnlock(enabled: Bool, showAlert: @escaping (Alert) -> Void) async -> Bool
+    func setPinUnlock(
+        enabled: Bool,
+        showAlert: @escaping @MainActor (Alert) -> Void
+    ) async -> Bool
 }
 
 // MARK: - VaultUnlockSetupHelperError
@@ -104,7 +110,10 @@ class DefaultVaultUnlockSetupHelper {
 // MARK: - DefaultVaultUnlockSetupHelper+VaultUnlockSetupHelper
 
 extension DefaultVaultUnlockSetupHelper: VaultUnlockSetupHelper {
-    func setBiometricUnlock(enabled: Bool, showAlert: @escaping (Alert) -> Void) async -> BiometricsUnlockStatus? {
+    func setBiometricUnlock(
+        enabled: Bool,
+        showAlert: @escaping @MainActor (Alert) -> Void
+    ) async -> BiometricsUnlockStatus? {
         do {
             try await services.authRepository.allowBioMetricUnlock(enabled)
             return try await services.biometricsRepository.getBiometricUnlockStatus()
@@ -118,7 +127,10 @@ extension DefaultVaultUnlockSetupHelper: VaultUnlockSetupHelper {
         }
     }
 
-    func setPinUnlock(enabled: Bool, showAlert: @escaping (Alert) -> Void) async -> Bool {
+    func setPinUnlock(
+        enabled: Bool,
+        showAlert: @escaping @MainActor (Alert) -> Void
+    ) async -> Bool {
         do {
             guard enabled else {
                 try await services.authRepository.clearPins()

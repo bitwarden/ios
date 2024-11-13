@@ -518,7 +518,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_openUrl_bitwardenAuthenticatorNewItem_invalidItem() async throws {
         let account = Account.fixture()
-        let otpKey: String = .otpAuthUriKeyNoSecret
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
         authenticatorSyncService.tempItem = AuthenticatorBridgeItemDataView(
@@ -527,7 +526,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             favorite: false,
             id: "",
             name: "",
-            totpKey: otpKey,
+            totpKey: nil,
             username: nil
         )
 
@@ -584,7 +583,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_openUrl_bitwardenAuthenticatorNewItem_success() async throws {
         let account = Account.fixture()
         let otpKey: String = .otpAuthUriKeyComplete
-        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        let model = TOTPKeyModel(authenticatorKey: otpKey)
         stateService.activeAccount = .fixture()
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
         authenticatorSyncService.tempItem = AuthenticatorBridgeItemDataView(
@@ -629,7 +628,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
 
-        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        let model = TOTPKeyModel(authenticatorKey: otpKey)
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.vault(.vaultItemSelection(model))))])
     }
 
@@ -643,7 +642,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
 
-        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        let model = TOTPKeyModel(authenticatorKey: otpKey)
         XCTAssertEqual(coordinator.routes.last, .tab(.vault(.vaultItemSelection(model))))
     }
 
@@ -660,7 +659,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
 
-        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        let model = TOTPKeyModel(authenticatorKey: otpKey)
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.vault(.vaultItemSelection(model))))])
     }
 
@@ -677,7 +676,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.openUrl(XCTUnwrap(URL(string: otpKey)))
 
-        let model = try XCTUnwrap(OTPAuthModel(otpAuthKey: otpKey))
+        let model = TOTPKeyModel(authenticatorKey: otpKey)
         XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.vault(.vaultItemSelection(model))))])
     }
 

@@ -839,7 +839,15 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         await lockAction.handler?(lockAction, [])
 
         // Verify the results.
-        XCTAssertEqual(coordinator.events.last, .action(.lockVault(userId: otherProfile.userId)))
+        XCTAssertEqual(
+            coordinator.events.last,
+            .action(
+                .lockVault(
+                    userId: otherProfile.userId,
+                    isManuallyLocking: true
+                )
+            )
+        )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }
 

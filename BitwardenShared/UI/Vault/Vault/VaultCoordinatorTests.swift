@@ -209,6 +209,18 @@ class VaultCoordinatorTests: BitwardenTestCase {
         }
         waitFor(delegate.lockVaultId == "123")
         task.cancel()
+        XCTAssertFalse(delegate.hasManuallyLocked)
+    }
+
+    /// `navigate(to:)` with `.lockVault` calls the delegate to handle locking the vault manually.
+    @MainActor
+    func test_navigateTo_lockVaultManually() throws {
+        let task = Task {
+            await subject.handleEvent(.lockVault(userId: "123", isManuallyLocking: true))
+        }
+        waitFor(delegate.lockVaultId == "123")
+        task.cancel()
+        XCTAssertTrue(delegate.hasManuallyLocked)
     }
 
     /// `navigate(to:)` with `.loginRequest` calls the delegate method.
@@ -255,8 +267,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.
     @MainActor
     func test_navigateTo_vaultItemSelection() throws {
-        let otpAuthModel = try XCTUnwrap(OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete))
-        subject.navigate(to: .vaultItemSelection(otpAuthModel))
+        subject.navigate(to: .vaultItemSelection(.fixtureExample))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -303,6 +314,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var addAccountTapped = false
     var accountTapped = [String]()
+    var hasManuallyLocked = false
     var lockVaultId: String?
     var logoutTapped = false
     var logoutUserId: String?
@@ -313,8 +325,9 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var switchedAccounts = false
     var userInitiated: Bool?
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         lockVaultId = userId
+        hasManuallyLocked = isManuallyLocking
     }
 
     func logout(userId: String?, userInitiated: Bool) {

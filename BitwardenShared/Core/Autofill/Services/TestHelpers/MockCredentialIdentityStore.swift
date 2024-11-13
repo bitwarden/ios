@@ -51,6 +51,44 @@ class MockCredentialIdentityStoreState: ASCredentialIdentityStoreState {
 
 enum CredentialIdentity: Equatable {
     case password(PasswordCredentialIdentity)
+    case passkey(PasskeyCredentialIdentity)
+    case oneTimeCode(OneTimeCodeCredentialIdentity)
+
+    @available(iOS 17.0, *)
+    var asCredentialIdentity: ASCredentialIdentity? {
+        switch self {
+        case let .password(passwordIdentity):
+            return ASPasswordCredentialIdentity(
+                serviceIdentifier: ASCredentialServiceIdentifier(
+                    identifier: passwordIdentity.uri,
+                    type: .URL
+                ),
+                user: passwordIdentity.username,
+                recordIdentifier: passwordIdentity.id
+            )
+        case let .passkey(passkeyIdentity):
+            return ASPasskeyCredentialIdentity(
+                relyingPartyIdentifier: passkeyIdentity.relyingPartyIdentifier,
+                userName: passkeyIdentity.userName,
+                credentialID: passkeyIdentity.credentialID,
+                userHandle: passkeyIdentity.userHandle,
+                recordIdentifier: passkeyIdentity.recordIdentifier
+            )
+        default:
+            if #available(iOS 18, *), case let .oneTimeCode(oneTimeCodeIdentity) = self {
+                return ASOneTimeCodeCredentialIdentity(
+                    serviceIdentifier: ASCredentialServiceIdentifier(
+                        identifier: oneTimeCodeIdentity.serviceIdentifier,
+                        type: .URL
+                    ),
+                    label: oneTimeCodeIdentity.label,
+                    recordIdentifier: oneTimeCodeIdentity.recordIdentifier
+                )
+            } else {
+                return nil
+            }
+        }
+    }
 
     init(identity: ASPasswordCredentialIdentity) {
         self = .password(PasswordCredentialIdentity(identity))
@@ -61,8 +99,14 @@ enum CredentialIdentity: Equatable {
         switch identity {
         case let identity as ASPasswordCredentialIdentity:
             self = .password(PasswordCredentialIdentity(identity))
+        case let passkeyIdentity as ASPasskeyCredentialIdentity:
+            self = .passkey(PasskeyCredentialIdentity(passkeyIdentity))
         default:
-            return nil
+            if #available(iOS 18, *), let oneTimeCodeIdentity = identity as? ASOneTimeCodeCredentialIdentity {
+                self = .oneTimeCode(OneTimeCodeCredentialIdentity(oneTimeCodeIdentity))
+            } else {
+                return nil
+            }
         }
     }
 }
@@ -80,5 +124,43 @@ extension PasswordCredentialIdentity {
         id = identity.recordIdentifier
         uri = identity.serviceIdentifier.identifier
         username = identity.user
+    }
+}
+
+// MARK: - PasskeyCredentialIdentity
+
+struct PasskeyCredentialIdentity: Equatable {
+    let credentialID: Data
+    let recordIdentifier: String?
+    let relyingPartyIdentifier: String
+    let userHandle: Data
+    let userName: String
+}
+
+extension PasskeyCredentialIdentity {
+    @available(iOS 17.0, *)
+    init(_ identity: ASPasskeyCredentialIdentity) {
+        credentialID = identity.credentialID
+        recordIdentifier = identity.recordIdentifier
+        relyingPartyIdentifier = identity.relyingPartyIdentifier
+        userHandle = identity.userHandle
+        userName = identity.userName
+    }
+}
+
+// MARK: - OneTimeCodeCredentialIdentity
+
+struct OneTimeCodeCredentialIdentity: Equatable {
+    let label: String
+    let recordIdentifier: String?
+    let serviceIdentifier: String
+}
+
+extension OneTimeCodeCredentialIdentity {
+    @available(iOS 18.0, *)
+    init(_ identity: ASOneTimeCodeCredentialIdentity) {
+        label = identity.label
+        recordIdentifier = identity.recordIdentifier
+        serviceIdentifier = identity.serviceIdentifier.identifier
     }
 }

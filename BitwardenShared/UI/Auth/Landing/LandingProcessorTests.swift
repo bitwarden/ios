@@ -140,39 +140,42 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `perform(.appeared)` with feature flag for .emailVerification set to true
     @MainActor
     func test_perform_appeared_loadsFeatureFlag_true() async {
-        configService.featureFlagsBool[.emailVerification] = true
+        configService.featureFlagsBoolPreAuth[.emailVerification] = true
         subject.state.emailVerificationFeatureFlag = false
 
         let task = Task {
             await subject.perform(.appeared)
         }
         await task.value
+        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
         XCTAssertTrue(subject.state.emailVerificationFeatureFlag)
     }
 
     /// `perform(.appeared)` with feature flag for .emailVerification set to false
     @MainActor
     func test_perform_appeared_loadsFeatureFlag_false() async {
-        configService.featureFlagsBool[.emailVerification] = false
+        configService.featureFlagsBoolPreAuth[.emailVerification] = false
         subject.state.emailVerificationFeatureFlag = true
 
         let task = Task {
             await subject.perform(.appeared)
         }
         await task.value
+        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
         XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
     }
 
     /// `perform(.appeared)` with feature flag defaulting to false
     @MainActor
     func test_perform_appeared_loadsFeatureFlag_nil() async {
-        configService.featureFlagsBool[.emailVerification] = nil
+        configService.featureFlagsBoolPreAuth[.emailVerification] = nil
         subject.state.emailVerificationFeatureFlag = true
 
         let task = Task {
             await subject.perform(.appeared)
         }
         await task.value
+        XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
         XCTAssertFalse(subject.state.emailVerificationFeatureFlag)
     }
 
@@ -546,7 +549,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         // Verify the results.
         XCTAssertEqual(
             coordinator.events.last,
-            .action(.lockVault(userId: otherProfile.userId))
+            .action(.lockVault(userId: otherProfile.userId, isManuallyLocking: true))
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }

@@ -250,8 +250,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let accounts = try await stateService.getAccounts()
 
         XCTAssertEqual(accounts.count, 1)
+        XCTAssertEqual(accounts, [beeAccount])
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts"))
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
     }
 
     /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
@@ -531,6 +533,57 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `getProfilesState()` can return locked accounts correctly on timeout `.never`.
+    func test_getProfilesState_lockedOnNeverLock() async {
+        stateService.accounts = [
+            anneAccount,
+            beeAccount,
+            empty,
+            shortEmail,
+            shortName,
+        ]
+        vaultTimeoutService.isClientLocked = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+            empty.profile.userId: false,
+            shortEmail.profile.userId: false,
+            shortName.profile.userId: true,
+        ]
+        stateService.vaultTimeout = [
+            anneAccount.profile.userId: .never,
+            beeAccount.profile.userId: .never,
+            empty.profile.userId: .never,
+            shortEmail.profile.userId: .never,
+            shortName.profile.userId: .fifteenMinutes,
+        ]
+        stateService.manuallyLockedAccounts = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: false,
+            empty.profile.userId: true,
+            shortEmail.profile.userId: false,
+            shortName.profile.userId: true,
+        ]
+        let profiles = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: true,
+            showPlaceholderToolbarIcon: true
+        ).accounts
+        let unlockedStatuses = profiles.map { profile in
+            profile.isUnlocked
+        }
+        XCTAssertEqual(
+            unlockedStatuses,
+            [
+                false,
+                true,
+                true,
+                true,
+                false,
+            ]
+        )
+    }
+
     /// `getProfilesState()` can return logged out accounts correctly.
     func test_getProfilesState_loggedOut() async {
         stateService.accounts = [
@@ -652,6 +705,135 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_getFingerprintPhrase_throws() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getFingerprintPhrase()
+        }
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns the organization identifier when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off.
+    func test_getSingleSignOnOrganizationIdentifier_successFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetails)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertEqual(orgId, "TeamLivefront")
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when email is empty.
+    func test_getSingleSignOnOrganizationIdentifier_emptyEmail() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetails)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off and SSO not available in the response.
+    func test_getSingleSignOnOrganizationIdentifier_ssoNotAvailableFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetailsNotAvailable)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off and no verified date in the response.
+    func test_getSingleSignOnOrganizationIdentifier_noVerifiedDateFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetailsNoVerifiedDate)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off and no organization identifier in the response.
+    func test_getSingleSignOnOrganizationIdentifier_noOrgIdFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetailsNoOrgId)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off and organization identifier is empty in the response.
+    func test_getSingleSignOnOrganizationIdentifier_orgIdEmptyFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetailsOrgIdEmpty)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` throws when calling the API
+    /// and the feature flag `.refactorSsoDetailsEndpoint` is off.
+    func test_getSingleSignOnOrganizationIdentifier_throwsFeatureFlagOff() async throws {
+        client.result = .httpFailure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        }
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns the organization identifier when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_successFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerified)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertEqual(orgId, "TestID")
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns the first organization identifier when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and there are multiple results in response.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_successInMultipleFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedMultiple)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertEqual(orgId, "TestID")
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and there is no data.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_noDataFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedNoData)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and data array is empty.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_emptyDataFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedEmptyData)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and there is no organization identifier.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_noOrgIdFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedNoOrgId)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and empty organization identifier.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_emptyOrgIdFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedEmptyOrgId)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` throws when calling the API
+    /// and the feature flag `.refactorSsoDetailsEndpoint` is on.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_throwsFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpFailure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
         }
     }
 
@@ -1035,6 +1217,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithNeverlockKey()
         }
         XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
     /// `test_unlockVaultWithDeviceKey` attempts to unlock the vault using the device key from the keychain.
@@ -1061,6 +1244,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             try await subject.unlockVaultWithDeviceKey()
         }
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
     /// `test_unlockVaultWithDeviceKey` attempts to unlock the vault using the device key from the keychain.
@@ -1092,6 +1276,21 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_lockVault() async {
         await subject.lockVault(userId: "10")
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: "10"))
+    }
+
+    /// `lockVault(userId:)` manually locks the vault for the specified user id.
+    func test_lockVault_manuallyLocking() async {
+        await subject.lockVault(userId: "10", isManuallyLocking: true)
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "10"))
+        XCTAssertEqual(stateService.manuallyLockedAccounts["10"], true)
+    }
+
+    /// `lockVault(userId:)` logs error when manually locks the vault for the specified user id.
+    func test_lockVault_throwsManuallyLocking() async {
+        stateService.activeAccount = nil
+        await subject.lockVault(userId: nil, isManuallyLocking: true)
+        XCTAssertTrue(stateService.manuallyLockedAccounts.isEmpty)
+        XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
     }
 
     /// `passwordStrength(email:password)` returns the calculated password strength.
@@ -1307,6 +1506,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "ENCRYPTED_USER_KEY")
         XCTAssertEqual(stateService.masterPasswordHashes["1"], "hashed")
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
     /// `unlockVaultWithAuthenticatorVaultKey` throws when it encounters an error trying to unlock
@@ -1344,6 +1544,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockCrypto.initializeUserCryptoResult = .success(())
         try await subject.unlockVaultWithAuthenticatorVaultKey(userId: active.profile.userId)
         XCTAssertFalse(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
     /// `unlockVaultWithBiometrics()` throws an error if the vault is unable to be unlocked.
@@ -1443,6 +1644,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(stateService.accountVolatileData["1"]?.pinProtectedUserKey, "ENCRYPTED_USER_KEY")
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
     /// `unlockVaultWithKeyConnectorKey()` unlocks the user's vault with their key connector key.
@@ -1475,6 +1677,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertFalse(keyConnectorService.convertNewUserToKeyConnectorCalled)
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
     /// `unlockVaultWithKeyConnectorKey()` converts a new user to use key connector and unlocks the
@@ -1652,6 +1855,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             )
         )
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
     /// `unlockVaultWithPIN(_:)` unlocks the vault with the user's PIN.
@@ -1681,6 +1885,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertFalse(vaultTimeoutService.isLocked(userId: "1"))
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], false)
     }
 
     /// `unlockVaultWithPIN(_:)` throws an error if there's no pin.

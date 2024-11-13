@@ -8,10 +8,14 @@ import Foundation
 protocol KeychainService: AnyObject {
     /// Creates an access control for a given set of flags.
     ///
-    /// - Parameter flags: The `SecAccessControlCreateFlags` for the access control.
+    /// - Parameters:
+    ///   - protection: Protection class to be used for the item. Use one of the values that go with the
+    ///     `kSecAttrAccessible` attribute key.
+    ///   - flags: The `SecAccessControlCreateFlags` for the access control.
     /// - Returns: The SecAccessControl.
     ///
     func accessControl(
+        protection: CFTypeRef,
         for flags: SecAccessControlCreateFlags
     ) throws -> SecAccessControl
 
@@ -75,12 +79,13 @@ class DefaultKeychainService: KeychainService {
     // MARK: Methods
 
     func accessControl(
+        protection: CFTypeRef,
         for flags: SecAccessControlCreateFlags
     ) throws -> SecAccessControl {
         var error: Unmanaged<CFError>?
         let accessControl = SecAccessControlCreateWithFlags(
             nil,
-            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+            protection,
             flags,
             &error
         )

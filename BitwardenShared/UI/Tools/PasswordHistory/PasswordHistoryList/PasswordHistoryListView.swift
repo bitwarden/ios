@@ -127,7 +127,7 @@ struct PasswordHistoryListView: View {
 
 // MARK: - PasswordHistoryView
 
-extension PasswordHistoryView: Identifiable {
+extension PasswordHistoryView: @retroactive Identifiable {
     public var id: UUID {
         UUID()
     }

@@ -1,6 +1,6 @@
 import Foundation
 
-extension DispatchTimeInterval: Comparable {
+extension DispatchTimeInterval: @retroactive Comparable {
     /// The total number of nanoseconds in this duration.
     var totalNanoseconds: Int64 {
         switch self {

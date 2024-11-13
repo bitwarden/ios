@@ -15,4 +15,7 @@ struct SingleSignOnDetailsResponse: JSONResponse, Equatable {
 
     /// Whether single sign on is available for the user.
     let ssoAvailable: Bool
+
+    /// The date the domain was verified.
+    let verifiedDate: Date?
 }

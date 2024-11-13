@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Aksyon pagka-timeout ng vault";
 "VaultTimeoutLogOutConfirmation" = "Mawawala ang access mo sa vault at kailangan mong mag-authenticate online pagkatapos ng timeout period. Sigurado ka bang gagamitin mo ang setting na ito?";
 "LoggingIn" = "Nagla-log in...";
-"LoginOrCreateNewAccount" = "Mag-log in o gumawa ng bagong account para ma-access ang secure vault mo.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Pamahalaan";
 "MasterPasswordConfirmationValMessage" = "Mali ang kumpirmasyon sa password.";
 "MasterPasswordDescription" = "Ang master password ang password na gagamitin mo para ma-access ang vault. Napakamahalagang hindi mo kailanman makalimutan ang master password—kung gaano kahalagang makalimutan mo ang iyong ex, ganyan kahalagang maalala mo ang master password mo. Hindi kayang mabalik ang master password kung nakalimutan mo ito.";

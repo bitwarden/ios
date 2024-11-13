@@ -253,7 +253,7 @@ private struct VaultItemSelectionSearchableView: View {
 #Preview("Empty") {
     NavigationView {
         VaultItemSelectionView(store: Store(processor: StateProcessor(
-            state: VaultItemSelectionState(iconBaseURL: nil, otpAuthModel: .fixtureExample)
+            state: VaultItemSelectionState(iconBaseURL: nil, totpKeyModel: .fixtureExample)
         )))
     }
 }
@@ -265,9 +265,9 @@ private struct VaultItemSelectionSearchableView: View {
                 processor: StateProcessor(
                     state: VaultItemSelectionState(
                         iconBaseURL: nil,
-                        otpAuthModel: .fixtureExample,
                         searchResults: [.init(id: "1", itemType: .cipher(.fixture()))],
-                        searchText: "Search"
+                        searchText: "Search",
+                        totpKeyModel: .fixtureExample
                     )
                 )
             )
@@ -326,7 +326,7 @@ private struct VaultItemSelectionSearchableView: View {
                 processor: StateProcessor(
                     state: VaultItemSelectionState(
                         iconBaseURL: nil,
-                        otpAuthModel: .fixtureExample,
+                        totpKeyModel: .fixtureExample,
                         vaultListSections: [
                             VaultListSection(
                                 id: Localizations.matchingItems,
