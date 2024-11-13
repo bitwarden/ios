@@ -478,6 +478,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
         let vaultTimeoutService = DefaultVaultTimeoutService(
             clientService: clientService,
+            errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider
         )

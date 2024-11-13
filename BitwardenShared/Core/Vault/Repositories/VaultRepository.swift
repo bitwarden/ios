@@ -121,12 +121,6 @@ public protocol VaultRepository: AnyObject {
     ///
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem]
 
-    /// Removes an account id.
-    ///
-    ///  - Parameter userId: An optional userId. Defaults to the active user id.
-    ///
-    func remove(userId: String?) async
-
     /// Returns whether master password reprompt is required for a cipher.
     ///
     /// - Parameter id: The ID of the cipher to check if reprompt is required.
@@ -1104,10 +1098,6 @@ extension DefaultVaultRepository: VaultRepository {
             )
         }
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
-    }
-
-    func remove(userId: String?) async {
-        await vaultTimeoutService.remove(userId: userId)
     }
 
     func repromptRequiredForCipher(id: String) async throws -> Bool {
