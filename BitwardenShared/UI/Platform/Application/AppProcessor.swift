@@ -426,14 +426,14 @@ extension AppProcessor {
             return AppRoute.tab(.settings(.accountSecurity))
         case BitwardenDeepLinkConstants.authenticatorNewItem:
             guard let item = await services.authenticatorSyncService?.getTemporaryTotpItem(),
-                  let totpKey = item.totpKey,
-                  let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else {
+                  let totpKey = item.totpKey else {
                 coordinator?.showAlert(.defaultAlert(title: Localizations.somethingWentWrong,
                                                      message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
                 return nil
             }
 
-            return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+            let totpKeyModel = TOTPKeyModel(authenticatorKey: totpKey)
+            return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
         default:
             return nil
         }
@@ -447,12 +447,13 @@ extension AppProcessor {
     private func getOtpAuthUrlRoute(url: URL) async -> AppRoute? {
         guard let scheme = url.scheme, scheme.isOtpAuthScheme else { return nil }
 
-        guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
+        let totpKeyModel = TOTPKeyModel(authenticatorKey: url.absoluteString)
+        guard case .otpAuthUri = totpKeyModel.totpKey else {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return nil
         }
 
-        return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+        return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
     }
 
     /// Starts timer to send organization events regularly

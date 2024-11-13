@@ -14,8 +14,8 @@ extension String {
     static let steamUriKey = "steam://\(steamUriKeyIdentifier)"
 }
 
-extension OTPAuthModel {
-    static let fixtureExample = OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete)!
-    static let fixtureMinimum = OTPAuthModel(otpAuthKey: .otpAuthUriKeyMinimum)!
+extension TOTPKeyModel {
+    static let fixtureExample = TOTPKeyModel(authenticatorKey: .otpAuthUriKeyComplete)
+    static let fixtureMinimum = TOTPKeyModel(authenticatorKey: .otpAuthUriKeyMinimum)
 }
 #endif

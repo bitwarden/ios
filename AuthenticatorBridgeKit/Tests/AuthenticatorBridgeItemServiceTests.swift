@@ -290,7 +290,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertEqual(results[0], expectedItems)
     }
 
-    /// Verify that the shared items publisher publishes new lists when items are deleted..
+    /// Verify that the shared items publisher publishes new lists when items are deleted.
     ///
     func test_sharedItemsPublisher_withDeletes() async throws {
         let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }

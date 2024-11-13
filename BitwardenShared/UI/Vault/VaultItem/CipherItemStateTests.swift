@@ -51,4 +51,67 @@ class CipherItemStateTests: BitwardenTestCase {
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: false))
         XCTAssertTrue(state.loginState.isTOTPAvailable)
     }
+
+    /// `canBeDeleted` is true
+    /// if the cipher does not belong to a collection
+    func test_canBeDeleted_notCollection() throws {
+        let cipher = CipherView.loginFixture(login: .fixture())
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertTrue(state.canBeDeleted)
+
+        state.collections = [CollectionView.fixture()]
+        XCTAssertTrue(state.canBeDeleted)
+    }
+
+    /// `canBeDeleted` is true
+    ///  if the cipher belongs to a collection
+    ///  and the user has manage permissions for that collection
+    func test_canBeDeleted_canManageOneCollection() throws {
+        let cipher = CipherView.loginFixture(collectionIds: ["1"], login: .fixture())
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.collections = [CollectionView.fixture(id: "1", manage: true)]
+        XCTAssertTrue(state.canBeDeleted)
+    }
+
+    /// `canBeDeleted` is false
+    /// if the cipher belongs to a collection
+    /// and the user does not have manage permissions for that collection
+    func test_canBeDeleted_cannotManageOneCollection() throws {
+        let cipher = CipherView.loginFixture(collectionIds: ["1"], login: .fixture())
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.collections = [CollectionView.fixture(id: "1", manage: false)]
+        XCTAssertFalse(state.canBeDeleted)
+    }
+
+    /// `canBeDeleted` is false
+    /// if the cipher belongs to multiple collections
+    /// and the user does not have manage permissions for any of those collections
+    func test_canBeDeleted_cannotManageAnyCollection() throws {
+        let cipher = CipherView.loginFixture(
+            collectionIds: ["1", "2"],
+            login: .fixture()
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.collections = [
+            CollectionView.fixture(id: "1", manage: false),
+            CollectionView.fixture(id: "2", manage: false),
+        ]
+        XCTAssertFalse(state.canBeDeleted)
+    }
+
+    /// `canBeDeleted` is true
+    /// if the cipher belongs to multiple collections
+    /// and the user has manage permissions for any of those collections
+    func test_canBeDeleted_canManageAnyCollection() throws {
+        let cipher = CipherView.loginFixture(
+            collectionIds: ["1", "2"],
+            login: .fixture()
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.collections = [
+            CollectionView.fixture(id: "1", manage: true),
+            CollectionView.fixture(id: "2", manage: false),
+        ]
+        XCTAssertTrue(state.canBeDeleted)
+    }
 }
