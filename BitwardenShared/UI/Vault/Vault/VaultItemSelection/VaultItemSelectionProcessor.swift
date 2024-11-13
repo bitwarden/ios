@@ -96,7 +96,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                     group: .login,
                     newCipherOptions: NewCipherOptions(
                         name: state.ciphersMatchingName,
-                        totpKey: state.otpAuthModel.uri
+                        totpKey: state.totpKeyModel.rawAuthenticatorKey
                     )
                 ),
                 context: self
@@ -206,7 +206,7 @@ class VaultItemSelectionProcessor: StateProcessor<
                 }
             }
 
-            let updatedCipherView = cipherView.update(login: login.update(totp: state.otpAuthModel.uri))
+            let updatedCipherView = cipherView.update(login: login.update(totp: state.totpKeyModel.rawAuthenticatorKey))
             coordinator.navigate(to: .editItem(updatedCipherView), context: self)
         } catch UserVerificationError.cancelled {
             // No-op: don't log or alert for cancellation errors.
@@ -287,7 +287,7 @@ extension VaultItemSelectionProcessor: ProfileSwitcherHandler {
     }
 
     var switchAccountAuthCompletionRoute: AppRoute? {
-        .tab(.vault(.vaultItemSelection(state.otpAuthModel)))
+        .tab(.vault(.vaultItemSelection(state.totpKeyModel)))
     }
 
     var toast: Toast? {
