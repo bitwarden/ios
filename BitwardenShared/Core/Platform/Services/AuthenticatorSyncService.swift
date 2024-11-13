@@ -72,7 +72,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// A Task to hold the subscription that waits for sync to be turned on/off.
     private var syncSubscriber: Task<Void, Never>?
 
-    /// A Task to hold the subscription that waits for the vault to be locked/unlocked..
+    /// A Task to hold the subscription that waits for the vault to be locked/unlocked.
     private var vaultSubscriber: Task<Void, Never>?
 
     /// The service used by the application to manage vault access.
@@ -269,12 +269,18 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync is being enabled.
     ///
     private func enableSyncForUserId(_ userId: String) {
-        guard !vaultTimeoutService.isLocked(userId: userId) else { return }
-
         enableSyncTask = Task { [enableSyncTask] in
             _ = await enableSyncTask?.result
 
             do {
+                guard !vaultTimeoutService.isLocked(userId: userId) else {
+                    let authVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
+                    if authVaultKey != nil {
+                        subscribeToCipherUpdates(userId: userId)
+                    }
+                    return
+                }
+
                 try await createAuthenticatorKeyIfNeeded()
                 try await createAuthenticatorVaultKeyIfNeeded(userId: userId)
                 subscribeToCipherUpdates(userId: userId)

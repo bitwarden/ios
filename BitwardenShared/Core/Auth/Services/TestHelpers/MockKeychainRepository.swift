@@ -140,7 +140,7 @@ class MockKeychainRepository: KeychainRepository {
 
     func setUserAuthKey(for item: KeychainItem, value: String) async throws {
         let formattedKey = formattedKey(for: item)
-        securityType = item.protection
+        securityType = item.accessControlFlags
         try setResult.get()
         mockStorage[formattedKey] = value
     }
