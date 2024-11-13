@@ -141,13 +141,9 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
 
         // Get the single sign on details for the user.
         do {
-            let response = try await services.organizationAPIService.getSingleSignOnDetails(email: state.email)
-
-            // If there is already an organization identifier associated with the user's email,
-            // attempt to start the single sign on process with that identifier.
-            if response.ssoAvailable,
-               let organizationIdentifier = response.organizationIdentifier,
-               !organizationIdentifier.isEmpty {
+            if let organizationIdentifier = try await services.authRepository.getSingleSignOnOrganizationIdentifier(
+                email: state.email
+            ) {
                 state.identifierText = organizationIdentifier
                 coordinator.hideLoadingOverlay()
                 await handleLoginTapped()

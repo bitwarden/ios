@@ -15,6 +15,7 @@ final class FeatureFlagTests: BitwardenTestCase {
     /// `getter:isRemotelyConfigured` returns the correct value for each flag.
     func test_isRemotelyConfigured() {
         XCTAssertTrue(FeatureFlag.emailVerification.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.refactorSsoDetailsEndpoint.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialBoolFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialIntFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialStringFlag.isRemotelyConfigured)

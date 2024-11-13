@@ -250,8 +250,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let accounts = try await stateService.getAccounts()
 
         XCTAssertEqual(accounts.count, 1)
+        XCTAssertEqual(accounts, [beeAccount])
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts"))
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
     }
 
     /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
@@ -703,6 +705,135 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_getFingerprintPhrase_throws() async throws {
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.getFingerprintPhrase()
+        }
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns the organization identifier when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off.
+    func test_getSingleSignOnOrganizationIdentifier_successFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetails)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertEqual(orgId, "TeamLivefront")
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when email is empty.
+    func test_getSingleSignOnOrganizationIdentifier_emptyEmail() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetails)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off and SSO not available in the response.
+    func test_getSingleSignOnOrganizationIdentifier_ssoNotAvailableFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetailsNotAvailable)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off and no verified date in the response.
+    func test_getSingleSignOnOrganizationIdentifier_noVerifiedDateFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetailsNoVerifiedDate)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off and no organization identifier in the response.
+    func test_getSingleSignOnOrganizationIdentifier_noOrgIdFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetailsNoOrgId)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is off and organization identifier is empty in the response.
+    func test_getSingleSignOnOrganizationIdentifier_orgIdEmptyFeatureFlagOff() async throws {
+        client.result = .httpSuccess(testData: .singleSignOnDetailsOrgIdEmpty)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` throws when calling the API
+    /// and the feature flag `.refactorSsoDetailsEndpoint` is off.
+    func test_getSingleSignOnOrganizationIdentifier_throwsFeatureFlagOff() async throws {
+        client.result = .httpFailure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        }
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns the organization identifier when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_successFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerified)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertEqual(orgId, "TestID")
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns the first organization identifier when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and there are multiple results in response.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_successInMultipleFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedMultiple)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertEqual(orgId, "TestID")
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and there is no data.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_noDataFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedNoData)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and data array is empty.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_emptyDataFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedEmptyData)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and there is no organization identifier.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_noOrgIdFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedNoOrgId)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
+    /// the feature flag `.refactorSsoDetailsEndpoint` is on and empty organization identifier.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_emptyOrgIdFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedEmptyOrgId)
+        let orgId = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
+        XCTAssertNil(orgId)
+    }
+
+    /// `getSingleSignOnOrganizationIdentifier(email:)` throws when calling the API
+    /// and the feature flag `.refactorSsoDetailsEndpoint` is on.
+    @MainActor
+    func test_getSingleSignOnOrganizationIdentifier_throwsFeatureFlagOn() async throws {
+        configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
+        client.result = .httpFailure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.getSingleSignOnOrganizationIdentifier(email: "foo@bar.com")
         }
     }
 

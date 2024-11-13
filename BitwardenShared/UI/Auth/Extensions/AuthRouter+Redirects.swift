@@ -61,23 +61,27 @@ extension AuthRouter {
     /// - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
     ///
     func deleteAccountRedirect() async -> AuthRoute {
-        // Ensure that the active account id is nil, otherwise, handle a failed account deletion by directing
-        // The user to the unlock flow.
-        let oldActiveId = try? await services.stateService.getActiveAccountId()
-        // Try to set the next available account.
-        guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
-            // If no other accounts are available, go to landing.
+        do {
+            // After an account is deleted, the next account is already active in `StateService`.
+            // Make it active in the repository and switch to it.
+            let userId = try await services.stateService.getActiveAccountId()
+            let activeAccount = try await services.authRepository.setActiveAccount(userId: userId)
+
+            // Setup the unlock route for the newly active account.
+            let event = AuthEvent.accountBecameActive(
+                activeAccount,
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: true
+            )
+            // Handle any vault unlock redirects for this active account.
+            return await handleAndRoute(event)
+        } catch StateServiceError.noActiveAccount {
+            return .landing
+        } catch {
+            services.errorReporter.log(error: error)
             return .landing
         }
-        // Setup the unlock route for the newly active account.
-        let event = AuthEvent.accountBecameActive(
-            activeAccount,
-            animated: false,
-            attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: oldActiveId != activeAccount.profile.userId
-        )
-        // Handle any vault unlock redirects for this active account.
-        return await handleAndRoute(event)
     }
 
     /// Handles the `.didLogout()`route and redirects the user to the correct screen

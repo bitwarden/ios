@@ -63,6 +63,11 @@ protocol AuthRepository: AnyObject {
     ///
     func getFingerprintPhrase() async throws -> String
 
+    /// Gets the organization identifier by email for the single sign on process.
+    /// - Parameter email: The email to get the organization identifier.
+    /// - Returns: The organization identifier, if any that complies with verified domains. Also `nil` if empty.
+    func getSingleSignOnOrganizationIdentifier(email: String) async throws -> String?
+
     /// Check if the user has a master password
     ///
     func hasMasterPassword() async throws -> Bool
@@ -520,8 +525,10 @@ extension DefaultAuthRepository: AuthRepository {
             )
         )
 
+        // Get the user's ID before it's removed from `StateService`.
+        let userId = try await stateService.getActiveAccountId()
         try await stateService.deleteAccount()
-        await vaultTimeoutService.remove(userId: nil)
+        await vaultTimeoutService.remove(userId: userId)
     }
 
     func existingAccountUserId(email: String) async -> String? {
@@ -569,6 +576,29 @@ extension DefaultAuthRepository: AuthRepository {
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount,
             showPlaceholderToolbarIcon: showPlaceholderToolbarIcon
         )
+    }
+
+    func getSingleSignOnOrganizationIdentifier(email: String) async throws -> String? {
+        guard !email.isEmpty else {
+            return nil
+        }
+
+        guard await configService.getFeatureFlag(.refactorSsoDetailsEndpoint) else {
+            let response = try await organizationAPIService.getSingleSignOnDetails(email: email)
+
+            // If there is already an organization identifier associated with the user's email,
+            // attempt to start the single sign on process with that identifier.
+            guard response.ssoAvailable,
+                  response.verifiedDate != nil,
+                  let organizationIdentifier = response.organizationIdentifier,
+                  !organizationIdentifier.isEmpty else {
+                return nil
+            }
+            return organizationIdentifier
+        }
+
+        let verifiedDomainsResponse = try await organizationAPIService.getSingleSignOnVerifiedDomains(email: email)
+        return verifiedDomainsResponse.verifiedDomains?.first?.organizationIdentifier?.nilIfEmpty
     }
 
     func hasMasterPassword() async throws -> Bool {

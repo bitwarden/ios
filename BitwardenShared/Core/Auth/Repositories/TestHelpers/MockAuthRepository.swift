@@ -22,6 +22,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var activeAccount: Account?
     var altAccounts = [Account]()
     var getAccountError: Error?
+    var getSSOOrganizationIdentifierByResult: Result<String?, Error> = .success(nil)
     var hasManuallyLocked = false
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
@@ -165,6 +166,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         return .empty(
             shouldAlwaysHideAddAccount: shouldAlwaysHideAddAccount
         )
+    }
+
+    func getSingleSignOnOrganizationIdentifier(email: String) async throws -> String? {
+        try getSSOOrganizationIdentifierByResult.get()
     }
 
     func hasMasterPassword() async throws -> Bool {
