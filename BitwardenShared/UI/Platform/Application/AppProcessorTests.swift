@@ -719,6 +719,26 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `provideOTPCredential(for:repromptPasswordValidated:)` returns the credential with the specified identifier.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential() async throws {
+        let credential = ASOneTimeCodeCredential(code: "123")
+        autofillCredentialService.provideOTPCredentialResult = .success(credential)
+
+        let providedCredential = try await subject.provideOTPCredential(for: "1")
+        XCTAssertEqual(providedCredential.code, "123")
+    }
+
+    /// `provideOTPCredential(for:repromptPasswordValidated:)` throws an error if one occurs.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_error() async throws {
+        autofillCredentialService.provideOTPCredentialResult = .failure(ASExtensionError(.userInteractionRequired))
+
+        await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
+            _ = try await subject.provideOTPCredential(for: "1")
+        }
+    }
+
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
     /// master password screen.
     @MainActor
