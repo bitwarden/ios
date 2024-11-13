@@ -29,11 +29,7 @@ struct ManualEntryView: View {
     /// A button to trigger an `.addPressed(:)` action.
     ///
     private var addButton: some View {
-        let title = store.state.isPasswordManagerSyncActive ?
-            Localizations.saveHere :
-            Localizations.addCode
-
-        return Button(title) {
+        Button(Localizations.addCode) {
             store.send(
                 ManualEntryAction.addPressed(
                     code: store.state.authenticatorKey,
@@ -44,25 +40,6 @@ struct ManualEntryView: View {
         }
         .buttonStyle(.tertiary())
         .accessibilityIdentifier("ManualEntryAddCodeButton")
-    }
-
-    /// A button to trigger an `.addPressed(:)` action.
-    ///
-    ///
-    @ViewBuilder private var addToBitwardenButton: some View {
-        if store.state.isPasswordManagerSyncActive {
-            Button(Localizations.saveToBitwarden) {
-                store.send(
-                    ManualEntryAction.addPressed(
-                        code: store.state.authenticatorKey,
-                        name: store.state.name,
-                        sendToBitwarden: true
-                    )
-                )
-            }
-            .buttonStyle(.primary())
-            .accessibilityIdentifier("ManualEntryAddCodeToBitwardenButton")
-        }
     }
 
     /// The main content of the view.
@@ -88,8 +65,18 @@ struct ManualEntryView: View {
                 )
             )
             .accessibilityIdentifier("ManualEntryKeyField")
-            addToBitwardenButton
-            addButton
+
+            if store.state.isPasswordManagerSyncActive {
+                if store.state.defaultSaveOption == .saveHere {
+                    addPrimaryButton(sendToBitwarden: false)
+                    addTertiaryButton(sendToBitwarden: true)
+                } else {
+                    addPrimaryButton(sendToBitwarden: true)
+                    addTertiaryButton(sendToBitwarden: false)
+                }
+            } else {
+                addButton
+            }
             footerButtonContainer
         }
         .background(
@@ -117,12 +104,62 @@ struct ManualEntryView: View {
             })
         }
     }
+
+    /// Create a button to trigger an `.addPressed(:)` action.
+    ///
+    /// - Parameter sendToBitwarden: whether this button sends the code to Bitwarden (`true`) or stores
+    ///     it locally (`false`). This is also used to determine the title and accessibility identifier.
+    /// - Returns: the configured `Button`.
+    ///
+    private func addButton(sendToBitwarden: Bool) -> some View {
+        let accessibilityIdentifier = sendToBitwarden ?
+            "ManualEntryAddCodeToBitwardenButton" :
+            "ManualEntryAddCodeButton"
+        let title = sendToBitwarden ?
+            Localizations.saveToBitwarden :
+            Localizations.saveHere
+
+        return Button(title) {
+            store.send(
+                ManualEntryAction.addPressed(
+                    code: store.state.authenticatorKey,
+                    name: store.state.name,
+                    sendToBitwarden: sendToBitwarden
+                )
+            )
+        }
+        .accessibilityIdentifier(accessibilityIdentifier)
+    }
+
+    /// A primary style button to trigger an `.addPressed(:)` action.
+    ///
+    /// - Parameter sendToBitwarden: whether this button sends the code to Bitwarden (`true`) or stores
+    ///     it locally (`false`). This is also used to determine the title and accessibility identifier.
+    /// - Returns: the `Button`, styled and configured.
+    ///
+    private func addPrimaryButton(sendToBitwarden: Bool) -> some View {
+        addButton(sendToBitwarden: sendToBitwarden)
+            .buttonStyle(.primary())
+    }
+
+    /// A tertiary style button to trigger an `.addPressed(:)` action.
+    ///
+    /// - Parameter sendToBitwarden: whether this button sends the code to Bitwarden (`true`) or stores
+    ///     it locally (`false`). This is also used to determine the title and accessibility identifier.
+    /// - Returns: the `Button`, styled and configured.
+    ///
+    private func addTertiaryButton(sendToBitwarden: Bool) -> some View {
+        addButton(sendToBitwarden: sendToBitwarden)
+            .buttonStyle(.tertiary())
+    }
 }
 
 #if DEBUG
 struct ManualEntryView_Previews: PreviewProvider {
     struct PreviewState: ManualEntryState {
         var authenticatorKey: String = ""
+
+        var defaultSaveOption: DefaultSaveOption = .none
 
         var deviceSupportsCamera: Bool = true
 
@@ -138,7 +175,9 @@ struct ManualEntryView_Previews: PreviewProvider {
     static var previews: some View {
         empty
         textAdded
-        syncActive
+        syncActiveNoDefault
+        syncActiveBitwardenDefault
+        syncActiveLocalDefault
     }
 
     @ViewBuilder static var empty: some View {
@@ -170,19 +209,52 @@ struct ManualEntryView_Previews: PreviewProvider {
         .previewDisplayName("Text Added")
     }
 
-    @ViewBuilder static var syncActive: some View {
+    @ViewBuilder static var syncActiveNoDefault: some View {
         NavigationView {
             ManualEntryView(
                 store: Store(
                     processor: StateProcessor(
                         state: PreviewState(
+                            defaultSaveOption: .none,
                             isPasswordManagerSyncActive: true
                         ).manualEntryState
                     )
                 )
             )
         }
-        .previewDisplayName("Sync Active")
+        .previewDisplayName("Sync Active - No default")
+    }
+
+    @ViewBuilder static var syncActiveBitwardenDefault: some View {
+        NavigationView {
+            ManualEntryView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: PreviewState(
+                            defaultSaveOption: .saveToBitwarden,
+                            isPasswordManagerSyncActive: true
+                        ).manualEntryState
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Sync Active - Bitwarden default")
+    }
+
+    @ViewBuilder static var syncActiveLocalDefault: some View {
+        NavigationView {
+            ManualEntryView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: PreviewState(
+                            defaultSaveOption: .saveHere,
+                            isPasswordManagerSyncActive: true
+                        ).manualEntryState
+                    )
+                )
+            )
+        }
+        .previewDisplayName("Sync Active - Local default")
     }
 }
 #endif

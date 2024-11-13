@@ -3,6 +3,7 @@ import XCTest
 @testable import AuthenticatorShared
 
 final class ManualEntryProcessorTests: AuthenticatorTestCase {
+    var appSettingsStore: MockAppSettingsStore!
     var authItemRepository: MockAuthenticatorItemRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>!
@@ -13,12 +14,14 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
     override func setUp() {
         super.setUp()
 
+        appSettingsStore = MockAppSettingsStore()
         authItemRepository = MockAuthenticatorItemRepository()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
         subject = ManualEntryProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                appSettingsStore: appSettingsStore,
                 authenticatorItemRepository: authItemRepository,
                 configService: configService
             ),
@@ -28,6 +31,7 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
 
     override func tearDown() {
         super.tearDown()
+        appSettingsStore = nil
         authItemRepository = nil
         configService = nil
         coordinator = nil
@@ -72,6 +76,22 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
 
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isPasswordManagerSyncActive)
+    }
+
+    /// `receive()` with `.appeared` sets the `defaultSaveOption` in the state based on the user's
+    /// stored default save option..
+    func test_perform_appeared_defaultSaveOption() async {
+        appSettingsStore.defaultSaveOption = .none
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.defaultSaveOption, .none)
+
+        appSettingsStore.defaultSaveOption = .saveToBitwarden
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.defaultSaveOption, .saveToBitwarden)
+
+        appSettingsStore.defaultSaveOption = .saveHere
+        await subject.perform(.appeared)
+        XCTAssertEqual(subject.state.defaultSaveOption, .saveHere)
     }
 
     /// `receive()` with `.scanCodePressed` navigates to `.scanCode`.

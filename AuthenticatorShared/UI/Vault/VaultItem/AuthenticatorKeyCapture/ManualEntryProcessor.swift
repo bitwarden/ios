@@ -10,7 +10,8 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     // MARK: Types
 
     /// A typealias for the services required by this processor.
-    typealias Services = HasAuthenticatorItemRepository
+    typealias Services = HasAppSettingsStore
+        & HasAuthenticatorItemRepository
         & HasConfigService
         & HasErrorReporter
 
@@ -44,6 +45,8 @@ final class ManualEntryProcessor: StateProcessor<ManualEntryState, ManualEntryAc
     override func perform(_ effect: ManualEntryEffect) async {
         switch effect {
         case .appeared:
+            state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
+
             guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
                   await services.authenticatorItemRepository.isPasswordManagerSyncActive()
             else {

@@ -53,6 +53,30 @@ class ManualEntryViewTests: AuthenticatorTestCase {
         )
     }
 
+    /// Tapping the Save here button dispatches the `.addPressed(:)` action.
+    func test_addLocallyButton_tap_empty() throws {
+        processor.state.isPasswordManagerSyncActive = true
+        let button = try subject.inspect().find(button: Localizations.saveHere)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .addPressed(code: "", name: "", sendToBitwarden: false)
+        )
+    }
+
+    /// Tapping the Save here button dispatches the `.addPressed(:)` action.
+    func test_addLocallyButton_tap_textEntered() throws {
+        processor.state.name = "wayne"
+        processor.state.authenticatorKey = "pasta-batman"
+        processor.state.isPasswordManagerSyncActive = true
+        let button = try subject.inspect().find(button: Localizations.saveHere)
+        try button.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions.last,
+            .addPressed(code: "pasta-batman", name: "wayne", sendToBitwarden: false)
+        )
+    }
+
     /// Tapping the add to Bitwarden button dispatches the `.addPressed(:)` action.
     func test_addToBitwardenButton_tap_empty() throws {
         processor.state.isPasswordManagerSyncActive = true
@@ -65,7 +89,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the add to Bitwarden button dispatches the `.addPressed(:)` action.
-    func test_addToBitwardenButton_tap_new() throws {
+    func test_addToBitwardenButton_tap_textEntered() throws {
         processor.state.name = "wayne"
         processor.state.authenticatorKey = "pasta-batman"
         processor.state.isPasswordManagerSyncActive = true
@@ -139,7 +163,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     /// password manager sync flag active.
     func test_snapshot_manualEntryView_text_dark_syncActive() {
         assertSnapshot(
-            of: ManualEntryView_Previews.syncActive,
+            of: ManualEntryView_Previews.syncActiveNoDefault,
             as: .defaultPortraitDark
         )
     }
@@ -148,7 +172,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     /// password manager sync flag active.
     func test_snapshot_manualEntryView_text_largeText_syncActive() {
         assertSnapshot(
-            of: ManualEntryView_Previews.syncActive,
+            of: ManualEntryView_Previews.syncActiveNoDefault,
             as: .tallPortraitAX5(heightMultiple: 1.75)
         )
     }
@@ -157,8 +181,23 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     /// password manager sync flag active.
     func test_snapshot_manualEntryView_text_light_syncActive() {
         assertSnapshot(
-            of: ManualEntryView_Previews.syncActive,
+            of: ManualEntryView_Previews.syncActiveNoDefault,
             as: .defaultPortrait
         )
+    }
+
+    /// Test a snapshot of the `ManualEntryView` previews.
+    func test_snapshot_manualEntryView_previews() {
+        for preview in ManualEntryView_Previews._allPreviews {
+            let name = preview.displayName ?? "Unknown"
+            assertSnapshots(
+                of: preview.content,
+                as: [
+                    "\(name)-portrait": .defaultPortrait,
+                    "\(name)-portraitDark": .defaultPortraitDark,
+                    "\(name)-portraitAX5": .defaultPortraitAX5,
+                ]
+            )
+        }
     }
 }

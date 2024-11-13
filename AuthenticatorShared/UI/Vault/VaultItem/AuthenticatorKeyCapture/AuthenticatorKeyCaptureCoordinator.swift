@@ -59,7 +59,8 @@ protocol AuthenticatorKeyCaptureDelegate: AnyObject {
 final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasAuthenticatorItemRepository
+    typealias Services = HasAppSettingsStore
+        & HasAuthenticatorItemRepository
         & HasCameraService
         & HasConfigService
         & HasErrorReporter

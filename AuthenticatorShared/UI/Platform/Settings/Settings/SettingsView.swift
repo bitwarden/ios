@@ -108,7 +108,7 @@ struct SettingsView: View {
 
                     if store.state.shouldShowSyncButton {
                         externalLinkRow(
-                            Localizations.syncWithTheBitwardenApp,
+                            Localizations.syncWithBitwardenApp,
                             action: .syncWithBitwardenAppTapped,
                             hasDivider: store.state.shouldShowDefaultSaveOption
                         )

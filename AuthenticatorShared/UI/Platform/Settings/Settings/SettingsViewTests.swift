@@ -83,7 +83,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     /// Tapping the sync with Bitwarden app button dispatches the `.syncWithBitwardenAppTapped` action.
     func test_syncWithBitwardenButton_tap() throws {
         processor.state.shouldShowSyncButton = true
-        let button = try subject.inspect().find(button: Localizations.syncWithTheBitwardenApp)
+        let button = try subject.inspect().find(button: Localizations.syncWithBitwardenApp)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .syncWithBitwardenAppTapped)
     }

@@ -8,6 +8,9 @@ protocol ManualEntryState: Sendable {
     /// The key for this item.
     var authenticatorKey: String { get set }
 
+    /// The user's default save option (i.e. where to save the code).
+    var defaultSaveOption: DefaultSaveOption { get set }
+
     /// Does the device support camera.
     var deviceSupportsCamera: Bool { get }
 
@@ -21,6 +24,8 @@ protocol ManualEntryState: Sendable {
 
 struct DefaultEntryState: ManualEntryState {
     var authenticatorKey: String = ""
+
+    var defaultSaveOption: DefaultSaveOption = .none
 
     var deviceSupportsCamera: Bool
 
