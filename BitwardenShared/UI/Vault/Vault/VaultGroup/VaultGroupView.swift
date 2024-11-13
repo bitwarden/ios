@@ -287,12 +287,10 @@ struct VaultGroupView: View {
                                     items: [
                                         .init(cipherView: .fixture(
                                             id: "1",
-                                            login: .fixture(username: "email@example.com"),
                                             name: "Example"
                                         ))!,
                                         .init(cipherView: .fixture(
                                             id: "2",
-                                            login: .fixture(username: "email2@example.com"),
                                             name: "Example 2"
                                         ))!,
                                     ],

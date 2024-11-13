@@ -192,28 +192,29 @@ class VaultItemSelectionProcessor: StateProcessor<
     ///     to add the OTP key to.
     ///
     private func showEditForNewOtpKey(vaultListItem: VaultListItem) async {
-        guard case let .cipher(cipherView, _) = vaultListItem.itemType,
-              cipherView.type == .login,
-              let login = cipherView.login else {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            return
-        }
-
-        do {
-            if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipherView.reprompt) {
-                guard try await userVerificationHelper.verifyMasterPassword() == .verified else {
-                    return
-                }
-            }
-
-            let updatedCipherView = cipherView.update(login: login.update(totp: state.otpAuthModel.uri))
-            coordinator.navigate(to: .editItem(updatedCipherView), context: self)
-        } catch UserVerificationError.cancelled {
-            // No-op: don't log or alert for cancellation errors.
-        } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
+        // guard case let .cipher(cipherView, _) = vaultListItem.itemType,
+        //      cipherView.type == .login,
+        //      let login = cipherView.login else {
+        //    coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        //    return
+        // }
+        //
+        // do {
+        //    if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipherView.reprompt) {
+        //        guard try await userVerificationHelper.verifyMasterPassword() == .verified else {
+        //            return
+        //        }
+        //    }
+        //
+        //    let updatedCipherView = cipherView.update(login: login.update(totp: state.otpAuthModel.uri))
+        //    coordinator.navigate(to: .editItem(updatedCipherView), context: self)
+        // } catch UserVerificationError.cancelled {
+        //    // No-op: don't log or alert for cancellation errors.
+        // } catch {
+        //    coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        //    services.errorReporter.log(error: error)
+        // }
+        // 
     }
 
     /// Streams the list of vault items.

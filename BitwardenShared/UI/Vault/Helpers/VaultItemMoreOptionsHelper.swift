@@ -154,12 +154,13 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 await generateAndCopyTotpCode(totpKey: totpKey, handleDisplayToast: handleDisplayToast)
             }
         case let .edit(cipherView, requiresMasterPasswordReprompt):
+            guard let id = cipherView.id else { return }
             if requiresMasterPasswordReprompt {
                 presentMasterPasswordRepromptAlert {
-                    self.coordinator.navigate(to: .editItem(cipherView), context: self)
+                    self.coordinator.navigate(to: .editItemFrom(id: id), context: self)
                 }
             } else {
-                coordinator.navigate(to: .editItem(cipherView), context: self)
+                coordinator.navigate(to: .editItemFrom(id: id), context: self)
             }
         case let .launch(url):
             handleOpenURL(url.sanitized)

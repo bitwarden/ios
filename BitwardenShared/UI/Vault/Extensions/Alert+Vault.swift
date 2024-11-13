@@ -163,7 +163,7 @@ extension Alert {
     @MainActor
     static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count cyclomatic_complexity line_length
         canCopyTotp: Bool,
-        cipherView: CipherView,
+        cipherView: CipherListView,
         hasMasterPassword: Bool,
         id: String,
         showEdit: Bool,
@@ -183,119 +183,118 @@ extension Alert {
                 ))
             })
         }
-
-        // Add any additional actions for the type of cipher selected.
-        switch cipherView.type {
-        case .card:
-            if let number = cipherView.card?.number {
-                alertActions.append(AlertAction(title: Localizations.copyNumber, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.number,
-                        value: number,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
-                        logEvent: nil,
-                        cipherId: nil
-                    ))
-                })
-            }
-            if let code = cipherView.card?.code {
-                alertActions.append(AlertAction(title: Localizations.copySecurityCode, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.securityCode,
-                        value: code,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
-                        logEvent: .cipherClientCopiedCardCode,
-                        cipherId: cipherView.id
-                    ))
-                })
-            }
-        case .login:
-            if let username = cipherView.login?.username {
-                alertActions.append(AlertAction(title: Localizations.copyUsername, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.username,
-                        value: username,
-                        requiresMasterPasswordReprompt: false,
-                        logEvent: nil,
-                        cipherId: nil
-                    ))
-                })
-            }
-            if let password = cipherView.login?.password,
-               cipherView.viewPassword {
-                alertActions.append(AlertAction(title: Localizations.copyPassword, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.password,
-                        value: password,
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
-                        logEvent: .cipherClientCopiedPassword,
-                        cipherId: cipherView.id
-                    ))
-                })
-            }
-            if canCopyTotp, let totp = cipherView.login?.totp {
-                alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
-                    await action(.copyTotp(
-                        totpKey: TOTPKeyModel(authenticatorKey: totp),
-                        requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
-                    ))
-                })
-            }
-            if let uri = cipherView.login?.uris?.first?.uri,
-               let url = URL(string: uri) {
-                alertActions
-                    .append(AlertAction(title: Localizations.launch, style: .default) { _, _ in
-                        await action(.launch(url: url))
-                    })
-            }
-        case .identity:
-            // No-op: no extra options beyond view and edit.
-            break
-        case .secureNote:
-            if let notes = cipherView.notes {
-                alertActions.append(AlertAction(title: Localizations.copyNotes, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.notes,
-                        value: notes,
-                        requiresMasterPasswordReprompt: false,
-                        logEvent: nil,
-                        cipherId: nil
-                    ))
-                })
-            }
-        case .sshKey:
-            if let sshKey = cipherView.sshKey {
-                alertActions.append(AlertAction(title: Localizations.copyPublicKey, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.publicKey,
-                        value: sshKey.publicKey,
-                        requiresMasterPasswordReprompt: false,
-                        logEvent: nil,
-                        cipherId: cipherView.id
-                    ))
-                })
-                if cipherView.viewPassword {
-                    alertActions.append(AlertAction(title: Localizations.copyPrivateKey, style: .default) { _, _ in
-                        await action(.copy(
-                            toast: Localizations.privateKey,
-                            value: sshKey.privateKey,
-                            requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
-                            logEvent: nil,
-                            cipherId: cipherView.id
-                        ))
-                    })
-                }
-                alertActions.append(AlertAction(title: Localizations.copyFingerprint, style: .default) { _, _ in
-                    await action(.copy(
-                        toast: Localizations.fingerprint,
-                        value: sshKey.fingerprint,
-                        requiresMasterPasswordReprompt: false,
-                        logEvent: nil,
-                        cipherId: cipherView.id
-                    ))
-                })
-            }
-        }
+        //       // Add any additional actions for the type of cipher selected.
+        //       switch cipherView.type {
+        //       case .card:
+        //           if let number = cipherView.card?.number {
+        //               alertActions.append(AlertAction(title: Localizations.copyNumber, style: .default) { _, _ in
+        //                   await action(.copy(
+        //                       toast: Localizations.number,
+        //                       value: number,
+        //                       requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+        //                       logEvent: nil,
+        //                       cipherId: nil
+        //                   ))
+        //               })
+        //           }
+        //           if let code = cipherView.card?.code {
+        //               alertActions.append(AlertAction(title: Localizations.copySecurityCode, style: .default) { _, _ in
+        //                   await action(.copy(
+        //                       toast: Localizations.securityCode,
+        //                       value: code,
+        //                       requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+        //                       logEvent: .cipherClientCopiedCardCode,
+        //                       cipherId: cipherView.id
+        //                   ))
+        //               })
+        //           }
+        //       case .login:
+        //           if let username = cipherView.login?.username {
+        //               alertActions.append(AlertAction(title: Localizations.copyUsername, style: .default) { _, _ in
+        //                   await action(.copy(
+        //                       toast: Localizations.username,
+        //                       value: username,
+        //                       requiresMasterPasswordReprompt: false,
+        //                       logEvent: nil,
+        //                       cipherId: nil
+        //                   ))
+        //               })
+        //           }
+        //           if let password = cipherView.login?.password,
+        //              cipherView.viewPassword {
+        //               alertActions.append(AlertAction(title: Localizations.copyPassword, style: .default) { _, _ in
+        //                   await action(.copy(
+        //                       toast: Localizations.password,
+        //                       value: password,
+        //                       requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+        //                       logEvent: .cipherClientCopiedPassword,
+        //                       cipherId: cipherView.id
+        //                   ))
+        //               })
+        //           }
+        //           if canCopyTotp, let totp = cipherView.login?.totp {
+        //               alertActions.append(AlertAction(title: Localizations.copyTotp, style: .default) { _, _ in
+        //                   await action(.copyTotp(
+        //                       totpKey: TOTPKeyModel(authenticatorKey: totp),
+        //                       requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword
+        //                   ))
+        //               })
+        //           }
+        //           if let uri = cipherView.login?.uris?.first?.uri,
+        //              let url = URL(string: uri) {
+        //               alertActions
+        //                   .append(AlertAction(title: Localizations.launch, style: .default) { _, _ in
+        //                       await action(.launch(url: url))
+        //                   })
+        //           }
+        //       case .identity:
+        //           // No-op: no extra options beyond view and edit.
+        //           break
+        //       case .secureNote:
+        //           if let notes = cipherView.notes {
+        //               alertActions.append(AlertAction(title: Localizations.copyNotes, style: .default) { _, _ in
+        //                   await action(.copy(
+        //                       toast: Localizations.notes,
+        //                       value: notes,
+        //                       requiresMasterPasswordReprompt: false,
+        //                       logEvent: nil,
+        //                       cipherId: nil
+        //                   ))
+        //               })
+        //           }
+        //       case .sshKey:
+        //           if let sshKey = cipherView.sshKey {
+        //               alertActions.append(AlertAction(title: Localizations.copyPublicKey, style: .default) { _, _ in
+        //                   await action(.copy(
+        //                       toast: Localizations.publicKey,
+        //                       value: sshKey.publicKey,
+        //                       requiresMasterPasswordReprompt: false,
+        //                       logEvent: nil,
+        //                       cipherId: cipherView.id
+        //                   ))
+        //               })
+        //               if cipherView.viewPassword {
+        //                   alertActions.append(AlertAction(title: Localizations.copyPrivateKey, style: .default) { _, _ in
+        //                       await action(.copy(
+        //                           toast: Localizations.privateKey,
+        //                           value: sshKey.privateKey,
+        //                           requiresMasterPasswordReprompt: cipherView.reprompt == .password && hasMasterPassword,
+        //                           logEvent: nil,
+        //                           cipherId: cipherView.id
+        //                       ))
+        //                   })
+        //               }
+        //               alertActions.append(AlertAction(title: Localizations.copyFingerprint, style: .default) { _, _ in
+        //                   await action(.copy(
+        //                       toast: Localizations.fingerprint,
+        //                       value: sshKey.fingerprint,
+        //                       requiresMasterPasswordReprompt: false,
+        //                       logEvent: nil,
+        //                       cipherId: cipherView.id
+        //                   ))
+        //               })
+        //           }
+        //       }
 
         // Return the alert.
         return Alert(

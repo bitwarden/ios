@@ -376,7 +376,7 @@ enum MoreOptionsAction: Equatable {
     case copyTotp(totpKey: TOTPKeyModel, requiresMasterPasswordReprompt: Bool)
 
     /// Navigate to the view to edit the `cipherView`.
-    case edit(cipherView: CipherView, requiresMasterPasswordReprompt: Bool)
+    case edit(cipherView: CipherListView, requiresMasterPasswordReprompt: Bool)
 
     /// Launch the `url` in the device's browser.
     case launch(url: URL)
