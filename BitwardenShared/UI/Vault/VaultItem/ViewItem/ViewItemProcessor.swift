@@ -518,6 +518,7 @@ private extension ViewItemProcessor {
 
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
                 let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
+                let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
 
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
@@ -533,7 +534,7 @@ private extension ViewItemProcessor {
 
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
-                    itemState.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
+                    itemState.collections = collections
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
