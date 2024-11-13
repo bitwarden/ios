@@ -101,12 +101,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Install yeetd
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
-
       - name: Install Mint, xcbeautify, and xcresultparser
         run: |
           brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
