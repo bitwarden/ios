@@ -12,6 +12,9 @@ protocol AddEditItemState: Sendable {
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
+    /// Whether the user is able to delete the item.
+    var canBeDeleted: Bool { get }
+
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 
