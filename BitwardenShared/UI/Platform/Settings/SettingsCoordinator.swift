@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import SwiftUI
 
@@ -338,6 +339,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     private func showExportVault() {
         let processor = ExportVaultProcessor(
             coordinator: asAnyCoordinator(),
+            delegate: self,
             services: services
         )
         let view = ExportVaultView(store: Store(processor: processor))
@@ -484,5 +486,13 @@ extension SettingsCoordinator: ImportLoginsCoordinatorDelegate {
 extension SettingsCoordinator: SettingsProcessorDelegate {
     func updateSettingsTabBadge(_ badgeValue: String?) {
         stackNavigator?.rootViewController?.tabBarItem.badgeValue = badgeValue
+    }
+}
+
+// MARK: - ExportVaultProcessorDelegate
+
+extension SettingsCoordinator: ExportVaultProcessorDelegate {
+    func presentationAnchorForASCredentialExportManager() -> ASPresentationAnchor {
+        stackNavigator?.rootViewController?.view.window ?? UIWindow()
     }
 }

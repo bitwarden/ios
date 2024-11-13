@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import Foundation
 
@@ -41,6 +42,11 @@ protocol ExportVaultService: AnyObject {
     /// - Returns: A string representing the file content.
     ///
     func exportVaultFileContents(format: ExportFileType) async throws -> String
+
+    /// Exports the vault creating the `ASExportedCredentialData` to be used in Credential Exchange Protocol.
+    /// - Returns: An `ASExportedCredentialData`
+    @available(iOSApplicationExtension 18.2, *)
+    func exportVaultForCXP() async throws -> ASExportedCredentialData
 
     /// Generates a file name for the export file based on the current date, time, and specified extension.
     /// - Parameters:
@@ -91,6 +97,13 @@ extension ExportVaultService {
     func generateExportFileName(extension fileExtension: String) -> String {
         generateExportFileName(prefix: nil, extension: fileExtension)
     }
+}
+
+/// Error throws when exporting vault.
+enum ExportVaultServiceError: Error {
+    /// Error thrown when the serialized CXP exported vault string cannot be converted
+    /// to `Data` using UTF-8.
+    case cxpSerializedNotInUTF8
 }
 
 class DefultExportVaultService: ExportVaultService {
@@ -186,6 +199,19 @@ class DefultExportVaultService: ExportVaultService {
             ciphers: ciphers,
             format: exportFormat
         )
+    }
+
+    @available(iOSApplicationExtension 18.2, *)
+    func exportVaultForCXP() async throws -> ASExportedCredentialData {
+        var ciphers = try await cipherService.fetchAllCiphers()
+            .filter { $0.deletedDate == nil }
+            .filter { $0.organizationId == nil }
+
+        let serializedCXF = try await clientService.exporters().exportCxf(ciphers: ciphers)
+        guard let cxfData = serializedCXF.data(using: .utf8) else {
+            throw ExportVaultServiceError.cxpSerializedNotInUTF8
+        }
+        return try JSONDecoder().decode(ASExportedCredentialData.self, from: cxfData)
     }
 
     func generateExportFileName(
