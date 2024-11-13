@@ -4,17 +4,17 @@ import XCTest
 @testable import BitwardenShared
 
 @available(iOS 17.0, *)
-class Fido2AppExtensionDelegateTests: BitwardenTestCase {
+class AutofillAppExtensionDelegateTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: MockFido2AppExtensionDelegate!
+    var subject: MockAutofillAppExtensionDelegate!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subject = MockFido2AppExtensionDelegate()
+        subject = MockAutofillAppExtensionDelegate()
     }
 
     override func tearDown() {
@@ -30,6 +30,9 @@ class Fido2AppExtensionDelegateTests: BitwardenTestCase {
     func test_autofillListMode() async throws {
         subject.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
         XCTAssertEqual(subject.autofillListMode, .combinedMultipleSections)
+
+        subject.extensionMode = .autofillOTP([])
+        XCTAssertEqual(subject.autofillListMode, .totp)
 
         subject.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         XCTAssertEqual(subject.autofillListMode, .combinedSingleSection)

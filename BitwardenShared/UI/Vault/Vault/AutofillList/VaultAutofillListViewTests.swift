@@ -8,6 +8,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     var processor: MockProcessor<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>!
     var subject: VaultAutofillListView!
+    var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
 
@@ -16,8 +17,9 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
         processor = MockProcessor(state: VaultAutofillListState())
         let store = Store(processor: processor)
+        timeProvider = MockTimeProvider(.currentTime)
 
-        subject = VaultAutofillListView(store: store)
+        subject = VaultAutofillListView(store: store, timeProvider: timeProvider)
     }
 
     override func tearDown() {
@@ -25,6 +27,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
         processor = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests

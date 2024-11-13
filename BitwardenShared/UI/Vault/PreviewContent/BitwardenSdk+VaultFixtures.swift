@@ -241,6 +241,18 @@ extension CipherView {
             revisionDate: revisionDate
         )
     }
+
+    static func totpFixture(
+        id: String = "8675",
+        name: String = "Bitwarden",
+        totp: String = "1234"
+    ) -> CipherView {
+        .loginFixture(
+            id: id,
+            login: .fixture(totp: totp),
+            name: name
+        )
+    }
 }
 
 extension Collection {

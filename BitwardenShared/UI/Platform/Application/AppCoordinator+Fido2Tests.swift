@@ -10,7 +10,7 @@ import XCTest
 class AppCoordinatorFido2Tests: BitwardenTestCase {
     // MARK: Properties
 
-    var appExtensionDelegate: MockFido2AppExtensionDelegate!
+    var appExtensionDelegate: MockAutofillAppExtensionDelegate!
     var module: MockAppModule!
     var rootNavigator: MockRootNavigator!
     var router: MockRouter<AuthEvent, AuthRoute>!
@@ -22,7 +22,7 @@ class AppCoordinatorFido2Tests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        appExtensionDelegate = MockFido2AppExtensionDelegate()
+        appExtensionDelegate = MockAutofillAppExtensionDelegate()
         router = MockRouter(routeForEvent: { _ in .landing })
         module = MockAppModule()
         module.authRouter = router

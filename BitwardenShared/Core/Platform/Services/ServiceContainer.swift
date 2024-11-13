@@ -133,6 +133,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage account access tokens.
     let tokenService: TokenService
 
+    /// The factory to create TOTP expiration managers.
+    let totpExpirationManagerFactory: TOTPExpirationManagerFactory
+
     /// The service used by the application to validate TOTP keys and produce TOTP values.
     let totpService: TOTPService
 
@@ -197,6 +200,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - systemDevice: The object used by the application to retrieve information about this device.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - tokenService: The service used by the application to manage account access tokens.
+    ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///   - trustDeviceService: The service used to handle device trust.
     ///   - twoStepLoginService: The service used by the application to generate a two step login URL.
@@ -243,6 +247,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         systemDevice: SystemDevice,
         timeProvider: TimeProvider,
         tokenService: TokenService,
+        totpExpirationManagerFactory: TOTPExpirationManagerFactory,
         totpService: TOTPService,
         trustDeviceService: TrustDeviceService,
         twoStepLoginService: TwoStepLoginService,
@@ -288,6 +293,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.systemDevice = systemDevice
         self.timeProvider = timeProvider
         self.tokenService = tokenService
+        self.totpExpirationManagerFactory = totpExpirationManagerFactory
         self.totpService = totpService
         self.trustDeviceService = trustDeviceService
         self.twoStepLoginService = twoStepLoginService
@@ -322,6 +328,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainService: keychainService
         )
         let timeProvider = CurrentTime()
+
+        let totpExpirationManagerFactory = DefaultTOTPExpirationManagerFactory(timeProvider: timeProvider)
 
         let stateService = DefaultStateService(
             appSettingsStore: appSettingsStore,
@@ -608,9 +616,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         #endif
 
+        let credentialIdentityFactory = DefaultCredentialIdentityFactory()
         let autofillCredentialService = DefaultAutofillCredentialService(
             cipherService: cipherService,
             clientService: clientService,
+            credentialIdentityFactory: credentialIdentityFactory,
             errorReporter: errorReporter,
             eventService: eventService,
             fido2CredentialStore: fido2CredentialStore,
@@ -695,6 +705,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             systemDevice: UIDevice.current,
             timeProvider: timeProvider,
             tokenService: tokenService,
+            totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
             trustDeviceService: trustDeviceService,
             twoStepLoginService: twoStepLoginService,
