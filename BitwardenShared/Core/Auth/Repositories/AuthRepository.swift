@@ -525,8 +525,10 @@ extension DefaultAuthRepository: AuthRepository {
             )
         )
 
+        // Get the user's ID before it's removed from `StateService`.
+        let userId = try await stateService.getActiveAccountId()
         try await stateService.deleteAccount()
-        await vaultTimeoutService.remove(userId: nil)
+        await vaultTimeoutService.remove(userId: userId)
     }
 
     func existingAccountUserId(email: String) async -> String? {

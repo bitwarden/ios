@@ -250,8 +250,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let accounts = try await stateService.getAccounts()
 
         XCTAssertEqual(accounts.count, 1)
+        XCTAssertEqual(accounts, [beeAccount])
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/api/accounts"))
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
     }
 
     /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
