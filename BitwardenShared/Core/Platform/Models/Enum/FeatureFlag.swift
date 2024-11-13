@@ -3,7 +3,6 @@ import Foundation
 // MARK: - FeatureFlag
 
 /// An enum to represent a feature flag sent by the server
-///
 enum FeatureFlag: String, CaseIterable, Codable {
     /// Flag to enable/disable email verification during registration
     /// This flag introduces a new flow for account creation
@@ -25,6 +24,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     case nativeCreateAccountFlow = "native-create-account-flow"
 
     case sshKeyVaultItem = "ssh-key-vault-item"
+
+    /// A feature flag for the refactor on the SSO details endpoint.
+    case refactorSsoDetailsEndpoint = "pm-12337-refactor-sso-details-endpoint"
 
     // MARK: Test Flags
 
@@ -90,6 +92,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .testLocalInitialStringFlag:
             false
         case .emailVerification,
+             .refactorSsoDetailsEndpoint,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,
