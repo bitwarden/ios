@@ -128,6 +128,11 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         stateService.activeAccount = account
         stateService.userHasMasterPassword = [account.profile.userId: true]
         vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        let collections = [
+            CollectionView.fixture(id: "1"),
+            CollectionView.fixture(id: "2"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success(collections)
 
         let cipherItem = CipherView.fixture(
             id: "id",
@@ -153,10 +158,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
-        let expectedState = CipherItemState(
+        var expectedState = CipherItemState(
             existing: cipherItem,
             hasPremium: true
         )!
+
+        expectedState.collections = collections
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertTrue(subject.state.hasMasterPassword)
