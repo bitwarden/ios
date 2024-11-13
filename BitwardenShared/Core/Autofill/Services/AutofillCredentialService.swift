@@ -70,6 +70,9 @@ class DefaultAutofillCredentialService {
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
 
+    /// The factory to create credential identities.
+    private let credentialIdentityFactory: CredentialIdentityFactory
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -112,6 +115,7 @@ class DefaultAutofillCredentialService {
     /// - Parameters:
     ///   - cipherService: The service used to manage syncing and updates to the user's ciphers.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - credentialIdentityFactory: The factory to create credential identities.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service to manage events.
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
@@ -126,6 +130,7 @@ class DefaultAutofillCredentialService {
     init(
         cipherService: CipherService,
         clientService: ClientService,
+        credentialIdentityFactory: CredentialIdentityFactory,
         errorReporter: ErrorReporter,
         eventService: EventService,
         fido2CredentialStore: Fido2CredentialStore,
@@ -138,6 +143,7 @@ class DefaultAutofillCredentialService {
     ) {
         self.cipherService = cipherService
         self.clientService = clientService
+        self.credentialIdentityFactory = credentialIdentityFactory
         self.errorReporter = errorReporter
         self.eventService = eventService
         self.fido2CredentialStore = fido2CredentialStore
@@ -215,7 +221,12 @@ class DefaultAutofillCredentialService {
                 }
 
             if #available(iOS 17, *) {
-                let identities = decryptedCiphers.compactMap(\.credentialIdentity)
+                var identities = [ASCredentialIdentity]()
+                for cipher in decryptedCiphers {
+                    let newIdentities = await credentialIdentityFactory.createCredentialIdentities(from: cipher)
+                    identities.append(contentsOf: newIdentities)
+                }
+
                 let fido2Identities = try await clientService.platform().fido2()
                     .authenticator(
                         userInterface: fido2UserInterfaceHelper,
@@ -223,11 +234,14 @@ class DefaultAutofillCredentialService {
                     )
                     .credentialsForAutofill()
                     .compactMap { $0.toFido2CredentialIdentity() }
+                identities.append(contentsOf: fido2Identities)
 
-                try await identityStore.replaceCredentialIdentities(identities + fido2Identities)
+                try await identityStore.replaceCredentialIdentities(identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
             } else {
-                let identities = decryptedCiphers.compactMap(\.passwordCredentialIdentity)
+                let identities = decryptedCiphers.compactMap { cipher in
+                    credentialIdentityFactory.tryCreatePasswordCredentialIdentity(from: cipher)
+                }
                 try await identityStore.replaceCredentialIdentities(with: identities)
                 Logger.application.info("AutofillCredentialService: replaced \(identities.count) credential identities")
             }
@@ -414,40 +428,6 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
             #endif
             throw error
         }
-    }
-}
-
-// MARK: - CipherView
-
-private extension CipherView {
-    @available(iOS 17, *)
-    var credentialIdentity: (any ASCredentialIdentity)? {
-        guard shouldGetPasswordCredentialIdentity else {
-            return nil
-        }
-        return passwordCredentialIdentity
-    }
-
-    var passwordCredentialIdentity: ASPasswordCredentialIdentity? {
-        let uris = login?.uris?.filter { $0.match != .never && $0.uri.isEmptyOrNil == false }
-        guard let uri = uris?.first?.uri,
-              let username = login?.username, !username.isEmpty
-        else {
-            return nil
-        }
-
-        let serviceIdentifier = ASCredentialServiceIdentifier(identifier: uri, type: .URL)
-        return ASPasswordCredentialIdentity(
-            serviceIdentifier: serviceIdentifier,
-            user: username,
-            recordIdentifier: id
-        )
-    }
-
-    /// Whether the `ASPasswordCredentialIdentity` should be gotten.
-    /// Otherwise a passkey identity will be provided.
-    var shouldGetPasswordCredentialIdentity: Bool {
-        !hasFido2Credentials || login?.password != nil
     }
 }
 

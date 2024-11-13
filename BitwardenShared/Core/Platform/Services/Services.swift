@@ -36,6 +36,7 @@ typealias Services = HasAPIService
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
+    & HasTOTPExpirationManagerFactory
     & HasTOTPService
     & HasTimeProvider
     & HasTrustDeviceService
@@ -294,6 +295,13 @@ protocol HasSystemDevice {
 protocol HasTimeProvider {
     /// Provides the present time for TOTP Code Calculation.
     var timeProvider: TimeProvider { get }
+}
+
+/// Protocol for an object that provides a `TOTPExpirationManagerFactory`.
+///
+protocol HasTOTPExpirationManagerFactory {
+    /// Factory to create TOTP expiration managers.
+    var totpExpirationManagerFactory: TOTPExpirationManagerFactory { get }
 }
 
 /// Protocol for an object that provides a `TOTPService`.

@@ -5,6 +5,9 @@ public enum AutofillExtensionMode {
     /// The extension is autofilling a specific password credential.
     case autofillCredential(ASPasswordCredentialIdentity, userInteraction: Bool)
 
+    /// The extension is displaying a list of OTP items in the vault that match a service identifier.
+    case autofillOTP([ASCredentialServiceIdentifier])
+
     /// The extension is displaying a list of password items in the vault that match a service identifier.
     case autofillVaultList([ASCredentialServiceIdentifier])
 

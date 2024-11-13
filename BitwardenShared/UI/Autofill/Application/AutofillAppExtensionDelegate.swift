@@ -2,9 +2,9 @@ import AuthenticationServices
 import Combine
 
 /// A delegate that is used to handle actions and retrieve information from within an Autofill extension
-/// on Fido2 flows.
+/// on credential provider flows.
 @MainActor
-public protocol Fido2AppExtensionDelegate: AppExtensionDelegate {
+public protocol AutofillAppExtensionDelegate: AppExtensionDelegate {
     /// The mode in which the autofill extension is running.
     var extensionMode: AutofillExtensionMode { get }
 
@@ -15,6 +15,11 @@ public protocol Fido2AppExtensionDelegate: AppExtensionDelegate {
     /// - Parameter assertionCredential: The passkey credential to be used to complete the assertion.
     @available(iOSApplicationExtension 17.0, *)
     func completeAssertionRequest(assertionCredential: ASPasskeyAssertionCredential)
+
+    /// Completes the autofill OTP request with the specified code.
+    /// - Parameter code: The code to autofill.
+    @available(iOSApplicationExtension 18.0, *)
+    func completeOTPRequest(code: String)
 
     /// Completes the registration request with a Fido2 credential
     /// - Parameter asPasskeyRegistrationCredential: The passkey credential to be used to complete the registration.
@@ -28,12 +33,14 @@ public protocol Fido2AppExtensionDelegate: AppExtensionDelegate {
     func setUserInteractionRequired()
 }
 
-extension Fido2AppExtensionDelegate {
+extension AutofillAppExtensionDelegate {
     /// Gets the mode in which the autofill list should run.
     var autofillListMode: AutofillListMode {
         switch extensionMode {
         case .autofillFido2VaultList:
             .combinedMultipleSections
+        case .autofillOTP:
+            .totp
         case .registerFido2Credential:
             .combinedSingleSection
         default:
