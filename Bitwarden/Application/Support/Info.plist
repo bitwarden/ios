@@ -152,5 +152,9 @@
 	<string>Resources/Assets.xcassets/AppIcons.appiconset</string>
 	<key>BitwardenAuthenticatorSharedAppGroup</key>
 	<string>${SHARED_APP_GROUP_IDENTIFIER}</string>
+	<key>NSUserActivityTypes</key>
+	<array>
+		<string>ASCredentialExchangeActivityType</string>
+	</array>
 </dict>
 </plist>

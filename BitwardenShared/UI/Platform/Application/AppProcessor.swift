@@ -211,6 +211,15 @@ public class AppProcessor {
             )))
     }
 
+    /// Handles importing credentials using Credential Exchange Protocol.
+    /// - Parameter credentialImportToken: The credentials import token to user with the `ASCredentialImportManager`.
+    @available(iOSApplicationExtension 18.2, *)
+    public func handleImportCredentials(credentialImportToken: UUID) {
+        // TODO: PM-14800 Move this to a specific view to handle importing process
+        // and handle credential data.
+        //let credentialData = try await ASCredentialImportManager().importCredentials(token: credentialImportToken)
+    }
+
     // MARK: Autofill Methods
 
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be

@@ -148,11 +148,27 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         guard let delegate else {
             return
         }
+
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+        defer { coordinator.hideLoadingOverlay() }
+
         let data = try await services.exportVaultService.exportVaultForCXP()
         let exportManager = ASCredentialExportManager(
             presentationAnchor: delegate.presentationAnchorForASCredentialExportManager()
         )
-        try await exportManager.exportCredentials(data)
+        coordinator.hideLoadingOverlay()
+        do {
+            let exportedData = ASExportedCredentialData(accounts: [data])
+            try await exportManager.exportCredentials(exportedData)
+        } catch ASAuthorizationError.failed {
+            coordinator
+                .showAlert(
+                    .defaultAlert(
+                        title: Localizations.exportingFailed,
+                        message: Localizations.youMayNeedToEnableDevicePasscodeOrBiometrics
+                    )
+                )
+        }
     }
 
     /// Load any initial data for the view.

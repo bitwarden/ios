@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenShared
 import SwiftUI
 import UIKit
@@ -78,13 +79,23 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         _ scene: UIScene,
         continue userActivity: NSUserActivity
     ) {
-        guard
-            let appProcessor,
-            userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-            let incomingURL = userActivity.webpageURL
-        else { return }
+        guard let appProcessor else {
+            return
+        }
 
-        appProcessor.handleAppLinks(incomingURL: incomingURL)
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+           let incomingURL = userActivity.webpageURL {
+            appProcessor.handleAppLinks(incomingURL: incomingURL)
+        }
+
+        if #available(iOS 18.2, *),
+           userActivity.activityType == ASCredentialExchangeActivity {
+            guard let token = userActivity.userInfo?[ASCredentialImportToken] as? UUID else {
+                return
+            }
+
+            appProcessor.handleImportCredentials(credentialImportToken: token)
+        }
     }
 
     func scene(_ scene: UIScene, openURLContexts urlContexts: Set<UIOpenURLContext>) {

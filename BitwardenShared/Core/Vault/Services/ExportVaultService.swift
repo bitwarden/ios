@@ -43,10 +43,10 @@ protocol ExportVaultService: AnyObject {
     ///
     func exportVaultFileContents(format: ExportFileType) async throws -> String
 
-    /// Exports the vault creating the `ASExportedCredentialData` to be used in Credential Exchange Protocol.
-    /// - Returns: An `ASExportedCredentialData`
+    /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
+    /// - Returns: An `ASImportableAccount`
     @available(iOSApplicationExtension 18.2, *)
-    func exportVaultForCXP() async throws -> ASExportedCredentialData
+    func exportVaultForCXP() async throws -> ASImportableAccount
 
     /// Generates a file name for the export file based on the current date, time, and specified extension.
     /// - Parameters:
@@ -202,16 +202,21 @@ class DefultExportVaultService: ExportVaultService {
     }
 
     @available(iOSApplicationExtension 18.2, *)
-    func exportVaultForCXP() async throws -> ASExportedCredentialData {
-        var ciphers = try await cipherService.fetchAllCiphers()
+    func exportVaultForCXP() async throws -> ASImportableAccount {
+        let ciphers = try await cipherService.fetchAllCiphers()
             .filter { $0.deletedDate == nil }
-            .filter { $0.organizationId == nil }
 
-        let serializedCXF = try await clientService.exporters().exportCxf(ciphers: ciphers)
+        let account = try await stateService.getAccount(userId: nil)
+        let sdkAccount = BitwardenSdk.Account(
+            id: account.profile.userId,
+            email: account.profile.email,
+            name: account.profile.name
+        )
+        let serializedCXF = try await clientService.exporters().exportCxf(account: sdkAccount, ciphers: ciphers)
         guard let cxfData = serializedCXF.data(using: .utf8) else {
             throw ExportVaultServiceError.cxpSerializedNotInUTF8
         }
-        return try JSONDecoder().decode(ASExportedCredentialData.self, from: cxfData)
+        return try JSONDecoder().decode(ASImportableAccount.self, from: cxfData)
     }
 
     func generateExportFileName(
