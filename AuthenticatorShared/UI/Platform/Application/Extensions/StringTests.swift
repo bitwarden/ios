@@ -104,4 +104,11 @@ class StringTests: AuthenticatorTestCase {
 
         XCTAssertEqual(encoded, "a_bcd-")
     }
+
+    func test_whitespaceRemoved() {
+        let subject = "  N  o  Whi te  Space   "
+        let expected = "NoWhiteSpace"
+
+        XCTAssertEqual(expected, subject.whitespaceRemoved())
+    }
 }

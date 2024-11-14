@@ -89,8 +89,8 @@ enum TOTPKey: Equatable {
     ///
     /// - Parameter key: A string representing the TOTP key.
     init?(_ key: String) {
-        if key.uppercased().isBase32 {
-            self = .base32(key: key)
+        if key.uppercased().whitespaceRemoved().isBase32 {
+            self = .base32(key: key.uppercased().whitespaceRemoved())
         } else if key.hasOTPAuthPrefix,
                   let otpAuthModel = OTPAuthModel(otpAuthUri: key) {
             self = .otpAuthUri(otpAuthModel)

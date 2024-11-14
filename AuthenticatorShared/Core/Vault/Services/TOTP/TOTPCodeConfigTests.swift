@@ -32,6 +32,15 @@ final class TOTPCodeConfigTests: AuthenticatorTestCase {
         XCTAssertEqual(subject?.base32Key, .base32Key)
     }
 
+    /// Tests that a base32 string with spaces creates the model with the spaces removed.
+    func test_init_totpCodeConfig_base32_withSpaces() {
+        let subject = TOTPKeyModel(
+            authenticatorKey: .base32KeyWithSpaces
+        )
+        XCTAssertNotNil(subject)
+        XCTAssertEqual(subject?.base32Key, .base32Key)
+    }
+
     /// Tests that an otp auth string creates the model.
     func test_init_totpCodeConfig_success_full() {
         let subject = TOTPKeyModel(

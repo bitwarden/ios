@@ -130,4 +130,12 @@ extension String {
                 count: remainder == 0 ? 0 : 4 - remainder
             ))
     }
+
+    /// Returns a copy of the string with all of the whitespace characters removed.
+    ///
+    /// - Returns: a copy of the string with all of the whitespace characters removed.
+    ///
+    func whitespaceRemoved() -> String {
+        replacingOccurrences(of: "\\s", with: "", options: .regularExpression)
+    }
 }
