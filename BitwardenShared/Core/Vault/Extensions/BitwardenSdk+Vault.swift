@@ -606,7 +606,7 @@ extension BitwardenSdk.Collection {
             externalId: model.externalId,
             hidePasswords: model.hidePasswords,
             readOnly: model.readOnly,
-            manage: model.manage
+            manage: model.manage ?? !model.readOnly
         )
     }
 }

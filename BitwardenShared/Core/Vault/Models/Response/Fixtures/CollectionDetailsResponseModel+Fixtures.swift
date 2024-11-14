@@ -7,7 +7,7 @@ extension CollectionDetailsResponseModel {
         externalId: String? = nil,
         hidePasswords: Bool = false,
         id: String = UUID().uuidString,
-        manage: Bool = false,
+        manage: Bool? = false,
         name: String = "",
         organizationId: String = UUID().uuidString,
         readOnly: Bool = false
