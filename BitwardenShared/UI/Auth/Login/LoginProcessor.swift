@@ -159,6 +159,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 coordinator.navigate(
                     to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil)
                 )
+            case .twoFactorProvidersNotConfigured:
+                await handleErrorResponse(error)
             }
         } catch {
             await handleErrorResponse(error)

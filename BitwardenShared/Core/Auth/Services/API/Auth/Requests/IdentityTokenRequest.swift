@@ -25,6 +25,9 @@ enum IdentityTokenRequestError: Error, Equatable {
         _ masterPasswordPolicy: MasterPasswordPolicyResponseModel?,
         _ ssoToken: String?
     )
+
+    /// Two factor providers aren't configured.
+    case twoFactorProvidersNotConfigured
 }
 
 // MARK: - IdentityTokenRequest
@@ -81,6 +84,9 @@ struct IdentityTokenRequest: Request {
             ) else { return }
 
             if let twoFactorProvidersData = errorModel.twoFactorProvidersData {
+                guard twoFactorProvidersData.providersAvailable != nil else {
+                    throw IdentityTokenRequestError.twoFactorProvidersNotConfigured
+                }
                 throw IdentityTokenRequestError.twoFactorRequired(
                     twoFactorProvidersData,
                     errorModel.captchaBypassToken,

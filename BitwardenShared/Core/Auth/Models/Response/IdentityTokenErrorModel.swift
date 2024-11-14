@@ -48,7 +48,7 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
         case webAuthn = "7"
     }
 
-    /// Information for two factor authentication with Authenticator
+    /// Whether authenticator provider is enabled.
     let authenticator: Bool
 
     /// Information for two factor authentication with Email

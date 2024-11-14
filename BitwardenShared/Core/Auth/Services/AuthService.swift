@@ -903,7 +903,6 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                 if case let .password(_, password) = request?.authenticationMethod { passwordHash = password
                     // Ensure masterPassword has a value before proceeding.
                     guard let masterPassword else {
-                        // Otherwise, log the error.
                         errorReporter.log(error: BitwardenError.generalError(
                             type: "AuthService: Get Identity Token Failed.",
                             message: "Master password is nil for 2FA after authenticating with username and password."
@@ -930,6 +929,12 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
                 // If this error was thrown, it also means any cached two-factor token is not valid.
                 await stateService.setTwoFactorToken(nil, email: email)
+            }
+            if case .twoFactorProvidersNotConfigured = error {
+                errorReporter.log(error: BitwardenError.generalError(
+                    type: "Identity Token Validation Failed.",
+                    message: "Two Factor Providers data is nil."
+                ))
             }
             // Re-throw the error.
             throw error

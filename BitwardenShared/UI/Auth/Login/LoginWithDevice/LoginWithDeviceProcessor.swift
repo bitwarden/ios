@@ -191,6 +191,8 @@ final class LoginWithDeviceProcessor: StateProcessor<
                     nil
                 }
                 coordinator.navigate(to: .twoFactor(state.email, unlockMethod, authMethodsData, nil))
+            case .twoFactorProvidersNotConfigured:
+                services.errorReporter.log(error: error)
             }
             return
         }
