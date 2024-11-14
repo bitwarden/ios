@@ -335,6 +335,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     ///
     private func determineItemListCardState() async {
         guard await services.configService.getFeatureFlag(.enablePasswordManagerSync),
+              await !services.authenticatorItemRepository.isPasswordManagerSyncActive(),
               let application = services.application else {
             state.itemListCardState = .none
             return

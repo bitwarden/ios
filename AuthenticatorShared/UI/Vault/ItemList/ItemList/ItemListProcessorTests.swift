@@ -1129,4 +1129,34 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         waitFor(subject.state.itemListCardState == .passwordManagerSync)
         task.cancel()
     }
+
+    /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the PM app
+    /// (when the PM app is not installed).
+    func test_determineItemListCardState_syncAlreadyOn_download() {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = false
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.itemListCardState, .none)
+    }
+
+    /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the PM app
+    /// (when the PM app is installed).
+    func test_determineItemListCardState_syncAlreadyOn_sync() {
+        configService.featureFlagsBool = [.enablePasswordManagerSync: true]
+        authItemRepository.pmSyncEnabled = true
+        application.canOpenUrlResponse = true
+        let task = Task {
+            await self.subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertEqual(subject.state.itemListCardState, .none)
+    }
 }

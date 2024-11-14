@@ -30,7 +30,7 @@ class ItemListCardViewTests: AuthenticatorTestCase {
         let expectationClose = expectation(description: "close Tapped")
         let subject = ItemListCardView(
             bodyText: Localizations
-                .inOrderToViewAllOfYourVerificationCodesYoullNeedToAllowForSyncingOnAllOfYourAccounts,
+                .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
             buttonText: Localizations.takeMeToTheAppSettings,
             leftImage: {},
             titleText: Localizations.syncWithTheBitwardenApp,
