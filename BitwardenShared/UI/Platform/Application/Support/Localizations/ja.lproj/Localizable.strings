@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "保管庫タイムアウト時のアクション";
 "VaultTimeoutLogOutConfirmation" = "ログアウトすると保管庫へのすべてのアクセスが制限され、タイムアウト期間後にオンライン認証が必要になります。 この設定を使用してもよろしいですか？";
 "LoggingIn" = "ログイン中...";
-"LoginOrCreateNewAccount" = "安全なデータ保管庫へアクセスするためにログインまたはアカウントを作成してください。";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "管理";
 "MasterPasswordConfirmationValMessage" = "パスワードの確認が正しくありません。";
 "MasterPasswordDescription" = "マスターパスワードは、パスワード保管庫へのアクセスに使用するパスワードです。マスターパスワードを忘れないように注意してください。忘れた場合、パスワードを回復する方法はありません。";

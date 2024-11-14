@@ -6,4 +6,6 @@ public enum AutofillListMode {
     case combinedSingleSection
     /// The autofill list shows both passwords and Fido2 items grouped per section.
     case combinedMultipleSections
+    /// The autofill list only shows ciphers with totp.
+    case totp
 }

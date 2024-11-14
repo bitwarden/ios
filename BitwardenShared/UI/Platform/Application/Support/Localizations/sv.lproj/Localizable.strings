@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Åtgärd när valvets tidsgräns överskrids";
 "VaultTimeoutLogOutConfirmation" = "Genom att logga ut upphör all åtkomst till valvet och onlineautentisering krävs efter att tidsgränsen överskridits. Är du säker på att du vill använda denna inställning?";
 "LoggingIn" = "Loggar in...";
-"LoginOrCreateNewAccount" = "Logga in eller skapa ett nytt konto för att få tillgång till ditt säkra valv.";
+"LogInToBitwarden" = "Logga in på Bitwarden";
 "Manage" = "Hantera";
 "MasterPasswordConfirmationValMessage" = "Bekräftelsen för huvudlösenordet stämde ej.";
 "MasterPasswordDescription" = "Huvudlösenordet är det lösenord som du använder för att komma åt ditt valv. Det är väldigt viktigt att du inte glömmer bort ditt huvudlösenord, eftersom det inte går att återställa lösenordet om du skulle glömma bort det.";
@@ -1027,7 +1027,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
 "LogInToBitwarden" = "Logga in på Bitwarden";
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
-"LogInToTheBitwardenWebApp" = "**Log in to the Bitwarden web app.**";
+"LogInToTheBitwardenWebApp" = "**Logga in på Bitwardens webbapp.**";
 "ImportLoginsToBitwarden" = "Importera inloggningar till Bitwarden";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "In the Bitwarden navigation, **find the Tools option** and **select Import data.**";
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Fill out the form and **import your saved password file.**";

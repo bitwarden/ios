@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Azione timeout cassaforte";
 "VaultTimeoutLogOutConfirmation" = "Uscire rimuoverà tutti gli accessi alla tua cassaforte e richiede l'autenticazione online dopo il periodo di timeout. Sei sicuro di voler usare questa opzione?";
 "LoggingIn" = "Accesso in corso...";
-"LoginOrCreateNewAccount" = "Entra o crea un nuovo account per accedere alla tua cassaforte.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Gestisci";
 "MasterPasswordConfirmationValMessage" = "Le password principali non corrispondono.";
 "MasterPasswordDescription" = "La password principale ti serve per accedere alla tua cassaforte. È molto importante non dimenticarla. Non possiamo aiutarti a recuperare questa password se la dimentichi.";

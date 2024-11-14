@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Hoidla ajalõpu tegevus";
 "VaultTimeoutLogOutConfirmation" = "Väljalogimine eemaldab hoidlale ligipääsu ning nõuab pärast ajalõpu perioodi uuesti autentimist. Oled kindel, et soovid seda valikut kasutada?";
 "LoggingIn" = "Sisselogimine...";
-"LoginOrCreateNewAccount" = "Logi oma kontosse sisse või loo uus konto.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Halda";
 "MasterPasswordConfirmationValMessage" = "Parooli kinnitus ei ole õige.";
 "MasterPasswordDescription" = "Ülemparool on parool, millega pääsed oma kontole ligi. On äärmiselt tähtis, et ülemparool ei ununeks. Selle parooli taastamine ei ole mingil moel võimalik.";

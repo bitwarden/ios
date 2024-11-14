@@ -43,7 +43,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
             ),
             state: VaultItemSelectionState(
                 iconBaseURL: nil,
-                otpAuthModel: OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete)!
+                totpKeyModel: .fixtureExample
             ),
             userVerificationHelper: userVerificationHelper,
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper

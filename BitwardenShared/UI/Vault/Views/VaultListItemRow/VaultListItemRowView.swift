@@ -145,15 +145,15 @@ struct VaultListItemRowView: View {
             Text(model.totpCode.displayCode)
                 .styleGuide(.bodyMonospaced, weight: .regular, monoSpacedDigit: true)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            Button {
-                Task { @MainActor in
+            if store.state.showTotpCopyButton {
+                Button {
                     store.send(.copyTOTPCode(model.totpCode.code))
+                } label: {
+                    Asset.Images.copy24.swiftUIImage
                 }
-            } label: {
-                Asset.Images.copy24.swiftUIImage
+                .foregroundColor(Asset.Colors.iconPrimary.swiftUIColor)
+                .accessibilityLabel(Localizations.copyTotp)
             }
-            .foregroundColor(Asset.Colors.iconPrimary.swiftUIColor)
-            .accessibilityLabel(Localizations.copyTotp)
         }
     }
 }

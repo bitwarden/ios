@@ -155,7 +155,10 @@ class DefaultMigrationService {
                 // Set access control flags for biometric keys.
                 if let account = itemDictionary[kSecAttrAccount] as? String,
                    account.contains("userKeyBiometricUnlock_"),
-                   let accessControl = try? keychainService.accessControl(for: .biometryCurrentSet) {
+                   let accessControl = try? keychainService.accessControl(
+                       protection: kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                       for: .biometryCurrentSet
+                   ) {
                     attributesToUpdate[kSecAttrAccessControl] = accessControl
                 }
 

@@ -1,6 +1,6 @@
 /// Represents different types of TOTP keys.
 ///
-enum TOTPKey: Equatable, Sendable {
+enum TOTPKey: Equatable, Hashable, Sendable {
     /// An OTP Auth URI
     case otpAuthUri(OTPAuthModel)
 

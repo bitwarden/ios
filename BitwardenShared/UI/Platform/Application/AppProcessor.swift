@@ -407,14 +407,14 @@ extension AppProcessor {
             return AppRoute.tab(.settings(.accountSecurity))
         case BitwardenDeepLinkConstants.authenticatorNewItem:
             guard let item = await services.authenticatorSyncService?.getTemporaryTotpItem(),
-                  let totpKey = item.totpKey,
-                  let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else {
+                  let totpKey = item.totpKey else {
                 coordinator?.showAlert(.defaultAlert(title: Localizations.somethingWentWrong,
                                                      message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
                 return nil
             }
 
-            return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+            let totpKeyModel = TOTPKeyModel(authenticatorKey: totpKey)
+            return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
         default:
             return nil
         }
@@ -428,12 +428,13 @@ extension AppProcessor {
     private func getOtpAuthUrlRoute(url: URL) async -> AppRoute? {
         guard let scheme = url.scheme, scheme.isOtpAuthScheme else { return nil }
 
-        guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
+        let totpKeyModel = TOTPKeyModel(authenticatorKey: url.absoluteString)
+        guard case .otpAuthUri = totpKeyModel.totpKey else {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return nil
         }
 
-        return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+        return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
     }
 
     /// Starts timer to send organization events regularly
@@ -586,20 +587,20 @@ extension AppProcessor: AutofillCredentialServiceDelegate {
 
 extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     var isAutofillingFromList: Bool {
-        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-              fido2AppExtensionDelegate.isAutofillingFido2CredentialFromList else {
+        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+              autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList else {
             return false
         }
         return true
     }
 
     func onNeedsUserInteraction() async throws {
-        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
+        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate else {
             return
         }
 
-        if !fido2AppExtensionDelegate.flowWithUserInteraction {
-            fido2AppExtensionDelegate.setUserInteractionRequired()
+        if !autofillAppExtensionDelegate.flowWithUserInteraction {
+            autofillAppExtensionDelegate.setUserInteractionRequired()
             throw Fido2Error.userInteractionRequired
         }
 
@@ -607,7 +608,7 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
         // action that needs user interaction or it might not show the prompt to the user.
         // E.g. without this there are certain devices that don't show the FaceID prompt
         // and the user only sees the screen dimming a bit and failing the flow.
-        for await didAppear in fido2AppExtensionDelegate.getDidAppearPublisher() {
+        for await didAppear in autofillAppExtensionDelegate.getDidAppearPublisher() {
             guard didAppear else { continue }
             return
         }

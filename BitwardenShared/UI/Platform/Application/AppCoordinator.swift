@@ -137,8 +137,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         // To fix this we show a transparent navigation controller which makes the
         // biometric prompt work again.
         if route == .completeWithNeverUnlockKey,
-           let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-           case .autofillFido2Credential = fido2AppExtensionDelegate.extensionMode {
+           let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+           case .autofillFido2Credential = autofillAppExtensionDelegate.extensionMode {
             showTransparentController()
             didCompleteAuth(rehydratableTarget: nil)
             return
@@ -302,7 +302,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         stackNavigator.modalPresentationStyle = .fullScreen
         let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
         debugMenuCoordinator.start()
-        childCoordinator = debugMenuCoordinator
 
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
@@ -402,11 +401,11 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         }
     }
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         Task {
             await handleAuthEvent(
                 .action(
-                    .lockVault(userId: userId)
+                    .lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
                 )
             )
         }

@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Дія після часу очікування сховища";
 "VaultTimeoutLogOutConfirmation" = "Вихід скасує всі права доступу до вашого сховища і вимагатиме автентифікацію після завершення часу очікування. Ви дійсно хочете використати цей параметр?";
 "LoggingIn" = "Вхід...";
-"LoginOrCreateNewAccount" = "Для доступу до сховища увійдіть в обліковий запис, або створіть новий.";
+"LogInToBitwarden" = "Увійдіть у Bitwarden";
 "Manage" = "Керування";
 "MasterPasswordConfirmationValMessage" = "Підтвердження пароля неправильне.";
 "MasterPasswordDescription" = "Головний пароль використовується для доступу до вашого сховища. Дуже важливо, щоб ви запам'ятали його. Якщо ви забудете головний пароль, його неможливо буде відновити.";
@@ -1025,7 +1025,7 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "Після завершення імпорту видаліть цей файл.";
 "NeedHelpCheckOutImportHelp" = "Потрібна допомога? Ознайомтеся з **[довідкою щодо імпорту](%1$@)**";
 "LogInToBitwarden" = "Увійдіть у Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "На вашому комп'ютері відкрийте нову вкладку браузера і **перейдіть до %1$@**";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "На вашому комп'ютері відкрийте нову вкладку браузера і **перейдіть до %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Увійдіть у вебпрограму Bitwarden.**";
 "ImportLoginsToBitwarden" = "Імпортуйте записи до Bitwarden";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "У меню Bitwarden **знайдіть опцію Інструменти** й **виберіть Імпортувати дані.**";
@@ -1038,7 +1038,7 @@
 "DownloadTheBrowserExtension" = "Завантажте розширення браузера";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Відкрийте bitwarden.com/download, щоб інтегрувати Bitwarden у свій браузер для найкращої продуктивності.";
 "UseTheWebApp" = "Використовуйте вебпрограму";
-"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Увійдіть на bitwarden.com, щоб легко керувати обліковим записом і змінювати налаштування";
+"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Увійдіть на bitwarden.com, щоб легко керувати обліковим записом і змінювати налаштування.";
 "AutofillPasswords" = "Автозаповнення паролів";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Налаштуйте автозаповнення на всіх пристроях для входу одним дотиком.";
 "GotIt" = "Зрозуміло";
@@ -1055,7 +1055,7 @@
 "SomethingWentWrong" = "Щось пішло не так";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Не вдалося перемістити вибраний запис. Повторіть спробу.";
 "Done" = "Виконано";
-"CopyPublicKey" = "Copy public key";
-"CopyPrivateKey" = "Copy private key";
-"CopyFingerprint" = "Copy fingerprint";
-"SSHKeys" = "SSH keys";
+"CopyPublicKey" = "Копіювати відкритий ключ";
+"CopyPrivateKey" = "Копіювати закритий ключ";
+"CopyFingerprint" = "Копіювати відбиток";
+"SSHKeys" = "Ключі SSH";

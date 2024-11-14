@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Akcia pri vypršaní času pre trezor";
 "VaultTimeoutLogOutConfirmation" = "Odhlásenie bude vyžadovať online prihlásenie po vypršaní časového limitu. Naozaj chcete použiť toto nastavenie?";
 "LoggingIn" = "Prihlasovanie...";
-"LoginOrCreateNewAccount" = "Prihláste sa, alebo vytvorte nový účet pre prístup k vášmu bezpečnému trezoru.";
+"LogInToBitwarden" = "Prihlásiť sa do Bitwardenu";
 "Manage" = "Spravovať";
 "MasterPasswordConfirmationValMessage" = "Potvrdenie hesla nie je správne.";
 "MasterPasswordDescription" = "Hlavné heslo je heslo, ktoré použijete na prístup k svojmu trezoru. Je veľmi dôležité, aby ste svoje hlavné heslo nezabudli. Neexistuje možnosť, ako heslo obnoviť v prípade, že ho zabudnete.";
@@ -1058,4 +1058,4 @@
 "CopyPublicKey" = "Kopírovať verejný kľúč";
 "CopyPrivateKey" = "Kopírovať privátny kľúč";
 "CopyFingerprint" = "Kopírovať odtlačok prsta";
-"SSHKeys" = "SSH keys";
+"SSHKeys" = "SSH kľúče";

@@ -9,9 +9,11 @@ import SwiftUI
 public protocol VaultCoordinatorDelegate: AnyObject {
     /// Called when the user locks their vault.
     ///
-    /// - Parameter userId: The id of the account to lock.
+    /// - Parameters:
+    ///   - userId: The user Id of the selected account. Defaults to the active user id if nil.
+    ///   - isManuallyLocking: Whether the user is manually locking the account.
     ///
-    func lockVault(userId: String?)
+    func lockVault(userId: String?, isManuallyLocking: Bool)
 
     /// Called when the user has been logged out.
     ///
@@ -74,6 +76,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasNotificationService
         & HasSettingsRepository
         & HasStateService
+        & HasTOTPExpirationManagerFactory
         & HasTimeProvider
         & HasVaultRepository
         & VaultItemCoordinator.Services
@@ -130,8 +133,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         switch event {
         case let .logout(userId, userInitiated):
             delegate?.logout(userId: userId, userInitiated: userInitiated)
-        case let .lockVault(userId):
-            delegate?.lockVault(userId: userId)
+        case let .lockVault(userId, isManuallyLocking):
+            delegate?.lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
         case let .switchAccount(isAutomatic, userId, authCompletionRoute):
             delegate?.switchAccount(
                 userId: userId,
@@ -189,8 +192,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
-        case let .vaultItemSelection(otpAuthModel):
-            showVaultItemSelection(otpAuthModel: otpAuthModel)
+        case let .vaultItemSelection(totpKeyModel):
+            showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id):
             showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
         case let .switchAccount(userId: userId):
@@ -213,7 +216,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 iconBaseURL: services.environmentService.iconsURL
             )
         )
-        let view = VaultAutofillListView(store: Store(processor: processor))
+        let view = VaultAutofillListView(store: Store(processor: processor), timeProvider: services.timeProvider)
         stackNavigator?.replace(view)
     }
 
@@ -307,9 +310,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the vault item selection screen.
     ///
-    /// - Parameter otpAuthModel: The parsed OTP data to search for matching ciphers.
+    /// - Parameter totpKeyModel: The parsed TOTP data to search for matching ciphers.
     ///
-    func showVaultItemSelection(otpAuthModel: OTPAuthModel) {
+    func showVaultItemSelection(totpKeyModel: TOTPKeyModel) {
         let userVerificationHelper = DefaultUserVerificationHelper(
             authRepository: services.authRepository,
             errorReporter: services.errorReporter,
@@ -322,7 +325,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             services: services,
             state: VaultItemSelectionState(
                 iconBaseURL: services.environmentService.iconsURL,
-                otpAuthModel: otpAuthModel
+                totpKeyModel: totpKeyModel
             ),
             userVerificationHelper: userVerificationHelper,
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(

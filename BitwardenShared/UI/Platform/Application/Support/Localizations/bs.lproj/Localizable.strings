@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Akcija vremenskog ograničenja trezora";
 "VaultTimeoutLogOutConfirmation" = "Odjava će ukloniti svaki pristup vašem trezoru i zahteva mrežnu potvrdu identiteta nakon isteka vremenskog ograničenja. Da li ste sigurni da želite da koristite ovu postavku?";
 "LoggingIn" = "Prijavljivanje…";
-"LoginOrCreateNewAccount" = "Prijavite se ili napravite novi nalog da biste pristupili svom sigurnom trezoru.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Upravljanje";
 "MasterPasswordConfirmationValMessage" = "Potvrda lozinke nije tačna.";
 "MasterPasswordDescription" = "Glavna lozinka je lozinka koju koristite za pristup Vašem trezoru. Veoma je važno da ne zaboravite glavnu lozinku. Ne postoji način da povratite lozinku u slučaju da je zaboravite.";

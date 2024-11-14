@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Vault timeout action";
 "VaultTimeoutLogOutConfirmation" = "Ved å skriva deg ut vil du ikkje lenger ha tilgjenge til kvelvet ditt, og det krevst nettautentisering etter avbrotsbolken. Er du trygg på at du vil bruka denne innstillinga?";
 "LoggingIn" = "Skriv deg inn...";
-"LoginOrCreateNewAccount" = "Skriv deg inn eller oppretta ein ny konto for å få tilgjenge til det trygge kvelvet ditt.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Handsam";
 "MasterPasswordConfirmationValMessage" = "Passorda stemmer ikkje.";
 "MasterPasswordDescription" = "Hovudpassordet er passordet du brukar for å få tilgjenge til kvelvet ditt. Det er veldig viktig at du ikkje gløymer hovudpassordet ditt. Det er umogleg å få tilbake passordet om du so gløymer det.";

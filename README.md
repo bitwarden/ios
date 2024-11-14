@@ -1,8 +1,5 @@
 # Bitwarden iOS
 
-> [!TIP]
-> This repo has the new native iOS app. Looking for the legacy .NET MAUI apps? Head on over to [bitwarden/mobile](https://github.com/bitwarden/mobile)
-
 ## Contents
 
 - [Compatibility](#compatibility)
@@ -47,7 +44,7 @@
     ```
 
     > **Hint**
-    > For development purposes it's possible to use a local build of the Bitwarden SDK by setting the environment variable `LOCAL_SDK` to `true` before running the bootstrap script. Review [Linking SDK to clients](https://contributing.bitwarden.com/getting-started/sdk/#linking-the-sdk-to-clients) for more details.
+    > For development purposes it's possible to use a local build of the Bitwarden SDK by setting the environment variable `LOCAL_SDK` to `true` before running the bootstrap script. Review [Linking SDK to clients](https://contributing.bitwarden.com/getting-started/sdk/internal/#linking-the-sdk-to-clients) for more details.
 
     > **Note**
     > Because `Scripts/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
@@ -133,15 +130,6 @@ The following dependencies are used in the development environment only. They ar
 - **XcodeGen**
     - https://github.com/yonaskolb/XcodeGen
     - Purpose: Generates the Xcode project using the folder structure and a project spec.
-    - License: MIT
-
-### CI/CD Dependencies
-
-The following is a list of additional third-party dependencies used as part of the CI/CD workflows. These are not present in the final packaged application.
-
-- **yeetd**
-    - https://github.com/biscuitehh/yeetd
-    - Purpose: Improves the performance of Xcode 15 simulators while executing unit tests in a CI environment.
     - License: MIT
 
 ## Project Structure

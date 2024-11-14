@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Kluis-uittelaksie";
 "VaultTimeoutLogOutConfirmation" = "Deur uit te teken word alle toegang tot u kluis verwyder en word waarmerking na die uitteltydperk vereis. Is u seker u wil hierdie instelling gebruik?";
 "LoggingIn" = "Teken tans aan…";
-"LoginOrCreateNewAccount" = "Teken aan of skep ’n nuwe rekening vir toegang tot u beveiligde kluis.";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Bestuur";
 "MasterPasswordConfirmationValMessage" = "Wagwoordbevestiging is verkeerd.";
 "MasterPasswordDescription" = "Die hoofwagwoord is die wagwoord wat u gebruik vir toegang tot die kluis. Dit is baie belangrik dat u dit onthou. Dit kan op geen manier teruggevind word indien u dit vergeet nie.";

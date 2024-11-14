@@ -113,7 +113,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
     /// When the user has subscribed to sync and has an unlocked vault, the
     /// `createAuthenticatorVaultKeyIfNeeded` method successfully handles an
-    /// error in retrieving the user's vault key..
+    /// error in retrieving the user's vault key.
     ///
     @MainActor
     func test_createAuthenticatorVaultKeyIfNeeded_cryptoError() async throws {
@@ -145,7 +145,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
     /// When the user has subscribed to sync and has an unlocked vault, the
     /// `createAuthenticatorVaultKeyIfNeeded` method successfully handles an
-    /// error in storing the user's vault key in the keychain..
+    /// error in storing the user's vault key in the keychain.
     ///
     @MainActor
     func test_createAuthenticatorVaultKeyIfNeeded_keychainError() async throws {
@@ -708,6 +708,40 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.id, "1234")
     }
 
+    /// Verifies that the AuthSyncService uses the previously stored AuthenticatorVaultKey
+    /// when the user's vault is locked at the initial startup of the service - i.e. if the  AuthenticatorVaultKey
+    /// exists, there's no need to wait for vault unlock.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_vaultLockedAtStartup() async throws {
+        setupInitialState(vaultLocked: true)
+        let key = try await clientService.crypto().getUserEncryptionKey()
+        try await keychainRepository.setAuthenticatorVaultKey(key, userId: "1")
+        await subject.start()
+
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+        cipherDataStore.cipherSubjectByUserId["1"]?.send([
+            .fixture(
+                id: "1234",
+                login: .fixture(
+                    username: "masked@example.com",
+                    totp: "totp"
+                )
+            ),
+        ])
+
+        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+
+        let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
+        XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
+        XCTAssertEqual(item.accountEmail, "user@bitwarden.com")
+        XCTAssertEqual(item.favorite, false)
+        XCTAssertEqual(item.id, "1234")
+        XCTAssertEqual(item.name, "Bitwarden")
+        XCTAssertEqual(item.totpKey, "totp")
+        XCTAssertEqual(item.username, "masked@example.com")
+    }
+
     /// When the `AuthenticatorBridgeItemService` throws an error , `getTemporaryTotpItem()`  returns `nil`.
     ///
     @MainActor
@@ -876,7 +910,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     }
 
     /// Verify that `writeCiphers()` correctly catches and logs errors that occur in `decryptTOTPs`. The user's vault is
-    /// re-locked at the end of error handling..
+    /// re-locked at the end of error handling.
     ///
     @MainActor
     func test_writeCiphers_vaultLockedDecryptTOTPsError() async throws {
