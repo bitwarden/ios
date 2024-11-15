@@ -1932,6 +1932,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "1"
         )
         cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        cipherService.fetchCipherResult = .success(cipherAfterAttachmentSave)
         clientService.mockVault.clientCiphers.moveToOrganizationResult = .success(
             CipherView(cipher: cipherAfterAttachmentDelete)
         )

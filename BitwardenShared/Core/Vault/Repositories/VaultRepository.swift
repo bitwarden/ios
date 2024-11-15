@@ -65,15 +65,12 @@ public protocol VaultRepository: AnyObject {
     /// - Parameters:
     ///   - attachment: The attachment to download.
     ///   - cipher: The cipher the attachment belongs to.
-    ///   - shouldUpdate: If true, the SDK will add an encryption key to the cipher if it doesn't have one,
-    ///   re-encrypt it, and update it on the server.
     ///
     /// - Returns: The url of the temporary location of downloaded and decrypted data on the user's device.
     ///
     func downloadAttachment(
         _ attachment: AttachmentView,
-        cipher: CipherView,
-        shouldUpdate: Bool
+        cipher: CipherView
     ) async throws -> URL?
 
     /// Attempt to fetch a cipher with the given id.
@@ -439,8 +436,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ) async throws -> CipherView {
         guard let downloadUrl = try await downloadAttachment(
             attachment,
-            cipher: cipher,
-            shouldUpdate: true
+            cipher: cipher
         ) else {
             throw BitwardenError.dataError("Unable to download attachment")
         }
@@ -1036,26 +1032,16 @@ extension DefaultVaultRepository: VaultRepository {
         try await stateService.doesActiveAccountHavePremium()
     }
 
-    func downloadAttachment(
-        _ attachmentView: AttachmentView,
-        cipher: CipherView,
-        shouldUpdate: Bool = false
-    ) async throws -> URL? {
+    func downloadAttachment(_ attachmentView: AttachmentView, cipher: CipherView) async throws -> URL? {
         let userId = try await stateService.getActiveAccountId()
 
         guard let attachmentId = attachmentView.id,
               let attachmentName = attachmentView.fileName,
               let cipherId = cipher.id
         else { throw BitwardenError.dataError("Missing data") }
-        let encryptedCipher: Cipher
-        if shouldUpdate {
-            // Get the encrypted cipher and attachment, then download the actual data of the attachment.
-            encryptedCipher = try await encryptAndUpdateCipher(cipher)
-        } else {
-            guard let fetchedCipher = try await cipherService.fetchCipher(withId: cipherId) else {
-                throw BitwardenError.dataError("Missing data")
-            }
-            encryptedCipher = fetchedCipher
+
+        guard let encryptedCipher = try await cipherService.fetchCipher(withId: cipherId) else {
+            throw BitwardenError.dataError("Unable to fetch cipher with ID \(cipherId)")
         }
 
         guard let attachment = encryptedCipher.attachments?.first(where: { $0.id == attachmentId }),

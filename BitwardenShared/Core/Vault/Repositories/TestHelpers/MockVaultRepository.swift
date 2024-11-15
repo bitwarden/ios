@@ -155,11 +155,7 @@ class MockVaultRepository: VaultRepository {
         return try doesActiveAccountHavePremiumResult.get()
     }
 
-    func downloadAttachment(
-        _ attachment: AttachmentView,
-        cipher _: CipherView,
-        shouldUpdate: Bool
-    ) async throws -> URL? {
+    func downloadAttachment(_ attachment: AttachmentView, cipher _: CipherView) async throws -> URL? {
         downloadAttachmentAttachment = attachment
         return try downloadAttachmentResult.get()
     }
