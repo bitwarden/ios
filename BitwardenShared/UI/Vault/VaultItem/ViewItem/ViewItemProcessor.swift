@@ -269,7 +269,8 @@ private extension ViewItemProcessor {
 
             guard let temporaryUrl = try await services.vaultRepository.downloadAttachment(
                 attachment,
-                cipher: cipherState.cipher
+                cipher: cipherState.cipher,
+                shouldUpdate: false
             ) else {
                 return coordinator.showAlert(.defaultAlert(title: Localizations.unableToDownloadFile))
             }

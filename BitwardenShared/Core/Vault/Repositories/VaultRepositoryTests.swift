@@ -565,15 +565,25 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
         try Data("🪿".utf8).write(to: downloadUrl)
         cipherService.downloadAttachmentResult = .success(downloadUrl)
-        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
-        let cipher = CipherView.fixture(attachments: [attachment])
 
+        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
+        let cipherView = CipherView.fixture(
+            attachments: [attachment],
+            id: "2"
+        )
+        let cipher = Cipher.fixture(
+            attachments: [Attachment(attachmentView: attachment)],
+            id: "2",
+            key: "new key"
+        )
+        cipherService.fetchCipherResult = .success(cipher)
         // Test.
-        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipher)
+        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
 
         // Confirm the results.
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipher)
+
         XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
+        XCTAssertEqual(cipherService.fetchCipherId, cipher.id)
         XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
@@ -588,23 +598,25 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `downloadAttachment(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
     func test_downloadAttachment_updatesMigratedCipher() async throws {
         stateService.activeAccount = .fixture()
+
         let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
         try Data("🪿".utf8).write(to: downloadUrl)
-        cipherService.downloadAttachmentResult = .success(downloadUrl)
+
         let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
         let cipherView = CipherView.fixture(attachments: [attachment])
         let cipher = Cipher.fixture(
             attachments: [Attachment(attachmentView: attachment)],
+            id: "1",
             key: "new key"
         )
-        clientCiphers.encryptCipherResult = .success(cipher)
+        cipherService.downloadAttachmentResult = .success(downloadUrl)
+        cipherService.fetchCipherResult = .success(cipher)
 
         let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
 
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipherView)
         XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
         XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
-        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.fetchCipherId, cipher.id)
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
 
