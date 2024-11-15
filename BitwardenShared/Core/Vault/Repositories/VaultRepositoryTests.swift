@@ -590,14 +590,16 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `downloadAttachment(_:cipher:)` throws an error for nil id's.
     func test_downloadAttachment_nilId() async throws {
-        await assertAsyncThrows {
+        await assertAsyncThrows(error: BitwardenError.dataError("Missing data")) {
+            stateService.activeAccount = .fixture()
             _ = try await subject.downloadAttachment(.fixture(id: nil), cipher: .fixture(id: nil))
         }
     }
 
     /// `downloadAttachment(_:cipher:)` throws an error if the cipher can't be found in local data storage.
     func test_downloadAttachment_cipherNotFound() async throws {
-        await assertAsyncThrows {
+        await assertAsyncThrows(error: BitwardenError.dataError("Unable to fetch cipher with ID 2")) {
+            stateService.activeAccount = .fixture()
             let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
             let cipherView = CipherView.fixture(
                 attachments: [attachment],
@@ -605,31 +607,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             )
             _ = try await subject.downloadAttachment(attachment, cipher: cipherView)
         }
-    }
-
-    /// `downloadAttachment(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
-    func test_downloadAttachment_updatesMigratedCipher() async throws {
-        stateService.activeAccount = .fixture()
-
-        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
-        try Data("🪿".utf8).write(to: downloadUrl)
-
-        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
-        let cipherView = CipherView.fixture(attachments: [attachment])
-        let cipher = Cipher.fixture(
-            attachments: [Attachment(attachmentView: attachment)],
-            id: "1",
-            key: "new key"
-        )
-        cipherService.downloadAttachmentResult = .success(downloadUrl)
-        cipherService.fetchCipherResult = .success(cipher)
-
-        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
-
-        XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
-        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
-        XCTAssertEqual(cipherService.fetchCipherId, cipher.id)
-        XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
 
     /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
