@@ -595,6 +595,18 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         }
     }
 
+    /// `downloadAttachment(_:cipher:)` throws an error if the cipher can't be found in local data storage.
+    func test_downloadAttachment_cipherNotFound() async throws {
+        await assertAsyncThrows {
+            let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
+            let cipherView = CipherView.fixture(
+                attachments: [attachment],
+                id: "2"
+            )
+            _ = try await subject.downloadAttachment(attachment, cipher: cipherView)
+        }
+    }
+
     /// `downloadAttachment(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
     func test_downloadAttachment_updatesMigratedCipher() async throws {
         stateService.activeAccount = .fixture()

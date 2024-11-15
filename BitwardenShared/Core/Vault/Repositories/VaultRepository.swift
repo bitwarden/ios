@@ -65,11 +65,16 @@ public protocol VaultRepository: AnyObject {
     /// - Parameters:
     ///   - attachment: The attachment to download.
     ///   - cipher: The cipher the attachment belongs to.
-    ///   - shouldUpdate: If true, the SDK will add an encryption key to the cipher if it doesn't have one, re-encrypt it, and update it on the server.
+    ///   - shouldUpdate: If true, the SDK will add an encryption key to the cipher if it doesn't have one,
+    ///   re-encrypt it, and update it on the server.
     ///
     /// - Returns: The url of the temporary location of downloaded and decrypted data on the user's device.
     ///
-    func downloadAttachment(_ attachment: AttachmentView, cipher: CipherView, shouldUpdate: Bool) async throws -> URL?
+    func downloadAttachment(
+        _ attachment: AttachmentView,
+        cipher: CipherView,
+        shouldUpdate: Bool
+    ) async throws -> URL?
 
     /// Attempt to fetch a cipher with the given id.
     ///
