@@ -10,7 +10,7 @@ open class BitwardenTestCase: XCTestCase {
     @MainActor
     override open class func setUp() {
         let shouldSkipSimulatorCheck = ProcessInfo.processInfo.environment["SKIP_SIMULATOR_CHECK_FOR_TESTS"] == "true"
-        let isCorrectSimulator = UIDevice.current.name == "iPhone 16 Pro" && UIDevice.current.systemVersion != "18.1"
+        let isCorrectSimulator = UIDevice.current.name == "iPhone 16 Pro" && UIDevice.current.systemVersion == "18.1"
         if !shouldSkipSimulatorCheck, !isCorrectSimulator {
             assertionFailure(
                 """
