@@ -978,7 +978,7 @@
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Zopakujte registráciu alebo sa pokúste prihlásiť. Možno už účet máte.";
 "RemovePasskey" = "Odstrániť prístupový kľúč";
 "PasskeyRemoved" = "Prístupový kľúč bol odstránený";
-"SSHKey" = "SSH kľúč";
+"SSHKey" = "Kľúč SSH";
 "PrivateKey" = "Súkromný kľúč";
 "PublicKey" = "Verejný kľúč";
 "TheRegionForTheGivenEmailCouldNotBeLoaded" = "Oblasť pre daný e-mail sa nepodarilo načítať.";
@@ -1056,6 +1056,6 @@
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Nepodarilo sa presunúť vybranú položku. Skúste to znova, prosím.";
 "Done" = "Hotovo";
 "CopyPublicKey" = "Kopírovať verejný kľúč";
-"CopyPrivateKey" = "Kopírovať privátny kľúč";
+"CopyPrivateKey" = "Kopírovať súkromný kľúč";
 "CopyFingerprint" = "Kopírovať odtlačok prsta";
-"SSHKeys" = "SSH kľúče";
+"SSHKeys" = "Kľúče SSH";
