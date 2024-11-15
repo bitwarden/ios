@@ -8,18 +8,17 @@
 
 set -euo pipefail
 
-bold=$(tput -T ansi bold)
-normal=$(tput -T ansi sgr0)
-
 BUILD_DIR="build"
 
 ARCHIVE_PATH="${BUILD_DIR}/Bitwarden.xcarchive"
 EXPORT_PATH="${BUILD_DIR}/Bitwarden"
 
 echo "🧱 Building in $(pwd)"
+echo "🧱 Archive path ${ARCHIVE_PATH}"
+echo "🧱 Export path ${EXPORT_PATH}"
 echo ""
 
-echo "🌱 Generating xcode project"
+echo "🌱 Generating Xcode project"
 mint run xcodegen
 
 mkdir -p "${BUILD_DIR}"

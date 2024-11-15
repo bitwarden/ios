@@ -1,27 +1,22 @@
 #!/usr/bin/env bash
 #
-# Builds the beta Bitwarden iOS app, and outputs an IPA file that can be uploaded to TestFlight.
+# Builds the beta Bitwarden iOS app in Debug mode for the iOS Simulator, for ease of automated testing.
 #
 # Usage:
 #
-#   $ ./build.sh
+#   $ ./build-sim.sh
 
 set -euo pipefail
 
-bold=$(tput -T ansi bold)
-normal=$(tput -T ansi sgr0)
-
 BUILD_DIR="build"
-
-ARCHIVE_PATH="${BUILD_DIR}/Bitwarden-Sim.xcarchive"
-EXPORT_PATH="${BUILD_DIR}/Bitwarden-Sim"
-BUNDLE_PATH="${BUILD_DIR}/Bitwarden-Bundle"
+DERIVED_DATA_PATH="${BUILD_DIR}/DerivedData"
 
 echo "🧱 Building in $(pwd)"
+echo "🧱 Derived Data path ${DERIVED_DATA_PATH}"
 echo ""
 
-echo "🌱 Generating xcode project"
-# mint run xcodegen
+echo "🌱 Generating Xcode project"
+mint run xcodegen
 
 mkdir -p "${BUILD_DIR}"
 
@@ -30,25 +25,8 @@ xcrun xcodebuild \
   -project Bitwarden.xcodeproj \
   -scheme Bitwarden \
   -configuration Debug \
-  -destination "platform=iOS Simulator" \
-  -derivedDataPath "build/Derived" \
-  | xcbeautify #--renderer github-actions
-echo ""
+  -destination "platform=iOS Simulator,OS=18.1,name=iPhone 16" \
+  -derivedDataPath "${DERIVED_DATA_PATH}" \
+  | xcbeautify --renderer github-actions
 
-# echo "🔨 Performing Xcode archive"
-# xcrun xcodebuild archive \
-#   -project Bitwarden.xcodeproj \
-#   -scheme Bitwarden \
-#   -configuration Release \
-#   -archivePath "${ARCHIVE_PATH}" \
-#   | xcbeautify --renderer github-actions
-# echo ""
-
-# echo "📦 Performing Xcode archive export"
-# xcrun xcodebuild -exportArchive \
-#   -archivePath "${ARCHIVE_PATH}" \
-#   -exportPath "${EXPORT_PATH}" \
-#   -exportOptionsPlist "Configs/export_options.plist" \
-#   | xcbeautify --renderer github-actions
-
-# echo "🎉 Build complete"
+echo "🎉 Build complete"
