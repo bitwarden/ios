@@ -216,7 +216,7 @@ class DefultExportVaultService: ExportVaultService {
         guard let cxfData = serializedCXF.data(using: .utf8) else {
             throw ExportVaultServiceError.cxpSerializedNotInUTF8
         }
-        return try JSONDecoder().decode(ASImportableAccount.self, from: cxfData)
+        return try JSONDecoder.cxpDecoder.decode(ASImportableAccount.self, from: cxfData)
     }
 
     func generateExportFileName(
