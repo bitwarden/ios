@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Aktion bei Tresor-Timeout";
 "VaultTimeoutLogOutConfirmation" = "Nach dem Ausloggen verlierest du jeglichen Zugriff auf deinen Tresor und es ist nach Ablauf der Timeout-Zeit eine Online-Authentifizierung erforderlich. Bist du sicher, dass du diese Einstellung nutzen möchten?";
 "LoggingIn" = "Anmeldung läuft...";
-"LoginOrCreateNewAccount" = "Melde dich an oder erstelle ein neues Konto, um auf deinen Tresor zuzugreifen.";
+"LogInToBitwarden" = "Bei Bitwarden anmelden";
 "Manage" = "Verwalten";
 "MasterPasswordConfirmationValMessage" = "Passwortbestätigung ist nicht korrekt.";
 "MasterPasswordDescription" = "Das Master-Passwort wird verwendet, um den Tresor zu öffnen. Es ist sehr wichtig, dass du das Passwort nicht vergisst, da es keine Möglichkeit gibt es zurückzusetzen.";
@@ -1049,8 +1049,13 @@
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Kein Konto gefunden. Bitte melde dich erneut an, wenn du diesen Fehler weiterhin siehst.";
 "ImportError" = "Importfehler";
 "NoLoginsWereImported" = "Es wurden keine Zugangsdaten importiert";
-"ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
+"ThisIsNotARecognizedServerDescriptionLong" = "Dies ist kein anerkannter Bitwarden-Server. Möglicherweise musst du dich bei deinem Anbieter erkundigen oder deinen Server aktualisieren.";
 "LoginsImported" = "Zugangsdaten importiert";
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Vergiss nicht, deine importierte Passwortdatei von deinem Computer zu löschen.";
 "SomethingWentWrong" = "Etwas ist schiefgelaufen";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Der ausgewählte Eintrag konnte nicht verschoben werden. Bitte versuche es erneut.";
+"Done" = "Fertig";
+"CopyPublicKey" = "Öffentlichen Schlüssel kopieren";
+"CopyPrivateKey" = "Privaten Schlüssel kopieren";
+"CopyFingerprint" = "Fingerabdruck kopieren";
+"SSHKeys" = "SSH-Schlüssel";

@@ -51,7 +51,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     AddEditItemState,
     AddEditItemAction,
     AddEditItemEffect
-> {
+>, Rehydratable {
     // MARK: Types
 
     typealias Services = HasAPIService
@@ -62,11 +62,19 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasFido2UserInterfaceHelper
         & HasPasteboardService
         & HasPolicyService
+        & HasRehydrationHelper
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
 
-    // MARK: Properties
+    // MARK: Public properties
+
+    var rehydrationState: RehydrationState? {
+        guard let id = state.cipher.id else { return nil }
+        return RehydrationState(target: .editCipher(cipherId: id))
+    }
+
+    // MARK: Private Properties
 
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
@@ -104,6 +112,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
 
         super.init(state: state)
+
+        if !state.configuration.isAdding {
+            Task {
+                await self.services.rehydrationHelper.addRehydratableTarget(self)
+            }
+        }
     }
 
     // MARK: Methods
@@ -593,8 +607,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Adds the item currently in `state`.
     ///
     private func addItem(fido2UserVerified: Bool) async throws {
-        if let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-           fido2AppExtensionDelegate.isCreatingFido2Credential {
+        if let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+           autofillAppExtensionDelegate.isCreatingFido2Credential {
             services.fido2UserInterfaceHelper.pickedCredentialForCreation(
                 result: .success(
                     CheckUserAndPickCredentialForCreationResult(
@@ -613,8 +627,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Checks user verification if needed on Fido2 flows.
     private func fido2CheckUserIfNeeded() async throws -> Bool {
-        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-              fido2AppExtensionDelegate.isCreatingFido2Credential,
+        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+              autofillAppExtensionDelegate.isCreatingFido2Credential,
               let fido2CreationOptions = services.fido2UserInterfaceHelper.fido2CreationOptions else {
             return false
         }

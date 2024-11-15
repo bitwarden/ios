@@ -9,23 +9,27 @@ class VaultCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var delegate: MockVaultCoordinatorDelegate!
+    var errorReporter: MockErrorReporter!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: VaultCoordinator!
+    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
+        errorReporter = MockErrorReporter()
         delegate = MockVaultCoordinatorDelegate()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
+        vaultRepository = MockVaultRepository()
         subject = VaultCoordinator(
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: delegate,
             module: module,
-            services: ServiceContainer.withMocks(),
+            services: ServiceContainer.withMocks(errorReporter: errorReporter, vaultRepository: vaultRepository),
             stackNavigator: stackNavigator
         )
     }
@@ -34,9 +38,11 @@ class VaultCoordinatorTests: BitwardenTestCase {
         super.tearDown()
 
         delegate = nil
+        errorReporter = nil
         module = nil
         stackNavigator = nil
         subject = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
@@ -113,6 +119,43 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(.fixture(), true))
     }
 
+    /// `.navigate(to:)` with `.editItemFrom` presents the edit item screen.
+    @MainActor
+    func test_navigateTo_editItemFrom() throws {
+        vaultRepository.fetchCipherResult = .success(.fixture())
+        subject.navigate(to: .editItemFrom(id: "1"))
+
+        waitFor(!stackNavigator.actions.isEmpty)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .editItem(.fixture(), true))
+    }
+
+    /// `.navigate(to:)` with `.editItemFrom` doesn't find the cipher id so it doesn't navigate there.
+    @MainActor
+    func test_navigateTo_editItemFromNotFound() throws {
+        vaultRepository.fetchCipherResult = .success(nil)
+        subject.navigate(to: .editItemFrom(id: "1"))
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+        XCTAssertTrue(!module.vaultItemCoordinator.isStarted)
+    }
+
+    /// `.navigate(to:)` with `.editItemFrom` throws fetching the cipher and it gets logged.
+    @MainActor
+    func test_navigateTo_editItemFromThrowsInternallyAndLogs() throws {
+        vaultRepository.fetchCipherResult = .failure(BitwardenTestError.example)
+        subject.navigate(to: .editItemFrom(id: "1"))
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
+        XCTAssertTrue(!module.vaultItemCoordinator.isStarted)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `navigate(to:)` with `.dismiss` dismisses the top most view presented by the stack
     /// navigator.
     @MainActor
@@ -166,6 +209,18 @@ class VaultCoordinatorTests: BitwardenTestCase {
         }
         waitFor(delegate.lockVaultId == "123")
         task.cancel()
+        XCTAssertFalse(delegate.hasManuallyLocked)
+    }
+
+    /// `navigate(to:)` with `.lockVault` calls the delegate to handle locking the vault manually.
+    @MainActor
+    func test_navigateTo_lockVaultManually() throws {
+        let task = Task {
+            await subject.handleEvent(.lockVault(userId: "123", isManuallyLocking: true))
+        }
+        waitFor(delegate.lockVaultId == "123")
+        task.cancel()
+        XCTAssertTrue(delegate.hasManuallyLocked)
     }
 
     /// `navigate(to:)` with `.loginRequest` calls the delegate method.
@@ -212,8 +267,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.
     @MainActor
     func test_navigateTo_vaultItemSelection() throws {
-        let otpAuthModel = try XCTUnwrap(OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete))
-        subject.navigate(to: .vaultItemSelection(otpAuthModel))
+        subject.navigate(to: .vaultItemSelection(.fixtureExample))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -260,6 +314,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var addAccountTapped = false
     var accountTapped = [String]()
+    var hasManuallyLocked = false
     var lockVaultId: String?
     var logoutTapped = false
     var logoutUserId: String?
@@ -270,8 +325,9 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var switchedAccounts = false
     var userInitiated: Bool?
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         lockVaultId = userId
+        hasManuallyLocked = isManuallyLocking
     }
 
     func logout(userId: String?, userInitiated: Bool) {

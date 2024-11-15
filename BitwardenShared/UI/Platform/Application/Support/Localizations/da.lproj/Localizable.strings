@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "Boks-timeout handling";
 "VaultTimeoutLogOutConfirmation" = "Udlogning vil fjerne al adgang til din boks og vil kræve online-godkendelse efter timeout-perioden. Sikker på, at du vil benytte denne indstilling?";
 "LoggingIn" = "Logger ind...";
-"LoginOrCreateNewAccount" = "Log ind, eller opret en ny konto, for at tilgå din sikre boks.";
+"LogInToBitwarden" = "Log ind på Bitwarden";
 "Manage" = "Håndtér";
 "MasterPasswordConfirmationValMessage" = "Adgangskodebekræftelse er forkert.";
 "MasterPasswordDescription" = "Hovedadgangskoden er den adgangskode, du benytter for at tilgå din boks. Det er meget vigtigt, at du ikke glemmer din hovedadgangskode. Der er ingen måde, hvorpå koden kan genoprettes, dersom du glemmer den.";
@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Husk at slette den importerede adgangskodefil fra computeren.";
 "SomethingWentWrong" = "Noget gik galt";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Det valgte element kan ikke flyttes. Forsøg igen.";
+"Done" = "Færdig";
+"CopyPublicKey" = "Kopiér offentlig nøgle";
+"CopyPrivateKey" = "Kopiér privat nøgle";
+"CopyFingerprint" = "Kopiér fingeraftryk";
+"SSHKeys" = "SSH-nøgler";

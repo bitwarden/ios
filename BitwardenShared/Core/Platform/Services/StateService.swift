@@ -29,6 +29,13 @@ protocol StateService: AnyObject {
     ///
     func deleteAccount() async throws
 
+    /// Returns whether the active account was switched in the extension. This compares the current
+    /// active account in memory with what's stored on disk to determine if the account was switched.
+    ///
+    /// - Returns: Whether the active was switched in the extension.
+    ///
+    func didAccountSwitchInExtension() async throws -> Bool
+
     /// Returns whether the active user account has access to premium features.
     ///
     /// - Returns: Whether the active account has access to premium features.
@@ -111,6 +118,11 @@ protocol StateService: AnyObject {
     /// - Returns: The allow sync on refresh value.
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
+
+    /// Gets the app rehydration state.
+    /// - Parameter userId: The user ID associated with this state.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState?
 
     /// Get the app theme.
     ///
@@ -211,6 +223,11 @@ protocol StateService: AnyObject {
     /// - Returns: The pending login request data from a push notification.
     ///
     func getLoginRequest() async -> LoginRequestNotification?
+
+    /// Gets whether the account belonging to the user Id has been manually locked.
+    /// - Parameter userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool
 
     /// Gets the master password hash for a user ID.
     ///
@@ -504,6 +521,13 @@ protocol StateService: AnyObject {
     ///
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async
 
+    /// Sets whether the account belonging to the user Id has been manually locked.
+    /// - Parameters
+    ///   - isLocked: Whether the account has been locked manually.
+    ///   - userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws
+
     /// Sets the master password hash for a user ID.
     ///
     /// - Parameters:
@@ -563,6 +587,12 @@ protocol StateService: AnyObject {
     /// Sets the server config used prior to user authentication
     /// - Parameter config: The server config to use prior to user authentication.
     func setPreAuthServerConfig(config: ServerConfig) async
+
+    /// Sets the app rehydration state for the active account.
+    /// - Parameters:
+    ///   - rehydrationState: The app rehydration state.
+    ///   - userId: The user ID of the rehydration state.
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
 
     /// Sets the server configuration as provided by a server for a user ID.
     ///
@@ -773,6 +803,12 @@ extension StateService {
     ///
     func getAllowSyncOnRefresh() async throws -> Bool {
         try await getAllowSyncOnRefresh(userId: nil)
+    }
+
+    /// Gets the app rehydration state for the active account.
+    /// - Returns: The rehydration state.
+    func getAppRehydrationState() async throws -> AppRehydrationState? {
+        try await getAppRehydrationState(userId: nil)
     }
 
     /// Gets the clear clipboard value for the active account.
@@ -1083,6 +1119,14 @@ extension StateService {
         try await setPasswordGenerationOptions(options, userId: nil)
     }
 
+    /// Sets the app rehydration state for the active account.
+    ///
+    /// - Parameter rehydrationState: The app rehydration state.
+    ///
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?) async throws {
+        try await setAppRehydrationState(rehydrationState, userId: nil)
+    }
+
     /// Sets the server config for the active account.
     ///
     /// - Parameter config: The server config.
@@ -1272,6 +1316,18 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         try await logoutAccount(userInitiated: true)
     }
 
+    func didAccountSwitchInExtension() async throws -> Bool {
+        do {
+            return try getActiveAccountUserId() != appSettingsStore.cachedActiveUserId
+        } catch StateServiceError.noActiveAccount {
+            let cachedActiveUserId = appSettingsStore.cachedActiveUserId
+            // If the user was logged out in the extension, but there's a cached active user,
+            // reset the state to update the cached active user.
+            appSettingsStore.state = appSettingsStore.state
+            return cachedActiveUserId != nil
+        }
+    }
+
     func doesActiveAccountHavePremium() async throws -> Bool {
         let account = try await getActiveAccount()
         let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
@@ -1348,6 +1404,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
     }
 
+    func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.appRehydrationState(userId: userId)
+    }
+
     func getAppTheme() async -> AppTheme {
         AppTheme(appSettingsStore.appTheme)
     }
@@ -1407,6 +1468,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getLoginRequest() async -> LoginRequestNotification? {
         appSettingsStore.loginRequest
+    }
+
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.manuallyLockedAccount(userId: userId)
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -1664,6 +1730,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.loginRequest = loginRequest
     }
 
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setManuallyLockedAccount(isLocked, userId: userId)
+    }
+
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setMasterPasswordHash(hash, userId: userId)
@@ -1712,6 +1783,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setPreAuthServerConfig(config: ServerConfig) async {
         appSettingsStore.preAuthServerConfig = config
+    }
+
+    func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {

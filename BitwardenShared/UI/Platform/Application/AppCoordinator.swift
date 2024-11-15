@@ -81,6 +81,16 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             await handleAuthEvent(.didTimeout(userId: userId))
         case let .setAuthCompletionRoute(route):
             authCompletionRoute = route
+        case let .switchAccounts(userId, isAutomatic):
+            await handleAuthEvent(
+                .action(
+                    .switchAccount(
+                        isAutomatic: isAutomatic,
+                        userId: userId,
+                        authCompletionRoute: nil
+                    )
+                )
+            )
         }
     }
 
@@ -127,10 +137,10 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         // To fix this we show a transparent navigation controller which makes the
         // biometric prompt work again.
         if route == .completeWithNeverUnlockKey,
-           let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-           case .autofillFido2Credential = fido2AppExtensionDelegate.extensionMode {
+           let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+           case .autofillFido2Credential = autofillAppExtensionDelegate.extensionMode {
             showTransparentController()
-            didCompleteAuth()
+            didCompleteAuth(rehydratableTarget: nil)
             return
         }
 
@@ -207,7 +217,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: route)
         } else {
             guard let rootNavigator else { return }
-            let tabNavigator = UITabBarController()
+            let tabNavigator = BitwardenTabBarController()
             let coordinator = module.makeTabCoordinator(
                 errorReporter: services.errorReporter,
                 rootNavigator: rootNavigator,
@@ -292,7 +302,6 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         stackNavigator.modalPresentationStyle = .fullScreen
         let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
         debugMenuCoordinator.start()
-        childCoordinator = debugMenuCoordinator
 
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
@@ -305,7 +314,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 // MARK: - AuthCoordinatorDelegate
 
 extension AppCoordinator: AuthCoordinatorDelegate {
-    func didCompleteAuth() {
+    func didCompleteAuth(rehydratableTarget: RehydratableTarget?) {
         appExtensionDelegate?.didCompleteAuth()
 
         switch appContext {
@@ -319,6 +328,18 @@ extension AppCoordinator: AuthCoordinatorDelegate {
             navigate(to: route)
         case .mainApp:
             showTab(route: .vault(.list))
+
+            if let rehydratableTarget {
+                navigate(to: rehydratableTarget.appRoute)
+                Task {
+                    do {
+                        try await services.rehydrationHelper.clearAppRehydrationState()
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                }
+                return
+            }
 
             if let authCompletionRoute {
                 navigate(to: authCompletionRoute)
@@ -380,11 +401,11 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         }
     }
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         Task {
             await handleAuthEvent(
                 .action(
-                    .lockVault(userId: userId)
+                    .lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
                 )
             )
         }

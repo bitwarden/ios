@@ -223,3 +223,27 @@ class CipherViewTests: BitwardenTestCase {
         )
     }
 }
+
+// MARK: - Collection
+
+class BitwardenSdkVaultBitwardenCollectionTests: BitwardenTestCase { // swiftlint:disable:this type_name
+    /// `init(collectionDetailsResponseModel:)` sets `manage` with the value in the model
+    /// if the server sent a value
+    func test_init_manageNotNull() {
+        let trueManage = CollectionDetailsResponseModel.fixture(manage: true)
+        XCTAssertTrue(Collection(collectionDetailsResponseModel: trueManage).manage)
+
+        let falseManage = CollectionDetailsResponseModel.fixture(manage: false)
+        XCTAssertFalse(Collection(collectionDetailsResponseModel: falseManage).manage)
+    }
+
+    /// `init(collectionDetailsResponseModel:)` sets `manage` based on `readOnly`
+    /// if the server did not send a value for `manage`
+    func test_init_manageNull() {
+        let trueReadOnly = CollectionDetailsResponseModel.fixture(manage: nil, readOnly: true)
+        XCTAssertFalse(Collection(collectionDetailsResponseModel: trueReadOnly).manage)
+
+        let falseReadOnly = CollectionDetailsResponseModel.fixture(manage: nil, readOnly: false)
+        XCTAssertTrue(Collection(collectionDetailsResponseModel: falseReadOnly).manage)
+    }
+}

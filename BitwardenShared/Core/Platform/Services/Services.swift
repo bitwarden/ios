@@ -31,10 +31,12 @@ typealias Services = HasAPIService
     & HasOrganizationAPIService
     & HasPasteboardService
     & HasPolicyService
+    & HasRehydrationHelper
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService
     & HasSystemDevice
+    & HasTOTPExpirationManagerFactory
     & HasTOTPService
     & HasTimeProvider
     & HasTrustDeviceService
@@ -254,6 +256,12 @@ protocol HasPolicyService {
     var policyService: PolicyService { get }
 }
 
+/// Protocol for an object that provides a `RehydrationHelper`.
+protocol HasRehydrationHelper {
+    /// The helper for app rehydration.
+    var rehydrationHelper: RehydrationHelper { get }
+}
+
 /// Protocol for an object that provides a `SendRepository`.
 ///
 public protocol HasSendRepository {
@@ -287,6 +295,13 @@ protocol HasSystemDevice {
 protocol HasTimeProvider {
     /// Provides the present time for TOTP Code Calculation.
     var timeProvider: TimeProvider { get }
+}
+
+/// Protocol for an object that provides a `TOTPExpirationManagerFactory`.
+///
+protocol HasTOTPExpirationManagerFactory {
+    /// Factory to create TOTP expiration managers.
+    var totpExpirationManagerFactory: TOTPExpirationManagerFactory { get }
 }
 
 /// Protocol for an object that provides a `TOTPService`.

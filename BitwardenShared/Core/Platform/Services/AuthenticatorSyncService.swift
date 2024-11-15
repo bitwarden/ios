@@ -47,6 +47,13 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// The service to get server-specified configuration.
     private let configService: ConfigService
 
+    /// A task that sets up syncing for a user.
+    ///
+    /// Using an actor-protected `Task` ensures that multiple threads don't attempt
+    /// to setup sync at the same time. `enableSyncForUserId(_)` `await`s
+    /// the result of this task before adding the next sync setup to the end of it.
+    private var enableSyncTask: Task<Void, Never>?
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
@@ -65,7 +72,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// A Task to hold the subscription that waits for sync to be turned on/off.
     private var syncSubscriber: Task<Void, Never>?
 
-    /// A Task to hold the subscription that waits for the vault to be locked/unlocked..
+    /// A Task to hold the subscription that waits for the vault to be locked/unlocked.
     private var vaultSubscriber: Task<Void, Never>?
 
     /// The service used by the application to manage vault access.
@@ -246,19 +253,40 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
-        guard try await stateService.getSyncToAuthenticator(userId: userId) else {
+        if try await stateService.getSyncToAuthenticator(userId: userId) {
+            enableSyncForUserId(userId)
+        } else {
             cipherPublisherTasks[userId]?.cancel()
             cipherPublisherTasks.removeValue(forKey: userId)
             try await keychainRepository.deleteAuthenticatorVaultKey(userId: userId)
             try await authBridgeItemService.deleteAllForUserId(userId)
             try await deleteKeyIfSyncingIsOff()
-            return
         }
+    }
 
-        if !vaultTimeoutService.isLocked(userId: userId) {
-            try await createAuthenticatorKeyIfNeeded()
-            try await createAuthenticatorVaultKeyIfNeeded(userId: userId)
-            subscribeToCipherUpdates(userId: userId)
+    /// Enable sync for the provided userId.
+    ///
+    /// - Parameter userId: The userId of the user whose sync is being enabled.
+    ///
+    private func enableSyncForUserId(_ userId: String) {
+        enableSyncTask = Task { [enableSyncTask] in
+            _ = await enableSyncTask?.result
+
+            do {
+                guard !vaultTimeoutService.isLocked(userId: userId) else {
+                    let authVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
+                    if authVaultKey != nil {
+                        subscribeToCipherUpdates(userId: userId)
+                    }
+                    return
+                }
+
+                try await createAuthenticatorKeyIfNeeded()
+                try await createAuthenticatorVaultKeyIfNeeded(userId: userId)
+                subscribeToCipherUpdates(userId: userId)
+            } catch {
+                errorReporter.log(error: error)
+            }
         }
     }
 

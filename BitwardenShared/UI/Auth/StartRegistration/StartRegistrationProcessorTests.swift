@@ -538,11 +538,11 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_appeared_loadFeatureFlags() async {
         XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
 
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = true
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.isCreateAccountFeatureFlagEnabled)
 
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = false
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
     }

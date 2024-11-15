@@ -21,6 +21,11 @@ protocol AppSettingsStore: AnyObject {
     /// The app's theme.
     var appTheme: String? { get set }
 
+    /// The last published active user ID by `activeAccountIdPublisher` in the current process.
+    /// If this is different than the active user ID in the `State`, the active user was likely
+    /// switched in an extension and the main app should update accordingly.
+    var cachedActiveUserId: String? { get }
+
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
@@ -80,6 +85,11 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether the vault should sync on refreshing.
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
+
+    /// Gets the app rehydration state.
+    /// - Parameter userId: The user ID associated with this state.
+    /// - Returns: The rehydration state.
+    func appRehydrationState(userId: String) -> AppRehydrationState?
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -173,6 +183,11 @@ protocol AppSettingsStore: AnyObject {
     ///
     func lastSyncTime(userId: String) -> Date?
 
+    /// Gets whether the account belonging to the user Id has been manually locked.
+    /// - Parameter userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func manuallyLockedAccount(userId: String) -> Bool
+
     /// Gets the master password hash for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the master password hash.
@@ -251,6 +266,12 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the stored autofill setup progress.
     ///
     func setAccountSetupVaultUnlock(_ vaultUnlockSetup: AccountSetupProgress?, userId: String)
+
+    /// Sets the app rehydration state to be used after timeout lock and user unlock.
+    /// - Parameters:
+    ///   - state: The state to save.
+    ///   - userId: The user ID the state belongs to.
+    func setAppRehydrationState(_ state: AppRehydrationState?, userId: String)
 
     /// Whether the vault should sync on refreshing.
     ///
@@ -351,6 +372,12 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the last sync time.
     ///
     func setLastSyncTime(_ date: Date?, userId: String)
+
+    /// Sets whether the account belonging to the user Id has been manually locked.
+    /// - Parameters
+    ///   - isLocked: Whether the account has been locked manually.
+    ///   - userId: The user ID associated with the account.
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String)
 
     /// Sets the master password hash for a user ID.
     ///
@@ -649,6 +676,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case allowSyncOnRefresh(userId: String)
         case appId
         case appLocale
+        case appRehydrationState(userId: String)
         case appTheme
         case biometricAuthEnabled(userId: String)
         case clearClipboardValue(userId: String)
@@ -666,6 +694,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
         case loginRequest
+        case manuallyLockedAccount(userId: String)
         case masterPasswordHash(userId: String)
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
@@ -705,6 +734,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "appId"
             case .appLocale:
                 key = "appLocale"
+            case let .appRehydrationState(userId):
+                key = "appRehydrationState_\(userId)"
             case .appTheme:
                 key = "theme"
             case let .biometricAuthEnabled(userId):
@@ -739,6 +770,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "lastUserShouldConnectToWatch"
             case .loginRequest:
                 key = "passwordlessLoginNotificationKey"
+            case let .manuallyLockedAccount(userId):
+                key = "manuallyLockedAccount_\(userId)"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
             case .migrationVersion:
@@ -802,6 +835,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var appTheme: String? {
         get { fetch(for: .appTheme) }
         set { store(newValue, for: .appTheme) }
+    }
+
+    var cachedActiveUserId: String? {
+        activeAccountIdSubject.value
     }
 
     var disableWebIcons: Bool {
@@ -873,6 +910,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
 
+    func appRehydrationState(userId: String) -> AppRehydrationState? {
+        fetch(for: .appRehydrationState(userId: userId))
+    }
+
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
            let value = ClearClipboardValue(rawValue: rawValue) {
@@ -925,6 +966,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
+    func manuallyLockedAccount(userId: String) -> Bool {
+        fetch(for: .manuallyLockedAccount(userId: userId))
+    }
+
     func masterPasswordHash(userId: String) -> String? {
         fetch(for: .masterPasswordHash(userId: userId))
     }
@@ -971,6 +1016,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
     }
 
+    func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {
+        store(state, for: .appRehydrationState(userId: userId))
+    }
+
     func setBiometricAuthenticationEnabled(_ isEnabled: Bool?, for userId: String) {
         store(isEnabled, for: .biometricAuthEnabled(userId: userId))
     }
@@ -1013,6 +1062,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
+        store(isLocked, for: .manuallyLockedAccount(userId: userId))
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String) {

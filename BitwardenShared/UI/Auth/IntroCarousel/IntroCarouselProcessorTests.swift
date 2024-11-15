@@ -47,7 +47,7 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
     /// verification is enabled.
     @MainActor
     func test_perform_createAccount_emailVerificationEnabled() async {
-        configService.featureFlagsBool[.emailVerification] = true
+        configService.featureFlagsBoolPreAuth[.emailVerification] = true
         await subject.perform(.createAccount)
         XCTAssertEqual(coordinator.routes.last, .startRegistration)
     }

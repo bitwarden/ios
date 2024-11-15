@@ -40,7 +40,7 @@ extension AttachmentResponseModel {
     }
 }
 
-extension AttachmentView: Identifiable {}
+extension AttachmentView: @retroactive Identifiable {}
 
 extension CipherCardModel {
     init(card: BitwardenSdk.Card) {
@@ -330,9 +330,9 @@ extension BitwardenSdk.Cipher {
     }
 }
 
-extension BitwardenSdk.CipherListView: Identifiable {}
+extension BitwardenSdk.CipherListView: @retroactive Identifiable {}
 
-extension BitwardenSdk.CipherView: Identifiable {
+extension BitwardenSdk.CipherView: @retroactive Identifiable {
     /// Initializes a new `CipherView` based on a `Fido2CredentialNewView`
     /// - Parameters:
     ///   - fido2CredentialNewView: The `Fido2CredentialNewView` for the Fido2 creation flow
@@ -406,7 +406,7 @@ extension BitwardenSdk.CipherRepromptType {
     }
 }
 
-extension BitwardenSdk.Fido2Credential: Identifiable, @unchecked Sendable {
+extension BitwardenSdk.Fido2Credential: @retroactive Identifiable, @unchecked @retroactive Sendable {
     public var id: String { credentialId }
 
     init(cipherLoginFido2Credential model: CipherLoginFido2Credential) {
@@ -428,9 +428,9 @@ extension BitwardenSdk.Fido2Credential: Identifiable, @unchecked Sendable {
     }
 }
 
-extension BitwardenSdk.Fido2CredentialView: @unchecked Sendable {}
+extension BitwardenSdk.Fido2CredentialView: @unchecked @retroactive Sendable {}
 
-extension BitwardenSdk.Fido2CredentialAutofillView: @unchecked Sendable {}
+extension BitwardenSdk.Fido2CredentialAutofillView: @unchecked @retroactive Sendable {}
 
 extension BitwardenSdk.Field {
     init(cipherFieldModel model: CipherFieldModel) {
@@ -580,6 +580,7 @@ extension CollectionDetailsResponseModel {
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
             id: id,
+            manage: collection.manage,
             name: collection.name,
             organizationId: collection.organizationId,
             readOnly: collection.readOnly
@@ -604,12 +605,13 @@ extension BitwardenSdk.Collection {
             name: model.name,
             externalId: model.externalId,
             hidePasswords: model.hidePasswords,
-            readOnly: model.readOnly
+            readOnly: model.readOnly,
+            manage: model.manage ?? !model.readOnly
         )
     }
 }
 
-extension BitwardenSdk.CollectionView: @unchecked Sendable, TreeNodeModel {}
+extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, TreeNodeModel {}
 
 // MARK: - Folders (BitwardenSdk)
 
@@ -636,7 +638,7 @@ extension BitwardenSdk.Folder {
     }
 }
 
-extension BitwardenSdk.FolderView: Menuable, @unchecked Sendable, TreeNodeModel {
+extension BitwardenSdk.FolderView: Menuable, @unchecked @retroactive Sendable, TreeNodeModel {
     static var defaultValueLocalizedName: String {
         Localizations.folderNone
     }

@@ -53,10 +53,10 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `perform(_:)` with `.loadSingleSignOnDetails` records an error if the API call failed.
+    /// `perform(_:)` with `.loadSingleSignOnDetails` records an error if getting the org id throws.
     @MainActor
     func test_perform_loadSingleSignOnDetails_error() async throws {
-        client.result = .failure(BitwardenTestError.example)
+        authRepository.getSSOOrganizationIdentifierByResult = .failure(BitwardenTestError.example)
         stateService.rememberedOrgIdentifier = "BestOrganization"
 
         await subject.perform(.loadSingleSignOnDetails)
@@ -68,11 +68,11 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.identifierText, "BestOrganization")
     }
 
-    /// `perform(_:)` with `.loadSingleSignOnDetails` starts the login process if the API call
-    /// returns a valid organization identifier.
+    /// `perform(_:)` with `.loadSingleSignOnDetails` starts the login process if the organization identifier
+    /// is not `nil`.
     @MainActor
     func test_perform_loadSingleSignOnDetails_success() async throws {
-        client.result = .httpSuccess(testData: .singleSignOnDetails)
+        authRepository.getSSOOrganizationIdentifierByResult = .success("OrgId")
 
         await subject.perform(.loadSingleSignOnDetails)
 
@@ -80,6 +80,23 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertEqual(
+            coordinator.routes.last,
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+        )
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` doesn't start the login process
+    /// if the organization identifier is `nil`.
+    @MainActor
+    func test_perform_loadSingleSignOnDetails_orgIdNil() async throws {
+        authRepository.getSSOOrganizationIdentifierByResult = .success(nil)
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.first, LoadingOverlayState(title: Localizations.loading))
+        XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+        XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+        XCTAssertNotEqual(
             coordinator.routes.last,
             .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
         )
@@ -282,7 +299,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.complete, .dismiss])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
     /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses TDE.
@@ -301,7 +319,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.complete, .dismiss])
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
     /// `singleSignOnErrored(error:)` handles the error correctly.

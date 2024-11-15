@@ -4,8 +4,8 @@
 <dict>
 	<key>BitwardenAppIdentifier</key>
 	<string>$(BASE_BUNDLE_ID)</string>
-    <key>BitwardenKeychainAccessGroup</key>
-    <string>$(AppIdentifierPrefix)$(BASE_BUNDLE_ID)</string>
+	<key>BitwardenKeychainAccessGroup</key>
+	<string>$(AppIdentifierPrefix)$(BASE_BUNDLE_ID)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Bitwarden</string>
 	<key>CFBundleName</key>
@@ -89,6 +89,8 @@
 			<true/>
 			<key>ASCredentialProviderExtensionCapabilities</key>
 			<dict>
+				<key>ProvidesOneTimeCodes</key>
+				<true/>
 				<key>ProvidesPasskeys</key>
 				<true/>
 				<key>ProvidesPasswords</key>

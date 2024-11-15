@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "ভল্টের সময়সীমা কর্ম";
 "VaultTimeoutLogOutConfirmation" = "লগ আউট করা আপনার ভল্টের সমস্ত অ্যাক্সেস সরিয়ে ফেলবে এবং সময়সীমার পরে অনলাইন প্রমাণীকরণের প্রয়োজন। আপনি কি নিশ্চিত যে এই সেটিংটি ব্যবহার করবেন?";
 "LoggingIn" = "লগইন হচ্ছে...";
-"LoginOrCreateNewAccount" = "আপনার সুরক্ষিত ভল্টে প্রবেশ করতে লগ ইন করুন অথবা একটি নতুন অ্যাকাউন্ট তৈরি করুন।";
+"LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "পরিচালনা";
 "MasterPasswordConfirmationValMessage" = "Password confirmation is not correct.";
 "MasterPasswordDescription" = "প্রধান পাসওয়ার্ড হল সেই পাসওয়ার্ডটি যা আপনি নিজের ভল্ট ব্যাবহার করতে ব্যবহার করেন। এটি খুব গুরুত্বপূর্ণ যে আপনি নিজের প্রধান পাসওয়ার্ডটি ভুলে যাবেন না। আপনি যদি ভুলে গিয়ে থাকেন তবে পাসওয়ার্ডটি পুনরুদ্ধার করার কোনও উপায় নেই।";
@@ -1025,7 +1025,7 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "You’ll delete this file after import is complete.";
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
 "LogInToBitwarden" = "Log in to Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Log in to the Bitwarden web app.**";
 "ImportLoginsToBitwarden" = "Import logins to Bitwarden";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "In the Bitwarden navigation, **find the Tools option** and **select Import data.**";
@@ -1038,7 +1038,7 @@
 "DownloadTheBrowserExtension" = "Download the browser extension";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Go to bitwarden.com/download to integrate Bitwarden into your favorite browser for a seamless experience.";
 "UseTheWebApp" = "Use the web app";
-"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings";
+"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings.";
 "AutofillPasswords" = "Autofill passwords";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
 "GotIt" = "Got it";
@@ -1054,3 +1054,8 @@
 "RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
+"Done" = "Done";
+"CopyPublicKey" = "Copy public key";
+"CopyPrivateKey" = "Copy private key";
+"CopyFingerprint" = "Copy fingerprint";
+"SSHKeys" = "SSH keys";

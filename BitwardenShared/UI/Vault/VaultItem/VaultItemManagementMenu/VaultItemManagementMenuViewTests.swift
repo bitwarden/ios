@@ -23,6 +23,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         subject = VaultItemManagementMenuView(
             isCloneEnabled: true,
             isCollectionsEnabled: true,
+            isDeleteEnabled: true,
             isMoveToOrganizationEnabled: true,
             store: store
         )

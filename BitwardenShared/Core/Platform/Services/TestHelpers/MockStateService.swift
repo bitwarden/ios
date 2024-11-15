@@ -18,6 +18,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
     var appLanguage: LanguageOption = .default
+    var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
     var biometricsEnabled = [String: Bool]()
     var capturedUserId: String?
@@ -28,6 +29,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var connectToWatchSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var timeProvider = MockTimeProvider(.currentTime)
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
+    var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
@@ -50,6 +52,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
+    var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
@@ -67,6 +70,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     // swiftlint:disable:next identifier_name
     var setAccountHasBeenUnlockedInteractivelyResult: Result<Void, Error> = .success(())
     var setAccountSetupAutofillCalled = false
+    var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
@@ -108,6 +112,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accounts?.removeAll(where: { account in
             account == activeAccount
         })
+    }
+
+    func didAccountSwitchInExtension() async throws -> Bool {
+        try didAccountSwitchInExtensionResult.get()
     }
 
     func doesActiveAccountHavePremium() async throws -> Bool {
@@ -179,6 +187,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         addSitePromptShown
     }
 
+    func getAppRehydrationState(userId: String?) async throws -> BitwardenShared.AppRehydrationState? {
+        let userId = try unwrapUserId(userId)
+        return appRehydrationState[userId]
+    }
+
     func getAppTheme() async -> AppTheme {
         appTheme ?? .default
     }
@@ -245,6 +258,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getLoginRequest() async -> LoginRequestNotification? {
         loginRequest
+    }
+
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return manuallyLockedAccounts[userId] ?? false
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -399,6 +417,22 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
     }
 
+    func setAppRehydrationState(
+        _ rehydrationState: BitwardenShared.AppRehydrationState?,
+        userId: String?
+    ) async throws {
+        if let setAppRehydrationStateError {
+            throw setAppRehydrationStateError
+        }
+
+        let userId = try unwrapUserId(userId)
+        guard let rehydrationState else {
+            appRehydrationState.removeValue(forKey: userId)
+            return
+        }
+        appRehydrationState[userId] = rehydrationState
+    }
+
     func setAppTheme(_ appTheme: AppTheme) async {
         self.appTheme = appTheme
     }
@@ -471,6 +505,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
         self.loginRequest = loginRequest
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        manuallyLockedAccounts[userId] = isLocked
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {

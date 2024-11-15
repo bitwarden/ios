@@ -3,7 +3,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockAppSettingsStore: AppSettingsStore {
+class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
@@ -11,7 +11,9 @@ class MockAppSettingsStore: AppSettingsStore {
     var allowSyncOnRefreshes = [String: Bool]()
     var appId: String?
     var appLocale: String?
+    var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
+    var cachedActiveUserId: String?
     var disableWebIcons = false
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
@@ -35,6 +37,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var featureFlags = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
+    var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
@@ -72,6 +75,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func appRehydrationState(userId: String) -> BitwardenShared.AppRehydrationState? {
+        appRehydrationState[userId]
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
@@ -116,6 +123,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func lastSyncTime(userId: String) -> Date? {
         lastSyncTimeByUserId[userId]
+    }
+
+    func manuallyLockedAccount(userId: String) -> Bool {
+        manuallyLockedAccounts[userId] ?? false
     }
 
     func masterPasswordHash(userId: String) -> String? {
@@ -167,6 +178,14 @@ class MockAppSettingsStore: AppSettingsStore {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
     }
 
+    func setAppRehydrationState(_ state: BitwardenShared.AppRehydrationState?, userId: String) {
+        guard state != nil else {
+            appRehydrationState.removeValue(forKey: userId)
+            return
+        }
+        appRehydrationState[userId] = state
+    }
+
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
     }
@@ -213,6 +232,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func setLastSyncTime(_ date: Date?, userId: String) {
         lastSyncTimeByUserId[userId] = date
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
+        manuallyLockedAccounts[userId] = isLocked
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String) {

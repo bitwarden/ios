@@ -10,6 +10,7 @@ final class AuthRouter: NSObject, Router {
         & HasClientService
         & HasConfigService
         & HasErrorReporter
+        & HasRehydrationHelper
         & HasStateService
         & HasVaultTimeoutService
 
@@ -105,8 +106,8 @@ final class AuthRouter: NSObject, Router {
     ///
     private func handleAuthAction(_ action: AuthAction) async -> AuthRoute {
         switch action {
-        case let .lockVault(userId):
-            return await lockVaultRedirect(userId: userId)
+        case let .lockVault(userId, isManuallyLocking):
+            return await lockVaultRedirect(userId: userId, isManuallyLocking: isManuallyLocking)
         case let .logout(userId, userInitiated):
             return await logoutRedirect(userId: userId, userInitiated: userInitiated)
         case let .switchAccount(isAutomatic, userId, _):

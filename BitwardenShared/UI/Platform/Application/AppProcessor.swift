@@ -82,6 +82,7 @@ public class AppProcessor {
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
+                await checkIfExtensionSwitchedAccounts()
                 await checkAccountsForTimeout()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
@@ -353,6 +354,22 @@ extension AppProcessor {
         }
     }
 
+    /// Checks if the active account was switched while in the extension. If this occurs, the app
+    /// needs to also switch to the updated active account.
+    ///
+    private func checkIfExtensionSwitchedAccounts() async {
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+        do {
+            guard try await services.stateService.didAccountSwitchInExtension() == true else { return }
+            let userId = try await services.stateService.getActiveAccountId()
+            await coordinator?.handleEvent(.switchAccounts(userId: userId, isAutomatic: false))
+        } catch StateServiceError.noActiveAccount {
+            await coordinator?.handleEvent(.didStart)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// If the native create account feature flag and the autofill extension are enabled, this marks
     /// any user's autofill account setup completed. This should be called on app startup.
     ///
@@ -390,14 +407,14 @@ extension AppProcessor {
             return AppRoute.tab(.settings(.accountSecurity))
         case BitwardenDeepLinkConstants.authenticatorNewItem:
             guard let item = await services.authenticatorSyncService?.getTemporaryTotpItem(),
-                  let totpKey = item.totpKey,
-                  let otpAuthModel = OTPAuthModel(otpAuthKey: totpKey) else {
+                  let totpKey = item.totpKey else {
                 coordinator?.showAlert(.defaultAlert(title: Localizations.somethingWentWrong,
                                                      message: Localizations.unableToMoveTheSelectedItemPleaseTryAgain))
                 return nil
             }
 
-            return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+            let totpKeyModel = TOTPKeyModel(authenticatorKey: totpKey)
+            return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
         default:
             return nil
         }
@@ -411,12 +428,13 @@ extension AppProcessor {
     private func getOtpAuthUrlRoute(url: URL) async -> AppRoute? {
         guard let scheme = url.scheme, scheme.isOtpAuthScheme else { return nil }
 
-        guard let otpAuthModel = OTPAuthModel(otpAuthKey: url.absoluteString) else {
+        let totpKeyModel = TOTPKeyModel(authenticatorKey: url.absoluteString)
+        guard case .otpAuthUri = totpKeyModel.totpKey else {
             coordinator?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return nil
         }
 
-        return AppRoute.tab(.vault(.vaultItemSelection(otpAuthModel)))
+        return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
     }
 
     /// Starts timer to send organization events regularly
@@ -569,20 +587,20 @@ extension AppProcessor: AutofillCredentialServiceDelegate {
 
 extension AppProcessor: Fido2UserInterfaceHelperDelegate {
     var isAutofillingFromList: Bool {
-        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-              fido2AppExtensionDelegate.isAutofillingFido2CredentialFromList else {
+        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+              autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList else {
             return false
         }
         return true
     }
 
     func onNeedsUserInteraction() async throws {
-        guard let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate else {
+        guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate else {
             return
         }
 
-        if !fido2AppExtensionDelegate.flowWithUserInteraction {
-            fido2AppExtensionDelegate.setUserInteractionRequired()
+        if !autofillAppExtensionDelegate.flowWithUserInteraction {
+            autofillAppExtensionDelegate.setUserInteractionRequired()
             throw Fido2Error.userInteractionRequired
         }
 
@@ -590,7 +608,7 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
         // action that needs user interaction or it might not show the prompt to the user.
         // E.g. without this there are certain devices that don't show the FaceID prompt
         // and the user only sees the screen dimming a bit and failing the flow.
-        for await didAppear in fido2AppExtensionDelegate.getDidAppearPublisher() {
+        for await didAppear in autofillAppExtensionDelegate.getDidAppearPublisher() {
             guard didAppear else { continue }
             return
         }
