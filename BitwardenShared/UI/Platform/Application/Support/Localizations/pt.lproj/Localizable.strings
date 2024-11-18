@@ -1025,7 +1025,7 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "Eliminará este ficheiro após concluir a importação.";
 "NeedHelpCheckOutImportHelp" = "Precisa de ajuda? Consulte a **[ajuda com a importação](%1$@)**";
 "LogInToBitwarden" = "Iniciar sessão no Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "No seu computador, abra um novo separador do navegador e vá a %1$@**";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "No seu computador, abra um novo separador do navegador e **vá a %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Iniciar sessão na aplicação Web do Bitwarden.**";
 "ImportLoginsToBitwarden" = "Importar credenciais para o Bitwarden";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "Na navegação do Bitwarden, **encontre a opção Ferramentas** e **selecione Importar dados.**";
@@ -1038,7 +1038,7 @@
 "DownloadTheBrowserExtension" = "Descarregue a extensão do navegador";
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Vá a bitwarden.com/download para integrar o Bitwarden no seu navegador favorito para uma experiência perfeita.";
 "UseTheWebApp" = "Utilize a aplicação Web";
-"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Inicie sessão em bitwarden.com para gerir facilmente a sua conta e atualizar as definições";
+"LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Inicie sessão em bitwarden.com para gerir facilmente a sua conta e atualizar as definições.";
 "AutofillPasswords" = "Preenchimento automático de palavras-passe";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Configure o preenchimento automático em todos os seus dispositivos para iniciar sessão com um simples toque em qualquer lugar.";
 "GotIt" = "Percebido";

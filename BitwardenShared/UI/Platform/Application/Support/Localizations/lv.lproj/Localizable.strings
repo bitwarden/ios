@@ -728,7 +728,7 @@
 "UnknownXErrorMessage" = "Notika nezināma kļūda %1$@.";
 "PlusAddressedEmailDescription" = "Izmantot e-pasta pakalpojuma nodrošinātāja apakšadrešu spējas";
 "CatchAllEmailDescription" = "Izmantot uzstādīto domēna visu tverošo iesūtni.";
-"ForwardedEmailDescription" = "Izveidot e-pastu aizstājvārdu ar ārēju pārvirzīšanas pakalpojumu.";
+"ForwardedEmailDescription" = "Izveidot e-pasta aizstājadresi ar ārēju pārvirzīšanas pakalpojumu.";
 "Random" = "Nejauši";
 "ConnectToWatch" = "Savienoties ar pulksteni";
 "AccessibilityServiceDisclosure" = "Pieejamības pakalpojuma izmantošanas skaidrojums";

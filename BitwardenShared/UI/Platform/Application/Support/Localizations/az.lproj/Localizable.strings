@@ -66,7 +66,7 @@
 "ThankYou" = "Təşəkkür edirik";
 "Tools" = "Alətlər";
 "URI" = "URI";
-"UseFingerprintToUnlock" = "Kilidi barmaq izi ilə açın";
+"UseFingerprintToUnlock" = "Kilidi açmaq üçün barmaq izi istifadə et";
 "Username" = "İstifadəçi adı";
 "ValidationFieldRequired" = "%1$@ xanası lazımlıdır.";
 "ValueHasBeenCopied" = "%1$@ kopyalandı.";
@@ -99,7 +99,7 @@
 "CreateAccount" = "Hesab yarat";
 "CreatingAccount" = "Hesab yaradılır...";
 "EditItem" = "Elementə düzəliş et";
-"EnableAutomaticSyncing" = "Avto-sinxr icazə ver";
+"EnableAutomaticSyncing" = "Avto-sinxrn icazə ver";
 "EnterEmailForHint" = "Ana parol məsləhətini alacağınız hesabınızın e-poçt ünvanını daxil edin.";
 "ReactivateAppExtension" = "Tətbiq uzantısını təkrar aktivləşdir";
 "ExtensionAlmostDone" = "Demək olar ki, hazırdır!";
@@ -176,8 +176,8 @@
 "SyncVaultNow" = "Seyfi indi sinxronlaşdır";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "İki mərhələli giriş";
-"UnlockWith" = "%1$@ ilə kilidi açın";
-"UnlockWithPIN" = "PIN kod ilə kilidi açın";
+"UnlockWith" = "Kilidi %1$@ ilə aç";
+"UnlockWithPIN" = "Kilidi PIN kodla aç";
 "Validating" = "Doğrulanır";
 "VerificationCode" = "Doğrulama kodu";
 "ViewItem" = "Elementə bax";
@@ -324,7 +324,7 @@
 "NoItemsFolder" = "Bu qovluqda heç bir element yoxdur.";
 "NoItemsTrash" = "Tullantı qutusunda heç bir element yoxdur.";
 "AutofillAccessibilityService" = "Avto-doldurma əlçatımlılıq xidməti";
-"AutofillServiceDescription" = "Bitwarden avto-doldurma xidməti, giriş məlumatlarının cihazınızdakı digər tətbiqlərdə doldurmasına kömək etməsi üçün Android Avto-doldurma Çərçivəsini istifadə edir.";
+"AutofillServiceDescription" = "Bitwarden avto-doldurma xidməti, cihazınızdakı digər tətbiqlərə giriş məlumatlarını doldurmağa kömək edən Android Avto-doldurma Çərçivəsini istifadə edir.";
 "BitwardenAutofillServiceDescription" = "Giriş məlumatlarını digər tətbiqlərdə doldurmaq üçün Bitwarden avto-doldurma xidmətini istifadə edin.";
 "BitwardenAutofillServiceOpenAutofillSettings" = "Avto-doldurma ayarlarını aç";
 "FaceID" = "Face ID";
@@ -467,7 +467,7 @@
 "LoginExpired" = "Seansın müddəti bitdi.";
 "BiometricsDirection" = "Biometrik doğrulama";
 "Biometrics" = "Biometrik";
-"UseBiometricsToUnlock" = "Kilidi biometriklə aç";
+"UseBiometricsToUnlock" = "Kilidi açmaq üçün biometrik istifadə et";
 "AccessibilityOverlayPermissionAlert" = "Bitwarden diqqətinizi tələb edir - Bitwarden ayarlarında \"Avto-doldurma əlçatımlılıq xidməti\"nə baxın";
 "BitwardenAutofillServiceOverlayPermission" = "3. Android tətbiq ayarlarında Bitwarden-i tapın və \"Digər tətbiqlərin üzərində göstər\" seçiminə (\"Qabaqcıl\" seçimin altında ola bilər) gedin və örtük dəstəyinə icazə vermək üçün açara toxunun.";
 "OverlayPermission" = "İcazə";
@@ -504,7 +504,7 @@
 "DoYouReallyWantToSoftDeleteCipher" = "Həqiqətən tullantı qutusuna göndərmək istəyirsiniz?";
 "AccountBiometricInvalidated" = "Ana parolun doğrulanması gözlənildiyi üçün bu hesab üzrə biometrik kilid açma sıradan çıxarıldı.";
 "AccountBiometricInvalidatedExtension" = "Ana parolun doğrulanması gözlənildiyi üçün bu hesab üzrə avto-doldurma biometrik kilid açma sıradan çıxarıldı.";
-"EnableSyncOnRefresh" = "Təzələmə zamanı sinxr icazə ver";
+"EnableSyncOnRefresh" = "Təzələmə zamanı sinxrn icazə ver";
 "EnableSyncOnRefreshDescription" = "Barmağınızla aşağı çəkdikdə seyfi sinxronlaşdır.";
 "LogInSso" = "Müəssisə üçün tək daxil olma";
 "LogInSsoSummary" = "Təşkilatınızın tək daxil olma portalını istifadə edərək daha tez giriş edə bilərsiniz. Başlatmaq üçün lütfən təşkilatınızın identifikatorunu daxil edin.";
@@ -527,15 +527,15 @@
 "TermsOfService" = "Xidmət Şərtləri";
 "PrivacyPolicy" = "Gizlilik Siyasəti";
 "AccessibilityDrawOverPermissionAlert" = "Bitwarden diqqətinizi tələb edir - Bitwarden Ayarlarında \"Avto-doldurma xidməti\"ndə \"Üzərindən göstər\"i işə salın";
-"PasskeyManagement" = "Keçid açarının idarə edilməsi";
+"PasskeyManagement" = "Keçid açarını idarəetmə";
 "AutofillServices" = "Avto-doldurma xidmətləri";
-"InlineAutofill" = "Sətir daxili avto-doldurmanı istifadə edin";
-"InlineAutofillDescription" = "Seçdiyiniz IME (klaviatura) dəstəkləyirsə sətir daxili avto-doldurmanı istifadə edə bilərsiniz. Əgər konfiqurasiyanız dəstəkləmirsə (və ya bu seçim sıradan çıxarılıbsa) ilkin Avto-doldurma qutusu istifadə ediləcəkdir.";
+"InlineAutofill" = "Sətirdaxili avto-doldurmanı istifadə et";
+"InlineAutofillDescription" = "Seçdiyiniz IME (klaviatura) dəstəkləyirsə sətirdaxili avto-doldurmanı istifadə edin. Əgər konfiqurasiyanız dəstəkləmirsə (və ya bu seçim söndürülübsə) ilkin Avto-doldurma örtüyü istifadə ediləcəkdir.";
 "Accessibility" = "Əlçatımlılığı istifadə et";
 "AccessibilityDescription" = "Saytda və vebdə giriş məlumatlarınızı avto-doldurmaq üçün Bitwarden Əlçatımlılıq Xidmətini istifadə edin. Qurulanda, giriş xanalarını seçərkən açılan pəncərə göstərəcəyik.";
 "AccessibilityDescription2" = "Saytda və vebdə giriş məlumatlarınızı avto-doldurmaq üçün Bitwarden Əlçatımlılıq Xidmətini istifadə edin. (\"Üzərində göstər\" seçimi açıq olmalıdır)";
-"AccessibilityDescription3" = "Avto-doldurma cəld əməliyyat qutusunu istifadə etmək üçün Bitwarden əlçatımlılıq xidmətini istifadə edin və/və ya \"Üzərində göstər\"i (əgər fəaldırsa) istifadə edərək açılan bir pəncərə göstərə bilərsiniz.";
-"AccessibilityDescription4" = "Avto-doldurma cəld əməliyyat qutusunu istifadə etmək və ya \"Üzərində göstər\"i (əgər fəaldırsa) istifadə edərək Avto-doldurma xidmətini təqlid etmək tələb olunur.";
+"AccessibilityDescription3" = "Avto-doldurma Cəld Əməliyyat Xanasını istifadə etmək üçün Bitwarden Əlçatımlılıq Xidmətini istifadə edin və/və ya \"Üzərində göstər\"i (əgər açıqdırsa) istifadə edərək açılan bir pəncərədə göstərin.";
+"AccessibilityDescription4" = "Avto-doldurma Cəld Əməliyyat Xanasını istifadə etmək və ya \"Üzərində göstər\"i (əgər açıqdırsa) istifadə edərək Avto-doldurma xidmətini təqlid etmək üçün tələb olunur.";
 "DrawOver" = "\"Üzərində göstər\"i istifadə edin";
 "DrawOverDescription" = "Giriş xanaları seçildikdə, Bitwarden Əlçatımlılıq Xidmətinin açılan bir pəncərə göstərməsinə icazə verir.";
 "DrawOverDescription2" = "İşə salındıqda Bitwarden Əlçatımlılıq Xidməti, giriş məlumatlarınızın avto-doldurmasına kömək etmək üçün giriş xanaları seçildikdə açılan pəncərə göstərəcək.";
@@ -750,7 +750,7 @@
 "NeedAnotherOption" = "Başqa bir seçimə ehtiyacınız var?";
 "ViewAllLoginOptions" = "Bütün giriş etmə seçimlərinə bax";
 "ThisRequestIsNoLongerValid" = "Bu tələb artıq yararsızdır";
-"PendingLogInRequests" = "Giriş tələbləri gözlənilir";
+"PendingLogInRequests" = "Gözlənilən giriş tələbləri";
 "DeclineAllRequests" = "Bütün tələbləri rədd et";
 "AreYouSureYouWantToDeclineAllPendingLogInRequests" = "Gözləyən bütün giriş tələblərini rədd etmək istədiyinizə əminsiniz?";
 "RequestsDeclined" = "Tələblər rədd edildi";
@@ -843,8 +843,8 @@
 "XHoursAndYMinutes" = "%1$@ saat %2$@ dəqiqə";
 "XHours" = "%1$@ saat";
 "PasskeyManagementExplanationLong" = "Yeni keçid açarlarını saxlamaq və seyfinizdəki keçid açarları ilə giriş etmək üçün Bitwarden-i istifadə edin.";
-"AutofillServicesExplanationLong" = "Android Avto-doldurma Çərçivəsi, giriş məlumatlarını cihazınızdakı digər tətbiqlərə doldurmağa kömək etmək üçün istifadə olunur.";
-"UseInlineAutofillExplanationLong" = "Seçdiyiniz klaviatura dəstəkləyirsə sətir daxili avto-doldurmanı istifadə edin. Əks halda, ilkin örtük istifadə edin.";
+"AutofillServicesExplanationLong" = "Android Avto-doldurma Çərçivəsi, cihazınızdakı digər tətbiqlərə giriş məlumatlarının doldurulmasına kömək etmək üçün istifadə olunur.";
+"UseInlineAutofillExplanationLong" = "Seçdiyiniz klaviatura dəstəkləyirsə sətirdaxili avto-doldurmanı istifadə edin. Əks halda, ilkin örtük istifadə edin.";
 "AdditionalOptions" = "Əlavə seçimlər";
 "ContinueToWebApp" = "Veb tətbiqlə davam edilsin?";
 "ContinueToX" = "%1$@ ilə davam edilsin?";
@@ -1044,7 +1044,7 @@
 "GotIt" = "Anladım";
 "GenerateCrash" = "Çökmə yarat";
 "GenerateErrorReport" = "Xəta hesabatı yarat";
-"AllowAuthenticatorSyncing" = "Kimlik doğrulayıcı sinxronlaşdırmaya icazə ver";
+"AllowAuthenticatorSyncing" = "Kimlik doğrulayıcını sinxrn icazə ver";
 "AuthenticatorSync" = "Kimlik doğrulayıcı sinxronlaşdırma";
 "NoAccountFoundPleaseLogInAgainIfYouContinueToSeeThisError" = "Hesab tapılmadı. Bu xətanı görməyə davam etsəniz lütfən yenidən giriş edin.";
 "ImportError" = "Daxilə köçürmə xətası";

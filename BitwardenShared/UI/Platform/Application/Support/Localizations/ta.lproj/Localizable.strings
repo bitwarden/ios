@@ -1005,8 +1005,8 @@
 "Dismiss" = "Dismiss";
 "SaveAndProtectYourData" = "Save and protect your data";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.";
-"SendSensitiveInformationSafely" = "Send sensitive information, safely";
-"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
+"SendSensitiveInformationSafely" = "பாதுகாப்பாக மறைமுகத் தகவலை அனுப்புக";
+"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "கோப்புகள் மற்றும் தரவை யாருடனும், எத்தளத்திலும் பாதுகாப்பாகப் பகிர்க. வெளிப்படுதலைக் கட்டுப்படுத்தி உமது தகவல் இருமுனை மறையாக்கம் செய்யப்பட்டிருக்கும்.";
 "NewLogin" = "New login";
 "ImportSavedLogins" = "Import saved logins";
 "ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";
