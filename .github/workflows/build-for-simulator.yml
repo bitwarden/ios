@@ -84,7 +84,8 @@ jobs:
 
       - name: Prepare APP file for upload to GitHub
         run: |
-          mkdir -p export/dSYMs
+          find . -name "*.app"
+          mkdir -p export
           cp build/DerivedData/Build/Products/Debug-iphonsimulator/Bitwarden.app export
 
       - name: Upload APP file
