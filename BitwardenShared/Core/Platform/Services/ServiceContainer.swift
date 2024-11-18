@@ -451,6 +451,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             tokenService: tokenService
         )
 
+        let vaultTimeoutService = DefaultVaultTimeoutService(
+            clientService: clientService,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
+
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
             cipherService: cipherService,
@@ -464,7 +470,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             settingsService: settingsService,
             stateService: stateService,
             syncAPIService: apiService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
+            vaultTimeoutService: vaultTimeoutService
         )
 
         let trustDeviceService = DefaultTrustDeviceService(
@@ -476,11 +483,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-        let vaultTimeoutService = DefaultVaultTimeoutService(
-            clientService: clientService,
-            stateService: stateService,
-            timeProvider: timeProvider
-        )
+
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,

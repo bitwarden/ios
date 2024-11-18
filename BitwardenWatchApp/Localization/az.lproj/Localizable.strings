@@ -3,7 +3,7 @@
 "Add2FactorAutenticationToAnItemToViewVerificationCodes" = "Doğrulama kodlarına baxmaq üçün bir elementə 2 faktorlu kimlik doğrulama əlavə edin";
 "LogInToBitwardenOnYourIPhoneToViewVerificationCodes" = "Doğrulama kodlarına baxmaq üçün iPhone-nunuzda Bitwarden-ə giriş edin";
 "SyncingItemsContainingVerificationCodes" = "Doğrulama kodlarını ehtiva edən elementlər sinxronlaşdırılır";
-"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "Doğrulama kodlarına baxmaq üçün iPhone-nunuzda Bitwarden-in kilidini açın";
+"UnlockBitwardenOnYourIPhoneToViewVerificationCodes" = "Doğrulama kodlarına baxmaq üçün Bitwarden-in kilidini iPhone-nunuzda açın";
 "SetUpBitwardenToViewItemsContainingVerificationCodes" = "Doğrulama kodlarını ehtiva edən elementlərə baxmaq üçün Bitwarden-i quraşdırın";
 "Search" = "Axtar";
 "NoItemsFound" = "Heç bir element tapılmadı";

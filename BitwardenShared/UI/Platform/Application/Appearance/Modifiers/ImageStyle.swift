@@ -93,7 +93,7 @@ extension Image {
     func imageStyle(_ style: ImageStyle) -> some View {
         resizable()
             .frame(width: style.width, height: style.height, scaleWithFont: style.scaleWithFont)
-            .foregroundStyle(style.color)
+            .tint(style.color)
     }
 }
 
@@ -111,6 +111,6 @@ extension View {
     ///
     func imageStyle(_ style: ImageStyle) -> some View {
         frame(width: style.width, height: style.height, scaleWithFont: style.scaleWithFont)
-            .foregroundStyle(style.color)
+            .tint(style.color)
     }
 }
