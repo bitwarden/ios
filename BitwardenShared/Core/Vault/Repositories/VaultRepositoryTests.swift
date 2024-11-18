@@ -656,47 +656,48 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
         try Data("🪿".utf8).write(to: downloadUrl)
         cipherService.downloadAttachmentResult = .success(downloadUrl)
-        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
-        let cipher = CipherView.fixture(attachments: [attachment])
 
+        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
+        let cipherView = CipherView.fixture(
+            attachments: [attachment],
+            id: "2"
+        )
+        let cipher = Cipher.fixture(
+            attachments: [Attachment(attachmentView: attachment)],
+            id: "2",
+            key: "new key"
+        )
+        cipherService.fetchCipherResult = .success(cipher)
         // Test.
-        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipher)
+        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
 
         // Confirm the results.
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipher)
+
         XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
+        XCTAssertEqual(cipherService.fetchCipherId, cipher.id)
         XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
         XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
     }
 
     /// `downloadAttachment(_:cipher:)` throws an error for nil id's.
     func test_downloadAttachment_nilId() async throws {
-        await assertAsyncThrows {
+        await assertAsyncThrows(error: BitwardenError.dataError("Missing data")) {
+            stateService.activeAccount = .fixture()
             _ = try await subject.downloadAttachment(.fixture(id: nil), cipher: .fixture(id: nil))
         }
     }
 
-    /// `downloadAttachment(_:cipher:)` updates the cipher on the server if the SDK adds a cipher key.
-    func test_downloadAttachment_updatesMigratedCipher() async throws {
-        stateService.activeAccount = .fixture()
-        let downloadUrl = FileManager.default.temporaryDirectory.appendingPathComponent("sillyGoose.txt")
-        try Data("🪿".utf8).write(to: downloadUrl)
-        cipherService.downloadAttachmentResult = .success(downloadUrl)
-        let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
-        let cipherView = CipherView.fixture(attachments: [attachment])
-        let cipher = Cipher.fixture(
-            attachments: [Attachment(attachmentView: attachment)],
-            key: "new key"
-        )
-        clientCiphers.encryptCipherResult = .success(cipher)
-
-        let resultUrl = try await subject.downloadAttachment(attachment, cipher: cipherView)
-
-        XCTAssertEqual(clientService.mockVault.clientCiphers.encryptedCiphers.last, cipherView)
-        XCTAssertEqual(cipherService.downloadAttachmentId, attachment.id)
-        XCTAssertEqual(clientService.mockVault.clientAttachments.encryptedFilePaths.last, downloadUrl.path)
-        XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
-        XCTAssertEqual(resultUrl?.lastPathComponent, "sillyGoose.txt")
+    /// `downloadAttachment(_:cipher:)` throws an error if the cipher can't be found in local data storage.
+    func test_downloadAttachment_cipherNotFound() async throws {
+        await assertAsyncThrows(error: BitwardenError.dataError("Unable to fetch cipher with ID 2")) {
+            stateService.activeAccount = .fixture()
+            let attachment = AttachmentView.fixture(fileName: "sillyGoose.txt")
+            let cipherView = CipherView.fixture(
+                attachments: [attachment],
+                id: "2"
+            )
+            _ = try await subject.downloadAttachment(attachment, cipher: cipherView)
+        }
     }
 
     /// `fetchCipher(withId:)` returns the cipher if it exists and `nil` otherwise.
@@ -2079,6 +2080,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             id: "1"
         )
         cipherService.deleteAttachmentWithServerResult = .success(cipherAfterAttachmentDelete)
+        cipherService.fetchCipherResult = .success(cipherAfterAttachmentSave)
         clientService.mockVault.clientCiphers.moveToOrganizationResult = .success(
             CipherView(cipher: cipherAfterAttachmentDelete)
         )
