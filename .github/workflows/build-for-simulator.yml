@@ -86,8 +86,8 @@ jobs:
         run: |
           find . -name "*.app"
           mkdir -p export
-          cp build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
-          cp build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app export
+          cp -rv build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
+          cp -rv build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app export
 
       - name: Upload APP files
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
