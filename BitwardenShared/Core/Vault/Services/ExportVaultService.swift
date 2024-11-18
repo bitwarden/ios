@@ -43,10 +43,12 @@ protocol ExportVaultService: AnyObject {
     ///
     func exportVaultFileContents(format: ExportFileType) async throws -> String
 
+    #if CXP_ENABLED
     /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
     /// - Returns: An `ASImportableAccount`
     @available(iOSApplicationExtension 18.2, *)
     func exportVaultForCXP() async throws -> ASImportableAccount
+    #endif
 
     /// Generates a file name for the export file based on the current date, time, and specified extension.
     /// - Parameters:
@@ -201,7 +203,9 @@ class DefultExportVaultService: ExportVaultService {
         )
     }
 
-    @available(iOSApplicationExtension 18.2, *)
+    #if CXP_ENABLED
+
+    @available(iOS 18.2, *)
     func exportVaultForCXP() async throws -> ASImportableAccount {
         let ciphers = try await cipherService.fetchAllCiphers()
             .filter { $0.deletedDate == nil }
@@ -218,6 +222,8 @@ class DefultExportVaultService: ExportVaultService {
         }
         return try JSONDecoder.cxpDecoder.decode(ASImportableAccount.self, from: cxfData)
     }
+
+    #endif
 
     func generateExportFileName(
         prefix: String?,

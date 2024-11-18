@@ -86,6 +86,7 @@ extension JSONDecoder {
 
     // MARK: Static Functions
 
+    /// Transforms the keys from CXP format handled by the Bitwarden SDK into the keys that Apple expects.
     static func customTransformCodingKeyForCXP(key: String) -> String {
         return switch key {
         case "credentialId":

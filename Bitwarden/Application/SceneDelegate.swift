@@ -88,6 +88,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             appProcessor.handleAppLinks(incomingURL: incomingURL)
         }
 
+        #if CXP_ENABLED
+
         if #available(iOS 18.2, *),
            userActivity.activityType == ASCredentialExchangeActivity {
             guard let token = userActivity.userInfo?[ASCredentialImportToken] as? UUID else {
@@ -96,6 +98,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
             appProcessor.handleImportCredentials(credentialImportToken: token)
         }
+
+        #endif
     }
 
     func scene(_ scene: UIScene, openURLContexts urlContexts: Set<UIOpenURLContext>) {

@@ -128,7 +128,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         case .csv:
             exportFormat = .csv
         case .cxp:
-            if #available(iOSApplicationExtension 18.2, *) {
+            if #available(iOS 18.2, *) {
                 try await exportVaultOnCXP()
             }
             return
@@ -143,11 +143,13 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     }
 
     /// Exports the vault using Credential Exchange protocol
-    @available(iOSApplicationExtension 18.2, *)
+    @available(iOS 18.2, *)
     private func exportVaultOnCXP() async throws {
         guard let delegate else {
             return
         }
+
+        #if CXP_ENABLED
 
         coordinator.showLoadingOverlay(title: Localizations.loading)
         defer { coordinator.hideLoadingOverlay() }
@@ -169,6 +171,8 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
                     )
                 )
         }
+
+        #endif
     }
 
     /// Load any initial data for the view.
