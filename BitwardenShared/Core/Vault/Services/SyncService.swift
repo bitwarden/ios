@@ -141,6 +141,9 @@ class DefaultSyncService: SyncService {
     /// The time provider for this service.
     private let timeProvider: TimeProvider
 
+    /// The service used by the application to manage vault access.
+    private let vaultTimeoutService: VaultTimeoutService
+
     // MARK: Initialization
 
     /// Initializes a `DefaultSyncService`.
@@ -159,6 +162,7 @@ class DefaultSyncService: SyncService {
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncAPIService: The API service used to perform sync API requests.
     ///   - timeProvider: The time provider for this service.
+    ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///
     init(
         accountAPIService: AccountAPIService,
@@ -173,7 +177,8 @@ class DefaultSyncService: SyncService {
         settingsService: SettingsService,
         stateService: StateService,
         syncAPIService: SyncAPIService,
-        timeProvider: TimeProvider
+        timeProvider: TimeProvider,
+        vaultTimeoutService: VaultTimeoutService
     ) {
         self.accountAPIService = accountAPIService
         self.cipherService = cipherService
@@ -188,6 +193,7 @@ class DefaultSyncService: SyncService {
         self.stateService = stateService
         self.syncAPIService = syncAPIService
         self.timeProvider = timeProvider
+        self.vaultTimeoutService = vaultTimeoutService
     }
 
     func needsSync(for userId: String, onlyCheckLocalData: Bool) async throws -> Bool {
@@ -255,9 +261,11 @@ extension DefaultSyncService {
         }
 
         if let organizations = response.profile?.organizations {
-            try await organizationService.initializeOrganizationCrypto(
-                organizations: organizations.compactMap(Organization.init)
-            )
+            if !vaultTimeoutService.isLocked(userId: userId) {
+                try await organizationService.initializeOrganizationCrypto(
+                    organizations: organizations.compactMap(Organization.init)
+                )
+            }
             try await organizationService.replaceOrganizations(organizations, userId: userId)
             try await checkTdeUserNeedsToSetPassword(account, organizations)
         }
