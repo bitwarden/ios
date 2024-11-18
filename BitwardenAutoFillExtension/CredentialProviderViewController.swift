@@ -88,16 +88,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             )
             provideFido2Credential(for: passkeyRequest)
         default:
-            break
-        }
-
-        guard #available(iOSApplicationExtension 18.0, *) else {
-            return
-        }
-
-        if let otpRequest = credentialRequest as? ASOneTimeCodeCredentialRequest,
-           let otpIdentity = otpRequest.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
-            provideOTPCredentialWithoutUserInteraction(for: otpIdentity)
+            if #available(iOSApplicationExtension 18.0, *),
+               let otpRequest = credentialRequest as? ASOneTimeCodeCredentialRequest,
+               let otpIdentity = otpRequest.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
+                provideOTPCredentialWithoutUserInteraction(for: otpIdentity)
+            }
         }
     }
 
@@ -115,18 +110,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 )
             )
         default:
-            break
-        }
-
-        guard #available(iOSApplicationExtension 18.0, *) else {
-            return
-        }
-
-        if let otpRequest = credentialRequest as? ASOneTimeCodeCredentialRequest,
-           let otpIdentity = otpRequest.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
-            initializeApp(with: DefaultCredentialProviderContext(
-                .autofillOTPCredential(otpIdentity, userInteraction: true)
-            ))
+            if #available(iOSApplicationExtension 18.0, *),
+               let otpRequest = credentialRequest as? ASOneTimeCodeCredentialRequest,
+               let otpIdentity = otpRequest.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
+                initializeApp(with: DefaultCredentialProviderContext(
+                    .autofillOTPCredential(otpIdentity, userInteraction: true)
+                ))
+            }
         }
     }
 
