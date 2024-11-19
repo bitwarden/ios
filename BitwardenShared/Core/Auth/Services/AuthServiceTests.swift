@@ -605,8 +605,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
@@ -752,8 +753,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
@@ -821,8 +823,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
@@ -843,6 +846,131 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertGetConfig()
     }
 
+    /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` set forcePasswordResetReason as
+    /// weakMasterPasswordOnLogin as master password doesn't fullfil org policies.
+    func test_loginWithTwoFactorCode_forcePasswordResetReason() async throws { // swiftlint:disable:this function_body_length line_length
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data
+            ),
+            .httpSuccess(testData: .identityTokenSuccessTwoFactorToken),
+        ]
+        appSettingsStore.appId = "App id"
+        await stateService.setTwoFactorToken("some token", email: "email@example.com")
+        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        let policy = MasterPasswordPolicyOptions(
+            minComplexity: 6,
+            minLength: 6,
+            requireUpper: true,
+            requireLower: true,
+            requireNumbers: true,
+            requireSpecial: true,
+            enforceOnLogin: true
+        )
+        clientService.mockAuth.satisfiesPolicyResult = false
+        policyService.getMasterPasswordPolicyOptionsResult = .success(policy)
+
+        // First login with the master password so that the request will be saved.
+        let authMethodsData = AuthMethodsData.fixture()
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
+            )
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil,
+                isNewAccount: false
+            )
+        }
+
+        // Login with the two-factor code.
+        _ = try await subject.loginWithTwoFactorCode(
+            email: "email@example.com",
+            code: "just_a_lil_code",
+            method: .email,
+            remember: true
+        )
+
+        // Verify the results.
+        XCTAssertEqual(
+            stateService.forcePasswordResetReason["13512467-9cfe-43b0-969f-07534084764b"],
+            .weakMasterPasswordOnLogin
+        )
+    }
+
+    /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` forcePasswordResetReason is nil since master
+    /// password satisfies org policies.
+    func test_loginWithTwoFactorCode_forcePasswordResetReason_isNil() async throws {
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenTwoFactorError.data
+            ),
+            .httpSuccess(testData: .identityTokenSuccessTwoFactorToken),
+        ]
+        appSettingsStore.appId = "App id"
+        await stateService.setTwoFactorToken("some token", email: "email@example.com")
+        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        let policy = MasterPasswordPolicyOptions(
+            minComplexity: 6,
+            minLength: 6,
+            requireUpper: true,
+            requireLower: true,
+            requireNumbers: true,
+            requireSpecial: true,
+            enforceOnLogin: true
+        )
+        clientService.mockAuth.satisfiesPolicyResult = true
+        policyService.getMasterPasswordPolicyOptionsResult = .success(policy)
+
+        // First login with the master password so that the request will be saved.
+        let authMethodsData = AuthMethodsData.fixture()
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.twoFactorRequired(
+                authMethodsData,
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
+            )
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil,
+                isNewAccount: false
+            )
+        }
+
+        // Login with the two-factor code.
+        _ = try await subject.loginWithTwoFactorCode(
+            email: "email@example.com",
+            code: "just_a_lil_code",
+            method: .email,
+            remember: true
+        )
+
+        // Verify the results.
+        XCTAssertNil(stateService.forcePasswordResetReason["13512467-9cfe-43b0-969f-07534084764b"])
+    }
+
     /// `loginWithTwoFactorCode()` returns the key connector unlock method if the user uses key connector.
     func test_loginWithTwoFactorCode_keyConnector() async throws {
         client.results = [
@@ -860,8 +988,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
@@ -891,6 +1020,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         policyService.getMasterPasswordPolicyOptionsResult = .success(nil)
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
+            isPreAuth: false,
             masterPassword: "master password",
             policy: nil
         )
@@ -913,6 +1043,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
+            isPreAuth: false,
             masterPassword: "strong 32 password & #",
             policy: policy
         )
@@ -935,6 +1066,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         let requirePasswordChange = try await subject.requirePasswordChange(
             email: "email",
+            isPreAuth: false,
             masterPassword: "weak password",
             policy: policy
         )
@@ -971,8 +1103,9 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertAsyncThrows(
             error: IdentityTokenRequestError.twoFactorRequired(
                 authMethodsData,
-                "exampleToken",
-                "BWCaptchaBypass_ABCXYZ"
+                "BWCaptchaBypass_ABCXYZ",
+                nil,
+                "exampleToken"
             )
         ) {
             try await subject.loginWithMasterPassword(
