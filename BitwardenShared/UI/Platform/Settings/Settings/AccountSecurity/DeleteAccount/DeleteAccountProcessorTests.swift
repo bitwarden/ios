@@ -60,6 +60,33 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     }
 
     /// Perform with `.deleteAccount` presents the master password prompt alert. If there's an
+    /// error with deleting the account, an alert is shown and the error is logged.
+    @MainActor
+    func test_perform_deleteAccount_error() async throws {
+        authRepository.deleteAccountResult = .failure(URLError(.timedOut))
+
+        await subject.perform(.deleteAccount)
+
+        let passwordAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try passwordAlert.setText("password", forTextFieldWithId: "password")
+        try await passwordAlert.tapAction(title: Localizations.submit)
+
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+
+        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(errorAlert, .networkResponseError(URLError(.timedOut)))
+        XCTAssertEqual(errorReporter.errors as? [URLError], [URLError(.timedOut)])
+
+        authRepository.deleteAccountCalled = false
+        errorReporter.errors.removeAll()
+
+        authRepository.deleteAccountResult = .success(())
+        try await errorAlert.tapAction(title: Localizations.tryAgain)
+        XCTAssertTrue(authRepository.deleteAccountCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// Perform with `.deleteAccount` presents the master password prompt alert. If there's an
     /// invalid password error with deleting the account, an alert is shown.
     @MainActor
     func test_perform_deleteAccount_serverError() async throws {

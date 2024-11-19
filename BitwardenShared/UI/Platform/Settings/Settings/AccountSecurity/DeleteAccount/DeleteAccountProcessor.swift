@@ -81,6 +81,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
                 )
             )
         } catch {
+            services.errorReporter.log(error: error)
             coordinator.showAlert(.networkResponseError(error) {
                 await self.deleteAccount(otp: otp, passwordText: passwordText)
             })
