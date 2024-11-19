@@ -68,7 +68,10 @@ public protocol VaultRepository: AnyObject {
     ///
     /// - Returns: The url of the temporary location of downloaded and decrypted data on the user's device.
     ///
-    func downloadAttachment(_ attachment: AttachmentView, cipher: CipherView) async throws -> URL?
+    func downloadAttachment(
+        _ attachment: AttachmentView,
+        cipher: CipherView
+    ) async throws -> URL?
 
     /// Attempt to fetch a cipher with the given id.
     ///
@@ -425,7 +428,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         _ attachment: AttachmentView,
         cipher: CipherView
     ) async throws -> CipherView {
-        guard let downloadUrl = try await downloadAttachment(attachment, cipher: cipher) else {
+        guard let downloadUrl = try await downloadAttachment(
+            attachment,
+            cipher: cipher
+        ) else {
             throw BitwardenError.dataError("Unable to download attachment")
         }
 
@@ -1020,16 +1026,18 @@ extension DefaultVaultRepository: VaultRepository {
         try await stateService.doesActiveAccountHavePremium()
     }
 
-    func downloadAttachment(_ attachment: AttachmentView, cipher: CipherView) async throws -> URL? {
+    func downloadAttachment(_ attachmentView: AttachmentView, cipher: CipherView) async throws -> URL? {
         let userId = try await stateService.getActiveAccountId()
 
-        guard let attachmentId = attachment.id,
-              let attachmentName = attachment.fileName,
+        guard let attachmentId = attachmentView.id,
+              let attachmentName = attachmentView.fileName,
               let cipherId = cipher.id
         else { throw BitwardenError.dataError("Missing data") }
 
-        // Get the encrypted cipher and attachment, then download the actual data of the attachment.
-        let encryptedCipher = try await encryptAndUpdateCipher(cipher)
+        guard let encryptedCipher = try await cipherService.fetchCipher(withId: cipherId) else {
+            throw BitwardenError.dataError("Unable to fetch cipher with ID \(cipherId)")
+        }
+
         guard let attachment = encryptedCipher.attachments?.first(where: { $0.id == attachmentId }),
               let downloadedUrl = try await cipherService.downloadAttachment(withId: attachmentId, cipherId: cipherId)
         else { return nil }

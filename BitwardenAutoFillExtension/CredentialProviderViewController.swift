@@ -88,7 +88,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             )
             provideFido2Credential(for: passkeyRequest)
         default:
-            break
+            if #available(iOSApplicationExtension 18.0, *),
+               let otpRequest = credentialRequest as? ASOneTimeCodeCredentialRequest,
+               let otpIdentity = otpRequest.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
+                provideOTPCredentialWithoutUserInteraction(for: otpIdentity)
+            }
         }
     }
 
@@ -106,7 +110,13 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 )
             )
         default:
-            break
+            if #available(iOSApplicationExtension 18.0, *),
+               let otpRequest = credentialRequest as? ASOneTimeCodeCredentialRequest,
+               let otpIdentity = otpRequest.credentialIdentity as? ASOneTimeCodeCredentialIdentity {
+                initializeApp(with: DefaultCredentialProviderContext(
+                    .autofillOTPCredential(otpIdentity, userInteraction: true)
+                ))
+            }
         }
     }
 
@@ -213,6 +223,51 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             }
         }
     }
+
+    /// Attempts to provide the OTP credential with the specified ID to the extension context to handle
+    /// autofill.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the user-requested credential to return.
+    ///   - repromptPasswordValidated: `true` if master password reprompt was required for the
+    ///     cipher and the user's master password was validated.
+    ///
+    @available(iOSApplicationExtension 18.0, *)
+    private func provideOTPCredential(
+        for id: String,
+        repromptPasswordValidated: Bool = false
+    ) {
+        guard let appProcessor else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        Task {
+            do {
+                let credential = try await appProcessor.provideOTPCredential(
+                    for: id,
+                    repromptPasswordValidated: repromptPasswordValidated
+                )
+                await extensionContext.completeOneTimeCodeRequest(using: credential)
+            } catch {
+                Logger.appExtension.error("Error providing OTP credential without user interaction: \(error)")
+                cancel(error: error)
+            }
+        }
+    }
+
+    @available(iOSApplicationExtension 18.0, *)
+    private func provideOTPCredentialWithoutUserInteraction(for otpIdentity: ASOneTimeCodeCredentialIdentity) {
+        guard let recordIdentifier = otpIdentity.recordIdentifier else {
+            cancel(error: ASExtensionError(.credentialIdentityNotFound))
+            return
+        }
+
+        initializeApp(
+            with: DefaultCredentialProviderContext(.autofillOTPCredential(otpIdentity, userInteraction: false))
+        )
+        provideOTPCredential(for: recordIdentifier)
+    }
 }
 
 // MARK: - iOS 18
@@ -285,6 +340,13 @@ extension CredentialProviderViewController: AppExtensionDelegate {
             }
 
             provideFido2Credential(for: asPasskeyRequest)
+        case let .autofillOTPCredential(otpIdentity, _):
+            guard #available(iOSApplicationExtension 18.0, *),
+                  let asOneTimeCodeIdentity = otpIdentity as? ASOneTimeCodeCredentialIdentity else {
+                cancel(error: ASExtensionError(.failed))
+                return
+            }
+            provideOTPCredentialWithUserInteraction(for: asOneTimeCodeIdentity)
         default:
             return
         }
@@ -310,6 +372,32 @@ extension CredentialProviderViewController: AppExtensionDelegate {
                 }
             } catch {
                 Logger.appExtension.error("Error providing credential: \(error)")
+                cancel(error: error)
+            }
+        }
+    }
+
+    /// Provides an OTP credential with user interaction given an `ASOneTimeCodeCredentialIdentity`.
+    /// - Parameter otpIdentity: `ASOneTimeCodeCredentialIdentity` to provide the credential for.
+    @available(iOSApplicationExtension 18.0, *)
+    func provideOTPCredentialWithUserInteraction(for otpIdentity: ASOneTimeCodeCredentialIdentity) {
+        guard let appProcessor, let recordIdentifier = otpIdentity.recordIdentifier else {
+            cancel(error: ASExtensionError(.failed))
+            return
+        }
+
+        Task {
+            do {
+                try await appProcessor.repromptForCredentialIfNecessary(
+                    for: recordIdentifier
+                ) { repromptPasswordValidated in
+                    self.provideOTPCredential(
+                        for: recordIdentifier,
+                        repromptPasswordValidated: repromptPasswordValidated
+                    )
+                }
+            } catch {
+                Logger.appExtension.error("Error providing OTP credential: \(error)")
                 cancel(error: error)
             }
         }
@@ -368,4 +456,4 @@ extension CredentialProviderViewController: RootNavigator {
             toViewController.didMove(toParent: self)
         }
     }
-}
+} // swiftlint:disable:this file_length

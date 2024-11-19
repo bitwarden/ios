@@ -57,6 +57,24 @@ protocol AutofillCredentialService: AnyObject {
         for fido2RequestParameters: PasskeyCredentialRequestParameters,
         fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate
     ) async throws -> ASPasskeyAssertionCredential
+
+    /// Returns a `ASOneTimeCodeCredential` that matches the user-requested credential which can be
+    /// used for autofill.
+    ///
+    /// - Parameters:
+    ///   - id: The identifier of the user-requested credential to return.
+    ///   - autofillCredentialServiceDelegate: Delegate for autofill credential operations.
+    ///   - repromptPasswordValidated: `true` if master password reprompt was required for the
+    ///     cipher and the user's master password was validated.
+    /// - Returns: A `ASOneTimeCodeCredential` that matches the user-requested credential which can be
+    ///     used for autofill.
+    ///
+    @available(iOS 18.0, *)
+    func provideOTPCredential(
+        for id: String,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
+        repromptPasswordValidated: Bool
+    ) async throws -> ASOneTimeCodeCredential
 }
 
 /// A default implementation of an `AutofillCredentialService`.
@@ -95,6 +113,9 @@ class DefaultAutofillCredentialService {
     /// The service used to manage copy/pasting from the device's clipboard.
     private let pasteboardService: PasteboardService
 
+    /// Provides the present time.
+    private let timeProvider: TimeProvider
+
     /// The service used by the application to validate TOTP keys and produce TOTP values
     private let totpService: TOTPService
 
@@ -124,6 +145,7 @@ class DefaultAutofillCredentialService {
     ///   - identityStore: The service used to manage the credentials available for AutoFill suggestions.
     ///   - pasteboardService: The service used to manage copy/pasting from the device's clipboard.
     ///   - stateService: The service used by the application to manage account state.
+    ///   - timeProvider: Provides the present time.
     ///   - totpService: The service used by the application to validate TOTP keys and produce TOTP values.
     ///   - vaultTimeoutService: The service used to manage vault access.
     ///
@@ -138,6 +160,7 @@ class DefaultAutofillCredentialService {
         identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         pasteboardService: PasteboardService,
         stateService: StateService,
+        timeProvider: TimeProvider,
         totpService: TOTPService,
         vaultTimeoutService: VaultTimeoutService
     ) {
@@ -151,6 +174,7 @@ class DefaultAutofillCredentialService {
         self.identityStore = identityStore
         self.pasteboardService = pasteboardService
         self.stateService = stateService
+        self.timeProvider = timeProvider
         self.totpService = totpService
         self.vaultTimeoutService = vaultTimeoutService
 
@@ -293,16 +317,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
         repromptPasswordValidated: Bool
     ) async throws -> ASPasswordCredential {
-        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
-        guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
-            throw ASExtensionError(.userInteractionRequired)
-        }
-
-        guard let encryptedCipher = try await cipherService.fetchCipher(withId: id) else {
-            throw ASExtensionError(.credentialIdentityNotFound)
-        }
-
-        let cipher = try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+        let cipher = try await checkUnlockAndGetCipherToProvideCredential(
+            for: id,
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate
+        )
         guard cipher.type == .login,
               cipher.login != nil,
               let username = cipher.login?.username,
@@ -369,7 +387,60 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         )
     }
 
+    @available(iOS 18.0, *)
+    func provideOTPCredential(
+        for id: String,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate,
+        repromptPasswordValidated: Bool
+    ) async throws -> ASOneTimeCodeCredential {
+        let cipher = try await checkUnlockAndGetCipherToProvideCredential(
+            for: id,
+            autofillCredentialServiceDelegate: autofillCredentialServiceDelegate
+        )
+        guard cipher.type == .login, let totpKey = cipher.login?.totp else {
+            throw ASExtensionError(.credentialIdentityNotFound)
+        }
+
+        guard cipher.reprompt == .none || repromptPasswordValidated else {
+            throw ASExtensionError(.userInteractionRequired)
+        }
+
+        guard let vault = try? await clientService.vault(),
+              let code = try? vault.generateTOTPCode(for: totpKey, date: timeProvider.presentTime) else {
+            throw ASExtensionError(.credentialIdentityNotFound)
+        }
+
+        await eventService.collect(
+            eventType: .cipherClientAutofilled,
+            cipherId: cipher.id
+        )
+
+        return ASOneTimeCodeCredential(code: code.code)
+    }
+
     // MARK: Private
+
+    /// Checks if the vault is locked, unlocking if never session timeout and gets the decrypted cipher
+    /// to provider the credential out of it.
+    /// - Parameters:
+    ///   - id: The `id` of the credential to provide.
+    ///   - autofillCredentialServiceDelegate: Delegate for autofill credential operations.
+    /// - Returns: The decrypted cipher to provide the credential.
+    private func checkUnlockAndGetCipherToProvideCredential(
+        for id: String,
+        autofillCredentialServiceDelegate: AutofillCredentialServiceDelegate
+    ) async throws -> CipherView {
+        try await tryUnlockVaultWithoutUserInteraction(delegate: autofillCredentialServiceDelegate)
+        guard try await !vaultTimeoutService.isLocked(userId: stateService.getActiveAccountId()) else {
+            throw ASExtensionError(.userInteractionRequired)
+        }
+
+        guard let encryptedCipher = try await cipherService.fetchCipher(withId: id) else {
+            throw ASExtensionError(.credentialIdentityNotFound)
+        }
+
+        return try await clientService.vault().ciphers().decrypt(cipher: encryptedCipher)
+    }
 
     /// Provides a Fido2 credential based for the given request.
     /// - Parameters:

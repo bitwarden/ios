@@ -22,6 +22,7 @@ class SyncServiceTests: BitwardenTestCase {
     var subject: SyncService!
     var syncServiceDelegate: MockSyncServiceDelegate!
     var timeProvider: MockTimeProvider!
+    var vaultTimeoutService: MockVaultTimeoutService!
 
     // MARK: Setup & Teardown
 
@@ -49,6 +50,7 @@ class SyncServiceTests: BitwardenTestCase {
                 )
             )
         )
+        vaultTimeoutService = MockVaultTimeoutService()
 
         subject = DefaultSyncService(
             accountAPIService: APIService(client: client),
@@ -63,7 +65,8 @@ class SyncServiceTests: BitwardenTestCase {
             settingsService: settingsService,
             stateService: stateService,
             syncAPIService: APIService(client: client),
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
+            vaultTimeoutService: vaultTimeoutService
         )
         subject.delegate = syncServiceDelegate
     }
@@ -85,6 +88,7 @@ class SyncServiceTests: BitwardenTestCase {
         subject = nil
         syncServiceDelegate = nil
         timeProvider = nil
+        vaultTimeoutService = nil
     }
 
     // MARK: Tests
@@ -574,6 +578,22 @@ class SyncServiceTests: BitwardenTestCase {
         try await subject.fetchSync(forceSync: false)
 
         XCTAssertTrue(organizationService.initializeOrganizationCryptoWithOrgsCalled)
+        XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?.count, 2)
+        XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?[0].id, "ORG_1")
+        XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?[1].id, "ORG_2")
+        XCTAssertEqual(organizationService.replaceOrganizationsUserId, "1")
+    }
+
+    /// `fetchSync()` replaces the list of the user's organizations but doesn't initialize
+    /// organization crypto if the user's vault is locked.
+    func test_fetchSync_organizations_vaultLocked() async throws {
+        client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked["1"] = true
+
+        try await subject.fetchSync(forceSync: false)
+
+        XCTAssertFalse(organizationService.initializeOrganizationCryptoWithOrgsCalled)
         XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?.count, 2)
         XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?[0].id, "ORG_1")
         XCTAssertEqual(organizationService.replaceOrganizationsOrganizations?[1].id, "ORG_2")
