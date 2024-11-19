@@ -102,11 +102,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(id: "password", text: "password")
-
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertTrue(authRepository.deleteAccountCalled)
 
@@ -124,11 +121,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(text: "password")
-
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
 
         await assertAsyncThrows {
             _ = try await stateService.getAccounts()
@@ -148,10 +142,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(text: "password")
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        try alert.setText("password", forTextFieldWithId: "password")
+        try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertEqual(stateService.activeAccount, account2)
     }
@@ -173,9 +165,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         coordinator.loadingOverlaysShown.removeAll()
 
         var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(id: "otp", text: "otp")
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        try alert.setText("otp", forTextFieldWithId: "otp")
+        try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(
@@ -216,11 +207,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteAccount)
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)
-        var textField = try XCTUnwrap(alert.alertTextFields.first)
-        textField = AlertTextField(id: "otp", text: "otp")
-
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.submit }))
-        await action.handler?(action, [textField])
+        try alert.setText("otp", forTextFieldWithId: "otp")
+        try await alert.tapAction(title: Localizations.submit)
 
         XCTAssertTrue(authRepository.deleteAccountCalled)
 
