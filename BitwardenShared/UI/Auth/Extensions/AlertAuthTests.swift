@@ -3,7 +3,7 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertAuthTests: BitwardenTestCase {
-    /// `accountOptions(_:lockAction:logoutAction:)`
+    /// `accountOptions(_:lockAction:logoutAction:removeAccountAction:)`
     func test_accountOptions() async throws {
         var actions = [String]()
         let subject = Alert.accountOptions(
@@ -33,7 +33,7 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertTrue(actions.isEmpty)
     }
 
-    /// `accountOptions(_:lockAction:logoutAction:)` shows the account options for a logged out account.
+    /// `accountOptions(_:lockAction:logoutAction:removeAccountAction:)` shows the account options for a logged out account.
     func test_accountOptions_loggedOut() async throws {
         var actions = [String]()
         let subject = Alert.accountOptions(
