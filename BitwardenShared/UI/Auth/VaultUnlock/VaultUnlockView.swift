@@ -54,6 +54,11 @@ struct VaultUnlockView: View {
         .task {
             await store.perform(.appeared)
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            Task {
+                await store.perform(.didEnterForeground)
+            }
+        }
         .toast(store.binding(
             get: \.toast,
             send: VaultUnlockAction.toastShown
