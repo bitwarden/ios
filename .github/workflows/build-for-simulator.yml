@@ -4,7 +4,27 @@ on:
   workflow_dispatch:
     inputs:
       build-version:
-        description: "Unused"
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      build-number:
+        description: "Version Number Override - e.g. '1021'"
+        type: string
+      xcode-version:
+        description: "Xcode Version Override - e.g. '15.2'"
+        type: string
+  workflow_call:
+    inputs:
+      build-version:
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      build-number:
+        description: "Version Number Override - e.g. '1021'"
+        type: string
+      xcode-version:
+        description: "Xcode Version Override - e.g. '15.2'"
+        type: string
+env:
+  XCODE_VERSION: ${{ inputs.xcode-version }}
 
 jobs:
   build:
@@ -30,11 +50,46 @@ jobs:
           fetch-depth: 0
           filter: tree:0
 
+      - name: Calculate version
+        if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
+        id: dispatch-version
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          owner: bitwarden
+          repo: ios
+          ref: main
+          workflow: _version.yml
+          workflow_inputs: '{"base_version_number": "${{ inputs.base_version_number }}", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
+
       - name: Read version info
         id: version_info
         run: |
-          echo "version_name=2024.12.0" >> $GITHUB_OUTPUT
-          echo "version_number=9999" >> $GITHUB_OUTPUT
+          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
+          if [ ! -f version-info/version_info.json ]; then
+            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
+            json='{
+              "version_number": "${{ inputs.build-number }}",
+              "version_name": "${{ inputs.build-version }}"
+            }'
+
+            # file will be used by the upload step
+            mkdir version-info
+            echo "$json" > version-info/version_info.json
+          else
+              echo "::notice::version-version.json found!"
+          fi
+
+          content=$(cat version-info/version_info.json)
+          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
+          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
+      - name: Upload version info artifact
+        if: ${{ inputs.upload_version_info }}
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: version-info
+          path: version-info/version_info.json
 
       - name: Read default Xcode version
         run: |
@@ -59,10 +114,10 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install Fastlane, Mint
+      - name: Install Mint
         run: |
           brew update
-          brew install fastlane mint
+          brew install mint
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -76,7 +131,7 @@ jobs:
 
       - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ inputs.compiler-flags }}"
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "Simulator Build"
 
       - name: Build iOS app
         run: |
@@ -86,8 +141,8 @@ jobs:
         run: |
           find . -name "*.app"
           mkdir -p export
-          cp -rv build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
-          cp -rv build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app export
+          cp -r build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
+          cp -r build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app export
 
       - name: Upload APP files
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
