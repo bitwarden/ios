@@ -234,6 +234,25 @@ public class AppProcessor {
         )
     }
 
+    /// Provides an OTP credential for the identity
+    /// - Parameters:
+    ///   - id: The identifier of the user-requested credential to return
+    ///   - repromptPasswordValidated: true` if master password reprompt was required for the
+    ///     cipher and the user's master password was validated.
+    /// - Returns: An `ASOneTimeCodeCredential` that matches the user-requested credential which can be
+    ///     used for autofill..
+    @available(iOSApplicationExtension 18.0, *)
+    public func provideOTPCredential(
+        for id: String,
+        repromptPasswordValidated: Bool = false
+    ) async throws -> ASOneTimeCodeCredential {
+        try await services.autofillCredentialService.provideOTPCredential(
+            for: id,
+            autofillCredentialServiceDelegate: self,
+            repromptPasswordValidated: repromptPasswordValidated
+        )
+    }
+
     /// Reprompts the user for their master password if the cipher for the user-requested credential
     /// requires reprompt. Once reprompt has been completed (or when it's not required), the
     /// `completion` closure is called notifying the caller if the master password was validated
