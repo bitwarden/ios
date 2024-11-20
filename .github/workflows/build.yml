@@ -320,7 +320,7 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Update homebrew casks
+      - name: Update homebrew
         run: |
           brew update
 
