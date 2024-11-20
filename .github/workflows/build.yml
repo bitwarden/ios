@@ -356,6 +356,22 @@ jobs:
         run: |
           ./Scripts/build.sh ${{ env.BUILD_VARIANT }} "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}"
 
+      - name: Prepare APP files for upload to GitHub
+        if: env.BUILD_VARIANT == 'Simulator'
+        run: |
+          find . -name "*.app"
+          mkdir -p export
+          cp -r build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
+          cp -r build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app export
+
+      - name: Upload APP files
+        if: env.BUILD_VARIANT == 'Simulator'
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: Bitwarden iOS-Simulator ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
+          path: export
+          if-no-files-found: error
+
       - name: Prepare IPA & dSYM files for upload to GitHub
         if: env.BUILD_VARIANT != 'Simulator'
         run: |
