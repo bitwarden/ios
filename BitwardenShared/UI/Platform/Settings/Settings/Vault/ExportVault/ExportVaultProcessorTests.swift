@@ -1,3 +1,4 @@
+import AuthenticationServices
 import XCTest
 
 @testable import BitwardenShared
@@ -7,6 +8,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var delegate: MockExportVaultProcessorDelegate!
     var errorReporter: MockErrorReporter!
     var exportService: MockExportVaultService!
     var policyService: MockPolicyService!
@@ -19,6 +21,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
+        delegate = MockExportVaultProcessorDelegate()
         errorReporter = MockErrorReporter()
         exportService = MockExportVaultService()
         policyService = MockPolicyService()
@@ -31,6 +34,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         subject = ExportVaultProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
             services: services
         )
     }
@@ -40,6 +44,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         authRepository = nil
         coordinator = nil
+        delegate = nil
         errorReporter = nil
         exportService = nil
         policyService = nil
@@ -421,5 +426,13 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         subject.receive(.toggleMasterPasswordOrOtpVisibility(false))
         XCTAssertFalse(subject.state.isMasterPasswordOrOtpVisible)
+    }
+}
+
+// MARK: - MockExportVaultProcessorDelegate
+
+class MockExportVaultProcessorDelegate: ExportVaultProcessorDelegate {
+    func presentationAnchorForASCredentialExportManager() -> ASPresentationAnchor {
+        UIWindow()
     }
 } // swiftlint:disable:this file_length

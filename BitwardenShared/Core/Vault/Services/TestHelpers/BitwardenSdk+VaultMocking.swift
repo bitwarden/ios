@@ -64,10 +64,11 @@ extension CipherListView {
             collectionIds: cipher.collectionIds,
             key: cipher.key,
             name: cipher.name,
-            subTitle: "",
+            subtitle: "",
             type: CipherListViewType(cipher: cipher),
             favorite: cipher.favorite,
             reprompt: cipher.reprompt,
+            organizationUseTotp: cipher.organizationUseTotp,
             edit: cipher.edit,
             viewPassword: cipher.viewPassword,
             attachments: UInt32(cipher.attachments?.count ?? 0),
@@ -86,7 +87,15 @@ extension CipherListViewType {
         case .identity:
             self = .identity
         case .login:
-            self = .login(hasFido2: !(cipher.login?.fido2Credentials?.isEmpty ?? true), totp: cipher.login?.totp)
+            self = .login(
+                LoginListView(
+                    hasFido2: !(
+                        cipher.login?.fido2Credentials?.isEmpty ?? true
+                    ),
+                    totp: cipher.login?.totp,
+                    uris: nil
+                )
+            )
         case .secureNote:
             self = .secureNote
         case .sshKey:

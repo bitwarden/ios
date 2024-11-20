@@ -7,11 +7,18 @@ import BitwardenSdk
 class MockClientExporters {
     // MARK: Properties
 
-    /// The ciphers exported in a call to `exportVault(_:)` or `exportOrganizationVault(_:)`.
+    /// The account used in `exportOrganizationVault(_:)`.
+    var account: BitwardenSdk.Account?
+
+    /// The ciphers exported in a call to `exportVault(_:)` or `exportOrganizationVault(_:)`
+    /// or `exportOrganizationVault(_:)`.
     var ciphers = [BitwardenSdk.Cipher]()
 
     /// The collections exported in a call to `exportOrganizationVault(_:)`.
     var collections = [BitwardenSdk.Collection]()
+
+    /// The result of a call to `exportCxf(account:ciphers:)`
+    var exportCxfResult: Result<String, Error> = .failure(BitwardenTestError.example)
 
     /// The result of a call to `exportOrganizationVault(_:)`
     var exportOrganizationVaultResult: Result<String, Error> = .failure(BitwardenTestError.example)
@@ -29,6 +36,12 @@ class MockClientExporters {
 // MARK: - ClientExportersProtocol
 
 extension MockClientExporters: ClientExportersProtocol {
+    func exportCxf(account: BitwardenSdk.Account, ciphers: [BitwardenSdk.Cipher]) throws -> String {
+        self.account = account
+        self.ciphers = ciphers
+        return try exportCxfResult.get()
+    }
+
     func exportOrganizationVault(
         collections: [BitwardenSdk.Collection],
         ciphers: [BitwardenSdk.Cipher],

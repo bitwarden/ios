@@ -867,7 +867,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `isLocked` returns the lock state of an active user.
     func test_isLocked_noHistory() async throws {
-        let account: Account = .fixture()
+        let account: BitwardenShared.Account = .fixture()
         stateService.activeAccount = account
         vaultTimeoutService.isClientLocked[account.profile.userId] = true
         let isLocked = try await subject.isLocked()

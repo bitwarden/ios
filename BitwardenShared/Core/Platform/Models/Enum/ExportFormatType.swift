@@ -17,7 +17,7 @@ enum ExportFormatType: Menuable {
 
     // MARK: Type Properties
 
-    #if CXP_ENABLED
+    #if compiler(>=6.0.3)
     /// The ordered list of options to display in the menu.
     static let allCases: [ExportFormatType] = [.json, .csv, .jsonEncrypted, .cxp]
     #else

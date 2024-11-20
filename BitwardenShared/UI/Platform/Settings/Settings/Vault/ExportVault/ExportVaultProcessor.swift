@@ -145,11 +145,11 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     /// Exports the vault using Credential Exchange protocol
     @available(iOS 18.2, *)
     private func exportVaultOnCXP() async throws {
+        #if compiler(>=6.0.3)
+
         guard let delegate else {
             return
         }
-
-        #if CXP_ENABLED
 
         coordinator.showLoadingOverlay(title: Localizations.loading)
         defer { coordinator.hideLoadingOverlay() }

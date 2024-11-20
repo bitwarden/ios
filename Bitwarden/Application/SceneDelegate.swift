@@ -88,7 +88,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             appProcessor.handleAppLinks(incomingURL: incomingURL)
         }
 
-        #if CXP_ENABLED
+        #if compiler(>=6.0.3)
 
         if #available(iOS 18.2, *),
            userActivity.activityType == ASCredentialExchangeActivity {
