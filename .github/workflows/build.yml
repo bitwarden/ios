@@ -11,6 +11,7 @@ on:
         options:
           - Beta
           - Production
+          - Simulator
       build-version:
         description: "Version Name Override - e.g. '2024.8.1'"
         type: string
@@ -133,9 +134,11 @@ jobs:
           name: version-info
           path: version-info/version_info.json
 
-      - name: Read default Xcode version
+      - name: Read default Xcode version and simulator configuration
         run: |
           echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+          echo "DEFAULT_SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
+          echo "DEFAULT_SIMULATOR_VERSION=$(cat .test-simulator-ios-version | tr -d '\n')" >> "$GITHUB_ENV"
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
@@ -152,11 +155,13 @@ jobs:
             ${{ runner.os }}-mint-
 
       - name: Log in to Azure
+        if: env.BUILD_VARIANT != 'Simulator'
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
+        if: env.BUILD_VARIANT != 'Simulator'
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
@@ -259,12 +264,14 @@ jobs:
           plutil -replace BUNDLE_ID -string com.8bit.bitwarden.beta.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve certificates
+        if: env.BUILD_VARIANT != 'Simulator'
         run: |
           mkdir -p $HOME/certificates
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
             jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
       - name: Download Fastlane credentials
+        if: env.BUILD_VARIANT != 'Simulator'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -275,6 +282,7 @@ jobs:
             --file $HOME/secrets/$FILE --output none
 
       - name: Configure Keychain Access
+        if: env.BUILD_VARIANT != 'Simulator'
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
         run: |
@@ -288,6 +296,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Configure provisioning profiles
+        if: env.BUILD_VARIANT != 'Simulator'
         run: |
           ./Scripts/configure_provisioning_profiles.sh ${{ env.BUILD_VARIANT }}
 
@@ -302,6 +311,7 @@ jobs:
           echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
 
       - name: Update APNS entitlements
+        if: env.BUILD_VARIANT != 'Simulator'
         run: |
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
@@ -310,10 +320,19 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install Fastlane, Mint
+      - name: Update homebrew casks
         run: |
           brew update
-          brew install fastlane mint
+
+      - name: Install Fastlane
+        if: env.BUILD_VARIANT != 'Simulator'
+        run: |
+          brew update
+          brew install fastlane
+
+      - name: Install Mint
+        run: |
+          brew install mint
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -321,6 +340,7 @@ jobs:
           mint bootstrap
 
       - name: Select variant
+        if: env.BUILD_VARIANT != 'Simulator'
         run: |
           ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }} "${{ inputs.compiler-flags }}"
 
@@ -338,12 +358,14 @@ jobs:
           ./Scripts/build.sh
 
       - name: Prepare IPA & dSYM files for upload to GitHub
+        if: env.BUILD_VARIANT != 'Simulator'
         run: |
           mkdir -p export/dSYMs
           cp build/Bitwarden/Bitwarden.ipa export
           cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
 
       - name: Upload IPA & dSYM files
+        if: env.BUILD_VARIANT != 'Simulator'
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
@@ -351,6 +373,7 @@ jobs:
           if-no-files-found: error
 
       - name: Set up private auth key
+        if: env.BUILD_VARIANT != 'Simulator'
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
@@ -358,6 +381,7 @@ jobs:
           EOF
 
       - name: Validate app with App Store Connect
+        if: env.BUILD_VARIANT != 'Simulator'
         run: |
           xcrun altool --validate-app \
             --type ios \
