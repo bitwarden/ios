@@ -142,7 +142,7 @@ class StartRegistrationProcessor: StateProcessor<
 
         do {
             let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            let name = state.nameText.trimmingCharacters(in: .whitespacesAndNewlines)
+            let name = state.nameText.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
             guard !email.isEmpty else {
                 throw StartRegistrationError.emailEmpty
             }
