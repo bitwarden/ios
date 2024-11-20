@@ -58,8 +58,6 @@ class VaultUnlockProcessor: StateProcessor<
             await refreshProfileState()
             await checkIfPinUnlockIsAvailable()
             await loadData()
-        case .didEnterForeground:
-            await coordinator.handleEvent(.didStart)
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
         case .unlockVault:

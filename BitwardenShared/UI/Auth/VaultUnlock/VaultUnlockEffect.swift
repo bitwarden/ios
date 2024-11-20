@@ -4,9 +4,6 @@ enum VaultUnlockEffect: Equatable {
     /// The vault unlock view appeared.
     case appeared
 
-    /// The app has re-entered the foreground and is now visible to the user.
-    case didEnterForeground
-
     /// A Profile Switcher Effect.
     case profileSwitcher(ProfileSwitcherEffect)
 

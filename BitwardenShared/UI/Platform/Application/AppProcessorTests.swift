@@ -260,7 +260,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         notificationCenterService.willEnterForegroundSubject.send()
         try await waitForAsync { self.willEnterForegroundCalled == 2 }
 
-        XCTAssertTrue(coordinator.events.isEmpty)
+        XCTAssertEqual(coordinator.events.last, .didStart)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
@@ -277,7 +277,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         notificationCenterService.willEnterForegroundSubject.send()
         try await waitForAsync { self.willEnterForegroundCalled == 2 }
 
-        XCTAssertTrue(coordinator.events.isEmpty)
+        XCTAssertEqual(coordinator.events.last, .didStart)
     }
 
     /// `init()` subscribes to will enter foreground events and handles switching accounts if the
@@ -294,7 +294,14 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         notificationCenterService.willEnterForegroundSubject.send()
         try await waitForAsync { self.willEnterForegroundCalled == 2 }
 
-        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: "2", isAutomatic: false)])
+        XCTAssertEqual(
+            coordinator.events,
+            [
+                .didStart,
+                .switchAccounts(userId: "2", isAutomatic: false),
+                .didStart,
+            ]
+        )
     }
 
     /// `init()` subscribes to will enter foreground events and doesn't check for an account switch
@@ -323,7 +330,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         notificationCenterService.willEnterForegroundSubject.send()
         try await waitForAsync { willEnterForegroundCalled == 2 }
 
-        XCTAssertTrue(coordinator.events.isEmpty)
+        XCTAssertEqual(coordinator.events.last, .didStart)
     }
 
     /// `init()` subscribes to will enter foreground events and restarts the app is there's no
@@ -339,7 +346,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         notificationCenterService.willEnterForegroundSubject.send()
         try await waitForAsync { self.willEnterForegroundCalled == 2 }
 
-        XCTAssertEqual(coordinator.events, [.didStart])
+        XCTAssertEqual(coordinator.events, [.didStart, .didStart, .didStart])
     }
 
     /// `init()` sets the `AppProcessor` as the delegate of any necessary services.
@@ -915,7 +922,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         waitFor(!coordinator.events.isEmpty)
 
         XCTAssertTrue(appModule.appCoordinator.isStarted)
-        XCTAssertEqual(appModule.appCoordinator.events, [.didStart])
+        XCTAssertEqual(appModule.appCoordinator.events, [.didStart, .didStart])
         XCTAssertEqual(migrationService.didPerformMigrations, true)
     }
 

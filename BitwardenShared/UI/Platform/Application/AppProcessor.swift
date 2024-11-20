@@ -84,6 +84,7 @@ public class AppProcessor {
                 startEventTimer()
                 await checkIfExtensionSwitchedAccounts()
                 await checkAccountsForTimeout()
+                await coordinator?.handleEvent(.didStart)
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
                 debugWillEnterForeground?()

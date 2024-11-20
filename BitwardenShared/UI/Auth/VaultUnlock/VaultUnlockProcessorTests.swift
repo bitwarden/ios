@@ -156,16 +156,6 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(3, subject.state.unsuccessfulUnlockAttemptsCount)
     }
 
-    /// `perform(.didEnterForeground)` triggers the coordinator to handle the `.didStart` event.
-    @MainActor
-    func test_perform_didEnterForeground() async {
-        // Perform the didEnterForeground effect
-        await subject.perform(.didEnterForeground)
-
-        // Verify that the coordinator handled the .didStart event
-        XCTAssertEqual(coordinator.events.last, .didStart)
-    }
-
     /// `perform(.appeared)`
     /// No active account and accounts should yield a profile switcher state without an active account.
     @MainActor
