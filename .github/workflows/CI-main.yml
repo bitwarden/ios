@@ -92,40 +92,40 @@ jobs:
           echo "internal_beta_version_name=$internal_beta_version_name" >> $GITHUB_OUTPUT
           echo "::warning::Internal version name: $internal_beta_version_name"
 
-  build-public:
-    name: Build Public Apps
-    needs: resolve-values
-    uses: bitwarden/ios/.github/workflows/build.yml@main
-    strategy:
-      matrix:
-        variant: [Beta, Production]
-    with:
-      build-variant: ${{ matrix.variant }}
-      build-version: ${{ needs.resolve-values.outputs.version_name }}
-      build-number: ${{ needs.resolve-values.outputs.version_number }}
-      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
-      distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
-      upload_version_info: false
-    secrets: inherit
+  # build-public:
+  #   name: Build Public Apps
+  #   needs: resolve-values
+  #   uses: bitwarden/ios/.github/workflows/build.yml@main
+  #   strategy:
+  #     matrix:
+  #       variant: [Beta, Production]
+  #   with:
+  #     build-variant: ${{ matrix.variant }}
+  #     build-version: ${{ needs.resolve-values.outputs.version_name }}
+  #     build-number: ${{ needs.resolve-values.outputs.version_number }}
+  #     xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+  #     distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+  #     upload_version_info: false
+  #   secrets: inherit
 
-  build-internal:
-    name: Build Internal App
-    needs: resolve-values
-    uses: bitwarden/ios/.github/workflows/build.yml@main
-    with:
-      build-variant: Beta
-      build-version: ${{ needs.resolve-values.outputs.internal_beta_version_name }}
-      build-number: ${{ needs.resolve-values.outputs.version_number }}
-      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
-      distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
-      upload_version_info: false
-      compiler-flags: "DEBUG_MENU"
-    secrets: inherit
+  # build-internal:
+  #   name: Build Internal App
+  #   needs: resolve-values
+  #   uses: bitwarden/ios/.github/workflows/build.yml@main
+  #   with:
+  #     build-variant: Beta
+  #     build-version: ${{ needs.resolve-values.outputs.internal_beta_version_name }}
+  #     build-number: ${{ needs.resolve-values.outputs.version_number }}
+  #     xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+  #     distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+  #     upload_version_info: false
+  #     compiler-flags: "DEBUG_MENU"
+  #   secrets: inherit
 
   build-simulator:
     name: Build Simulator App
     needs: resolve-values
-    uses: bitwarden/ios/.github/workflows/build.yml@main
+    uses: bitwarden/ios/.github/workflows/build.yml@pm-9375/app-build
     with:
       build-variant: Simulator
       build-version: ${{ needs.resolve-values.outputs.version_name }}
