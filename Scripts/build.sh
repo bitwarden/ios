@@ -6,7 +6,7 @@
 #
 # Usage:
 #
-#   $ ./build.sh [mode]
+#   $ ./build.sh [mode] [destination]
 
 set -euo pipefail
 
@@ -14,12 +14,13 @@ bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
 if [ $# -lt 1 ]; then
-  echo >&2 "Called without necessary arguments: ${bold}mode${normal}."
-  echo >&2 "For example: \`Scripts/build.sh Simulator"
+  echo >&2 "Called without necessary arguments: ${bold}mode${normal}. ${bold}destination${normal}"
+  echo >&2 "For example: \`Scripts/build.sh Simulator \"platform=iOS Simulator,OS=18.1,name=iPhone 16 Pro\""
   exit 1
 fi
 
 MODE=$1
+DESTINATION=$2
 
 BUILD_DIR="build"
 DERIVED_DATA_PATH="${BUILD_DIR}/DerivedData"
@@ -45,7 +46,7 @@ if [[ "$MODE" == "Simulator" ]]; then
     -project Bitwarden.xcodeproj \
     -scheme Bitwarden \
     -configuration Debug \
-    -destination "platform=iOS Simulator,OS=18.1,name=iPhone 16" \
+    -destination "${DESTINATION}" \
     -derivedDataPath "${DERIVED_DATA_PATH}" \
     | xcbeautify --renderer github-actions
 else
