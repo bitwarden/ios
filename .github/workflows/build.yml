@@ -327,7 +327,6 @@ jobs:
       - name: Install Fastlane
         if: env.BUILD_VARIANT != 'Simulator'
         run: |
-          brew update
           brew install fastlane
 
       - name: Install Mint
