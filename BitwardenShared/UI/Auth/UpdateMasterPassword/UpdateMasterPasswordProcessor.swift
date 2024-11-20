@@ -134,6 +134,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
             if state.masterPasswordPolicy?.isInEffect == true {
                 let isInvalid = try await services.authService.requirePasswordChange(
                     email: services.authRepository.getAccount().profile.email,
+                    isPreAuth: false,
                     masterPassword: state.masterPassword,
                     policy: state.masterPasswordPolicy
                 )

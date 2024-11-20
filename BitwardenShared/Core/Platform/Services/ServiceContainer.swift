@@ -629,6 +629,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             pasteboardService: pasteboardService,
             stateService: stateService,
+            timeProvider: timeProvider,
             totpService: totpService,
             vaultTimeoutService: vaultTimeoutService
         )

@@ -180,7 +180,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
             switch identityTokenError {
             case let .captchaRequired(token):
                 launchCaptchaFlow(with: token)
-            case let .twoFactorRequired(authMethodsData, _, _):
+            case let .twoFactorRequired(authMethodsData, _, _, _):
                 let unlockMethod: TwoFactorUnlockMethod? = if let key = approvedRequest?.key, let authRequestResponse {
                     TwoFactorUnlockMethod.loginWithDevice(
                         key: key,
@@ -191,6 +191,8 @@ final class LoginWithDeviceProcessor: StateProcessor<
                     nil
                 }
                 coordinator.navigate(to: .twoFactor(state.email, unlockMethod, authMethodsData, nil))
+            case .twoFactorProvidersNotConfigured:
+                services.errorReporter.log(error: error)
             }
             return
         }

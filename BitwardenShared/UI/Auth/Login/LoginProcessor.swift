@@ -155,10 +155,12 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
             switch error {
             case let .captchaRequired(hCaptchaSiteCode):
                 await launchCaptchaFlow(with: hCaptchaSiteCode)
-            case let .twoFactorRequired(authMethodsData, _, _):
+            case let .twoFactorRequired(authMethodsData, _, _, _):
                 coordinator.navigate(
                     to: .twoFactor(state.username, .password(state.masterPassword), authMethodsData, nil)
                 )
+            case .twoFactorProvidersNotConfigured:
+                await handleErrorResponse(error)
             }
         } catch {
             await handleErrorResponse(error)
