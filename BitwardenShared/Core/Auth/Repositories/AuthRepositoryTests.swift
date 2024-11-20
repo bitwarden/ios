@@ -1771,6 +1771,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
         XCTAssertFalse(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
     }
 
     /// `logout` successfully logs out a user.
@@ -1791,6 +1792,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
         XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
