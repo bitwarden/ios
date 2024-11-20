@@ -14,19 +14,41 @@ extension NSManagedObjectContext {
         batchInsertRequest: NSBatchInsertRequest? = nil,
         additionalContexts: [NSManagedObjectContext] = []
     ) throws {
-        var changes: [AnyHashable: Any] = [:]
+        try executeAndMergeChanges(
+            batchDeleteRequests: batchDeleteRequest.map { [$0] } ?? [],
+            batchInsertRequests: batchInsertRequest.map { [$0] } ?? [],
+            additionalContexts: additionalContexts
+        )
+    }
 
-        if let batchDeleteRequest {
+    /// Executes the batch delete requests and/or batch insert requests and merges any changes into
+    /// the current context plus any additional contexts.
+    ///
+    /// - Parameters:
+    ///   - batchDeleteRequests: The batch delete requests to execute.
+    ///   - batchInsertRequests: The batch insert requests to execute.
+    ///   - additionalContexts: Any additional contexts other than the current to merge the changes into.
+    ///
+    func executeAndMergeChanges(
+        batchDeleteRequests: [NSBatchDeleteRequest] = [],
+        batchInsertRequests: [NSBatchInsertRequest] = [],
+        additionalContexts: [NSManagedObjectContext] = []
+    ) throws {
+        var changes: [AnyHashable: [NSManagedObjectID]] = [:]
+
+        for batchDeleteRequest in batchDeleteRequests {
             batchDeleteRequest.resultType = .resultTypeObjectIDs
-            if let deleteResult = try execute(batchDeleteRequest) as? NSBatchDeleteResult {
-                changes[NSDeletedObjectsKey] = deleteResult.result as? [NSManagedObjectID] ?? []
+            if let deleteResult = try execute(batchDeleteRequest) as? NSBatchDeleteResult,
+               let objectIDs = deleteResult.result as? [NSManagedObjectID] {
+                changes[NSDeletedObjectsKey, default: []].append(contentsOf: objectIDs)
             }
         }
 
-        if let batchInsertRequest {
+        for batchInsertRequest in batchInsertRequests {
             batchInsertRequest.resultType = .objectIDs
-            if let insertResult = try execute(batchInsertRequest) as? NSBatchInsertResult {
-                changes[NSInsertedObjectsKey] = insertResult.result as? [NSManagedObjectID] ?? []
+            if let insertResult = try execute(batchInsertRequest) as? NSBatchInsertResult,
+               let objectIDs = insertResult.result as? [NSManagedObjectID] {
+                changes[NSInsertedObjectsKey, default: []].append(contentsOf: objectIDs)
             }
         }
 

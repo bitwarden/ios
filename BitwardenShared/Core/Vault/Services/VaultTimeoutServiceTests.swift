@@ -9,6 +9,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
     var cancellables: Set<AnyCancellable>!
     var clientService: MockClientService!
+    var errorReporter: MockErrorReporter!
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
     var timeProvider: MockTimeProvider!
@@ -20,6 +21,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
         cancellables = []
         clientService = MockClientService()
+        errorReporter = MockErrorReporter()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(
             .mockTime(
@@ -28,6 +30,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         )
         subject = DefaultVaultTimeoutService(
             clientService: clientService,
+            errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider
         )
@@ -38,6 +41,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
         cancellables = nil
         clientService = nil
+        errorReporter = nil
         subject = nil
         stateService = nil
         timeProvider = nil
@@ -143,6 +147,12 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         XCTAssertFalse(shouldTimeout)
     }
 
+    /// `lockVault(userId:)` logs an error if one occurs.
+    func test_lock_error() async {
+        await subject.lockVault(userId: nil)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
     /// Tests that locking and unlocking the vault works correctly.
     func test_lock_unlock() async throws {
         let account = Account.fixtureAccountLogin()
@@ -183,6 +193,12 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
         XCTAssertFalse(subject.isLocked(userId: userId))
         XCTAssertTrue(subject.isLocked(userId: user2Id))
+    }
+
+    /// `remove(userId:)` logs an error if one occurs.
+    func test_remove_error() async {
+        await subject.remove(userId: nil)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
     }
 
     /// `remove(userId:)` should remove an unlocked account.
