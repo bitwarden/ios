@@ -105,7 +105,7 @@ jobs:
           generate_release_notes: true
           preserve_order: true
           files: |
-            artifacts/**/*
+            artifacts/**/*#Bitwarden.ipa
 
       - name: Update Release Description
         env:
