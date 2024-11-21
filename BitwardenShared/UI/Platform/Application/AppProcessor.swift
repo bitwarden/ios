@@ -84,7 +84,7 @@ public class AppProcessor {
                 startEventTimer()
                 await checkIfExtensionSwitchedAccounts()
                 await checkAccountsForTimeout()
-                await coordinator?.handleEvent(.didStart)
+                await handleNeverTimeOutAccountBecameActive()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
                 debugWillEnterForeground?()
@@ -353,6 +353,33 @@ extension AppProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Handles the case where an session never timeout account becomes active.
+    ///
+    private func handleNeverTimeOutAccountBecameActive() async {
+        // we should be safe to unlock the vault:
+        // - If not in the extension
+        // - If vault is locked
+        // - If the user uses never lock
+        // - If the user hasn't manually locked their vault (because it was unlocked in the extension).
+        guard appExtensionDelegate?.isInAppExtension != true else { return }
+        guard let account = try? await services.stateService.getActiveAccount() else { return }
+        guard services.vaultTimeoutService.isLocked(userId: account.profile.userId) else { return }
+        guard let sessionTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(
+            userId: account.profile.userId
+        ), sessionTimeout == .never else { return }
+        guard let manuallyLocked = try? await services.stateService.getManuallyLockedAccount(
+            userId: account.profile.userId
+        ), !manuallyLocked else { return }
+
+        await coordinator?.handleEvent(
+            .accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
     }
 
     /// Checks if the active account was switched while in the extension. If this occurs, the app
