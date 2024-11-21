@@ -964,10 +964,8 @@ extension DefaultAuthRepository: AuthRepository {
             try? stateService.getUserHasMasterPassword(userId: account.profile.userId)
         ) ?? false
         let isUnlockWithPinOn: Bool = await (
-            try? stateService.pinProtectedUserKey(
-                userId: account.profile.userId
-            ) != nil
-        ) ?? false
+            try? stateService.pinProtectedUserKey(userId: account.profile.userId)
+        ) != nil
         let isUnlockWithBiometricOn: Bool = await (
             try? biometricsRepository.getBiometricUnlockStatus().isEnabled
         ) ?? false
