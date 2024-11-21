@@ -33,7 +33,8 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertTrue(actions.isEmpty)
     }
 
-    /// `accountOptions(_:lockAction:logoutAction:removeAccountAction:)` shows the account options for a logged out account.
+    /// `accountOptions(_:lockAction:logoutAction:removeAccountAction:)` shows the account options
+    /// for a logged out account.
     func test_accountOptions_loggedOut() async throws {
         var actions = [String]()
         let subject = Alert.accountOptions(
