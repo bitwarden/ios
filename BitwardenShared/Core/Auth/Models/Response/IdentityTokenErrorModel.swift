@@ -9,12 +9,14 @@ struct IdentityTokenErrorModel: Codable {
 
     /// Key names used for encoding and decoding.
     enum CodingKeys: String, CodingKey {
-        case captchaBypassToken = "CaptchaBypassToken"
-        case masterPasswordPolicy = "MasterPasswordPolicy"
-        case siteCode = "HCaptcha_SiteKey"
-        case ssoToken = "SsoEmail2faSessionToken"
-        case twoFactorProvidersData = "TwoFactorProviders2"
+        case captchaBypassToken
+        case masterPasswordPolicy
+        case siteCode = "hCaptcha_SiteKey"
+        case ssoToken = "ssoEmail2faSessionToken"
+        case twoFactorProvidersData = "twoFactorProviders2"
     }
+
+    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Properties
 
