@@ -45,7 +45,7 @@ struct ManualEntryView: View {
     /// The main content of the view.
     ///
     private var content: some View {
-        VStack(alignment: .leading, spacing: 16.0) {
+        VStack(alignment: .center, spacing: 16.0) {
             Text(Localizations.enterKeyManually)
                 .styleGuide(.title2, weight: .bold)
             BitwardenTextField(
@@ -90,18 +90,13 @@ struct ManualEntryView: View {
     ///
     @ViewBuilder private var footerButtonContainer: some View {
         if store.state.deviceSupportsCamera {
-            VStack(alignment: .leading, spacing: 0.0, content: {
-                Text(Localizations.cannotAddKey)
-                    .styleGuide(.callout)
-                AsyncButton {
-                    await store.perform(.scanCodePressed)
-                } label: {
-                    Text(Localizations.scanQRCode)
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                        .styleGuide(.callout)
-                }
-                .buttonStyle(InlineButtonStyle())
-            })
+            AsyncButton {
+                await store.perform(.scanCodePressed)
+            } label: {
+                Text(styledFooterText())
+                    .styleGuide(.subheadline)
+            }
+            .buttonStyle(InlineButtonStyle())
         }
     }
 
@@ -151,6 +146,21 @@ struct ManualEntryView: View {
     private func addTertiaryButton(sendToBitwarden: Bool) -> some View {
         addButton(sendToBitwarden: sendToBitwarden)
             .buttonStyle(.tertiary())
+    }
+
+    /// Creates an attributed string with the footer text, styling the "Scan QR Code" portion with
+    /// the correct color.
+    ///
+    /// - Returns: An `AttributedString` of the footer text, styled to highlight the call to action.
+    ///
+    private func styledFooterText() -> AttributedString {
+        var attributed = AttributedString(
+            Localizations.cannotAddAuthenticatorKey + " " + Localizations.scanQRCode
+        )
+        if let range = attributed.range(of: Localizations.scanQRCode) {
+            attributed[range].foregroundColor = Asset.Colors.primaryBitwarden.swiftUIColor
+        }
+        return attributed
     }
 }
 

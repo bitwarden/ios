@@ -109,7 +109,7 @@
 "Export" = "Export";
 "Key" = "Key";
 "KeyReadError" = "Cannot read key.";
-"CannotAddKey" = "Cannot add key?";
+"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "Import" = "Import";
 "Steam" = "Steam";
 "OtpType" = "OTP Type";

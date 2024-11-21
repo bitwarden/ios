@@ -110,7 +110,9 @@ class ManualEntryViewTests: AuthenticatorTestCase {
 
     /// Tapping the scan code button dispatches the `.scanCodePressed` action.
     func test_scanCodeButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.scanQRCode)
+        let button = try subject.inspect().find(
+            button: Localizations.cannotAddAuthenticatorKey + " " + Localizations.scanQRCode
+        )
         try button.tap()
         waitFor(!processor.effects.isEmpty)
 
