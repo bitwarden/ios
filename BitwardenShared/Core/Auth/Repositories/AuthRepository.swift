@@ -960,8 +960,21 @@ extension DefaultAuthRepository: AuthRepository {
         } else {
             account.profile.userId.hashColor
         }
+        let hasMasterPassword: Bool = await (
+            try? stateService.getUserHasMasterPassword(userId: account.profile.userId)
+        ) ?? false
+        let isUnlockWithPinOn: Bool = await (
+            try? stateService.pinProtectedUserKey(
+                userId: account.profile.userId
+            ) != nil
+        ) ?? false
+        let isUnlockWithBiometricOn: Bool = await (
+            try? biometricsRepository.getBiometricUnlockStatus().isEnabled
+        ) ?? false
+        let canBeLocked = hasMasterPassword || isUnlockWithPinOn || isUnlockWithBiometricOn
 
         return ProfileSwitcherItem(
+            canBeLocked: canBeLocked,
             color: color,
             email: account.profile.email,
             isLoggedOut: !isAuthenticated,
