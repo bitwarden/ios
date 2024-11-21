@@ -151,6 +151,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
     private func deleteItem(_ id: String) async {
         do {
             try await services.authenticatorItemRepository.deleteAuthenticatorItem(id)
+            if !state.searchText.isEmpty {
+                state.searchResults = await searchItems(for: state.searchText)
+            }
             state.toast = Toast(text: Localizations.itemDeleted)
         } catch {
             services.errorReporter.log(error: error)
@@ -322,6 +325,9 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                 state.loadingState = .data(sectionList)
                 if showToast {
                     state.toast = Toast(text: Localizations.accountsSyncedFromBitwardenApp)
+                }
+                if !state.searchText.isEmpty {
+                    state.searchResults = await searchItems(for: state.searchText)
                 }
             }
         } catch {
