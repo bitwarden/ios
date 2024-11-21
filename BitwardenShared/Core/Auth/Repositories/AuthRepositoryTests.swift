@@ -138,6 +138,41 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
+    /// `.canBeLocked(userId:)` shoulr reutrn true when user has face ID.
+    func test_canBeLocked_hasFaceId() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue["1"] = "123"
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should true when user has master password.
+    func test_canBeLocked_hasMasterPassword() async {
+        stateService.userHasMasterPassword["1"] = true
+        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should true when user has PIN.
+    func test_canBeLocked_hasPin() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue["1"] = "123"
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should return false when user has no master password, no face ID, and no PIN.
+    func test_canBeLocked_hasNothing() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue = [:]
+        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertFalse(result)
+    }
+
     /// `.canVerifyMasterPassword()`  true when user has master password.
     func test_canVerifyMasterPassword_hasMasterPassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
