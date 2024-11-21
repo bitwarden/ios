@@ -121,6 +121,9 @@ class DefaultAuthenticatorItemRepository {
     /// Service to fetch items from the shared CoreData store - shared from the main Bitwarden PM app.
     private let sharedItemService: AuthenticatorBridgeItemService
 
+    /// Flag to indicate if there was an error with the data synced from the PM app.
+    private var syncError = false
+
     /// A protocol wrapping the present time.
     private let timeProvider: TimeProvider
 
@@ -174,9 +177,18 @@ class DefaultAuthenticatorItemRepository {
     private func combinedSections(
         localSections: [ItemListSection],
         sharedItems: [AuthenticatorBridgeItemDataView]
-    ) async throws -> [ItemListSection] {
+    ) async -> [ItemListSection] {
         guard await isPasswordManagerSyncActive() else {
             return localSections
+        }
+        guard !syncError else {
+            var sections = localSections
+            sections.append(ItemListSection(
+                id: "SyncError",
+                items: [.syncError()],
+                name: ""
+            ))
+            return sections
         }
 
         let groupedByAccount = Dictionary(
@@ -244,10 +256,18 @@ class DefaultAuthenticatorItemRepository {
         try await authenticatorItemService.authenticatorItemsPublisher()
             .combineLatest(
                 sharedItemService.sharedItemsPublisher()
+                    .catch { error -> AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> in
+                        self.syncError = true
+                        self.errorReporter.log(error: error)
+
+                        return Just([])
+                            .setFailureType(to: Error.self)
+                            .eraseToAnyPublisher()
+                    }
             )
             .asyncTryMap { localItems, sharedItems in
                 let sections = try await self.itemListSections(from: localItems)
-                return try await self.combinedSections(localSections: sections, sharedItems: sharedItems)
+                return await self.combinedSections(localSections: sections, sharedItems: sharedItems)
             }
             .eraseToAnyPublisher()
     }
@@ -292,13 +312,17 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
             case let .sharedTotp(model):
                 let key = model.itemView.totpKey
                 keyModel = TOTPKeyModel(authenticatorKey: key)
+            case .syncError:
+                keyModel = nil // Should be filtered out, no need to refresh codes
             case let .totp(model):
                 let key = model.itemView.totpKey
                 keyModel = TOTPKeyModel(authenticatorKey: key)
             }
             guard let keyModel else {
-                errorReporter.log(error: TOTPServiceError
-                    .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                if item.itemType != .syncError {
+                    errorReporter.log(error: TOTPServiceError
+                        .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
+                }
                 return item
             }
             let code = try await totpService.getTotpCode(for: keyModel)

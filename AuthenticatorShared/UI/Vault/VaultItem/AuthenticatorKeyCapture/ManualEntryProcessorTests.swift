@@ -79,7 +79,7 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
     }
 
     /// `receive()` with `.appeared` sets the `defaultSaveOption` in the state based on the user's
-    /// stored default save option..
+    /// stored default save option.
     func test_perform_appeared_defaultSaveOption() async {
         appSettingsStore.defaultSaveOption = .none
         await subject.perform(.appeared)

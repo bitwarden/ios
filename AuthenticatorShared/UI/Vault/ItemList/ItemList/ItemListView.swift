@@ -219,76 +219,94 @@ private struct SearchableItemListView: View {
 
     // MARK: Private Methods
 
-    /// A view that displays a list of the sections within this vault group.
+    /// Build a row in the table based on an ItemListItem. This wraps the row with a Menu that
+    /// presents the various long-press options.
+    ///
+    /// - Parameters:
+    ///   - item: The item to display in the row.
+    ///   - isLastInSection: `true` if the item is the last item in the section. `false` if not.
+    /// - Returns: a `View` with the row configured.
     ///
     @ViewBuilder // swiftlint:disable:next function_body_length
+    private func buildRow(item: ItemListItem, isLastInSection: Bool) -> some View {
+        Menu {
+            AsyncButton {
+                await store.perform(.copyPressed(item))
+            } label: {
+                HStack(spacing: 4) {
+                    Text(Localizations.copy)
+                    Spacer()
+                    Image(decorative: Asset.Images.copy)
+                        .imageStyle(.accessoryIcon(scaleWithFont: true))
+                }
+            }
+
+            if case .totp = item.itemType {
+                Button {
+                    store.send(.editPressed(item))
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(Localizations.edit)
+                        Spacer()
+                        Image(decorative: Asset.Images.pencil)
+                            .imageStyle(.accessoryIcon(scaleWithFont: true))
+                    }
+                }
+
+                if store.state.showMoveToBitwarden {
+                    AsyncButton {
+                        await store.perform(.moveToBitwardenPressed(item))
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text(Localizations.moveToBitwarden)
+                            Spacer()
+                            Image(decorative: Asset.Images.rightArrow)
+                                .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        }
+                    }
+                }
+
+                Divider()
+
+                Button(role: .destructive) {
+                    store.send(.deletePressed(item))
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(Localizations.delete)
+                        Spacer()
+                        Image(decorative: Asset.Images.trash)
+                            .imageStyle(.accessoryIcon(scaleWithFont: true))
+                    }
+                }
+            }
+        } label: {
+            itemListItemRow(
+                for: item,
+                isLastInSection: isLastInSection
+            )
+        } primaryAction: {
+            store.send(.itemPressed(item))
+        }
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+    }
+
+    /// A view that displays a list of the sections within this vault group.
+    ///
+    @ViewBuilder
     private func groupView(title: String?, items: [ItemListItem]) -> some View {
         LazyVStack(alignment: .leading, spacing: 7) {
             if let title = title?.nilIfEmpty {
                 SectionHeaderView(title)
             }
             ForEach(items) { item in
-                Menu {
-                    AsyncButton {
-                        await store.perform(.copyPressed(item))
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text(Localizations.copy)
-                            Spacer()
-                            Image(decorative: Asset.Images.copy)
-                                .imageStyle(.accessoryIcon(scaleWithFont: true))
-                        }
-                    }
-
-                    if case .totp = item.itemType {
-                        Button {
-                            store.send(.editPressed(item))
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(Localizations.edit)
-                                Spacer()
-                                Image(decorative: Asset.Images.pencil)
-                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
-                            }
-                        }
-
-                        if store.state.showMoveToBitwarden {
-                            AsyncButton {
-                                await store.perform(.moveToBitwardenPressed(item))
-                            } label: {
-                                HStack(spacing: 4) {
-                                    Text(Localizations.moveToBitwarden)
-                                    Spacer()
-                                    Image(decorative: Asset.Images.rightArrow)
-                                        .imageStyle(.accessoryIcon(scaleWithFont: true))
-                                }
-                            }
-                        }
-
-                        Divider()
-
-                        Button(role: .destructive) {
-                            store.send(.deletePressed(item))
-                        } label: {
-                            HStack(spacing: 4) {
-                                Text(Localizations.delete)
-                                Spacer()
-                                Image(decorative: Asset.Images.trash)
-                                    .imageStyle(.accessoryIcon(scaleWithFont: true))
-                            }
-                        }
-                    }
-                } label: {
-                    itemListItemRow(
-                        for: item,
-                        isLastInSection: true
-                    )
-                } primaryAction: {
-                    store.send(.itemPressed(item))
+                if item.itemType == .syncError {
+                    Text(item.name)
+                        .styleGuide(.footnote)
+                } else {
+                    buildRow(item: item, isLastInSection: true)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
-            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 
@@ -658,6 +676,26 @@ struct ItemListView_Previews: PreviewProvider { // swiftlint:disable:this type_b
                 timeProvider: PreviewTimeProvider()
             )
         }.previewDisplayName("Digits")
+
+        NavigationView {
+            ItemListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ItemListState(
+                            loadingState: .data([
+                                ItemListSection.digitsFixture(accountNames: true),
+                                ItemListSection(
+                                    id: "",
+                                    items: [.syncError()],
+                                    name: ""
+                                ),
+                            ])
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }.previewDisplayName("SyncError")
     }
 }
 #endif

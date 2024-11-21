@@ -286,6 +286,16 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         )
     }
 
+    /// `perform(:_)` with `.copyPressed()` with a `.syncError` item does not throw
+    /// and produces no result.
+    func test_perform_copyPressed_syncError() async {
+        await assertAsyncDoesNotThrow {
+            await subject.perform(.copyPressed(.syncError()))
+        }
+        XCTAssertNil(subject.state.toast)
+        XCTAssertNil(pasteboardService.copiedString)
+    }
+
     /// `perform(:_)` with `.moveToBitwardenPressed()` with a local item stores the item in the shared
     /// store and launches the Bitwarden app via the new item  deep link.
     func test_perform_moveToBitwardenPressed_localItem() async throws {

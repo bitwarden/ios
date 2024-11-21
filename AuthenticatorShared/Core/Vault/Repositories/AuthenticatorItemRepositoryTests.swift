@@ -207,30 +207,25 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         let item = ItemListItem.fixture()
         let sharedItem = ItemListItem.fixtureShared()
 
-        let result = try await subject.refreshTotpCodes(on: [item, sharedItem])
+        let result = try await subject.refreshTotpCodes(on: [item, sharedItem, .syncError()])
         let actual = try XCTUnwrap(result[0])
 
         XCTAssertEqual(actual.id, item.id)
         XCTAssertEqual(actual.name, item.name)
         XCTAssertEqual(actual.accountName, item.accountName)
-        switch actual.itemType {
-        case .sharedTotp:
-            XCTFail("Shared TOTP itemType found when expecting TOTP")
-        case let .totp(model):
-            XCTAssertEqual(model.totpCode, newCodeModel)
-        }
+        XCTAssertEqual(actual.totpCodeModel, newCodeModel)
 
         let shared = try XCTUnwrap(result[1])
 
         XCTAssertEqual(shared.id, sharedItem.id)
         XCTAssertEqual(shared.name, sharedItem.name)
         XCTAssertEqual(shared.accountName, sharedItem.accountName)
-        switch shared.itemType {
-        case let .sharedTotp(model):
-            XCTAssertEqual(model.totpCode, newCodeModel)
-        case .totp:
-            XCTFail("TOTP itemType found when expecting Shared TOTP")
-        }
+        XCTAssertEqual(shared.totpCodeModel, newCodeModel)
+
+        let syncError = try XCTUnwrap(result[2])
+        XCTAssertEqual(syncError, ItemListItem.syncError())
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// `saveTemporarySharedItem(_)` saves a temporary item into the Authenticator Bridge shared store.
@@ -382,6 +377,44 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
                                 name: Localizations.favorites),
                 ItemListSection(id: "Unorganized",
                                 items: [unorganizedItem],
+                                name: ""),
+            ]
+        )
+    }
+
+    /// `itemListPublisher()` returns a favorites section and a local codes section as normal. Adds a syncError section
+    /// when the sync process if throwing an error.
+    func test_itemListPublisher_syncError() async throws {
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        sharedItemService.syncOn = true
+        let items = [
+            AuthenticatorItem.fixture(id: "1", name: "One"),
+            AuthenticatorItem.fixture(favorite: true, id: "2", name: "Two"),
+        ]
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(accountDomain: "Domain",
+                                                                 accountEmail: "shared@example.com",
+                                                                 totpKey: "totpKey")
+        sharedItemService.storedItems = ["userId": [sharedItem]]
+        let unorganizedItem = itemListItem(from: items[0])
+        let favoritedItem = itemListItem(from: items[1])
+
+        authItemService.authenticatorItemsSubject.send(items)
+        sharedItemService.sharedItemsSubject.send(completion: .failure(AuthenticatorTestError.example))
+
+        var iterator = try await subject.itemListPublisher().makeAsyncIterator()
+        let sections = try await iterator.next()
+
+        XCTAssertEqual(
+            sections,
+            [
+                ItemListSection(id: "Favorites",
+                                items: [favoritedItem],
+                                name: Localizations.favorites),
+                ItemListSection(id: "LocalCodes",
+                                items: [unorganizedItem],
+                                name: Localizations.localCodes),
+                ItemListSection(id: "SyncError",
+                                items: [.syncError()],
                                 name: ""),
             ]
         )

@@ -150,7 +150,7 @@ class AppSettingsStoreTests: AuthenticatorTestCase {
         XCTAssertEqual(subject.defaultSaveOption, .none)
     }
 
-    /// `defaultSaveOption` can be used to get and set the default save option..
+    /// `defaultSaveOption` can be used to get and set the default save option.
     func test_defaultSaveOption_withValue() {
         subject.defaultSaveOption = .saveToBitwarden
         XCTAssertEqual(subject.defaultSaveOption, .saveToBitwarden)
