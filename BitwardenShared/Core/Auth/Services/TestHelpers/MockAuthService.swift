@@ -161,6 +161,7 @@ class MockAuthService: AuthService {
 
     func requirePasswordChange(
         email: String,
+        isPreAuth: Bool,
         masterPassword: String,
         policy: BitwardenSdk.MasterPasswordPolicyOptions?
     ) async throws -> Bool {

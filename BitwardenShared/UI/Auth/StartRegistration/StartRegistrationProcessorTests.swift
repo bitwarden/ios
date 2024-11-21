@@ -267,6 +267,26 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
     }
 
+    /// `perform(_:)` with `.startRegistration` should not send name field in request body if the name is empty.
+    @MainActor
+    func test_perform_startRegistration_emptyName() async throws {
+        subject.state = .fixture(nameText: "")
+
+        client.result = .httpSuccess(testData: .startRegistrationSuccess)
+
+        await subject.perform(.startRegistration)
+
+        let requestBody = try XCTUnwrap(client.requests.first?.body)
+        let requestBodyStr = try XCTUnwrap(String(data: requestBody, encoding: .utf8))
+        XCTAssertFalse(
+            requestBodyStr.contains("name"),
+            "Request body should not contain 'name' field when it is empty."
+        )
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(coordinator.alertShown.last)
+        XCTAssertFalse(coordinator.loadingOverlaysShown.isEmpty)
+    }
+
     /// `perform(_:)` with `.startRegistration` presents an alert when the email is in an invalid format.
     @MainActor
     func test_perform_startRegistration_invalidEmailFormat() async {

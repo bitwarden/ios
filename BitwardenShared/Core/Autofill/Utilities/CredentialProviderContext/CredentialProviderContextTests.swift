@@ -27,6 +27,11 @@ class CredentialProviderContextTests: BitwardenTestCase {
                 .authCompletionRoute,
             AppRoute.vault(.autofillList)
         )
+        XCTAssertNil(
+            DefaultCredentialProviderContext(
+                .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false)
+            ).authCompletionRoute
+        )
         XCTAssertEqual(
             DefaultCredentialProviderContext(.configureAutofill)
                 .authCompletionRoute,
@@ -63,13 +68,21 @@ class CredentialProviderContextTests: BitwardenTestCase {
                 .configuring
         )
         XCTAssertFalse(
+            DefaultCredentialProviderContext(
+                .autofillOTPCredential(
+                    MockOneTimeCodeCredentialIdentity(),
+                    userInteraction: false
+                )
+            ).configuring
+        )
+        XCTAssertFalse(
             DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
                 .configuring
         )
     }
 
     /// `getter:extensionMode` returns the proper mode alike the one initialized in the context.
-    func test_extensionMode() {
+    func test_extensionMode() { // swiftlint:disable:this function_body_length
         let context1 = DefaultCredentialProviderContext(.configureAutofill)
         if case .configureAutofill = context1.extensionMode {
             XCTAssert(true)
@@ -111,6 +124,18 @@ class CredentialProviderContextTests: BitwardenTestCase {
 
         let context6 = DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
         if case .registerFido2Credential = context6.extensionMode {
+            XCTAssert(true)
+        } else {
+            XCTFail("ExtensionMode doesn't match")
+        }
+
+        let context7 = DefaultCredentialProviderContext(
+            .autofillOTPCredential(
+                MockOneTimeCodeCredentialIdentity(),
+                userInteraction: false
+            )
+        )
+        if case .autofillOTPCredential = context7.extensionMode {
             XCTAssert(true)
         } else {
             XCTFail("ExtensionMode doesn't match")
@@ -179,6 +204,16 @@ class CredentialProviderContextTests: BitwardenTestCase {
         )
         XCTAssertFalse(subject2False.flowWithUserInteraction)
 
+        let subjectOTPCredentialTrue = DefaultCredentialProviderContext(
+            .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: true)
+        )
+        XCTAssertTrue(subjectOTPCredentialTrue.flowWithUserInteraction)
+
+        let subjectOTPCredentialFalse = DefaultCredentialProviderContext(
+            .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false)
+        )
+        XCTAssertFalse(subjectOTPCredentialFalse.flowWithUserInteraction)
+
         let subject3 = DefaultCredentialProviderContext(.configureAutofill)
         XCTAssertTrue(subject3.flowWithUserInteraction)
 
@@ -227,7 +262,17 @@ class CredentialProviderContextTests: BitwardenTestCase {
 
         let subject4 = DefaultCredentialProviderContext(.registerFido2Credential(MockPasskeyCredentialRequest()))
         XCTAssertEqual(subject4.serviceIdentifiers, expectedIdentifiers)
+
+        let subject5 = DefaultCredentialProviderContext(
+            .autofillOTPCredential(
+                MockOneTimeCodeCredentialIdentity(),
+                userInteraction: false
+            )
+        )
+        XCTAssertEqual(subject5.serviceIdentifiers, expectedIdentifiers)
     }
 }
 
 class MockPasskeyCredentialRequest: PasskeyCredentialRequest {}
+
+class MockOneTimeCodeCredentialIdentity: OneTimeCodeCredentialIdentityProxy {}

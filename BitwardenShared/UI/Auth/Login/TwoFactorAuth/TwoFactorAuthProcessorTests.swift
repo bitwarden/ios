@@ -491,7 +491,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     /// `perform(_:)` with `.continueTapped` handles a two-factor error correctly.
     @MainActor
     func test_perform_continueTapped_twoFactorError() async {
-        let error = IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil)
+        let error = IdentityTokenRequestError.twoFactorRequired(.init(), nil, nil, nil)
         subject.state.verificationCode = "Test"
         authService.loginWithTwoFactorCodeResult = .failure(error)
 

@@ -525,10 +525,11 @@ extension DefaultAuthRepository: AuthRepository {
             )
         )
 
-        // Get the user's ID before it's removed from `StateService`.
         let userId = try await stateService.getActiveAccountId()
-        try await stateService.deleteAccount()
         await vaultTimeoutService.remove(userId: userId)
+
+        // Delete the account last.
+        try await stateService.deleteAccount()
     }
 
     func existingAccountUserId(email: String) async -> String? {
@@ -636,10 +637,10 @@ extension DefaultAuthRepository: AuthRepository {
         // Clear all user data.
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         try await keychainService.deleteItems(for: userId)
-        try await stateService.logoutAccount(userId: userId, userInitiated: userInitiated)
-
-        // Remove the user from the timeout service and their SDK client.
         await vaultTimeoutService.remove(userId: userId)
+
+        // Log the account out last.
+        try await stateService.logoutAccount(userId: userId, userInitiated: userInitiated)
     }
 
     func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
