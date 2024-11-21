@@ -19,4 +19,13 @@ struct SSHKeyItemState: Equatable, Sendable {
 
     /// The fingerprint of the SSH key.
     var keyFingerprint: String = ""
+
+    /// Gets the `SshKeyView` from this state.
+    var sshKeyView: SshKeyView {
+        SshKeyView(
+            privateKey: privateKey,
+            publicKey: publicKey,
+            fingerprint: keyFingerprint
+        )
+    }
 }
