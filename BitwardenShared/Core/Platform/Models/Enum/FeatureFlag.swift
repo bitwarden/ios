@@ -85,7 +85,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
-             .sshKeyVaultItem,
              .testLocalFeatureFlag,
              .testLocalInitialBoolFlag,
              .testLocalInitialIntFlag,
@@ -93,6 +92,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
             false
         case .emailVerification,
              .refactorSsoDetailsEndpoint,
+             .sshKeyVaultItem,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,
