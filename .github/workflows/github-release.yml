@@ -103,6 +103,7 @@ jobs:
           make_latest: ${{ inputs.make-latest }}
           target_commitish: ${{ steps.get_release_branch.outputs.release_branch }}
           generate_release_notes: true
+          preserve_order: true
           files: |
             artifacts/**/*
 
