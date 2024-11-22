@@ -15,4 +15,14 @@ extension JSONEncoder {
         }
         return jsonEncoder
     }()
+
+    /// The default `JSONEncoder` used to encode JSON payloads when in Credential Exchange flow.
+    static let cxpEncoder: JSONEncoder = {
+        let jsonEncoder = JSONEncoder()
+        jsonEncoder.dateEncodingStrategy = .custom { date, encoder in
+            var container = encoder.singleValueContainer()
+            try container.encode(Int(date.timeIntervalSince1970))
+        }
+        return jsonEncoder
+    }()
 }

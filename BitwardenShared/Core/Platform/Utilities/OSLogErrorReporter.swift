@@ -27,7 +27,7 @@ public final class OSLogErrorReporter: ErrorReporter {
         guard !error.isNetworkingError else { return }
 
         // Crash in debug builds to make the error more visible during development.
-        assertionFailure("Unexpected error: \(error)")
+//        assertionFailure("Unexpected error: \(error)")
     }
 
     public func setRegion(_ region: String, isPreAuth: Bool) {

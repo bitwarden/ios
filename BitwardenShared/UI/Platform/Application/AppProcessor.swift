@@ -121,14 +121,7 @@ public class AppProcessor {
             route = await getOtpAuthUrlRoute(url: url)
         }
         guard let route else { return }
-
-        if let userId = try? await services.stateService.getActiveAccountId(),
-           !services.vaultTimeoutService.isLocked(userId: userId),
-           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
-            coordinator?.navigate(to: route)
-        } else {
-            await coordinator?.handleEvent(.setAuthCompletionRoute(route))
-        }
+        await checkIfLockedAndPerformNavigation(route: route)
     }
 
     /// Starts the application flow by navigating the user to the first flow.
@@ -214,10 +207,11 @@ public class AppProcessor {
     /// Handles importing credentials using Credential Exchange Protocol.
     /// - Parameter credentialImportToken: The credentials import token to user with the `ASCredentialImportManager`.
     @available(iOSApplicationExtension 18.2, *)
-    public func handleImportCredentials(credentialImportToken: UUID) {
-        // TODO: PM-14800 Move this to a specific view to handle importing process
-        // and handle credential data.
-        // let credentialData = try await ASCredentialImportManager().importCredentials(token: credentialImportToken)
+    public func handleImportCredentials(credentialImportToken: UUID) async {
+        let route = AppRoute.tab(.vault(.importCXP(
+            .importCredentials(credentialImportToken: credentialImportToken)
+        )))
+        await checkIfLockedAndPerformNavigation(route: route)
     }
 
     // MARK: Autofill Methods
@@ -395,6 +389,19 @@ extension AppProcessor {
             await coordinator?.handleEvent(.didStart)
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Checks if the vault is locked and performs the navigation to the `AppRoute`
+    /// or sets it as the auth completion route.
+    /// - Parameter route: The `AppRoute` to go to.
+    private func checkIfLockedAndPerformNavigation(route: AppRoute) async {
+        if let userId = try? await services.stateService.getActiveAccountId(),
+           !services.vaultTimeoutService.isLocked(userId: userId),
+           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
+            coordinator?.navigate(to: route)
+        } else {
+            await coordinator?.handleEvent(.setAuthCompletionRoute(route))
         }
     }
 

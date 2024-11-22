@@ -16,5 +16,12 @@ struct ImportCiphersRequestModel: JSONRequestBody {
 
     /// The cipher<->folder relationships map. The key is the cipher index and the value is the folder index
     /// in their respective arrays.
-    var folderRelationships: [Int: Int]
+    var folderRelationships: [FolderRelationship]
+}
+
+/// The cipher<->folder relationships map. The key is the cipher index and the value is the folder index
+/// in their respective arrays.
+struct FolderRelationship: Codable {
+    let key: Int
+    let value: Int
 }

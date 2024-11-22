@@ -96,7 +96,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 return
             }
 
-            appProcessor.handleImportCredentials(credentialImportToken: token)
+            Task {
+                await appProcessor.handleImportCredentials(credentialImportToken: token)
+            }
         }
 
         #endif

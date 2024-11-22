@@ -14,6 +14,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         & DebugMenuModule
         & ExtensionSetupModule
         & FileSelectionModule
+        & ImportCXPModule
         & LoginRequestModule
         & SendItemModule
         & TabModule
@@ -102,6 +103,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             showDebugMenu()
         case let .extensionSetup(extensionSetupRoute):
             showExtensionSetup(route: extensionSetupRoute)
+//        case let .importCXP(route):
+//            showImportCXP(route: route)
         case let .loginRequest(loginRequest):
             showLoginRequest(loginRequest)
         case let .sendItem(sendItemRoute):
@@ -187,6 +190,26 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             rootNavigator?.show(child: stackNavigator)
         }
     }
+
+//    /// Shows the Credential Exchange import route (not in a tab). This is used when another app
+//    /// exporting credentials with Credential Exchange protocol chooses our app as a provider to import credentials.
+//    ///
+//    /// - Parameter route: The `ImportCXPRoute` to show.
+//    ///
+//    private func showImportCXP(route: ImportCXPRoute) {
+//        if let coordinator = childCoordinator as? AnyCoordinator<ImportCXPRoute, Void> {
+//            coordinator.navigate(to: route)
+//        } else {
+//            let stackNavigator = UINavigationController()
+//            let coordinator = module.makeImportCXPCoordinator(
+//                stackNavigator: stackNavigator
+//            )
+//            coordinator.start()
+//            coordinator.navigate(to: route)
+//            childCoordinator = coordinator
+//            rootNavigator?.show(child: stackNavigator)
+//        }
+//    }
 
     /// Shows the send item route (not in a tab). This is used within the app extensions.
     ///
