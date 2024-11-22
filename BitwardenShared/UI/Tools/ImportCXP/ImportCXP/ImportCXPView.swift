@@ -22,20 +22,12 @@ struct ImportCXPView: View {
                 )
                 switch store.state.status {
                 case .start:
-                    Spacer()
-                    AsyncButton(Localizations.continue) {
-                        await store.perform(.startImport)
-                    }
-                    .buttonStyle(.primary())
-                    AsyncButton(Localizations.cancel) {
-                        await store.perform(.cancel)
-                    }
-                    .buttonStyle(.secondary())
+                    EmptyView()
                 case .importing:
                     ProgressView()
                         .frame(maxWidth: .infinity)
                 case let .success(_, countByType):
-                    VStack(spacing: 8) {
+                    VStack(spacing: 16) {
                         ForEach(countByType) { type in
                             HStack {
                                 Text(type.localizedType)
@@ -44,29 +36,35 @@ struct ImportCXPView: View {
                             }
                         }
                     }
-                    Spacer()
-                    AsyncButton(Localizations.showVault) {
-                        await store.perform(.showVault)
-                    }
-                    .buttonStyle(.primary())
+                    .padding(.horizontal, 20)
+                    .padding(.top, 12)
                 case .failure:
-                    Spacer()
-                    AsyncButton(Localizations.retryImport) {
-                        await store.perform(.startImport)
-                    }
-                    .buttonStyle(.primary())
-                    AsyncButton(Localizations.cancel) {
-                        await store.perform(.cancel)
-                    }
-                    .buttonStyle(.secondary())
+                    EmptyView()
                 }
             }
             .padding(.top, 8)
             .frame(maxWidth: .infinity)
             .scrollView()
+            .safeAreaInset(edge: .bottom) {
+                VStack {
+                    AsyncButton(store.state.mainButtonTitle) {
+                        await store.perform(.mainButtonTapped)
+                    }
+                    .buttonStyle(.primary())
+                    .hidden(store.state.status == .importing && !store.state.isFeatureUnvailable)
+
+                    AsyncButton(Localizations.cancel) {
+                        await store.perform(.cancel)
+                    }
+                    .buttonStyle(.secondary())
+                    .hidden(!store.state.showCancelButton)
+                }
+                .padding(.horizontal, 16)
+                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            }
         }
         .transition(.opacity)
-//        .animation(.easeInOut, value: store.state.page)
+        .animation(.easeInOut, value: store.state.status)
         .navigationBar(title: Localizations.importPasswords, titleDisplayMode: .inline)
 //        .toolbar {
 //            cancelToolbarItem {

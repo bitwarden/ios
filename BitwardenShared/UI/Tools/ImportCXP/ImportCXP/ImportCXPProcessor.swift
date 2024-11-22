@@ -45,17 +45,27 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
     override func perform(_ effect: ImportCXPEffect) async {
         switch effect {
         case .appeared:
-            break
+            await checkEnabled()
         case .cancel:
             cancelWithConfirmation()
-        case .showVault:
+        case .mainButtonTapped:
+            guard case .success = state.status else {
+                await startImport()
+                return
+            }
             coordinator.navigate(to: .dismiss)
-        case .startImport:
-            await startImport()
         }
     }
 
     // MARK: Private
+    
+    /// Checks whether the CXP import feature is enabled.
+    private func checkEnabled() async {
+        guard #available(iOS 18.2, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
+            state.status = .failure(message: Localizations.featureUnavailable)
+            return
+        }
+    }
 
     /// Starts the import process.
     private func startImport() async {
@@ -86,9 +96,8 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
             state.status = .failure(message: "No data found to import.")
         } catch ImportCiphersRepositoryError.dataEncodingFailed {
             state.status = .failure(message: "Import data encoding failed.")
-        } catch BitwardenSdk.BitwardenError.E(let message)  {
+        } catch BitwardenSdk.BitwardenError.E(let message) {
             print(message)
-
         } catch {
             state.status = .failure(message: Localizations.thereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted)
             services.errorReporter.log(error: error)
@@ -98,8 +107,12 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
     }
 
     /// Shows the alert confirming the user wants to import logins later.
-    ///
     private func cancelWithConfirmation() {
+        guard !state.isFeatureUnvailable else {
+            coordinator.navigate(to: .dismiss)
+            return
+        }
+
         coordinator.showAlert(.confirmCancelCXPImport { [weak self] in
             guard let self else { return }
             coordinator.navigate(to: .dismiss)

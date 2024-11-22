@@ -27,6 +27,23 @@ struct ImportCXPState: Equatable, Sendable {
     /// The token used in `ASCredentialImportManager` to get the credentials to import.
     var credentialImportToken: UUID?
 
+    /// Whether the CXP import feature is available.
+    var isFeatureUnvailable: Bool = false
+
+    /// The title of the main button.
+    var mainButtonTitle: String {
+        return switch status {
+        case .start:
+            Localizations.continue
+        case .importing:
+            ""
+        case .success:
+            Localizations.showVault
+        case .failure:
+            Localizations.retryImport
+        }
+    }
+
     /// The message to display on the page header.
     var message: String {
         return switch status {
@@ -52,6 +69,16 @@ struct ImportCXPState: Equatable, Sendable {
             Localizations.importSuccessful
         case .failure:
             Localizations.importFailed
+        }
+    }
+
+    /// Whether to show the cancel button.
+    var showCancelButton: Bool {
+        return switch status {
+        case .importing, .success:
+            false
+        case .start, .failure:
+            true
         }
     }
 
