@@ -138,6 +138,41 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
+    /// `.canBeLocked(userId:)` shoulr reutrn true when user has face ID.
+    func test_canBeLocked_hasFaceId() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue["1"] = "123"
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should true when user has master password.
+    func test_canBeLocked_hasMasterPassword() async {
+        stateService.userHasMasterPassword["1"] = true
+        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should true when user has PIN.
+    func test_canBeLocked_hasPin() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue["1"] = "123"
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should return false when user has no master password, no face ID, and no PIN.
+    func test_canBeLocked_hasNothing() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue = [:]
+        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertFalse(result)
+    }
+
     /// `.canVerifyMasterPassword()`  true when user has master password.
     func test_canVerifyMasterPassword_hasMasterPassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
@@ -492,6 +527,90 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: shortName.profile.email,
                 userId: shortName.profile.userId,
                 userInitials: "AJ"
+            )
+        )
+    }
+
+    /// `getProfilesState()` can return `canBeLocked` accounts correctly.
+    func test_getProfilesState_canBeLocked() async {
+        stateService.accounts = [
+            anneAccount, // This account does not have a MasterPassword, Face ID, or PIN configured.
+            beeAccount, // This account does not have a MasterPassword, Face ID configured, but has a PIN.
+        ]
+
+        stateService.isAuthenticated = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+        ]
+        vaultTimeoutService.isClientLocked = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+        ]
+
+        stateService.userHasMasterPassword = [
+            anneAccount.profile.userId: false,
+            beeAccount.profile.userId: false,
+        ]
+        stateService.pinProtectedUserKeyValue = [
+            beeAccount.profile.userId: "123",
+        ]
+        let accounts = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false
+        ).accounts
+
+        XCTAssertEqual(
+            accounts.first,
+            ProfileSwitcherItem.fixture(
+                canBeLocked: false,
+                color: Color(hex: anneAccount.profile.avatarColor ?? ""),
+                email: anneAccount.profile.email,
+                userId: anneAccount.profile.userId,
+                userInitials: "AA"
+            )
+        )
+        XCTAssertEqual(
+            accounts[1],
+            ProfileSwitcherItem.fixture(
+                color: Color(hex: beeAccount.profile.avatarColor ?? ""),
+                email: beeAccount.profile.email,
+                userId: beeAccount.profile.userId,
+                userInitials: "BA"
+            )
+        )
+
+        // Test case for an account with no MasterPassword and PIN, but with Face ID enabled.
+        stateService.accounts = [
+            claimedAccount,
+        ]
+
+        stateService.isAuthenticated = [
+            claimedAccount.profile.userId: true,
+        ]
+        vaultTimeoutService.isClientLocked = [
+            claimedAccount.profile.userId: true,
+        ]
+        stateService.userHasMasterPassword = [
+            claimedAccount.profile.userId: false,
+        ]
+
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        let accounts2 = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false
+        ).accounts
+        XCTAssertEqual(
+            accounts2.first,
+            ProfileSwitcherItem.fixture(
+                canBeLocked: true,
+                color: Color(hex: claimedAccount.profile.avatarColor ?? ""),
+                email: claimedAccount.profile.email,
+                userId: claimedAccount.profile.userId,
+                userInitials: "CL"
             )
         )
     }
