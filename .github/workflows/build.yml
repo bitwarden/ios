@@ -145,11 +145,9 @@ jobs:
           name: version-info
           path: version-info/version_info.json
 
-      - name: Read default Xcode version and simulator configuration
+      - name: Read default Xcode version
         run: |
           echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
-          echo "DEFAULT_SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
-          echo "DEFAULT_SIMULATOR_VERSION=$(cat .test-simulator-ios-version | tr -d '\n')" >> "$GITHUB_ENV"
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
