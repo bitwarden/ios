@@ -23,8 +23,11 @@ struct ProfileSwitcherRowState: Equatable {
         case alternate(ProfileSwitcherItem)
     }
 
-    /// Should the row allow lock and logout?
-    var allowLockAndLogout: Bool = true
+    /// Should the row allow lock.
+    var allowLock: Bool = true
+
+    /// Should the row allow logout.
+    var allowLogout: Bool = true
 
     /// A flag for tracking accessibility focus
     var shouldTakeAccessibilityFocus: Bool
