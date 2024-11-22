@@ -15,9 +15,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var clientAuth: MockClientAuth!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var delegate: MockStartRegistrationDelegate!
     var errorReporter: MockErrorReporter!
     var subject: StartRegistrationProcessor!
-    var delegate: MockStartRegistrationDelegate!
     var stateService: MockStateService!
     var environmentService: MockEnvironmentService!
 
@@ -31,6 +31,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         clientAuth = MockClientAuth()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
+        delegate = MockStartRegistrationDelegate()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
@@ -629,12 +630,39 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
         XCTAssertFalse(subject.state.isReceiveMarketingToggleOn)
     }
+
+    /// `setRegion(_:_:)` doesn't notify the delegate to switch to the legacy create account flow
+    /// if the selected region supports email verification.
+    @MainActor
+    func test_setRegion_emailVerificationEnabled() async {
+        configService.featureFlagsBoolPreAuth[.emailVerification] = true
+
+        await subject.setRegion(.unitedStates, .defaultUS)
+
+        XCTAssertFalse(delegate.switchToLegacyCreateAccountFlowCalled)
+    }
+
+    /// `setRegion(_:_:)` notifies the delegate to switch to the legacy create account flow if the
+    /// selected region doesn't support email verification.
+    @MainActor
+    func test_setRegion_emailVerificationDisabled() async {
+        configService.featureFlagsBoolPreAuth[.emailVerification] = false
+
+        await subject.setRegion(.unitedStates, .defaultUS)
+
+        XCTAssertTrue(delegate.switchToLegacyCreateAccountFlowCalled)
+    }
 }
 
 class MockStartRegistrationDelegate: StartRegistrationDelegate {
     var didChangeRegionCalled: Bool = false
+    var switchToLegacyCreateAccountFlowCalled = false
 
     func didChangeRegion() async {
         didChangeRegionCalled = true
+    }
+
+    func switchToLegacyCreateAccountFlow() {
+        switchToLegacyCreateAccountFlowCalled = true
     }
 } // swiftlint:disable:this file_length

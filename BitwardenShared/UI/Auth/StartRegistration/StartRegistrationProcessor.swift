@@ -12,6 +12,11 @@ protocol StartRegistrationDelegate: AnyObject {
     /// Called when the user changes regions.
     ///
     func didChangeRegion() async
+
+    /// If the user changes environments and the environment doesn't support email verification,
+    /// the UI should switch to using the legacy create account flow.
+    ///
+    func switchToLegacyCreateAccountFlow()
 }
 
 // MARK: - StartRegistrationError
@@ -229,5 +234,16 @@ extension StartRegistrationProcessor: RegionDelegate {
         state.region = region
         state.showReceiveMarketingToggle = state.region != .selfHosted
         await delegate?.didChangeRegion()
+
+        if await !services.configService.getFeatureFlag(
+            .emailVerification,
+            defaultValue: false,
+            forceRefresh: true,
+            isPreAuth: true
+        ) {
+            // If email verification isn't enabled in the selected environment, switch to the
+            // legacy create account flow.
+            delegate?.switchToLegacyCreateAccountFlow()
+        }
     }
 }
