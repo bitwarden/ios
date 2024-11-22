@@ -257,9 +257,10 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         let account: Account = .fixture(profile: .fixture(userId: "2"))
         let userId = account.profile.userId
         stateService.activeAccount = account
+        authRepository.activeAccount = account
         stateService.didAccountSwitchInExtensionResult = .success(true)
-        vaultTimeoutService.isClientLocked = [userId: true]
-        vaultTimeoutService.vaultTimeout = [userId: .never]
+        authRepository.vaultTimeout = [userId: .never]
+        authRepository.isLockedResult = .success(true)
         stateService.manuallyLockedAccounts = [userId: false]
 
         notificationCenterService.willEnterForegroundSubject.send()
