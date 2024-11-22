@@ -78,7 +78,7 @@ struct IdentityTokenRequest: Request {
     func validate(_ response: HTTPResponse) throws {
         switch response.statusCode {
         case 400:
-            guard let errorModel = try? JSONDecoder().decode(
+            guard let errorModel = try? IdentityTokenErrorModel.decoder.decode(
                 IdentityTokenErrorModel.self,
                 from: response.body
             ) else { return }

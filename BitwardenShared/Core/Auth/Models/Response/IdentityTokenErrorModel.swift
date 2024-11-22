@@ -9,12 +9,14 @@ struct IdentityTokenErrorModel: Codable {
 
     /// Key names used for encoding and decoding.
     enum CodingKeys: String, CodingKey {
-        case captchaBypassToken = "CaptchaBypassToken"
-        case masterPasswordPolicy = "MasterPasswordPolicy"
-        case siteCode = "HCaptcha_SiteKey"
-        case ssoToken = "SsoEmail2faSessionToken"
-        case twoFactorProvidersData = "TwoFactorProviders2"
+        case captchaBypassToken
+        case masterPasswordPolicy
+        case siteCode = "hcaptchaSitekey"
+        case ssoToken = "ssoEmail2faSessionToken"
+        case twoFactorProvidersData = "twoFactorProviders2"
     }
+
+    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 
     // MARK: Properties
 
@@ -112,12 +114,6 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
 
 /// Struct with information regarding Duo two factor authentication
 public struct Duo: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case authUrl = "AuthUrl"
-        case host = "Host"
-        case signature = "Signature"
-    }
-
     let authUrl, host, signature: String?
 }
 
@@ -125,10 +121,6 @@ public struct Duo: Codable, Equatable, Sendable {
 
 /// Struct with information regarding Email two factor authentication
 public struct Email: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case email = "Email"
-    }
-
     /// Email used to send the code to verify 2fa
     let email: String?
 }
@@ -174,10 +166,6 @@ public struct AllowCredential: Codable, Equatable, Sendable {
 
 /// Struct with information for two factor authentication with Yubikeys
 public struct Yubikey: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case nfc = "Nfc"
-    }
-
     /// Indicates if NFC is supported
     let nfc: Bool?
 }
