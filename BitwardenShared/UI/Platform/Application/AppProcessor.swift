@@ -355,23 +355,17 @@ extension AppProcessor {
         }
     }
 
-    /// Handles the case where an session never timeout account becomes active.
+    /// Handles unlocking the vault for a manually locked account that uses never lock
+    /// and was previously unlocked in an extension.
     ///
     private func handleNeverTimeOutAccountBecameActive() async {
-        // we should be safe to unlock the vault:
-        // - If not in the extension
-        // - If vault is locked
-        // - If the user uses never lock
-        // - If the user hasn't manually locked their vault (because it was unlocked in the extension).
-        guard appExtensionDelegate?.isInAppExtension != true else { return }
-        guard let account = try? await services.stateService.getActiveAccount() else { return }
-        guard services.vaultTimeoutService.isLocked(userId: account.profile.userId) else { return }
-        guard let sessionTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(
-            userId: account.profile.userId
-        ), sessionTimeout == .never else { return }
-        guard let manuallyLocked = try? await services.stateService.getManuallyLockedAccount(
-            userId: account.profile.userId
-        ), !manuallyLocked else { return }
+        guard
+            appExtensionDelegate?.isInAppExtension != true,
+            await (try? services.authRepository.isLocked()) == true,
+            await (try? services.authRepository.sessionTimeoutValue()) == .never,
+            await (try? services.stateService.getManuallyLockedAccount(userId: nil)) == false,
+            let account = try? await services.stateService.getActiveAccount()
+        else { return }
 
         await coordinator?.handleEvent(
             .accountBecameActive(
