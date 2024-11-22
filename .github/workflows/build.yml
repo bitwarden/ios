@@ -11,7 +11,6 @@ on:
         options:
           - Beta
           - Production
-          - Simulator
       build-mode:
         description: "Build Mode"
         required: true
