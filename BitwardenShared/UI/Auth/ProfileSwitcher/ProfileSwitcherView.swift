@@ -115,8 +115,7 @@ struct ProfileSwitcherView: View {
             store: store.child(
                 state: { _ in
                     ProfileSwitcherRowState(
-                        allowLock: accountProfile.canBeLocked,
-                        allowLogout: store.state.allowLockAndLogout,
+                        allowLockAndLogout: store.state.allowLockAndLogout,
                         shouldTakeAccessibilityFocus: store.state.isVisible
                             && isActive,
                         showDivider: showDivider,

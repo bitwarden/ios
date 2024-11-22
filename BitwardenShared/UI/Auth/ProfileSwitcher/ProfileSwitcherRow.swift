@@ -213,7 +213,7 @@ struct ProfileSwitcherRow: View {
                         )
                     )
                 }
-                .onLongPressGesture(if: store.state.allowLock || store.state.allowLogout) {
+                .onLongPressGesture(if: store.state.allowLockAndLogout) {
                     await store.perform(
                         .longPressed(
                             isSelected
@@ -227,13 +227,14 @@ struct ProfileSwitcherRow: View {
             await store.perform(.accessibility(.select(profileSwitcherItem)))
         }
         .conditionalAccessibilityAsyncAction(
-            if: store.state.allowLock,
+            if: store.state.allowLockAndLogout && profileSwitcherItem.canBeLocked
+                && profileSwitcherItem.isUnlocked,
             named: Localizations.lock
         ) {
             await store.perform(.accessibility(.lock(profileSwitcherItem)))
         }
         .conditionalAccessibilityAction(
-            if: store.state.allowLogout,
+            if: store.state.allowLockAndLogout,
             named: Localizations.logOut
         ) {
             store.send(.accessibility(.logout(profileSwitcherItem)))
