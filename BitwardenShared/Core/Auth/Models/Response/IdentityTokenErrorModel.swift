@@ -114,12 +114,6 @@ public struct AuthMethodsData: Codable, Equatable, Sendable {
 
 /// Struct with information regarding Duo two factor authentication
 public struct Duo: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case authUrl = "authUrl"
-        case host = "host"
-        case signature = "signature"
-    }
-
     let authUrl, host, signature: String?
 }
 
@@ -127,10 +121,6 @@ public struct Duo: Codable, Equatable, Sendable {
 
 /// Struct with information regarding Email two factor authentication
 public struct Email: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case email = "email"
-    }
-
     /// Email used to send the code to verify 2fa
     let email: String?
 }
@@ -176,10 +166,6 @@ public struct AllowCredential: Codable, Equatable, Sendable {
 
 /// Struct with information for two factor authentication with Yubikeys
 public struct Yubikey: Codable, Equatable, Sendable {
-    enum CodingKeys: String, CodingKey {
-        case nfc = "nfc"
-    }
-
     /// Indicates if NFC is supported
     let nfc: Bool?
 }
