@@ -13,53 +13,58 @@ struct ImportCXPView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            PageHeaderView(
-                image: Asset.Images.Illustrations.import,
-                title: store.state.title,
-                message: store.state.message
-            )
-            switch store.state.status {
-            case .start:
-                Spacer()
-                AsyncButton(Localizations.continue) {
-                    await store.perform(.startImport)
-                }
-                .buttonStyle(.primary())
-                AsyncButton(Localizations.cancel) {
-                    await store.perform(.cancel)
-                }
-                .buttonStyle(.secondary())
-            case .importing:
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-            case let .success(_, countByType):
-                VStack(spacing: 8) {
-                    ForEach(countByType) { type in
-                        HStack {
-                            Text(type.localizedType)
-                            Spacer()
-                            Text("\(type.count)")
+        Group {
+            VStack(spacing: 16) {
+                PageHeaderView(
+                    image: Asset.Images.Illustrations.import,
+                    title: store.state.title,
+                    message: store.state.message
+                )
+                switch store.state.status {
+                case .start:
+                    Spacer()
+                    AsyncButton(Localizations.continue) {
+                        await store.perform(.startImport)
+                    }
+                    .buttonStyle(.primary())
+                    AsyncButton(Localizations.cancel) {
+                        await store.perform(.cancel)
+                    }
+                    .buttonStyle(.secondary())
+                case .importing:
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                case let .success(_, countByType):
+                    VStack(spacing: 8) {
+                        ForEach(countByType) { type in
+                            HStack {
+                                Text(type.localizedType)
+                                Spacer()
+                                Text("\(type.count)")
+                            }
                         }
                     }
+                    Spacer()
+                    AsyncButton(Localizations.showVault) {
+                        await store.perform(.showVault)
+                    }
+                    .buttonStyle(.primary())
+                case .failure:
+                    Spacer()
+                    AsyncButton(Localizations.retryImport) {
+                        await store.perform(.startImport)
+                    }
+                    .buttonStyle(.primary())
+                    AsyncButton(Localizations.cancel) {
+                        await store.perform(.cancel)
+                    }
+                    .buttonStyle(.secondary())
                 }
-                Spacer()
-                AsyncButton(Localizations.showVault) {
-                    await store.perform(.showVault)
-                }
-            case .failure:
-                Spacer()
-                AsyncButton(Localizations.retryImport) {
-                    await store.perform(.startImport)
-                }
-                .buttonStyle(.primary())
-                AsyncButton(Localizations.cancel) {
-                    await store.perform(.cancel)
-                }
-                .buttonStyle(.secondary())
             }
+            .padding(.top, 8)
+            .frame(maxWidth: .infinity)
+            .scrollView()
         }
-        .padding(.top, 8)
         .transition(.opacity)
 //        .animation(.easeInOut, value: store.state.page)
         .navigationBar(title: Localizations.importPasswords, titleDisplayMode: .inline)
