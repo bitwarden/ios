@@ -11,7 +11,7 @@ struct IdentityTokenErrorModel: Codable {
     enum CodingKeys: String, CodingKey {
         case captchaBypassToken
         case masterPasswordPolicy
-        case siteCode = "hCaptcha_SiteKey"
+        case siteCode = "hcaptchaSitekey"
         case ssoToken = "ssoEmail2faSessionToken"
         case twoFactorProvidersData = "twoFactorProviders2"
     }
