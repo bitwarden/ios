@@ -136,7 +136,6 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         coordinator.showLoadingOverlay(title: Localizations.loading)
         defer {
             coordinator.hideLoadingOverlay()
-            state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
         }
 
         // Get the single sign on details for the user.
@@ -149,6 +148,8 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
                 await handleLoginTapped()
             }
         } catch {
+            // Default back to the last used org identifier if the API doesn't return one.
+            state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
             services.errorReporter.log(error: error)
         }
     }

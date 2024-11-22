@@ -83,6 +83,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
         )
+        XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
 
     /// `perform(_:)` with `.loadSingleSignOnDetails` doesn't start the login process
@@ -100,6 +101,30 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
         )
+        XCTAssertEqual(subject.state.identifierText, "")
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` loads the SSO organization identifier even if
+    /// there's a remembered org identifier.
+    @MainActor
+    func test_perform_loadSingleSignOnDetails_successWithRememberedOrgId() async throws {
+        authRepository.getSSOOrganizationIdentifierByResult = .success("OrgId")
+        stateService.rememberedOrgIdentifier = "SSO"
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.loading),
+                LoadingOverlayState(title: Localizations.loggingIn),
+            ]
+        )
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+        )
+        XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
 
     /// `perform(_:)` with `.loginPressed` displays an alert if organization identifier field is invalid.
