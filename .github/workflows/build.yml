@@ -354,7 +354,7 @@ jobs:
 
       - name: Build iOS app
         run: |
-          ./Scripts/build.sh ${{ env.BUILD_VARIANT }} "generic/platform=iOS Simulator"
+          ./Scripts/build.sh ${{ env.BUILD_VARIANT }}
 
       - name: Prepare APP files for upload to GitHub
         if: env.BUILD_VARIANT == 'Simulator'
