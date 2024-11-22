@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenSdk
 
 // MARK: - ImportCXPProcessor
 
@@ -85,6 +86,9 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
             state.status = .failure(message: "No data found to import.")
         } catch ImportCiphersRepositoryError.dataEncodingFailed {
             state.status = .failure(message: "Import data encoding failed.")
+        } catch BitwardenSdk.BitwardenError.E(let message)  {
+            print(message)
+
         } catch {
             state.status = .failure(message: Localizations.thereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted)
             services.errorReporter.log(error: error)
