@@ -65,14 +65,15 @@ struct ImportCXPView: View {
         }
         .transition(.opacity)
         .animation(.easeInOut, value: store.state.status)
-        .navigationBar(title: Localizations.importPasswords, titleDisplayMode: .inline)
-//        .toolbar {
-//            cancelToolbarItem {
-//                store.send(.dismiss)
-//            }
-//        }
         .task {
             await store.perform(.appeared)
+        }
+        .apply { view in
+            if #available(iOSApplicationExtension 16.0, *) {
+                view.toolbar(.hidden)
+            } else {
+                view.navigationBarHidden(true)
+            }
         }
     }
 
