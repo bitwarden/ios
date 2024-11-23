@@ -43,34 +43,41 @@ echo ""
 
 mkdir -p "${BUILD_DIR}"
 
-if [[ "$MODE" == "Simulator" ]]; then
-  echo "🔨 Performing Xcode build"
-  xcrun xcodebuild \
-    -project Bitwarden.xcodeproj \
-    -scheme Bitwarden \
-    -configuration Debug \
-    -destination "generic/platform=iOS Simulator" \
-    -derivedDataPath "${DERIVED_DATA_PATH}" \
-    | xcbeautify --renderer github-actions
-else
-  echo "📦 Performing Xcode archive"
-  xcrun xcodebuild archive \
-    -project Bitwarden.xcodeproj \
-    -scheme Bitwarden \
-    -configuration Release \
-    -derivedDataPath "${DERIVED_DATA_PATH}" \
-    -archivePath "${ARCHIVE_PATH}" \
-    | xcbeautify --renderer github-actions
+case "$MODE" in
+  "Simulator")
+    echo "🔨 Performing Xcode build"
+    xcrun xcodebuild \
+      -project Bitwarden.xcodeproj \
+      -scheme Bitwarden \
+      -configuration Debug \
+      -destination "generic/platform=iOS Simulator" \
+      -derivedDataPath "${DERIVED_DATA_PATH}" \
+      | xcbeautify --renderer github-actions
+    ;;
+  "Device")
+    echo "📦 Performing Xcode archive"
+    xcrun xcodebuild archive \
+      -project Bitwarden.xcodeproj \
+      -scheme Bitwarden \
+      -configuration Release \
+      -derivedDataPath "${DERIVED_DATA_PATH}" \
+      -archivePath "${ARCHIVE_PATH}" \
+      | xcbeautify --renderer github-actions
 
-  echo "🚚 Performing Xcode archive export"
-  xcrun xcodebuild -exportArchive \
-    -archivePath "${ARCHIVE_PATH}" \
-    -derivedDataPath "${DERIVED_DATA_PATH}" \
-    -exportPath "${EXPORT_PATH}" \
-    -exportOptionsPlist "Configs/export_options.plist" \
-    | xcbeautify --renderer github-actions
-
-fi
+    echo "🚚 Performing Xcode archive export"
+    xcrun xcodebuild -exportArchive \
+      -archivePath "${ARCHIVE_PATH}" \
+      -derivedDataPath "${DERIVED_DATA_PATH}" \
+      -exportPath "${EXPORT_PATH}" \
+      -exportOptionsPlist "Configs/export_options.plist" \
+      | xcbeautify --renderer github-actions
+    ;;
+  *)
+    echo >&2 "Invalid build mode: ${bold}${MODE}${normal}"
+    echo >&2 "Must be one of: Simulator, Device"
+    exit 1
+    ;;
+esac
 
 echo ""
 echo "🎉 Build complete"
