@@ -2,11 +2,15 @@
 #
 # Builds the Bitwarden iOS app.
 # If run in Simulator mode, produces an APP file for the iOS Simulator for ease of automated testing.
-# If run in Release or Beta mode, produces an IPA file that can be uploaded to Testflight.
+# If run in Device mode, produces an IPA file that can be uploaded to Testflight.
 #
 # Usage:
 #
-#   $ ./build.sh [mode]
+#   $ ./build.sh <build_mode>
+#
+# Where mode is one of:
+#   - Device: Build for physical iOS devices
+#   - Simulator: Build for iOS Simulator
 
 set -euo pipefail
 
