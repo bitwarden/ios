@@ -164,20 +164,20 @@ jobs:
             ${{ runner.os }}-mint-
 
       - name: Log in to Azure
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
           secrets: "appcenter-ios-token"
 
       - name: Retrieve production provisioning profiles
-        if: env.BUILD_VARIANT == 'Production'
+        if: env.BUILD_VARIANT == 'Production' && env.BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -200,7 +200,7 @@ jobs:
           done
 
       - name: Retrieve beta provisioning profiles
-        if: env.BUILD_VARIANT == 'Beta'
+        if: env.BUILD_VARIANT == 'Beta' && env.BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -223,7 +223,7 @@ jobs:
           done
 
       - name: Retrieve production Google Services secret
-        if: env.BUILD_VARIANT == 'Production'
+        if: env.BUILD_VARIANT == 'Production' && env.BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -235,7 +235,7 @@ jobs:
             --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve watch production Google Services secret
-        if: env.BUILD_VARIANT == 'Production'
+        if: env.BUILD_VARIANT == 'Production' && env.BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -248,7 +248,7 @@ jobs:
           plutil -replace BUNDLE_ID -string com.8bit.bitwarden.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve beta Google Services secret
-        if: env.BUILD_VARIANT == 'Beta'
+        if: env.BUILD_VARIANT == 'Beta' && env.BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -260,7 +260,7 @@ jobs:
             --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve watch beta Google Services secret
-        if: env.BUILD_VARIANT == 'Beta'
+        if: env.BUILD_VARIANT == 'Beta' && env.BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -273,14 +273,14 @@ jobs:
           plutil -replace BUNDLE_ID -string com.8bit.bitwarden.beta.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve certificates
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         run: |
           mkdir -p $HOME/certificates
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
             jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
       - name: Download Fastlane credentials
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -291,7 +291,7 @@ jobs:
             --file $HOME/secrets/$FILE --output none
 
       - name: Configure Keychain Access
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
         run: |
