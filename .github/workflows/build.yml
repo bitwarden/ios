@@ -364,31 +364,32 @@ jobs:
         run: |
           ./Scripts/build.sh ${{ env.BUILD_MODE }}
 
-      - name: Prepare APP files for upload to GitHub
-        if: env.BUILD_MODE == 'Simulator'
+      - name: Prepare artifacts for upload to GitHub
         run: |
-          find . -name "*.app"
+          if [ "$BUILD_MODE" == "Simulator" ]; then
+            app_path="build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app"
+            watchapp_path="build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app"
+            #dsym_path="build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app/dSYMs/*.dSYM"
+          else
+            app_path="build/Bitwarden/Bitwarden.ipa"
+            dsym_path="build/Bitwarden.xcarchive/dSYMs/*.dSYM"
+          fi
+
           mkdir -p export
-          cp -r build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
-          cp -r build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app export
-
-      - name: Upload APP files
-        if: env.BUILD_MODE == 'Simulator'
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
-          path: export
-          if-no-files-found: error
-
-      - name: Prepare IPA & dSYM files for upload to GitHub
-        if: env.BUILD_MODE != 'Simulator'
-        run: |
           mkdir -p export/dSYMs
-          cp build/Bitwarden/Bitwarden.ipa export
-          cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
 
-      - name: Upload IPA & dSYM files
-        if: env.BUILD_MODE != 'Simulator'
+          zip -r "export/$(basename "$app_path").zip" "$app_path"
+          cp $dsym_path export/dSYMs
+          zip -r "export/dSYMs.zip" "export/dSYMs"
+
+          if [ "$BUILD_MODE" == "Simulator" ]; then
+            zip -r "export/$(basename "$watchapp_path").zip" "$watchapp_path"
+          else
+            # Copy uncompressed .ipa file.Required for App Store Connect upload step
+            cp $app_path export/
+          fi
+
+      - name: Upload artifacts to GitHub
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
