@@ -413,7 +413,7 @@ jobs:
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight with Fastlane
-        if: ${{ inputs.distribute }}
+        if: ${{ inputs.distribute && env.BUILD_MODE == 'Device' }}
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
