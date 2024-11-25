@@ -247,6 +247,35 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
     }
 
+    /// `init()` subscribes to will enter foreground events and handles accountBecameActive if the
+    /// never timeout account is unlocked in extension.
+    @MainActor
+    func test_init_appForeground_checkAccountBecomeActive() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        let account: Account = .fixture(profile: .fixture(userId: "2"))
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+        authRepository.vaultTimeout = [userId: .never]
+        authRepository.isLockedResult = .success(true)
+        stateService.manuallyLockedAccounts = [userId: false]
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(
+            coordinator.events.last,
+            AppEvent.accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
     /// `init()` subscribes to will enter foreground events and logs an error if one occurs while
     /// checking if the active account was changed in an extension.
     @MainActor

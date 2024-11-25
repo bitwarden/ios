@@ -662,7 +662,7 @@
 "TapToGoBack" = "点击以返回";
 "PasswordIsVisibleTapToHide" = "密码可见，点击以隐藏。";
 "PasswordIsNotVisibleTapToShow" = "密码不可见，点击以显示。";
-"FilterByVault" = "按密码库过滤项目";
+"FilterByVault" = "按密码库筛选项目";
 "AllVaults" = "所有密码库";
 "Vaults" = "密码库";
 "VaultFilterDescription" = "密码库：%1$@";

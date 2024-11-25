@@ -1086,26 +1086,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
-    /// `perform(_:)` with `.savePressed` saves the item for SSH Key
-    @MainActor
-    func test_perform_savePressed_sshKey() async {
-        subject.state.type = .sshKey
-        subject.state.name = "sshKey"
-
-        await subject.perform(.savePressed)
-
-        try XCTAssertEqual(
-            XCTUnwrap(vaultRepository.addCipherCiphers.first).type,
-            .sshKey
-        )
-
-        try XCTAssertEqual(
-            XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
-            "sshKey"
-        )
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
-    }
-
     /// `perform(_:)` with `.savePressed` saves the item.
     @MainActor
     func test_perform_savePressed_card() async throws {
@@ -1174,6 +1154,50 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 (subject.state as? CipherItemState)?
                     .newCipherView(creationDate: vaultRepository.addCipherCiphers[0].creationDate),
             ]
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item for `.sshKey`.
+    @MainActor
+    func test_perform_savePressed_sshKey() async throws {
+        subject.state.name = "vault item"
+        subject.state.type = .sshKey
+        let expectedSSHKeyItemState = SSHKeyItemState(
+            canViewPrivateKey: true,
+            isPrivateKeyVisible: false,
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            keyFingerprint: "fingerprint"
+        )
+        subject.state.sshKeyState = expectedSSHKeyItemState
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+
+        let added = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertNil(added.identity)
+        XCTAssertNil(added.login)
+        XCTAssertNil(added.secureNote)
+        XCTAssertNotNil(added.sshKey)
+        XCTAssertNil(added.card)
+        XCTAssertEqual(added.sshKeyItemState(), expectedSSHKeyItemState)
+        let unwrappedState = try XCTUnwrap(subject.state as? CipherItemState)
+        XCTAssertEqual(
+            added,
+            unwrappedState
+                .newCipherView(
+                    creationDate: vaultRepository.addCipherCiphers[0].creationDate
+                )
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
