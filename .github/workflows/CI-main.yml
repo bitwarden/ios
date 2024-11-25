@@ -25,7 +25,7 @@ env:
 jobs:
   resolve-values:
     name: "Resolve values"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       version_name: ${{ steps.version_info.outputs.version_name }}
       version_number: ${{ steps.version_info.outputs.version_number }}
@@ -49,7 +49,7 @@ jobs:
 
       - name: Calculate version
         if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
-        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
+        uses: ./.github/actions/dispatch-and-download/action.yml
         id: dispatch-version
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -79,11 +79,13 @@ jobs:
           content=$(cat version-info/version_info.json)
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
       - name: Upload version info artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: version-info
           path: version-info/version_info.json
+
       - name: Set patch version for internal builds
         id: internal_versions
         run: |
@@ -95,7 +97,7 @@ jobs:
   build-public:
     name: Build Public Apps
     needs: resolve-values
-    uses: bitwarden/ios/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
     strategy:
       matrix:
         variant: [Beta, Production]
@@ -111,7 +113,7 @@ jobs:
   build-internal:
     name: Build Internal App
     needs: resolve-values
-    uses: bitwarden/ios/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
     with:
       build-variant: Beta
       build-version: ${{ needs.resolve-values.outputs.internal_beta_version_name }}
