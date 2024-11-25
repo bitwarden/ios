@@ -79,6 +79,7 @@ env:
   BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
   BUILD_MODE: ${{ inputs.build-mode || 'Device' }}
   XCODE_VERSION: ${{ inputs.xcode-version }}
+  COMPILER_FLAGS: ${{ inputs.compiler-flags }}
 
 jobs:
   build:
@@ -349,7 +350,7 @@ jobs:
 
       - name: Select variant
         run: |
-          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }} "${{ inputs.compiler-flags }}"
+          ./Scripts/select_variant.sh ${{ env.BUILD_VARIANT }} "${{ env.COMPILER_FLAGS }}"
 
       - name: Update build version and number
         run: |
@@ -358,7 +359,7 @@ jobs:
 
       - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ inputs.compiler-flags }}"
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ env.COMPILER_FLAGS }}"
 
       - name: Build iOS app
         run: |
@@ -386,7 +387,7 @@ jobs:
       - name: Upload artifacts to GitHub
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
+          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env.BUILD_VARIANT }} ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }} $COMPILER_FLAGS
           path: export
           if-no-files-found: error
 
