@@ -366,28 +366,22 @@ jobs:
 
       - name: Prepare artifacts for upload to GitHub
         run: |
-          if [ "$BUILD_MODE" == "Simulator" ]; then
-            app_path="build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app"
-            watchapp_path="build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app"
-            #dsym_path="build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app/dSYMs/*.dSYM"
-          else
-            app_path="build/Bitwarden/Bitwarden.ipa"
-            dsym_path="build/Bitwarden.xcarchive/dSYMs/*.dSYM"
-          fi
-
           mkdir -p export
-          mkdir -p export/dSYMs
-
-          zip -r "export/$(basename "$app_path").zip" "$app_path"
-          cp $dsym_path export/dSYMs
-          zip -r "export/dSYMs.zip" "export/dSYMs"
-
-          if [ "$BUILD_MODE" == "Simulator" ]; then
-            zip -r "export/$(basename "$watchapp_path").zip" "$watchapp_path"
-          else
-            # Copy uncompressed .ipa file.Required for App Store Connect upload step
-            cp $app_path export/
-          fi
+          case "$BUILD_MODE" in
+            "Simulator")
+              cp -r build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
+              #cp -r build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app export
+              ;;
+            "Device")
+              mkdir -p export/dSYMs
+              cp build/Bitwarden/Bitwarden.ipa export
+              cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+              ;;
+            *)
+              echo "Error: Invalid BUILD_MODE '$BUILD_MODE'"
+              exit 1
+              ;;
+          esac
 
       - name: Upload artifacts to GitHub
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
