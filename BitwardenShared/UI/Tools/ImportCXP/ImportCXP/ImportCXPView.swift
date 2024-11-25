@@ -18,7 +18,8 @@ struct ImportCXPView: View {
                 PageHeaderView(
                     image: Asset.Images.Illustrations.import,
                     title: store.state.title,
-                    message: store.state.message
+                    message: store.state.message,
+                    style: .large
                 )
                 switch store.state.status {
                 case .start:
@@ -31,8 +32,10 @@ struct ImportCXPView: View {
                         ForEach(countByType) { type in
                             HStack {
                                 Text(type.localizedType)
+                                    .styleGuide(.body)
                                 Spacer()
                                 Text("\(type.count)")
+                                    .styleGuide(.body)
                             }
                         }
                     }
@@ -47,17 +50,19 @@ struct ImportCXPView: View {
             .scrollView()
             .safeAreaInset(edge: .bottom) {
                 VStack {
-                    AsyncButton(store.state.mainButtonTitle) {
-                        await store.perform(.mainButtonTapped)
+                    if store.state.showMainButton {
+                        AsyncButton(store.state.mainButtonTitle) {
+                            await store.perform(.mainButtonTapped)
+                        }
+                        .buttonStyle(.primary())
                     }
-                    .buttonStyle(.primary())
-                    .hidden(store.state.status == .importing && !store.state.isFeatureUnvailable)
 
-                    AsyncButton(Localizations.cancel) {
-                        await store.perform(.cancel)
+                    if store.state.showCancelButton {
+                        AsyncButton(Localizations.cancel) {
+                            await store.perform(.cancel)
+                        }
+                        .buttonStyle(.secondary())
                     }
-                    .buttonStyle(.secondary())
-                    .hidden(!store.state.showCancelButton)
                 }
                 .padding(.horizontal, 16)
                 .background(Asset.Colors.backgroundPrimary.swiftUIColor)

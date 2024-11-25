@@ -82,6 +82,11 @@ struct ImportCXPState: Equatable, Sendable {
         }
     }
 
+    /// Whether to show the main button.
+    var showMainButton: Bool {
+        status != .importing || isFeatureUnvailable
+    }
+
     /// The current status of the import process.
     var status: ImportCXPStatus = .start
 }
