@@ -306,7 +306,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Configure provisioning profiles
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         run: |
           ./Scripts/configure_provisioning_profiles.sh ${{ env.BUILD_VARIANT }}
 
@@ -321,7 +321,7 @@ jobs:
           echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
 
       - name: Update APNS entitlements
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         run: |
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
@@ -335,7 +335,7 @@ jobs:
           brew update
 
       - name: Install Fastlane
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         run: |
           brew install fastlane
 
@@ -392,7 +392,7 @@ jobs:
           if-no-files-found: error
 
       - name: Set up private auth key
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
@@ -400,7 +400,7 @@ jobs:
           EOF
 
       - name: Validate app with App Store Connect
-        if: env.BUILD_MODE != 'Simulator'
+        if: env.BUILD_MODE == 'Device'
         run: |
           xcrun altool --validate-app \
             --type ios \
