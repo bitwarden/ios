@@ -3,23 +3,6 @@ import Foundation
 extension JSONEncoder {
     // MARK: Static Properties
 
-    /// `AnyKey` is a `CodingKey` type that can be used for encoding and decoding keys for custom
-    /// key decoding strategies.
-    struct AnyKey: CodingKey {
-        let stringValue: String
-        let intValue: Int?
-
-        init(stringValue: String) {
-            self.stringValue = stringValue
-            intValue = nil
-        }
-
-        init(intValue: Int) {
-            stringValue = String(intValue)
-            self.intValue = intValue
-        }
-    }
-    
     /// The default `JSONEncoder` used to encode JSON payloads throughout the app.
     static let defaultEncoder: JSONEncoder = {
         let dateFormatterWithFractionalSeconds = ISO8601DateFormatter()
@@ -59,20 +42,5 @@ extension JSONEncoder {
         default:
             key
         }
-    }
-
-    /// Transforms a snake_case, PascalCase or camelCase key into camelCase.
-    static func keyToCamelCase(key: String) -> String {
-        if key.contains("_") {
-            // Handle snake_case.
-            return key.lowercased()
-                .split(separator: "_")
-                .enumerated()
-                .map { $0.offset > 0 ? $0.element.capitalized : $0.element.lowercased() }
-                .joined()
-        }
-
-        // Handle PascalCase or camelCase.
-        return key.prefix(1).lowercased() + key.dropFirst()
     }
 }

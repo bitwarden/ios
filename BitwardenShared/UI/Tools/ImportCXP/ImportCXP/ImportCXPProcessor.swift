@@ -58,7 +58,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
     }
 
     // MARK: Private
-    
+
     /// Checks whether the CXP import feature is enabled.
     private func checkEnabled() async {
         guard #available(iOS 18.2, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
@@ -96,7 +96,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
             state.status = .failure(message: "No data found to import.")
         } catch ImportCiphersRepositoryError.dataEncodingFailed {
             state.status = .failure(message: "Import data encoding failed.")
-        } catch BitwardenSdk.BitwardenError.E(let message) {
+        } catch let BitwardenSdk.BitwardenError.E(message) {
             print(message)
         } catch {
             state.status = .failure(message: Localizations.thereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted)

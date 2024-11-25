@@ -77,7 +77,7 @@ struct ImportCXPState: Equatable, Sendable {
         return switch status {
         case .importing, .success:
             false
-        case .start, .failure:
+        case .failure, .start:
             true
         }
     }
