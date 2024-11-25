@@ -28,6 +28,19 @@ public enum AppRoute: Equatable {
 }
 
 public enum AppEvent: Equatable {
+    /// When the router should check the lock status of an account and propose a route.
+    ///
+    /// - Parameters:
+    ///   - account: The account to unlock the vault for.
+    ///   - attemptAutomaticBiometricUnlock: If `true` and biometric unlock is enabled/available,
+    ///     the processor should attempt an automatic biometric unlock.
+    ///   - didSwitchAccountAutomatically: A flag indicating if the active account was switched automatically.
+    ///
+    case accountBecameActive(
+        Account,
+        attemptAutomaticBiometricUnlock: Bool,
+        didSwitchAccountAutomatically: Bool
+    )
     /// When the user logs out from an account.
     ///
     /// - Parameters:

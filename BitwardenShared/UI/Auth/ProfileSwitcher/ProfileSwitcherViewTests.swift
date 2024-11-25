@@ -53,6 +53,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_accountRow_longPress_currentAccount_noLockOrLogout() throws {
         processor.state.allowLockAndLogout = false
+        processor.state.accounts[0].canBeLocked = false
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         XCTAssertThrowsError(try accountRow.labelView().recursiveCallOnLongPressGesture())
     }
@@ -106,6 +107,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_alternateAccountRow_longPress_currentAccount_noLockOrLogout() throws {
         let alternate = ProfileSwitcherItem.fixture(
+            canBeLocked: false,
             email: "alternate@bitwarden.com",
             userInitials: "NA"
         )
