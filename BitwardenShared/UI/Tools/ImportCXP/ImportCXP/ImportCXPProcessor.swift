@@ -84,13 +84,15 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
         state.status = .importing
 
         do {
-            let result = try await services.importCiphersRepository.importCiphers(
+            let results = try await services.importCiphersRepository.importCiphers(
                 credentialImportToken: credentialImportToken
-            )
+            ) { progress in
+                state.progress = progress
+            }
 
             state.status = .success(
-                totalImportedCredentials: result.map(\.count).reduce(0, +),
-                credentialsByTypeCount: result
+                totalImportedCredentials: results.map(\.count).reduce(0, +),
+                importedResults: results
             )
         } catch ImportCiphersRepositoryError.noDataFound {
             state.status = .failure(message: "No data found to import.")

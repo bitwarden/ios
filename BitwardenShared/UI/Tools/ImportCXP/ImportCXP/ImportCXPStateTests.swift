@@ -33,7 +33,7 @@ class ImportCXPStateTests: BitwardenTestCase {
         subject.status = .importing
         XCTAssertEqual(subject.mainButtonTitle, "")
 
-        subject.status = .success(totalImportedCredentials: 1, credentialsByTypeCount: [])
+        subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertEqual(subject.mainButtonTitle, Localizations.showVault)
 
         subject.status = .failure(message: "")
@@ -48,7 +48,7 @@ class ImportCXPStateTests: BitwardenTestCase {
         subject.status = .importing
         XCTAssertEqual(subject.mainIcon.name, Asset.Images.Illustrations.import.name)
 
-        subject.status = .success(totalImportedCredentials: 1, credentialsByTypeCount: [])
+        subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertEqual(subject.mainIcon.name, Asset.Images.checkCircle24.name)
 
         subject.status = .failure(message: "")
@@ -63,7 +63,7 @@ class ImportCXPStateTests: BitwardenTestCase {
         subject.status = .importing
         XCTAssertEqual(subject.message, "")
 
-        subject.status = .success(totalImportedCredentials: 1, credentialsByTypeCount: [])
+        subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertEqual(subject.message, Localizations.itemsSuccessfullyImported(1))
 
         subject.status = .failure(message: "Something went wrong")
@@ -78,7 +78,7 @@ class ImportCXPStateTests: BitwardenTestCase {
         subject.status = .importing
         XCTAssertEqual(subject.title, Localizations.importingEllipsis)
 
-        subject.status = .success(totalImportedCredentials: 1, credentialsByTypeCount: [])
+        subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertEqual(subject.title, Localizations.importSuccessful)
 
         subject.status = .failure(message: "Something went wrong")
@@ -96,7 +96,7 @@ class ImportCXPStateTests: BitwardenTestCase {
         subject.status = .importing
         XCTAssertFalse(subject.showCancelButton)
 
-        subject.status = .success(totalImportedCredentials: 1, credentialsByTypeCount: [])
+        subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertFalse(subject.showCancelButton)
 
         subject.status = .failure(message: "Something went wrong")
@@ -111,7 +111,7 @@ class ImportCXPStateTests: BitwardenTestCase {
         subject.status = .importing
         XCTAssertFalse(subject.showMainButton)
 
-        subject.status = .success(totalImportedCredentials: 1, credentialsByTypeCount: [])
+        subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertTrue(subject.showMainButton)
 
         subject.status = .failure(message: "Something went wrong")

@@ -16,7 +16,7 @@ struct ImportCXPState: Equatable, Sendable {
         case importing
 
         /// The import flow succeded.
-        case success(totalImportedCredentials: Int, credentialsByTypeCount: [ImportedCredentialsResult])
+        case success(totalImportedCredentials: Int, importedResults: [ImportedCredentialsResult])
 
         /// The import flow failed.
         case failure(message: String)
@@ -69,6 +69,9 @@ struct ImportCXPState: Equatable, Sendable {
             message
         }
     }
+
+    /// The progress of importing credentials.
+    var progress = 0.0
 
     /// The title to display on the page header.
     var title: String {

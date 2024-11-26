@@ -59,6 +59,7 @@ struct PageHeaderView: View {
                             text.styleGuide(.hugeTitle, weight: .bold)
                         }
                     }
+                    .accessibilityLabel("HeaderTitle")
 
                 Text(LocalizedStringKey(message))
                     .apply { text in
@@ -69,6 +70,7 @@ struct PageHeaderView: View {
                             text.styleGuide(.title2)
                         }
                     }
+                    .accessibilityLabel("HeaderMessage")
             }
         }
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)

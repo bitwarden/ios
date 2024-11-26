@@ -25,18 +25,15 @@ struct ImportCXPView: View {
                 case .start:
                     EmptyView()
                 case .importing:
-                    ProgressView()
+                    ProgressView(value: store.state.progress)
+                        .tint(Asset.Colors.tintPrimary.swiftUIColor)
                         .frame(maxWidth: .infinity)
-                case let .success(_, countByType):
+                        .scaleEffect(x: 1, y: 3, anchor: .center)
+                        .accessibilityIdentifier("ImportProgress")
+                case let .success(_, results):
                     VStack(spacing: 16) {
-                        ForEach(countByType) { type in
-                            HStack {
-                                Text(type.localizedType)
-                                    .styleGuide(.body)
-                                Spacer()
-                                Text("\(type.count)")
-                                    .styleGuide(.body)
-                            }
+                        ForEach(results) { result in
+                            importedTypeRow(result: result)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -85,6 +82,19 @@ struct ImportCXPView: View {
     }
 
     // MARK: Private
+
+    /// The row for an imported type result.
+    @ViewBuilder
+    private func importedTypeRow(result: ImportedCredentialsResult) -> some View {
+        HStack {
+            Text(result.localizedTypePlural)
+                .styleGuide(.body)
+            Spacer()
+            Text("\(result.count)")
+                .styleGuide(.body)
+                .accessibilityIdentifier("\(result.type)ImportTotal")
+        }
+    }
 }
 
 // MARK: - Previews
@@ -96,8 +106,16 @@ struct ImportCXPView: View {
 }
 
 #Preview("Importing") {
-    ImportCXPView(store: Store(processor: StateProcessor(state: ImportCXPState(status: .importing))))
-        .navStackWrapped
+    ImportCXPView(
+        store: Store(
+            processor: StateProcessor(
+                state: ImportCXPState(
+                    progress: 0.3,
+                    status: .importing
+                )
+            )
+        )
+    ).navStackWrapped
 }
 
 #Preview("Success") {
@@ -107,10 +125,10 @@ struct ImportCXPView: View {
                 state: ImportCXPState(
                     status: .success(
                         totalImportedCredentials: 30,
-                        credentialsByTypeCount: [
-                            ImportedCredentialsResult(localizedType: "Passwords", count: 13),
-                            ImportedCredentialsResult(localizedType: "Passkeys", count: 7),
-                            ImportedCredentialsResult(localizedType: "Cards", count: 10),
+                        importedResults: [
+                            ImportedCredentialsResult(count: 13, type: .password),
+                            ImportedCredentialsResult(count: 7, type: .passkey),
+                            ImportedCredentialsResult(count: 10, type: .card),
                         ]
                     )
                 )

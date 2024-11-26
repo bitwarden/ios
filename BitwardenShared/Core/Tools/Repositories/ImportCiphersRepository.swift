@@ -8,10 +8,14 @@ protocol ImportCiphersRepository: AnyObject {
     /// Performs an API request to import ciphers in the vault.
     /// - Parameters:
     ///   - credentialImportToken: The token used in `ASCredentialImportManager` to get the credentials to import.
+    ///   - onProgress: Closure to update progress in the process.
     /// - Returns: A dictionary containing the localized cipher type (key) and count (value) of that type
     /// that was imported, e.g. ["Passwords": 3, "Cards": 2].
     @available(iOS 18.2, *)
-    func importCiphers(credentialImportToken: UUID) async throws -> [ImportedCredentialsResult]
+    func importCiphers(
+        credentialImportToken: UUID,
+        onProgress: @MainActor (_ progress: Double) -> Void
+    ) async throws -> [ImportedCredentialsResult]
 }
 
 // MARK: - DefaultImportCiphersRepository
@@ -55,7 +59,8 @@ class DefaultImportCiphersRepository {
 extension DefaultImportCiphersRepository: ImportCiphersRepository {
     @available(iOS 18.2, *)
     func importCiphers( // swiftlint:disable:this function_body_length
-        credentialImportToken: UUID
+        credentialImportToken: UUID,
+        onProgress: @MainActor (_ progress: Double) -> Void
     ) async throws -> [ImportedCredentialsResult] {
         #if compiler(>=6.0.3)
 
@@ -73,6 +78,8 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
 
         let ciphers = try await clientService.exporters().importCxf(payload: accountJsonString)
 
+        await onProgress(0.3)
+
         _ = try await importCiphersService
             .importCiphers(
                 ciphers: ciphers,
@@ -80,13 +87,15 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
                 folderRelationships: []
             )
 
+        await onProgress(0.8)
+
         try await syncService.fetchSync(forceSync: true)
 
         var importedCredentialsCount: [ImportedCredentialsResult] = []
         appendImportedCredentialCountIfAny(
             importedCredentialsCount: &importedCredentialsCount,
             ciphers: ciphers,
-            localizedType: Localizations.passwords,
+            type: .password,
             when: { cipher in
                 cipher.type == .login && cipher.login?.fido2Credentials?.isEmpty != false
             }
@@ -94,7 +103,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
         appendImportedCredentialCountIfAny(
             importedCredentialsCount: &importedCredentialsCount,
             ciphers: ciphers,
-            localizedType: Localizations.passkeys,
+            type: .passkey,
             when: { cipher in
                 cipher.type == .login && cipher.login?.fido2Credentials?.isEmpty == false
             }
@@ -102,27 +111,30 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
         appendImportedCredentialCountIfAny(
             importedCredentialsCount: &importedCredentialsCount,
             ciphers: ciphers,
-            localizedType: Localizations.cards,
+            type: .card,
             when: { $0.type == .card }
         )
         appendImportedCredentialCountIfAny(
             importedCredentialsCount: &importedCredentialsCount,
             ciphers: ciphers,
-            localizedType: Localizations.identities,
+            type: .identity,
             when: { $0.type == .identity }
         )
         appendImportedCredentialCountIfAny(
             importedCredentialsCount: &importedCredentialsCount,
             ciphers: ciphers,
-            localizedType: Localizations.secureNotes,
+            type: .secureNote,
             when: { $0.type == .secureNote }
         )
         appendImportedCredentialCountIfAny(
             importedCredentialsCount: &importedCredentialsCount,
             ciphers: ciphers,
-            localizedType: Localizations.sshKeys,
+            type: .sshKey,
             when: { $0.type == .sshKey }
         )
+
+        await onProgress(1.0)
+
         return importedCredentialsCount
         #else
         return []
@@ -135,12 +147,12 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
     /// - Parameters:
     ///   - importedCredentialsCount: The array to update.
     ///   - ciphers: The ciphers to count.
-    ///   - localizedType: The localized type to add if the condition is met.
+    ///   - type: The type to add if the condition is met.
     ///   - when: The filter to apply to count the ciphers.
     private func appendImportedCredentialCountIfAny(
         importedCredentialsCount: inout [ImportedCredentialsResult],
         ciphers: [Cipher],
-        localizedType: String,
+        type: ImportedCredentialsResult.ImportedCredentialType,
         when: (Cipher) -> Bool
     ) {
         let count = ciphers.count { when($0) }
@@ -148,8 +160,8 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
             importedCredentialsCount
                 .append(
                     ImportedCredentialsResult(
-                        localizedType: localizedType,
-                        count: count
+                        count: count,
+                        type: type
                     )
                 )
         }
