@@ -47,12 +47,9 @@ jobs:
         run: |
           echo "xcode_version=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_OUTPUT"
 
-      - name: Check out repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
       - name: Calculate version
         if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
-        uses: ./.github/actions/dispatch-and-download/action.yml
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
         id: dispatch-version
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
