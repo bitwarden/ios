@@ -421,12 +421,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.url, url)
     }
 
-    /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
+    /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository, but does not force a sync.
     @MainActor
     func test_perform_refresh() async {
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(vaultRepository.fetchSyncManualRefresh, false)
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.
