@@ -90,6 +90,51 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         )
     }
 
+    /// `perform(.appeared)` with no master password but with a biometrics status enabled,
+    /// should yields the expected `shouldShowPasswordOrPinFields` status.
+    @MainActor
+    func test_perform_appeared_shouldShowPasswordOrPinFields_false() async {
+        stateService.activeAccount = .fixture()
+        let expectedStatus = BiometricsUnlockStatus.available(.touchID, enabled: true)
+        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        authRepository.isPinUnlockAvailableResult = .success(false)
+        authRepository.hasMasterPasswordResult = .success(false)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+        XCTAssertFalse(subject.state.shouldShowPasswordOrPinFields)
+    }
+
+    /// `perform(.appeared)` with no master password but with PIN enabled,
+    /// should yields the expected `shouldShowPasswordOrPinFields` status.
+    @MainActor
+    func test_perform_appeared_shouldShowPasswordOrPinFields_true_pin() async {
+        stateService.activeAccount = .fixture()
+        let expectedStatus = BiometricsUnlockStatus.notAvailable
+        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        authRepository.hasMasterPasswordResult = .success(false)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+        XCTAssertTrue(subject.state.shouldShowPasswordOrPinFields)
+    }
+
+    /// `perform(.appeared)` with no PIN or biometric status enabled, but with a master password,
+    /// should yields the expected `shouldShowPasswordOrPinFields` status.
+    @MainActor
+    func test_perform_appeared_shouldShowPasswordOrPinFields_true_masterPassword() async {
+        stateService.activeAccount = .fixture()
+        let expectedStatus = BiometricsUnlockStatus.notAvailable
+        biometricsRepository.biometricUnlockStatus = .success(expectedStatus)
+        authRepository.isPinUnlockAvailableResult = .success(false)
+        authRepository.hasMasterPasswordResult = .success(true)
+        await subject.perform(.appeared)
+
+        XCTAssertEqual(subject.state.biometricUnlockStatus, expectedStatus)
+        XCTAssertTrue(subject.state.shouldShowPasswordOrPinFields)
+    }
+
     /// `perform(.appeared)` with an active account and accounts should yield a profile switcher state.
     @MainActor
     func test_perform_appeared_profiles_single_active() async {

@@ -57,6 +57,7 @@ class VaultUnlockProcessor: StateProcessor<
         case .appeared:
             await refreshProfileState()
             await checkIfPinUnlockIsAvailable()
+            await checkIfShouldShowPasswordOrPinFields()
             await loadData()
         case let .profileSwitcher(profileEffect):
             await handleProfileSwitcherEffect(profileEffect)
@@ -104,6 +105,17 @@ class VaultUnlockProcessor: StateProcessor<
     }
 
     // MARK: Private
+
+    /// Checks whether or not the user has a master password or PIN set and updates the state accordingly.
+    ///
+    private func checkIfShouldShowPasswordOrPinFields() async {
+        do {
+            let hasMasterPassword = try await services.authRepository.hasMasterPassword()
+            state.shouldShowPasswordOrPinFields = hasMasterPassword || state.unlockMethod == .pin
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
 
     /// Checks whether or not pin unlock is available.
     ///
