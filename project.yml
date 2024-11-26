@@ -36,7 +36,7 @@ packages:
     exactVersion: 1.26.0
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.9.9
+    exactVersion: 0.10.0
 schemes:
   Authenticator:
     build:
