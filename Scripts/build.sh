@@ -2,7 +2,7 @@
 #
 # Builds the Bitwarden iOS app.
 # If run in Simulator mode, produces an APP file for the iOS Simulator for ease of automated testing.
-# If run in Device mode, produces an IPA file that can be uploaded to Testflight.
+# If run in Device mode, produces an IPA file that can be uploaded to TestFlight.
 #
 # Usage:
 #
