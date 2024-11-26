@@ -62,7 +62,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
     /// Checks whether the CXP import feature is enabled.
     private func checkEnabled() async {
         guard #available(iOS 18.2, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
-            state.status = .failure(message: Localizations.featureUnavailable)
+            state.status = .failure(message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice)
             return
         }
     }
@@ -75,7 +75,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.importError,
-                    message: Localizations.featureUnavailable
+                    message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice
                 )
             )
             return

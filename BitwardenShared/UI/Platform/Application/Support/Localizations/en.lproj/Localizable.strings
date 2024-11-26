@@ -1070,3 +1070,5 @@
 "ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "There was an issue importing all of your passwords.\n\nNo data was deleted.";
 "RetryImport" = "Retry import";
 "ShowVault" = "Show vault";
+"ImportNotAvailable" = "Import not available";
+"ImportingFromAnotherProviderIsNotAvailableForThisDevice" = "Importing from another provider is not available for this device.";

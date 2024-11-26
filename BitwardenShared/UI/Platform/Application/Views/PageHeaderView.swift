@@ -9,11 +9,11 @@ struct PageHeaderView: View {
 
     /// The style to apply to the `PageHeaderView`.
     enum StyleMode {
-        /// Normal font style.
-        case normal
+        /// Normal font style with illustration as image.
+        case normalWithIllustration
 
-        /// Large font style.
-        case large
+        /// Large font style with tinted icon as image.
+        case largeWithTintedIcon
     }
 
     // MARK: Properties
@@ -37,27 +37,35 @@ struct PageHeaderView: View {
 
     var body: some View {
         dynamicStackView {
-            image
-                .resizable()
-                .frame(width: 100, height: 100)
+            switch style {
+            case .normalWithIllustration:
+                image
+                    .resizable()
+                    .frame(width: 100, height: 100)
+            case .largeWithTintedIcon:
+                image
+                    .resizable()
+                    .frame(width: 70, height: 70)
+                    .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
+            }
 
             VStack(spacing: 16) {
                 Text(title)
                     .apply { text in
                         switch style {
-                        case .normal:
+                        case .normalWithIllustration:
                             text.styleGuide(.title2, weight: .bold)
-                        case .large:
-                            text.styleGuide(.largeTitle, weight: .bold)
+                        case .largeWithTintedIcon:
+                            text.styleGuide(.hugeTitle, weight: .bold)
                         }
                     }
 
                 Text(LocalizedStringKey(message))
                     .apply { text in
                         switch style {
-                        case .normal:
+                        case .normalWithIllustration:
                             text.styleGuide(.body)
-                        case .large:
+                        case .largeWithTintedIcon:
                             text.styleGuide(.title2)
                         }
                     }
@@ -77,7 +85,7 @@ struct PageHeaderView: View {
     ///   - message: The message to display.
     ///   - style: The style to use for this view.
     ///
-    init(image: Image, title: String, message: String, style: StyleMode = .normal) {
+    init(image: Image, title: String, message: String, style: StyleMode = .normalWithIllustration) {
         self.image = image
         self.message = message
         self.title = title
@@ -92,7 +100,7 @@ struct PageHeaderView: View {
     ///   - message: The message to display.
     ///   - style: The style to use for this view.
     ///
-    init(image: ImageAsset, title: String, message: String, style: StyleMode = .normal) {
+    init(image: ImageAsset, title: String, message: String, style: StyleMode = .normalWithIllustration) {
         self.image = image.swiftUIImage
         self.message = message
         self.title = title
@@ -127,10 +135,10 @@ struct PageHeaderView: View {
 
 #Preview("PageHeader Large") {
     PageHeaderView(
-        image: Asset.Images.Illustrations.biometricsPhone,
+        image: Asset.Images.plus24,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-        style: .large
+        style: .largeWithTintedIcon
     )
 }
 

@@ -16,10 +16,10 @@ struct ImportCXPView: View {
         Group {
             VStack(spacing: 16) {
                 PageHeaderView(
-                    image: Asset.Images.Illustrations.import,
+                    image: store.state.mainIcon.swiftUIImage,
                     title: store.state.title,
                     message: store.state.message,
-                    style: .large
+                    style: .largeWithTintedIcon
                 )
                 switch store.state.status {
                 case .start:
@@ -47,7 +47,7 @@ struct ImportCXPView: View {
             }
             .padding(.top, 8)
             .frame(maxWidth: .infinity)
-            .scrollView()
+            .scrollView(backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor)
             .safeAreaInset(edge: .bottom) {
                 VStack {
                     if store.state.showMainButton {
@@ -55,6 +55,7 @@ struct ImportCXPView: View {
                             await store.perform(.mainButtonTapped)
                         }
                         .buttonStyle(.primary())
+                        .accessibilityIdentifier("MainButton")
                     }
 
                     if store.state.showCancelButton {
@@ -62,10 +63,11 @@ struct ImportCXPView: View {
                             await store.perform(.cancel)
                         }
                         .buttonStyle(.secondary())
+                        .accessibilityIdentifier("CancelButton")
                     }
                 }
                 .padding(.horizontal, 16)
-                .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             }
         }
         .transition(.opacity)

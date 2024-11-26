@@ -44,6 +44,18 @@ struct ImportCXPState: Equatable, Sendable {
         }
     }
 
+    /// The main icon to be displayed.
+    var mainIcon: ImageAsset {
+        return switch status {
+        case .importing, .start:
+            Asset.Images.Illustrations.import
+        case .success:
+            Asset.Images.checkCircle24
+        case .failure:
+            Asset.Images.circleX16
+        }
+    }
+
     /// The message to display on the page header.
     var message: String {
         return switch status {
@@ -68,7 +80,7 @@ struct ImportCXPState: Equatable, Sendable {
         case .success:
             Localizations.importSuccessful
         case .failure:
-            Localizations.importFailed
+            isFeatureUnvailable ? Localizations.importNotAvailable : Localizations.importFailed
         }
     }
 
