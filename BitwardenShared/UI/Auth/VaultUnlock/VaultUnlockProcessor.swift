@@ -114,6 +114,7 @@ class VaultUnlockProcessor: StateProcessor<
             state.shouldShowPasswordOrPinFields = hasMasterPassword || state.unlockMethod == .pin
         } catch {
             services.errorReporter.log(error: error)
+            state.shouldShowPasswordOrPinFields = true
         }
     }
 
