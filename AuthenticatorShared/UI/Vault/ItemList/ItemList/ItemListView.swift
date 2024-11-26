@@ -250,7 +250,7 @@ private struct SearchableItemListView: View {
                         await store.perform(.moveToBitwardenPressed(item))
                     } label: {
                         HStack(spacing: 4) {
-                            Text(Localizations.moveToBitwarden)
+                            Text(Localizations.copyToBitwarden)
                             Spacer()
                             Image(decorative: Asset.Images.rightArrow)
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))
