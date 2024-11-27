@@ -65,7 +65,7 @@ final class VaultListProcessor: StateProcessor<
     override func perform(_ effect: VaultListEffect) async {
         switch effect {
         case .appeared:
-            await refreshVault(isManualRefresh: false)
+            await refreshVault()
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
@@ -86,7 +86,7 @@ final class VaultListProcessor: StateProcessor<
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault(isManualRefresh: false)
+            await refreshVault()
         case let .search(text):
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
@@ -195,12 +195,10 @@ extension VaultListProcessor {
 
     /// Refreshes the vault's contents.
     ///
-    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
-    ///
-    private func refreshVault(isManualRefresh: Bool) async {
+    private func refreshVault() async {
         do {
             guard let sections = try await services.vaultRepository.fetchSync(
-                forceSync: isManualRefresh,
+                forceSync: false,
                 filter: state.vaultFilterType
             ) else { return }
             state.loadingState = .data(sections)
