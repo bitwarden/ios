@@ -1084,6 +1084,39 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
     }
 
+    /// `switchAccountsForLoginRequest(to:showAlert:)` has the coordinator switch to the specified
+    /// account without showing a confirmation alert.
+    @MainActor
+    func test_switchAccountsForLoginRequest() async {
+        await subject.switchAccountsForLoginRequest(to: .fixture(), showAlert: false)
+
+        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: "1", isAutomatic: false)])
+    }
+
+    /// `switchAccountsForLoginRequest(to:showAlert:)` shows an alert to confirm the user wants to
+    /// switch to the specified account and then has the coordinator switch accounts.
+    @MainActor
+    func test_switchAccountsForLoginRequest_showAlert() async throws {
+        let account = Account.fixture()
+        await subject.switchAccountsForLoginRequest(to: account, showAlert: true)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            .confirmation(
+                title: Localizations.logInRequested,
+                message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email),
+                confirmationHandler: {}
+            )
+        )
+
+        try await alert.tapAction(title: Localizations.cancel)
+        XCTAssertTrue(coordinator.events.isEmpty)
+
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: account.profile.userId, isAutomatic: false)])
+    }
+
     /// `unlockVaultWithNeverlockKey()` unlocks it calling the auth repository.
     func test_unlockVaultWithNeverlockKey() async throws {
         try await subject.unlockVaultWithNeverlockKey()
