@@ -372,7 +372,6 @@ jobs:
           case "$BUILD_MODE" in
             "Simulator")
               cp -r build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
-              #cp -r build/DerivedData/Build/Products/Debug-watchsimulator/BitwardenWatchApp.app export
               ;;
             "Device")
               mkdir -p export/dSYMs
