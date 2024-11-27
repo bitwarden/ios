@@ -44,7 +44,7 @@ class MockVaultRepository: VaultRepository {
     var fetchFoldersResult: Result<[FolderView], Error> = .success([])
 
     var fetchSyncCalled = false
-    var fetchSyncManualRefresh: Bool?
+    var fetchSyncIsManualRefresh: Bool?
     var fetchSyncResult: Result<[VaultListSection]?, Error> = .success([])
 
     var getActiveAccountIdResult: Result<String, StateServiceError> = .failure(.noActiveAccount)
@@ -187,7 +187,7 @@ class MockVaultRepository: VaultRepository {
         filter _: VaultFilterType
     ) async throws -> [VaultListSection]? {
         fetchSyncCalled = true
-        fetchSyncManualRefresh = isManualRefresh
+        fetchSyncIsManualRefresh = isManualRefresh
         return try fetchSyncResult.get()
     }
 
