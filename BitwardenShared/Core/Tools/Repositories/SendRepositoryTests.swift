@@ -163,7 +163,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(isVerified)
     }
 
-    /// `fetchSync(isManualRefresh:)` while manual refresh is allowed does perform a sync.
+    /// `fetchSync(forceSync:)` while manual refresh is allowed does perform a sync.
     func test_fetchSync_manualRefreshAllowed_success() async throws {
         await stateService.addAccount(.fixture())
         stateService.allowSyncOnRefresh = ["1": true]
@@ -174,7 +174,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(syncService.didFetchSync)
     }
 
-    /// `fetchSync(isManualRefresh:)` while manual refresh is not allowed does not perform a sync.
+    /// `fetchSync(forceSync:)` while manual refresh is not allowed does not perform a sync.
     func test_fetchSync_manualRefreshNotAllowed_success() async throws {
         await stateService.addAccount(.fixture())
         stateService.allowSyncOnRefresh = [:]
@@ -185,7 +185,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(syncService.didFetchSync)
     }
 
-    /// `fetchSync(isManualRefresh:)` and a failure performs a sync and throws the error.
+    /// `fetchSync(forceSync:)` and a failure performs a sync and throws the error.
     func test_fetchSync_failure() async throws {
         await stateService.addAccount(.fixture())
         stateService.allowSyncOnRefresh = ["1": true]

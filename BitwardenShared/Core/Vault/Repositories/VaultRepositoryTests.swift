@@ -807,7 +807,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, folders)
     }
 
-    /// `fetchSync(isManualRefresh:)` only syncs when expected.
+    /// `fetchSync(forceSync:)` only syncs when expected.
     func test_fetchSync() async throws {
         stateService.activeAccount = .fixture()
 
