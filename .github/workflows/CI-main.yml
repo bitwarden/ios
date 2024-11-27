@@ -97,7 +97,7 @@ jobs:
   build-public:
     name: Build Public Apps
     needs: resolve-values
-    uses: ./.github/workflows/build.yml
+    uses: bitwarden/ios/.github/workflows/build.yml@main
     strategy:
       matrix:
         variant: [Beta, Production]
@@ -113,7 +113,7 @@ jobs:
   build-internal:
     name: Build Internal App
     needs: resolve-values
-    uses: ./.github/workflows/build.yml
+    uses:  bitwarden/ios/.github/workflows/build.yml@main
     with:
       build-variant: Beta
       build-version: ${{ needs.resolve-values.outputs.internal_beta_version_name }}

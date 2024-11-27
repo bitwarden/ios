@@ -93,7 +93,7 @@ jobs:
 
       - name: Calculate version
         if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
-        uses: ./.github/actions/dispatch-and-download/action.yml
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
         id: dispatch-version
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
