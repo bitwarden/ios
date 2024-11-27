@@ -17,39 +17,44 @@
 # 3. Process the artifacts by zipping them with the same name as the folder
 
 
-# Check if required arguments are provided
 if [ $# -ne 2 ]; then
     echo "Usage: $0 <path> <github_run_id>"
     exit 1
 fi
 
-# Store arguments
 TARGET_PATH="$1"
 GITHUB_RUN_ID="$2"
 
-# Create target directory if it doesn't exist
 mkdir -p "$TARGET_PATH"
 
-# Change to target directory
 cd "$TARGET_PATH" || exit 1
 
-# Download artifacts using GitHub CLI
 echo "Downloading artifacts from GitHub run $GITHUB_RUN_ID..."
-#gh run download "$GITHUB_RUN_ID"
+gh run download "$GITHUB_RUN_ID"
+
+# Output downloaded files
+file_count=$(find . -type f | wc -l)
+if [ "$file_count" -eq 0 ]; then
+    echo "No files downloaded, processing skipped."
+    exit 0
+fi
+
+echo "Downloaded $file_count file(s)."
+echo "Downloaded files:"
+find . -type f
 
 # Process downloaded artifacts
 for dir in */; do
-if [ -d "$dir" ]; then
+    if [ ! -d "$dir" ]; then
+        continue
+    fi
+    echo $dir
     # Remove trailing slash from directory name
     dirname=${dir%/}
-    # Get just the folder name without the path
     basename=$(basename "$dirname")
     echo $dirname $basename
-    # Create zip file with same name as directory
     zip -r "${basename}.zip" "$dirname"
-    # Remove the original directory
     rm -rf "$dirname"
-fi
 done
 
 
