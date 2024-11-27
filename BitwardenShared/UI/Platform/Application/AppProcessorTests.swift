@@ -247,6 +247,35 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
     }
 
+    /// `init()` subscribes to will enter foreground events and handles accountBecameActive if the
+    /// never timeout account is unlocked in extension.
+    @MainActor
+    func test_init_appForeground_checkAccountBecomeActive() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        let account: Account = .fixture(profile: .fixture(userId: "2"))
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+        authRepository.vaultTimeout = [userId: .never]
+        authRepository.isLockedResult = .success(true)
+        stateService.manuallyLockedAccounts = [userId: false]
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(
+            coordinator.events.last,
+            AppEvent.accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
     /// `init()` subscribes to will enter foreground events and logs an error if one occurs while
     /// checking if the active account was changed in an extension.
     @MainActor
@@ -1053,6 +1082,39 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `switchAccountsForLoginRequest(to:showAlert:)` has the coordinator switch to the specified
+    /// account without showing a confirmation alert.
+    @MainActor
+    func test_switchAccountsForLoginRequest() async {
+        await subject.switchAccountsForLoginRequest(to: .fixture(), showAlert: false)
+
+        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: "1", isAutomatic: false)])
+    }
+
+    /// `switchAccountsForLoginRequest(to:showAlert:)` shows an alert to confirm the user wants to
+    /// switch to the specified account and then has the coordinator switch accounts.
+    @MainActor
+    func test_switchAccountsForLoginRequest_showAlert() async throws {
+        let account = Account.fixture()
+        await subject.switchAccountsForLoginRequest(to: account, showAlert: true)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            .confirmation(
+                title: Localizations.logInRequested,
+                message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email),
+                confirmationHandler: {}
+            )
+        )
+
+        try await alert.tapAction(title: Localizations.cancel)
+        XCTAssertTrue(coordinator.events.isEmpty)
+
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: account.profile.userId, isAutomatic: false)])
     }
 
     /// `unlockVaultWithNeverlockKey()` unlocks it calling the auth repository.

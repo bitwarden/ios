@@ -16,6 +16,7 @@ final class FeatureFlagTests: BitwardenTestCase {
     func test_isRemotelyConfigured() {
         XCTAssertTrue(FeatureFlag.emailVerification.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.refactorSsoDetailsEndpoint.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.sshKeyVaultItem.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialBoolFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialIntFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialStringFlag.isRemotelyConfigured)
@@ -25,7 +26,6 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertFalse(FeatureFlag.importLoginsFlow.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.nativeCarouselFlow.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.nativeCreateAccountFlow.isRemotelyConfigured)
-        XCTAssertFalse(FeatureFlag.sshKeyVaultItem.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalFeatureFlag.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalInitialBoolFlag.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalInitialIntFlag.isRemotelyConfigured)

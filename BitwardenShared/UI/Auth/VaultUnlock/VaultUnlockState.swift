@@ -32,6 +32,9 @@ struct VaultUnlockState: Equatable {
     /// Whether the pin is revealed.
     var isPinRevealed = false
 
+    /// Whether the master password or PIN field and the unlock button should be displayed.
+    var shouldShowPasswordOrPinFields: Bool = true
+
     /// The master password provided by the user.
     var masterPassword: String = ""
 

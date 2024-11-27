@@ -100,7 +100,7 @@ extension Alert {
                 handler: { _, _ in await logoutAction() }
             ),
         ]
-        if item.isUnlocked {
+        if item.isUnlocked, item.canBeLocked {
             alertActions.insert(
                 AlertAction(
                     title: Localizations.lock,

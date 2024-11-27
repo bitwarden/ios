@@ -227,7 +227,8 @@ struct ProfileSwitcherRow: View {
             await store.perform(.accessibility(.select(profileSwitcherItem)))
         }
         .conditionalAccessibilityAsyncAction(
-            if: store.state.allowLockAndLogout,
+            if: store.state.allowLockAndLogout && profileSwitcherItem.canBeLocked
+                && profileSwitcherItem.isUnlocked,
             named: Localizations.lock
         ) {
             await store.perform(.accessibility(.lock(profileSwitcherItem)))
