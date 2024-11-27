@@ -78,6 +78,11 @@ jobs:
           esac
 
           echo "release_branch=$release_branch" >> $GITHUB_OUTPUT
+      - name: Get last release tag
+        id: get_last_tag
+        run: |
+          last_release_tag=$(git tag -l --sort=-authordate | head -n 1)
+          echo "last_release_tag=$last_release_tag" >> $GITHUB_OUTPUT
 
       - name: Download artifacts
         env:
@@ -96,6 +101,49 @@ jobs:
           echo "version_name=$version_name" >> $GITHUB_OUTPUT
           rm -rf tmp
 
+      # - name: Create Release Notes
+      #   id: release_notes
+      #   env:
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     if [ -n "${{ steps.get_last_tag.outputs.last_release_tag }}" ]; then
+      #       # Generate release notes from last tag to HEAD
+      #       gh api \
+      #         --method POST \
+      #         -H "Accept: application/vnd.github+json" \
+      #         /repos/${{ github.repository }}/releases/generate-notes \
+      #         -f tag_name="v${{ steps.version_info.outputs.version_name }}" \
+      #         -f target_commitish="${{ steps.get_release_branch.outputs.release_branch }}" \
+      #         -f previous_tag_name="${{ steps.get_last_tag.outputs.last_release_tag }}" \
+      #         -q .body > release_notes.txt
+      #     else
+      #       # If no previous tag exists, just add a basic note
+      #       echo "Initial release" > release_notes.txt
+      #     fi
+
+      - name: Create GitHub Release
+        id: create_gh_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Create release with generated notes
+          gh release create "v${{ steps.version_info.outputs.version_name }}" \
+            --title "${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }})" \
+            --target ${{ steps.get_release_branch.outputs.release_branch }} \
+            --generate-notes \
+            --notes-start-tag "${{ steps.get_last_tag.outputs.last_release_tag }}" \
+            --prerelease=${{ inputs.prerelease }} \
+            --draft=${{ inputs.draft }} \
+            "$ARTIFACTS_PATH"/*.*
+
+            #--latest=${{ inputs.make-latest }} \
+
+          # # Upload all artifacts
+          # for file in $ARTIFACTS_PATH/*; do
+          #   if [ -f "$file" ]; then
+          #     gh release upload "v${{ steps.version_info.outputs.version_name }}" "$file"
+          #   fi
+          done
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@e7a8f85e1c67a31e6ed99a94b41bd0b71bbee6b8 # v2.0.9
