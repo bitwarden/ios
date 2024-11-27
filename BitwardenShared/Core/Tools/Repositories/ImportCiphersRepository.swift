@@ -8,13 +8,13 @@ protocol ImportCiphersRepository: AnyObject {
     /// Performs an API request to import ciphers in the vault.
     /// - Parameters:
     ///   - credentialImportToken: The token used in `ASCredentialImportManager` to get the credentials to import.
-    ///   - onProgress: Closure to update progress in the process.
+    ///   - progressDelegate: Delegate to update progress.
     /// - Returns: A dictionary containing the localized cipher type (key) and count (value) of that type
     /// that was imported, e.g. ["Passwords": 3, "Cards": 2].
     @available(iOS 18.2, *)
     func importCiphers(
         credentialImportToken: UUID,
-        onProgress: @MainActor (_ progress: Double) -> Void
+        progressDelegate: ProgressDelegate
     ) async throws -> [ImportedCredentialsResult]
 }
 
@@ -60,7 +60,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
     @available(iOS 18.2, *)
     func importCiphers( // swiftlint:disable:this function_body_length
         credentialImportToken: UUID,
-        onProgress: @MainActor (_ progress: Double) -> Void
+        progressDelegate: ProgressDelegate
     ) async throws -> [ImportedCredentialsResult] {
         #if compiler(>=6.0.3)
 
@@ -78,7 +78,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
 
         let ciphers = try await clientService.exporters().importCxf(payload: accountJsonString)
 
-        await onProgress(0.3)
+        await progressDelegate.report(progress: 0.3)
 
         _ = try await importCiphersService
             .importCiphers(
@@ -87,7 +87,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
                 folderRelationships: []
             )
 
-        await onProgress(0.8)
+        await progressDelegate.report(progress: 0.8)
 
         try await syncService.fetchSync(forceSync: true)
 
@@ -133,7 +133,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
             when: { $0.type == .sshKey }
         )
 
-        await onProgress(1.0)
+        await progressDelegate.report(progress: 1.0)
 
         return importedCredentialsCount
         #else

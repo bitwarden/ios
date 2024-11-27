@@ -9,7 +9,7 @@ class MockImportCiphersRepository: ImportCiphersRepository {
 
     func importCiphers(
         credentialImportToken: UUID,
-        onProgress: @MainActor (_ progress: Double) -> Void
+        progressDelegate: ProgressDelegate
     ) async throws -> [ImportedCredentialsResult] {
         try importCiphersResult.invoke(param: credentialImportToken)
     }

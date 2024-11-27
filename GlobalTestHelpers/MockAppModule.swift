@@ -90,7 +90,9 @@ class MockAppModule:
         generatorCoordinator.asAnyCoordinator()
     }
 
-    func makeImportCXPCoordinator(stackNavigator: any BitwardenShared.StackNavigator) -> BitwardenShared.AnyCoordinator<BitwardenShared.ImportCXPRoute, Void> {
+    func makeImportCXPCoordinator(
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<ImportCXPRoute, Void> {
         importCXPCoordinator.asAnyCoordinator()
     }
 

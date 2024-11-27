@@ -49,11 +49,14 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
         case .cancel:
             cancelWithConfirmation()
         case .mainButtonTapped:
-            guard case .success = state.status else {
+            switch state.status {
+            case .failure, .start:
                 await startImport()
-                return
+            case .importing:
+                break
+            case .success:
+                coordinator.navigate(to: .dismiss)
             }
-            coordinator.navigate(to: .dismiss)
         }
     }
 
@@ -85,10 +88,9 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
 
         do {
             let results = try await services.importCiphersRepository.importCiphers(
-                credentialImportToken: credentialImportToken
-            ) { progress in
-                state.progress = progress
-            }
+                credentialImportToken: credentialImportToken,
+                progressDelegate: self
+            )
 
             state.status = .success(
                 totalImportedCredentials: results.map(\.count).reduce(0, +),
@@ -98,8 +100,6 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
             state.status = .failure(message: "No data found to import.")
         } catch ImportCiphersRepositoryError.dataEncodingFailed {
             state.status = .failure(message: "Import data encoding failed.")
-        } catch let BitwardenSdk.BitwardenError.E(message) {
-            print(message)
         } catch {
             state.status = .failure(message: Localizations.thereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted)
             services.errorReporter.log(error: error)
@@ -119,5 +119,11 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
             guard let self else { return }
             coordinator.navigate(to: .dismiss)
         })
+    }
+}
+
+extension ImportCXPProcessor: ProgressDelegate {
+    func report(progress: Double) {
+        state.progress = progress
     }
 }

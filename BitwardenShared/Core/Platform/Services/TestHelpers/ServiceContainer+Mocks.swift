@@ -3,7 +3,7 @@ import Networking
 
 @testable import BitwardenShared
 
-extension ServiceContainer {
+extension ServiceContainer { // swiftlint:disable:this function_body_length
     static func withMocks(
         application: Application? = nil,
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
