@@ -131,6 +131,6 @@ jobs:
       build-version: ${{ needs.resolve-values.outputs.version_name }}
       build-number: ${{ needs.resolve-values.outputs.version_number }}
       xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
-      distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
+      distribute: false
       upload_version_info: false
     secrets: inherit
