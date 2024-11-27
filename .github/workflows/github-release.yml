@@ -85,12 +85,23 @@ jobs:
           ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
         run: ./Scripts/download-artifacts.sh $ARTIFACTS_PATH $ARTIFACT_RUN_ID
 
+      - name: Parse version info
+        id: version_info
+        run: |
+          unzip -o "$ARTIFACTS_PATH/version-info.zip" -d "tmp"
+          filepath="tmp/version-info/version_info.json"
+          version_name=$(jq -r '.version_name' "$filepath")
+          version_number=$(jq -r '.version_number' "$filepath")
+          echo "version_number=$version_number" >> $GITHUB_OUTPUT
+          echo "version_name=$version_name" >> $GITHUB_OUTPUT
+          rm -rf tmp
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@e7a8f85e1c67a31e6ed99a94b41bd0b71bbee6b8 # v2.0.9
         with:
-          tag_name: "v${{ inputs.version-name }}"
-          name: "${{ inputs.version-name }} (${{ inputs.version-number }})"
+          tag_name: "v${{ steps.version_info.outputs.version_name }}"
+          name: "${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }})"
           prerelease: ${{ inputs.prerelease }}
           draft: ${{ inputs.draft }}
           make_latest: ${{ inputs.make-latest }}

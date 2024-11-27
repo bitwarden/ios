@@ -48,11 +48,9 @@ for dir in */; do
     if [ ! -d "$dir" ]; then
         continue
     fi
-    echo $dir
     # Remove trailing slash from directory name
     dirname=${dir%/}
     basename=$(basename "$dirname")
-    echo $dirname $basename
     zip -r -q "${basename}.zip" "$dirname"
     rm -rf "$dirname"
 done
