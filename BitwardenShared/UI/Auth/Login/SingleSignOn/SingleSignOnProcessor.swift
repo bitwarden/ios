@@ -140,13 +140,17 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
 
         // Get the single sign on details for the user.
         do {
-            if let organizationIdentifier = try await services.authRepository.getSingleSignOnOrganizationIdentifier(
-                email: state.email
-            ) {
-                state.identifierText = organizationIdentifier
-                coordinator.hideLoadingOverlay()
-                await handleLoginTapped()
+            guard let organizationIdentifier = try await services.authRepository
+                .getSingleSignOnOrganizationIdentifier(email: state.email)
+            else {
+                // Default back to the last used org identifier if the API doesn't return one.
+                state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
+                return
             }
+
+            state.identifierText = organizationIdentifier
+            coordinator.hideLoadingOverlay()
+            await handleLoginTapped()
         } catch {
             // Default back to the last used org identifier if the API doesn't return one.
             state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
