@@ -427,7 +427,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(vaultRepository.fetchSyncIsManualRefresh, false)
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.

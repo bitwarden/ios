@@ -169,7 +169,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .success(())
 
-        try await subject.fetchSync(isManualRefresh: true)
+        try await subject.fetchSync(forceSync: true)
 
         XCTAssertTrue(syncService.didFetchSync)
     }
@@ -180,7 +180,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = [:]
         syncService.fetchSyncResult = .success(())
 
-        try await subject.fetchSync(isManualRefresh: true)
+        try await subject.fetchSync(forceSync: true)
 
         XCTAssertFalse(syncService.didFetchSync)
     }
@@ -191,7 +191,7 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.allowSyncOnRefresh = ["1": true]
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows {
-            try await subject.fetchSync(isManualRefresh: true)
+            try await subject.fetchSync(forceSync: true)
         }
         XCTAssertTrue(syncService.didFetchSync)
     }

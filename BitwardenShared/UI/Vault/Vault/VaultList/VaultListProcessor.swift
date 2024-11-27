@@ -200,7 +200,7 @@ extension VaultListProcessor {
     private func refreshVault(isManualRefresh: Bool) async {
         do {
             guard let sections = try await services.vaultRepository.fetchSync(
-                isManualRefresh: isManualRefresh,
+                forceSync: isManualRefresh,
                 filter: state.vaultFilterType
             ) else { return }
             state.loadingState = .data(sections)

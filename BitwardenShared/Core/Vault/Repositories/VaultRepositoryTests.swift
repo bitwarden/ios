@@ -813,7 +813,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         // If it's not a manual refresh, it should sync.
         let automaticSections = try await subject.fetchSync(
-            isManualRefresh: false,
+            forceSync: false,
             filter: .allVaults
         )
         XCTAssertTrue(syncService.didFetchSync)
@@ -824,7 +824,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = true
         let manualSections = try await subject.fetchSync(
-            isManualRefresh: true,
+            forceSync: true,
             filter: .myVault
         )
         XCTAssertTrue(syncService.didFetchSync)
@@ -834,7 +834,10 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         // it should not sync.
         syncService.didFetchSync = false
         stateService.allowSyncOnRefresh["1"] = false
-        let nilSections = try await subject.fetchSync(isManualRefresh: true, filter: .allVaults)
+        let nilSections = try await subject.fetchSync(
+            forceSync: true,
+            filter: .allVaults
+        )
         XCTAssertFalse(syncService.didFetchSync)
         XCTAssertNil(nilSections)
     }
