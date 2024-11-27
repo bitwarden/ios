@@ -53,7 +53,7 @@ for dir in */; do
     dirname=${dir%/}
     basename=$(basename "$dirname")
     echo $dirname $basename
-    zip -r "${basename}.zip" "$dirname"
+    zip -r -q "${basename}.zip" "$dirname"
     rm -rf "$dirname"
 done
 
