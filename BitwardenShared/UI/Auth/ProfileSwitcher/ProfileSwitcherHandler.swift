@@ -105,6 +105,7 @@ extension ProfileSwitcherHandler {
             showAddAccount()
         case let .requestedProfileSwitcher(isVisible):
             if isVisible {
+                await profileServices.authRepository.checkSessionTimeout()
                 await refreshProfileState()
             }
             profileSwitcherState.isVisible = isVisible

@@ -432,6 +432,37 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
     }
 
+    /// `checkSessionTimeout()` locks an account when the session timeout action is lock.
+    func test_checkSessionTimeout_lockAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        await subject.checkSessionTimeout()
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` logs out an account when the session timeout action is logout.
+    func test_checkSessionTimeout_logoutAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        await subject.checkSessionTimeout()
+        XCTAssertTrue(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertTrue(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` takes no action to an active  account when the session timeout.
+    func test_checkSessionTimeout_activeAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        await subject.checkSessionTimeout()
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
+    }
+
     /// `getProfilesState()` throws an error when the accounts are nil.
     func test_getProfilesState_empty() async {
         let state = await subject.getProfilesState(

@@ -529,6 +529,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Ensure that the profile switcher state is updated
         waitFor(subject.state.profileSwitcherState == authRepository.profileSwitcherState)
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+        XCTAssertTrue(authRepository.checkSessionTimeoutCalled)
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account

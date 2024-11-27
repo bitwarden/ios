@@ -11,6 +11,7 @@ class MockAuthRepository: AuthRepository {
     var canBeLockedResult: [String: Bool] = [:]
     var canVerifyMasterPasswordResult: Result<Bool, Error> = .success(true)
     var canVerifyMasterPasswordForUserResult: Result<[String: Bool], Error> = .success([:])
+    var checkSessionTimeoutCalled = false
     var clearPinsCalled = false
     var createNewSsoUserRememberDevice: Bool = false
     var createNewSsoUserOrgIdentifier: String = ""
@@ -125,6 +126,10 @@ class MockAuthRepository: AuthRepository {
         } else {
             try canVerifyMasterPasswordResult.get()
         }
+    }
+
+    func checkSessionTimeout() async {
+        checkSessionTimeoutCalled = true
     }
 
     func clearPins() async throws {

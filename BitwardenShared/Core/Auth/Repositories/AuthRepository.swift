@@ -34,6 +34,10 @@ protocol AuthRepository: AnyObject {
     ///
     func canVerifyMasterPassword(userId: String?) async throws -> Bool
 
+    /// Checks the session timeout for all non active, unlocked accounts, and locks or logs out as needed.
+    ///
+    func checkSessionTimeout() async
+
     /// Clears the pins stored on device and in memory.
     ///
     func clearPins() async throws
@@ -513,6 +517,26 @@ extension DefaultAuthRepository: AuthRepository {
 
     func canVerifyMasterPassword(userId: String? = nil) async throws -> Bool {
         try await stateService.getUserHasMasterPassword(userId: userId)
+    }
+
+    func checkSessionTimeout() async {
+        let accounts = await (try? getAccounts()) ?? []
+        guard !accounts.isEmpty else { return }
+        let activeAccount = try? await getActiveAccount()
+        for account in accounts where account.userId != activeAccount?.userId && account.isUnlocked {
+            let shouldTimeout = try? await vaultTimeoutService.hasPassedSessionTimeout(
+                userId: account.userId
+            )
+            if shouldTimeout == true {
+                let timeoutAction = try? await sessionTimeoutAction(userId: account.userId)
+                switch timeoutAction {
+                case .lock:
+                    await vaultTimeoutService.lockVault(userId: account.userId)
+                case .logout, .none:
+                    try? await logout(userId: account.userId, userInitiated: false)
+                }
+            }
+        }
     }
 
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
