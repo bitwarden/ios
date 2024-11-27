@@ -83,14 +83,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
-        run: |
-          gh run download $ARTIFACT_RUN_ID -D $ARTIFACTS_PATH
-          file_count=$(find $ARTIFACTS_PATH -type f | wc -l)
-          echo "Downloaded $file_count file(s)."
-          if [ "$file_count" -gt 0 ]; then
-            echo "Downloaded files:"
-            find $ARTIFACTS_PATH -type f
-          fi
+        run: ./Scripts/download-artifacts.sh $ARTIFACTS_PATH $ARTIFACT_RUN_ID
 
       - name: Create Release
         id: create_release
