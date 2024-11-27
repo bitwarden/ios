@@ -66,6 +66,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.refresh)
 
         XCTAssertTrue(sendRepository.fetchSyncCalled)
+        XCTAssertEqual(sendRepository.fetchSyncIsManualRefresh, false)
     }
 
     /// `perform(_:)` with `search(_:)` and an empty search query returns early.

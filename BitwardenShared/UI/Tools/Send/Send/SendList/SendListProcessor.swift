@@ -114,7 +114,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func refresh() async {
         do {
-            try await services.sendRepository.fetchSync(isManualRefresh: true)
+            try await services.sendRepository.fetchSync(isManualRefresh: false)
         } catch {
             let alert = Alert.networkResponseError(error) { [weak self] in
                 await self?.refresh()
