@@ -123,5 +123,5 @@ jobs:
           # Update release
           new_url=$(gh release edit $RELEASE_TAG --notes "$updated_body")
 
-          echo "# :rocket: Release ready at:" >> $GITHUB_STEP_SUMMARY
+          echo "# :fish_cake: Release ready at:" >> $GITHUB_STEP_SUMMARY
           echo "$new_url" >> $GITHUB_STEP_SUMMARY
