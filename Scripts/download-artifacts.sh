@@ -53,7 +53,7 @@ for dir in */; do
     dirname=${dir%/}
     basename=$(basename "$dirname")
     zip -r -q "${basename}.zip" "$dirname"
+    echo "    🍣 Zipped $dirname"
     rm -rf "$dirname"
 done
-
-
+echo "🍱 Finished zipping!"
