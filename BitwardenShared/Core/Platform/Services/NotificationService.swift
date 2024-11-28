@@ -51,6 +51,7 @@ protocol NotificationService {
 
 /// The delegate to handle login request actions originating from notifications.
 ///
+@MainActor
 protocol NotificationServiceDelegate: AnyObject {
     /// Users are logged out, route to landing page.
     ///
@@ -66,10 +67,9 @@ protocol NotificationServiceDelegate: AnyObject {
     ///
     /// - Parameters:
     ///   - account: The account associated with the login request.
-    ///   - loginRequest: The login request to show.
     ///   - showAlert: Whether to show the alert or simply switch the account.
     ///
-    func switchAccounts(to account: Account, for loginRequest: LoginRequest, showAlert: Bool)
+    func switchAccountsForLoginRequest(to account: Account, showAlert: Bool) async
 }
 
 // MARK: - DefaultNotificationService
@@ -279,14 +279,13 @@ class DefaultNotificationService: NotificationService {
         await stateService.setLoginRequest(data)
 
         // Get the email of the account that the login request is coming from.
-        let loginSourceAccount = try await stateService.getAccounts()
-            .first(where: { $0.profile.userId == data.userId })
-        let loginSourceEmail = loginSourceAccount?.profile.email ?? ""
+        let loginSourceAccount = try await stateService.getAccount(userId: data.userId)
+        let loginSourceEmail = loginSourceAccount.profile.email
 
         // Assemble the data to add to the in-app banner notification.
         let loginRequestData = try? JSONEncoder().encode(LoginRequestPushNotification(
             timeoutInMinutes: Constants.loginRequestTimeoutMinutes,
-            userEmail: loginSourceEmail
+            userId: loginSourceAccount.profile.userId
         ))
 
         // Create an in-app banner notification to tell the user about the login request.
@@ -308,14 +307,14 @@ class DefaultNotificationService: NotificationService {
         let request = UNNotificationRequest(identifier: data.id, content: content, trigger: nil)
         try await UNUserNotificationCenter.current().add(request)
 
-        // If the request is for the existing account, show the login request view automatically.
-        guard let loginRequest = try await authService.getPendingLoginRequest(withId: data.id).first
-        else { return }
         if data.userId == userId {
-            delegate?.showLoginRequest(loginRequest)
-        } else if let loginSourceAccount {
+            // If the request is for the existing account, show the login request view automatically.
+            guard let loginRequest = try await authService.getPendingLoginRequest(withId: data.id).first
+            else { return }
+            await delegate?.showLoginRequest(loginRequest)
+        } else {
             // Otherwise, show an alert asking the user if they want to switch accounts.
-            delegate?.switchAccounts(to: loginSourceAccount, for: loginRequest, showAlert: true)
+            await delegate?.switchAccountsForLoginRequest(to: loginSourceAccount, showAlert: true)
         }
     }
 
@@ -361,20 +360,15 @@ class DefaultNotificationService: NotificationService {
     private func handleNotificationTapped(_ loginRequestData: LoginRequestPushNotification) async {
         do {
             // Get the user id of the source of the login request.
-            guard let loginSourceAccount = try await stateService.getAccounts()
-                .first(where: { $0.profile.email == loginRequestData.userEmail })
-            else { return }
+            let loginSourceAccount = try await stateService.getAccount(userId: loginRequestData.userId)
 
             // Get the active account for comparison.
             let activeAccount = try await stateService.getActiveAccount()
 
             // If the notification banner was tapped but it's for a different account, switch
             // to that account automatically.
-            if activeAccount.profile.userId != loginSourceAccount.profile.userId,
-               let loginRequestData = await stateService.getLoginRequest(),
-               let loginRequest = try await authService.getPendingLoginRequest(withId: loginRequestData.id).first {
-                try await stateService.setActiveAccount(userId: loginSourceAccount.profile.userId)
-                delegate?.switchAccounts(to: loginSourceAccount, for: loginRequest, showAlert: false)
+            if activeAccount.profile.userId != loginSourceAccount.profile.userId {
+                await delegate?.switchAccountsForLoginRequest(to: loginSourceAccount, showAlert: false)
             }
         } catch {
             errorReporter.log(error: error)
