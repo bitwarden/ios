@@ -105,20 +105,6 @@ jobs:
             --draft=${{ inputs.draft }} \
             $ARTIFACTS_PATH/*
 
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@e7a8f85e1c67a31e6ed99a94b41bd0b71bbee6b8 # v2.0.9
-        with:
-          tag_name: "v${{ steps.version_info.outputs.version_name }}"
-          name: "${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }})"
-          prerelease: ${{ inputs.prerelease }}
-          draft: ${{ inputs.draft }}
-          make_latest: ${{ inputs.make-latest }}
-          target_commitish: ${{ steps.get_release_branch.outputs.release_branch }}
-          generate_release_notes: true
-          files: |
-            artifacts/**/*
-
       - name: Update Release Description
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
