@@ -107,23 +107,21 @@ jobs:
           # Extract release tag from URL
           release_tag=$(echo "$url" | sed 's/.*\/tag\///')
           echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
-          echo "release_url=$url" >> $GITHUB_OUTPUT
 
       - name: Update Release Description
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ steps.create_release.outputs.release_tag }}
-          RELEASE_URL: ${{ steps.create_release.outputs.release_url }}
+          RELEASE_TAG: ${{ steps.create_release.outputs.release_tag }}
           ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
         run: |
           # Get current release body
-          current_body=$(gh release view ${{ steps.create_release.outputs.release_tag }} --json body --jq .body)
+          current_body=$(gh release view $RELEASE_TAG --json body --jq .body)
           # Append build source to the end
           updated_body="${current_body}
           **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$ARTIFACT_RUN_ID"
 
           # Update release
-          gh release edit ${{ steps.create_release.outputs.release_tag }} --notes "$updated_body"
+          new_url=$(gh release edit $RELEASE_TAG --notes "$updated_body")
 
           echo "# :rocket: Release ready at:" >> $GITHUB_STEP_SUMMARY
-          echo "$RELEASE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "$new_url" >> $GITHUB_STEP_SUMMARY
