@@ -91,37 +91,39 @@ jobs:
           rm -rf tmp
 
       - name: Create GitHub Release
-        id: create_gh_release
+        id: create_release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Create release with generated notes
-          gh release create "v${{ steps.version_info.outputs.version_name }}" \
+          url=$(gh release create "v${{ steps.version_info.outputs.version_name }}" \
             --title "${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }})" \
             --target ${{ steps.get_release_branch.outputs.release_branch }} \
             --generate-notes \
             --notes-start-tag "${{ steps.get_last_tag.outputs.last_release_tag }}" \
             --prerelease=${{ inputs.prerelease }} \
             --draft=${{ inputs.draft }} \
-            $ARTIFACTS_PATH/*
+            $ARTIFACTS_PATH/*)
+          # Extract release tag from URL
+          release_tag=$(echo "$url" | sed 's/.*\/tag\///')
+          echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
+          echo "release_url=$url" >> $GITHUB_OUTPUT
 
       - name: Update Release Description
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ steps.create_release.outputs.id }}
-          RELEASE_URL: ${{ steps.create_release.outputs.url }}
+          RELEASE_ID: ${{ steps.create_release.outputs.release_tag }}
+          RELEASE_URL: ${{ steps.create_release.outputs.release_url }}
           ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
         run: |
           # Get current release body
-          current_body=$(gh api /repos/${{ github.repository }}/releases/$RELEASE_ID --jq .body)
-
+          current_body=$(gh release view ${{ steps.create_release.outputs.release_tag }} --json body --jq .body)
           # Append build source to the end
           updated_body="${current_body}
           **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$ARTIFACT_RUN_ID"
 
           # Update release
-          gh api --method PATCH /repos/${{ github.repository }}/releases/$RELEASE_ID \
-            -f body="$updated_body"
+          gh release edit ${{ steps.create_release.outputs.release_tag }} --notes "$updated_body"
 
           echo "# :rocket: Release ready at:" >> $GITHUB_STEP_SUMMARY
           echo "$RELEASE_URL" >> $GITHUB_STEP_SUMMARY
