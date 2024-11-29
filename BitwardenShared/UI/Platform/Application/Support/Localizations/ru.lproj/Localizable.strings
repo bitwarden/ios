@@ -784,7 +784,7 @@
 "Region" = "Регион";
 "UpdateWeakMasterPasswordWarning" = "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа.";
 "CurrentMasterPassword" = "Текущий мастер-пароль";
-"LoggedIn" = "Вход выполнен!";
+"LoggedIn" = "Выполнен вход!";
 "ApproveWithMyOtherDevice" = "Одобрить с другим устройством";
 "RequestAdminApproval" = "Запросить одобрение администратора";
 "ApproveWithMasterPassword" = "Одобрить с мастер-паролем";
@@ -1027,12 +1027,12 @@
 "YoullDeleteThisFileAfterImportIsComplete" = "Вы удалите этот файл после завершения импорта.";
 "NeedHelpCheckOutImportHelp" = "Нужна помощь? Ознакомьтесь с **[помощью по импорту](%1$@)**";
 "LogInToBitwarden" = "Войти в Bitwarden";
-"OnYourComputerOpenANewBrowserTabAndGoTo" = "На вашем компьютере откройте новую вкладку браузера и **перейдите к %1$@**";
+"OnYourComputerOpenANewBrowserTabAndGoTo" = "На вашем компьютере откройте новую вкладку браузера и **перейдите на %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Войдите в веб-приложение Bitwarden.**";
 "ImportLoginsToBitwarden" = "Импортируйте логины в Bitwarden";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "В меню Bitwarden **найдите Настройки** и **выберите Импорт данных.**";
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Заполните форму и **импортируйте сохраненный файл с паролями.**";
-"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Выберите Импорт данных** в веб-приложении, а затем Готово, чтобы завершить синхронизацию.";
+"SelectImportDataInTheWebAppThenDoneToFinishSyncing" = "**Выберите Импорт данных** в веб-приложении, а затем **Готово**, чтобы завершить синхронизацию.";
 "ForYourSecurityBeSureToDeleteYourSavedPasswordFile" = "В целях безопасности не забудьте **удалить сохраненный файл с паролями.**";
 "BitwardenTools" = "Инструменты Bitwarden";
 "ImportSuccessful" = "Импорт выполнен успешно!";
@@ -1044,7 +1044,7 @@
 "AutofillPasswords" = "Автозаполнение паролей";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автозаполнение на всех своих устройствах, чтобы авторизоваться одним кликом везде.";
 "GotIt" = "Понятно";
-"GenerateCrash" = "Сгенерировать сбой";
+"GenerateCrash" = "Сгенерировать отчет об ошибке";
 "GenerateErrorReport" = "Создать отчет об ошибке";
 "AllowAuthenticatorSyncing" = "Разрешить синхронизацию аутентификатора";
 "AuthenticatorSync" = "Синхронизация аутентификатора";
