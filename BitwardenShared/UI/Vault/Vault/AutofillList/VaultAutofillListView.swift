@@ -121,7 +121,8 @@ private struct VaultAutofillListSearchableView: View {
     @ViewBuilder
     private func cipherListView(_ sections: [VaultListSection]) -> some View {
         Group {
-            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
+            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential ||
+                store.state.isAutofillingTextToInsertList {
                 cipherCombinedListView(sections)
             } else {
                 let items = sections.first?.items ?? []

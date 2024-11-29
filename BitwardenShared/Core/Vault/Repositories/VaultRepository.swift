@@ -1387,6 +1387,8 @@ extension DefaultVaultRepository: VaultRepository {
         searchText: String?
     ) async throws -> [VaultListSection] {
         switch mode {
+        case .all:
+            return []
         case .combinedMultipleSections, .passwords:
             var sections = [VaultListSection]()
             if #available(iOSApplicationExtension 17.0, *),

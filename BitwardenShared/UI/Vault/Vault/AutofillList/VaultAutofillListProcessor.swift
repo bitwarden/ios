@@ -22,6 +22,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPasteboardService
         & HasStateService
         & HasTOTPExpirationManagerFactory
+        & HasTextAutofillHelper
         & HasTimeProvider
         & HasVaultRepository
 
@@ -88,9 +89,15 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
         super.init(state: state)
 
-        if autofillListMode == .totp {
+        switch autofillListMode {
+        case .all:
+            self.state.isAutofillingTextToInsertList = true
+            self.services.textAutofillHelper.setTextAutofillHelperDelegate(self)
+        case .totp:
             self.state.isAutofillingTotpList = true
             initTotpExpirationManagers()
+        default:
+            break
         }
     }
 
@@ -113,6 +120,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                    let autofillAppExtensionDelegate,
                    fido2CredentialAutofillView != nil || autofillAppExtensionDelegate.isCreatingFido2Credential {
                     await onCipherForFido2CredentialPicked(cipher: cipher)
+                } else if autofillListMode == .all {
+                    await services.textAutofillHelper.handleCipherForAutofill(cipherView: cipher)
                 } else {
                     await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
                         self?.state.toast = Toast(title: toastText)
@@ -327,6 +336,11 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func streamAutofillItems() async {
         do {
+            guard autofillListMode != .all else {
+                await streamAutofillItemsOnAllMode()
+                return
+            }
+
             var uri = appExtensionDelegate?.uri
             if let autofillAppExtensionDelegate,
                autofillAppExtensionDelegate.isCreatingFido2Credential,
@@ -345,6 +359,20 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
+                state.vaultListSections = sections
+            }
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the list of autofill items on `.all` mode.
+    ///
+    private func streamAutofillItemsOnAllMode() async {
+        do {
+            for try await sections in try await services.vaultRepository
+                .vaultListPublisher(filter: .allVaults) {
                 state.vaultListSections = sections
             }
         } catch {
@@ -614,5 +642,14 @@ extension VaultAutofillListProcessor {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
+    }
+}
+
+// MARK: - TextAutofillHelperDelegate
+
+extension VaultAutofillListProcessor: TextAutofillHelperDelegate {
+    @available(iOSApplicationExtension 18.0, *)
+    func completeTextRequest(text: String) {
+        autofillAppExtensionDelegate?.completeTextRequest(text: text)
     }
 } // swiftlint:disable:this file_length

@@ -38,6 +38,7 @@ typealias Services = HasAPIService
     & HasSystemDevice
     & HasTOTPExpirationManagerFactory
     & HasTOTPService
+    & HasTextAutofillHelper
     & HasTimeProvider
     & HasTrustDeviceService
     & HasTwoStepLoginService
@@ -288,6 +289,13 @@ protocol HasStateService {
 protocol HasSystemDevice {
     /// The object used by the application to retrieve information about this device.
     var systemDevice: SystemDevice { get }
+}
+
+/// Protocol for an object that provides a `TextAutofillHelper`.
+///
+protocol HasTextAutofillHelper {
+    /// Helper to autofill text from any cipher type.
+    var textAutofillHelper: TextAutofillHelper { get }
 }
 
 /// Protocol for an object that provides a `TimeProvider`.
