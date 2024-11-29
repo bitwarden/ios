@@ -136,9 +136,9 @@ jobs:
           echo "$RELEASE_URL" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo ":clipboard: Confirm that the defined GitHub Release options are correct:"  >> $GITHUB_STEP_SUMMARY
-          echo " * :bookmark: New tag name: `$RELEASE_TAG`" >> $GITHUB_STEP_SUMMARY
-          echo " * :palm_tree: Target branch: `$RELEASE_BRANCH`" >> $GITHUB_STEP_SUMMARY
-          echo " * :ocean: Previous tag set in the description \"Full Changelog\" link: `$LAST_RELEASE_TAG`" >> $GITHUB_STEP_SUMMARY
+          echo " * :bookmark: New tag name: \`$RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :palm_tree: Target branch: \`$RELEASE_BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :ocean: Previous tag set in the description \"Full Changelog\" link: \`$LAST_RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
           echo " * :white_check_mark: Description has automated release notes and they match the commits in the release branch" >> $GITHUB_STEP_SUMMARY
           echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
           echo "> Commits directly pushed to branches without a Pull Request won't appear in the automated release notes." >> $GITHUB_STEP_SUMMARY
