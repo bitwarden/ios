@@ -109,19 +109,35 @@ jobs:
           echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
 
       - name: Update Release Description
+        id: update_release_description
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.create_release.outputs.release_tag }}
           ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
         run: |
-          # Get current release body
+          # Add builds source to the end of the release description
           current_body=$(gh release view $RELEASE_TAG --json body --jq .body)
-          # Append build source to the end
           updated_body="${current_body}
           **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$ARTIFACT_RUN_ID"
-
-          # Update release
           new_url=$(gh release edit $RELEASE_TAG --notes "$updated_body")
 
+          # draft release links change after editing
+          echo "release_url=$new_url" >> $GITHUB_OUTPUT
+
+      - name: Add Release Summary
+        env:
+          RELEASE_TAG: ${{ steps.create_release.outputs.release_tag }}
+          RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
+          LAST_RELEASE_TAG: ${{ steps.get_last_tag.outputs.last_release_tag }}
+          RELEASE_URL: ${{ steps.update_release_description.outputs.release_url }}
+        run: |
           echo "# :fish_cake: Release ready at:" >> $GITHUB_STEP_SUMMARY
-          echo "$new_url" >> $GITHUB_STEP_SUMMARY
+          echo "$RELEASE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Confirm that the defined GitHub Release options are correct:"  >> $GITHUB_STEP_SUMMARY
+          echo " * New tag name: $RELEASE_TAG" >> $GITHUB_STEP_SUMMARY
+          echo " * Target branch: $RELEASE_BRANCH" >> $GITHUB_STEP_SUMMARY
+          echo " * Previous tag set in the description \"Full Changelog\" link: $LAST_RELEASE_TAG" >> $GITHUB_STEP_SUMMARY
+          echo " * Description has automated release notes and they match the commits in the release branch" >> $GITHUB_STEP_SUMMARY
+          echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
+          echo "> Commits directly pushed to branches without a Pull Request won't appear in the automated release notes." >> $GITHUB_STEP_SUMMARY
