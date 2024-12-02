@@ -872,7 +872,7 @@
 "ChooseALoginToSaveThisPasskeyTo" = "Valitse kirjautumistieto, johon pääsyavain tallennetaan";
 "SavePasskeyAsNewLogin" = "Tallenna pääsyavain uuteen kirjautumistietoon";
 "SavePasskey" = "Tallenna pääsyavain";
-"PasskeysForX" = "Pääsyavaimet osoitteelle %1$@";
+"PasskeysForX" = "Kohteen %1$@ pääsyavaimet";
 "PasswordsForX" = "Salasanat kohteelle %1$@";
 "OverwritePasskey" = "Korvataanko pääsyavain?";
 "ThisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey" = "Kohde sisältää jo pääsyavaimen. Haluatko varmasti korvata nykyisen avaimen?";
@@ -883,8 +883,8 @@
 "VerificationRequiredForThisActionSetUpAnUnlockMethodInBitwardenToContinue" = "Toiminto vaatii lisävahvistuksen. Jatka asettamalla lukituksen avaustapa Bitwardenin asetuksista.";
 "ErrorCreatingPasskey" = "Virhe luotaessa pääsyavainta";
 "ErrorReadingPasskey" = "Virhe luettaessa pääsyavainta";
-"ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "Virhe luotaessa pääsyavainta osoitteelle %1$@. Yritä myöhemmin uudelleen.";
-"ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "Virhe luettaessa osoitteen %1$@ pääsyavainta. Yritä myöhemmin uudelleen.";
+"ThereWasAProblemCreatingAPasskeyForXTryAgainLater" = "Virhe luotaessa pääsyavainta kohteeseen %1$@. Yritä myöhemmin uudelleen.";
+"ThereWasAProblemReadingAPasskeyForXTryAgainLater" = "Virhe luettaessa kohteen %1$@ pääsyavainta. Yritä myöhemmin uudelleen.";
 "VerifyingIdentityEllipsis" = "Vahvistetaan henkilöllisyyttä...";
 "Passwords" = "Salasanat";
 "UnknownAccount" = "Tuntematon tili";
@@ -929,7 +929,7 @@
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Saat Bitwardenilta neuvoja, ilmoituksia ja tutkimusmahdollisuuksia postilaatikkoosi. **[Peru tilaus](%1$@)** milloin tahansa.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Organisaatioiden kokoelmiin määrittämättömät kohteet eivät enää näy laitteiden \"Kaikki holvit\" -näkymissä, vaan ne ovat nähtävissä vain Hallintapaneelista. Määritä kohteet kokoelmiin Hallintapaneelista, jotta ne ovat jatkossakin käytettävissä kaikilta laitteilta.";
 "UnknownAccount" = "Tuntematon tili";
-"UserVerificationForPasskey" = "Käyttäjävahvistus pääsyavaimelle";
+"UserVerificationForPasskey" = "Vahvista pääsyavaimen käyttö";
 "NewItem" = "Uusi kohde";
 "ExportVaultFilePwProtectInfo" = "Tämä vientitiedosto suojataan salauksen purkuun tarvittavalla salasanalla.";
 "IntroCarouselPage1Title" = "Tietoturva etusijalla";
@@ -987,7 +987,7 @@
 "Confirm" = "Vahvista";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Virhe yhdistettäessä Duo-palveluun. Käytä vaihtoehtoista todennustapaa tai ole yhteydessä Duon asiakaspalveluun saadaksesi apua.";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Pre Auth URL-osoitteita ei voitu ladata tilin luonnin aloittamiseksi.";
-"FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "From your device settings, **toggle on autofill Passwords and Passkeys.**";
+"FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "Kytke laitteesi asetuksista käyttöön **Täytä salasanat ja pääsyavaimet automaattisesti**.";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**Toggle off iCloud Keychain** to make Bitwarden your default autofill source.";
 "ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Toggle on Bitwarden** to use your saved passwords to log into your accounts.";
 "TurnOnAutoFill" = "Ota automaattitäyttö käyttöön";
