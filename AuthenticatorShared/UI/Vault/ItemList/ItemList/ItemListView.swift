@@ -39,8 +39,6 @@ private struct SearchableItemListView: View {
     // MARK: View
 
     var body: some View {
-        PreserveLargeTitleView()
-
         // A ZStack with hidden children is used here so that opening and closing the
         // search interface does not reset the scroll position for the main vault
         // view, as would happen if we used an `if else` block here.
@@ -376,9 +374,7 @@ struct ItemListView: View {
                 await store.perform(.search(store.state.searchText))
             }
             .refreshable {
-                Task {
-                    await store.perform(.refresh)
-                }
+                await store.perform(.refresh)
             }
         }
         .navigationTitle(Localizations.verificationCodes)
