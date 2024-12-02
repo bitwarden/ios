@@ -17,6 +17,9 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// The text to be displayed in the button of the empty view.
     var emptyViewButtonText: String = Localizations.newItem
 
+    /// The group filter.
+    var group: VaultListGroup?
+
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 

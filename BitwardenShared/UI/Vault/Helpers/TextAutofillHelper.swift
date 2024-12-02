@@ -4,7 +4,7 @@ import BitwardenSdk
 
 /// Protocol that helps to autofill text for any cipher type.
 /// Note: This is momentary until the UI/UX is improved in the Autofill text flow.
-protocol TextAutofillHelper {
+protocol TextAutofillHelper: AnyObject {
     /// Handles autofilling text to insert from a cipher by presenting options for the user
     /// to choose which field they want to use for autofilling text.
     /// - Parameter cipherView: The cipher to present options and get text to autofill.
@@ -320,7 +320,7 @@ extension DefaultTextAutofillHelper: UserVerificationDelegate {
 // MARK: NoOpTextAutofillHelper
 
 /// Helper to be used on iOS less than 18.0 given that we don't have autofilling text feature available.
-struct NoOpTextAutofillHelper: TextAutofillHelper {
+class NoOpTextAutofillHelper: TextAutofillHelper {
     func handleCipherForAutofill(cipherView: BitwardenSdk.CipherView) async {
         // No-op
     }

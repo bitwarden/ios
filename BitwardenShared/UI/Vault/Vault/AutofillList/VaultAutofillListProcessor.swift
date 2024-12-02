@@ -22,8 +22,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPasteboardService
         & HasStateService
         & HasTOTPExpirationManagerFactory
-        & HasTextAutofillHelper
+        & HasTextAutofillHelperFactory
         & HasTimeProvider
+        & HasUserVerificationHelperFactory
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -45,6 +46,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// The services used by this processor.
     private var services: Services
+
+    /// The helper to be used when autofilling text to insert.
+    private var textAutofillHelper: TextAutofillHelper?
 
     // MARK: Calculated properties
 
@@ -92,7 +96,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         switch autofillListMode {
         case .all:
             self.state.isAutofillingTextToInsertList = true
-            self.services.textAutofillHelper.setTextAutofillHelperDelegate(self)
+            textAutofillHelper = services.textAutofillHelperFactory.create()
+            textAutofillHelper?.setTextAutofillHelperDelegate(self)
         case .totp:
             self.state.isAutofillingTotpList = true
             initTotpExpirationManagers()
@@ -121,14 +126,14 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                    fido2CredentialAutofillView != nil || autofillAppExtensionDelegate.isCreatingFido2Credential {
                     await onCipherForFido2CredentialPicked(cipher: cipher)
                 } else if autofillListMode == .all {
-                    await services.textAutofillHelper.handleCipherForAutofill(cipherView: cipher)
+                    await textAutofillHelper?.handleCipherForAutofill(cipherView: cipher)
                 } else {
                     await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
                         self?.state.toast = Toast(title: toastText)
                     }
                 }
-            case .group:
-                return
+            case let .group(group, _):
+                coordinator.navigate(to: .autofillListForGroup(group))
             case let .totp(_, totpModel):
                 if #available(iOSApplicationExtension 18.0, *) {
                     autofillAppExtensionDelegate?.completeOTPRequest(code: totpModel.totpCode.code)
@@ -337,7 +342,11 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     private func streamAutofillItems() async {
         do {
             guard autofillListMode != .all else {
-                await streamAutofillItemsOnAllMode()
+                if let group = state.group {
+                    await streamAutofillItemsOnAllMode(group: group)
+                } else {
+                    await streamAutofillItemsOnAllMode()
+                }
                 return
             }
 
@@ -373,6 +382,20 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         do {
             for try await sections in try await services.vaultRepository
                 .vaultListPublisher(filter: .allVaults) {
+                state.vaultListSections = sections
+            }
+        } catch {
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the list of autofill items on `.all` mode and with a specified group.
+    ///
+    private func streamAutofillItemsOnAllMode(group: VaultListGroup) async {
+        do {
+            for try await sections in try await services.vaultRepository
+                .vaultListPublisher(group: group, filter: .allVaults) {
                 state.vaultListSections = sections
             }
         } catch {

@@ -9,4 +9,8 @@ class MockTextAutofillHelper: TextAutofillHelper {
     func handleCipherForAutofill(cipherView: CipherView) async {
         handleCipherForAutofillCalledWithCipher = cipherView
     }
+
+    func setTextAutofillHelperDelegate(_ delegate: TextAutofillHelperDelegate) {
+        textAutofillHelperDelegate = delegate
+    }
 }

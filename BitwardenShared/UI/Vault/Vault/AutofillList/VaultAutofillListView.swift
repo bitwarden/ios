@@ -22,7 +22,7 @@ struct VaultAutofillListView: View {
 
             profileSwitcher
         }
-        .navigationBar(title: Localizations.items, titleDisplayMode: .inline)
+        .navigationBar(title: store.state.group?.navigationTitle ?? Localizations.items, titleDisplayMode: .inline)
         .searchable(
             text: store.binding(
                 get: \.searchText,

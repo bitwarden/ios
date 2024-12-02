@@ -77,8 +77,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasSettingsRepository
         & HasStateService
         & HasTOTPExpirationManagerFactory
-        & HasTextAutofillHelper
+        & HasTextAutofillHelperFactory
         & HasTimeProvider
+        & HasUserVerificationHelperFactory
         & HasVaultRepository
         & VaultItemCoordinator.Services
 
@@ -164,6 +165,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             }
         case .autofillList:
             showAutofillList()
+        case let .autofillListForGroup(group):
+            showAutofillListForGroup(group)
         case let .editItem(cipher):
             Task {
                 let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
@@ -219,6 +222,26 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         )
         let view = VaultAutofillListView(store: Store(processor: processor), timeProvider: services.timeProvider)
         stackNavigator?.replace(view)
+    }
+
+    /// Shows the autofill list screen for a specified group.
+    ///
+    private func showAutofillListForGroup(_ group: VaultListGroup) {
+        let processor = VaultAutofillListProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: VaultAutofillListState(
+                group: group,
+                iconBaseURL: services.environmentService.iconsURL
+            )
+        )
+        let view = VaultAutofillListView(store: Store(processor: processor), timeProvider: services.timeProvider)
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.push(
+            viewController,
+            navigationTitle: group.navigationTitle
+        )
     }
 
     /// Shows the vault group screen.

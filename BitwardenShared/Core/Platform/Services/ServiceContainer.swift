@@ -127,8 +127,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The object used by the application to retrieve information about this device.
     let systemDevice: SystemDevice
 
-    /// Helper to autofill text from any cipher type.
-    let textAutofillHelper: TextAutofillHelper
+    /// Factory to create `TextAutofillHelper`s.
+    let textAutofillHelperFactory: TextAutofillHelperFactory
 
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
@@ -147,6 +147,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The service used by the application to generate a two step login URL.
     let twoStepLoginService: TwoStepLoginService
+
+    /// A factory protocol to create `UserVerificationHelper`s.
+    let userVerificationHelperFactory: UserVerificationHelperFactory
 
     /// The repository used by the application to manage vault data for the UI layer.
     let vaultRepository: VaultRepository
@@ -201,7 +204,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
-    ///   - textAutofillHelper: Helper to autofill text from any cipher type.
+    ///   - textAutofillHelperFactory: Factory to create `TextAutofillHelper`s.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
@@ -249,13 +252,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         stateService: StateService,
         syncService: SyncService,
         systemDevice: SystemDevice,
-        textAutofillHelper: TextAutofillHelper,
+        textAutofillHelperFactory: TextAutofillHelperFactory,
         timeProvider: TimeProvider,
         tokenService: TokenService,
         totpExpirationManagerFactory: TOTPExpirationManagerFactory,
         totpService: TOTPService,
         trustDeviceService: TrustDeviceService,
         twoStepLoginService: TwoStepLoginService,
+        userVerificationHelperFactory: UserVerificationHelperFactory,
         vaultRepository: VaultRepository,
         vaultTimeoutService: VaultTimeoutService,
         watchService: WatchService
@@ -296,13 +300,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.stateService = stateService
         self.syncService = syncService
         self.systemDevice = systemDevice
-        self.textAutofillHelper = textAutofillHelper
+        self.textAutofillHelperFactory = textAutofillHelperFactory
         self.timeProvider = timeProvider
         self.tokenService = tokenService
         self.totpExpirationManagerFactory = totpExpirationManagerFactory
         self.totpService = totpService
         self.trustDeviceService = trustDeviceService
         self.twoStepLoginService = twoStepLoginService
+        self.userVerificationHelperFactory = userVerificationHelperFactory
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
         self.watchService = watchService
@@ -641,22 +646,19 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
-        let textAutofillHelper: TextAutofillHelper
-        if #available(iOS 18.0, *) {
-            textAutofillHelper = DefaultTextAutofillHelper(
-                authRepository: authRepository,
-                errorReporter: errorReporter,
-                eventService: eventService,
-                userVerificationHelper: DefaultUserVerificationHelper(
-                    authRepository: authRepository,
-                    errorReporter: errorReporter,
-                    localAuthService: localAuthService
-                ),
-                vaultRepository: vaultRepository
-            )
-        } else {
-            textAutofillHelper = NoOpTextAutofillHelper()
-        }
+        let userVerificationHelperFactory = DefaultUserVerificationHelperFactory(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            localAuthService: localAuthService
+        )
+
+        let textAutofillHelperFactory = DefaultTextAutofillHelperFactory(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            eventService: eventService,
+            userVerificationHelperFactory: userVerificationHelperFactory,
+            vaultRepository: vaultRepository
+        )
 
         let authenticatorDataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
@@ -730,13 +732,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             syncService: syncService,
             systemDevice: UIDevice.current,
-            textAutofillHelper: textAutofillHelper,
+            textAutofillHelperFactory: textAutofillHelperFactory,
             timeProvider: timeProvider,
             tokenService: tokenService,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
             trustDeviceService: trustDeviceService,
             twoStepLoginService: twoStepLoginService,
+            userVerificationHelperFactory: userVerificationHelperFactory,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService
