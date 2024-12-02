@@ -368,7 +368,7 @@ jobs:
       - name: Prepare artifacts for upload to GitHub
         run: |
           mkdir -p export
-          case "$BUILD_MODE" in
+          case "$_BUILD_MODE" in
             "Simulator")
               cp -r build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
               ;;
@@ -378,7 +378,7 @@ jobs:
               cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
               ;;
             *)
-              echo "Error: Invalid BUILD_MODE '$BUILD_MODE'"
+              echo "Error: Invalid BUILD_MODE '$_BUILD_MODE'"
               exit 1
               ;;
           esac
