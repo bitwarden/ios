@@ -17,7 +17,7 @@ public protocol VaultRepository: AnyObject {
     /// - Returns: If a sync is performed without error, this returns `[VaultListSection]` to display.
     ///
     @discardableResult
-    func fetchSync(isManualRefresh: Bool, filter: VaultFilterType) async throws -> [VaultListSection]?
+    func fetchSync(forceSync: Bool, filter: VaultFilterType) async throws -> [VaultListSection]?
 
     // MARK: Data Methods
 
@@ -928,10 +928,10 @@ extension DefaultVaultRepository: VaultRepository {
     // MARK: API Methods
 
     @discardableResult
-    func fetchSync(isManualRefresh: Bool, filter: VaultFilterType) async throws -> [VaultListSection]? {
+    func fetchSync(forceSync: Bool, filter: VaultFilterType) async throws -> [VaultListSection]? {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
-        guard !isManualRefresh || allowSyncOnRefresh else { return nil }
-        try await syncService.fetchSync(forceSync: isManualRefresh)
+        guard !forceSync || allowSyncOnRefresh else { return nil }
+        try await syncService.fetchSync(forceSync: forceSync)
         let ciphers = try await cipherService.fetchAllCiphers()
         let collections = try await collectionService.fetchAllCollections(includeReadOnly: true)
         let folders = try await folderService.fetchAllFolders()

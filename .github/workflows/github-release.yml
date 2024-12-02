@@ -3,14 +3,6 @@ name: Create GitHub Release
 on:
   workflow_dispatch:
     inputs:
-      version-name:
-        description: 'Version Name - E.g. "2024.11.1"'
-        required: true
-        type: string
-      version-number:
-        description: 'Version Number - E.g. "123456"'
-        required: true
-        type: string
       artifact-run-id:
         description: 'GitHub Action Run ID containing artifacts'
         required: true
@@ -23,9 +15,6 @@ on:
         description: 'Mark as pre-release'
         type: boolean
         default: true
-      make-latest:
-        description: 'Set as the latest release'
-        type: boolean
       branch-protection-type:
         description: 'Branch protection type'
         type: choice
@@ -37,6 +26,7 @@ env:
     ARTIFACTS_PATH: artifacts
 jobs:
   create-release:
+    name: Create GitHub Release
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -78,51 +68,78 @@ jobs:
           esac
 
           echo "release_branch=$release_branch" >> $GITHUB_OUTPUT
+      - name: Get last release tag
+        id: get_last_tag
+        run: |
+          last_release_id=$(git tag -l --sort=-authordate | head -n 1)
+          echo "last_release_id=$last_release_id" >> $GITHUB_OUTPUT
 
       - name: Download artifacts
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+        run: ./Scripts/download-artifacts.sh $ARTIFACTS_PATH $ARTIFACT_RUN_ID
+
+      - name: Parse version info
+        id: version_info
         run: |
-          gh run download $ARTIFACT_RUN_ID -D $ARTIFACTS_PATH
-          file_count=$(find $ARTIFACTS_PATH -type f | wc -l)
-          echo "Downloaded $file_count file(s)."
-          if [ "$file_count" -gt 0 ]; then
-            echo "Downloaded files:"
-            find $ARTIFACTS_PATH -type f
-          fi
+          unzip -o "$ARTIFACTS_PATH/version-info.zip" -d "tmp"
+          filepath="tmp/version-info/version_info.json"
+          version_name=$(jq -r '.version_name' "$filepath")
+          version_number=$(jq -r '.version_number' "$filepath")
+          echo "version_number=$version_number" >> $GITHUB_OUTPUT
+          echo "version_name=$version_name" >> $GITHUB_OUTPUT
+          rm -rf tmp
 
-      - name: Create Release
+      - name: Create GitHub Release
         id: create_release
-        uses: softprops/action-gh-release@e7a8f85e1c67a31e6ed99a94b41bd0b71bbee6b8 # v2.0.9
-        with:
-          tag_name: "v${{ inputs.version-name }}"
-          name: "${{ inputs.version-name }} (${{ inputs.version-number }})"
-          prerelease: ${{ inputs.prerelease }}
-          draft: ${{ inputs.draft }}
-          make_latest: ${{ inputs.make-latest }}
-          target_commitish: ${{ steps.get_release_branch.outputs.release_branch }}
-          generate_release_notes: true
-          files: |
-            artifacts/**/*
-
-      - name: Update Release Description
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ steps.create_release.outputs.id }}
-          RELEASE_URL: ${{ steps.create_release.outputs.url }}
+        run: |
+          # Create release with generated notes
+          url=$(gh release create "v${{ steps.version_info.outputs.version_name }}" \
+            --title "${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }})" \
+            --target ${{ steps.get_release_branch.outputs.release_branch }} \
+            --generate-notes \
+            --notes-start-tag "${{ steps.get_last_tag.outputs.last_release_id }}" \
+            --prerelease=${{ inputs.prerelease }} \
+            --draft=${{ inputs.draft }} \
+            $ARTIFACTS_PATH/*)
+          # Extract release tag from URL
+          release_id=$(echo "$url" | sed 's/.*\/tag\///')
+          echo "release_id=$release_id" >> $GITHUB_OUTPUT
+
+      - name: Update Release Description
+        id: update_release_description
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_ID: ${{ steps.create_release.outputs.release_id }}
           ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
         run: |
-          # Get current release body
-          current_body=$(gh api /repos/${{ github.repository }}/releases/$RELEASE_ID --jq .body)
-
-          # Append build source to the end
+          # Add builds source to the end of the release description
+          current_body=$(gh release view $RELEASE_ID --json body --jq .body)
           updated_body="${current_body}
           **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$ARTIFACT_RUN_ID"
+          new_url=$(gh release edit $RELEASE_ID --notes "$updated_body")
 
-          # Update release
-          gh api --method PATCH /repos/${{ github.repository }}/releases/$RELEASE_ID \
-            -f body="$updated_body"
+          # draft release links change after editing
+          echo "release_url=$new_url" >> $GITHUB_OUTPUT
 
-          echo "# :rocket: Release ready at:" >> $GITHUB_STEP_SUMMARY
+      - name: Add Release Summary
+        env:
+          RELEASE_ID: ${{ steps.create_release.outputs.release_id }}
+          RELEASE_TAG: "v${{ steps.version_info.outputs.version_name }}"
+          RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
+          LAST_RELEASE_TAG: ${{ steps.get_last_tag.outputs.last_release_id }}
+          RELEASE_URL: ${{ steps.update_release_description.outputs.release_url }}
+        run: |
+          echo "# :fish_cake: Release ready at:" >> $GITHUB_STEP_SUMMARY
           echo "$RELEASE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo ":clipboard: Confirm that the defined GitHub Release options are correct:"  >> $GITHUB_STEP_SUMMARY
+          echo " * :bookmark: New tag name: \`$RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :palm_tree: Target branch: \`$RELEASE_BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :ocean: Previous tag set in the description \"Full Changelog\" link: \`$LAST_RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :white_check_mark: Description has automated release notes and they match the commits in the release branch" >> $GITHUB_STEP_SUMMARY
+          echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
+          echo "> Commits directly pushed to branches without a Pull Request won't appear in the automated release notes." >> $GITHUB_STEP_SUMMARY
