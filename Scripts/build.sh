@@ -61,6 +61,7 @@ case "$MODE" in
       -scheme Bitwarden \
       -configuration Release \
       -archivePath "${ARCHIVE_PATH}" \
+      -derivedDataPath "${DERIVED_DATA_PATH}" \
       | xcbeautify --renderer github-actions
 
     echo "🚚 Performing Xcode archive export"
