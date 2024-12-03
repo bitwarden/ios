@@ -289,13 +289,9 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
     /// Shows the custom fields for the user to choose from to autofill.
     /// - Parameters:
     ///   - customFields: The custom fields to show the options.
-    ///   - viewPassword: Whether the password can be viewed by the user.
-    private func showCustomFieldsOptionsForAutofill(_ customFields: [CustomFieldState], viewPassword: Bool) async {
+    private func showCustomFieldsOptionsForAutofill(_ customFields: [CustomFieldState]) async {
         let alertActions: [AlertAction] = customFields.compactMap { field in
             guard let name = field.name, let value = field.value else {
-                return nil
-            }
-            if field.type == .hidden, !viewPassword {
                 return nil
             }
 
@@ -322,7 +318,7 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
 
     /// Shows the options for the cipher for the user to select the field to autofill.
     /// - Parameter cipherView: The cipher selected by the user.
-    private func showOptionsForAutofill(cipherView: CipherView) async throws {
+    private func showOptionsForAutofill(cipherView: CipherView) async throws { // swiftlint:disable:this function_body_length line_length
         let options = switch cipherView.type {
         case .card:
             try await getAutofillOptionsForCard(cipherView: cipherView)
@@ -348,18 +344,27 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
                 )
             }
         }
-        if !cipherView.customFields.isEmpty {
+        let availableCustomFields = cipherView.customFields.filter { field in
+            field.type != .hidden || cipherView.viewPassword
+        }
+        if !availableCustomFields.isEmpty {
             alertActions.append(AlertAction(
                 title: Localizations.customFields,
                 style: .default
             ) { [weak self] _, _ in
                 guard let self else { return }
-                await showCustomFieldsOptionsForAutofill(
-                    cipherView.customFields,
-                    viewPassword: cipherView.viewPassword
-                )
+                await showCustomFieldsOptionsForAutofill(availableCustomFields)
             })
         }
+
+        guard !alertActions.isEmpty else {
+            await textAutofillHelperDelegate?.showAlert(.defaultAlert(
+                title: cipherView.name,
+                message: Localizations.nothingAvailableToAutofill
+            ))
+            return
+        }
+
         await textAutofillHelperDelegate?.showAlert(
             Alert(
                 title: Localizations.autofill,
@@ -396,4 +401,4 @@ class NoOpTextAutofillHelper: TextAutofillHelper {
     func setTextAutofillHelperDelegate(_ delegate: TextAutofillHelperDelegate) {
         // No-op
     }
-}
+} // swiftlint:disable:this file_length

@@ -1059,3 +1059,4 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"NothingAvailableToAutofill" = "Nothing available to autofill";

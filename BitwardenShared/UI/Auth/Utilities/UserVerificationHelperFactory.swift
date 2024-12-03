@@ -14,22 +14,6 @@ struct DefaultUserVerificationHelperFactory: UserVerificationHelperFactory {
     /// The service used by the application to evaluate local auth policies.
     let localAuthService: LocalAuthService
 
-    // MARK: Initialization
-
-    /// Initialize a `DefaultUserVerificationHelper`.
-    /// - Parameters:
-    ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
-    ///   - errorReporter: The service used by the application to report non-fatal errors.
-    ///   - localAuthService:  The service used by the application to evaluate local auth policies.
-    init(authRepository: AuthRepository,
-         errorReporter: ErrorReporter,
-         localAuthService: LocalAuthService
-    ) {
-        self.authRepository = authRepository
-        self.errorReporter = errorReporter
-        self.localAuthService = localAuthService
-    }
-
     // MARK: Methods
 
     func create() -> UserVerificationHelper {

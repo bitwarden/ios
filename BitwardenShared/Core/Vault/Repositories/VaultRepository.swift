@@ -233,7 +233,7 @@ public protocol VaultRepository: AnyObject {
     ///   - searchText: The search text to filter the cipher list.
     ///
     /// - Returns: A publisher for searching the user's ciphers for autofill.
-    func searchCipherAutofillPublisher(
+    func searchCipherAutofillPublisher( // swiftlint:disable:this function_parameter_count
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: AutofillListMode,
         filter: VaultListFilter,

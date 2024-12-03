@@ -25,7 +25,7 @@ extension View {
     ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `Button` configured for cancelling an operation in a view.
     ///
-    func cancelToolbarButton(hidden: Bool = false,action: @escaping () -> Void) -> some View {
+    func cancelToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
         toolbarButton(Localizations.cancel, action: action)
             .hidden(hidden)
             .accessibilityIdentifier("CancelButton")
