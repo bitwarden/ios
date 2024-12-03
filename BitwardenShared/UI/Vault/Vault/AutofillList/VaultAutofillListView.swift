@@ -8,6 +8,9 @@ import SwiftUI
 struct VaultAutofillListView: View {
     // MARK: Properties
 
+    /// The GroupSearchDelegate used to bridge UIKit to SwiftUI
+    var searchHandler: VaultAutofillSearchHandler?
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>
 
@@ -211,7 +214,7 @@ private struct VaultAutofillListSearchableView: View {
                         text: store.state.emptyViewMessage
                     ) {
                         if store.state.isAutofillingTotpList
-                                || store.state.isAutofillingTextToInsertList {
+                            || store.state.isAutofillingTextToInsertList {
                             EmptyView()
                         } else {
                             Button {

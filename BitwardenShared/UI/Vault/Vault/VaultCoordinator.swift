@@ -236,11 +236,22 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 iconBaseURL: services.environmentService.iconsURL
             )
         )
-        let view = VaultAutofillListView(store: Store(processor: processor), timeProvider: services.timeProvider)
+        let store = Store(processor: processor)
+        let searchHandler = VaultAutofillSearchHandler(store: store)
+        let view = VaultAutofillListView(
+            searchHandler: searchHandler,
+            store: store,
+            timeProvider: services.timeProvider
+        )
         let viewController = UIHostingController(rootView: view)
+        let searchController = UISearchController()
+        searchController.searchBar.placeholder = Localizations.search
+        searchController.searchResultsUpdater = searchHandler
+
         stackNavigator?.push(
             viewController,
-            navigationTitle: group.navigationTitle
+            navigationTitle: group.navigationTitle,
+            searchController: searchController
         )
     }
 
