@@ -646,11 +646,26 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// selected region doesn't support email verification.
     @MainActor
     func test_setRegion_emailVerificationDisabled() async {
-        configService.featureFlagsBoolPreAuth[.emailVerification] = false
+        await subject.perform(.appeared)
 
+        configService.featureFlagsBoolPreAuth[.emailVerification] = false
         await subject.setRegion(.unitedStates, .defaultUS)
 
         XCTAssertTrue(delegate.switchToLegacyCreateAccountFlowCalled)
+    }
+
+    /// `setRegion(_:_:)` doesn't notify the delete if the selected region doesn't support email
+    /// verification but the view is no longer visible.
+    @MainActor
+    func test_setRegion_emailVerificationDisabled_viewNotVisible() async {
+        configService.featureFlagsBoolPreAuth[.emailVerification] = true
+        await subject.perform(.appeared)
+        subject.receive(.disappeared)
+
+        configService.featureFlagsBoolPreAuth[.emailVerification] = false
+        await subject.setRegion(.unitedStates, .defaultUS)
+
+        XCTAssertFalse(delegate.switchToLegacyCreateAccountFlowCalled)
     }
 }
 

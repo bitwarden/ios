@@ -74,6 +74,9 @@ class StartRegistrationProcessor: StateProcessor<
         stateService: services.stateService
     )
 
+    /// Whether the start registration view is visible in the view hierarchy.
+    private var viewIsVisible = false
+
     // MARK: Initialization
 
     /// Creates a new `StartRegistrationProcessor`.
@@ -100,6 +103,7 @@ class StartRegistrationProcessor: StateProcessor<
     override func perform(_ effect: StartRegistrationEffect) async {
         switch effect {
         case .appeared:
+            viewIsVisible = true
             await regionHelper.loadRegion()
             state.isReceiveMarketingToggleOn = state.region == .unitedStates
             await loadFeatureFlags()
@@ -117,6 +121,8 @@ class StartRegistrationProcessor: StateProcessor<
         switch action {
         case let .emailTextChanged(text):
             state.emailText = text
+        case .disappeared:
+            viewIsVisible = false
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case let .nameTextChanged(text):
@@ -240,7 +246,7 @@ extension StartRegistrationProcessor: RegionDelegate {
             defaultValue: false,
             forceRefresh: true,
             isPreAuth: true
-        ) {
+        ), viewIsVisible {
             // If email verification isn't enabled in the selected environment, switch to the
             // legacy create account flow.
             delegate?.switchToLegacyCreateAccountFlow()
