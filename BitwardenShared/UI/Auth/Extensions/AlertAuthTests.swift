@@ -59,6 +59,29 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertTrue(actions.isEmpty)
     }
 
+    /// `accountOptions(_:lockAction:logoutAction:)` shows the account options for can not be locked account.
+    func test_accountOptions_cantBeLocked() async throws {
+        let subject = Alert.accountOptions(
+            .fixture(
+                canBeLocked: false,
+                email: "test@example.com",
+                isLoggedOut: false,
+                isUnlocked: true,
+                webVault: "secureVault.example.com"
+            ),
+            lockAction: {},
+            logoutAction: {},
+            removeAccountAction: {}
+        )
+
+        XCTAssertEqual(subject.title, "test@example.com\nsecureVault.example.com")
+        XCTAssertNil(subject.message)
+        XCTAssertEqual(subject.preferredStyle, .actionSheet)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.logOut)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+    }
+
     /// `passwordStrengthAlert(alert:action:)` constructs an `Alert` with the title, message, and Yes and No buttons.
     func test_passwordStrengthAlert() {
         var subject = Alert.passwordStrengthAlert(.weak) {}

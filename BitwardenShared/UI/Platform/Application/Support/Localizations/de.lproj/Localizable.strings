@@ -238,7 +238,7 @@
 "Camera" = "Kamera";
 "Photos" = "Fotos";
 "CopyTotp" = "TOTP kopieren";
-"CopyTotpAutomaticallyDescription" = "Ist ein Authentifizierungsschlüssel mit deinen Zugangsdaten verknüpft, wird der TOTP Verifizierungscode in die Zwischenablage kopiert, wenn du die Zugangsdaten automatisch einfügen lässt.";
+"CopyTotpAutomaticallyDescription" = "Ist ein Authentifizierungsschlüssel mit deinen Zugangsdaten verknüpft, wird der TOTP-Verifizierungscode in deine Zwischenablage kopiert, wenn du die Zugangsdaten automatisch ausfüllen lässt.";
 "CopyTotpAutomatically" = "TOTP automatisch kopieren";
 "PremiumRequired" = "Für diese Funktion benötigst du eine Premiummitgliedschaft.";
 "AttachementAdded" = "Anhang hinzugefügt";

@@ -25,7 +25,7 @@ env:
 jobs:
   resolve-values:
     name: "Resolve values"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       version_name: ${{ steps.version_info.outputs.version_name }}
       version_number: ${{ steps.version_info.outputs.version_number }}
@@ -79,11 +79,13 @@ jobs:
           content=$(cat version-info/version_info.json)
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
       - name: Upload version info artifact
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: version-info
           path: version-info/version_info.json
+
       - name: Set patch version for internal builds
         id: internal_versions
         run: |

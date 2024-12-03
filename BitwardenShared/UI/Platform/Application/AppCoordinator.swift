@@ -73,6 +73,19 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
+        case let .accountBecameActive(
+            account,
+            attemptAutomaticBiometricUnlock,
+            didSwitchAccountAutomatically
+        ):
+            await handleAuthEvent(
+                .accountBecameActive(
+                    account,
+                    animated: true,
+                    attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                )
+            )
         case let .didLogout(userId, userInitiated):
             await handleAuthEvent(.didLogout(userId: userId, userInitiated: userInitiated))
         case .didStart:

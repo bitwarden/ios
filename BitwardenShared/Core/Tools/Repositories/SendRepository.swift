@@ -44,9 +44,9 @@ public protocol SendRepository: AnyObject {
     /// Performs an API request to sync the user's send data. The publishers in the repository can
     /// be used to subscribe to the send data, which are updated as a result of the request.
     ///
-    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
+    /// - Parameter forceSync: Whether the sync should be forced.
     ///
-    func fetchSync(isManualRefresh: Bool) async throws
+    func fetchSync(forceSync: Bool) async throws
 
     /// Performs an API request to remove the password on the provided send.
     ///
@@ -216,10 +216,10 @@ class DefaultSendRepository: SendRepository {
 
     // MARK: API Methods
 
-    func fetchSync(isManualRefresh: Bool) async throws {
+    func fetchSync(forceSync: Bool) async throws {
         let allowSyncOnRefresh = try await stateService.getAllowSyncOnRefresh()
-        if !isManualRefresh || allowSyncOnRefresh {
-            try await syncService.fetchSync(forceSync: isManualRefresh)
+        if !forceSync || allowSyncOnRefresh {
+            try await syncService.fetchSync(forceSync: forceSync)
         }
     }
 

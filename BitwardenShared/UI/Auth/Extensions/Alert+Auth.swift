@@ -95,7 +95,7 @@ extension Alert {
     ) -> Alert {
         var alertActions = [AlertAction]()
 
-        if item.isUnlocked {
+        if item.isUnlocked, item.canBeLocked {
             alertActions.append(
                 AlertAction(
                     title: Localizations.lock,

@@ -84,6 +84,7 @@ public class AppProcessor {
                 startEventTimer()
                 await checkIfExtensionSwitchedAccounts()
                 await checkAccountsForTimeout()
+                await handleNeverTimeOutAccountBecameActive()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
                 debugWillEnterForeground?()
@@ -373,6 +374,27 @@ extension AppProcessor {
         }
     }
 
+    /// Handles unlocking the vault for a manually locked account that uses never lock
+    /// and was previously unlocked in an extension.
+    ///
+    private func handleNeverTimeOutAccountBecameActive() async {
+        guard
+            appExtensionDelegate?.isInAppExtension != true,
+            await (try? services.authRepository.isLocked()) == true,
+            await (try? services.authRepository.sessionTimeoutValue()) == .never,
+            await (try? services.stateService.getManuallyLockedAccount(userId: nil)) == false,
+            let account = try? await services.stateService.getActiveAccount()
+        else { return }
+
+        await coordinator?.handleEvent(
+            .accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
     /// Checks if the active account was switched while in the extension. If this occurs, the app
     /// needs to also switch to the updated active account.
     ///
@@ -520,33 +542,29 @@ extension AppProcessor: NotificationServiceDelegate {
     ///
     /// - Parameters:
     ///   - account: The account associated with the login request.
-    ///   - loginRequest: The login request to show.
     ///   - showAlert: Whether to show the alert or simply switch the account.
     ///
-    func switchAccounts(to account: Account, for loginRequest: LoginRequest, showAlert: Bool) {
-        DispatchQueue.main.async {
-            if showAlert {
-                self.coordinator?.showAlert(.confirmation(
-                    title: Localizations.logInRequested,
-                    message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email)
-                ) {
-                    self.switchAccounts(to: account.profile.userId, for: loginRequest)
-                })
-            } else {
-                self.switchAccounts(to: account.profile.userId, for: loginRequest)
-            }
+    func switchAccountsForLoginRequest(to account: Account, showAlert: Bool) async {
+        if showAlert {
+            coordinator?.showAlert(.confirmation(
+                title: Localizations.logInRequested,
+                message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email)
+            ) {
+                await self.switchAccountsForLoginRequest(to: account.profile.userId)
+            })
+        } else {
+            await switchAccountsForLoginRequest(to: account.profile.userId)
         }
     }
 
-    /// Switch to the specified account and show the login request.
+    /// Switch to the specified account so they can see the login request.
     ///
-    /// - Parameters:
-    ///   - userId: The userId of the account to switch to.
-    ///   - loginRequest: The login request to show.
+    /// - Parameter userId: The user ID of the account to switch to.
     ///
-    private func switchAccounts(to userId: String, for loginRequest: LoginRequest) {
-        (coordinator as? VaultCoordinatorDelegate)?.didTapAccount(userId: userId)
-        coordinator?.navigate(to: .loginRequest(loginRequest))
+    private func switchAccountsForLoginRequest(to userId: String) async {
+        // Switch to the account, the login request will be shown when their vault loads (either
+        // immediately or after vault unlock).
+        await coordinator?.handleEvent(.switchAccounts(userId: userId, isAutomatic: false))
     }
 }
 

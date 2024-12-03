@@ -26,7 +26,7 @@ env:
 jobs:
   calculate-version:
     name: Calculate Version Name and Number
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Log inputs to job summary
         run: |
