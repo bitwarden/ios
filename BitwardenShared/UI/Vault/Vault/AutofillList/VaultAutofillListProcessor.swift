@@ -96,6 +96,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         switch autofillListMode {
         case .all:
             self.state.isAutofillingTextToInsertList = true
+            self.state.emptyViewMessage = Localizations.noItemsToList
             textAutofillHelper = services.textAutofillHelperFactory.create()
             textAutofillHelper?.setTextAutofillHelperDelegate(self)
         case .totp:
@@ -319,7 +320,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     .fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: autofillListMode,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
+                group: state.group,
                 rpID: autofillAppExtensionDelegate?.rpID,
                 searchText: searchText
             )
@@ -341,15 +343,6 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     ///
     private func streamAutofillItems() async {
         do {
-            guard autofillListMode != .all else {
-                if let group = state.group {
-                    await streamAutofillItemsOnAllMode(group: group)
-                } else {
-                    await streamAutofillItemsOnAllMode()
-                }
-                return
-            }
-
             var uri = appExtensionDelegate?.uri
             if let autofillAppExtensionDelegate,
                autofillAppExtensionDelegate.isCreatingFido2Credential,
@@ -362,40 +355,13 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     .fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: autofillListMode,
+                group: state.group,
                 rpID: autofillAppExtensionDelegate?.rpID,
                 uri: uri
             ) {
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
-                state.vaultListSections = sections
-            }
-        } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Streams the list of autofill items on `.all` mode.
-    ///
-    private func streamAutofillItemsOnAllMode() async {
-        do {
-            for try await sections in try await services.vaultRepository
-                .vaultListPublisher(filter: .allVaults) {
-                state.vaultListSections = sections
-            }
-        } catch {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            services.errorReporter.log(error: error)
-        }
-    }
-
-    /// Streams the list of autofill items on `.all` mode and with a specified group.
-    ///
-    private func streamAutofillItemsOnAllMode(group: VaultListGroup) async {
-        do {
-            for try await sections in try await services.vaultRepository
-                .vaultListPublisher(group: group, filter: .allVaults) {
                 state.vaultListSections = sections
             }
         } catch {

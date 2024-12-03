@@ -20,11 +20,14 @@ extension View {
 
     /// Returns a toolbar button configured for cancelling an operation in a view.
     ///
-    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Parameters:
+    ///   - hidden: Whether to hide the toolbar item.
+    ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `Button` configured for cancelling an operation in a view.
     ///
-    func cancelToolbarButton(action: @escaping () -> Void) -> some View {
+    func cancelToolbarButton(hidden: Bool = false,action: @escaping () -> Void) -> some View {
         toolbarButton(Localizations.cancel, action: action)
+            .hidden(hidden)
             .accessibilityIdentifier("CancelButton")
     }
 
@@ -148,12 +151,16 @@ extension View {
 
     /// A `ToolbarItem` for views with a cancel text button.
     ///
-    /// - Parameter action: The action to perform when the cancel button is tapped.
+    /// - Parameters:
+    ///   - hidden: Whether to hide the toolbar item.
+    ///   - action: The action to perform when the cancel button is tapped.
     /// - Returns: A `ToolbarItem` with a dismiss button.
     ///
-    func cancelToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
+    func cancelToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            cancelToolbarButton(action: action)
+            if !hidden {
+                cancelToolbarButton(hidden: hidden, action: action)
+            }
         }
     }
 

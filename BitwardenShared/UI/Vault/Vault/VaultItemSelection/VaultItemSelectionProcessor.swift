@@ -172,7 +172,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             let searchPublisher = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: .login,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             for try await items in searchPublisher {
                 state.searchResults = items
@@ -224,7 +224,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             for try await items in try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchName,
                 group: .login,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             ) {
                 guard !items.isEmpty else {
                     state.vaultListSections = []

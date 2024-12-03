@@ -32,7 +32,7 @@ struct VaultAutofillListView: View {
             prompt: Localizations.search
         )
         .toolbar {
-            cancelToolbarItem {
+            cancelToolbarItem(hidden: store.state.group != nil) {
                 store.send(.cancelTapped)
             }
 
@@ -210,7 +210,8 @@ private struct VaultAutofillListSearchableView: View {
                         image: Asset.Images.Illustrations.items.swiftUIImage,
                         text: store.state.emptyViewMessage
                     ) {
-                        if store.state.isAutofillingTotpList {
+                        if store.state.isAutofillingTotpList
+                                || store.state.isAutofillingTextToInsertList {
                             EmptyView()
                         } else {
                             Button {
@@ -233,7 +234,7 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
             .overlay(alignment: .bottomTrailing) {
-                addItemFloatingActionButton {
+                addItemFloatingActionButton(hidden: store.state.isAutofillingTextToInsertList) {
                     store.send(.addTapped(fromToolbar: false))
                 }
             }
