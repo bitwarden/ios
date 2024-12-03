@@ -19,7 +19,7 @@ open class AuthenticatorTestCase: XCTestCase {
         }
 
         // Apply default appearances for snapshot tests.
-//        UI.applyDefaultAppearances()
+        UI.applyDefaultAppearances()
     }
 
     /// Executes any logic that should be applied before each test runs.
