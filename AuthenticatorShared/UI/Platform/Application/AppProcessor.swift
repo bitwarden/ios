@@ -35,6 +35,23 @@ public class AppProcessor {
 
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Locale.current.languageCode
         UI.applyDefaultAppearances()
+
+        Task {
+            for await _ in services.notificationCenterService.willEnterForegroundPublisher().values {
+                let userId = await services.stateService.getActiveAccountId()
+
+                if vaultHasTimedOut(userId: userId) {
+                    await coordinator?.handleEvent(.vaultTimeout)
+                }
+            }
+        }
+
+        Task {
+            for await _ in services.notificationCenterService.didEnterBackgroundPublisher().values {
+                let userId = await services.stateService.getActiveAccountId()
+                services.appSettingsStore.setLastActiveTime(.now, userId: userId)
+            }
+        }
     }
 
     // MARK: Methods
@@ -80,4 +97,33 @@ public class AppProcessor {
         coordinator?.navigate(to: .debugMenu)
     }
     #endif
+
+    /// Calculate if the user has passed the timeout set for their vault session.
+    ///
+    /// - Parameter userId: The active user.
+    /// - Returns: `true` if the user has timed out and needs to re-authenticate,
+    ///     `false` if they are within their timeout session and can continue without re-authenticating.
+    ///
+    private func vaultHasTimedOut(userId: String) -> Bool {
+        guard let rawValue = services.appSettingsStore.vaultTimeout(userId: userId) else {
+            return false
+        }
+        let vaultTimeout = SessionTimeoutValue(rawValue: rawValue)
+
+        switch vaultTimeout {
+        case .never,
+             .onAppRestart:
+            // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
+            // In these cases, return false.
+            return false
+        default:
+            // Otherwise, calculate a timeout.
+            guard let lastActiveTime = services.appSettingsStore.lastActiveTime(userId: userId) else {
+                return true
+            }
+
+            return services.timeProvider.presentTime.timeIntervalSince(lastActiveTime)
+                >= TimeInterval(vaultTimeout.seconds)
+        }
+    }
 }

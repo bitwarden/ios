@@ -8,6 +8,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
     var application: MockApplication!
     var appSettingsStore: MockAppSettingsStore!
     var authItemRepository: MockAuthenticatorItemRepository!
+    var biometricsRepository: MockBiometricsRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var subject: SettingsProcessor!
@@ -20,6 +21,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
         application = MockApplication()
         appSettingsStore = MockAppSettingsStore()
         authItemRepository = MockAuthenticatorItemRepository()
+        biometricsRepository = MockBiometricsRepository()
         configService = MockConfigService()
         coordinator = MockCoordinator()
         subject = SettingsProcessor(
@@ -28,6 +30,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
                 application: application,
                 appSettingsStore: appSettingsStore,
                 authenticatorItemRepository: authItemRepository,
+                biometricsRepository: biometricsRepository,
                 configService: configService
             ),
             state: SettingsState()
@@ -40,6 +43,7 @@ class SettingsProcessorTests: AuthenticatorTestCase {
         application = nil
         appSettingsStore = nil
         authItemRepository = nil
+        biometricsRepository = nil
         configService = nil
         coordinator = nil
         subject = nil
@@ -98,6 +102,101 @@ class SettingsProcessorTests: AuthenticatorTestCase {
 
         XCTAssertTrue(subject.state.shouldShowDefaultSaveOption)
         XCTAssertTrue(subject.state.shouldShowSyncButton)
+    }
+
+    /// Performing `.loadData` sets the session timeout to `.never` if biometrics are disabled.
+    func test_perform_loadData_vaultTimeout_biometricsDisabled() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: false, hasValidIntegrity: true)
+        )
+        appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
+    }
+
+    /// Performing `.loadData` sets the session timeout correctly when it is set in app settings..
+    func test_perform_loadData_vaultTimeout_fifteenMinutes() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .fifteenMinutes)
+    }
+
+    /// Performing `.loadData` sets the session timeout to `.never` when there is no timeout
+    /// set and biometrics is not available or not enabled.
+    func test_perform_loadData_vaultTimeout_nil() async throws {
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
+    }
+
+    /// Performing `.loadData` sets the session timeout to `.onAppRestart` when there is no timeout
+    /// set and biometrics is turned enabled.
+    func test_perform_loadData_vaultTimeout_nilWithBiometrics() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        await subject.perform(.loadData)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .onAppRestart)
+    }
+
+    /// Receiving `.sessionTimeoutValueChanged` when a user has not yet enabled biometrics enables
+    /// biometrics and sets the value.
+    ///
+    func test_perform_sessionTimeoutValueChanged_biometricsDisabled() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
+        subject.state.sessionTimeoutValue = .never
+        await subject.perform(.sessionTimeoutValueChanged(.fifteenMinutes))
+
+        XCTAssertNotNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertEqual(appSettingsStore.vaultTimeout(userId: appSettingsStore.localUserId), 15)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .fifteenMinutes)
+    }
+
+    /// Receiving `.sessionTimeoutValueChanged` updates the user's `vaultTimeout` app setting.
+    func test_perform_sessionTimeoutValueChanged_success() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        subject.state.biometricUnlockStatus = .available(.faceID, enabled: true, hasValidIntegrity: true)
+        subject.state.sessionTimeoutValue = .oneHour
+        await subject.perform(.sessionTimeoutValueChanged(.fifteenMinutes))
+
+        XCTAssertEqual(appSettingsStore.vaultTimeout(userId: appSettingsStore.localUserId), 15)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .fifteenMinutes)
+    }
+
+    /// Performing `.toggleUnlockWithBiometrics` with a `false` value disables biometric unlock and resets the
+    /// session timeout to `.never`
+    func test_perform_toggleUnlockWithBiometrics_off() async throws {
+        biometricsRepository.capturedUserAuthKey = "key"
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+        subject.state.sessionTimeoutValue = .fifteenMinutes
+        appSettingsStore.setVaultTimeout(minutes: 15, userId: appSettingsStore.localUserId)
+
+        await subject.perform(.toggleUnlockWithBiometrics(false))
+
+        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .never)
+    }
+
+    /// Performing `.toggleUnlockWithBiometrics` with a `true` value enables biometric unlock and defaults the
+    /// session timeout to `.onAppRestart`.
+    func test_perform_toggleUnlockWithBiometrics_on() async throws {
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true, hasValidIntegrity: true)
+        )
+
+        await subject.perform(.toggleUnlockWithBiometrics(true))
+
+        XCTAssertNotNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertEqual(subject.state.sessionTimeoutValue, .onAppRestart)
     }
 
     /// Receiving `.backupTapped` shows an alert for the backup information.

@@ -50,6 +50,18 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         switch effect {
         case .loadData:
             await loadData()
+        case let .sessionTimeoutValueChanged(timeoutValue):
+            guard case .available = state.biometricUnlockStatus else { return }
+
+            if case .available(_, false, _) = state.biometricUnlockStatus {
+                await setBiometricAuth(true)
+            }
+
+            state.sessionTimeoutValue = timeoutValue
+            services.appSettingsStore.setVaultTimeout(
+                minutes: timeoutValue.rawValue,
+                userId: services.appSettingsStore.localUserId
+            )
         case let .toggleUnlockWithBiometrics(isOn):
             await setBiometricAuth(isOn)
         }
@@ -127,10 +139,28 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
         state.currentLanguage = services.stateService.appLanguage
         state.appTheme = await services.stateService.getAppTheme()
         state.biometricUnlockStatus = await loadBiometricUnlockPreference()
+        state.sessionTimeoutValue = loadTimeoutValue(biometricsEnabled: state.biometricUnlockStatus.isEnabled)
         state.shouldShowSyncButton = await services.configService.getFeatureFlag(.enablePasswordManagerSync)
         if state.shouldShowSyncButton {
             state.shouldShowDefaultSaveOption = await services.authenticatorItemRepository.isPasswordManagerSyncActive()
             state.defaultSaveOption = services.appSettingsStore.defaultSaveOption
+        }
+    }
+
+    /// Load the Session Timeout Value.
+    ///
+    /// - Parameter biometricsEnabled: The current state of biometrics. Used to determine the default and
+    ///     if there should be a value.
+    /// - Returns: The SessionTimeoutValue to set into the state.
+    ///
+    private func loadTimeoutValue(biometricsEnabled: Bool) -> SessionTimeoutValue {
+        guard biometricsEnabled else { return .never }
+
+        let accountId = services.appSettingsStore.localUserId
+        if let timeout = services.appSettingsStore.vaultTimeout(userId: accountId) {
+            return SessionTimeoutValue(rawValue: timeout)
+        } else {
+            return .onAppRestart
         }
     }
 
@@ -146,6 +176,16 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Set
             if case .available(_, true, false) = state.biometricUnlockStatus {
                 try await services.biometricsRepository.configureBiometricIntegrity()
                 state.biometricUnlockStatus = try await services.biometricsRepository.getBiometricUnlockStatus()
+            }
+
+            if enabled {
+                state.sessionTimeoutValue = .onAppRestart
+                services.appSettingsStore.setVaultTimeout(minutes: state.sessionTimeoutValue.rawValue,
+                                                          userId: services.appSettingsStore.localUserId)
+            } else {
+                state.sessionTimeoutValue = .never
+                services.appSettingsStore.setVaultTimeout(minutes: state.sessionTimeoutValue.rawValue,
+                                                          userId: services.appSettingsStore.localUserId)
             }
         } catch {
             services.errorReporter.log(error: error)

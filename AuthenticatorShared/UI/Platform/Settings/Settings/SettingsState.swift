@@ -20,6 +20,9 @@ struct SettingsState: Equatable {
     /// The current default save option.
     var defaultSaveOption: DefaultSaveOption = .none
 
+    /// The current default save option.
+    var sessionTimeoutValue: SessionTimeoutValue = .never
+
     /// A flag to indicate if we should show the default save option menu.
     /// Defaults to false, which indicates we should not show the menu.
     var shouldShowDefaultSaveOption = false

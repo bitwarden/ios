@@ -142,3 +142,12 @@
 "SaveToBitwarden" = "Save to Bitwarden";
 "None" = "None";
 "UnableToSyncCodesFromTheBitwardenApp" = "Unable to sync codes from the Bitwarden app. Make sure both apps are up-to-date. You can still access your existing codes in the Bitwarden app.";
+"FifteenMinutes" = "15 minutes";
+"OneHour" = "1 hour";
+"OneMinute" = "1 minute";
+"FourHours" = "4 hours";
+"Immediately" = "Immediately";
+"VaultTimeout" = "Vault timeout";
+"ThirtyMinutes" = "30 minutes";
+"OnRestart" = "On app restart";
+"SessionTimeout" = "Session timeout";

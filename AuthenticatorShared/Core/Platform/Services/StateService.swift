@@ -17,7 +17,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The active user account id.
     ///
-    func getActiveAccountId() async throws -> String
+    func getActiveAccountId() async -> String
 
     /// Get the app theme.
     ///
@@ -209,7 +209,7 @@ actor DefaultStateService: StateService {
 
     // MARK: Methods
 
-    func getActiveAccountId() async throws -> String {
+    func getActiveAccountId() async -> String {
         appSettingsStore.localUserId
     }
 

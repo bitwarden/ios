@@ -41,8 +41,20 @@ struct SettingsView: View {
         switch store.state.biometricUnlockStatus {
         case let .available(type, enabled: enabled, _):
             SectionView(Localizations.security) {
-                VStack(spacing: 0) {
+                VStack(spacing: 8) {
                     biometricUnlockToggle(enabled: enabled, type: type)
+                    SettingsMenuField(
+                        title: Localizations.sessionTimeout,
+                        options: SessionTimeoutValue.allCases,
+                        hasDivider: false,
+                        accessibilityIdentifier: "VaultTimeoutChooser",
+                        selectionAccessibilityID: "SessionTimeoutStatusLabel",
+                        selection: store.bindingAsync(
+                            get: \.sessionTimeoutValue,
+                            perform: SettingsEffect.sessionTimeoutValueChanged
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             .padding(.bottom, 32)

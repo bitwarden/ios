@@ -96,6 +96,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func isBiometricAuthenticationEnabled(userId: String) -> Bool
 
+    /// The user's last active time within the app.
+    /// This value is set when the app is backgrounded.
+    ///
+    /// - Parameter userId: The user ID associated with the last active time within the app.
+    ///
+    func lastActiveTime(userId: String) -> Date?
+
     /// Sets a feature flag value in the app's settings store.
     ///
     /// This method updates or removes the value for a specified feature flag in the app's settings store.
@@ -163,6 +170,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setHasSyncedAccount(name: String)
 
+    /// Sets the last active time within the app.
+    ///
+    /// - Parameters:
+    ///   - date: The current time.
+    ///   - userId: The user ID associated with the last active time within the app.
+    ///
+    func setLastActiveTime(_ date: Date?, userId: String)
+
     /// Sets the user's secret encryption key.
     ///
     /// - Parameters:
@@ -178,11 +193,26 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID.
     ///
     func setServerConfig(_ config: ServerConfig?, userId: String)
+
+    /// Sets the user's session timeout, in minutes.
+    ///
+    /// - Parameters:
+    ///   - key: The session timeout, in minutes.
+    ///   - userId: The user ID associated with the session timeout.
+    ///
+    func setVaultTimeout(minutes: Int, userId: String)
+
+    /// Returns the session timeout in minutes.
+    ///
+    /// - Parameter userId: The user ID associated with the session timeout.
+    /// - Returns: The user's session timeout in minutes.
+    ///
+    func vaultTimeout(userId: String) -> Int?
 }
 
 // MARK: - DefaultAppSettingsStore
 
-/// A default `AppSetingsStore` which persists app settings in `UserDefaults`.
+/// A default `AppSettingsStore` which persists app settings in `UserDefaults`.
 ///
 class DefaultAppSettingsStore {
     // MARK: Properties
@@ -306,10 +336,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case disableWebIcons
         case hasSeenWelcomeTutorial
         case hasSyncedAccount(name: String)
+        case lastActiveTime(userId: String)
         case migrationVersion
         case preAuthServerConfig
         case secretKey(userId: String)
         case serverConfig(userId: String)
+        case vaultTimeout(userId: String)
 
         /// Returns the key used to store the data under for retrieving it later.
         var storageKey: String {
@@ -339,6 +371,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "hasSeenWelcomeTutorial"
             case let .hasSyncedAccount(name: name):
                 key = "hasSyncedAccount_\(name)"
+            case let .lastActiveTime(userId):
+                key = "lastActiveTime_\(userId)"
             case .migrationVersion:
                 key = "migrationVersion"
             case .preAuthServerConfig:
@@ -347,6 +381,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "secretKey_\(userId)"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
+            case let .vaultTimeout(userId):
+                key = "vaultTimeout_\(userId)"
             }
             return "bwaPreferencesStorage:\(key)"
         }
@@ -435,6 +471,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .biometricAuthEnabled(userId: userId))
     }
 
+    func lastActiveTime(userId: String) -> Date? {
+        fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
+    }
+
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
         store(value, for: .debugFeatureFlag(name: name))
     }
@@ -473,12 +513,24 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(true, for: .hasSyncedAccount(name: name.hexSHA256Hash))
     }
 
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        store(date?.timeIntervalSince1970, for: .lastActiveTime(userId: userId))
+    }
+
     func setSecretKey(_ key: String, userId: String) {
         store(key, for: .secretKey(userId: userId))
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
         store(config, for: .serverConfig(userId: userId))
+    }
+
+    func setVaultTimeout(minutes: Int, userId: String) {
+        store(minutes, for: .vaultTimeout(userId: userId))
+    }
+
+    func vaultTimeout(userId: String) -> Int? {
+        fetch(for: .vaultTimeout(userId: userId))
     }
 }
 

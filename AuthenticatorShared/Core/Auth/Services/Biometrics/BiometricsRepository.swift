@@ -31,7 +31,7 @@ protocol BiometricsRepository: AnyObject {
     func configureBiometricIntegrity() async throws
 
     /// Sets the biometric unlock preference for the active user.
-    ///   If permissions have not been requested, this request should trigger the system permisisons dialog.
+    ///   If permissions have not been requested, this request should trigger the system permissions dialog.
     ///
     /// - Parameter authKey: An optional `String` representing the user auth key. If nil, Biometric Unlock is disabled.
     ///
@@ -130,7 +130,7 @@ class DefaultBiometricsRepository: BiometricsRepository {
     }
 
     func getUserAuthKey() async throws -> String {
-        let id = try await stateService.getActiveAccountId()
+        let id = await stateService.getActiveAccountId()
         let key = KeychainItem.biometrics(userId: id)
 
         do {
@@ -176,7 +176,7 @@ extension DefaultBiometricsRepository {
     /// Attempts to delete the active user's AuthKey from the keychain.
     ///
     private func deleteUserAuthKey() async throws {
-        let id = try await stateService.getActiveAccountId()
+        let id = await stateService.getActiveAccountId()
         let key = KeychainItem.biometrics(userId: id)
         do {
             try await keychainRepository.deleteUserAuthKey(for: key)
@@ -204,7 +204,7 @@ extension DefaultBiometricsRepository {
     /// - Parameter value: The key to be stored.
     ///
     private func setUserBiometricAuthKey(value: String) async throws {
-        let id = try await stateService.getActiveAccountId()
+        let id = await stateService.getActiveAccountId()
         let key = KeychainItem.biometrics(userId: id)
 
         do {

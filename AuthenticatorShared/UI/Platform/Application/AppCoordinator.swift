@@ -72,6 +72,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
                     showTutorial()
                 }
             }
+        case .vaultTimeout:
+            showAuth(.vaultUnlock)
         }
     }
 
@@ -134,9 +136,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.start()
             coordinator.navigate(to: route)
             childCoordinator = coordinator
-            if rootNavigator.isPresenting {
-                rootNavigator.rootViewController?.dismiss(animated: true)
-            }
+        }
+        if let rootNavigator, rootNavigator.isPresenting {
+            rootNavigator.rootViewController?.dismiss(animated: true)
         }
     }
 

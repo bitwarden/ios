@@ -42,7 +42,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var serverConfig = [String: ServerConfig]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
-    var vaultTimeout = [String: Int?]()
+    var vaultTimeout = [String: Int]()
 
     var unsuccessfulUnlockAttempts = [String: Int]()
 
@@ -60,6 +60,10 @@ class MockAppSettingsStore: AppSettingsStore {
 
     func debugFeatureFlag(name: String) -> Bool? {
         featureFlags[name]
+    }
+
+    func lastActiveTime(userId: String) -> Date? {
+        lastActiveTime[userId]
     }
 
     func overrideDebugFeatureFlag(name: String, value: Bool?) {
@@ -87,12 +91,24 @@ class MockAppSettingsStore: AppSettingsStore {
         clearClipboardValues[userId] = clearClipboardValue
     }
 
+    func setLastActiveTime(_ date: Date?, userId: String) {
+        lastActiveTime[userId] = date
+    }
+
     func setSecretKey(_ key: String, userId: String) {
         secretKeys[userId] = key
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
         serverConfig[userId] = config
+    }
+
+    func setVaultTimeout(minutes: Int, userId: String) {
+        vaultTimeout[userId] = minutes
+    }
+
+    func vaultTimeout(userId: String) -> Int? {
+        vaultTimeout[userId]
     }
 }
 

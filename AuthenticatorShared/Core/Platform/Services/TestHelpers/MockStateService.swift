@@ -27,7 +27,7 @@ class MockStateService: StateService {
 
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
-    func getActiveAccountId() async throws -> String {
+    func getActiveAccountId() async -> String {
         "localtest"
     }
 

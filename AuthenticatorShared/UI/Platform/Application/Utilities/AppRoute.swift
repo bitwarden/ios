@@ -11,4 +11,7 @@ public enum AppRoute: Equatable {
 public enum AppEvent: Equatable {
     /// When the app has started.
     case didStart
+
+    /// When the user returns to the app and their vault timeout has passed.
+    case vaultTimeout
 }
