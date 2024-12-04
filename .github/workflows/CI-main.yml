@@ -123,3 +123,16 @@ jobs:
       upload_version_info: false
       compiler-flags: "DEBUG_MENU"
     secrets: inherit
+
+  build-simulator:
+    name: Build Simulator App
+    needs: resolve-values
+    uses: bitwarden/ios/.github/workflows/build.yml@main
+    with:
+      build-variant: Simulator
+      build-version: ${{ needs.resolve-values.outputs.version_name }}
+      build-number: ${{ needs.resolve-values.outputs.version_number }}
+      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+      distribute: false
+      upload_version_info: false
+    secrets: inherit

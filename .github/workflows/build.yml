@@ -11,6 +11,14 @@ on:
         options:
           - Beta
           - Production
+      build-mode:
+        description: "Build Mode"
+        required: true
+        default: "Device"
+        type: choice
+        options:
+          - Device
+          - Simulator
       build-version:
         description: "Version Name Override - e.g. '2024.8.1'"
         type: string
@@ -39,6 +47,9 @@ on:
       build-variant:
         description: "Build Variant"
         type: string
+      build-mode:
+        description: "Build Mode"
+        type: string
       build-version:
         description: "Version Name Override - e.g. '2024.8.1'"
         type: string
@@ -66,7 +77,9 @@ on:
         type: boolean
 env:
   _BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
+  _BUILD_MODE: ${{ inputs.build-mode || 'Device' }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
+  _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
 
 jobs:
   build:
@@ -134,12 +147,12 @@ jobs:
 
       - name: Read default Xcode version
         run: |
-          echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+          echo "_DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: ${{ env._XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
+          xcode-version: ${{ env._XCODE_VERSION || env._DEFAULT_XCODE_VERSION }}
 
       - name: Cache Mint packages
         id: mint-cache
@@ -151,18 +164,20 @@ jobs:
             ${{ runner.os }}-mint-
 
       - name: Log in to Azure
+        if: env._BUILD_MODE == 'Device'
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Retrieve secrets
+        if: env._BUILD_MODE == 'Device'
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
           secrets: "appcenter-ios-token"
 
       - name: Retrieve production provisioning profiles
-        if: env._BUILD_VARIANT == 'Production'
+        if: env._BUILD_VARIANT == 'Production' && env._BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -185,7 +200,7 @@ jobs:
           done
 
       - name: Retrieve beta provisioning profiles
-        if: env._BUILD_VARIANT == 'Beta'
+        if: env._BUILD_VARIANT == 'Beta' && env._BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: profiles
@@ -208,7 +223,7 @@ jobs:
           done
 
       - name: Retrieve production Google Services secret
-        if: env._BUILD_VARIANT == 'Production'
+        if: env._BUILD_VARIANT == 'Production' && env._BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -220,7 +235,7 @@ jobs:
             --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve watch production Google Services secret
-        if: env._BUILD_VARIANT == 'Production'
+        if: env._BUILD_VARIANT == 'Production' && env._BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -233,7 +248,7 @@ jobs:
           plutil -replace BUNDLE_ID -string com.8bit.bitwarden.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve beta Google Services secret
-        if: env._BUILD_VARIANT == 'Beta'
+        if: env._BUILD_VARIANT == 'Beta' && env._BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -245,7 +260,7 @@ jobs:
             --file Bitwarden/Application/Support/$TARGET_FILE --output none
 
       - name: Retrieve watch beta Google Services secret
-        if: env._BUILD_VARIANT == 'Beta'
+        if: env._BUILD_VARIANT == 'Beta' && env._BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -258,12 +273,14 @@ jobs:
           plutil -replace BUNDLE_ID -string com.8bit.bitwarden.beta.watchkitapp BitwardenWatchApp/$TARGET_FILE
 
       - name: Retrieve certificates
+        if: env._BUILD_MODE == 'Device'
         run: |
           mkdir -p $HOME/certificates
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
             jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
       - name: Download Fastlane credentials
+        if: env._BUILD_MODE == 'Device'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -274,6 +291,7 @@ jobs:
             --file $HOME/secrets/$FILE --output none
 
       - name: Configure Keychain Access
+        if: env._BUILD_MODE == 'Device'
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
         run: |
@@ -287,6 +305,7 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
       - name: Configure provisioning profiles
+        if: env._BUILD_MODE == 'Device'
         run: |
           ./Scripts/configure_provisioning_profiles.sh ${{ env._BUILD_VARIANT }}
 
@@ -301,18 +320,28 @@ jobs:
           echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
 
       - name: Update APNS entitlements
+        if: env._BUILD_MODE == 'Device'
         run: |
           plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
 
       - name: Configure Ruby
+        if: env._BUILD_MODE == 'Device'
         uses: ruby/setup-ruby@a2bbe5b1b236842c1cb7dd11e8e3b51e0a616acc # v1.202.0
         with:
           bundler-cache: true
 
-      - name: Install Fastlane, Mint
+      - name: Update homebrew
         run: |
           brew update
-          brew install fastlane mint
+
+      - name: Install Fastlane
+        if: env._BUILD_MODE == 'Device'
+        run: |
+          brew install fastlane
+
+      - name: Install Mint
+        run: |
+          brew install mint
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -321,7 +350,7 @@ jobs:
 
       - name: Select variant
         run: |
-          ./Scripts/select_variant.sh ${{ env._BUILD_VARIANT }} "${{ inputs.compiler-flags }}"
+          ./Scripts/select_variant.sh ${{ env._BUILD_VARIANT }} "${{ env._COMPILER_FLAGS }}"
 
       - name: Update build version and number
         run: |
@@ -330,26 +359,39 @@ jobs:
 
       - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ inputs.compiler-flags }}"
+          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ env._COMPILER_FLAGS }}"
 
       - name: Build iOS app
         run: |
-          ./Scripts/build.sh
+          ./Scripts/build.sh ${{ env._BUILD_MODE }}
 
-      - name: Prepare IPA & dSYM files for upload to GitHub
+      - name: Prepare artifacts for upload to GitHub
         run: |
-          mkdir -p export/dSYMs
-          cp build/Bitwarden/Bitwarden.ipa export
-          cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+          mkdir -p export
+          case "$_BUILD_MODE" in
+            "Simulator")
+              cp -r build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
+              ;;
+            "Device")
+              mkdir -p export/dSYMs
+              cp build/Bitwarden/Bitwarden.ipa export
+              cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
+              ;;
+            *)
+              echo "Error: Invalid BUILD_MODE '$_BUILD_MODE'"
+              exit 1
+              ;;
+          esac
 
-      - name: Upload IPA & dSYM files
+      - name: Upload artifacts to GitHub
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env._BUILD_VARIANT }} ${{ env._XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
+          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env._BUILD_VARIANT }} ${{ env._XCODE_VERSION || env.DEFAULT_XCODE_VERSION }} ${{ env._BUILD_MODE }} ${{ env._COMPILER_FLAGS }}
           path: export
           if-no-files-found: error
 
       - name: Set up private auth key
+        if: env._BUILD_MODE == 'Device'
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
@@ -357,6 +399,7 @@ jobs:
           EOF
 
       - name: Validate app with App Store Connect
+        if: env._BUILD_MODE == 'Device'
         run: |
           xcrun altool --validate-app \
             --type ios \
@@ -365,7 +408,7 @@ jobs:
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight with Fastlane
-        if: ${{ inputs.distribute }}
+        if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
