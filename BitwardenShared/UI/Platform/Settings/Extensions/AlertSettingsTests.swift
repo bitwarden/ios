@@ -222,6 +222,28 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID))
     }
 
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `opticID`.
+    func test_unlockWithPINAlert_opticID() {
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: .opticID) { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.opticID))
+    }
+
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `biometrics`.
+    func test_unlockWithPINAlert_biometrics() {
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: .biometrics) { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.biometrics))
+    }
+
     /// `verificationCodePrompt(completion:)` constructs an `Alert` used to ask the user to entered
     /// the verification code that was sent to their email.
     ///
