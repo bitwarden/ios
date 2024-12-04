@@ -104,7 +104,6 @@ public class Alert {
         alertTextFields.forEach { alertTextField in
             alert.addTextField { textField in
                 textField.placeholder = alertTextField.placeholder
-                textField.tintColor = Asset.Colors.tintPrimary.color
                 textField.keyboardType = alertTextField.keyboardType
                 textField.isSecureTextEntry = alertTextField.isSecureTextEntry
                 textField.autocapitalizationType = alertTextField.autocapitalizationType
@@ -131,7 +130,6 @@ public class Alert {
                 alert.preferredAction = action
             }
         }
-        alert.view.tintColor = Asset.Colors.tintPrimary.color
 
         return alert
     }
