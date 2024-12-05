@@ -129,7 +129,8 @@ jobs:
     needs: resolve-values
     uses: bitwarden/ios/.github/workflows/build.yml@main
     with:
-      build-variant: Simulator
+      build-variant: Production
+      build-mode: Simulator
       build-version: ${{ needs.resolve-values.outputs.version_name }}
       build-number: ${{ needs.resolve-values.outputs.version_number }}
       xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
