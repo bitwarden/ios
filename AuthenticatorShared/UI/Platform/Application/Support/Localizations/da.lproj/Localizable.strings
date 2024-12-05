@@ -109,7 +109,7 @@
 "Export" = "Eksport";
 "Key" = "Nøgle";
 "KeyReadError" = "Nøgle kan ikke læses.";
-"CannotAddKey" = "Kan ikke tilføje nøgle?";
+"CannotAddAuthenticatorKey" = "Kan ikke tilføje godkendelsesnøgle?";
 "Import" = "Import";
 "Steam" = "Steam";
 "OtpType" = "OTP-type";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Standard gem-valg";
 "SaveToBitwarden" = "Gem i Bitwarden";
 "None" = "Intet";
+"UnableToSyncCodesFromTheBitwardenApp" = "Kan ikke synke koder fra Bitwarden-appen. Sørg for, at begge apps er opdaterede. Eksisterende koder kan stadig tilgås i Bitwarden-appen.";

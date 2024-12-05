@@ -109,7 +109,7 @@
 "Export" = "Експорт";
 "Key" = "Ключ";
 "KeyReadError" = "Неможливо прочитати ключ.";
-"CannotAddKey" = "Не вдається додати ключ?";
+"CannotAddAuthenticatorKey" = "Не вдається додати ключ автентифікації?";
 "Import" = "Імпорт";
 "Steam" = "Steam";
 "OtpType" = "Тип OTP";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Типовий параметр збереження";
 "SaveToBitwarden" = "Зберегти в Bitwarden";
 "None" = "Немає";
+"UnableToSyncCodesFromTheBitwardenApp" = "Неможливо синхронізувати коди з програмою Bitwarden. Переконайтеся, що у вас найновіші версії обох програм. Ви все одно можете отримати доступ до наявних кодів у програмі Bitwarden.";

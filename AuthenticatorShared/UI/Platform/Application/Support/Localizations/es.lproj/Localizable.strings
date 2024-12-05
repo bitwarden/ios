@@ -109,7 +109,7 @@
 "Export" = "Exportar";
 "Key" = "Clave";
 "KeyReadError" = "No se puede leer la clave.";
-"CannotAddKey" = "¿No se puede añadir la clave?";
+"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "Import" = "Importar";
 "Steam" = "Vapor";
 "OtpType" = "Tipo OTP";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Ajuste de guardado por defecto";
 "SaveToBitwarden" = "Guardar en Bitwarden";
 "None" = "Ninguno";
+"UnableToSyncCodesFromTheBitwardenApp" = "Unable to sync codes from the Bitwarden app. Make sure both apps are up-to-date. You can still access your existing codes in the Bitwarden app.";

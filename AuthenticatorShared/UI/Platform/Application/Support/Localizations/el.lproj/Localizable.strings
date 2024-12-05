@@ -109,7 +109,7 @@
 "Export" = "Εξαγωγή";
 "Key" = "Κλειδί";
 "KeyReadError" = "Δεν είναι δυνατή η ανάγνωση του κλειδιού.";
-"CannotAddKey" = "Δεν μπορείτε να προσθέσετε το κλειδί;";
+"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "Import" = "Εισαγωγή";
 "Steam" = "Steam";
 "OtpType" = "Τύπος OTP";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Προεπιλεγμένη επιλογή αποθήκευσης";
 "SaveToBitwarden" = "Αποθήκευση στο Bitwarden";
 "None" = "Κανένα";
+"UnableToSyncCodesFromTheBitwardenApp" = "Δεν είναι δυνατός ο συγχρονισμός κωδικών από το Bitwarden. Βεβαιωθείτε ότι έχουν ενημερωθεί και οι δύο εφαρμογές. Μπορείτε ακόμα να αποκτήσετε πρόσβαση στους υπάρχοντες κωδικούς σας στο Bitwarden.";

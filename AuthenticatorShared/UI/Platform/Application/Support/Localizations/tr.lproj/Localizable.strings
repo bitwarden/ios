@@ -109,7 +109,7 @@
 "Export" = "Dışa aktar";
 "Key" = "Anahtar";
 "KeyReadError" = "Anahtar okunamıyor.";
-"CannotAddKey" = "Anahtar eklenemiyor mu?";
+"CannotAddAuthenticatorKey" = "Doğrulama anahtarını ekleyemediniz mi?";
 "Import" = "İçe aktar";
 "Steam" = "Steam";
 "OtpType" = "OTP Türü";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Varsayılan kaydetme seçeneği";
 "SaveToBitwarden" = "Bitwarden'a Kaydet";
 "None" = "Yok";
+"UnableToSyncCodesFromTheBitwardenApp" = "Bitwarden uygulamasından kodlar senkronize edilemiyor. Her iki uygulamanın da güncel olduğundan emin olun. Bitwarden uygulamasında mevcut kodlarınıza hala erişebilirsiniz.";

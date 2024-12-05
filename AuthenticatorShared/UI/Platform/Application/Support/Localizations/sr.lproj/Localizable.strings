@@ -109,7 +109,7 @@
 "Export" = "Извези";
 "Key" = "Кључ";
 "KeyReadError" = "Није могуће прочитати кључ.";
-"CannotAddKey" = "Не може да се дода кључ?";
+"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "Import" = "Увоз";
 "Steam" = "Steam";
 "OtpType" = "Тип ОТП";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Подразумевана опција чувања";
 "SaveToBitwarden" = "Сачувај у Bitwarden";
 "None" = "Ниједан";
+"UnableToSyncCodesFromTheBitwardenApp" = "Није могуће синхронизовати кодове из апликације Bitwarden. Уверите се да су обе апликације ажуриране. И даље можете да приступите својим постојећим кодовима у апликацији Bitwarden.";

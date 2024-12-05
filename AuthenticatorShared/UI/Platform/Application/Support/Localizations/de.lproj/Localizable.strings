@@ -109,7 +109,7 @@
 "Export" = "Export";
 "Key" = "Schlüssel";
 "KeyReadError" = "Kann den Schlüssel nicht lesen.";
-"CannotAddKey" = "Kannst du den Schlüssel nicht hinzufügen?";
+"CannotAddAuthenticatorKey" = "Authentifizierungsschlüssel lässt sich nicht hinzufügen?";
 "Import" = "Import";
 "Steam" = "Steam";
 "OtpType" = "OTP-Typ";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Standard-Speicheroption";
 "SaveToBitwarden" = "In Bitwarden speichern";
 "None" = "Keine";
+"UnableToSyncCodesFromTheBitwardenApp" = "Codes aus der Bitwarden-App konnten nicht synchronisiert werden. Stelle sicher, dass beide Apps auf dem neusten Stand sind. Du kannst weiterhin auf deine existierenden Codes in der Bitwarden-App zugreifen.";

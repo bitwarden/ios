@@ -109,7 +109,7 @@
 "Export" = "Exporta";
 "Key" = "Clau";
 "KeyReadError" = "No es pot llegir la clau.";
-"CannotAddKey" = "No es pot afegir la clau?";
+"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "Import" = "Importa";
 "Steam" = "Steam";
 "OtpType" = "Tipus OTP";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Default save option";
 "SaveToBitwarden" = "Save to Bitwarden";
 "None" = "None";
+"UnableToSyncCodesFromTheBitwardenApp" = "Unable to sync codes from the Bitwarden app. Make sure both apps are up-to-date. You can still access your existing codes in the Bitwarden app.";

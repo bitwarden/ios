@@ -109,7 +109,7 @@
 "Export" = "Xuất dữ liệu";
 "Key" = "Khóa";
 "KeyReadError" = "Không thể đọc khoá.";
-"CannotAddKey" = "Không thể thêm khoá?";
+"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "Import" = "Nhập dữ liệu";
 "Steam" = "Steam";
 "OtpType" = "Loại OTP";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Default save option";
 "SaveToBitwarden" = "Save to Bitwarden";
 "None" = "None";
+"UnableToSyncCodesFromTheBitwardenApp" = "Unable to sync codes from the Bitwarden app. Make sure both apps are up-to-date. You can still access your existing codes in the Bitwarden app.";

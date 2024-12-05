@@ -109,7 +109,7 @@
 "Export" = "エクスポート";
 "Key" = "キー";
 "KeyReadError" = "キーが読み込めません。";
-"CannotAddKey" = "キーを追加できませんか？";
+"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "Import" = "インポート";
 "Steam" = "Steam";
 "OtpType" = "OTPの種類";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Default save option";
 "SaveToBitwarden" = "Save to Bitwarden";
 "None" = "None";
+"UnableToSyncCodesFromTheBitwardenApp" = "Unable to sync codes from the Bitwarden app. Make sure both apps are up-to-date. You can still access your existing codes in the Bitwarden app.";

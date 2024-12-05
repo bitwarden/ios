@@ -109,7 +109,7 @@
 "Export" = "Exportovat";
 "Key" = "Klíč";
 "KeyReadError" = "Nelze přečíst klíč.";
-"CannotAddKey" = "Nelze přidat klíč?";
+"CannotAddAuthenticatorKey" = "Nelze přidat ověřovací klíč?";
 "Import" = "Importovat";
 "Steam" = "Steam";
 "OtpType" = "Typ OTP";
@@ -141,3 +141,4 @@
 "DefaultSaveOption" = "Výchozí volby ukládání";
 "SaveToBitwarden" = "Uložit do Bitwardenu";
 "None" = "Žádné";
+"UnableToSyncCodesFromTheBitwardenApp" = "Nelze synchronizovat kódy z aplikace Bitwarden. Zkontrolujte, zda jsou obě aplikace aktuální. Ke stávajícím kódům máte stále přístup v aplikaci Bitwarden.";
