@@ -108,7 +108,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             username: fido2CredentialNewView.userName
         )
 
-        subject.receive(.addTapped(fromToolbar: true))
+        subject.receive(.addTapped(fromFAB: true))
 
         XCTAssertEqual(
             coordinator.routes.last,
@@ -130,7 +130,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
 
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped(fromFAB: false))
 
         waitFor(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
 
@@ -162,7 +162,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: false))
 
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped(fromFAB: false))
 
         waitFor(fido2UserInterfaceHelper.pickedCredentialForCreationMocker.called)
 
@@ -194,7 +194,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         fido2UserInterfaceHelper.checkUserResult = .failure(BitwardenTestError.example)
 
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped(fromFAB: false))
 
         waitFor(!errorReporter.errors.isEmpty)
 
@@ -216,7 +216,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         fido2UserInterfaceHelper.checkUserResult = .failure(UserVerificationError.cancelled)
 
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped(fromFAB: false))
 
         waitFor(fido2UserInterfaceHelper.checkUserCalled)
 
@@ -231,7 +231,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         let fido2CredentialNewView = Fido2CredentialNewView.fixture(userName: "username", rpName: "rpName")
         fido2UserInterfaceHelper.fido2CredentialNewView = fido2CredentialNewView
 
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped(fromFAB: false))
 
         waitFor(!coordinator.alertShown.isEmpty)
 
@@ -253,7 +253,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             requireVerification: .required
         )
 
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped(fromFAB: false))
 
         waitFor(!coordinator.alertShown.isEmpty)
 
