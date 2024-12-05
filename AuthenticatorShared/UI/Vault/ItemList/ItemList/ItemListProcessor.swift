@@ -317,7 +317,7 @@ final class ItemListProcessor: StateProcessor<ItemListState, ItemListAction, Ite
                         showToast = true
                     }
                     let itemList = try await services.authenticatorItemRepository.refreshTotpCodes(on: section.items)
-                    let sortedList = itemList.sorted { $0.name < $1.name }
+                    let sortedList = itemList.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
                     return ItemListSection(id: section.id, items: sortedList, name: section.name)
                 }
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: sectionList.flatMap(\.items))
