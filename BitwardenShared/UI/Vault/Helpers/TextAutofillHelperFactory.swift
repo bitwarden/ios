@@ -51,16 +51,24 @@ struct DefaultTextAutofillHelperFactory: TextAutofillHelperFactory {
     // MARK: Methods
 
     func create() -> TextAutofillHelper {
-        if #available(iOS 18.0, *) {
-            DefaultTextAutofillHelper(
-                authRepository: authRepository,
+        guard #available(iOS 18.0, *) else {
+            return NoOpTextAutofillHelper()
+        }
+
+        let userVerificationHelper = userVerificationHelperFactory.create()
+        return TextAutofillHelperRepromptWrapper(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            textAutofillHelper: DefaultTextAutofillHelper(
                 errorReporter: errorReporter,
                 eventService: eventService,
-                userVerificationHelper: userVerificationHelperFactory.create(),
+                textAutofillOptionsHelperFactory: DefaultTextAutofillOptionsHelperFactory(
+                    errorReporter: errorReporter,
+                    vaultRepository: vaultRepository
+                ),
                 vaultRepository: vaultRepository
-            )
-        } else {
-            NoOpTextAutofillHelper()
-        }
+            ),
+            userVerificationHelper: userVerificationHelper
+        )
     }
 }

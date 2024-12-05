@@ -8,8 +8,7 @@ protocol TextAutofillHelper: AnyObject {
     /// Handles autofilling text to insert from a cipher by presenting options for the user
     /// to choose which field they want to use for autofilling text.
     /// - Parameter cipherView: The cipher to present options and get text to autofill.
-    @MainActor
-    func handleCipherForAutofill(cipherView: CipherView) async
+    func handleCipherForAutofill(cipherView: CipherView) async throws
 
     /// Sets the delegate to used with this helper.
     func setTextAutofillHelperDelegate(_ delegate: TextAutofillHelperDelegate)
@@ -49,12 +48,9 @@ extension TextAutofillHelperDelegate {
 // MARK: - DefaultTextAutofillHelper
 
 /// Default implementation of `TextAutofillHelper`.
-@available(iOSApplicationExtension 18.0, *)
+@available(iOS 18.0, *)
 class DefaultTextAutofillHelper: TextAutofillHelper {
     // MARK: Properties
-
-    /// The repository used by the application to manage auth data for the UI layer.
-    private let authRepository: AuthRepository
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
@@ -65,8 +61,8 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
     /// The delegate to used with this helper.
     private weak var textAutofillHelperDelegate: TextAutofillHelperDelegate?
 
-    /// Helper to execute user verifications
-    private var userVerificationHelper: UserVerificationHelper
+    /// The factory to create `TextAutofillOptionsHelper`.
+    private let textAutofillOptionsHelperFactory: TextAutofillOptionsHelperFactory
 
     /// The repository used by the application to manage vault data for the UI layer.
     private let vaultRepository: VaultRepository
@@ -76,48 +72,62 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
     /// Initialize an `DefaultTextAutofillHelper`.
     ///
     /// - Parameters:
-    ///   - authRepository: A delegate used to communicate with the autofill app extension.
     ///   - errorReporter: The coordinator that handles navigation.
     ///   - eventService: The services used by this processor.
-    ///   - userVerificationHelper: Helper to execute user verifications.
+    ///   - textAutofillOptionsHelperFactory: The factory to create `TextAutofillOptionsHelper`.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///
     init(
-        authRepository: AuthRepository,
         errorReporter: ErrorReporter,
         eventService: EventService,
-        userVerificationHelper: UserVerificationHelper,
+        textAutofillOptionsHelperFactory: TextAutofillOptionsHelperFactory,
         vaultRepository: VaultRepository
     ) {
-        self.authRepository = authRepository
         self.errorReporter = errorReporter
         self.eventService = eventService
-        self.userVerificationHelper = userVerificationHelper
+        self.textAutofillOptionsHelperFactory = textAutofillOptionsHelperFactory
         self.vaultRepository = vaultRepository
-        self.userVerificationHelper.userVerificationDelegate = self
     }
 
     // MARK: Methods
 
-    func handleCipherForAutofill(
-        cipherView: CipherView
-    ) async {
-        do {
-            if cipherView.reprompt == .password,
-               try await authRepository.hasMasterPassword(),
-               try await userVerificationHelper.verifyMasterPassword() != .verified {
-                return
-            }
+    func handleCipherForAutofill(cipherView: CipherView) async throws {
+        let options = await textAutofillOptionsHelperFactory
+            .create(cipherView: cipherView)
+            .getTextAutofillOptions(cipherView: cipherView)
 
-            try await showOptionsForAutofill(cipherView: cipherView)
-        } catch UserVerificationError.cancelled {
-            // No-op
-        } catch {
-            errorReporter.log(error: error)
-            textAutofillHelperDelegate?.showAlert(
-                .defaultAlert(title: Localizations.anErrorHasOccurred)
-            )
+        var alertActions = options.map { option in
+            AlertAction(
+                title: option.localizedOption,
+                style: .default
+            ) { [weak self] _, _ in
+                guard let self else { return }
+                await completeTextAutofill(
+                    localizedOption: option.localizedOption,
+                    textToInsert: option.textToInsert
+                )
+            }
         }
+        if let customFieldAlertAction = getCustomFieldAlertActionIfNeeded(cipherView: cipherView) {
+            alertActions.append(customFieldAlertAction)
+        }
+
+        guard !alertActions.isEmpty else {
+            await textAutofillHelperDelegate?.showAlert(.defaultAlert(
+                title: cipherView.name,
+                message: Localizations.nothingAvailableToAutofill
+            ))
+            return
+        }
+
+        await textAutofillHelperDelegate?.showAlert(
+            Alert(
+                title: Localizations.autofill,
+                message: nil,
+                preferredStyle: .actionSheet,
+                alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
+            )
+        )
     }
 
     /// Sets the delegate to used with this helper.
@@ -133,7 +143,7 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
     ///   - textToInsert: The value to be used to complete the request.
     private func completeTextAutofill(localizedOption: String, textToInsert: String) async {
         do {
-            guard localizedOption != Localizations.totp else {
+            guard localizedOption != Localizations.verificationCode else {
                 let key = TOTPKeyModel(authenticatorKey: textToInsert)
                 if let codeModel = try await vaultRepository.refreshTOTPCode(for: key).codeModel {
                     await textAutofillHelperDelegate?.completeTextRequest(text: codeModel.code)
@@ -142,148 +152,34 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
             }
             await textAutofillHelperDelegate?.completeTextRequest(text: textToInsert)
         } catch {
-            await textAutofillHelperDelegate?.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            await textAutofillHelperDelegate?.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.failedToGenerateVerificationCode
+                )
+            )
             errorReporter.log(error: error)
         }
     }
 
-    /// Gets the autofill options for a card cipher for the user to choose from.
-    /// - Parameter cipherView: The cipher the user selected.
-    /// - Returns: The localized option title and the value to insert if that's selected.
-    private func getAutofillOptionsForCard(
-        cipherView: CipherView
-    ) async throws -> [(
-        localizedOption: String,
-        textToInsert: String
-    )] {
-        guard let card = cipherView.card else {
-            return []
+    /// Gets the custom field alert action if requirements are met.
+    /// - Parameter cipherView: The cipher to get the custom fields.
+    /// - Returns: The alert action if requirements are met.
+    private func getCustomFieldAlertActionIfNeeded(cipherView: CipherView) -> AlertAction? {
+        let availableCustomFields = cipherView.customFields.filter { field in
+            field.type != .hidden || cipherView.viewPassword
         }
-        var options: [(localizedOption: String, textToInsert: String)] = []
-        if let name = card.cardholderName, !name.isEmpty {
-            options.append((Localizations.cardholderName, name))
-        }
-        if let number = card.number, !number.isEmpty, cipherView.viewPassword {
-            options.append((Localizations.number, number))
-        }
-        if let code = card.code, !code.isEmpty, cipherView.viewPassword {
-            options.append((Localizations.securityCode, code))
-        }
-        return options
-    }
-
-    /// Gets the autofill options for an identity cipher for the user to choose from.
-    /// - Parameter cipherView: The cipher the user selected.
-    /// - Returns: The localized option title and the value to insert if that's selected.
-    private func getAutofillOptionsForIdentity(
-        cipherView: CipherView
-    ) async throws -> [(
-        localizedOption: String,
-        textToInsert: String
-    )] {
-        guard let identity = cipherView.identity else {
-            return []
-        }
-        var options: [(localizedOption: String, textToInsert: String)] = []
-        if let firstName = identity.firstName, !firstName.isEmpty,
-           let lastName = identity.lastName, !lastName.isEmpty {
-            options.append((Localizations.fullName, "\(firstName) \(lastName)"))
-        }
-        if let ssn = identity.ssn, !ssn.isEmpty {
-            options.append((Localizations.ssn, ssn))
-        }
-        if let passport = identity.passportNumber, !passport.isEmpty {
-            options.append((Localizations.passportNumber, passport))
-        }
-        if let email = identity.email, !email.isEmpty {
-            options.append((Localizations.email, email))
-        }
-        if let phone = identity.phone, !phone.isEmpty {
-            options.append((Localizations.phone, phone))
-        }
-        return options
-    }
-
-    /// Gets the autofill options for a login cipher for the user to choose from.
-    /// - Parameter cipherView: The cipher the user selected.
-    /// - Returns: The localized option title and the value to insert if that's selected.
-    private func getAutofillOptionsForLogin(
-        cipherView: CipherView
-    ) async throws -> [(
-        localizedOption: String,
-        textToInsert: String
-    )] {
-        guard let login = cipherView.login else {
-            return []
-        }
-        var options: [(localizedOption: String, textToInsert: String)] = []
-        if let username = login.username, !username.isEmpty {
-            options.append((Localizations.username, username))
-        }
-        if let password = login.password, !password.isEmpty, cipherView.viewPassword {
-            options.append((Localizations.password, password))
+        guard !availableCustomFields.isEmpty else {
+            return nil
         }
 
-        do {
-            let disableAutoTotpCopy = try await vaultRepository.getDisableAutoTotpCopy()
-            let accountHasPremium = try await vaultRepository.doesActiveAccountHavePremium()
-
-            if !disableAutoTotpCopy, let totp = cipherView.login?.totp,
-               cipherView.organizationUseTotp || accountHasPremium {
-                // We can't calculate the TOTP code here because the user could take a while until they
-                // choose the option and the code could expire by then so it needs to be calculated
-                // after the user chooses this option.
-                options.append((Localizations.totp, totp))
-            }
-        } catch {
-            errorReporter.log(error: error)
+        return AlertAction(
+            title: Localizations.customFields,
+            style: .default
+        ) { [weak self] _, _ in
+            guard let self else { return }
+            await showCustomFieldsOptionsForAutofill(availableCustomFields)
         }
-
-        return options
-    }
-
-    /// Gets the autofill options for a secure note cipher for the user to choose from.
-    /// - Parameter cipherView: The cipher the user selected.
-    /// - Returns: The localized option title and the value to insert if that's selected.
-    private func getAutofillOptionsForSecureNote(
-        cipherView: CipherView
-    ) async throws -> [(
-        localizedOption: String,
-        textToInsert: String
-    )] {
-        guard cipherView.secureNote != nil else {
-            return []
-        }
-        var options: [(localizedOption: String, textToInsert: String)] = []
-        if let notes = cipherView.notes, !notes.isEmpty {
-            options.append((Localizations.notes, notes))
-        }
-        return options
-    }
-
-    /// Gets the autofill options for an SSH key cipher for the user to choose from.
-    /// - Parameter cipherView: The cipher the user selected.
-    /// - Returns: The localized option title and the value to insert if that's selected.
-    private func getAutofillOptionsForSSHKey(
-        cipherView: CipherView
-    ) async throws -> [(
-        localizedOption: String,
-        textToInsert: String
-    )] {
-        guard let sshKey = cipherView.sshKey else {
-            return []
-        }
-        var options: [(localizedOption: String, textToInsert: String)] = []
-        if !sshKey.privateKey.isEmpty, cipherView.viewPassword {
-            options.append((Localizations.privateKey, sshKey.privateKey))
-        }
-        if !sshKey.publicKey.isEmpty {
-            options.append((Localizations.publicKey, sshKey.publicKey))
-        }
-        if !sshKey.fingerprint.isEmpty {
-            options.append((Localizations.fingerprint, sshKey.fingerprint))
-        }
-        return options
     }
 
     /// Shows the custom fields for the user to choose from to autofill.
@@ -315,78 +211,6 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
             )
         )
     }
-
-    /// Shows the options for the cipher for the user to select the field to autofill.
-    /// - Parameter cipherView: The cipher selected by the user.
-    private func showOptionsForAutofill(cipherView: CipherView) async throws { // swiftlint:disable:this function_body_length line_length
-        let options = switch cipherView.type {
-        case .card:
-            try await getAutofillOptionsForCard(cipherView: cipherView)
-        case .identity:
-            try await getAutofillOptionsForIdentity(cipherView: cipherView)
-        case .login:
-            try await getAutofillOptionsForLogin(cipherView: cipherView)
-        case .secureNote:
-            try await getAutofillOptionsForSecureNote(cipherView: cipherView)
-        case .sshKey:
-            try await getAutofillOptionsForSSHKey(cipherView: cipherView)
-        }
-
-        var alertActions = options.map { option in
-            AlertAction(
-                title: option.localizedOption,
-                style: .default
-            ) { [weak self] _, _ in
-                guard let self else { return }
-                await completeTextAutofill(
-                    localizedOption: option.localizedOption,
-                    textToInsert: option.textToInsert
-                )
-            }
-        }
-        let availableCustomFields = cipherView.customFields.filter { field in
-            field.type != .hidden || cipherView.viewPassword
-        }
-        if !availableCustomFields.isEmpty {
-            alertActions.append(AlertAction(
-                title: Localizations.customFields,
-                style: .default
-            ) { [weak self] _, _ in
-                guard let self else { return }
-                await showCustomFieldsOptionsForAutofill(availableCustomFields)
-            })
-        }
-
-        guard !alertActions.isEmpty else {
-            await textAutofillHelperDelegate?.showAlert(.defaultAlert(
-                title: cipherView.name,
-                message: Localizations.nothingAvailableToAutofill
-            ))
-            return
-        }
-
-        await textAutofillHelperDelegate?.showAlert(
-            Alert(
-                title: Localizations.autofill,
-                message: nil,
-                preferredStyle: .actionSheet,
-                alertActions: alertActions + [AlertAction(title: Localizations.cancel, style: .cancel)]
-            )
-        )
-    }
-}
-
-// MARK: - UserVerificationDelegate
-
-@available(iOSApplicationExtension 18.0, *)
-extension DefaultTextAutofillHelper: UserVerificationDelegate {
-    func showAlert(_ alert: Alert) {
-        textAutofillHelperDelegate?.showAlert(alert)
-    }
-
-    func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
-        textAutofillHelperDelegate?.showAlert(alert, onDismissed: onDismissed)
-    }
 }
 
 // MARK: NoOpTextAutofillHelper
@@ -401,4 +225,4 @@ class NoOpTextAutofillHelper: TextAutofillHelper {
     func setTextAutofillHelperDelegate(_ delegate: TextAutofillHelperDelegate) {
         // No-op
     }
-} // swiftlint:disable:this file_length
+}

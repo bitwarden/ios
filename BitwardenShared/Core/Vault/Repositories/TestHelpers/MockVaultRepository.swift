@@ -51,6 +51,8 @@ class MockVaultRepository: VaultRepository {
 
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
 
+    var getTOTPKeyIfAllowedToCopyResult: Result<String?, Error> = .success(nil)
+
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
 
@@ -83,7 +85,7 @@ class MockVaultRepository: VaultRepository {
     var searchCipherAutofillSubject = CurrentValueSubject<[BitwardenShared.VaultListSection], Error>([])
 
     var searchVaultListSubject = CurrentValueSubject<[VaultListItem], Error>([])
-    var searchVaultListFilterType: VaultFilterType?
+    var searchVaultListFilterType: VaultListFilter?
 
     var shareCipherCiphers = [CipherView]()
     var shareCipherResult: Result<Void, Error> = .success(())
@@ -101,7 +103,7 @@ class MockVaultRepository: VaultRepository {
 
     var vaultListSubject = CurrentValueSubject<[VaultListSection], Error>([])
     var vaultListGroupSubject = CurrentValueSubject<[VaultListSection], Error>([])
-    var vaultListFilter: VaultFilterType?
+    var vaultListFilter: VaultListFilter?
 
     // MARK: Computed Properties
 
@@ -131,6 +133,7 @@ class MockVaultRepository: VaultRepository {
     func ciphersAutofillPublisher(
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: BitwardenShared.AutofillListMode,
+        group: BitwardenShared.VaultListGroup?,
         rpID: String?,
         uri: String?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Error>> {
@@ -195,6 +198,10 @@ class MockVaultRepository: VaultRepository {
         try getDisableAutoTotpCopyResult.get()
     }
 
+    func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {
+        try getTOTPKeyIfAllowedToCopyResult.get()
+    }
+
     func needsSync() async throws -> Bool {
         needsSyncCalled = true
         return try needsSyncResult.get()
@@ -246,7 +253,8 @@ class MockVaultRepository: VaultRepository {
     func searchCipherAutofillPublisher(
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: BitwardenShared.AutofillListMode,
-        filterType: BitwardenShared.VaultFilterType,
+        filter: BitwardenShared.VaultListFilter,
+        group: BitwardenShared.VaultListGroup?,
         rpID: String?,
         searchText: String
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Error>> {
@@ -256,7 +264,7 @@ class MockVaultRepository: VaultRepository {
     func searchVaultListPublisher(
         searchText _: String,
         group: VaultListGroup?,
-        filterType filter: VaultFilterType
+        filter: BitwardenShared.VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
         searchVaultListFilterType = filter
         return searchVaultListSubject.eraseToAnyPublisher().values
@@ -283,7 +291,7 @@ class MockVaultRepository: VaultRepository {
     }
 
     func vaultListPublisher(
-        filter: VaultFilterType
+        filter: BitwardenShared.VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         vaultListFilter = filter
         return vaultListSubject.eraseToAnyPublisher().values
@@ -291,7 +299,7 @@ class MockVaultRepository: VaultRepository {
 
     func vaultListPublisher(
         group _: BitwardenShared.VaultListGroup,
-        filter _: VaultFilterType
+        filter _: BitwardenShared.VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         vaultListGroupSubject.eraseToAnyPublisher().values
     }

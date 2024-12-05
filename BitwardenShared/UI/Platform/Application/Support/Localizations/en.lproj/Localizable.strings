@@ -1060,3 +1060,4 @@
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
 "NothingAvailableToAutofill" = "Nothing available to autofill";
+"FailedToGenerateVerificationCode" = "Failed to generate verification code";

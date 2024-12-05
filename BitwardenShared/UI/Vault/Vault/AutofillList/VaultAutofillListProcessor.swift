@@ -127,7 +127,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                    fido2CredentialAutofillView != nil || autofillAppExtensionDelegate.isCreatingFido2Credential {
                     await onCipherForFido2CredentialPicked(cipher: cipher)
                 } else if autofillListMode == .all {
-                    await textAutofillHelper?.handleCipherForAutofill(cipherView: cipher)
+                    await handleCipherForTextAutofill(cipher: cipher)
                 } else {
                     await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
                         self?.state.toast = Toast(title: toastText)
@@ -248,6 +248,17 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             }
         default:
             await handleProfileSwitcherEffect(profileSwitcherEffect)
+        }
+    }
+
+    /// Handles text autofill for cipher.
+    /// - Parameter cipher: The cipher selected to autofill some text from it.
+    private func handleCipherForTextAutofill(cipher: CipherView) async {
+        do {
+            try await textAutofillHelper?.handleCipherForAutofill(cipherView: cipher)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(error: error))
         }
     }
 

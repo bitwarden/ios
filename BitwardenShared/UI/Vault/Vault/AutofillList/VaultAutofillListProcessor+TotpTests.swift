@@ -361,8 +361,9 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         onExpiration(items)
 
         waitFor(totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems?.isEmpty == true)
-        XCTAssertEqual(subject.state.ciphersForSearch.count, 1)
-        XCTAssertEqual(subject.state.ciphersForSearch[0].items.count, 0)
+        let ciphersForSearch = subject.state.ciphersForSearch
+        XCTAssertEqual(ciphersForSearch.count, 1)
+        XCTAssertEqual(ciphersForSearch[0].items.count, 0)
     }
 
     /// `refreshTOTPCodes(searchItems:)` logs when refreshing throws.

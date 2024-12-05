@@ -180,6 +180,7 @@ class CredentialProviderContextTests: BitwardenTestCase {
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(.autofillText)
+                .passwordCredentialIdentity
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(.configureAutofill)

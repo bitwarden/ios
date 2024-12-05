@@ -104,6 +104,11 @@ public protocol VaultRepository: AnyObject {
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
 
+    /// Gets the TOTP of a cipher if it's allowed to be copied.
+    /// - Parameter cipher: The cipher that has the TOTP.
+    /// - Returns: The TOTP if the user/org has the necessary permissions for it to be copied.
+    func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String?
+
     /// Returns whether the user's vault is empty.
     ///
     /// - Returns: Whether the user's vault is empty.
@@ -1077,6 +1082,23 @@ extension DefaultVaultRepository: VaultRepository {
         try await stateService.getDisableAutoTotpCopy()
     }
 
+    func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {
+        guard let totp = cipher.login?.totp else {
+            return nil
+        }
+
+        guard try await getDisableAutoTotpCopy() == false else {
+            return nil
+        }
+
+        let accountHavePremium = try await doesActiveAccountHavePremium()
+        if !cipher.organizationUseTotp, !accountHavePremium {
+            return nil
+        }
+
+        return totp
+    }
+
     func isVaultEmpty() async throws -> Bool {
         try await cipherService.cipherCount() == 0
     }
@@ -1228,7 +1250,7 @@ extension DefaultVaultRepository: VaultRepository {
     func ciphersAutofillPublisher(
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: AutofillListMode,
-        group: VaultListGroup?,
+        group: VaultListGroup? = nil,
         rpID: String?,
         uri: String?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
@@ -1290,7 +1312,7 @@ extension DefaultVaultRepository: VaultRepository {
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: AutofillListMode,
         filter: VaultListFilter,
-        group: VaultListGroup?,
+        group: VaultListGroup? = nil,
         rpID: String?,
         searchText: String
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
@@ -1322,7 +1344,7 @@ extension DefaultVaultRepository: VaultRepository {
 
     func searchVaultListPublisher(
         searchText: String,
-        group: VaultListGroup?,
+        group: VaultListGroup? = nil,
         filter: VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListItem], Error>> {
         try await searchPublisher(
