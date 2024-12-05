@@ -108,6 +108,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator {
                 self.showToast(Localizations.itemsExported)
             }
         }
+        if let popoverController = activityVC.popoverPresentationController {
+            popoverController.sourceView = stackNavigator?.rootViewController?.view
+            popoverController.permittedArrowDirections = []
+        }
+
         stackNavigator?.present(activityVC)
     }
 
