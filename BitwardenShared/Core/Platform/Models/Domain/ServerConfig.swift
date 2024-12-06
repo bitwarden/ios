@@ -17,7 +17,7 @@ struct ServerConfig: Equatable, Codable, Sendable {
     let featureStates: [FeatureFlag: AnyCodable]
 
     /// The git hash of the server.
-    let gitHash: String
+    let gitHash: String?
 
     /// Third party server information.
     let server: ThirdPartyServerConfig?

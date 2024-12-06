@@ -219,6 +219,12 @@ extension LandingProcessor: StartRegistrationDelegate {
     func didChangeRegion() async {
         await regionHelper.loadRegion()
     }
+
+    func switchToLegacyCreateAccountFlow() {
+        coordinator.navigate(to: .dismissWithAction(DismissAction {
+            self.coordinator.navigate(to: .createAccount)
+        }))
+    }
 }
 
 // MARK: - RegionDelegate

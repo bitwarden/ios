@@ -34,7 +34,7 @@ struct AddEditCustomFieldsView: View {
                         passwordVisibilityAccessibilityId: "HiddenCustomFieldShowValueButton",
                         canViewPassword: true,
                         isPasswordVisible: store.binding(
-                            get: \.customFields[index].isPasswordVisible,
+                            get: { _ in field.isPasswordVisible },
                             send: { flag in
                                 AddEditCustomFieldsAction.togglePasswordVisibilityChanged(flag, index)
                             }
@@ -46,7 +46,7 @@ struct AddEditCustomFieldsView: View {
                 case .boolean:
                     HStack(spacing: 16) {
                         Toggle(field.name ?? "", isOn: store.binding(
-                            get: \.customFields[index].booleanValue,
+                            get: { _ in field.booleanValue },
                             send: { flag in
                                 AddEditCustomFieldsAction.booleanFieldChanged(flag, index)
                             }
@@ -63,7 +63,7 @@ struct AddEditCustomFieldsView: View {
                             Picker(selection:
                                 store.binding(
                                     get: { state in
-                                        if let idType = state.customFields[index].linkedIdType ??
+                                        if let idType = field.linkedIdType ??
                                             LinkedIdType.getLinkedIdType(for: state.cipherType).first {
                                             return idType
                                         } else {
