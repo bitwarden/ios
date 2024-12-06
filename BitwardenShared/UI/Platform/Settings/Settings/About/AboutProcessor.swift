@@ -111,12 +111,12 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 /// Protocol for additional info used by the `AboutProcessor`
 protocol AboutAdditionalInfo {
     /// CI Build information.
-    var ciBuildInfo: [String: String] { get }
+    var ciBuildInfo: KeyValuePairs<String, String> { get }
 }
 
 /// Default implementation of `AboutAdditionalInfo`
 struct DefaultAboutAdditionalInfo: AboutAdditionalInfo {
-    var ciBuildInfo: [String: String] {
+    var ciBuildInfo: KeyValuePairs<String, String> {
         CIBuildInfo.info
     }
 }
