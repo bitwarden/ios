@@ -10,6 +10,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var appSettingsStore: MockAppSettingsStore!
     var dataStore: DataStore!
     var errorReporter: MockErrorReporter!
+    var identityStore: MockCredentialIdentityStore!
     var keychainRepository: MockKeychainRepository!
     var subject: DefaultStateService!
 
@@ -21,12 +22,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore = MockAppSettingsStore()
         dataStore = DataStore(errorReporter: MockErrorReporter(), storeType: .memory)
         errorReporter = MockErrorReporter()
+        identityStore = MockCredentialIdentityStore()
         keychainRepository = MockKeychainRepository()
 
         subject = DefaultStateService(
             appSettingsStore: appSettingsStore,
             dataStore: dataStore,
             errorReporter: errorReporter,
+            identityStore: identityStore,
             keychainRepository: keychainRepository
         )
     }
@@ -37,6 +40,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore = nil
         dataStore = nil
         errorReporter = nil
+        identityStore = nil
         keychainRepository = nil
         subject = nil
     }
@@ -1195,6 +1199,68 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(value)
     }
 
+    /// `isEligibleForReviewPrompt()` returns false if auto-fill is disabled.
+    func test_isEligibleForReviewPrompt_autoFillDisabled() async throws {
+        identityStore.state.mockIsEnabled = false
+        appSettingsStore.reviewPromptShownForVersion = nil
+        appSettingsStore.userActions = [.addedNewItem, .addedNewItem, .addedNewItem]
+        let isEligible = await subject.isEligibleForReviewPrompt()
+
+        XCTAssertFalse(isEligible)
+    }
+
+    /// `isEligibleForReviewPrompt()` returns false if the review prompt has been shown for this version.
+    func test_isEligibleForReviewPrompt_reviewPromptShownForVersionMatch() async throws {
+        identityStore.state.mockIsEnabled = true
+        appSettingsStore.reviewPromptShownForVersion = Bundle.main.appVersion
+        appSettingsStore.userActions = [.addedNewItem, .addedNewItem, .addedNewItem]
+        let isEligible = await subject.isEligibleForReviewPrompt()
+
+        XCTAssertFalse(isEligible)
+    }
+
+    /// `isEligibleForReviewPrompt()` returns correct value based on user actions.
+    func test_isEligibleForReviewPrompt_userActions() async throws {
+        identityStore.state.mockIsEnabled = true
+        appSettingsStore.reviewPromptShownForVersion = nil
+        appSettingsStore.userActions = [.addedNewItem, .addedNewItem, .addedNewItem]
+        let isEligibleViaNewItem = await subject.isEligibleForReviewPrompt()
+        XCTAssertTrue(
+            isEligibleViaNewItem,
+            "User should be eligible for review prompt after adding 3 new items."
+        )
+
+        appSettingsStore.userActions = [.createdNewSend, .createdNewSend, .createdNewSend]
+        let isEligibleViaNewSend = await subject.isEligibleForReviewPrompt()
+        XCTAssertTrue(
+            isEligibleViaNewSend,
+            "User should be eligible for review prompt after creating 3 new sends."
+        )
+
+        appSettingsStore.userActions = [
+            .copiedOrInsertedGeneratedValue,
+            .copiedOrInsertedGeneratedValue,
+            .copiedOrInsertedGeneratedValue,
+        ]
+        let isEligibleViaCopy = await subject.isEligibleForReviewPrompt()
+        XCTAssertTrue(
+            isEligibleViaCopy,
+            "User should be eligible for review prompt after 3 copying or inserting generated values."
+        )
+
+        appSettingsStore.userActions = [
+            .addedNewItem,
+            .addedNewItem,
+            .createdNewSend,
+            .copiedOrInsertedGeneratedValue,
+        ]
+        let isEligible = await subject.isEligibleForReviewPrompt()
+        XCTAssertFalse(
+            isEligible,
+            "User shouldn't be eligible if none of the user actions was repeated 3 times."
+        )
+    }
+
     /// `isAuthenticated()` returns the authentication state of the user.
     func test_isAuthenticated() async throws {
         await subject.addAccount(.fixture())
@@ -1409,6 +1475,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         // Setting the value should update the value in the app settings store.
         subject.rememberedOrgIdentifier = "AndImOk"
         XCTAssertEqual(appSettingsStore.rememberedOrgIdentifier, "AndImOk")
+    }
+
+    /// `.resetUserActionCounts()` adds the user action to the list of user actions in the app settings store.
+    func test_resetUserActionCounts() async throws {
+        appSettingsStore.userActions = [
+            .copiedOrInsertedGeneratedValue,
+            .createdNewSend,
+        ]
+        await subject.resetUserActionCounts()
+
+        XCTAssertEqual(appSettingsStore.userActions, [])
     }
 
     /// `getShouldTrustDevice` gets the value as expected.
@@ -2102,6 +2179,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.setShowWebIcons(false)
 
         XCTAssertEqual(publishedValues, [true, false])
+    }
+
+    /// `.trackUserAction(action:)` adds the user action to the list of user actions in the app settings store.
+    func test_trackUserAction() async throws {
+        XCTAssertEqual(appSettingsStore.userActions, [])
+        await subject.trackUserAction(.addedNewItem)
+
+        XCTAssertEqual(appSettingsStore.userActions, [.addedNewItem])
     }
 
     /// `updateProfile(from:userId:)` updates the user's profile from the profile response.

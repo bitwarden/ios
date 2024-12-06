@@ -33,6 +33,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         & HasGeneratorRepository
         & HasPasteboardService
         & HasPolicyService
+        & HasStateService
 
     // MARK: Private Properties
 

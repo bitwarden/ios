@@ -42,6 +42,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var introCarouselShown = false
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
+    var isEligibleForReviewPrompt = false
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
@@ -62,6 +63,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
+    var resetUserActionCountsCalled = false
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
@@ -82,6 +84,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
+    var userActions = [UserAction]()
     var userHasMasterPassword = [String: Bool]()
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
@@ -358,6 +361,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return isAuthenticated[userId] ?? false
     }
 
+    func isEligibleForReviewPrompt() async -> Bool {
+        isEligibleForReviewPrompt
+    }
+
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         let userId = try unwrapUserId(userId)
         accountsLoggedOut.append(userId)
@@ -367,6 +374,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func pinProtectedUserKey(userId: String?) async throws -> String? {
         let userId = try unwrapUserId(userId)
         return pinProtectedUserKeyValue[userId] ?? nil
+    }
+
+    func resetUserActionCounts() async {
+        resetUserActionCountsCalled = true
+        userActions.removeAll()
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -619,6 +631,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         vaultTimeout[userId] = value
+    }
+
+    func trackUserAction(_ action: BitwardenShared.UserAction) async {
+        userActions.append(action)
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

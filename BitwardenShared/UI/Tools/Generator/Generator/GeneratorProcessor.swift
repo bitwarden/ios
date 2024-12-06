@@ -10,6 +10,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         & HasGeneratorRepository
         & HasPasteboardService
         & HasPolicyService
+        & HasStateService
 
     /// The behavior that should be taken after receiving a new action for generating a new value
     /// and persisting it.
@@ -88,6 +89,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         case .copyGeneratedValue:
             services.pasteboardService.copy(state.generatedValue)
             state.showCopiedValueToast()
+            Task {
+                await services.stateService.trackUserAction(.copiedOrInsertedGeneratedValue)
+            }
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
         case let .emailTypeChanged(emailType):

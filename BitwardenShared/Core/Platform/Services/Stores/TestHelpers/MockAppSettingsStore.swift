@@ -24,6 +24,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var reviewPromptShownForVersion: String?
+    var userActions: [UserAction] = []
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -73,6 +75,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         accountSetupVaultUnlock[userId]
     }
 
+    func addUserAction(_ action: UserAction) {
+        userActions.append(action)
+    }
+
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
     }
@@ -83,6 +89,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func clearUserActions() {
+        userActions = []
     }
 
     func connectToWatch(userId: String) -> Bool {
