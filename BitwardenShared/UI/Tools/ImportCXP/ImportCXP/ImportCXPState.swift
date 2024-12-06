@@ -48,7 +48,7 @@ struct ImportCXPState: Equatable, Sendable {
     var mainIcon: ImageAsset {
         return switch status {
         case .importing, .start:
-            Asset.Images.Illustrations.import
+            Asset.Images.fileUpload24
         case .success:
             Asset.Images.checkCircle24
         case .failure:
