@@ -16,7 +16,7 @@ struct ImportCXPView: View {
         Group {
             VStack(spacing: 16) {
                 PageHeaderView(
-                    image: store.state.mainIcon.swiftUIImage,
+                    image: Image(decorative: store.state.mainIcon),
                     title: store.state.title,
                     message: store.state.message,
                     style: .largeWithTintedIcon
