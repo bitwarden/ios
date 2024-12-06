@@ -11,6 +11,10 @@ public enum AutofillExtensionMode {
     /// The extension is autofilling a specific OTP credential.
     case autofillOTPCredential(OneTimeCodeCredentialIdentityProxy, userInteraction: Bool)
 
+    /// The extension is called from the context menu of a field to autofill some text.
+    /// This is generic so we can auotfill pretty much anything the user chooses.
+    case autofillText
+
     /// The extension is displaying a list of password items in the vault that match a service identifier.
     case autofillVaultList([ASCredentialServiceIdentifier])
 

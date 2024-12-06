@@ -30,6 +30,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             return AppRoute.vault(.autofillList)
         case .autofillOTPCredential:
             return nil
+        case .autofillText:
+            return AppRoute.vault(.autofillList)
         case .autofillVaultList:
             return AppRoute.vault(.autofillList)
         case .autofillFido2Credential:

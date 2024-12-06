@@ -26,6 +26,10 @@ public protocol AutofillAppExtensionDelegate: AppExtensionDelegate {
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential)
 
+    /// Completes the text request with some text to insert.
+    @available(iOSApplicationExtension 18.0, *)
+    func completeTextRequest(text: String)
+
     /// Gets a publisher for when `didAppear` happens.
     func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>>
 
@@ -41,6 +45,8 @@ extension AutofillAppExtensionDelegate {
             .combinedMultipleSections
         case .autofillOTP:
             .totp
+        case .autofillText:
+            .all
         case .registerFido2Credential:
             .combinedSingleSection
         default:
