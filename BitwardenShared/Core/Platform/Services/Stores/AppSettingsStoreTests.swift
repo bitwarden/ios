@@ -102,6 +102,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:addSitePromptShown"))
     }
 
+    /// `addUserAction(action:)` can be used to add a user action to track.
+    func test_addUserAction() {
+        subject.addUserAction(.createdNewSend)
+        subject.addUserAction(.copiedOrInsertedGeneratedValue)
+        subject.addUserAction(.addedNewItem)
+
+        XCTAssertEqual(
+            subject.userActions,
+            [
+                .createdNewSend,
+                .copiedOrInsertedGeneratedValue,
+                .addedNewItem,
+            ]
+        )
+    }
+
     /// `appId` returns `nil` if there isn't a previously stored value.
     func test_appId_isInitiallyNil() {
         XCTAssertNil(subject.appId)
@@ -247,6 +263,16 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
+    }
+
+    /// `clearUserActions()` can be used to clear the user actions.
+    func test_clearUserActions() {
+        subject.userActions = [.createdNewSend,
+                               .copiedOrInsertedGeneratedValue]
+
+        subject.clearUserActions()
+
+        XCTAssertTrue(subject.userActions.isEmpty)
     }
 
     /// `connectToWatch(userId:)` returns false if there isn't a previously stored value.
@@ -950,6 +976,49 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.rememberedEmail = nil
         XCTAssertNil(subject.rememberedEmail)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
+    }
+
+    /// `reviewPromptShownForVersion` returns `nil` if there isn't a previously stored value.
+    func test_reviewPromptShownForVersion_isInitiallyNil() {
+        XCTAssertNil(subject.reviewPromptShownForVersion)
+    }
+
+    /// `reviewPromptShownForVersion` can be used to get and set the persisted value in user defaults.
+    func test_reviewPromptShownForVersion_withValue() {
+        subject.reviewPromptShownForVersion = "1.2.3"
+        XCTAssertEqual(subject.reviewPromptShownForVersion, "1.2.3")
+        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:reviewPromptShownForVersion"), "1.2.3")
+
+        subject.reviewPromptShownForVersion = nil
+        XCTAssertNil(subject.reviewPromptShownForVersion)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:reviewPromptShownForVersion"))
+    }
+
+    /// `userActions` returns `[]` if there isn't a previously stored value.
+    func test_userActions_isInitiallyNil() {
+        XCTAssertTrue(subject.userActions.isEmpty)
+    }
+
+    /// `userActions` can be used to get and set the persisted value in user defaults.
+    func test_userActions_withValue() {
+        let userActions: [UserAction] = [
+            .addedNewItem,
+            .createdNewSend,
+        ]
+        subject.userActions = userActions
+        XCTAssertEqual(subject.userActions, userActions)
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                [UserAction].self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:userActions")?
+                        .data(using: .utf8)
+                )
+            ),
+            userActions
+        )
     }
 
     /// `usesKeyConnector(userId:)` returns `false` if there isn't a previously stored value.

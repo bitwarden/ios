@@ -623,6 +623,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
         handleDismiss(didAddItem: true)
+        await services.stateService.trackUserAction(.addedNewItem)
     }
 
     /// Checks user verification if needed on Fido2 flows.
@@ -731,6 +732,9 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
             state.loginState.username = value
         }
         coordinator.navigate(to: .dismiss())
+        Task {
+            await services.stateService.trackUserAction(.copiedOrInsertedGeneratedValue)
+        }
     }
 }
 
@@ -750,6 +754,9 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             state.loginState.totpState = .key(authKeyModel)
             state.toast = Toast(title: Localizations.authenticatorKeyAdded)
+            Task {
+                await services.stateService.trackUserAction(.copiedOrInsertedGeneratedValue)
+            }
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }

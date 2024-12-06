@@ -16,6 +16,7 @@ class AddEditSendItemProcessor:
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
+        & HasStateService
 
     // MARK: Private Properties
 
@@ -258,6 +259,7 @@ class AddEditSendItemProcessor:
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
                 }
+                await services.stateService.trackUserAction(.createdNewSend)
             case .edit:
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }

@@ -54,8 +54,14 @@ protocol AppSettingsStore: AnyObject {
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
+    /// The app version for which the review prompt has been shown.
+    var reviewPromptShownForVersion: String? { get set }
+
     /// The app's account state.
     var state: State? { get set }
+
+    /// The user actions that have been tracked.
+    var userActions: [UserAction] { get set }
 
     /// The user's progress for setting up autofill.
     ///
@@ -78,6 +84,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress?
 
+    /// Adds a user action to the tracked actions.
+    ///
+    /// - Parameter action: The user action to add.
+    ///
+    func addUserAction(_ action: UserAction)
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameter userId: The user ID associated with the sync on refresh setting.
@@ -90,6 +102,10 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
     func appRehydrationState(userId: String) -> AppRehydrationState?
+
+    /// Clears all tracked user actions.
+    ///
+    func clearUserActions()
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -705,12 +721,14 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
+        case reviewPromptShownForVersion
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
+        case userActions
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
         case vaultTimeout(userId: String)
@@ -792,6 +810,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
+            case .reviewPromptShownForVersion:
+                key = "reviewPromptShownForVersion"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
             case let .shouldTrustDevice(userId):
@@ -804,6 +824,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
                 key = "invalidUnlockAttempts_\(userId)"
+            case .userActions:
+                key = "userActions"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
@@ -886,12 +908,22 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .rememberedOrgIdentifier) }
     }
 
+    var reviewPromptShownForVersion: String? {
+        get { fetch(for: .reviewPromptShownForVersion) }
+        set { store(newValue, for: .reviewPromptShownForVersion) }
+    }
+
     var state: State? {
         get { fetch(for: .state) }
         set {
             activeAccountIdSubject.send(newValue?.activeUserId)
             return store(newValue, for: .state)
         }
+    }
+
+    var userActions: [UserAction] {
+        get { fetch(for: .userActions) ?? [] }
+        set { store(newValue, for: .userActions) }
     }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
@@ -904,6 +936,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress? {
         fetch(for: .accountSetupVaultUnlock(userId: userId))
+    }
+
+    func addUserAction(_ action: UserAction) {
+        var actions = userActions
+        actions.append(action)
+        userActions = actions
     }
 
     func allowSyncOnRefresh(userId: String) -> Bool {
@@ -920,6 +958,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             return value
         }
         return .never
+    }
+
+    func clearUserActions() {
+        userActions = []
     }
 
     func connectToWatch(userId: String) -> Bool {

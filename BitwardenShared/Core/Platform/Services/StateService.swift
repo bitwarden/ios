@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import Combine
 import Foundation
@@ -358,6 +359,12 @@ protocol StateService: AnyObject {
     ///
     func isAuthenticated(userId: String?) async throws -> Bool
 
+    /// Checks if the app review prompt should be shown.
+    ///
+    /// - Returns: `true` if the app review prompt should be shown, `false` otherwise.
+    ///
+    func isEligibleForReviewPrompt() async -> Bool
+
     /// Logs the user out of an account.
     ///
     /// - Parameters:
@@ -372,6 +379,10 @@ protocol StateService: AnyObject {
     /// - Returns: The user's pin protected user key.
     ///
     func pinProtectedUserKey(userId: String?) async throws -> String?
+
+    /// Resets the user action counts after showing the review prompt.
+    ///
+    func resetUserActionCounts() async
 
     /// Sets the account encryption keys for an account.
     ///
@@ -674,6 +685,12 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the timeout value.
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
+
+    /// Tracks a user action.
+    ///
+    /// - Parameter action: The user action to track.
+    ///
+    func trackUserAction(_ action: UserAction) async
 
     /// Updates the profile information for a user.
     ///
@@ -1214,6 +1231,20 @@ enum StateServiceError: LocalizedError {
     }
 }
 
+// MARK: - UserAction
+
+/// An enumeration of user actions that can be tracked.
+enum UserAction: String, Codable {
+    /// The user added a new item.
+    case addedNewItem
+
+    /// The user created a new send.
+    case createdNewSend
+
+    /// The user copied or inserted a generated value.
+    case copiedOrInsertedGeneratedValue
+}
+
 // MARK: - DefaultStateService
 
 /// A default implementation of `StateService`.
@@ -1244,11 +1275,17 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// A subject containing the app theme.
     private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
 
+    /// The current app version.
+    private let appVersion: String
+
     /// A subject containing the connect to watch value.
     private var connectToWatchByUserIdSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
+
+    /// The service used to manage the credentials available for AutoFill suggestions.
+    private let identityStore: CredentialIdentityStore
 
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
@@ -1271,18 +1308,24 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     ///
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
+    ///  - appVersion: The current app version.
     ///  - dataStore: The data store that handles performing data requests.
     ///  - errorReporter: The service used by the application to report non-fatal errors.
+    ///  - identityStore: The service used to manage the credentials available for AutoFill suggestions.
     ///  - keychainRepository: A service used to access data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
+        appVersion: String = Bundle.main.appVersion,
         dataStore: DataStore,
         errorReporter: ErrorReporter,
+        identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         keychainRepository: KeychainRepository
     ) {
         self.appSettingsStore = appSettingsStore
+        self.appVersion = appVersion
         self.dataStore = dataStore
+        self.identityStore = identityStore
         self.keychainRepository = keychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
@@ -1586,6 +1629,28 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         }
     }
 
+    func isEligibleForReviewPrompt() async -> Bool {
+        // Check if autofill is enabled
+        let isAutofillEnabled = await identityStore.isAutofillEnabled()
+        guard isAutofillEnabled else {
+            return false
+        }
+
+        // Check if the review prompt has already been shown for the current app version
+        if  appSettingsStore.reviewPromptShownForVersion == appVersion {
+            return false
+        }
+
+        // Check if any user action has been performed at least three times
+        let userActions: [UserAction] = appSettingsStore.userActions
+        let actionCounts = userActions.reduce(into: [:]) { counts, action in
+            counts[action, default: 0] += 1
+        }
+
+        let eligibleActions = actionCounts.filter { $0.value >= 3 }
+        return !eligibleActions.isEmpty
+    }
+
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
         guard var state = appSettingsStore.state else { return }
         defer { appSettingsStore.state = state }
@@ -1614,6 +1679,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func pinProtectedUserKey(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
+    }
+
+    func resetUserActionCounts() async {
+        appSettingsStore.clearUserActions()
     }
 
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
@@ -1920,6 +1989,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    func trackUserAction(_ action: UserAction) async {
+        appSettingsStore.addUserAction(action)
     }
 
     // MARK: Private
