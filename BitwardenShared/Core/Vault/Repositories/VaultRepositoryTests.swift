@@ -211,6 +211,105 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     }
 
     /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
+    /// returns a publisher for the list of a user's ciphers in `.all` mode.
+    @MainActor
+    func test_ciphersAutofillPublisher_mode_all() async throws {
+        let ciphers: [Cipher] = [
+            .fixture(
+                id: "1",
+                type: .login
+            ),
+            .fixture(
+                id: "2",
+                type: .card
+            ),
+            .fixture(
+                id: "3",
+                type: .identity
+            ),
+            .fixture(
+                id: "4",
+                type: .secureNote
+            ),
+            .fixture(
+                id: "5",
+                type: .sshKey
+            ),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+        configService.featureFlagsBool[.sshKeyVaultItem] = true
+        var iterator = try await subject.ciphersAutofillPublisher(
+            availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                .availableCredentialsForAuthenticationPublisher(),
+            mode: .all,
+            rpID: nil,
+            uri: nil
+        ).makeAsyncIterator()
+        let publishedSections = try await iterator.next()
+
+        let expectedResult = VaultListSection(
+            id: "Types",
+            items: [
+                .fixtureGroup(id: "Types.Logins", group: .login, count: 1),
+                .fixtureGroup(id: "Types.Cards", group: .card, count: 1),
+                .fixtureGroup(id: "Types.Identities", group: .identity, count: 1),
+                .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 1),
+                .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 1),
+            ],
+            name: Localizations.types
+        )
+        XCTAssertEqual(
+            publishedSections?.first,
+            expectedResult
+        )
+        let noFoldersSection = try XCTUnwrap(publishedSections?[1])
+        XCTAssertEqual(noFoldersSection.id, "NoFolder")
+        XCTAssertEqual(noFoldersSection.items.count, 5)
+    }
+
+    /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
+    /// returns a publisher for the list of a user's ciphers in `.all` mode and group `.card`.
+    @MainActor
+    func test_ciphersAutofillPublisher_mode_all_groupCard() async throws {
+        let ciphers: [Cipher] = [
+            .fixture(
+                id: "1",
+                type: .login
+            ),
+            .fixture(
+                id: "2",
+                type: .card
+            ),
+            .fixture(
+                id: "3",
+                type: .identity
+            ),
+            .fixture(
+                id: "4",
+                type: .secureNote
+            ),
+            .fixture(
+                id: "5",
+                type: .sshKey
+            ),
+        ]
+        cipherService.ciphersSubject.value = ciphers
+        configService.featureFlagsBool[.sshKeyVaultItem] = true
+        var iterator = try await subject.ciphersAutofillPublisher(
+            availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                .availableCredentialsForAuthenticationPublisher(),
+            mode: .all,
+            group: .card,
+            rpID: nil,
+            uri: nil
+        ).makeAsyncIterator()
+        let publishedSections = try await iterator.next()
+        XCTAssertEqual(publishedSections?.count, 1)
+        XCTAssertEqual(publishedSections?[0].items.count, 1)
+        XCTAssertEqual(publishedSections?[0].items[0].id, "2")
+    }
+
+    /// `ciphersAutofillPublisher(availableFido2CredentialsPublisher:mode:rpID:uri:)`
     /// returns a publisher for the list of a user's ciphers matching a URI in `.combinedMultipleSections` mode.
     func test_ciphersAutofillPublisher_mode_combinedMultipleSections() async throws {
         // swiftlint:disable:previous function_body_length
@@ -1599,6 +1698,69 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
+    /// returns search matching cipher name in `.all` mode.
+    @MainActor
+    func test_searchCipherAutofillPublisher_searchText_name_allMode() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "dabcd", type: .login),
+            .fixture(id: "2", name: "qwe", type: .secureNote),
+            .fixture(id: "3", name: "Café", type: .identity),
+            .fixture(id: "4", name: "Caféeee", type: .card),
+            .fixture(id: "5", name: "Cafée12312ee", type: .sshKey),
+        ]
+        configService.featureFlagsBool[.sshKeyVaultItem] = true
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(
+                availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                    .availableCredentialsForAuthenticationPublisher(),
+                mode: .all,
+                filter: VaultListFilter(filterType: .allVaults),
+                rpID: nil,
+                searchText: "cafe"
+            )
+            .makeAsyncIterator()
+        let sections = try await iterator.next()
+        XCTAssertEqual(sections?.count, 1)
+        let section = try XCTUnwrap(sections?.first)
+        XCTAssertEqual(section.items.count, 3)
+        XCTAssertEqual(section.items[0].id, "3")
+        XCTAssertEqual(section.items[1].id, "5")
+        XCTAssertEqual(section.items[2].id, "4")
+    }
+
+    /// `searchCipherAutofillPublisher(availableFido2CredentialsPublisher:mode:filterType:rpID:searchText:)`
+    /// returns search matching cipher name in `.all` mode and `.identity` group.
+    @MainActor
+    func test_searchCipherAutofillPublisher_searchText_name_allModeIdentityGroup() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        cipherService.ciphersSubject.value = [
+            .fixture(id: "1", name: "dabcd", type: .login),
+            .fixture(id: "2", name: "qwe", type: .secureNote),
+            .fixture(id: "3", name: "Café", type: .identity),
+            .fixture(id: "4", name: "Caféeee", type: .card),
+            .fixture(id: "5", name: "Cafée12312ee", type: .sshKey),
+        ]
+        configService.featureFlagsBool[.sshKeyVaultItem] = true
+        var iterator = try await subject
+            .searchCipherAutofillPublisher(
+                availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
+                    .availableCredentialsForAuthenticationPublisher(),
+                mode: .all,
+                filter: VaultListFilter(filterType: .allVaults),
+                group: .identity,
+                rpID: nil,
+                searchText: "cafe"
+            )
+            .makeAsyncIterator()
+        let sections = try await iterator.next()
+        XCTAssertEqual(sections?.count, 1)
+        let section = try XCTUnwrap(sections?.first)
+        XCTAssertEqual(section.items.count, 1)
+        XCTAssertEqual(section.items[0].id, "3")
+    }
+
     /// `searchVaultListPublisher(searchText:, filterType:)` returns search matching cipher name.
     func test_searchVaultListPublisher_searchText_name() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
@@ -2829,6 +2991,71 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(vaultListSections, expectedResult)
     }
 
+    /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections for premium account
+    /// when TOTP and Trash are filtered out.
+    func test_vaultListPublisher_section_premium_trashAndTOTPFilteredOut() async throws { // swiftlint:disable:this function_body_length line_length
+        stateService.activeAccount = premiumAccount
+        let ciphers: [Cipher] = [
+            .fixture(folderId: "1", id: "1", type: .login),
+            .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
+            .fixture(collectionIds: ["1"], favorite: true, id: "3"),
+            .fixture(deletedDate: Date(), id: "3"),
+        ]
+        let collection = Collection.fixture(id: "1")
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        collectionService.collectionsSubject.send([collection])
+        folderService.foldersSubject.send([folder])
+
+        var iterator = try await subject.vaultListPublisher(
+            filter: VaultListFilter(
+                addTOTPGroup: false,
+                addTrashGroup: false,
+                filterType: .allVaults
+            )
+        ).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Favorites",
+                items: [.fixture(cipherView: .init(cipher: ciphers[2]))],
+                name: Localizations.favorites
+            ),
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
+                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
+                ],
+                name: Localizations.folders
+            ),
+            .init(
+                id: "Collections",
+                items: [
+                    .fixtureGroup(
+                        id: "1",
+                        group: .collection(id: "1", name: "", organizationId: ""),
+                        count: 1
+                    ),
+                ],
+                name: Localizations.collections
+            ),
+        ]
+
+        XCTAssertEqual(vaultListSections, expectedResult)
+    }
+
     /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections
     ///   with no TOTP items for accounts without premium.
     func test_vaultListPublisher_section_nonPremium() async throws { // swiftlint:disable:this function_body_length
@@ -3075,6 +3302,52 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                 id: "Trash",
                 items: [.fixtureGroup(id: "Trash", group: .trash, count: 0)],
                 name: Localizations.trash
+            ),
+        ]
+        XCTAssertEqual(
+            vaultListSections,
+            expectedResult
+        )
+    }
+
+    /// `vaultListPublisher(filter:)`should return `NoFolder` items as folder item, when there are
+    /// more than 100 ciphers without a folder assigned and doesn't add trash
+    /// because it's filtered out.
+    func test_vaultListPublisher_section_100Cipher_dontAddTrash() async throws {
+        stateService.activeAccount = .fixture()
+        var ciphers: [Cipher] = []
+        for index in 1 ... 100 {
+            ciphers.append(.fixture(id: "\(index)", type: .login))
+        }
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        folderService.foldersSubject.send([folder])
+
+        var iterator = try await subject.vaultListPublisher(
+            filter: VaultListFilter(
+                addTrashGroup: false,
+                filterType: .allVaults
+            )
+        ).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 100),
+                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 0),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 100)),
+                ],
+                name: Localizations.folders
             ),
         ]
         XCTAssertEqual(

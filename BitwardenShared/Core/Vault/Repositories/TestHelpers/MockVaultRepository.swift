@@ -14,6 +14,7 @@ class MockVaultRepository: VaultRepository {
 
     var ciphersAutofillPublisherUriCalled: String?
     var ciphersSubject = CurrentValueSubject<[CipherListView], Error>([])
+    var ciphersAutofillPublisherCalledWithGroup: VaultListGroup?
     var ciphersAutofillSubject = CurrentValueSubject<[BitwardenShared.VaultListSection], Error>([])
     var cipherDetailsSubject = CurrentValueSubject<CipherView?, Error>(.fixture())
 
@@ -82,6 +83,7 @@ class MockVaultRepository: VaultRepository {
     var saveAttachmentFileName: String?
     var saveAttachmentResult: Result<CipherView, Error> = .success(.fixture())
 
+    var searchCipherAutofillPublisherCalledWithGroup: VaultListGroup? // swiftlint:disable:this identifier_name
     var searchCipherAutofillSubject = CurrentValueSubject<[BitwardenShared.VaultListSection], Error>([])
 
     var searchVaultListSubject = CurrentValueSubject<[VaultListItem], Error>([])
@@ -138,6 +140,7 @@ class MockVaultRepository: VaultRepository {
         uri: String?
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Error>> {
         ciphersAutofillPublisherUriCalled = uri
+        ciphersAutofillPublisherCalledWithGroup = group
         return ciphersAutofillSubject.eraseToAnyPublisher().values
     }
 
@@ -250,7 +253,7 @@ class MockVaultRepository: VaultRepository {
         return try saveAttachmentResult.get()
     }
 
-    func searchCipherAutofillPublisher(
+    func searchCipherAutofillPublisher( // swiftlint:disable:this function_parameter_count
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: BitwardenShared.AutofillListMode,
         filter: BitwardenShared.VaultListFilter,
@@ -258,7 +261,8 @@ class MockVaultRepository: VaultRepository {
         rpID: String?,
         searchText: String
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[BitwardenShared.VaultListSection], Error>> {
-        searchCipherAutofillSubject.eraseToAnyPublisher().values
+        searchCipherAutofillPublisherCalledWithGroup = group
+        return searchCipherAutofillSubject.eraseToAnyPublisher().values
     }
 
     func searchVaultListPublisher(

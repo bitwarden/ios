@@ -258,7 +258,12 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
             try await textAutofillHelper?.handleCipherForAutofill(cipherView: cipher)
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.showAlert(.defaultAlert(error: error))
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.failedToAutofillItem(cipher.name)
+                )
+            )
         }
     }
 

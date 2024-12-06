@@ -1308,7 +1308,7 @@ extension DefaultVaultRepository: VaultRepository {
         try await organizationService.organizationsPublisher().eraseToAnyPublisher().values
     }
 
-    func searchCipherAutofillPublisher( // swiftlint:disable:this function_parameter_count
+    func searchCipherAutofillPublisher(
         availableFido2CredentialsPublisher: AnyPublisher<[BitwardenSdk.CipherView]?, Error>,
         mode: AutofillListMode,
         filter: VaultListFilter,
