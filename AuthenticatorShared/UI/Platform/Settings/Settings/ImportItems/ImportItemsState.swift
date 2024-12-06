@@ -1,3 +1,5 @@
+import Foundation
+
 // MARK: - ImportItemsState
 
 /// The current state of an `ImportItemsView`.
@@ -9,4 +11,7 @@ struct ImportItemsState: Equatable {
 
     /// A toast for views
     var toast: Toast?
+
+    /// The url to open in the device's web browser.
+    var url: URL?
 }

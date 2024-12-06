@@ -7,6 +7,9 @@ import SwiftUI
 struct ImportItemsView: View {
     // MARK: Properties
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<ImportItemsState, ImportItemsAction, ImportItemsEffect>
 
@@ -22,6 +25,11 @@ struct ImportItemsView: View {
         .navigationBar(title: Localizations.importItems, titleDisplayMode: .inline)
         .task {
             await store.perform(.loadData)
+        }
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
         }
         .toast(store.binding(
             get: \.toast,

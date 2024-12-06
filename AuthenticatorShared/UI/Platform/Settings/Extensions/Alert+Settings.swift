@@ -56,6 +56,28 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user that their import file was corrupted or not valid JSON.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert indicating their import file was corrupted or not valid JSON
+    ///
+    @MainActor
+    static func importFileCorrupted(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.fileCouldNotBeProcessed,
+            message: [
+                Localizations.ensureItsValidJsonAndTryAgain,
+                Localizations.needHelpVisitOurHelpCenterForGuidance,
+            ].joined(separator: "\n\n"),
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
+
     /// Show the alert notifying the user that the language has been changed.
     ///
     /// - Parameters:
@@ -94,6 +116,28 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user their import file was missing some required information.
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert indicating their import file was missing some required information.
+    ///
+    @MainActor
+    static func requiredInfoMissing(keyPath: String, action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.requiredInformationMissing,
+            message: [
+                Localizations.requiredInformationIsMissing(keyPath),
+                Localizations.needHelpVisitOurHelpCenterForGuidance,
+            ].joined(separator: "\n\n"),
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
+            ]
+        )
+    }
+
     /// An alert notifying the user that we do not currently support password-protected
     /// files when importing from 2FAS.
     ///
@@ -105,6 +149,28 @@ extension Alert {
             message: nil,
             alertActions: [
                 AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
+    /// An alert notifying the user that there was a type mismatch in their import file
+    ///
+    /// - Parameter action: The action taken if they select continue.
+    /// - Returns: An alert indicating there was a type mismatch in their import file
+    ///
+    @MainActor
+    static func typeMismatch(action: @escaping () -> Void) -> Alert {
+        Alert(
+            title: Localizations.unexpectedDataFormat,
+            message: [
+                Localizations.theDataFormatProvidedDoesntMatchWhatsExpected,
+                Localizations.needHelpVisitOurHelpCenterForGuidance,
+            ].joined(separator: "\n\n"),
+            alertActions: [
+                AlertAction(title: Localizations.cancel, style: .cancel),
+                AlertAction(title: Localizations.continue, style: .default) { _ in
+                    action()
+                },
             ]
         )
     }

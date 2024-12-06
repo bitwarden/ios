@@ -45,12 +45,14 @@ final class ImportItemsProcessor: StateProcessor<ImportItemsState, ImportItemsAc
 
     override func receive(_ action: ImportItemsAction) {
         switch action {
+        case .clearURL:
+            state.url = nil
         case .dismiss:
             coordinator.navigate(to: .dismiss)
-        case .importItemsTapped:
-            showImportItemsFileSelection()
         case let .fileFormatTypeChanged(fileFormat):
             state.fileFormat = fileFormat
+        case .importItemsTapped:
+            showImportItemsFileSelection()
         case let .toastShown(toast):
             state.toast = toast
         }
@@ -91,10 +93,42 @@ extension ImportItemsProcessor: FileSelectionDelegate {
                 state.toast = Toast(text: Localizations.itemsImported)
             } catch TwoFasImporterError.passwordProtectedFile {
                 coordinator.showAlert(.twoFasPasswordProtected())
+            } catch DecodingError.dataCorrupted {
+                coordinator.showAlert(.importFileCorrupted(action: { [weak self] in
+                    self?.state.url = ExternalLinksConstants.helpAndFeedback
+                }))
+            } catch let DecodingError.keyNotFound(key, context) {
+                showRequiredInfoMissingAlert(key: key, context: context)
+            } catch DecodingError.typeMismatch {
+                coordinator.showAlert(.typeMismatch(action: { [weak self] in
+                    self?.state.url = ExternalLinksConstants.helpAndFeedback
+                }))
+            } catch let DecodingError.valueNotFound(_, context) {
+                showRequiredInfoMissingAlert(key: nil, context: context)
             } catch {
                 services.errorReporter.log(error: error)
             }
         }
+    }
+
+    /// Helper function to do the work around preparing and showing the `requiredInfoMissing` alert.
+    ///
+    /// - Parameters:
+    ///   - key: The CodingKey that was missing (or `nil` if it's not a specific key)
+    ///   - context: The `Context` from the `DecodingError` to use in creating the path that caused the problem.
+    ///
+    private func showRequiredInfoMissingAlert(key: CodingKey?, context: DecodingError.Context) {
+        var codingPath = context.codingPath
+        if let key {
+            codingPath.append(key)
+        }
+
+        coordinator.showAlert(.requiredInfoMissing(
+            keyPath: codingPath.map(\.stringValue).joined(separator: "."),
+            action: { [weak self] in
+                self?.state.url = ExternalLinksConstants.helpAndFeedback
+            }
+        ))
     }
 }
 
