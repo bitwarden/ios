@@ -98,9 +98,11 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
         ]
         if !aboutAdditionalInfo.ciBuildInfo.isEmpty {
             infoParts.append(
-                contentsOf: aboutAdditionalInfo.ciBuildInfo.map { key, value in
-                    "\(key) \(value)"
-                }
+                contentsOf: aboutAdditionalInfo.ciBuildInfo
+                    .filter { !$0.value.isEmpty }
+                    .map { key, value in
+                        "\(key) \(value)"
+                    }
             )
         }
         services.pasteboardService.copy(infoParts.joined(separator: "\n"))
