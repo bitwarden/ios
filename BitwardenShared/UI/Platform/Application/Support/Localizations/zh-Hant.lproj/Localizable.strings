@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "無效的主密碼，請再試一次。";
 "InvalidPIN" = "無效的 PIN 碼，請再試一次。";
 "Launch" = "前往";
-"LogIn" = "登入";
+"LogIn" = "Log in";
 "LogInNoun" = "登入";
 "LogOut" = "登出";
 "LogoutConfirmation" = "您確定要登出嗎？";
@@ -842,7 +842,7 @@
 "XHoursAndOneMinute" = "%1$@ 小時 1 分鐘";
 "XHoursAndYMinutes" = "%1$@ 小時 %2$@ 分鐘";
 "XHours" = "%1$@ 小時";
-"PasskeyManagementExplanationLong" = "Use Bitwarden to save new passkeys and log in with passkeys stored in your vault.";
+"PasskeyManagementExplanationLong" = "使用 Bitwarden 來保存新的通行密鑰(passkey) 和 使用儲存在密碼庫中的通行密鑰(passkey) 來登入。";
 "AutofillServicesExplanationLong" = "Android 自動填入框架能協助在裝置上的其他應用程式當中，填入登入資訊。";
 "UseInlineAutofillExplanationLong" = "如果您選擇的鍵盤支持，請使用内嵌式自動填入。若不支持，請使用預設疊層。";
 "AdditionalOptions" = "額外選項";
@@ -850,15 +850,15 @@
 "ContinueToX" = "接下來造訪 %1$@ 嗎？";
 "ContinueToHelpCenter" = "接下來前往說明中心嗎？";
 "ContinueToContactSupport" = "接下來聯絡支援嗎？";
-"ContinueToPrivacyPolicy" = "Continue to privacy policy?";
+"ContinueToPrivacyPolicy" = "繼續前往隱私權政策？";
 "ContinueToAppStore" = "接下來前往 App Store 嗎？";
-"ContinueToDeviceSettings" = "Continue to device Settings?";
+"ContinueToDeviceSettings" = "繼續前往裝置設定？";
 "TwoStepLoginDescriptionLong" = "在 Bitwarden Web 應用程式中設定兩步驟登入，讓您的帳戶更加安全。";
 "ChangeMasterPasswordDescriptionLong" = "您可以在 Bitwarden Web 應用程式上變更主密碼。";
 "YouCanImportDataToYourVaultOnX" = "您可以將資料匯入到 %1$@ 上的密碼庫。";
 "LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "在說明中心了解有關如何使用 Bitwarden 的更多資訊。";
 "ContactSupportDescriptionLong" = "找不到您想要的資訊？請在 bitwarden.com 上聯絡 Bitwarden 技術支援。";
-"PrivacyPolicyDescriptionLong" = "Check out our privacy policy on bitwarden.com.";
+"PrivacyPolicyDescriptionLong" = "在 bitwarden.com 上查看我們的隱私權政策。";
 "ExploreMoreFeaturesOfYourBitwardenAccountOnTheWebApp" = "在 Web 應用程式上探索 Bitwarden 帳戶的更多功能。";
 "LearnAboutOrganizationsDescriptionLong" = "Bitwarden 可讓您透過組織與其他人共用您的密碼庫項目。請造訪 bitwarden.com 網站以了解更多資訊。";
 "RateAppDescriptionLong" = "幫助其他人了解 Bitwarden 是否適合他們。立即造訪 App Store 並留下評分。";
@@ -869,7 +869,7 @@
 "YourOrganizationPermissionsWereUpdatedRequeringYouToSetAMasterPassword" = "您的組織的權限已更新，因此您必須設定主密碼。";
 "YourOrganizationRequiresYouToSetAMasterPassword" = "您的組織需要您設定主密碼。";
 "SetUpAnUnlockOptionToChangeYourVaultTimeoutAction" = "設定解鎖選項，變更您密碼庫的逾時動作。";
-"ChooseALoginToSaveThisPasskeyTo" = "Choose a login to save this passkey to";
+"ChooseALoginToSaveThisPasskeyTo" = "選擇登入項目以保存這個通行密鑰(passkey) ";
 "SavePasskeyAsNewLogin" = "Save passkey as new login";
 "SavePasskey" = "Save passkey";
 "PasskeysForX" = "%1$@ 的密碼金鑰";

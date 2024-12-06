@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Грешна главна парола. Пробвайте отново.";
 "InvalidPIN" = "Неправилен ПИН. Пробвайте отново.";
 "Launch" = "Пускане";
-"LogIn" = "Вход";
+"LogIn" = "Log in";
 "LogInNoun" = "Вход";
 "LogOut" = "Отписване";
 "LogoutConfirmation" = "Сигурни ли сте, че искате да се отпишете?";

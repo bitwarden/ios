@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "کلمه عبور اصلی نامعتبر است. دوباره امتحان کنید.";
 "InvalidPIN" = "پین نامعتبر است. دوباره امتحان کنید.";
 "Launch" = "راه اندازی";
-"LogIn" = "ورود";
+"LogIn" = "Log in";
 "LogInNoun" = "ورود";
 "LogOut" = "خروج";
 "LogoutConfirmation" = "آیا مطمئنید که می‌خواهید خارج شوید؟";

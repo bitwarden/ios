@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Napačno glavno geslo. Poiskutie ponovno.";
 "InvalidPIN" = "Napačen PIN. Poizkusite ponovno.";
 "Launch" = "Odpri";
-"LogIn" = "Vpiši se";
+"LogIn" = "Log in";
 "LogInNoun" = "Vpis";
 "LogOut" = "Odjavi se";
 "LogoutConfirmation" = "Ste prepričani, da se želite odjaviti?";

@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "无效的主密码，请重试。";
 "InvalidPIN" = "无效的 PIN 码，请重试。";
 "Launch" = "前往";
-"LogIn" = "登录";
+"LogIn" = "Log in";
 "LogInNoun" = "登录";
 "LogOut" = "注销";
 "LogoutConfirmation" = "确定要注销吗？";
@@ -1010,7 +1010,7 @@
 "ImportSavedLogins" = "导入已保存的登录信息";
 "ImportSavedLoginsDescriptionLong" = "使用计算机从现有密码管理器导入登录信息。";
 "ImportLogins" = "导入登录信息";
-"GiveYourVaultAHeadStart" = "Give your vault a head start";
+"GiveYourVaultAHeadStart" = "让您的密码库先行一步";
 "ImportLoginsDescriptionLong" = "按照以下说明，从您的电脑上导出您的浏览器或其他密码管理器保存的密码。然后安全地导入到 Bitwarden。";
 "ImportLoginsLater" = "稍后导入登录信息";
 "ImportLoginsLaterQuestion" = "稍后导入登录信息吗？";

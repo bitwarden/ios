@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Неверный мастер-пароль. Попробуйте снова.";
 "InvalidPIN" = "Неверный PIN. Попробуйте снова.";
 "Launch" = "Перейти";
-"LogIn" = "Войти";
+"LogIn" = "Log in";
 "LogInNoun" = "Вход";
 "LogOut" = "Выход";
 "LogoutConfirmation" = "Вы действительно хотите выйти?";

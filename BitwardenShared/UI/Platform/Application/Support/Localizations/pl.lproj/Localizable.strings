@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Hasło główne jest nieprawidłowe. Spróbuj ponownie.";
 "InvalidPIN" = "Kod PIN jest nieprawidłowy. Spróbuj ponownie.";
 "Launch" = "Uruchom";
-"LogIn" = "Zaloguj się";
+"LogIn" = "Log in";
 "LogInNoun" = "Zaloguj się";
 "LogOut" = "Wyloguj się";
 "LogoutConfirmation" = "Czy na pewno chcesz się wylogować?";
