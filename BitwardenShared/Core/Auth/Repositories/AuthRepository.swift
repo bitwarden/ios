@@ -34,9 +34,11 @@ protocol AuthRepository: AnyObject {
     ///
     func canVerifyMasterPassword(userId: String?) async throws -> Bool
 
-    /// Checks the session timeout for all non active, unlocked accounts, and locks or logs out as needed.
+    /// Checks the session timeout for all accounts, and locks or logs out as needed.
     ///
-    func checkSessionTimeout() async
+    /// - Parameter handleActiveUser: A closure to handle the active user.
+    ///
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async
 
     /// Clears the pins stored on device and in memory.
     ///
@@ -519,22 +521,27 @@ extension DefaultAuthRepository: AuthRepository {
         try await stateService.getUserHasMasterPassword(userId: userId)
     }
 
-    func checkSessionTimeout() async {
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)? = nil) async {
         do {
             let accounts = try await getAccounts()
             guard !accounts.isEmpty else { return }
             let activeAccount = try await getActiveAccount()
-            for account in accounts where account.userId != activeAccount.userId && account.isUnlocked {
-                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(
-                    userId: account.userId
-                )
-                if shouldTimeout == true {
-                    let timeoutAction = try await sessionTimeoutAction(userId: account.userId)
-                    switch timeoutAction {
-                    case .lock:
-                        await vaultTimeoutService.lockVault(userId: account.userId)
-                    case .logout:
-                        try await logout(userId: account.userId, userInitiated: false)
+            let activeUserId = activeAccount.userId
+
+            for account in accounts {
+                let userId = account.userId
+                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
+                if shouldTimeout {
+                    if userId == activeUserId {
+                        await handleActiveUser?(activeUserId)
+                    } else {
+                        let timeoutAction = try await sessionTimeoutAction(userId: userId)
+                        switch timeoutAction {
+                        case .lock:
+                            await vaultTimeoutService.lockVault(userId: userId)
+                        case .logout:
+                            try await logout(userId: userId, userInitiated: false)
+                        }
                     }
                 }
             }

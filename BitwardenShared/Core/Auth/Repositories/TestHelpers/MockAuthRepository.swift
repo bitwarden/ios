@@ -28,6 +28,7 @@ class MockAuthRepository: AuthRepository {
     var altAccounts = [Account]()
     var getAccountError: Error?
     var getSSOOrganizationIdentifierByResult: Result<String?, Error> = .success(nil)
+    var handleActiveUserClosure: ((String) async -> Void)?
     var hasManuallyLocked = false
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
@@ -128,8 +129,9 @@ class MockAuthRepository: AuthRepository {
         }
     }
 
-    func checkSessionTimeout() async {
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async {
         checkSessionTimeoutCalled = true
+        handleActiveUserClosure = handleActiveUser
     }
 
     func clearPins() async throws {
