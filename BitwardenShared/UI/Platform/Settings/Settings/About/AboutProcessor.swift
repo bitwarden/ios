@@ -87,21 +87,20 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
+        let hardwareInfo = ":iphone: \(services.systemDevice.modelIdentifier)"
+        let osInfo = ":green_apple: \(services.systemDevice.systemName) \(services.systemDevice.systemVersion)"
+        let deviceInfo = "\(hardwareInfo) \(osInfo)"
         var infoParts = [
             state.copyrightText,
             "",
             state.version,
-            "\n-------- Device --------\n",
-            "Model: \(services.systemDevice.modelIdentifier)",
-            "OS: \(services.systemDevice.systemName) \(services.systemDevice.systemVersion)",
+            deviceInfo,
         ]
         if !aboutAdditionalInfo.ciBuildInfo.isEmpty {
-            infoParts.append("\n------- CI Info --------\n")
             infoParts.append(
                 contentsOf: aboutAdditionalInfo.ciBuildInfo.map { key, value in
-                    "\(key): \(value)"
+                    "\(key) \(value)"
                 }
-                .sorted()
             )
         }
         services.pasteboardService.copy(infoParts.joined(separator: "\n"))

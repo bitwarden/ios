@@ -359,7 +359,7 @@ jobs:
 
       - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ env._COMPILER_FLAGS }}"
+          ./Scripts/update_app_ci_build_info.sh $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_SHA $GITHUB_ACTION_RUN_URL "$_COMPILER_FLAGS"
 
       - name: Build iOS app
         run: |
