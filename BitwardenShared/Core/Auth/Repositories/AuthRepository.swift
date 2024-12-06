@@ -520,22 +520,28 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func checkSessionTimeout() async {
-        let accounts = await (try? getAccounts()) ?? []
-        guard !accounts.isEmpty else { return }
-        let activeAccount = try? await getActiveAccount()
-        for account in accounts where account.userId != activeAccount?.userId && account.isUnlocked {
-            let shouldTimeout = try? await vaultTimeoutService.hasPassedSessionTimeout(
-                userId: account.userId
-            )
-            if shouldTimeout == true {
-                let timeoutAction = try? await sessionTimeoutAction(userId: account.userId)
-                switch timeoutAction {
-                case .lock:
-                    await vaultTimeoutService.lockVault(userId: account.userId)
-                case .logout, .none:
-                    try? await logout(userId: account.userId, userInitiated: false)
+        do {
+            let accounts = try await getAccounts()
+            guard !accounts.isEmpty else { return }
+            let activeAccount = try await getActiveAccount()
+            for account in accounts where account.userId != activeAccount.userId && account.isUnlocked {
+                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(
+                    userId: account.userId
+                )
+                if shouldTimeout == true {
+                    let timeoutAction = try await sessionTimeoutAction(userId: account.userId)
+                    switch timeoutAction {
+                    case .lock:
+                        await vaultTimeoutService.lockVault(userId: account.userId)
+                    case .logout:
+                        try await logout(userId: account.userId, userInitiated: false)
+                    }
                 }
             }
+        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
+            // No-op: nothing to do if there's no accounts or an active account.
+        } catch {
+            errorReporter.log(error: error)
         }
     }
 
