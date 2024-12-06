@@ -80,8 +80,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// Whether this feature can be enabled remotely.
     var isRemotelyConfigured: Bool {
         switch self {
-        case .enableAuthenticatorSync,
-             .enableCipherKeyEncryption,
+        case .enableCipherKeyEncryption,
              .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
@@ -91,6 +90,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .testLocalInitialStringFlag:
             false
         case .emailVerification,
+             .enableAuthenticatorSync,
              .refactorSsoDetailsEndpoint,
              .sshKeyVaultItem,
              .testRemoteFeatureFlag,
