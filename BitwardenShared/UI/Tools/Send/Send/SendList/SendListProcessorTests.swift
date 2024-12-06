@@ -61,11 +61,12 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(subject.state.isSendDisabled)
     }
 
-    /// `perform(_:)` with `refresh` calls the refresh method.
+    /// `perform(_:)` with `refresh` requests a fetch sync update, but does not force a sync.
     func test_perform_refresh() async {
         await subject.perform(.refresh)
 
         XCTAssertTrue(sendRepository.fetchSyncCalled)
+        XCTAssertEqual(sendRepository.fetchSyncForceSync, false)
     }
 
     /// `perform(_:)` with `search(_:)` and an empty search query returns early.
