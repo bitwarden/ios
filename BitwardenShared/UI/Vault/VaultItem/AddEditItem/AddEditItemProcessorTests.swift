@@ -818,7 +818,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             [.default] + folders.map { .custom($0) }
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertNil(eventService.collectCipherId)
         XCTAssertNil(eventService.collectEventType)
@@ -885,7 +885,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             [.default] + folders.map { .custom($0) }
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertEqual(eventService.collectCipherId, "100")
         XCTAssertEqual(eventService.collectEventType, .cipherClientViewed)
@@ -947,7 +947,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .organization(id: "123", name: "Test Org 1"),
             .organization(id: "987", name: "Test Org 2"),
         ])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCipherOwnershipOptionsIncludePersonal))
     }
 
@@ -978,6 +978,33 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.collectionIds, ["1"])
         XCTAssertEqual(subject.state.owner, owner)
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` includes read-only collections
+    /// so that the state can properly compute if it's deletable
+    @MainActor
+    func test_perform_fetchCipherOptions_readonly() async {
+        let owner = CipherOwner.organization(id: "123", name: "Test Org")
+        subject.state = CipherItemState(
+            collectionIds: ["1"],
+            hasPremium: false,
+            organizationId: owner.organizationId
+        )
+
+        vaultRepository.fetchCipherOwnershipOptions = [
+            .organization(id: "123", name: "Test Org"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success([
+            .fixture(id: "1", name: "Design", manage: false),
+        ])
+
+        await subject.perform(.fetchCipherOptions)
+
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        XCTAssertEqual(subject.state.collections.map(\.id), ["1"])
+        XCTAssertEqual(subject.state.collectionIds, ["1"])
+        XCTAssertEqual(subject.state.owner, owner)
+        XCTAssertFalse(subject.state.canBeDeleted)
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.

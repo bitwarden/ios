@@ -117,9 +117,10 @@ struct CipherItemState: Equatable {
     }
 
     /// The list of collections that can be selected from for the current owner.
+    /// These are collections that the user can add items to, so they are non-read-only collections.
     var collectionsForOwner: [CollectionView] {
         guard let owner, !owner.isPersonal else { return [] }
-        return collections.filter { $0.organizationId == owner.organizationId }
+        return collections.filter { $0.organizationId == owner.organizationId && !$0.readOnly }
     }
 
     /// The folder this item should be added to.

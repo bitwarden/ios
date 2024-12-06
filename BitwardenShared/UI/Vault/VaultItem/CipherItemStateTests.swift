@@ -114,4 +114,21 @@ class CipherItemStateTests: BitwardenTestCase {
         ]
         XCTAssertTrue(state.canBeDeleted)
     }
+
+    /// `collectionsForOwner` contains collections that are not read-only
+    func test_collectionsForOwner() throws {
+        let cipher = CipherView.loginFixture(
+            collectionIds: ["1", "2", "3"],
+            login: .fixture(),
+            organizationId: "Org1"
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.ownershipOptions = [.organization(id: "Org1", name: "Organization 1")]
+        state.collections = [
+            CollectionView.fixture(id: "1", organizationId: "Org1", manage: true, readOnly: false),
+            CollectionView.fixture(id: "2", organizationId: "Org1", manage: false, readOnly: false),
+            CollectionView.fixture(id: "3", organizationId: "Org1", manage: false, readOnly: true),
+        ]
+        XCTAssertEqual(state.collectionsForOwner.map(\.id), ["1", "2"])
+    }
 }
