@@ -176,55 +176,17 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         vaultTimeoutService.shouldSessionTimeout["1"] = true
         notificationCenterService.willEnterForegroundSubject.send()
+        // Wait for the checkSessionTimeouts method to be called
+        waitFor(authRepository.checkSessionTimeoutCalled)
 
+        // Simulate calling the handleActiveUser closure
+        if let handleActiveUserClosure = authRepository.handleActiveUserClosure {
+            Task {
+                await handleActiveUserClosure("1")
+            }
+        }
         waitFor(!coordinator.events.isEmpty)
         XCTAssertEqual(coordinator.events, [.didTimeout(userId: "1")])
-    }
-
-    /// `init()` subscribes to will enter foreground events and logs an error if one occurs when
-    /// checking timeouts.
-    func test_init_appForeground_error() {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.accounts = [account]
-        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
-
-        notificationCenterService.willEnterForegroundSubject.send()
-
-        waitFor(!errorReporter.errors.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// `init()` subscribes to will enter foreground events and handles an inactive user timeout.
-    func test_init_appForeground_inactiveUserTimeout() {
-        let account1 = Account.fixture(profile: .fixture(userId: "1"))
-        let account2 = Account.fixture(profile: .fixture(userId: "2"))
-        stateService.activeAccount = account1
-        stateService.accounts = [account1, account2]
-
-        vaultTimeoutService.shouldSessionTimeout["2"] = true
-        notificationCenterService.willEnterForegroundSubject.send()
-
-        waitFor(vaultTimeoutService.isClientLocked["2"] == true)
-        XCTAssertEqual(vaultTimeoutService.isClientLocked, ["2": true])
-    }
-
-    /// `init()` subscribes to will enter foreground events and handles an inactive user timeout
-    /// with an logout action.
-    func test_init_appForeground_inactiveUserTimeoutLogout() {
-        let account1 = Account.fixture(profile: .fixture(userId: "1"))
-        let account2 = Account.fixture(profile: .fixture(userId: "2"))
-        stateService.activeAccount = account1
-        stateService.accounts = [account1, account2]
-        authRepository.sessionTimeoutAction["2"] = .logout
-
-        vaultTimeoutService.shouldSessionTimeout["2"] = true
-        notificationCenterService.willEnterForegroundSubject.send()
-
-        waitFor(authRepository.logoutCalled)
-        XCTAssertTrue(authRepository.logoutCalled)
-        XCTAssertEqual(authRepository.logoutUserId, "2")
-        XCTAssertFalse(authRepository.logoutUserInitiated)
     }
 
     /// `init()` subscribes to will enter foreground events ands completes the user's autofill setup

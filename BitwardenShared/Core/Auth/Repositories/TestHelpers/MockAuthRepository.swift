@@ -11,6 +11,7 @@ class MockAuthRepository: AuthRepository {
     var canBeLockedResult: [String: Bool] = [:]
     var canVerifyMasterPasswordResult: Result<Bool, Error> = .success(true)
     var canVerifyMasterPasswordForUserResult: Result<[String: Bool], Error> = .success([:])
+    var checkSessionTimeoutCalled = false
     var clearPinsCalled = false
     var createNewSsoUserRememberDevice: Bool = false
     var createNewSsoUserOrgIdentifier: String = ""
@@ -27,6 +28,7 @@ class MockAuthRepository: AuthRepository {
     var altAccounts = [Account]()
     var getAccountError: Error?
     var getSSOOrganizationIdentifierByResult: Result<String?, Error> = .success(nil)
+    var handleActiveUserClosure: ((String) async -> Void)?
     var hasManuallyLocked = false
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
@@ -125,6 +127,11 @@ class MockAuthRepository: AuthRepository {
         } else {
             try canVerifyMasterPasswordResult.get()
         }
+    }
+
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async {
+        checkSessionTimeoutCalled = true
+        handleActiveUserClosure = handleActiveUser
     }
 
     func clearPins() async throws {
