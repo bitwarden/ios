@@ -6,6 +6,9 @@ import SwiftUI
 enum ProfileSwitcherAccessibilityAction: Equatable {
     /// The account should be logged out.
     case logout(ProfileSwitcherItem)
+
+    /// The account should be removed.
+    case remove(ProfileSwitcherItem)
 }
 
 // MARK: - ProfileSwitcherAction
