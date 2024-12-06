@@ -12,11 +12,12 @@ class ImportCiphersRequestTests: BitwardenTestCase {
         let subject = try ImportCiphersRequest(
             ciphers: [.fixture(name: "cipherTest")],
             folders: [.fixture(name: "folderTest")],
-            folderRelationships: [1: 1]
+            folderRelationships: [(1, 1)]
         )
         XCTAssertEqual(subject.body?.ciphers[0].name, "cipherTest")
         XCTAssertEqual(subject.body?.folders[0].name, "folderTest")
-        XCTAssertEqual(subject.body?.folderRelationships[1], 1)
+        XCTAssertEqual(subject.body?.folderRelationships[0].key, 1)
+        XCTAssertEqual(subject.body?.folderRelationships[0].value, 1)
     }
 
     /// `init(ciphers:folders:folderRelationships:)` initializes the request successfully.

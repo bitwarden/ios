@@ -26,6 +26,12 @@ class MockClientExporters {
     /// The result of a call to `exportVault(_:)`
     var exportVaultResult: Result<String, Error> = .failure(BitwardenTestError.example)
 
+    /// The payload passed to `importCxf(payload:)`
+    var importCxfPayload: String?
+
+    /// The result of a call to `importCxf(payload:)`
+    var importCxfResult: Result<[BitwardenSdk.Cipher], Error> = .failure(BitwardenTestError.example)
+
     /// The folders exported in a call to `exportVault(_:)`.
     var folders = [BitwardenSdk.Folder]()
 
@@ -62,5 +68,10 @@ extension MockClientExporters: ClientExportersProtocol {
         self.ciphers = ciphers
         self.format = format
         return try exportVaultResult.get()
+    }
+
+    func importCxf(payload: String) throws -> [BitwardenSdk.Cipher] {
+        importCxfPayload = payload
+        return try importCxfResult.get()
     }
 }

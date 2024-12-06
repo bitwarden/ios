@@ -31,7 +31,7 @@ class ImportCiphersAPIServiceTests: BitwardenTestCase {
         client.results = [
             .httpSuccess(testData: .emptyResponse),
         ]
-        _ = try await subject.importCiphers(ciphers: [.fixture()], folders: [], folderRelationships: [:])
+        _ = try await subject.importCiphers(ciphers: [.fixture()], folders: [], folderRelationships: [])
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -46,7 +46,7 @@ class ImportCiphersAPIServiceTests: BitwardenTestCase {
         ]
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.importCiphers(ciphers: [.fixture()], folders: [], folderRelationships: [:])
+            _ = try await subject.importCiphers(ciphers: [.fixture()], folders: [], folderRelationships: [])
         }
     }
 }

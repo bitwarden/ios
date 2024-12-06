@@ -49,6 +49,9 @@ extension StyleGuideFont {
 // MARK: - StyleGuideFont Constants
 
 extension StyleGuideFont {
+    /// The font for the huge title style.
+    static let hugeTitle = StyleGuideFont.dmSans(lineHeight: 41, size: 34, textStyle: .largeTitle)
+
     /// The font for the large title style.
     static let largeTitle = StyleGuideFont.dmSans(lineHeight: 32, size: 26, textStyle: .largeTitle)
 
@@ -208,6 +211,8 @@ struct StyleGuideFont_Previews: PreviewProvider {
     static var previews: some View {
         HStack {
             VStack(alignment: .trailing, spacing: 8) {
+                Text("Huge Title")
+                    .styleGuide(.hugeTitle)
                 Text("Large Title")
                     .styleGuide(.largeTitle)
                 Text("Title")
@@ -236,6 +241,8 @@ struct StyleGuideFont_Previews: PreviewProvider {
                     .styleGuide(.caption2Monospaced)
             }
             VStack(alignment: .leading, spacing: 8) {
+                Text("Huge Title")
+                    .styleGuide(.hugeTitle, weight: .semibold)
                 Text("Large Title")
                     .styleGuide(.largeTitle, weight: .semibold)
                 Text("Title")
@@ -269,6 +276,8 @@ struct StyleGuideFont_Previews: PreviewProvider {
 
         HStack {
             VStack(alignment: .trailing, spacing: 8) {
+                Text("Huge Title")
+                    .styleGuide(.hugeTitle)
                 Text("Large Title")
                     .styleGuide(.largeTitle)
                 Text("Title")
@@ -297,6 +306,8 @@ struct StyleGuideFont_Previews: PreviewProvider {
                     .styleGuide(.caption2Monospaced)
             }
             VStack(alignment: .leading, spacing: 8) {
+                Text("Huge Title")
+                    .styleGuide(.hugeTitle, isItalic: true)
                 Text("Large Title")
                     .styleGuide(.largeTitle, isItalic: true)
                 Text("Title")
@@ -330,6 +341,8 @@ struct StyleGuideFont_Previews: PreviewProvider {
 
         HStack {
             VStack(alignment: .trailing, spacing: 8) {
+                Text("Huge Title")
+                    .styleGuide(.hugeTitle)
                 Text("Large Title")
                     .styleGuide(.largeTitle)
                 Text("Title")
@@ -358,6 +371,8 @@ struct StyleGuideFont_Previews: PreviewProvider {
                     .styleGuide(.caption2Monospaced)
             }
             VStack(alignment: .leading, spacing: 8) {
+                Text("Huge Title")
+                    .styleGuide(.hugeTitle, weight: .semibold, isItalic: true)
                 Text("Large Title")
                     .styleGuide(.largeTitle, weight: .semibold, isItalic: true)
                 Text("Title")

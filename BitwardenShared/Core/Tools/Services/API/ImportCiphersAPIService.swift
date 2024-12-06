@@ -15,7 +15,7 @@ protocol ImportCiphersAPIService {
     func importCiphers(
         ciphers: [Cipher],
         folders: [Folder],
-        folderRelationships: [Int: Int]
+        folderRelationships: [(key: Int, value: Int)]
     ) async throws -> EmptyResponse
 }
 
@@ -23,7 +23,7 @@ extension APIService: ImportCiphersAPIService {
     func importCiphers(
         ciphers: [Cipher],
         folders: [Folder],
-        folderRelationships: [Int: Int]
+        folderRelationships: [(key: Int, value: Int)]
     ) async throws -> EmptyResponse {
         try await apiService
             .send(
