@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Chybné hlavní heslo. Zkuste to znovu.";
 "InvalidPIN" = "Chybný PIN. Zkuste to znovu.";
 "Launch" = "Spustit";
-"LogIn" = "Přihlásit se";
+"LogIn" = "Log in";
 "LogInNoun" = "Přihlašovací údaje";
 "LogOut" = "Odhlásit se";
 "LogoutConfirmation" = "Opravdu se chcete odhlásit?";

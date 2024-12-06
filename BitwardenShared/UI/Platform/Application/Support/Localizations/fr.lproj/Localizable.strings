@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Mot de passe principal invalide. Essayez à nouveau.";
 "InvalidPIN" = "Code PIN invalide. Veuillez réessayer.";
 "Launch" = "Ouvrir";
-"LogIn" = "S'identifier";
+"LogIn" = "Log in";
 "LogInNoun" = "Identifiant";
 "LogOut" = "Se déconnecter";
 "LogoutConfirmation" = "Êtes-vous sûr de vouloir vous déconnecter ?";

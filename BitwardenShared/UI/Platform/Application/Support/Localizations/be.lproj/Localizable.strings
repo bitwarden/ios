@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Памылковы асноўны пароль. Паспрабуйце яшчэ раз.";
 "InvalidPIN" = "Памылковы PIN. Паспрабуйце яшчэ раз.";
 "Launch" = "Запусціць";
-"LogIn" = "Увайсці";
+"LogIn" = "Log in";
 "LogInNoun" = "Лагін";
 "LogOut" = "Выйсці";
 "LogoutConfirmation" = "Вы сапраўды хочаце выйсці?";

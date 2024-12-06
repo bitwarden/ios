@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Ugyldig hovedadgangskode. Forsøg igen.";
 "InvalidPIN" = "Ugyldig pinkode. Prøv igen.";
 "Launch" = "Gå til";
-"LogIn" = "Log ind";
+"LogIn" = "Log in";
 "LogInNoun" = "Login";
 "LogOut" = "Log ud";
 "LogoutConfirmation" = "Er du sikker på, at du vil logge ud?";

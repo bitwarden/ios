@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Senha mestra inválida. Tente novamente.";
 "InvalidPIN" = "PIN inválido. Tente novamente.";
 "Launch" = "Abrir";
-"LogIn" = "Iniciar Sessão";
+"LogIn" = "Log in";
 "LogInNoun" = "Login";
 "LogOut" = "Encerrar sessão";
 "LogoutConfirmation" = "Tem certeza que deseja sair?";

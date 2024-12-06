@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "La contrasenya mestra no és vàlida. Torneu-ho a provar.";
 "InvalidPIN" = "El PIN no és vàlid. Torna-ho a provar.";
 "Launch" = "Inicia";
-"LogIn" = "Inicia la sessió";
+"LogIn" = "Log in";
 "LogInNoun" = "Inici de sessió";
 "LogOut" = "Tanca la sessió";
 "LogoutConfirmation" = "Segur que voleu tancar la sessió?";

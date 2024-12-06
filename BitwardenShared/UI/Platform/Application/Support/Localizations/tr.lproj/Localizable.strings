@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Ana parola geçersiz. Tekrar deneyin.";
 "InvalidPIN" = "Geçersiz PIN. Yeniden deneyin.";
 "Launch" = "Başlat";
-"LogIn" = "Giriş yap";
+"LogIn" = "Log in";
 "LogInNoun" = "Giriş";
 "LogOut" = "Çıkış yap";
 "LogoutConfirmation" = "Çıkmak istediğinize emin misiniz?";
