@@ -33,12 +33,6 @@ struct VaultGroupView: View {
             .navigationTitle(store.state.group.navigationTitle)
             .navigationBarTitleDisplayMode(.inline)
             .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-            .toolbar {
-                // Using this state here temporarily until we remove the toolbar button.
-                addToolbarItem(hidden: !store.state.showAddItemFloatingActionButton) {
-                    store.send(.addItemPressed)
-                }
-            }
             .task {
                 await store.perform(.appeared)
             }

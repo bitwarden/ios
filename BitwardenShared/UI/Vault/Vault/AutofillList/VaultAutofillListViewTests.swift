@@ -32,20 +32,12 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     // MARK: Tests
 
-    /// Tapping the add an item button dispatches the `.addTapped` action.
-    @MainActor
-    func test_addItemButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: true))
-    }
-
-    /// Tapping the add item floating acrtion button dispatches the `.addItemPressed` action.`
+    /// Tapping the add item floating action button dispatches the `.addItemPressed` action.`
     @MainActor
     func test_addItemFloatingActionButton_tap() throws {
         let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
         try fab.button().tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: false))
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromFAB: true))
     }
 
     /// Tapping the add an item button dispatches the `.addTapped` action.
@@ -56,7 +48,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
         let button = try subject.inspect().find(button: Localizations.savePasskeyAsNewLogin)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: false))
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromFAB: false))
     }
 
     /// Tapping the cancel button dispatches the `.cancelTapped` action.

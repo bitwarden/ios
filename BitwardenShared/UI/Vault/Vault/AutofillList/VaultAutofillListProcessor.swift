@@ -147,11 +147,11 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func receive(_ action: VaultAutofillListAction) {
         switch action {
-        case let .addTapped(fromToolbar):
+        case let .addTapped(fromFAB):
             state.profileSwitcherState.setIsVisible(false)
 
             guard #available(iOSApplicationExtension 17.0, *),
-                  !fromToolbar,
+                  !fromFAB,
                   let autofillAppExtensionDelegate,
                   autofillAppExtensionDelegate.isCreatingFido2Credential else {
                 coordinator.navigate(

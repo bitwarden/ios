@@ -45,10 +45,6 @@ struct VaultAutofillListView: View {
                     )
                 )
             }
-
-            addToolbarItem(hidden: !store.state.showAddItemButton) {
-                store.send(.addTapped(fromToolbar: true))
-            }
         }
     }
 
@@ -213,7 +209,7 @@ private struct VaultAutofillListSearchableView: View {
                             EmptyView()
                         } else {
                             Button {
-                                store.send(.addTapped(fromToolbar: false))
+                                store.send(.addTapped(fromFAB: false))
                             } label: {
                                 Label {
                                     Text(store.state.emptyViewButtonText)
@@ -233,7 +229,7 @@ private struct VaultAutofillListSearchableView: View {
             }
             .overlay(alignment: .bottomTrailing) {
                 addItemFloatingActionButton {
-                    store.send(.addTapped(fromToolbar: false))
+                    store.send(.addTapped(fromFAB: true))
                 }
             }
             .hidden(isSearching)
