@@ -2,22 +2,6 @@
 
 import SwiftUI
 
-// MARK: - PreserveLargeTitleView
-
-/// A view that prevents the `.large` title from scrolling into `.inline` mode.
-///
-/// By adding this view to the hierarchy, it moves the activity indicator underneath the nav bar,
-/// keeping the title and search bar in place while the refreshable happens below.
-///
-private struct PreserveLargeTitleView: View {
-    var body: some View {
-        Rectangle()
-            .fill(Color(UIColor(white: 0.0, alpha: 0.0005)))
-            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: 1)
-            .hidden()
-    }
-}
-
 // MARK: - SearchableItemListView
 
 /// A view that displays the items in a single vault group.
@@ -372,9 +356,6 @@ struct ItemListView: View {
             )
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
-            }
-            .refreshable {
-                await store.perform(.refresh)
             }
         }
         .navigationTitle(Localizations.verificationCodes)
