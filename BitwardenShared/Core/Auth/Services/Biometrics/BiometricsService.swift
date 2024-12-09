@@ -85,15 +85,16 @@ class DefaultBiometricsService: BiometricsService {
         }
 
         switch authContext.biometryType {
-        case .none,
-             .opticID:
+        case .none:
             return .none
         case .touchID:
             return .touchID
         case .faceID:
             return .faceID
+        case .opticID:
+            return .opticID
         @unknown default:
-            return .none
+            return .biometrics
         }
     }
 

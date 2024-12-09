@@ -270,6 +270,10 @@ struct AccountSecurityView: View {
             return Localizations.unlockWith(Localizations.faceID)
         case .touchID:
             return Localizations.unlockWith(Localizations.touchID)
+        case .opticID:
+            return Localizations.unlockWith(Localizations.opticID)
+        case .biometrics:
+            return Localizations.unlockWith(Localizations.biometrics)
         }
     }
 }

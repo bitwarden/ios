@@ -129,6 +129,30 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.touchID), .pin])
     }
 
+    /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Touch ID.
+    @MainActor
+    func test_perform_loadData_opticID() async {
+        let status = BiometricsUnlockStatus.available(.opticID, enabled: false)
+        biometricsRepository.biometricUnlockStatus = .success(status)
+
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.biometricsStatus, status)
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.opticID), .pin])
+    }
+
+    /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Touch ID.
+    @MainActor
+    func test_perform_loadData_biometrics() async {
+        let status = BiometricsUnlockStatus.available(.biometrics, enabled: false)
+        biometricsRepository.biometricUnlockStatus = .success(status)
+
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.biometricsStatus, status)
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.biometrics), .pin])
+    }
+
     /// `perform(_:)` with `.toggleUnlockMethod` disables biometrics unlock and updates the state.
     @MainActor
     func test_perform_toggleUnlockMethod_biometrics_disable() async {
