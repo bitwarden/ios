@@ -596,6 +596,8 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.state.generatedValue = "password"
         subject.receive(.selectButtonPressed)
         XCTAssertEqual(coordinator.routes.last, .complete(type: .password, value: "password"))
+        waitFor(!stateService.userActions.isEmpty)
+        XCTAssertEqual(stateService.userActions, [.copiedOrInsertedGeneratedValue])
     }
 
     /// `receive(_:)` with `.showPasswordHistory` asks the coordinator to show the password history.

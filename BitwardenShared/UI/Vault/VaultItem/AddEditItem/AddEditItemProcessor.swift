@@ -732,9 +732,6 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
             state.loginState.username = value
         }
         coordinator.navigate(to: .dismiss())
-        Task {
-            await services.stateService.trackUserAction(.copiedOrInsertedGeneratedValue)
-        }
     }
 }
 

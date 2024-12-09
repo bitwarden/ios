@@ -110,6 +110,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                     value: state.generatedValue
                 )
             )
+            Task {
+                await services.stateService.trackUserAction(.copiedOrInsertedGeneratedValue)
+            }
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)
         case let .sliderEditingChanged(_, isEditing):
