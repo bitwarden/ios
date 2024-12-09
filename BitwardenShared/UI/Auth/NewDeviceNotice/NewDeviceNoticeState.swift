@@ -4,4 +4,6 @@
 ///
 struct NewDeviceNoticeState: Equatable, Sendable {
     // MARK: Properties
+
+    var canAccessEmail: Bool
 }
