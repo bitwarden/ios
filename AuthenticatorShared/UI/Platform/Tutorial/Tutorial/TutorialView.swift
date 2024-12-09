@@ -62,16 +62,14 @@ struct TutorialView: View {
             }
             .buttonStyle(.primary())
 
-            if verticalSizeClass == .regular {
-                Button {
-                    store.send(.skipTapped)
-                } label: {
-                    Text(Localizations.skip)
-                        .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                }
-                .buttonStyle(InlineButtonStyle())
-                .hidden(store.state.isLastPage)
+            Button {
+                store.send(.skipTapped)
+            } label: {
+                Text(Localizations.skip)
+                    .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
             }
+            .buttonStyle(InlineButtonStyle())
+            .hidden(store.state.isLastPage)
         }
         .padding(16)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
