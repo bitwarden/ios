@@ -1,7 +1,17 @@
 {
   "images" : [
     {
-      "filename" : "business-warning.pdf",
+      "filename" : "business-warning.svg",
+      "idiom" : "universal"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "business-warning-dark.svg",
       "idiom" : "universal"
     }
   ],
