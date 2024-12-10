@@ -76,6 +76,9 @@ extension StyleGuideFont {
     /// The font for the callout style.
     static let callout = StyleGuideFont.dmSans(lineHeight: 18, size: 13, textStyle: .callout)
 
+    /// The font for the callout style.
+    static let calloutBold = StyleGuideFont(font: FontFamily.DMSans.bold, lineHeight: 18, size: 13, textStyle: .callout)
+
     /// The font for the subheadline style.
     static let subheadline = StyleGuideFont.dmSans(lineHeight: 16, size: 12, textStyle: .subheadline)
 
