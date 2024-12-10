@@ -63,7 +63,7 @@ struct LoginRequestView: View {
         AsyncButton(Localizations.denyLogIn) {
             await store.perform(.answerRequest(approve: false))
         }
-        .buttonStyle(.tertiary())
+        .buttonStyle(.secondary())
         .accessibilityIdentifier("DenyLoginButton")
     }
 
