@@ -161,7 +161,7 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
             """
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
@@ -184,7 +184,7 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
             🧱 commit: bitwarden/ios/main@abc123
             💻 build source: bitwarden/ios/actions/runs/123/attempts/123
             🛠️ compiler flags: DEBUG_MENU
@@ -210,7 +210,7 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
-            📱 iPhone14,2 🍏 iOS 16.4
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
             🧱 commit: bitwarden/ios/main@abc123
             💻 build source: bitwarden/ios/actions/runs/123/attempts/123
             """

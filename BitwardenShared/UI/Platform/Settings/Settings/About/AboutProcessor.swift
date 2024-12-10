@@ -1,5 +1,7 @@
 // MARK: - AboutProcessor
 
+import Foundation
+
 /// The processor used to manage state and handle actions for the `AboutView`.
 ///
 final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
@@ -87,9 +89,15 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
+        var buildVariant = switch Bundle.main.bundleIdentifier {
+        case "com.8bit.bitwarden.beta": "Beta"
+        case "com.8bit.bitwarden": "Production"
+        default: "Unkown"
+        }
+        buildVariant = "📦 \(buildVariant)"
         let hardwareInfo = "📱 \(services.systemDevice.modelIdentifier)"
         let osInfo = "🍏 \(services.systemDevice.systemName) \(services.systemDevice.systemVersion)"
-        let deviceInfo = "\(hardwareInfo) \(osInfo)"
+        let deviceInfo = "\(hardwareInfo) \(osInfo) \(buildVariant)"
         var infoParts = [
             state.copyrightText,
             "",
