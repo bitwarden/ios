@@ -268,6 +268,12 @@ protocol StateService: AnyObject {
     /// - Returns: The server config used prior to user authentication.
     func getPreAuthServerConfig() async -> ServerConfig?
 
+    /// Gets the App Review Prompt data.
+    ///
+    /// - Returns: The App Review Prompt data.
+    ///
+    func getReviewPromptData() async -> ReviewPromptData?
+
     /// Gets the server config for a user ID, as set by the server.
     ///
     /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
@@ -358,12 +364,6 @@ protocol StateService: AnyObject {
     /// - Returns: Whether the user is authenticated.
     ///
     func isAuthenticated(userId: String?) async throws -> Bool
-
-    /// Checks if the app review prompt should be shown.
-    ///
-    /// - Returns: `true` if the app review prompt should be shown, `false` otherwise.
-    ///
-    func isEligibleForReviewPrompt() async -> Bool
 
     /// Logs the user out of an account.
     ///
@@ -1231,20 +1231,6 @@ enum StateServiceError: LocalizedError {
     }
 }
 
-// MARK: - UserAction
-
-/// An enumeration of user actions that can be tracked.
-enum UserAction: String, Codable {
-    /// The user added a new item.
-    case addedNewItem
-
-    /// The user created a new send.
-    case createdNewSend
-
-    /// The user copied or inserted a generated value.
-    case copiedOrInsertedGeneratedValue
-}
-
 // MARK: - DefaultStateService
 
 /// A default implementation of `StateService`.
@@ -1545,6 +1531,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthServerConfig
     }
 
+    func getReviewPromptData() async -> ReviewPromptData? {
+        appSettingsStore.reviewPromptData
+    }
+
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.serverConfig(userId: userId)
@@ -1627,28 +1617,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         } catch KeychainServiceError.osStatusError(errSecItemNotFound) {
             return false
         }
-    }
-
-    func isEligibleForReviewPrompt() async -> Bool {
-        // Check if autofill is enabled
-        let isAutofillEnabled = await identityStore.isAutofillEnabled()
-        guard isAutofillEnabled else {
-            return false
-        }
-
-        // Check if the review prompt has already been shown for the current app version
-        if  appSettingsStore.reviewPromptShownForVersion == appVersion {
-            return false
-        }
-
-        // Check if any user action has been performed at least three times
-        let userActions: [UserAction] = appSettingsStore.userActions
-        let actionCounts = userActions.reduce(into: [:]) { counts, action in
-            counts[action, default: 0] += 1
-        }
-
-        let eligibleActions = actionCounts.filter { $0.value >= 3 }
-        return !eligibleActions.isEmpty
     }
 
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
@@ -1992,7 +1960,9 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     }
 
     func trackUserAction(_ action: UserAction) async {
-        appSettingsStore.addUserAction(action)
+        if appSettingsStore.reviewPromptData?.reviewPromptShownForVersion != appVersion {
+            appSettingsStore.addUserAction(action)
+        }
     }
 
     // MARK: Private

@@ -54,14 +54,11 @@ protocol AppSettingsStore: AnyObject {
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
-    /// The app version for which the review prompt has been shown.
-    var reviewPromptShownForVersion: String? { get set }
+    /// The review prompt data.
+    var reviewPromptData: ReviewPromptData? { get set }
 
     /// The app's account state.
     var state: State? { get set }
-
-    /// The user actions that have been tracked.
-    var userActions: [UserAction] { get set }
 
     /// The user's progress for setting up autofill.
     ///
@@ -435,6 +432,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String)
 
+    /// Sets app version that the review prompt was last shown for.
+    ///
+    /// - Parameter version: The app version that the review prompt was last shown for.
+    ///
+    func setReviewPromptShownVersion(version: String)
+
     /// Sets the server config.
     ///
     /// - Parameters:
@@ -721,14 +724,13 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
-        case reviewPromptShownForVersion
+        case reviewPromptData
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
-        case userActions
         case usernameGenerationOptions(userId: String)
         case usesKeyConnector(userId: String)
         case vaultTimeout(userId: String)
@@ -810,8 +812,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
-            case .reviewPromptShownForVersion:
-                key = "reviewPromptShownForVersion"
+            case .reviewPromptData:
+                key = "reviewPromptData"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
             case let .shouldTrustDevice(userId):
@@ -824,8 +826,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
                 key = "invalidUnlockAttempts_\(userId)"
-            case .userActions:
-                key = "userActions"
             case let .usernameGenerationOptions(userId):
                 key = "usernameGenerationOptions_\(userId)"
             case let .usesKeyConnector(userId):
@@ -908,9 +908,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .rememberedOrgIdentifier) }
     }
 
-    var reviewPromptShownForVersion: String? {
-        get { fetch(for: .reviewPromptShownForVersion) }
-        set { store(newValue, for: .reviewPromptShownForVersion) }
+    var reviewPromptData: ReviewPromptData? {
+        get { fetch(for: .reviewPromptData) }
+        set { store(newValue, for: .reviewPromptData) }
     }
 
     var state: State? {
@@ -919,11 +919,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             activeAccountIdSubject.send(newValue?.activeUserId)
             return store(newValue, for: .state)
         }
-    }
-
-    var userActions: [UserAction] {
-        get { fetch(for: .userActions) ?? [] }
-        set { store(newValue, for: .userActions) }
     }
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
@@ -939,9 +934,13 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func addUserAction(_ action: UserAction) {
-        var actions = userActions
-        actions.append(action)
-        userActions = actions
+        var reviewPromptData = reviewPromptData ?? ReviewPromptData()
+        if let index = reviewPromptData.userActions.firstIndex(where: { $0.userAction == action }) {
+            reviewPromptData.userActions[index].count += 1
+        } else {
+            reviewPromptData.userActions.append(UserActionItem(userAction: action, count: 1))
+        }
+        self.reviewPromptData = reviewPromptData
     }
 
     func allowSyncOnRefresh(userId: String) -> Bool {
@@ -961,7 +960,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     }
 
     func clearUserActions() {
-        userActions = []
+        reviewPromptData?.userActions = []
     }
 
     func connectToWatch(userId: String) -> Bool {
@@ -1128,6 +1127,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String) {
         store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
+    }
+
+    func setReviewPromptShownVersion(version: String) {
+        var reviewPromptData = reviewPromptData ?? ReviewPromptData()
+        reviewPromptData.reviewPromptShownForVersion = version
+        self.reviewPromptData = reviewPromptData
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {

@@ -27,6 +27,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         subject = DefaultStateService(
             appSettingsStore: appSettingsStore,
+            appVersion: "1.2.3",
             dataStore: dataStore,
             errorReporter: errorReporter,
             identityStore: identityStore,
@@ -1199,68 +1200,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(value)
     }
 
-    /// `isEligibleForReviewPrompt()` returns false if auto-fill is disabled.
-    func test_isEligibleForReviewPrompt_autoFillDisabled() async throws {
-        identityStore.state.mockIsEnabled = false
-        appSettingsStore.reviewPromptShownForVersion = nil
-        appSettingsStore.userActions = [.addedNewItem, .addedNewItem, .addedNewItem]
-        let isEligible = await subject.isEligibleForReviewPrompt()
-
-        XCTAssertFalse(isEligible)
-    }
-
-    /// `isEligibleForReviewPrompt()` returns false if the review prompt has been shown for this version.
-    func test_isEligibleForReviewPrompt_reviewPromptShownForVersionMatch() async throws {
-        identityStore.state.mockIsEnabled = true
-        appSettingsStore.reviewPromptShownForVersion = Bundle.main.appVersion
-        appSettingsStore.userActions = [.addedNewItem, .addedNewItem, .addedNewItem]
-        let isEligible = await subject.isEligibleForReviewPrompt()
-
-        XCTAssertFalse(isEligible)
-    }
-
-    /// `isEligibleForReviewPrompt()` returns correct value based on user actions.
-    func test_isEligibleForReviewPrompt_userActions() async throws {
-        identityStore.state.mockIsEnabled = true
-        appSettingsStore.reviewPromptShownForVersion = nil
-        appSettingsStore.userActions = [.addedNewItem, .addedNewItem, .addedNewItem]
-        let isEligibleViaNewItem = await subject.isEligibleForReviewPrompt()
-        XCTAssertTrue(
-            isEligibleViaNewItem,
-            "User should be eligible for review prompt after adding 3 new items."
-        )
-
-        appSettingsStore.userActions = [.createdNewSend, .createdNewSend, .createdNewSend]
-        let isEligibleViaNewSend = await subject.isEligibleForReviewPrompt()
-        XCTAssertTrue(
-            isEligibleViaNewSend,
-            "User should be eligible for review prompt after creating 3 new sends."
-        )
-
-        appSettingsStore.userActions = [
-            .copiedOrInsertedGeneratedValue,
-            .copiedOrInsertedGeneratedValue,
-            .copiedOrInsertedGeneratedValue,
-        ]
-        let isEligibleViaCopy = await subject.isEligibleForReviewPrompt()
-        XCTAssertTrue(
-            isEligibleViaCopy,
-            "User should be eligible for review prompt after 3 copying or inserting generated values."
-        )
-
-        appSettingsStore.userActions = [
-            .addedNewItem,
-            .addedNewItem,
-            .createdNewSend,
-            .copiedOrInsertedGeneratedValue,
-        ]
-        let isEligible = await subject.isEligibleForReviewPrompt()
-        XCTAssertFalse(
-            isEligible,
-            "User shouldn't be eligible if none of the user actions was repeated 3 times."
-        )
-    }
-
     /// `isAuthenticated()` returns the authentication state of the user.
     func test_isAuthenticated() async throws {
         await subject.addAccount(.fixture())
@@ -1479,13 +1418,34 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `.resetUserActionCounts()` adds the user action to the list of user actions in the app settings store.
     func test_resetUserActionCounts() async throws {
-        appSettingsStore.userActions = [
-            .copiedOrInsertedGeneratedValue,
-            .createdNewSend,
-        ]
+        appSettingsStore.reviewPromptData = ReviewPromptData(
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
         await subject.resetUserActionCounts()
 
-        XCTAssertEqual(appSettingsStore.userActions, [])
+        XCTAssertEqual(appSettingsStore.reviewPromptData?.userActions, [])
+    }
+
+    /// `.getReviewPromptData()` gets the review prompt data from the app settings store.
+    func test_getReviewPromptData() async throws {
+        let expectedData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.0",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
+        appSettingsStore.reviewPromptData = expectedData
+        let data = await subject.getReviewPromptData()
+
+        XCTAssertEqual(expectedData, data)
     }
 
     /// `getShouldTrustDevice` gets the value as expected.
@@ -2183,10 +2143,43 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `.trackUserAction(action:)` adds the user action to the list of user actions in the app settings store.
     func test_trackUserAction() async throws {
-        XCTAssertEqual(appSettingsStore.userActions, [])
+        XCTAssertNil(appSettingsStore.reviewPromptData)
         await subject.trackUserAction(.addedNewItem)
 
-        XCTAssertEqual(appSettingsStore.userActions, [.addedNewItem])
+        XCTAssertEqual(
+            appSettingsStore.reviewPromptData?.userActions,
+            [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 1
+                ),
+            ]
+        )
+    }
+
+    /// `.trackUserAction(action:)` doesn't add the user action to the list of user actions if app review prompt
+    /// is shown for the current version.
+    func test_trackUserAction_shownForCurrentVersion() async throws {
+        appSettingsStore.reviewPromptData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.3",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
+        await subject.trackUserAction(.addedNewItem)
+
+        XCTAssertEqual(
+            appSettingsStore.reviewPromptData?.userActions,
+            [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
     }
 
     /// `updateProfile(from:userId:)` updates the user's profile from the profile response.

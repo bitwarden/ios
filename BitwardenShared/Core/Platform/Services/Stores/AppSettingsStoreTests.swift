@@ -106,14 +106,17 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_addUserAction() {
         subject.addUserAction(.createdNewSend)
         subject.addUserAction(.copiedOrInsertedGeneratedValue)
+        subject.addUserAction(.copiedOrInsertedGeneratedValue)
         subject.addUserAction(.addedNewItem)
+        subject.addUserAction(.createdNewSend)
+        subject.addUserAction(.createdNewSend)
 
         XCTAssertEqual(
-            subject.userActions,
+            subject.reviewPromptData?.userActions,
             [
-                .createdNewSend,
-                .copiedOrInsertedGeneratedValue,
-                .addedNewItem,
+                UserActionItem(userAction: .createdNewSend, count: 3),
+                UserActionItem(userAction: .copiedOrInsertedGeneratedValue, count: 2),
+                UserActionItem(userAction: .addedNewItem, count: 1),
             ]
         )
     }
@@ -267,12 +270,19 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `clearUserActions()` can be used to clear the user actions.
     func test_clearUserActions() {
-        subject.userActions = [.createdNewSend,
-                               .copiedOrInsertedGeneratedValue]
+        subject.reviewPromptData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.0",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
 
         subject.clearUserActions()
 
-        XCTAssertTrue(subject.userActions.isEmpty)
+        XCTAssertTrue(subject.reviewPromptData?.userActions.isEmpty ?? false)
     }
 
     /// `connectToWatch(userId:)` returns false if there isn't a previously stored value.
@@ -980,44 +990,49 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `reviewPromptShownForVersion` returns `nil` if there isn't a previously stored value.
     func test_reviewPromptShownForVersion_isInitiallyNil() {
-        XCTAssertNil(subject.reviewPromptShownForVersion)
+        XCTAssertNil(subject.reviewPromptData?.reviewPromptShownForVersion)
     }
 
-    /// `reviewPromptShownForVersion` can be used to get and set the persisted value in user defaults.
+    /// `setReviewPromptShownVersion(version:)` can be used to get and set the persisted value in user defaults.
     func test_reviewPromptShownForVersion_withValue() {
-        subject.reviewPromptShownForVersion = "1.2.3"
-        XCTAssertEqual(subject.reviewPromptShownForVersion, "1.2.3")
-        XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:reviewPromptShownForVersion"), "1.2.3")
+        subject.reviewPromptData = nil
 
-        subject.reviewPromptShownForVersion = nil
-        XCTAssertNil(subject.reviewPromptShownForVersion)
-        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:reviewPromptShownForVersion"))
+        subject.setReviewPromptShownVersion(version: "1.2.3")
+        XCTAssertEqual(
+            subject.reviewPromptData,
+            ReviewPromptData(reviewPromptShownForVersion: "1.2.3")
+        )
     }
 
-    /// `userActions` returns `[]` if there isn't a previously stored value.
-    func test_userActions_isInitiallyNil() {
-        XCTAssertTrue(subject.userActions.isEmpty)
+    /// `reviewPromptData` returns `nil` if there isn't a previously stored value.
+    func test_reviewPromptData_isInitiallyNil() {
+        XCTAssertNil(subject.reviewPromptData)
     }
 
-    /// `userActions` can be used to get and set the persisted value in user defaults.
-    func test_userActions_withValue() {
-        let userActions: [UserAction] = [
-            .addedNewItem,
-            .createdNewSend,
-        ]
-        subject.userActions = userActions
-        XCTAssertEqual(subject.userActions, userActions)
+    /// `reviewPromptData` can be used to get and set the persisted value in user defaults.
+    func test_reviewPromptData_withValue() {
+        let reviewPromptData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.1",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
+        subject.reviewPromptData = reviewPromptData
+        XCTAssertEqual(subject.reviewPromptData, reviewPromptData)
 
         try XCTAssertEqual(
             JSONDecoder().decode(
-                [UserAction].self,
+                ReviewPromptData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:userActions")?
+                        .string(forKey: "bwPreferencesStorage:reviewPromptData")?
                         .data(using: .utf8)
                 )
             ),
-            userActions
+            reviewPromptData
         )
     }
 
