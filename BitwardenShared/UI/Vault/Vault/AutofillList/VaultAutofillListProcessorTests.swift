@@ -282,7 +282,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// `receive(_:)` with `.addTapped` navigates to the add item view.
     @MainActor
     func test_receive_addTapped() {
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped(fromFAB: false))
 
         XCTAssertEqual(
             coordinator.routes.last,
@@ -295,7 +295,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_receive_addTapped_hidesProfileSwitcher() {
         subject.state.profileSwitcherState.isVisible = true
 
-        subject.receive(.addTapped(fromToolbar: false))
+        subject.receive(.addTapped(fromFAB: false))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
@@ -303,7 +303,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// `receive(_:)` with `.addTapped` navigates to the add item view when adding from toolbar.
     @MainActor
     func test_receive_addTapped_fromToolbar() {
-        subject.receive(.addTapped(fromToolbar: true))
+        subject.receive(.addTapped(fromFAB: true))
 
         XCTAssertEqual(
             coordinator.routes.last,
@@ -316,7 +316,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_receive_addTapped_hidesProfileSwitcher_fromToolbar() {
         subject.state.profileSwitcherState.isVisible = true
 
-        subject.receive(.addTapped(fromToolbar: true))
+        subject.receive(.addTapped(fromFAB: true))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }

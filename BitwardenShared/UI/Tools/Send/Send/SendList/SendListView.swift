@@ -239,10 +239,6 @@ struct SendListView: View {
                         .frame(minHeight: 44)
                     }
                 }
-
-                addToolbarItem {
-                    store.send(.addItemPressed)
-                }
             }
             .toast(
                 store.binding(

@@ -29,14 +29,6 @@ class SendListViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the add an item button dispatches the `.addItemPressed` action.
-    @MainActor
-    func test_addItemButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
-    }
-
     /// Tapping the add item floating acrtion button dispatches the `.addItemPressed` action.`
     @MainActor
     func test_additemFloatingActionButton_tap() throws {

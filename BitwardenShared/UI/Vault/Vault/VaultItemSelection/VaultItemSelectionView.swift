@@ -45,10 +45,6 @@ struct VaultItemSelectionView: View {
                     )
                 )
             }
-
-            addToolbarItem {
-                store.send(.addTapped)
-            }
         }
     }
 

@@ -326,9 +326,6 @@ struct VaultListView: View {
                     )
                 )
             }
-            addToolbarItem {
-                store.send(.addItemPressed)
-            }
         }
         .task {
             await store.perform(.refreshAccountProfiles)
