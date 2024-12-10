@@ -232,7 +232,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         await subject.perform(.search("example"))
         XCTAssertEqual(subject.state.searchResults.count, 1)
         XCTAssertEqual(
-            vaultRepository.searchVaultListFilterType,
+            vaultRepository.searchVaultListFilterType?.filterType,
             .organization(.fixture(id: "id1"))
         )
         XCTAssertEqual(
