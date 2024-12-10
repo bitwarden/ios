@@ -6,18 +6,18 @@
 	<string>$(BASE_BUNDLE_ID)</string>
 	<key>BitwardenKeychainAccessGroup</key>
 	<string>$(AppIdentifierPrefix)$(BASE_BUNDLE_ID)</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
 	<key>CFBundleDisplayName</key>
 	<string>Bitwarden</string>
-	<key>CFBundleName</key>
-	<string>Bitwarden Autofill</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(MARKETING_VERSION)</string>
-	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
 	<key>CFBundleLocalizations</key>
 	<array>
 		<string>en</string>
@@ -56,37 +56,24 @@
 		<string>el</string>
 		<string>th</string>
 	</array>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Bitwarden Autofill</string>
 	<key>CFBundlePackageType</key>
 	<string>XPC!</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIRequiredDeviceCapabilities</key>
-	<dict>
-		<key>arm64</key>
-		<true/>
-	</dict>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<true/>
 	<key>ITSEncryptionExportComplianceCode</key>
 	<string>ecf076d3-4824-4d7b-b716-2a9a47d7d296</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>Use Face ID to unlock your vault.</string>
 	<key>NSExtension</key>
 	<dict>
-		<key>NSExtensionMainStoryboard</key>
-		<string>MainInterface</string>
-		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.authentication-services-credential-provider-ui</string>
 		<key>NSExtensionAttributes</key>
 		<dict>
-			<key>ASCredentialProviderExtensionShowsConfigurationUI</key>
-			<true/>
 			<key>ASCredentialProviderExtensionCapabilities</key>
 			<dict>
 				<key>ProvidesOneTimeCodes</key>
@@ -98,7 +85,20 @@
 				<key>ShowsConfigurationUI</key>
 				<true/>
 			</dict>
+			<key>ASCredentialProviderExtensionShowsConfigurationUI</key>
+			<true/>
 		</dict>
+		<key>NSExtensionMainStoryboard</key>
+		<string>MainInterface</string>
+		<key>NSExtensionPointIdentifier</key>
+		<string>com.apple.authentication-services-credential-provider-ui</string>
+	</dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use Face ID to unlock your vault.</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<dict>
+		<key>arm64</key>
+		<true/>
 	</dict>
 </dict>
 </plist>

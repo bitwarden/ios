@@ -1059,3 +1059,5 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"ExportingFailed" = "Exporting failed";
+"YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";

@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import Foundation
 
@@ -41,6 +42,13 @@ protocol ExportVaultService: AnyObject {
     /// - Returns: A string representing the file content.
     ///
     func exportVaultFileContents(format: ExportFileType) async throws -> String
+
+    #if compiler(>=6.0.3)
+    /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
+    /// - Returns: An `ASImportableAccount`
+    @available(iOS 18.2, *)
+    func exportVaultForCXP() async throws -> ASImportableAccount
+    #endif
 
     /// Generates a file name for the export file based on the current date, time, and specified extension.
     /// - Parameters:
@@ -91,6 +99,13 @@ extension ExportVaultService {
     func generateExportFileName(extension fileExtension: String) -> String {
         generateExportFileName(prefix: nil, extension: fileExtension)
     }
+}
+
+/// Error throws when exporting vault.
+enum ExportVaultServiceError: Error {
+    /// Error thrown when the serialized CXP exported vault string cannot be converted
+    /// to `Data` using UTF-8.
+    case cxpSerializedNotInUTF8
 }
 
 class DefultExportVaultService: ExportVaultService {
@@ -187,6 +202,28 @@ class DefultExportVaultService: ExportVaultService {
             format: exportFormat
         )
     }
+
+    #if compiler(>=6.0.3)
+
+    @available(iOS 18.2, *)
+    func exportVaultForCXP() async throws -> ASImportableAccount {
+        let ciphers = try await cipherService.fetchAllCiphers()
+            .filter { $0.deletedDate == nil }
+
+        let account = try await stateService.getAccount(userId: nil)
+        let sdkAccount = BitwardenSdkAccount(
+            id: account.profile.userId,
+            email: account.profile.email,
+            name: account.profile.name
+        )
+        let serializedCXF = try await clientService.exporters().exportCxf(account: sdkAccount, ciphers: ciphers)
+        guard let cxfData = serializedCXF.data(using: .utf8) else {
+            throw ExportVaultServiceError.cxpSerializedNotInUTF8
+        }
+        return try JSONDecoder.cxpDecoder.decode(ASImportableAccount.self, from: cxfData)
+    }
+
+    #endif
 
     func generateExportFileName(
         prefix: String?,
