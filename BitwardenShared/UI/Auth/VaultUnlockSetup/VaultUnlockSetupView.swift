@@ -54,7 +54,7 @@ struct VaultUnlockSetupView: View {
                     Button(Localizations.setUpLater) {
                         store.send(.setUpLater)
                     }
-                    .buttonStyle(.transparent)
+                    .buttonStyle(.secondary())
                 }
             }
             .padding(.vertical, 12)

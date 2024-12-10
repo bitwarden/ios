@@ -40,7 +40,7 @@ struct IntroCarouselView: View {
                 Button(Localizations.logIn) {
                     store.send(.logIn)
                 }
-                .buttonStyle(.transparent)
+                .buttonStyle(.secondary())
             }
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .padding(.horizontal, 16)
