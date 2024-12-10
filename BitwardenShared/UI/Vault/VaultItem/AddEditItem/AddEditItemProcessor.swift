@@ -751,9 +751,6 @@ extension AddEditItemProcessor: AuthenticatorKeyCaptureDelegate {
             let authKeyModel = try services.totpService.getTOTPConfiguration(key: key)
             state.loginState.totpState = .key(authKeyModel)
             state.toast = Toast(title: Localizations.authenticatorKeyAdded)
-            Task {
-                await services.stateService.trackUserAction(.copiedOrInsertedGeneratedValue)
-            }
         } catch {
             coordinator.showAlert(.totpScanFailureAlert())
         }
