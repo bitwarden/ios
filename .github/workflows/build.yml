@@ -359,8 +359,11 @@ jobs:
           yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ steps.version_info.outputs.version_number }}"' 'project.yml'
 
       - name: Update CI build info
+        env:
+          _GITHUB_ACTION_RUN_ID: ${{ github.run_id }}
+          _GITHUB_ACTION_RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
-          ./Scripts/update_app_ci_build_info.sh $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_SHA $_GITHUB_ACTION_RUN_URL "$_COMPILER_FLAGS"
+          ./Scripts/update_app_ci_build_info.sh $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_SHA $_GITHUB_ACTION_RUN_ID $_GITHUB_ACTION_RUN_ATTEMPT "$_COMPILER_FLAGS"
 
       - name: Build iOS app
         run: |
