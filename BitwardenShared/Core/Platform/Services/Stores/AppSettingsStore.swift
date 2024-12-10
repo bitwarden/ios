@@ -54,6 +54,9 @@ protocol AppSettingsStore: AnyObject {
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
+    /// The review prompt data.
+    var reviewPromptData: ReviewPromptData? { get set }
+
     /// The app's account state.
     var state: State? { get set }
 
@@ -78,6 +81,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func accountSetupVaultUnlock(userId: String) -> AccountSetupProgress?
 
+    /// Adds a user action to the tracked actions.
+    ///
+    /// - Parameter action: The user action to add.
+    ///
+    func addUserAction(_ action: UserAction)
+
     /// Whether the vault should sync on refreshing.
     ///
     /// - Parameter userId: The user ID associated with the sync on refresh setting.
@@ -90,6 +99,10 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
     func appRehydrationState(userId: String) -> AppRehydrationState?
+
+    /// Clears all tracked user actions.
+    ///
+    func clearUserActions()
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -419,6 +432,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String)
 
+    /// Sets app version that the review prompt was last shown for.
+    ///
+    /// - Parameter version: The app version that the review prompt was last shown for.
+    ///
+    func setReviewPromptShownVersion(version: String)
+
     /// Sets the server config.
     ///
     /// - Parameters:
@@ -705,6 +724,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
+        case reviewPromptData
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
         case syncToAuthenticator(userId: String)
@@ -792,6 +812,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
+            case .reviewPromptData:
+                key = "reviewPromptData"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
             case let .shouldTrustDevice(userId):
@@ -886,6 +908,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .rememberedOrgIdentifier) }
     }
 
+    var reviewPromptData: ReviewPromptData? {
+        get { fetch(for: .reviewPromptData) }
+        set { store(newValue, for: .reviewPromptData) }
+    }
+
     var state: State? {
         get { fetch(for: .state) }
         set {
@@ -906,6 +933,16 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .accountSetupVaultUnlock(userId: userId))
     }
 
+    func addUserAction(_ action: UserAction) {
+        var reviewPromptData = reviewPromptData ?? ReviewPromptData()
+        if let index = reviewPromptData.userActions.firstIndex(where: { $0.userAction == action }) {
+            reviewPromptData.userActions[index].count += 1
+        } else {
+            reviewPromptData.userActions.append(UserActionItem(userAction: action, count: 1))
+        }
+        self.reviewPromptData = reviewPromptData
+    }
+
     func allowSyncOnRefresh(userId: String) -> Bool {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
@@ -920,6 +957,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             return value
         }
         return .never
+    }
+
+    func clearUserActions() {
+        reviewPromptData?.userActions = []
     }
 
     func connectToWatch(userId: String) -> Bool {
@@ -1086,6 +1127,12 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String) {
         store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
+    }
+
+    func setReviewPromptShownVersion(version: String) {
+        var reviewPromptData = reviewPromptData ?? ReviewPromptData()
+        reviewPromptData.reviewPromptShownForVersion = version
+        self.reviewPromptData = reviewPromptData
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {

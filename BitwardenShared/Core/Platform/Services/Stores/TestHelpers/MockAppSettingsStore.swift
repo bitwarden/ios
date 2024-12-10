@@ -24,6 +24,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var reviewPromptData: BitwardenShared.ReviewPromptData?
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -73,6 +74,18 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         accountSetupVaultUnlock[userId]
     }
 
+    func addUserAction(_ action: UserAction) {
+        if reviewPromptData == nil {
+            reviewPromptData = BitwardenShared.ReviewPromptData()
+        }
+        reviewPromptData?.userActions.append(
+            UserActionItem(
+                userAction: action,
+                count: 1
+            )
+        )
+    }
+
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
     }
@@ -83,6 +96,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func clearUserActions() {
+        reviewPromptData?.userActions = []
     }
 
     func connectToWatch(userId: String) -> Bool {
@@ -260,6 +277,13 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setAccountCreationEnvironmentUrls(environmentUrlData: BitwardenShared.EnvironmentUrlData, email: String) {
         accountCreationEnvironmentUrls[email] = environmentUrlData
+    }
+
+    func setReviewPromptShownVersion(version: String) {
+        if reviewPromptData == nil {
+            reviewPromptData = BitwardenShared.ReviewPromptData()
+        }
+        reviewPromptData?.reviewPromptShownForVersion = version
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
