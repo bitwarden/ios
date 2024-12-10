@@ -184,7 +184,7 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
-            📱 iPhone17,1 🍏 iOS 18.1
+            📱 iPhone14,2 🍏 iOS 16.4
             🧱 commit: bitwarden/ios/main@abc123
             💻 build source: bitwarden/ios/actions/runs/123/attempts/123
             🛠️ compiler flags: DEBUG_MENU
@@ -192,9 +192,9 @@ class AboutProcessorTests: BitwardenTestCase {
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
     }
-    
+
     /// `receive(_:)` with action `.versionTapped` copies the copyright, the version string,
-    /// device info and the additional info to the pasteboard when it's provided, without including keys with empty values
+    /// device info and the additional info to the pasteboard, without including keys with empty values
     @MainActor
     func test_receive_versionTapped_additionalInfoFiltersEmptyValues() {
         aboutAdditionalInfo.ciBuildInfo = [
@@ -210,7 +210,7 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
-            📱 iPhone17,1 🍏 iOS 18.1
+            📱 iPhone14,2 🍏 iOS 16.4
             🧱 commit: bitwarden/ios/main@abc123
             💻 build source: bitwarden/ios/actions/runs/123/attempts/123
             """
