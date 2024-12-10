@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import Foundation
 
@@ -18,6 +19,9 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     /// The coordinator used to manage navigation.
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
+    /// A delegate of the `ExportVaultProcessor` that is used to get presentation anchors.
+    private weak var delegate: ExportVaultProcessorDelegate?
+
     /// The services used by this processor.
     private let services: Services
 
@@ -31,9 +35,11 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     ///
     init(
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
+        delegate: ExportVaultProcessorDelegate?,
         services: Services
     ) {
         self.coordinator = coordinator
+        self.delegate = delegate
         self.services = services
         super.init(state: ExportVaultState())
     }
@@ -121,6 +127,11 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         switch format {
         case .csv:
             exportFormat = .csv
+        case .cxp:
+            if #available(iOS 18.2, *) {
+                try await exportVaultOnCXP()
+            }
+            return
         case .json:
             exportFormat = .json
         case .jsonEncrypted:
@@ -129,6 +140,39 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
         let fileURL = try await services.exportVaultService.exportVault(format: exportFormat)
         coordinator.navigate(to: .shareExportedVault(fileURL))
+    }
+
+    /// Exports the vault using Credential Exchange protocol
+    @available(iOS 18.2, *)
+    private func exportVaultOnCXP() async throws {
+        #if compiler(>=6.0.3)
+
+        guard let delegate else {
+            return
+        }
+
+        coordinator.showLoadingOverlay(title: Localizations.loading)
+        defer { coordinator.hideLoadingOverlay() }
+
+        let data = try await services.exportVaultService.exportVaultForCXP()
+        let exportManager = ASCredentialExportManager(
+            presentationAnchor: delegate.presentationAnchorForASCredentialExportManager()
+        )
+        coordinator.hideLoadingOverlay()
+        do {
+            let exportedData = ASExportedCredentialData(accounts: [data])
+            try await exportManager.exportCredentials(exportedData)
+        } catch ASAuthorizationError.failed {
+            coordinator
+                .showAlert(
+                    .defaultAlert(
+                        title: Localizations.exportingFailed,
+                        message: Localizations.youMayNeedToEnableDevicePasscodeOrBiometrics
+                    )
+                )
+        }
+
+        #endif
     }
 
     /// Load any initial data for the view.
@@ -234,4 +278,11 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             return false
         }
     }
+}
+
+/// A protocol delegate for the `ExportVaultProcessor`.
+protocol ExportVaultProcessorDelegate: AnyObject {
+    /// Returns an `ASPresentationAnchor` to be used when creating an `ASCredentialExportManager`.
+    /// - Returns: An `ASPresentationAnchor`.
+    func presentationAnchorForASCredentialExportManager() -> ASPresentationAnchor
 }
