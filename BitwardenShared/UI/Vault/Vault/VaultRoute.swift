@@ -54,6 +54,10 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case loginRequest(_ loginRequest: LoginRequest)
 
+    case setUpTwoFactor
+
+    case twoFactorNotice
+
     /// A route to switch accounts.
     ///
     /// - Parameter userId: The user id of the selected account.

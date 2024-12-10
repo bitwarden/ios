@@ -192,6 +192,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
+        case .setUpTwoFactor:
+            showTwoFactorSetup()
+        case .twoFactorNotice:
+            showTwoFactorNotice()
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id):
@@ -293,6 +297,26 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             timeProvider: services.timeProvider
         )
         stackNavigator?.replace(view, animated: false)
+    }
+
+    /// Shows the vault list screen.
+    ///
+    private func showTwoFactorNotice() {
+        let processor = NewDeviceNoticeProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: NewDeviceNoticeState(
+                canAccessEmail: false
+            )
+        )
+        let store = Store(processor: processor)
+        let view = NewDeviceNoticeView(
+            store: store
+        )
+        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+        navController.navigationBar.isHidden = true
+        stackNavigator?.present(view, animated: true, overFullscreen: true)
+//        stackNavigator?.replace(view, animated: false)
     }
 
     /// Presents a vault item coordinator, which will navigate to the provided route.

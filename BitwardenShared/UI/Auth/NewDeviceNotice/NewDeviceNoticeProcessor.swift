@@ -13,7 +13,7 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
+    private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
     /// The services required by this processor.
     private let services: Services
@@ -28,7 +28,7 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
+        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: NewDeviceNoticeState
     ) {
@@ -41,6 +41,12 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
     // MARK: Methods
 
     override func perform(_ effect: NewDeviceNoticeEffect) async {
+        switch effect {
+        case .appeared:
+            break
+        case .continueTapped:
+            coordinator.navigate(to: .twoFactorNotice)
+        }
     }
 
     override func receive(_ action: NewDeviceNoticeAction) {
