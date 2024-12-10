@@ -161,11 +161,7 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
-
-            -------- Device --------
-
-            Model: iPhone14,2
-            OS: iOS 16.4
+            📱 iPhone14,2 🍏 iOS 16.4
             """
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
@@ -176,8 +172,9 @@ class AboutProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_versionTapped_withAdditionalInfo() {
         aboutAdditionalInfo.ciBuildInfo = [
-            "Repository": "www.github.com/bitwarden/ios",
-            "Branch": "test-branch",
+            "🧱 commit:": "bitwarden/ios/main@abc123",
+            "💻 build source:": "bitwarden/ios/actions/runs/123/attempts/123",
+            "🛠️ compiler flags:": "DEBUG_MENU",
         ]
 
         subject.receive(.versionTapped)
@@ -187,6 +184,14 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
+            📱 iPhone17,1 🍏 iOS 18.1
+            🧱 commit: bitwarden/ios/main@abc123
+            💻 build source: bitwarden/ios/actions/runs/123/attempts/123
+            🛠️ compiler flags: DEBUG_MENU
+            """
+        )
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
+    }
 
             -------- Device --------
 
@@ -215,5 +220,5 @@ class AboutProcessorTests: BitwardenTestCase {
 }
 
 class MockAboutAdditionalInfo: AboutAdditionalInfo {
-    var ciBuildInfo: [String: String] = [:]
+    var ciBuildInfo: KeyValuePairs<String, String> = [:]
 }
