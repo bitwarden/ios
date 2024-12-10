@@ -193,7 +193,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
         case .setUpTwoFactor:
-            showTwoFactorSetup()
+//            showTwoFactorSetup()
+            break
         case .twoFactorNotice:
             showTwoFactorNotice()
         case let .vaultItemSelection(totpKeyModel):
@@ -310,7 +311,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             )
         )
         let store = Store(processor: processor)
-        let view = NewDeviceNoticeView(
+        let view = RealView(
             store: store
         )
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))

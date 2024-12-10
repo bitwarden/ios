@@ -4,4 +4,7 @@
 ///
 enum NewDeviceNoticeAction: Equatable, Sendable {
     case canAccessEmailChanged(Bool)
+
+    /// The current page index has changed.
+    case currentPageIndexChanged(Int)
 }
