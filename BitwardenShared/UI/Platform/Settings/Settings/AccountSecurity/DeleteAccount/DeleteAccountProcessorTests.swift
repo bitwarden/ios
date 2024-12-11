@@ -164,7 +164,6 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         XCTAssertTrue(authRepository.requestOtpCalled)
         coordinator.loadingOverlaysShown.removeAll()
 
-        _ = try XCTUnwrap(alert.alertTextFields.first)
         try alert.setText("otp", forTextFieldWithId: "otp")
         try await alert.tapAction(title: Localizations.submit)
 
