@@ -11,7 +11,7 @@ class MockReviewPromptService: ReviewPromptService {
     func isEligibleForReviewPrompt() async -> Bool {
         isEligibleForReviewPromptResult
     }
-    
+
     func trackUserAction(_ action: BitwardenShared.UserAction) async {
         userActions.append(action)
     }

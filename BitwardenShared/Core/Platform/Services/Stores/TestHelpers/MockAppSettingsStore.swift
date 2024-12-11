@@ -98,10 +98,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         clearClipboardValues[userId] ?? .never
     }
 
-    func clearUserActions() {
-        reviewPromptData?.userActions = []
-    }
-
     func connectToWatch(userId: String) -> Bool {
         connectToWatchByUserId[userId] ?? false
     }
@@ -277,13 +273,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setAccountCreationEnvironmentUrls(environmentUrlData: BitwardenShared.EnvironmentUrlData, email: String) {
         accountCreationEnvironmentUrls[email] = environmentUrlData
-    }
-
-    func setReviewPromptShownVersion(version: String) {
-        if reviewPromptData == nil {
-            reviewPromptData = BitwardenShared.ReviewPromptData()
-        }
-        reviewPromptData?.reviewPromptShownForVersion = version
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
