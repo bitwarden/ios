@@ -20,6 +20,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var rehydrationHelper: MockRehydrationHelper!
+    var reviewPromptService: MockReviewPromptService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
@@ -43,6 +44,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         rehydrationHelper = MockRehydrationHelper()
+        reviewPromptService = MockReviewPromptService()
         stateService = MockStateService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
@@ -59,6 +61,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 pasteboardService: pasteboardService,
                 policyService: policyService,
                 rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
                 stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
@@ -1084,7 +1087,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             "secureNote"
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
-        XCTAssertEqual(stateService.userActions, [.addedNewItem])
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -1130,7 +1133,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 )
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
-        XCTAssertEqual(stateService.userActions, [.addedNewItem])
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -1158,7 +1161,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
-        XCTAssertEqual(stateService.userActions, [.addedNewItem])
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item for `.sshKey`.
@@ -1203,7 +1206,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 )
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
-        XCTAssertEqual(stateService.userActions, [.addedNewItem])
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` in the app extension completes the autofill request if a
@@ -1221,7 +1224,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
-        XCTAssertEqual(stateService.userActions, [.addedNewItem])
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` in the app extension cancels the autofill extension if no
@@ -1247,7 +1250,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
-        XCTAssertTrue(stateService.userActions.isEmpty)
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was added and
@@ -1280,7 +1283,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
-        XCTAssertTrue(stateService.userActions.isEmpty)
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was updated and
@@ -1329,7 +1332,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
-        XCTAssertTrue(stateService.userActions.isEmpty)
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the

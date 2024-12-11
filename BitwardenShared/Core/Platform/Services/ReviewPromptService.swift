@@ -1,6 +1,8 @@
 import AuthenticationServices
 import Foundation
 
+// MARK: - ReviewPromptService
+
 /// A protocol for a `ReviewPromptService` which determines if a user is eligible for a review prompt.
 ///
 protocol ReviewPromptService {
@@ -8,8 +10,18 @@ protocol ReviewPromptService {
     ///
     /// - Returns: `true` if the user is eligible for a review prompt, `false` otherwise.
     func isEligibleForReviewPrompt() async -> Bool
+
+    /// Tracks a user action.
+    ///
+    /// - Parameter action: The user action to track.
+    ///
+    func trackUserAction(_ action: UserAction) async
 }
 
+// MARK: - DefaultReviewPromptService
+
+/// A default implementation of a `ReviewPromptService`.
+///
 class DefaultReviewPromptService: ReviewPromptService {
     /// The current app version.
     private let appVersion: String
@@ -53,12 +65,14 @@ class DefaultReviewPromptService: ReviewPromptService {
         }
 
         // Check if any user action has been performed at least three times
-        if reviewPromptData.userActions.isEmpty {
-            return false
+        return reviewPromptData.userActions.contains { $0.count >= Constants.minimumUserActions }
+    }
+
+    func trackUserAction(_ action: UserAction) async {
+        var reviewPromptData = await stateService.getReviewPromptData() ?? ReviewPromptData()
+        if reviewPromptData.reviewPromptShownForVersion != appVersion {
+            reviewPromptData.addUserAction(action)
         }
-        for userActionItem in reviewPromptData.userActions where userActionItem.count >= 3 {
-            return true
-        }
-        return false
+        await stateService.setReviewPromptData(reviewPromptData)
     }
 }

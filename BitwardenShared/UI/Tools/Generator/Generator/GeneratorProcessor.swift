@@ -10,6 +10,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         & HasGeneratorRepository
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasStateService
 
     /// The behavior that should be taken after receiving a new action for generating a new value
@@ -90,7 +91,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             services.pasteboardService.copy(state.generatedValue)
             state.showCopiedValueToast()
             Task {
-                await services.stateService.trackUserAction(.copiedOrInsertedGeneratedValue)
+                await services.reviewPromptService.trackUserAction(.copiedOrInsertedGeneratedValue)
             }
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
@@ -111,7 +112,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
                 )
             )
             Task {
-                await services.stateService.trackUserAction(.copiedOrInsertedGeneratedValue)
+                await services.reviewPromptService.trackUserAction(.copiedOrInsertedGeneratedValue)
             }
         case .showPasswordHistory:
             coordinator.navigate(to: .generatorHistory)

@@ -102,25 +102,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:addSitePromptShown"))
     }
 
-    /// `addUserAction(action:)` can be used to add a user action to track.
-    func test_addUserAction() {
-        subject.addUserAction(.createdNewSend)
-        subject.addUserAction(.copiedOrInsertedGeneratedValue)
-        subject.addUserAction(.copiedOrInsertedGeneratedValue)
-        subject.addUserAction(.addedNewItem)
-        subject.addUserAction(.createdNewSend)
-        subject.addUserAction(.createdNewSend)
-
-        XCTAssertEqual(
-            subject.reviewPromptData?.userActions,
-            [
-                UserActionItem(userAction: .createdNewSend, count: 3),
-                UserActionItem(userAction: .copiedOrInsertedGeneratedValue, count: 2),
-                UserActionItem(userAction: .addedNewItem, count: 1),
-            ]
-        )
-    }
-
     /// `appId` returns `nil` if there isn't a previously stored value.
     func test_appId_isInitiallyNil() {
         XCTAssertNil(subject.appId)
@@ -266,23 +247,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.clearClipboardValue(userId: "2"), .never)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_1"), 10)
         XCTAssertEqual(userDefaults.integer(forKey: "bwPreferencesStorage:clearClipboard_2"), -1)
-    }
-
-    /// `clearUserActions()` can be used to clear the user actions.
-    func test_clearUserActions() {
-        subject.reviewPromptData = ReviewPromptData(
-            reviewPromptShownForVersion: "1.2.0",
-            userActions: [
-                UserActionItem(
-                    userAction: .addedNewItem,
-                    count: 3
-                ),
-            ]
-        )
-
-        subject.clearUserActions()
-
-        XCTAssertTrue(subject.reviewPromptData?.userActions.isEmpty ?? false)
     }
 
     /// `connectToWatch(userId:)` returns false if there isn't a previously stored value.
@@ -991,17 +955,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `reviewPromptShownForVersion` returns `nil` if there isn't a previously stored value.
     func test_reviewPromptShownForVersion_isInitiallyNil() {
         XCTAssertNil(subject.reviewPromptData?.reviewPromptShownForVersion)
-    }
-
-    /// `setReviewPromptShownVersion(version:)` can be used to get and set the persisted value in user defaults.
-    func test_reviewPromptShownForVersion_withValue() {
-        subject.reviewPromptData = nil
-
-        subject.setReviewPromptShownVersion(version: "1.2.3")
-        XCTAssertEqual(
-            subject.reviewPromptData,
-            ReviewPromptData(reviewPromptShownForVersion: "1.2.3")
-        )
     }
 
     /// `reviewPromptData` returns `nil` if there isn't a previously stored value.

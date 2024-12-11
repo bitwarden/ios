@@ -15,6 +15,7 @@ class AddEditSendItemProcessor:
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasSendRepository
         & HasStateService
 
@@ -259,7 +260,7 @@ class AddEditSendItemProcessor:
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
                 }
-                await services.stateService.trackUserAction(.createdNewSend)
+                await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }

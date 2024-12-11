@@ -112,6 +112,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The helper used for app rehydration.
     let rehydrationHelper: RehydrationHelper
 
+    /// The
+    let reviewPromptService: ReviewPromptService
+
     /// The repository used by the application to manage send data for the UI layer.
     public let sendRepository: SendRepository
 
@@ -240,6 +243,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         pasteboardService: PasteboardService,
         policyService: PolicyService,
         rehydrationHelper: RehydrationHelper,
+        reviewPromptService: ReviewPromptService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
@@ -286,6 +290,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.pasteboardService = pasteboardService
         self.policyService = policyService
         self.rehydrationHelper = rehydrationHelper
+        self.reviewPromptService = reviewPromptService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
@@ -456,6 +461,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider
+        )
+
+        let reviewPromptService = DefaultReviewPromptService(
+            appVersion: Bundle.main.appVersion,
+            stateService: stateService
         )
 
         let syncService = DefaultSyncService(
@@ -702,6 +712,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             pasteboardService: pasteboardService,
             policyService: policyService,
             rehydrationHelper: rehydrationHelper,
+            reviewPromptService: reviewPromptService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,

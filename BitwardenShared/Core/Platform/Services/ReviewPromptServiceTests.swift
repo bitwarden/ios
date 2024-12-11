@@ -116,4 +116,51 @@ class ReviewPromptServiceTests: BitwardenTestCase {
             "User shouldn't be eligible if none of the user actions was repeated 3 times."
         )
     }
+
+    /// `trackUserAction(_:)` adds the user action to the list of tracked actions.
+    func test_trackUserAction() async {
+        let action: UserAction = .addedNewItem
+        await subject.trackUserAction(action)
+
+        let userActions = stateService.reviewPromptData?.userActions
+        XCTAssertEqual(userActions?.count, 1)
+        XCTAssertEqual(userActions?.first?.userAction, action)
+        XCTAssertEqual(userActions?.first?.count, 1)
+    }
+
+    /// `trackUserAction(_:)` increments the count of the user action if it already exists.
+    func test_trackUserAction_incrementCount() async {
+        let action: UserAction = .addedNewItem
+        stateService.reviewPromptData = ReviewPromptData(
+            userActions: [
+                UserActionItem(userAction: action, count: 3),
+            ]
+        )
+
+        await subject.trackUserAction(action)
+
+        let userActions = stateService.reviewPromptData?.userActions
+        XCTAssertEqual(userActions?.count, 1)
+        XCTAssertEqual(userActions?.first?.userAction, action)
+        XCTAssertEqual(userActions?.first?.count, 4)
+    }
+
+    /// `trackUserAction(_:)` doesn't increment the count of the user action if the review prompt has
+    /// already been shown for the current version.
+    func test_trackUserAction_reviewPromptShownForVersionMatch() async {
+        let action: UserAction = .addedNewItem
+        stateService.reviewPromptData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.0",
+            userActions: [
+                UserActionItem(userAction: action, count: 3),
+            ]
+        )
+
+        await subject.trackUserAction(action)
+
+        let userActions = stateService.reviewPromptData?.userActions
+        XCTAssertEqual(userActions?.count, 1)
+        XCTAssertEqual(userActions?.first?.userAction, action)
+        XCTAssertEqual(userActions?.first?.count, 3)
+    }
 }

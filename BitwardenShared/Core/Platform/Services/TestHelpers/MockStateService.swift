@@ -85,7 +85,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
     var updateProfileUserId: String?
-    var userActions = [UserAction]()
     var userHasMasterPassword = [String: Bool]()
     var userIds = [String]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
@@ -381,11 +380,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return pinProtectedUserKeyValue[userId] ?? nil
     }
 
-    func resetUserActionCounts() async {
-        resetUserActionCountsCalled = true
-        userActions.removeAll()
-    }
-
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         accountEncryptionKeys[userId] = encryptionKeys
@@ -581,6 +575,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         preAuthServerConfig = config
     }
 
+    func setReviewPromptData(_ data: BitwardenShared.ReviewPromptData) async {
+        reviewPromptData = data
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         serverConfig[userId] = config
@@ -636,10 +634,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         vaultTimeout[userId] = value
-    }
-
-    func trackUserAction(_ action: BitwardenShared.UserAction) async {
-        userActions.append(action)
     }
 
     /// Attempts to convert a possible user id into an account, or returns the active account.

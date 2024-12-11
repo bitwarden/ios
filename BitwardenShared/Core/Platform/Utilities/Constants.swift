@@ -74,6 +74,9 @@ enum Constants {
     /// The minimum number of minutes before allowing the vault to sync again.
     static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes
 
+    /// The minimum number of user actions required to show the app review prompt.
+    static let minimumUserActions = 3
+
     /// The minimum number of cipher items without folder
     static let noFolderListSize = 100
 

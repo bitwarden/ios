@@ -22,6 +22,18 @@ struct ReviewPromptData: Codable, Equatable {
 
     /// The user actions that have been tracked.
     var userActions: [UserActionItem] = []
+
+    /// Add a user action to the list of tracked actions.
+    ///
+    /// - Parameter action: The user action to add.
+    ///
+    mutating func addUserAction(_ action: UserAction) {
+        if let index = userActions.firstIndex(where: { $0.userAction == action }) {
+            userActions[index].count += 1
+        } else {
+            userActions.append(UserActionItem(userAction: action, count: 1))
+        }
+    }
 }
 
 // MARK: - UserAction

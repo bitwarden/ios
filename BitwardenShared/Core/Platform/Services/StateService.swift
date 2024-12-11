@@ -1,4 +1,3 @@
-import AuthenticationServices
 import BitwardenSdk
 import Combine
 import Foundation
@@ -380,9 +379,6 @@ protocol StateService: AnyObject {
     ///
     func pinProtectedUserKey(userId: String?) async throws -> String?
 
-    /// Resets the user action counts after showing the review prompt.
-    ///
-    func resetUserActionCounts() async
 
     /// Sets the account encryption keys for an account.
     ///
@@ -605,6 +601,12 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the rehydration state.
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
 
+    /// Sets the App Review Prompt data.
+    ///
+    /// - Parameter data: The App Review Prompt data.
+    ///
+    func setReviewPromptData(_ data: ReviewPromptData) async
+
     /// Sets the server configuration as provided by a server for a user ID.
     ///
     /// - Parameters:
@@ -685,12 +687,6 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the timeout value.
     ///
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws
-
-    /// Tracks a user action.
-    ///
-    /// - Parameter action: The user action to track.
-    ///
-    func trackUserAction(_ action: UserAction) async
 
     /// Updates the profile information for a user.
     ///
@@ -1261,17 +1257,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     /// A subject containing the app theme.
     private var appThemeSubject: CurrentValueSubject<AppTheme, Never>
 
-    /// The current app version.
-    private let appVersion: String
-
     /// A subject containing the connect to watch value.
     private var connectToWatchByUserIdSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
-
-    /// The service used to manage the credentials available for AutoFill suggestions.
-    private let identityStore: CredentialIdentityStore
 
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
@@ -1294,24 +1284,18 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     ///
     /// - Parameters:
     ///  - appSettingsStore: The service that persists app settings.
-    ///  - appVersion: The current app version.
     ///  - dataStore: The data store that handles performing data requests.
     ///  - errorReporter: The service used by the application to report non-fatal errors.
-    ///  - identityStore: The service used to manage the credentials available for AutoFill suggestions.
     ///  - keychainRepository: A service used to access data in the keychain.
     ///
     init(
         appSettingsStore: AppSettingsStore,
-        appVersion: String = Bundle.main.appVersion,
         dataStore: DataStore,
         errorReporter: ErrorReporter,
-        identityStore: CredentialIdentityStore = ASCredentialIdentityStore.shared,
         keychainRepository: KeychainRepository
     ) {
         self.appSettingsStore = appSettingsStore
-        self.appVersion = appVersion
         self.dataStore = dataStore
-        self.identityStore = identityStore
         self.keychainRepository = keychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
@@ -1649,10 +1633,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return accountVolatileData[userId]?.pinProtectedUserKey ?? appSettingsStore.pinProtectedUserKey(userId: userId)
     }
 
-    func resetUserActionCounts() async {
-        appSettingsStore.clearUserActions()
-    }
-
     func setAccountEncryptionKeys(_ encryptionKeys: AccountEncryptionKeys, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEncryptedPrivateKey(key: encryptionKeys.encryptedPrivateKey, userId: userId)
@@ -1827,6 +1807,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
     }
 
+    func setReviewPromptData(_ data: ReviewPromptData) async {
+        appSettingsStore.reviewPromptData = data
+    }
+
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setServerConfig(config, userId: userId)
@@ -1957,12 +1941,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             }
         }
         .eraseToAnyPublisher()
-    }
-
-    func trackUserAction(_ action: UserAction) async {
-        if appSettingsStore.reviewPromptData?.reviewPromptShownForVersion != appVersion {
-            appSettingsStore.addUserAction(action)
-        }
     }
 
     // MARK: Private
