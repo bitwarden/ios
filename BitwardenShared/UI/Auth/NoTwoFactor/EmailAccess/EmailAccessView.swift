@@ -136,8 +136,8 @@ struct EmailAccessView: View {
                 .padding(.horizontal, 12)
 
             VStack(spacing: 12) {
-                AsyncButton(Localizations.continue) {
-                    await store.perform(.continueTapped)
+                Button(Localizations.continue) {
+                    store.send(.continueTapped)
                 }
                 .buttonStyle(.primary())
             }

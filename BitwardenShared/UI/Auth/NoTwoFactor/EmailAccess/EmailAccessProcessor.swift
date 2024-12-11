@@ -40,15 +40,26 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
 
     // MARK: Methods
 
-    override func perform(_ effect: EmailAccessEffect) async {
-        switch effect {
-        case .appeared:
-            break
+    override func perform(_ effect: EmailAccessEffect) async {}
+
+    override func receive(_ action: EmailAccessAction) {
+        switch action {
+        case let .canAccessEmailChanged(canAccess):
+            state.canAccessEmail = canAccess
         case .continueTapped:
-            coordinator.navigate(to: .setUpTwoFactor)
+            handleContinue()
+        case .currentPageIndexChanged:
+            break
         }
     }
 
-    override func receive(_ action: EmailAccessAction) {
+    // MARK: Private Methods
+
+    private func handleContinue() {
+        if state.canAccessEmail {
+            coordinator.navigate(to: .dismiss)
+        } else {
+            coordinator.navigate(to: .setUpTwoFactor)
+        }
     }
 }
