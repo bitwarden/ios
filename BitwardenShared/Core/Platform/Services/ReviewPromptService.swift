@@ -26,11 +26,11 @@ class DefaultReviewPromptService: ReviewPromptService {
     /// The current app version.
     private let appVersion: String
 
-    /// The service used by the application to manage account state.
-    private let stateService: StateService
-
     /// The service used to manage the credentials available for AutoFill suggestions.
     private let identityStore: CredentialIdentityStore
+
+    /// The service used by the application to manage account state.
+    private let stateService: StateService
 
     // MARK: Initialization
 

@@ -74,18 +74,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         accountSetupVaultUnlock[userId]
     }
 
-    func addUserAction(_ action: UserAction) {
-        if reviewPromptData == nil {
-            reviewPromptData = BitwardenShared.ReviewPromptData()
-        }
-        reviewPromptData?.userActions.append(
-            UserActionItem(
-                userAction: action,
-                count: 1
-            )
-        )
-    }
-
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
     }

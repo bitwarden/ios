@@ -265,7 +265,7 @@ protocol HasRehydrationHelper {
 
 /// Protocol for an object that provides a `ReviewPromptService`.
 protocol HasReviewPromptService {
-    /// The helper for app rehydration.
+    /// The service used by the application to determine if a user is eligible for a review prompt.
     var reviewPromptService: ReviewPromptService { get }
 }
 

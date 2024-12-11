@@ -11,7 +11,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         & HasPasteboardService
         & HasPolicyService
         & HasReviewPromptService
-        & HasStateService
 
     /// The behavior that should be taken after receiving a new action for generating a new value
     /// and persisting it.

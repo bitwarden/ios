@@ -13,7 +13,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
     var reviewPromptService: MockReviewPromptService!
-    var stateService: MockStateService!
     var subject: AddEditSendItemProcessor!
 
     // MARK: Setup & Teardown
@@ -25,15 +24,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         policyService = MockPolicyService()
         reviewPromptService = MockReviewPromptService()
         sendRepository = MockSendRepository()
-        stateService = MockStateService()
         subject = AddEditSendItemProcessor(
             coordinator: coordinator,
             services: ServiceContainer.withMocks(
                 pasteboardService: pasteboardService,
                 policyService: policyService,
                 reviewPromptService: reviewPromptService,
-                sendRepository: sendRepository,
-                stateService: stateService
+                sendRepository: sendRepository
             ),
             state: AddEditSendItemState()
         )
@@ -45,7 +42,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         pasteboardService = nil
         policyService = nil
         sendRepository = nil
-        stateService = nil
+        reviewPromptService = nil
         subject = nil
     }
 

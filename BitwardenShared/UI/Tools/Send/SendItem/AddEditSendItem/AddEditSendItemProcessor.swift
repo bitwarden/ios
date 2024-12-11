@@ -17,7 +17,6 @@ class AddEditSendItemProcessor:
         & HasPolicyService
         & HasReviewPromptService
         & HasSendRepository
-        & HasStateService
 
     // MARK: Private Properties
 

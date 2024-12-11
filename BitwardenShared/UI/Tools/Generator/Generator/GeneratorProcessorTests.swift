@@ -14,7 +14,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var reviewPromptService: MockReviewPromptService!
-    var stateService: MockStateService!
     var subject: GeneratorProcessor!
 
     // MARK: Setup & Teardown
@@ -28,7 +27,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         reviewPromptService = MockReviewPromptService()
-        stateService = MockStateService()
 
         setUpSubject()
     }
@@ -42,7 +40,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         pasteboardService = nil
         policyService = nil
         reviewPromptService = nil
-        stateService = nil
         subject = nil
     }
 
@@ -55,8 +52,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 generatorRepository: generatorRepository,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
-                reviewPromptService: reviewPromptService,
-                stateService: stateService
+                reviewPromptService: reviewPromptService
             ),
             state: GeneratorState()
         )

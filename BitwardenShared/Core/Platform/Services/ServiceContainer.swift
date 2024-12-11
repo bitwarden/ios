@@ -112,7 +112,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The helper used for app rehydration.
     let rehydrationHelper: RehydrationHelper
 
-    /// The
+    /// The service used by the appllication to manage app review prompts related data.
     let reviewPromptService: ReviewPromptService
 
     /// The repository used by the application to manage send data for the UI layer.
@@ -195,6 +195,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - rehydrationHelper: The helper used for app rehydration.
+    ///   - reviewPromptService: The service used by the application to manage app review prompts related data.
     ///   - policyService: The service for managing the polices for the user.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.

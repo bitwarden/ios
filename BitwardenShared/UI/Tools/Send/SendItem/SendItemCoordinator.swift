@@ -19,7 +19,6 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         & HasPolicyService
         & HasReviewPromptService
         & HasSendRepository
-        & HasStateService
 
     // MARK: - Private Properties
 

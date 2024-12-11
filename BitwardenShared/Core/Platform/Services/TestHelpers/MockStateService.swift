@@ -42,7 +42,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var introCarouselShown = false
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
-    var isEligibleForReviewPrompt = false
     var lastActiveTime = [String: Date]()
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
@@ -63,7 +62,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
-    var resetUserActionCountsCalled = false
     var reviewPromptData: ReviewPromptData?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
@@ -363,10 +361,6 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         let userId = try unwrapUserId(userId)
         if let isAuthenticatedError { throw isAuthenticatedError }
         return isAuthenticated[userId] ?? false
-    }
-
-    func isEligibleForReviewPrompt() async -> Bool {
-        isEligibleForReviewPrompt
     }
 
     func logoutAccount(userId: String?, userInitiated: Bool) async throws {
