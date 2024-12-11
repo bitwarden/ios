@@ -101,13 +101,6 @@ extension ExportVaultService {
     }
 }
 
-/// Error throws when exporting vault.
-enum ExportVaultServiceError: Error {
-    /// Error thrown when the serialized CXP exported vault string cannot be converted
-    /// to `Data` using UTF-8.
-    case cxpSerializedNotInUTF8
-}
-
 class DefultExportVaultService: ExportVaultService {
     // MARK: Parameters
 
@@ -217,10 +210,7 @@ class DefultExportVaultService: ExportVaultService {
             name: account.profile.name
         )
         let serializedCXF = try await clientService.exporters().exportCxf(account: sdkAccount, ciphers: ciphers)
-        guard let cxfData = serializedCXF.data(using: .utf8) else {
-            throw ExportVaultServiceError.cxpSerializedNotInUTF8
-        }
-        return try JSONDecoder.cxpDecoder.decode(ASImportableAccount.self, from: cxfData)
+        return try JSONDecoder.cxpDecoder.decode(ASImportableAccount.self, from: Data(serializedCXF.utf8))
     }
 
     #endif

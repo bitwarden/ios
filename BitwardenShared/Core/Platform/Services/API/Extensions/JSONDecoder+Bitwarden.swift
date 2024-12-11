@@ -86,18 +86,6 @@ extension JSONDecoder {
 
     // MARK: Static Functions
 
-    /// Transforms the keys from CXP format handled by the Bitwarden SDK into the keys that Apple expects.
-    static func customTransformCodingKeyForCXP(key: String) -> String {
-        return switch key {
-        case "credentialId":
-            "credentialID"
-        case "rpId":
-            "rpID"
-        default:
-            key
-        }
-    }
-
     /// Transforms a snake_case, PascalCase or camelCase key into camelCase.
     static func keyToCamelCase(key: String) -> String {
         if key.contains("_") {
@@ -111,5 +99,19 @@ extension JSONDecoder {
 
         // Handle PascalCase or camelCase.
         return key.prefix(1).lowercased() + key.dropFirst()
+    }
+
+    // MARK: Private Static Functions
+
+    /// Transforms the keys from CXP format handled by the Bitwarden SDK into the keys that Apple expects.
+    private static func customTransformCodingKeyForCXP(key: String) -> String {
+        return switch key {
+        case "credentialId":
+            "credentialID"
+        case "rpId":
+            "rpID"
+        default:
+            key
+        }
     }
 }
