@@ -19,7 +19,7 @@ struct RealView: View {
                     get: \.currentPageIndex,
                     send: NewDeviceNoticeAction.currentPageIndexChanged
                 )) {
-                    ForEachIndexed(store.state.pages) { index, page in
+                    ForEachIndexed(NewDeviceNoticeState.Page.allCases) { index, page in
                         pageView(page)
                             .tag(index)
                             .toolbar(.hidden, for: .tabBar)
@@ -31,7 +31,7 @@ struct RealView: View {
                     get: \.currentPageIndex,
                     send: NewDeviceNoticeAction.currentPageIndexChanged
                 )) {
-                    ForEachIndexed(store.state.pages) { index, page in
+                    ForEachIndexed(NewDeviceNoticeState.Page.allCases) { index, page in
                         pageView(page)
                             .tag(index)
                             .gesture(DragGesture())
@@ -40,21 +40,6 @@ struct RealView: View {
                     .animation(.default, value: store.state.currentPageIndex)
                 }
             }
-
-            VStack(spacing: 12) {
-                AsyncButton(Localizations.createAccount) {
-                    await store.perform(.continueTapped)
-                }
-                .buttonStyle(.primary())
-
-                Button(Localizations.logIn) {
-//                    store.send(.continueTapped)
-                }
-                .buttonStyle(.transparent)
-            }
-            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.ignoresSafeArea())
@@ -103,29 +88,15 @@ struct RealView: View {
 
     /// A view that displays a carousel page.
     @ViewBuilder
-    private func pageView(_ page: NewDeviceNoticeState.CarouselPage) -> some View {
-        GeometryReader { reader in
-            dynamicStackView(minHeight: reader.size.height) {
-                page.image
-                    .resizable()
-                    .frame(
-                        width: verticalSizeClass == .regular ? 152 : 124,
-                        height: verticalSizeClass == .regular ? 152 : 124
-                    )
-                    .accessibilityHidden(true)
-            } textContent: {
-                VStack(spacing: 16) {
-                    Text(page.title)
-                        .styleGuide(.title, weight: .bold)
-
-                    Text(page.message)
-                        .styleGuide(.title3)
-                }
-            }
+    private func pageView(_ page: NewDeviceNoticeState.Page) -> some View {
+        switch page {
+        case .one:
+            SetUpTwoFactorView(store: store)
+        case .two:
+            NewDeviceNoticeView(store: store)
         }
     }
 }
-
 
 // MARK: - NewDeviceNoticeView
 
@@ -247,12 +218,132 @@ struct NewDeviceNoticeView: View {
     }
 }
 
+struct SetUpTwoFactorView: View {
+    // MARK: Properties
+
+    /// An environment variable for getting the vertical size class of the view.
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+
+    /// The `Store` for this view.
+    @ObservedObject public var store: Store<NewDeviceNoticeState, NewDeviceNoticeAction, NewDeviceNoticeEffect>
+
+    var body: some View {
+        VStack(spacing: 12) {
+            dynamicStackView(minHeight: 0) {
+                Asset.Images.Illustrations.userLock.swiftUIImage
+                    .resizable()
+                    .frame(
+                        width: verticalSizeClass == .regular ? 152 : 124,
+                        height: verticalSizeClass == .regular ? 152 : 124
+                    )
+                    .accessibilityHidden(true)
+            } textContent: {
+                VStack(spacing: 16) {
+                    Text(Localizations.setUpTwoStepLogin)
+                        .styleGuide(.title, weight: .bold)
+
+                    Text(Localizations.youCanSetUpTwoStepLoginAsAnAlternative)
+                        .styleGuide(.title3)
+                }
+                .padding(.horizontal, 12)
+            }
+
+            AsyncButton {
+//                await store.perform(.turnOnTwoFactorTapped)
+            } label: {
+                Label {
+                    Text(Localizations.turnOnTwoStepLogin)
+                } icon: {
+                    Asset.Images.externalLink24.swiftUIImage
+                }
+            }
+            .buttonStyle(.primary())
+
+            AsyncButton {
+//                await store.perform(.changeAccountEmailTapped)
+            } label: {
+                Label {
+                    Text(Localizations.changeAccountEmail)
+                } icon: {
+                    Asset.Images.externalLink24.swiftUIImage
+                }
+            }
+            .buttonStyle(.secondary())
+
+            AsyncButton(Localizations.remindMeLater) {
+//                await store.perform(.turnOnTwoFactorTapped)
+            }
+            .buttonStyle(.secondary())
+
+            Spacer()
+        }
+        .task {
+            await store.perform(.appeared)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .multilineTextAlignment(.center)
+        .scrollView()
+    }
+
+    /// A dynamic stack view that lays out content vertically when in a regular vertical size class
+    /// and horizontally for the compact vertical size class.
+    @ViewBuilder
+    private func dynamicStackView(
+        minHeight: CGFloat,
+        @ViewBuilder imageContent: () -> some View,
+        @ViewBuilder textContent: () -> some View
+    ) -> some View {
+        Group {
+            if verticalSizeClass == .regular {
+                VStack(spacing: 24) {
+                    imageContent()
+                    textContent()
+                }
+                .padding(.top, 32)
+                .padding(.bottom, 24)
+                .frame(maxWidth: .infinity, minHeight: minHeight)
+            } else {
+                HStack(alignment: .top, spacing: 40) {
+                    VStack(spacing: 0) {
+                        Spacer(minLength: 0)
+                        imageContent()
+                            .padding(.leading, 36)
+                            .padding(.vertical, 16)
+                        Spacer(minLength: 0)
+                    }
+                    .frame(minHeight: minHeight)
+
+                    textContent()
+                        .padding(.vertical, 16)
+                        .frame(maxWidth: .infinity, minHeight: minHeight)
+                }
+            }
+        }
+    }
+}
+
 // MARK: - NewDeviceNoticeView Previews
 
 #if DEBUG
-#Preview("New Device Notice") {
+#Preview("Real") {
     NavigationView {
         RealView(
+            store: Store(
+                processor: StateProcessor(
+                    state: NewDeviceNoticeState(
+                        canAccessEmail: false
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("New Device Notice") {
+    NavigationView {
+        NewDeviceNoticeView(
             store: Store(
                 processor: StateProcessor(
                     state: NewDeviceNoticeState(
