@@ -274,6 +274,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
 extension CredentialProviderViewController {
     @available(iOSApplicationExtension 18.0, *)
+    override func prepareInterfaceForUserChoosingTextToInsert() {
+        initializeApp(with: DefaultCredentialProviderContext(.autofillText))
+    }
+
+    @available(iOSApplicationExtension 18.0, *)
     override func prepareOneTimeCodeCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
         initializeApp(with: DefaultCredentialProviderContext(.autofillOTP(serviceIdentifiers)))
     }
@@ -315,11 +320,6 @@ extension CredentialProviderViewController: AppExtensionDelegate {
     func completeAutofillRequest(username: String, password: String, fields: [(String, String)]?) {
         let passwordCredential = ASPasswordCredential(user: username, password: password)
         extensionContext.completeRequest(withSelectedCredential: passwordCredential)
-    }
-
-    @available(iOSApplicationExtension 18.0, *)
-    func completeOTPRequest(code: String) {
-        extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: code))
     }
 
     func didCancel() {
@@ -421,9 +421,19 @@ extension CredentialProviderViewController: AutofillAppExtensionDelegate {
         extensionContext.completeAssertionRequest(using: assertionCredential)
     }
 
+    @available(iOSApplicationExtension 18.0, *)
+    func completeOTPRequest(code: String) {
+        extensionContext.completeOneTimeCodeRequest(using: ASOneTimeCodeCredential(code: code))
+    }
+
     @available(iOSApplicationExtension 17.0, *)
     func completeRegistrationRequest(asPasskeyRegistrationCredential: ASPasskeyRegistrationCredential) {
         extensionContext.completeRegistrationRequest(using: asPasskeyRegistrationCredential)
+    }
+
+    @available(iOSApplicationExtension 18.0, *)
+    func completeTextRequest(text: String) {
+        extensionContext.completeRequest(withTextToInsert: text)
     }
 
     func getDidAppearPublisher() -> AsyncPublisher<AnyPublisher<Bool, Never>> {

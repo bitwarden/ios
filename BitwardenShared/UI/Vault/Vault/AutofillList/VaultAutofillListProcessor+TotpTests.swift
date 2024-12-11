@@ -331,7 +331,12 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
 
     /// `refreshTOTPCodes(searchItems:)` does nothing if vault list sections are empty..
     @MainActor
-    func test_refreshTOTPCodes_searchItemsEmpty() {
+    func test_refreshTOTPCodes_searchItemsEmpty() throws {
+        // WORKAROUND: initialize `configuredTOTPRefreshSchedulingItems` with something so `waitFor`
+        // doens't have race condition issues.
+        totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems = [
+            VaultListItem(id: "1", itemType: .cipher(.fixture())),
+        ]
         let items = [
             VaultListItem(
                 id: "2",
@@ -361,8 +366,10 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
         onExpiration(items)
 
         waitFor(totpExpirationManagerForSearchItems.configuredTOTPRefreshSchedulingItems?.isEmpty == true)
-        XCTAssertEqual(subject.state.ciphersForSearch.count, 1)
-        XCTAssertEqual(subject.state.ciphersForSearch[0].items.count, 0)
+        let ciphersForSearch = subject.state.ciphersForSearch
+        let section = try XCTUnwrap(ciphersForSearch.first)
+        XCTAssertEqual(ciphersForSearch.count, 1)
+        XCTAssertEqual(section.items.count, 0)
     }
 
     /// `refreshTOTPCodes(searchItems:)` logs when refreshing throws.
