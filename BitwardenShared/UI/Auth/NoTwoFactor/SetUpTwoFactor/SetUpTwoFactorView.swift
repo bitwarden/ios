@@ -7,6 +7,9 @@ import SwiftUI
 struct SetUpTwoFactorView: View {
     // MARK: Properties
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
@@ -34,8 +37,8 @@ struct SetUpTwoFactorView: View {
                 .padding(.horizontal, 12)
             }
 
-            AsyncButton {
-                await store.perform(.turnOnTwoFactorTapped)
+            Button {
+                store.send(.turnOnTwoFactorTapped)
             } label: {
                 Label {
                     Text(Localizations.turnOnTwoStepLogin)
@@ -45,8 +48,8 @@ struct SetUpTwoFactorView: View {
             }
             .buttonStyle(.primary())
 
-            AsyncButton {
-                await store.perform(.changeAccountEmailTapped)
+            Button {
+                store.send(.changeAccountEmailTapped)
             } label: {
                 Label {
                     Text(Localizations.changeAccountEmail)
@@ -56,8 +59,8 @@ struct SetUpTwoFactorView: View {
             }
             .buttonStyle(.secondary())
 
-            AsyncButton(Localizations.remindMeLater) {
-                await store.perform(.remindMeLaterTapped)
+            Button(Localizations.remindMeLater) {
+                store.send(.remindMeLaterTapped)
             }
             .buttonStyle(.secondary())
 
@@ -71,6 +74,11 @@ struct SetUpTwoFactorView: View {
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
         .scrollView()
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
     }
 
     /// A dynamic stack view that lays out content vertically when in a regular vertical size class

@@ -5,10 +5,4 @@
 enum SetUpTwoFactorEffect: Equatable, Sendable {
     /// The set up two factor notice appeared on screen
     case appeared
-
-    case turnOnTwoFactorTapped
-
-    case changeAccountEmailTapped
-
-    case remindMeLaterTapped
 }

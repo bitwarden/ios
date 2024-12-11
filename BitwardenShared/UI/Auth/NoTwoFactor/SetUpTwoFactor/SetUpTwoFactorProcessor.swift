@@ -44,15 +44,23 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
         switch effect {
         case .appeared:
             break
-        case .turnOnTwoFactorTapped:
-            break
-        case .changeAccountEmailTapped:
-            break
-        case .remindMeLaterTapped:
-            coordinator.navigate(to: .dismiss)
         }
     }
 
     override func receive(_ action: SetUpTwoFactorAction) {
+        switch action {
+        case .clearURL:
+            state.url = nil
+        case .turnOnTwoFactorTapped:
+            coordinator.showAlert(.turnOnTwoFactorLoginAlert {
+                self.state.url = ExternalLinksConstants.aboutOrganizations
+            })
+        case .changeAccountEmailTapped:
+            coordinator.showAlert(.changeEmailAlert {
+                self.state.url = ExternalLinksConstants.aboutOrganizations
+            })
+        case .remindMeLaterTapped:
+            coordinator.navigate(to: .dismiss)
+        }
     }
 }
