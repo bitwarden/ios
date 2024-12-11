@@ -1,11 +1,11 @@
 import Combine
 import SwiftUI
 
-// MARK: - NewDeviceNoticeProcessor
+// MARK: - EmailAccessProcessor
 
 /// The processor used to manage state and handle actions for the new device notice screen.
 ///
-class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNoticeAction, NewDeviceNoticeEffect> {
+class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, EmailAccessEffect> {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -20,7 +20,7 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
 
     // MARK: Initialization
 
-    /// Creates a new `NewDeviceNoticeProcessor`.
+    /// Creates a new `EmailAccessProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
@@ -30,7 +30,7 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
     init(
         coordinator: AnyCoordinator<NoTwoFactorRoute, Void>,
         services: Services,
-        state: NewDeviceNoticeState
+        state: EmailAccessState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -40,7 +40,7 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
 
     // MARK: Methods
 
-    override func perform(_ effect: NewDeviceNoticeEffect) async {
+    override func perform(_ effect: EmailAccessEffect) async {
         switch effect {
         case .appeared:
             break
@@ -49,6 +49,6 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
         }
     }
 
-    override func receive(_ action: NewDeviceNoticeAction) {
+    override func receive(_ action: EmailAccessAction) {
     }
 }

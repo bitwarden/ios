@@ -8,7 +8,7 @@ struct RealView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<NewDeviceNoticeState, NewDeviceNoticeAction, NewDeviceNoticeEffect>
+    @ObservedObject var store: Store<EmailAccessState, EmailAccessAction, EmailAccessEffect>
 
     // MARK: View
 
@@ -17,9 +17,9 @@ struct RealView: View {
             if #available(iOS 16, *) {
                 TabView(selection: store.binding(
                     get: \.currentPageIndex,
-                    send: NewDeviceNoticeAction.currentPageIndexChanged
+                    send: EmailAccessAction.currentPageIndexChanged
                 )) {
-                    ForEachIndexed(NewDeviceNoticeState.Page.allCases) { index, page in
+                    ForEachIndexed(EmailAccessState.Page.allCases) { index, page in
                         pageView(page)
                             .tag(index)
                             .toolbar(.hidden, for: .tabBar)
@@ -29,9 +29,9 @@ struct RealView: View {
             } else {
                 TabView(selection: store.binding(
                     get: \.currentPageIndex,
-                    send: NewDeviceNoticeAction.currentPageIndexChanged
+                    send: EmailAccessAction.currentPageIndexChanged
                 )) {
-                    ForEachIndexed(NewDeviceNoticeState.Page.allCases) { index, page in
+                    ForEachIndexed(EmailAccessState.Page.allCases) { index, page in
                         pageView(page)
                             .tag(index)
                             .gesture(DragGesture())
@@ -88,28 +88,28 @@ struct RealView: View {
 
     /// A view that displays a carousel page.
     @ViewBuilder
-    private func pageView(_ page: NewDeviceNoticeState.Page) -> some View {
+    private func pageView(_ page: EmailAccessState.Page) -> some View {
         switch page {
         case .one:
-            NewDeviceNoticeView(store: store)
+            EmailAccessView(store: store)
         case .two:
-            NewDeviceNoticeView(store: store)
+            EmailAccessView(store: store)
         }
     }
 }
 
-// MARK: - NewDeviceNoticeView
+// MARK: - EmailAccessView
 
 /// A view that alerts the user to the new policy of sending emails to confirm new devices.
 ///
-struct NewDeviceNoticeView: View {
+struct EmailAccessView: View {
     // MARK: Properties
 
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
     /// The `Store` for this view.
-    @ObservedObject public var store: Store<NewDeviceNoticeState, NewDeviceNoticeAction, NewDeviceNoticeEffect>
+    @ObservedObject public var store: Store<EmailAccessState, EmailAccessAction, EmailAccessEffect>
 
     var body: some View {
         VStack(spacing: 12) {
@@ -168,7 +168,7 @@ struct NewDeviceNoticeView: View {
 
             Toggle(Localizations.yesICanReliablyAccessMyEmail, isOn: store.binding(
                 get: \.canAccessEmail,
-                send: NewDeviceNoticeAction.canAccessEmailChanged
+                send: EmailAccessAction.canAccessEmailChanged
             ))
             .toggleStyle(.bitwarden)
             .accessibilityIdentifier("ItemFavoriteToggle")
@@ -218,113 +218,7 @@ struct NewDeviceNoticeView: View {
     }
 }
 
-//struct SetUpTwoFactorView: View {
-//    // MARK: Properties
-//
-//    /// An environment variable for getting the vertical size class of the view.
-//    @Environment(\.verticalSizeClass) var verticalSizeClass
-//
-//    /// The `Store` for this view.
-//    @ObservedObject public var store: Store<NewDeviceNoticeState, NewDeviceNoticeAction, NewDeviceNoticeEffect>
-//
-//    var body: some View {
-//        VStack(spacing: 12) {
-//            dynamicStackView(minHeight: 0) {
-//                Asset.Images.Illustrations.userLock.swiftUIImage
-//                    .resizable()
-//                    .frame(
-//                        width: verticalSizeClass == .regular ? 152 : 124,
-//                        height: verticalSizeClass == .regular ? 152 : 124
-//                    )
-//                    .accessibilityHidden(true)
-//            } textContent: {
-//                VStack(spacing: 16) {
-//                    Text(Localizations.setUpTwoStepLogin)
-//                        .styleGuide(.title, weight: .bold)
-//
-//                    Text(Localizations.youCanSetUpTwoStepLoginAsAnAlternative)
-//                        .styleGuide(.title3)
-//                }
-//                .padding(.horizontal, 12)
-//            }
-//
-//            AsyncButton {
-////                await store.perform(.turnOnTwoFactorTapped)
-//            } label: {
-//                Label {
-//                    Text(Localizations.turnOnTwoStepLogin)
-//                } icon: {
-//                    Asset.Images.externalLink24.swiftUIImage
-//                }
-//            }
-//            .buttonStyle(.primary())
-//
-//            AsyncButton {
-////                await store.perform(.changeAccountEmailTapped)
-//            } label: {
-//                Label {
-//                    Text(Localizations.changeAccountEmail)
-//                } icon: {
-//                    Asset.Images.externalLink24.swiftUIImage
-//                }
-//            }
-//            .buttonStyle(.secondary())
-//
-//            AsyncButton(Localizations.remindMeLater) {
-////                await store.perform(.turnOnTwoFactorTapped)
-//            }
-//            .buttonStyle(.secondary())
-//
-//            Spacer()
-//        }
-//        .task {
-//            await store.perform(.appeared)
-//        }
-//        .frame(maxWidth: .infinity, maxHeight: .infinity)
-//        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-//        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-//        .multilineTextAlignment(.center)
-//        .scrollView()
-//    }
-//
-//    /// A dynamic stack view that lays out content vertically when in a regular vertical size class
-//    /// and horizontally for the compact vertical size class.
-//    @ViewBuilder
-//    private func dynamicStackView(
-//        minHeight: CGFloat,
-//        @ViewBuilder imageContent: () -> some View,
-//        @ViewBuilder textContent: () -> some View
-//    ) -> some View {
-//        Group {
-//            if verticalSizeClass == .regular {
-//                VStack(spacing: 24) {
-//                    imageContent()
-//                    textContent()
-//                }
-//                .padding(.top, 32)
-//                .padding(.bottom, 24)
-//                .frame(maxWidth: .infinity, minHeight: minHeight)
-//            } else {
-//                HStack(alignment: .top, spacing: 40) {
-//                    VStack(spacing: 0) {
-//                        Spacer(minLength: 0)
-//                        imageContent()
-//                            .padding(.leading, 36)
-//                            .padding(.vertical, 16)
-//                        Spacer(minLength: 0)
-//                    }
-//                    .frame(minHeight: minHeight)
-//
-//                    textContent()
-//                        .padding(.vertical, 16)
-//                        .frame(maxWidth: .infinity, minHeight: minHeight)
-//                }
-//            }
-//        }
-//    }
-//}
-
-// MARK: - NewDeviceNoticeView Previews
+// MARK: - EmailAccessView Previews
 
 #if DEBUG
 #Preview("Real") {
@@ -332,7 +226,7 @@ struct NewDeviceNoticeView: View {
         RealView(
             store: Store(
                 processor: StateProcessor(
-                    state: NewDeviceNoticeState(
+                    state: EmailAccessState(
                         canAccessEmail: false
                     )
                 )
@@ -343,10 +237,10 @@ struct NewDeviceNoticeView: View {
 
 #Preview("New Device Notice") {
     NavigationView {
-        NewDeviceNoticeView(
+        EmailAccessView(
             store: Store(
                 processor: StateProcessor(
-                    state: NewDeviceNoticeState(
+                    state: EmailAccessState(
                         canAccessEmail: false
                     )
                 )

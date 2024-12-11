@@ -1,10 +1,10 @@
 import SwiftUI
 
-// MARK: - NewDeviceNoticeState
+// MARK: - EmailAccessState
 
-/// An object that defines the current state of a `NewDeviceNoticeView`.
+/// An object that defines the current state of a `EmailAccessView`.
 ///
-struct NewDeviceNoticeState: Equatable, Sendable {
+struct EmailAccessState: Equatable, Sendable {
     // MARK: Properties
 
     var canAccessEmail: Bool

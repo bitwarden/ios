@@ -63,15 +63,15 @@ final class NoTwoFactorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Private Methods
 
     func showEmailAccess() {
-        let processor = NewDeviceNoticeProcessor(
+        let processor = EmailAccessProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: NewDeviceNoticeState(
+            state: EmailAccessState(
                 canAccessEmail: false
             )
         )
         let store = Store(processor: processor)
-        let view = NewDeviceNoticeView(
+        let view = EmailAccessView(
             store: store
         )
         stackNavigator?.replace(view)

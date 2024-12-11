@@ -311,15 +311,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
         stackNavigator?.present(navigationController, overFullscreen: true)
 
-//        let processor = NewDeviceNoticeProcessor(
+//        let processor = EmailAccessProcessor(
 //            coordinator: asAnyCoordinator(),
 //            services: services,
-//            state: NewDeviceNoticeState(
+//            state: EmailAccessState(
 //                canAccessEmail: false
 //            )
 //        )
 //        let store = Store(processor: processor)
-//        let view = NewDeviceNoticeView(
+//        let view = EmailAccessView(
 //            store: store
 //        )
 //        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
