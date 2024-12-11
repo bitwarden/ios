@@ -379,7 +379,6 @@ protocol StateService: AnyObject {
     ///
     func pinProtectedUserKey(userId: String?) async throws -> String?
 
-
     /// Sets the account encryption keys for an account.
     ///
     /// - Parameters:
