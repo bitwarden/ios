@@ -5,19 +5,6 @@ import SwiftUI
 extension View {
     // MARK: Buttons
 
-    /// Returns a toolbar button configured for adding an item.
-    ///
-    /// - Parameters:
-    ///   - hidden: Whether to hide the toolbar item.
-    ///   - action: The action to perform when the button is tapped.
-    /// - Returns: A `Button` configured for adding an item.
-    ///
-    func addToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
-        toolbarButton(asset: Asset.Images.plus24, label: Localizations.add, action: action)
-            .hidden(hidden)
-            .accessibilityIdentifier("AddItemButton")
-    }
-
     /// Returns a toolbar button configured for cancelling an operation in a view.
     ///
     /// - Parameter action: The action to perform when the button is tapped.
@@ -132,19 +119,6 @@ extension View {
     }
 
     // MARK: Toolbar Items
-
-    /// A `ToolbarItem` for views with an add button.
-    ///
-    /// - Parameters:
-    ///   - hidden: Whether to hide the toolbar item.
-    ///   - action: The action to perform when the add button is tapped.
-    /// - Returns: A `ToolbarItem` with an add button.
-    ///
-    func addToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            addToolbarButton(hidden: hidden, action: action)
-        }
-    }
 
     /// A `ToolbarItem` for views with a cancel text button.
     ///
