@@ -13,7 +13,7 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<AuthRoute, AuthEvent>
+    private let coordinator: AnyCoordinator<NoTwoFactorRoute, Void>
 
     /// The services required by this processor.
     private let services: Services
@@ -28,7 +28,7 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<AuthRoute, AuthEvent>,
+        coordinator: AnyCoordinator<NoTwoFactorRoute, Void>,
         services: Services,
         state: SetUpTwoFactorState
     ) {
@@ -41,6 +41,16 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
     // MARK: Methods
 
     override func perform(_ effect: SetUpTwoFactorEffect) async {
+        switch effect {
+        case .appeared:
+            break
+        case .turnOnTwoFactorTapped:
+            break
+        case .changeAccountEmailTapped:
+            break
+        case .remindMeLaterTapped:
+            coordinator.navigate(to: .dismiss)
+        }
     }
 
     override func receive(_ action: SetUpTwoFactorAction) {

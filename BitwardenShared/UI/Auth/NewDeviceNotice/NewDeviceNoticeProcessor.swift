@@ -13,7 +13,7 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
+    private let coordinator: AnyCoordinator<NoTwoFactorRoute, Void>
 
     /// The services required by this processor.
     private let services: Services
@@ -28,7 +28,7 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
+        coordinator: AnyCoordinator<NoTwoFactorRoute, Void>,
         services: Services,
         state: NewDeviceNoticeState
     ) {
@@ -45,7 +45,7 @@ class NewDeviceNoticeProcessor: StateProcessor<NewDeviceNoticeState, NewDeviceNo
         case .appeared:
             break
         case .continueTapped:
-            coordinator.navigate(to: .twoFactorNotice)
+            coordinator.navigate(to: .setUpTwoFactor)
         }
     }
 

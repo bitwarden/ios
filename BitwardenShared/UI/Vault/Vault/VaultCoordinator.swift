@@ -59,6 +59,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = GeneratorModule
         & ImportLoginsModule
+        & NoTwoFactorModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -193,8 +194,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
         case .setUpTwoFactor:
-//            showTwoFactorSetup()
-            break
+            showTwoFactorSetup()
         case .twoFactorNotice:
             showTwoFactorNotice()
         case let .vaultItemSelection(totpKeyModel):
@@ -303,21 +303,43 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     /// Shows the vault list screen.
     ///
     private func showTwoFactorNotice() {
-        let processor = NewDeviceNoticeProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: NewDeviceNoticeState(
-                canAccessEmail: false
-            )
-        )
-        let store = Store(processor: processor)
-        let view = RealView(
-            store: store
-        )
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        navController.navigationBar.isHidden = true
-        stackNavigator?.present(view, animated: true, overFullscreen: true)
-//        stackNavigator?.replace(view, animated: false)
+        let navigationController = UINavigationController()
+        navigationController.navigationBar.isHidden = true
+        let coordinator = module.makeNoTwoFactorCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .emailAccess, context: delegate)
+
+        stackNavigator?.present(navigationController, overFullscreen: true)
+
+//        let processor = NewDeviceNoticeProcessor(
+//            coordinator: asAnyCoordinator(),
+//            services: services,
+//            state: NewDeviceNoticeState(
+//                canAccessEmail: false
+//            )
+//        )
+//        let store = Store(processor: processor)
+//        let view = NewDeviceNoticeView(
+//            store: store
+//        )
+//        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+//        navController.navigationBar.isHidden = true
+////        stackNavigator?.present(navController)//, animated: true, overFullscreen: true)
+//
+//        stackNavigator?.present(view, animated: true, overFullscreen: true)
+////        stackNavigator?.replace(view, animated: false)
+    }
+
+    private func showTwoFactorSetup() {
+//        let processor = SetUpTwoFactorProcessor(
+//            coordinator: asAnyCoordinator(),
+//            services: services,
+//            state: SetUpTwoFactorState()
+//        )
+//        let store = Store(processor: processor)
+//        let view = SetUpTwoFactorView(store: store)
+//
+//        stackNavigator?.push(view, animated: true)
     }
 
     /// Presents a vault item coordinator, which will navigate to the provided route.
