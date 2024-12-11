@@ -1,5 +1,7 @@
 // MARK: - AboutProcessor
 
+import Foundation
+
 /// The processor used to manage state and handle actions for the `AboutView`.
 ///
 final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
@@ -87,21 +89,28 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
+        var buildVariant = switch Bundle.main.bundleIdentifier {
+        case "com.8bit.bitwarden.beta": "Beta"
+        case "com.8bit.bitwarden": "Production"
+        default: "Unkown"
+        }
+        buildVariant = "📦 \(buildVariant)"
+        let hardwareInfo = "📱 \(services.systemDevice.modelIdentifier)"
+        let osInfo = "🍏 \(services.systemDevice.systemName) \(services.systemDevice.systemVersion)"
+        let deviceInfo = "\(hardwareInfo) \(osInfo) \(buildVariant)"
         var infoParts = [
             state.copyrightText,
             "",
             state.version,
-            "\n-------- Device --------\n",
-            "Model: \(services.systemDevice.modelIdentifier)",
-            "OS: \(services.systemDevice.systemName) \(services.systemDevice.systemVersion)",
+            deviceInfo,
         ]
         if !aboutAdditionalInfo.ciBuildInfo.isEmpty {
-            infoParts.append("\n------- CI Info --------\n")
             infoParts.append(
-                contentsOf: aboutAdditionalInfo.ciBuildInfo.map { key, value in
-                    "\(key): \(value)"
-                }
-                .sorted()
+                contentsOf: aboutAdditionalInfo.ciBuildInfo
+                    .filter { !$0.value.isEmpty }
+                    .map { key, value in
+                        "\(key) \(value)"
+                    }
             )
         }
         services.pasteboardService.copy(infoParts.joined(separator: "\n"))
@@ -112,12 +121,12 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 /// Protocol for additional info used by the `AboutProcessor`
 protocol AboutAdditionalInfo {
     /// CI Build information.
-    var ciBuildInfo: [String: String] { get }
+    var ciBuildInfo: KeyValuePairs<String, String> { get }
 }
 
 /// Default implementation of `AboutAdditionalInfo`
 struct DefaultAboutAdditionalInfo: AboutAdditionalInfo {
-    var ciBuildInfo: [String: String] {
+    var ciBuildInfo: KeyValuePairs<String, String> {
         CIBuildInfo.info
     }
 }

@@ -23,11 +23,6 @@ struct FoldersView: View {
             }
         }
         .navigationBar(title: Localizations.folders, titleDisplayMode: .inline)
-        .toolbar {
-            addToolbarItem {
-                store.send(.add)
-            }
-        }
         .overlay(alignment: .bottomTrailing) {
             addItemFloatingActionButton {
                 store.send(.add)
