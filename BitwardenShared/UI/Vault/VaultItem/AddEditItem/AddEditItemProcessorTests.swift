@@ -90,6 +90,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         eventService = nil
         pasteboardService = nil
         rehydrationHelper = nil
+        reviewPromptService = nil
         stateService = nil
         subject = nil
         totpService = nil
