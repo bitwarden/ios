@@ -69,7 +69,7 @@ final class VaultListProcessor: StateProcessor<
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
-            coordinator.navigate(to: .twoFactorNotice)
+            await checkTwoFactorNotice()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
@@ -180,6 +180,29 @@ extension VaultListProcessor {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
+    }
+
+    /// Checks if we need to display the notice for not having two-factor set up
+    /// and displays the notice if necessary
+    ///
+    private func checkTwoFactorNotice() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            let state = try await services.stateService.getTwoFactorNoticeDisplayState(userId: userId)
+            switch state {
+            case .canAccessEmail:
+                return
+            case .hasNotSeen:
+                coordinator.navigate(to: .twoFactorNotice)
+            case let .seen(date):
+                if services.timeProvider.timeSince(date) >= /*(86400 * 7)*/ 70 { // Seven days
+                    coordinator.navigate(to: .twoFactorNotice)
+                }
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+
     }
 
     /// Entry point to handling things around push notifications.
