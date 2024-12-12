@@ -59,7 +59,7 @@ struct ImportLoginsView: View {
                     AsyncButton(Localizations.importLoginsLater) {
                         await store.perform(.importLoginsLater)
                     }
-                    .buttonStyle(.transparent)
+                    .buttonStyle(.secondary())
                 }
             }
         }
@@ -142,7 +142,7 @@ struct ImportLoginsView: View {
                 Button(Localizations.back) {
                     store.send(.advancePreviousPage)
                 }
-                .buttonStyle(.transparent)
+                .buttonStyle(.secondary())
             }
         }
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
