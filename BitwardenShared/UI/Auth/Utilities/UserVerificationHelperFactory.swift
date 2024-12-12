@@ -3,7 +3,7 @@ protocol UserVerificationHelperFactory {
     func create() -> UserVerificationHelper
 }
 
-/// The default implemenetation for `UserVerificationHelperFactory`.
+/// The default implementation for `UserVerificationHelperFactory`.
 struct DefaultUserVerificationHelperFactory: UserVerificationHelperFactory {
     // MARK: Properties
 
