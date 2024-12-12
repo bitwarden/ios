@@ -2,8 +2,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockAuthRepository: AuthRepository {
-    // swiftlint:disable:this type_body_length
+class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_length
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)

@@ -272,12 +272,14 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertEqual(
             router.events,
-            [.accountBecameActive(
-                account,
-                animated: true,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: true
-            )]
+            [
+                .accountBecameActive(
+                    account,
+                    animated: true,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: true
+                ),
+            ]
         )
     }
 
