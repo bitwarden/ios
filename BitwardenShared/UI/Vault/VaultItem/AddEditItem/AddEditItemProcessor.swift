@@ -709,7 +709,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Kicks off the TOTP setup flow.
     ///
     private func setupTotp() async {
-        guard services.cameraService.deviceSupportsCamera() else {
+        guard services.cameraService.deviceSupportsCamera(),
+              appExtensionDelegate?.isInAppExtension != true // Extensions don't allow camera access.
+        else {
             coordinator.navigate(to: .setupTotpManual, context: self)
             return
         }
