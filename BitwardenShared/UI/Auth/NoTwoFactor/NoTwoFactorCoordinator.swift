@@ -9,6 +9,8 @@ final class NoTwoFactorCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasApplication
         & HasAuthRepository
+        & HasErrorReporter
+        & HasStateService
 
     // MARK: Private Properties
 

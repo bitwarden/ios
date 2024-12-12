@@ -941,6 +941,14 @@ extension StateService {
         try await getTimeoutAction(userId: nil)
     }
 
+    /// Gets the display state of the no-two-factor notice for the current user.
+    ///
+    /// - Returns: The display state.
+    ///
+    func getTwoFactorNoticeDisplayState() async throws -> TwoFactorNoticeDisplayState {
+        try await getTwoFactorNoticeDisplayState(userId: nil)
+    }
+
     /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
     ///
     /// - Returns: The number of unsuccessful unlock attempts for the active account.
@@ -1157,6 +1165,15 @@ extension StateService {
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
         try await setSyncToAuthenticator(syncToAuthenticator, userId: nil)
+    }
+
+    /// Sets the display state for the no-two-factor notice
+    ///
+    /// - Parameters:
+    ///   - state: The state to set.
+    ///
+    func setTwoFactorNoticeDisplayState(state: TwoFactorNoticeDisplayState) async throws {
+        try await setTwoFactorNoticeDisplayState(state, userId: nil)
     }
 
     /// Sets the session timeout action.

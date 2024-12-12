@@ -8,7 +8,8 @@ import SwiftUI
 class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, EmailAccessEffect> {
     // MARK: Types
 
-    typealias Services = HasAuthRepository
+    typealias Services = HasErrorReporter
+        & HasStateService
 
     // MARK: Private Properties
 
@@ -40,14 +41,19 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
 
     // MARK: Methods
 
-    override func perform(_ effect: EmailAccessEffect) async {}
+    override func perform(_ effect: EmailAccessEffect) async {
+        switch effect {
+        case .appeared:
+            break
+        case .continueTapped:
+            await handleContinue()
+        }
+    }
 
     override func receive(_ action: EmailAccessAction) {
         switch action {
         case let .canAccessEmailChanged(canAccess):
             state.canAccessEmail = canAccess
-        case .continueTapped:
-            handleContinue()
         case .currentPageIndexChanged:
             break
         }
@@ -55,11 +61,16 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
 
     // MARK: Private Methods
 
-    private func handleContinue() {
-        if state.canAccessEmail {
-            coordinator.navigate(to: .dismiss)
-        } else {
-            coordinator.navigate(to: .setUpTwoFactor)
+    private func handleContinue() async {
+        do {
+            if state.canAccessEmail {
+                try await services.stateService.setTwoFactorNoticeDisplayState(state: .canAccessEmail)
+                coordinator.navigate(to: .dismiss)
+            } else {
+                coordinator.navigate(to: .setUpTwoFactor)
+            }
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 }

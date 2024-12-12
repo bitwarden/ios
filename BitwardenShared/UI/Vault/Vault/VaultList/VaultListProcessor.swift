@@ -187,8 +187,7 @@ extension VaultListProcessor {
     ///
     private func checkTwoFactorNotice() async {
         do {
-            let userId = try await services.stateService.getActiveAccountId()
-            let state = try await services.stateService.getTwoFactorNoticeDisplayState(userId: userId)
+            let state = try await services.stateService.getTwoFactorNoticeDisplayState()
             switch state {
             case .canAccessEmail:
                 return
@@ -202,7 +201,6 @@ extension VaultListProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
-
     }
 
     /// Entry point to handling things around push notifications.
