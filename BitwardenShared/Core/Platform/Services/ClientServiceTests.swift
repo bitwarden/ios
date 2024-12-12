@@ -105,6 +105,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `client(for:)` loads flags into the SDK.
     @MainActor
     func test_client_loadFlags() async throws {
+        configService.synchronicFeatureFlagsBool[.cipherKeyEncryption] = true
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -125,9 +126,11 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
-    /// `client(for:)` loads `enableCipherKeyEncryption` flag as `false` into the SDK.
+    /// `client(for:)` loads `enableCipherKeyEncryption` flag as `false` into the SDK
+    /// when the server version is old.
     @MainActor
-    func test_client_loadFlagsEnableCipherKeyEncryptionFalse() async throws {
+    func test_client_loadFlagsEnableCipherKeyEncryptionFalseBecauseOfServerVersion() async throws {
+        configService.synchronicFeatureFlagsBool[.cipherKeyEncryption] = true
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -136,6 +139,31 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 gitHash: "75238191",
                 server: nil,
                 version: "2024.1.0"
+            )
+        ))
+
+        _ = try await subject.auth(for: "1")
+
+        let client = try XCTUnwrap(clientBuilder.clients.first)
+        XCTAssertEqual(
+            client.clientPlatform.featureFlags,
+            ["enableCipherKeyEncryption": false]
+        )
+    }
+
+    /// `client(for:)` loads `enableCipherKeyEncryption` flag as `false` into the SDK
+    /// when the server version is old.
+    @MainActor
+    func test_client_loadFlagsEnableCipherKeyEncryptionFalseBecauseOfFeatureFlag() async throws {
+        configService.synchronicFeatureFlagsBool[.cipherKeyEncryption] = false
+        configService.configMocker.withResult(ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
             )
         ))
 
@@ -195,7 +223,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                     date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                     responseModel: ConfigResponseModel(
                         environment: nil,
-                        featureStates: [:],
+                        featureStates: ["cipher-key-encryption": .bool(true)],
                         gitHash: "75238191",
                         server: nil,
                         version: "2024.4.0"
@@ -213,9 +241,10 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
     }
 
-    /// `configPublisher` loads flags into the SDK on a already created client.
+    /// `configPublisher` loads flags into the SDK on a already created client taking into account
+    /// changing the cipher-key-encryption feature flag.
     @MainActor
-    func test_configPublisher_loadFlagsOverride() async throws {
+    func test_configPublisher_loadFlagsOverride() async throws { // swiftlint:disable:this function_body_length
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -254,6 +283,30 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await waitForAsync {
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
             return client?.clientPlatform.featureFlags == ["enableCipherKeyEncryption": true]
+        }
+        XCTAssertEqual(clientBuilder.clients.count, 1)
+
+        configService.synchronicFeatureFlagsBool[.cipherKeyEncryption] = false
+        configService.configSubject.send(
+            MetaServerConfig(
+                isPreAuth: false,
+                userId: "1",
+                serverConfig: ServerConfig(
+                    date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+                    responseModel: ConfigResponseModel(
+                        environment: nil,
+                        featureStates: [:],
+                        gitHash: "75238191",
+                        server: nil,
+                        version: "2024.4.0"
+                    )
+                )
+            )
+        )
+
+        try await waitForAsync {
+            let client = try? XCTUnwrap(self.clientBuilder.clients.first)
+            return client?.clientPlatform.featureFlags == ["enableCipherKeyEncryption": false]
         }
         XCTAssertEqual(clientBuilder.clients.count, 1)
     }

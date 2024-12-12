@@ -64,6 +64,17 @@ protocol ConfigService {
         isPreAuth: Bool
     ) async -> String?
 
+    /// Retrieves a boolean feature flag from the passed  `config` argument. This is a synchronous operation
+    /// to be used when we already have the `ServerConfig` and we don't need to fetch it as in the async version
+    /// of this function.
+    ///
+    /// - Parameters:
+    ///   - flag: The feature flag to retrieve.
+    ///   - defaultValue: The default value to use if the flag is not in the server configuration.
+    ///   - config: The `ServerConfig` to get the value from.
+    /// - Returns: The value for the feature flag.
+    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool, from config: ServerConfig?) -> Bool
+
     // MARK: Debug Feature Flags
 
     /// Retrieves the debug menu feature flags.
@@ -98,6 +109,10 @@ extension ConfigService {
 
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String? = nil, isPreAuth: Bool = false) async -> String? {
         await getFeatureFlag(flag, defaultValue: defaultValue, forceRefresh: false, isPreAuth: isPreAuth)
+    }
+
+    func getFeatureFlag(_ flag: FeatureFlag, from config: ServerConfig?) -> Bool {
+        getFeatureFlag(flag, defaultValue: false, from: config)
     }
 }
 
@@ -183,19 +198,11 @@ class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> Bool {
-        #if DEBUG_MENU
-        if let userDefaultValue = appSettingsStore.debugFeatureFlag(name: flag.rawValue) {
-            return userDefaultValue
-        }
-        #endif
-
-        guard flag.isRemotelyConfigured else {
-            return FeatureFlag.initialValues[flag]?.boolValue ?? defaultValue
+        if let value = getFeatureFlagWithoutConfigIfPossible(flag, defaultValue: defaultValue) {
+            return value
         }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
-        return configuration?.featureStates[flag]?.boolValue
-            ?? FeatureFlag.initialValues[flag]?.boolValue
-            ?? defaultValue
+        return getFeatureFlagValue(flag, defaultValue: defaultValue, from: configuration)
     }
 
     func getFeatureFlag(
@@ -228,12 +235,27 @@ class DefaultConfigService: ConfigService {
             ?? defaultValue
     }
 
+    func getFeatureFlag(
+        _ flag: FeatureFlag,
+        defaultValue: Bool = false,
+        from config: ServerConfig?
+    ) -> Bool {
+        if let value = getFeatureFlagWithoutConfigIfPossible(flag, defaultValue: defaultValue) {
+            return value
+        }
+        return getFeatureFlagValue(flag, defaultValue: defaultValue, from: config)
+    }
+
+    // MARK: Debug Feature Flags
+
     func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
         let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
 
         let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
             let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
-            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue ?? false
+            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue
+                ?? FeatureFlag.initialValues[feature]?.boolValue
+                ?? false
 
             return DebugMenuFeatureFlag(
                 feature: feature,
@@ -263,6 +285,37 @@ class DefaultConfigService: ConfigService {
     }
 
     // MARK: Private
+
+    /// Gets the actual feature flag value from the configuration.
+    /// - Parameters:
+    ///   - flag: Flag to get the value.
+    ///   - defaultValue: The default value to use if no flag, no config or no initial values are found for such flag.
+    ///   - config: The config to the value from.
+    /// - Returns: The boolean value of the flag in the configuration or some initial/default value for it.
+    private func getFeatureFlagValue(
+        _ flag: FeatureFlag,
+        defaultValue: Bool = false,
+        from config: ServerConfig?
+    ) -> Bool {
+        config?.featureStates[flag]?.boolValue
+            ?? FeatureFlag.initialValues[flag]?.boolValue
+            ?? defaultValue
+    }
+
+    /// Tries to get a boolean feature flag without actually using the `ServerConfig` by checking the debug menu config
+    /// and whether the flag is not remotely configured.
+    private func getFeatureFlagWithoutConfigIfPossible(_ flag: FeatureFlag, defaultValue: Bool = false) -> Bool? {
+        #if DEBUG_MENU
+        if let userDefaultValue = appSettingsStore.debugFeatureFlag(name: flag.rawValue) {
+            return userDefaultValue
+        }
+        #endif
+
+        guard !flag.isRemotelyConfigured else {
+            return nil
+        }
+        return FeatureFlag.initialValues[flag]?.boolValue ?? defaultValue
+    }
 
     /// Gets the server config in state depending on if the call is being done before authentication.
     /// - Parameters:
