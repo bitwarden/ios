@@ -133,6 +133,8 @@ struct ProfileSwitcherView: View {
                         switch accessibilityAction {
                         case .logout:
                             .accessibility(.logout(accountProfile))
+                        case .remove:
+                            .accessibility(.remove(accountProfile))
                         }
                     }
                 },
