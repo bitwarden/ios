@@ -301,6 +301,14 @@ protocol StateService: AnyObject {
     ///
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction
 
+    /// Gets the display state of the no-two-factor notice for a user ID.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID for the account; defaults to current active user if `nil`.
+    /// - Returns: The display state.
+    ///
+    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState
+
     /// Get the two-factor token (non-nil if the user selected the "remember me" option).
     ///
     /// - Parameter email: The user's email address.
@@ -629,6 +637,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the timeout action.
     ///
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws
+
+    /// Sets the user's no-two-factor notice display state for a userID.
+    ///
+    /// - Parameters:
+    ///   - state: The display state to set.
+    ///   - userId: The user ID associated with the state
+    ///
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws
 
     /// Sets the user's two-factor token.
     ///
@@ -1529,6 +1545,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return timeoutAction
     }
 
+    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.twoFactorNoticeDisplayState(userId: userId)
+    }
+
     func getTwoFactorToken(email: String) async -> String? {
         appSettingsStore.twoFactorToken(email: email)
     }
@@ -1813,6 +1834,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setTimeoutAction(key: action, userId: userId)
+    }
+
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setTwoFactorNoticeDisplayState(state, userId: userId)
     }
 
     func setTwoFactorToken(_ token: String?, email: String) async {
