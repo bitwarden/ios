@@ -12,6 +12,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
+    var reviewPromptService: MockReviewPromptService!
     var subject: AddEditSendItemProcessor!
 
     // MARK: Setup & Teardown
@@ -21,12 +22,14 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         coordinator = MockCoordinator()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        reviewPromptService = MockReviewPromptService()
         sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
             coordinator: coordinator,
             services: ServiceContainer.withMocks(
                 pasteboardService: pasteboardService,
                 policyService: policyService,
+                reviewPromptService: reviewPromptService,
                 sendRepository: sendRepository
             ),
             state: AddEditSendItemState()
@@ -39,6 +42,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         pasteboardService = nil
         policyService = nil
         sendRepository = nil
+        reviewPromptService = nil
         subject = nil
     }
 
@@ -223,6 +227,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
+        XCTAssertEqual(reviewPromptService.userActions, [.createdNewSend])
     }
 
     /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.

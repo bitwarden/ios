@@ -63,6 +63,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPasteboardService
         & HasPolicyService
         & HasRehydrationHelper
+        & HasReviewPromptService
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
@@ -625,6 +626,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
         handleDismiss(didAddItem: true)
+        await services.reviewPromptService.trackUserAction(.addedNewItem)
     }
 
     /// Checks user verification if needed on Fido2 flows.

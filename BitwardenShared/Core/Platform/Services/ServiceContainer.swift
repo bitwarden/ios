@@ -112,6 +112,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The helper used for app rehydration.
     let rehydrationHelper: RehydrationHelper
 
+    /// The service used by the appllication to manage app review prompts related data.
+    let reviewPromptService: ReviewPromptService
+
     /// The repository used by the application to manage send data for the UI layer.
     public let sendRepository: SendRepository
 
@@ -192,6 +195,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - rehydrationHelper: The helper used for app rehydration.
+    ///   - reviewPromptService: The service used by the application to manage app review prompts related data.
     ///   - policyService: The service for managing the polices for the user.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
@@ -240,6 +244,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         pasteboardService: PasteboardService,
         policyService: PolicyService,
         rehydrationHelper: RehydrationHelper,
+        reviewPromptService: ReviewPromptService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
@@ -286,6 +291,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.pasteboardService = pasteboardService
         self.policyService = policyService
         self.rehydrationHelper = rehydrationHelper
+        self.reviewPromptService = reviewPromptService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
@@ -456,6 +462,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider
+        )
+
+        let reviewPromptService = DefaultReviewPromptService(
+            appVersion: Bundle.main.appVersion,
+            stateService: stateService
         )
 
         let syncService = DefaultSyncService(
@@ -702,6 +713,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             pasteboardService: pasteboardService,
             policyService: policyService,
             rehydrationHelper: rehydrationHelper,
+            reviewPromptService: reviewPromptService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,

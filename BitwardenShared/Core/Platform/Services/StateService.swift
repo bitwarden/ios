@@ -267,6 +267,12 @@ protocol StateService: AnyObject {
     /// - Returns: The server config used prior to user authentication.
     func getPreAuthServerConfig() async -> ServerConfig?
 
+    /// Gets the App Review Prompt data.
+    ///
+    /// - Returns: The App Review Prompt data.
+    ///
+    func getReviewPromptData() async -> ReviewPromptData?
+
     /// Gets the server config for a user ID, as set by the server.
     ///
     /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
@@ -593,6 +599,12 @@ protocol StateService: AnyObject {
     ///   - rehydrationState: The app rehydration state.
     ///   - userId: The user ID of the rehydration state.
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
+
+    /// Sets the App Review Prompt data.
+    ///
+    /// - Parameter data: The App Review Prompt data.
+    ///
+    func setReviewPromptData(_ data: ReviewPromptData) async
 
     /// Sets the server configuration as provided by a server for a user ID.
     ///
@@ -1502,6 +1514,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.preAuthServerConfig
     }
 
+    func getReviewPromptData() async -> ReviewPromptData? {
+        appSettingsStore.reviewPromptData
+    }
+
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.serverConfig(userId: userId)
@@ -1788,6 +1804,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
+    }
+
+    func setReviewPromptData(_ data: ReviewPromptData) async {
+        appSettingsStore.reviewPromptData = data
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
