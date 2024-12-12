@@ -28,9 +28,9 @@ struct DefaultTextAutofillHelperFactory: TextAutofillHelperFactory {
     /// Initialize an `DefaultTextAutofillHelper`.
     ///
     /// - Parameters:
-    ///   - authRepository: A delegate used to communicate with the autofill app extension.
+    ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
     ///   - errorReporter: The coordinator that handles navigation.
-    ///   - eventService: The services used by this processor.
+    ///   - eventService: The service used to record and send events.
     ///   - userVerificationHelperFactory:A factory to create `UserVerificationHelper`s.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///
