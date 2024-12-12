@@ -44,7 +44,7 @@ class MockClientService: ClientService {
         mockCrypto
     }
 
-    func exporters(for userId: String?) -> ClientExportersProtocol {
+    func exporters(for userId: String?) -> ClientExportersServiceTemp {
         mockExporters
     }
 

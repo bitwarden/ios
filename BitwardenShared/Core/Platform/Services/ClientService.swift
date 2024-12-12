@@ -28,7 +28,7 @@ protocol ClientService {
     /// - Parameter userId: The user ID mapped to the client instance.
     /// - Returns: A `ClientExportersProtocol` for vault export data tasks.
     ///
-    func exporters(for userId: String?) async throws -> ClientExportersProtocol
+    func exporters(for userId: String?) async throws -> ClientExportersServiceTemp
 
     /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
     ///
@@ -88,7 +88,7 @@ extension ClientService {
 
     /// Returns a `ClientExportersProtocol` for vault export data tasks.
     ///
-    func exporters() async throws -> ClientExportersProtocol {
+    func exporters() async throws -> ClientExportersServiceTemp {
         try await exporters(for: nil)
     }
 
@@ -199,7 +199,7 @@ actor DefaultClientService: ClientService {
         try await client(for: userId).crypto()
     }
 
-    func exporters(for userId: String?) async throws -> ClientExportersProtocol {
+    func exporters(for userId: String?) async throws -> ClientExportersServiceTemp {
         try await client(for: userId).exporters()
     }
 
@@ -360,7 +360,7 @@ protocol BitwardenSdkClient {
     func crypto() -> ClientCryptoProtocol
 
     ///  Returns exporters.
-    func exporters() -> ClientExportersProtocol
+    func exporters() -> ClientExportersServiceTemp
 
     /// Returns generator operations.
     func generators() -> ClientGeneratorsProtocol
@@ -386,7 +386,7 @@ extension Client: BitwardenSdkClient {
         crypto() as ClientCrypto
     }
 
-    func exporters() -> ClientExportersProtocol {
+    func exporters() -> ClientExportersServiceTemp {
         exporters() as ClientExporters
     }
 
