@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "סיסמה ראשית שגויה. נסה שוב.";
 "InvalidPIN" = "קוד PIN שגוי. נסה שוב.";
 "Launch" = "הפעל";
-"LogIn" = "התחבר";
+"LogIn" = "Log in";
 "LogInNoun" = "כניסה";
 "LogOut" = "התנתק";
 "LogoutConfirmation" = "האם אתה בטוח שברצונך להתנתק?";

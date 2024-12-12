@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Prif gyfrinair annilys. Rhowch gynnig arall arni.";
 "InvalidPIN" = "PIN annilys. Rhowch gynnig arall arni.";
 "Launch" = "Lansio";
-"LogIn" = "Mewngofnodi";
+"LogIn" = "Log in";
 "LogInNoun" = "Mewngofnodi";
 "LogOut" = "Allgofnodi";
 "LogoutConfirmation" = "Ydych chi'n siŵr eich bod am allgofnodi?";

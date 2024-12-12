@@ -87,7 +87,7 @@ struct AppExtensionView: View {
         ) {
             store.send(.activateButtonTapped)
         }
-        .buttonStyle(.tertiary())
+        .buttonStyle(.secondary())
     }
 
     /// The instruction image.

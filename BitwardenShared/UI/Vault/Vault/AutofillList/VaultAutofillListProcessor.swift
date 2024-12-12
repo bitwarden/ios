@@ -162,11 +162,11 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func receive(_ action: VaultAutofillListAction) {
         switch action {
-        case let .addTapped(fromToolbar):
+        case let .addTapped(fromFAB):
             state.profileSwitcherState.setIsVisible(false)
 
             guard #available(iOSApplicationExtension 17.0, *),
-                  !fromToolbar,
+                  !fromFAB,
                   let autofillAppExtensionDelegate,
                   autofillAppExtensionDelegate.isCreatingFido2Credential else {
                 coordinator.navigate(
@@ -223,8 +223,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         switch profileSwitcherAction {
         case let .accessibility(accessibilityAction):
             switch accessibilityAction {
-            case .logout:
-                // No-op: account logout not supported in the extension.
+            case .logout, .remove:
+                // No-op: account logout and remove are not supported in the extension.
                 break
             }
         default:

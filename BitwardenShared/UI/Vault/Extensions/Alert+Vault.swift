@@ -161,7 +161,7 @@ extension Alert {
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count cyclomatic_complexity line_length
+    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count
         canCopyTotp: Bool,
         cipherView: CipherView,
         hasMasterPassword: Bool,

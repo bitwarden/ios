@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Glavna lozinka neispravna. Pokušajte ponovo.";
 "InvalidPIN" = "Nevažeći PIN. Pokušajte ponovo.";
 "Launch" = "Otvori web stranicu";
-"LogIn" = "Prijavite se";
+"LogIn" = "Log in";
 "LogInNoun" = "Prijava";
 "LogOut" = "Odjava";
 "LogoutConfirmation" = "Da li ste sigurni da želite da se odjavite?";

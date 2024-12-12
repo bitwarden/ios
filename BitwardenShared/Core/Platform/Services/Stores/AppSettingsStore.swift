@@ -54,6 +54,9 @@ protocol AppSettingsStore: AnyObject {
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
 
+    /// The review prompt data.
+    var reviewPromptData: ReviewPromptData? { get set }
+
     /// The app's account state.
     var state: State? { get set }
 
@@ -705,6 +708,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
+        case reviewPromptData
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
         case syncToAuthenticator(userId: String)
@@ -792,6 +796,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
+            case .reviewPromptData:
+                key = "reviewPromptData"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
             case let .shouldTrustDevice(userId):
@@ -884,6 +890,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var rememberedOrgIdentifier: String? {
         get { fetch(for: .rememberedOrgIdentifier) }
         set { store(newValue, for: .rememberedOrgIdentifier) }
+    }
+
+    var reviewPromptData: ReviewPromptData? {
+        get { fetch(for: .reviewPromptData) }
+        set { store(newValue, for: .reviewPromptData) }
     }
 
     var state: State? {

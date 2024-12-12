@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Parolă principală invalidă. Încercați din nou.";
 "InvalidPIN" = "PIN greșit. Încercați din nou.";
 "Launch" = "Lansare";
-"LogIn" = "Conectare";
+"LogIn" = "Log in";
 "LogInNoun" = "Conectare";
 "LogOut" = "Deconectare";
 "LogoutConfirmation" = "Sigur doriți să vă deconectați?";

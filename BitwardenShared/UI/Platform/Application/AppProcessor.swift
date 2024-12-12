@@ -83,7 +83,11 @@ public class AppProcessor {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
                 await checkIfExtensionSwitchedAccounts()
-                await checkAccountsForTimeout()
+                await services.authRepository.checkSessionTimeouts { [weak self] activeUserId in
+                    // Allow the AuthCoordinator to handle the timeout for the active user
+                    // so any necessary routing can occur.
+                    await self?.coordinator?.handleEvent(.didTimeout(userId: activeUserId))
+                }
                 await handleNeverTimeOutAccountBecameActive()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
@@ -210,6 +214,15 @@ public class AppProcessor {
                 userEmail: email,
                 fromEmail: Bool(fromEmail) ?? true
             )))
+    }
+
+    /// Handles importing credentials using Credential Exchange Protocol.
+    /// - Parameter credentialImportToken: The credentials import token to user with the `ASCredentialImportManager`.
+    @available(iOSApplicationExtension 18.2, *)
+    public func handleImportCredentials(credentialImportToken: UUID) {
+        // TODO: PM-14800 Move this to a specific view to handle importing process
+        // and handle credential data.
+        // let credentialData = try await ASCredentialImportManager().importCredentials(token: credentialImportToken)
     }
 
     // MARK: Autofill Methods
@@ -341,38 +354,6 @@ public class AppProcessor {
 
 extension AppProcessor {
     // MARK: Private Methods
-
-    /// Checks if any accounts have timed out.
-    ///
-    private func checkAccountsForTimeout() async {
-        do {
-            let accounts = try await services.stateService.getAccounts()
-            let activeUserId = try await services.stateService.getActiveAccountId()
-            for account in accounts {
-                let userId = account.profile.userId
-                let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
-                if shouldTimeout {
-                    if userId == activeUserId {
-                        // Allow the AuthCoordinator to handle the timeout for the active user
-                        // so any necessary routing can occur.
-                        await coordinator?.handleEvent(.didTimeout(userId: activeUserId))
-                    } else {
-                        let timeoutAction = try? await services.authRepository.sessionTimeoutAction(userId: userId)
-                        switch timeoutAction {
-                        case .lock:
-                            await services.vaultTimeoutService.lockVault(userId: userId)
-                        case .logout, .none:
-                            try await services.authRepository.logout(userId: userId, userInitiated: false)
-                        }
-                    }
-                }
-            }
-        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
-            // No-op: nothing to do if there's no accounts or an active account.
-        } catch {
-            services.errorReporter.log(error: error)
-        }
-    }
 
     /// Handles unlocking the vault for a manually locked account that uses never lock
     /// and was previously unlocked in an extension.

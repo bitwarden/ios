@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Invalid master password. Try again.";
 "InvalidPIN" = "Invalid PIN. Try again.";
 "Launch" = "දියත් කරන්න";
-"LogIn" = "පිවිසෙන්න";
+"LogIn" = "Log in";
 "LogInNoun" = "පිවිසෙන්න";
 "LogOut" = "නික්මෙන්න";
 "LogoutConfirmation" = "ඔබට නික්මෙන්න අවශ්‍ය බව විශ්වාසද?";

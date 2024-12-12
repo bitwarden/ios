@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "मास्टर पासवर्ड गलत है। वापस कोशिश करें।";
 "InvalidPIN" = "पिन गलत है। वापस कोशिश करें।";
 "Launch" = "खोलें";
-"LogIn" = "लॉगइन करें";
+"LogIn" = "Log in";
 "LogInNoun" = "लॉगइन";
 "LogOut" = "लॉगआउट करें";
 "LogoutConfirmation" = "पक्का लॉगआउट करें?";

@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "'Di-wastong master password. Subukan ulit.";
 "InvalidPIN" = "'Di-wastong PIN. Subukan ulit.";
 "Launch" = "Buksan";
-"LogIn" = "Mag-log in";
+"LogIn" = "Log in";
 "LogInNoun" = "Login";
 "LogOut" = "Mag-log out";
 "LogoutConfirmation" = "Sigurado ka bang gusto mong mag-log out?";
