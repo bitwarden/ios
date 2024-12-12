@@ -4,6 +4,8 @@
 <dict>
 	<key>BitwardenAppIdentifier</key>
 	<string>$(BASE_BUNDLE_ID)</string>
+	<key>BitwardenAuthenticatorSharedAppGroup</key>
+	<string>${SHARED_APP_GROUP_IDENTIFIER}</string>
 	<key>BitwardenKeychainAccessGroup</key>
 	<string>$(AppIdentifierPrefix)$(BASE_BUNDLE_ID)</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
@@ -150,7 +152,5 @@
 	</array>
 	<key>XSAppIconAssets</key>
 	<string>Resources/Assets.xcassets/AppIcons.appiconset</string>
-	<key>BitwardenAuthenticatorSharedAppGroup</key>
-	<string>${SHARED_APP_GROUP_IDENTIFIER}</string>
 </dict>
 </plist>

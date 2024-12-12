@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "modifiedAt": 1732226366,
+      "creationAt": 1732226366,
+      "title": "GitHub",
+      "credentials": [
+        {
+          "urls": [
+            "github.com"
+          ],
+          "password": {
+            "id": "RTEzRDEwQjctRTdCQy00QTI3LTgwNDAtRjgxMzNBOTMxMjhC",
+            "fieldType": "concealed-string",
+            "value": "adsfasf"
+          },
+          "type": "basic-auth",
+          "username": {
+            "fieldType": "string",
+            "id": "NTlBMUFBNUYtODE5My00QUIzLThGRjYtOEFCRUQ5MUQxNUZG",
+            "value": "TestCXP1"
+          }
+        }
+      ],
+      "id": "MjZDQzQwQTQtQUZDQS00NEIzLUEwNjAtMUMyNUUzNTc1RTZB",
+      "type": "login"
+    },
+    {
+      "type": "login",
+      "modifiedAt": 1732226380,
+      "id": "NEMzOTY4MTItRTMxMi00NUExLUE4NDYtRUFENEZDMTkyMDJC",
+      "creationAt": 1732226380,
+      "title": "Google",
+      "credentials": [
+        {
+          "urls": [
+            "google.com"
+          ],
+          "type": "basic-auth",
+          "username": {
+            "id": "MTdCOUI5NTUtM0FGOC00RDYzLUEwN0UtQjJFMjk1MTM1NDlC",
+            "fieldType": "string",
+            "value": "TestCXPGoogle"
+          },
+          "password": {
+            "fieldType": "concealed-string",
+            "value": "1o23j1po3ij1o",
+            "id": "QTU2NDVDMTktMTgzQy00OEJELUI4NTMtNzg4NjYzRDk2NzI1"
+          }
+        }
+      ]
+    }
+  ],
+  "id": "RDQxRjU3QTYtM0NFNi00MTI5LUI0MkUtNUZBOUY0NkU3QTFD",
+  "collections": [],
+  "email": "",
+  "userName": ""
+}

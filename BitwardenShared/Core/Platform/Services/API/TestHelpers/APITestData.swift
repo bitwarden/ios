@@ -6,15 +6,8 @@ struct APITestData {
     let data: Data
 
     static func loadFromBundle(resource: String, extension: String) -> APITestData {
-        let bundle = Bundle(for: BitwardenTestCase.self)
-        guard let url = bundle.url(forResource: resource, withExtension: `extension`) else {
-            fatalError("Unable to locate file \(resource).\(`extension`) in the bundle.")
-        }
-        do {
-            return try APITestData(data: Data(contentsOf: url))
-        } catch {
-            fatalError("Unable to load data from \(resource).\(`extension`) in the bundle. Error: \(error)")
-        }
+        let data = TestDataHelpers.loadFromBundle(resource: resource, extension: `extension`)
+        return APITestData(data: data)
     }
 
     static func loadFromJsonBundle(resource: String) -> APITestData {

@@ -1,11 +1,12 @@
 import BitwardenSdk
+import InlineSnapshotTesting
 import XCTest
 
 @testable import BitwardenShared
 
 // MARK: - ExportVaultServiceTests
 
-final class ExportVaultServiceTests: BitwardenTestCase {
+final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     let cardCipher = Cipher(
@@ -192,6 +193,139 @@ final class ExportVaultServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    #if compiler(>=6.0.3)
+
+    /// `exportVaultForCXP()` CXP exporting the vault succeeds.
+    func test_exportVaultForCXP_success() async throws {
+        guard #available(iOS 18.2, *) else {
+            throw XCTSkip("CXP Export is only available on iOS 18.2")
+        }
+
+        stateService.activeAccount =
+            .fixture(
+                profile: .fixture(
+                    email: "example@example.com",
+                    name: "Test",
+                    userDecryptionOptions: nil,
+                    userId: "1"
+                )
+            )
+        let ciphers: [Cipher] = [.fixture(), .fixture(deletedDate: .now)]
+        cipherService.fetchAllCiphersResult = .success(ciphers)
+
+        let exportedResult = try XCTUnwrap(CXFFixtures.twoBasicAuthCiphers)
+        clientService.mockExporters.exportCxfResult = .success(exportedResult)
+        let result = try await subject.exportVaultForCXP()
+        assertInlineSnapshot(of: result.dump(), as: .lines) {
+            """
+            Email: 
+            UserName: 
+            --- Items ---
+              Title: GitHub
+              Type: login
+              Creation: 2024-11-21 21:59:26 +0000
+              Modified: 2024-11-21 21:59:26 +0000
+              --- Credentials ---
+                Username.FieldType: string
+                Username.Value: TestCXP1
+                Password.FieldType: concealedString
+                Password.Value: adsfasf
+                --- Urls ---
+                      github.com
+
+              Title: Google
+              Type: login
+              Creation: 2024-11-21 21:59:40 +0000
+              Modified: 2024-11-21 21:59:40 +0000
+              --- Credentials ---
+                Username.FieldType: string
+                Username.Value: TestCXPGoogle
+                Password.FieldType: concealedString
+                Password.Value: 1o23j1po3ij1o
+                --- Urls ---
+                      google.com
+            """
+        }
+    }
+
+    /// `exportVaultForCXP()` CXP exporting throws when fetching ciphers.
+    func test_exportVaultForCXP_throwsFetchingCiphers() async throws {
+        guard #available(iOS 18.2, *) else {
+            throw XCTSkip("CXP Export is only available on iOS 18.2")
+        }
+
+        cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.exportVaultForCXP()
+        }
+    }
+
+    /// `exportVaultForCXP()` CXP exporting throws when getting account.
+    func test_exportVaultForCXP_throwsGettingAccount() async throws {
+        guard #available(iOS 18.2, *) else {
+            throw XCTSkip("CXP Export is only available on iOS 18.2")
+        }
+
+        stateService.activeAccount = nil
+        let ciphers: [Cipher] = [.fixture(), .fixture(deletedDate: .now)]
+        cipherService.fetchAllCiphersResult = .success(ciphers)
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.exportVaultForCXP()
+        }
+    }
+
+    /// `exportVaultForCXP()` CXP exporting throws when exporting.
+    func test_exportVaultForCXP_throwsExporting() async throws {
+        guard #available(iOS 18.2, *) else {
+            throw XCTSkip("CXP Export is only available on iOS 18.2")
+        }
+
+        stateService.activeAccount =
+            .fixture(
+                profile: .fixture(
+                    email: "example@example.com",
+                    name: "Test",
+                    userDecryptionOptions: nil,
+                    userId: "1"
+                )
+            )
+        let ciphers: [Cipher] = [.fixture(), .fixture(deletedDate: .now)]
+        cipherService.fetchAllCiphersResult = .success(ciphers)
+        clientService.mockExporters.exportCxfResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.exportVaultForCXP()
+        }
+    }
+
+    /// `exportVaultForCXP()` CXP exporting throws when decoding exported data.
+    func test_exportVaultForCXP_throwsWhenDecoding() async throws {
+        guard #available(iOS 18.2, *) else {
+            throw XCTSkip("CXP Export is only available on iOS 18.2")
+        }
+
+        stateService.activeAccount =
+            .fixture(
+                profile: .fixture(
+                    email: "example@example.com",
+                    name: "Test",
+                    userDecryptionOptions: nil,
+                    userId: "1"
+                )
+            )
+        let ciphers: [Cipher] = [.fixture(), .fixture(deletedDate: .now)]
+        cipherService.fetchAllCiphersResult = .success(ciphers)
+        clientService.mockExporters.exportCxfResult = .success("{somethingthatcantbedecoded}")
+        do {
+            _ = try await subject.exportVaultForCXP()
+        } catch DecodingError.dataCorrupted {
+            XCTAssert(true)
+        } catch {
+            XCTFail("Export vault threw unexpected error: \(error)")
+        }
+    }
+
+    #endif
+
     /// Test the exporter receives the correct content for CSV export type.
     ///
     func test_fileContent_csv() async throws {
@@ -297,4 +431,4 @@ final class ExportVaultServiceTests: BitwardenTestCase {
         let name = subject.generateExportFileName(extension: fileType.fileExtension)
         XCTAssertEqual(name, expectedName)
     }
-}
+} // swiftlint:disable:this file_length
