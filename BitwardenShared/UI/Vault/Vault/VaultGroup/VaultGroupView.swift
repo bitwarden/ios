@@ -85,7 +85,7 @@ struct VaultGroupView: View {
                         Button(Localizations.addAnItem) {
                             store.send(.addItemPressed)
                         }
-                        .buttonStyle(.tertiary())
+                        .buttonStyle(.primary(shouldFillWidth: false))
                     }
 
                     Spacer()

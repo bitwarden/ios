@@ -99,7 +99,7 @@ struct PasswordAutoFillView: View {
                 AsyncButton(Localizations.turnOnLater) {
                     await store.perform(.turnAutoFillOnLaterButtonTapped)
                 }
-                .buttonStyle(.transparent)
+                .buttonStyle(.secondary())
             }
         }
         .scrollView(addVerticalPadding: false)

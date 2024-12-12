@@ -31,7 +31,7 @@ struct ManualEntryView: View {
                 ManualEntryAction.addPressed(code: store.state.authenticatorKey)
             )
         }
-        .buttonStyle(.tertiary())
+        .buttonStyle(.secondary())
     }
 
     /// The main content of the view.

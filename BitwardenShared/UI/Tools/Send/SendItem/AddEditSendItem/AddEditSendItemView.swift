@@ -329,7 +329,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         Button(Localizations.chooseFile) {
                             store.send(.chooseFilePressed)
                         }
-                        .buttonStyle(.tertiary())
+                        .buttonStyle(.secondary())
                         .accessibilityIdentifier("SendChooseFileButton")
                     }
 

@@ -105,7 +105,7 @@ struct OtherSettingsView: View {
             } label: {
                 Text(Localizations.syncNow)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("SyncNowButton")
 
             Group {

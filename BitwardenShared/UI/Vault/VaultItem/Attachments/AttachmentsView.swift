@@ -56,7 +56,7 @@ struct AttachmentsView: View {
             Button(Localizations.chooseFile) {
                 store.send(.chooseFilePressed)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
 
             Text(Localizations.maxFileSize)
                 .styleGuide(.subheadline)

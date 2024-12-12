@@ -57,7 +57,7 @@ struct ExportVaultView: View {
         Button(Localizations.exportVault) {
             store.send(.exportVaultTapped)
         }
-        .buttonStyle(.tertiary())
+        .buttonStyle(.secondary())
         .accessibilityIdentifier("ExportVaultButton")
     }
 
@@ -125,7 +125,7 @@ struct ExportVaultView: View {
                 AsyncButton(Localizations.sendCode) {
                     await store.perform(.sendCodeTapped)
                 }
-                .buttonStyle(.tertiary())
+                .buttonStyle(.secondary())
                 .accessibilityIdentifier("SendTOTPCodeButton")
                 .disabled(store.state.isSendCodeButtonDisabled)
             }
