@@ -7,6 +7,19 @@ import XCTest
 class ItemListItemTests: AuthenticatorTestCase {
     var subject: ItemListItem!
 
+    func test_localizedNameComparator() {
+        let alpha = ItemListItem.fixture(name: "alpha")
+        let alphaCaps = ItemListItem.fixture(name: "ALPHA")
+        let beta = ItemListItem.fixture(name: "beta")
+        let blankNameAlpha = ItemListItem.fixture(name: "", accountName: "alpha")
+        let blankBoth = ItemListItem.fixtureShared(name: "", accountName: nil)
+
+        let expected = [blankBoth, alpha, blankNameAlpha, alphaCaps, beta]
+        let list = [beta, alphaCaps, alpha, blankNameAlpha, blankBoth]
+
+        XCTAssertEqual(list.sorted(by: ItemListItem.localizedNameComparator), expected)
+    }
+
     /// `totpCodeModel` returns the associated `TOTPCodeModel` for an item of type `.sharedTotp`.
     func test_totpCodeModel_shared() {
         let expected = TOTPCodeModel(code: "098765", codeGenerationDate: .now, period: 30)

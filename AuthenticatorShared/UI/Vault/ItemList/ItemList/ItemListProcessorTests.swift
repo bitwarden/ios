@@ -502,11 +502,15 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
             ItemListItem.fixture(name: "Delta"),
             ItemListItem.fixture(name: "Alpha"),
             ItemListItem.fixture(name: "beta"),
+            ItemListItem.fixtureShared(name: "", accountName: nil),
+            ItemListItem.fixture(name: "", accountName: "delta"),
         ]
         let resultsSorted = [
+            results[5], // name and account name blank
             results[3], // Alpha
             results[4], // beta
             results[1], // Beta
+            results[6], // delta (account name, name is blank)
             results[2], // Delta
             results[0], // Gamma
         ]

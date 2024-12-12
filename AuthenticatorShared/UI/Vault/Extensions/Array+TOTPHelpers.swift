@@ -29,7 +29,7 @@ extension [ItemListItem] {
             }
         }
         return result.values
-            .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+            .sorted(by: ItemListItem.localizedNameComparator)
     }
 }
 
