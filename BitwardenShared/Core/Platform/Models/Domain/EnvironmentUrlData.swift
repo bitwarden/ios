@@ -61,6 +61,11 @@ struct EnvironmentUrlData: Codable, Equatable, Hashable {
 extension EnvironmentUrlData {
     // MARK: Properties
 
+    /// The URL for the user to change their email.
+    var changeEmailURL: URL? {
+        subpageUrl(additionalPath: "settings/account")
+    }
+
     /// The base url for importing items.
     var importItemsURL: URL? {
         subpageUrl(additionalPath: "tools/import")
@@ -100,6 +105,11 @@ extension EnvironmentUrlData {
             return URL(string: "https://send.bitwarden.com/#")!
         }
         return subpageUrl(additionalPath: "send")
+    }
+
+    /// The URL to set up two-factor login.
+    var setUpTwoFactorURL: URL? {
+        subpageUrl(additionalPath: "settings/security/two-factor")
     }
 
     /// The base url for the settings screen.
