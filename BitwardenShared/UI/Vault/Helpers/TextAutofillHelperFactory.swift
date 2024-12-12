@@ -1,7 +1,9 @@
 /// Protocol to provide a factory to create `TextAutofillHelperFactory`.
 protocol TextAutofillHelperFactory {
     /// Creates an instance of `TextAutofillHelperFactory`.
-    func create() -> TextAutofillHelper
+    /// - Parameter delegate: The delegate to be used with the `TextAutofillHelper`
+    /// - Returns: An instance of `TextAutofillHelper`
+    func create(delegate: TextAutofillHelperDelegate) -> TextAutofillHelper
 }
 
 /// Default implemenation of `TextAutofillHelperFactory`.
@@ -50,13 +52,13 @@ struct DefaultTextAutofillHelperFactory: TextAutofillHelperFactory {
 
     // MARK: Methods
 
-    func create() -> TextAutofillHelper {
+    func create(delegate: TextAutofillHelperDelegate) -> TextAutofillHelper {
         guard #available(iOS 18.0, *) else {
             return NoOpTextAutofillHelper()
         }
 
         let userVerificationHelper = userVerificationHelperFactory.create()
-        return TextAutofillHelperRepromptWrapper(
+        let textAutofillHelper = TextAutofillHelperRepromptWrapper(
             authRepository: authRepository,
             errorReporter: errorReporter,
             textAutofillHelper: DefaultTextAutofillHelper(
@@ -70,5 +72,7 @@ struct DefaultTextAutofillHelperFactory: TextAutofillHelperFactory {
             ),
             userVerificationHelper: userVerificationHelper
         )
+        textAutofillHelper.setTextAutofillHelperDelegate(delegate)
+        return textAutofillHelper
     }
 }

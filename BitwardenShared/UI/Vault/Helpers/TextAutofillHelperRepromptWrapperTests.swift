@@ -38,7 +38,12 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        authRepository = nil
+        errorReporter = nil
+        userVerificationHelper = nil
         subject = nil
+        textAutofillHelper = nil
+        textAutofillHelperDelegate = nil
     }
 
     // MARK: Tests

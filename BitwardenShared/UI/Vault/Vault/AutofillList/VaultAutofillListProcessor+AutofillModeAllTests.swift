@@ -92,7 +92,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
     func test_init() {
         XCTAssertTrue(subject.state.isAutofillingTextToInsertList)
         XCTAssertEqual(subject.state.emptyViewMessage, Localizations.noItemsToList)
-        XCTAssertNotNil(textAutofillHelper.textAutofillHelperDelegate)
     }
 
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.

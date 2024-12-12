@@ -97,8 +97,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         case .all:
             self.state.isAutofillingTextToInsertList = true
             self.state.emptyViewMessage = Localizations.noItemsToList
-            textAutofillHelper = services.textAutofillHelperFactory.create()
-            textAutofillHelper?.setTextAutofillHelperDelegate(self)
+            textAutofillHelper = services.textAutofillHelperFactory.create(delegate: self)
         case .totp:
             self.state.isAutofillingTotpList = true
             initTotpExpirationManagers()
