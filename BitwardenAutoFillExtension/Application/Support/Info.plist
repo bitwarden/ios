@@ -89,6 +89,8 @@
 			<true/>
 			<key>ASCredentialProviderExtensionCapabilities</key>
 			<dict>
+				<key>SupportsCredentialExchange</key>
+				<true/>
 				<key>ProvidesOneTimeCodes</key>
 				<true/>
 				<key>ProvidesPasskeys</key>

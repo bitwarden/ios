@@ -6,6 +6,9 @@ enum ExportFormatType: Menuable {
     /// A CSV file.
     case csv
 
+    /// Using Credential Exchange Protocol.
+    case cxp
+
     /// A JSON file.
     case json
 
@@ -14,8 +17,13 @@ enum ExportFormatType: Menuable {
 
     // MARK: Type Properties
 
+    #if compiler(>=6.0.3)
+    /// The ordered list of options to display in the menu.
+    static let allCases: [ExportFormatType] = [.json, .csv, .jsonEncrypted, .cxp]
+    #else
     /// The ordered list of options to display in the menu.
     static let allCases: [ExportFormatType] = [.json, .csv, .jsonEncrypted]
+    #endif
 
     // MARK: Properties
 
@@ -24,6 +32,8 @@ enum ExportFormatType: Menuable {
         switch self {
         case .csv:
             ".csv"
+        case .cxp:
+            "Credential Exchange"
         case .json:
             ".json"
         case .jsonEncrypted:
