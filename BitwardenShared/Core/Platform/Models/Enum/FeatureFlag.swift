@@ -23,6 +23,12 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag for the create account flow.
     case nativeCreateAccountFlow = "native-create-account-flow"
 
+    /// A feature flag for the new device verification flow.
+    case newDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss"
+
+    /// A feature flag for the new device verification flow.
+    case newDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss"
+
     case sshKeyVaultItem = "ssh-key-vault-item"
 
     /// A feature flag for the refactor on the SSO details endpoint.
@@ -67,6 +73,8 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// but if `isRemotelyConfigured` is false for the flag, then the value here will be used.
     /// This is a helpful way to manage local feature flags.
     static let initialValues: [FeatureFlag: AnyCodable] = [
+        .newDeviceVerificationTemporaryDismiss: .bool(true),
+        .newDeviceVerificationPermanentDismiss: .bool(true),
         .testLocalInitialBoolFlag: .bool(true),
         .testLocalInitialIntFlag: .int(42),
         .testLocalInitialStringFlag: .string("Test String"),
@@ -85,6 +93,8 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
+             .newDeviceVerificationPermanentDismiss,
+             .newDeviceVerificationTemporaryDismiss,
              .testLocalFeatureFlag,
              .testLocalInitialBoolFlag,
              .testLocalInitialIntFlag,
