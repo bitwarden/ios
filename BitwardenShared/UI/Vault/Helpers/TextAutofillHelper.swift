@@ -73,7 +73,7 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
     ///
     /// - Parameters:
     ///   - errorReporter: The coordinator that handles navigation.
-    ///   - eventService: The services used by this processor.
+    ///   - eventService: The service used to record and send events.
     ///   - textAutofillOptionsHelperFactory: The factory to create `TextAutofillOptionsHelper`.
     ///   - vaultRepository: The repository used by the application to manage vault data for the UI layer.
     ///
