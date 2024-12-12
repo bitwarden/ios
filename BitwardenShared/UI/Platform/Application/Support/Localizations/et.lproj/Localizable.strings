@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Vale ülemparool. Proovi uuesti.";
 "InvalidPIN" = "Vale PIN. Proovi uuesti.";
 "Launch" = "Käivita";
-"LogIn" = "Logi sisse";
+"LogIn" = "Log in";
 "LogInNoun" = "Sisselogimine";
 "LogOut" = "Logi välja";
 "LogoutConfirmation" = "Oled kindel, et soovid välja logida?";

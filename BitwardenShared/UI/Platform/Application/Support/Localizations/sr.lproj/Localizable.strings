@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Главна Лозинка је неважећа. Покушајте поново.";
 "InvalidPIN" = "Погрешан ПИН. Покушајте поново.";
 "Launch" = "Отвори";
-"LogIn" = "Пријавите се";
+"LogIn" = "Log in";
 "LogInNoun" = "Пријава";
 "LogOut" = "Одјави се";
 "LogoutConfirmation" = "Заиста желите да се одјавите?";
@@ -987,10 +987,10 @@
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "Подешавање можете да завршите у било ком тренутку у оквиру Безбедност налога у оквиру Подешавања. За откључавање ћете користити своју главну лозинку док не подесите други метод.";
 "Confirm" = "Потврди";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "Грешка при повезивању са услугом Duo. Користите други метод пријаве у два корака или контактирајте Duo за помоћ.";
-"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "The Pre Auth Urls could not be loaded to start the account creation.";
-"FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "From your device settings, **toggle on autofill Passwords and Passkeys.**";
-"ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**Toggle off iCloud Keychain** to make Bitwarden your default autofill source.";
-"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Toggle on Bitwarden** to use your saved passwords to log into your accounts.";
+"ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Адресе предауторизације нису могле бити учитане да би се започело прављење налога.";
+"FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "У подешавањима вашег уређаја, **укључите аутоматско попуњавање лозинки и фраза.**";
+"ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**Искључите iCloud Keychain** да би сте Bitwarden учинили подразумеваним извором аутоматске попуне.";
+"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Укључите Bitwarden** да би сте користили ваше сачуване лозинке за пријављивање са вашим налозима.";
 "TurnOnAutoFill" = "Омогућите ауто-пуњење";
 "UseAutoFillToLogIntoYourAccountsWithASingleTap" = "Користите ауто-пуњење да бисте се пријавили на своје налоге једним додиром.";
 "NeedHelpCheckOutAutofillHelp" = "Треба помоћ? Проверите **[помоћ ауто-пуњења](%1$@)**";
@@ -1043,7 +1043,7 @@
 "AutofillPasswords" = "Ауто-попуњавање лозинки";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Подесите ауто-попуњавање на свим својим уређајима да бисте се пријавили једним додиром било где.";
 "GotIt" = "Разумем";
-"GenerateCrash" = "Generate crash";
+"GenerateCrash" = "Генерирај извештај пада";
 "GenerateErrorReport" = "Генеришите извештај о грешци";
 "AllowAuthenticatorSyncing" = "Дозволи синхронизацију аутентификатора";
 "AuthenticatorSync" = "Синхронизација аутентификатора";

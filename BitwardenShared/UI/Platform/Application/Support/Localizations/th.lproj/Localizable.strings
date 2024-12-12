@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "รหัสผ่านหลักไม่ถูกต้อง ลองอีกครั้ง";
 "InvalidPIN" = "PIN ไม่ถูกต้อง ลองอีกครั้ง";
 "Launch" = "เปิด";
-"LogIn" = "เข้าสู่ระบบ";
+"LogIn" = "Log in";
 "LogInNoun" = "เข้าสู่ระบบ";
 "LogOut" = "ออกจากระบบ";
 "LogoutConfirmation" = "คุณแน่ใจว่าต้องการออกจากระบบ";

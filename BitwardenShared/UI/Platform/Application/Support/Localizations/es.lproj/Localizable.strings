@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Contraseña maestra no válida. Inténtelo de nuevo.";
 "InvalidPIN" = "PIN no válido. Prueba de nuevo.";
 "Launch" = "Iniciar";
-"LogIn" = "Identificarse";
+"LogIn" = "Log in";
 "LogInNoun" = "Identificarse";
 "LogOut" = "Cerrar sesión";
 "LogoutConfirmation" = "¿Estás seguro de querer cerrar sesión?";

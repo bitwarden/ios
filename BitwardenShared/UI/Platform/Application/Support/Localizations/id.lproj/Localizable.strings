@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Kata Sandi Utama Tidak Valid. Coba Lagi.";
 "InvalidPIN" = "PIN Tidak Valid. Coba Lagi.";
 "Launch" = "Luncurkan";
-"LogIn" = "Masuk";
+"LogIn" = "Log in";
 "LogInNoun" = "Masuk";
 "LogOut" = "Keluar";
 "LogoutConfirmation" = "Anda yakin ingin keluar?";

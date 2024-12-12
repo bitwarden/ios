@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Contrasinal mestre non válido. Téntao de novo.";
 "InvalidPIN" = "PIN non válido. Téntao de novo.";
 "Launch" = "Abrir";
-"LogIn" = "Iniciar sesión";
+"LogIn" = "Log in";
 "LogInNoun" = "Inicio de sesión";
 "LogOut" = "Pechar sesión";
 "LogoutConfirmation" = "Estás seguro de que queres pechar a sesión?";

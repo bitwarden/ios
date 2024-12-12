@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Invalid master password. Try again.";
 "InvalidPIN" = "Invalid PIN. Try again.";
 "Launch" = "Launch";
-"LogIn" = "প্রবেশ করুন";
+"LogIn" = "Log in";
 "LogInNoun" = "লগইন";
 "LogOut" = "লগ আউট";
 "LogoutConfirmation" = "আপনি লগ আউট করতে চান?";

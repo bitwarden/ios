@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Nederīga galvenā parole. Jāmēģina vēlreiz.";
 "InvalidPIN" = "Nederīgs PIN. Jāmēģina vēlreiz.";
 "Launch" = "Palaist";
-"LogIn" = "Pieteikties";
+"LogIn" = "Log in";
 "LogInNoun" = "Pieteikšanās vienums";
 "LogOut" = "Atteikties";
 "LogoutConfirmation" = "Vai tiešām atteikties?";

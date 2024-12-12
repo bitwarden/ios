@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Μη έγκυρος κύριος κωδικός. Δοκιμάστε ξανά.";
 "InvalidPIN" = "Μη έγκυρο PIN. Προσπάθηστε ξανά.";
 "Launch" = "Εκκίνηση";
-"LogIn" = "Σύνδεση";
+"LogIn" = "Log in";
 "LogInNoun" = "Σύνδεση";
 "LogOut" = "Αποσύνδεση";
 "LogoutConfirmation" = "Είστε σίγουροι ότι θέλετε να αποσυνδεθείτε;";

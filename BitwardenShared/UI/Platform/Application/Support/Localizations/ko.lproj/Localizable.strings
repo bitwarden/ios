@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "마스터 비밀번호가 잘못되었습니다. 다시 시도해 주세요.";
 "InvalidPIN" = "PIN이 잘못되었습니다. 다시 시도해 주세요.";
 "Launch" = "열기";
-"LogIn" = "로그인";
+"LogIn" = "Log in";
 "LogInNoun" = "로그인";
 "LogOut" = "로그아웃";
 "LogoutConfirmation" = "정말 로그아웃하시겠습니까?";

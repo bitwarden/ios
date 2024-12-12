@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "अवैध मुख्य पासवर्ड. पुनः प्रयत्न करा.";
 "InvalidPIN" = "अवैध पिन. पुनः प्रयत्न करा.";
 "Launch" = "उघडा";
-"LogIn" = "प्रवेश करा";
+"LogIn" = "Log in";
 "LogInNoun" = "प्रवेश";
 "LogOut" = "बाहेर पडा";
 "LogoutConfirmation" = "नक्की बाहेर पडायचे?";

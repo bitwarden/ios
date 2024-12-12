@@ -323,6 +323,14 @@ extension AuthRouter {
     ///
     func switchAccountRedirect(isAutomatic: Bool, userId: String) async -> AuthRoute {
         do {
+            // Set the last active time for the current account before switching.
+            if let currentActiveAccount = try? await services.authRepository.getAccount(),
+               currentActiveAccount.profile.userId != userId {
+                try await services.vaultTimeoutService.setLastActiveTime(
+                    userId: currentActiveAccount.profile.userId
+                )
+            }
+
             let activeAccount = try await services.authRepository.setActiveAccount(userId: userId)
             // Setup the unlock route for the active account.
             let event = AuthEvent.accountBecameActive(
