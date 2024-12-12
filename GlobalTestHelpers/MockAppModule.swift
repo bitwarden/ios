@@ -11,6 +11,7 @@ class MockAppModule:
     GeneratorModule,
     ImportLoginsModule,
     LoginRequestModule,
+    NoTwoFactorModule,
     PasswordAutoFillModule,
     PasswordHistoryModule,
     SendModule,
@@ -29,6 +30,7 @@ class MockAppModule:
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
+    var noTwoFactorNoticeCoordinator = MockCoordinator<NoTwoFactorRoute, Void>()
     var passwordAutoFillCoordinator = MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>()
     var passwordAutoFillCoordinatorDelegate: PasswordAutoFillCoordinatorDelegate?
     // swiftlint:disable:next weak_navigator identifier_name
@@ -146,6 +148,12 @@ class MockAppModule:
         vaultRepository _: BitwardenShared.VaultRepository
     ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
+    }
+
+    func makeNoTwoFactorNoticeCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<NoTwoFactorRoute, Void> {
+        noTwoFactorNoticeCoordinator.asAnyCoordinator()
     }
 
     func makeVaultCoordinator(

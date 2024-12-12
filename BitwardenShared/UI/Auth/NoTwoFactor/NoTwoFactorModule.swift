@@ -12,13 +12,13 @@ protocol NoTwoFactorModule {
     ///   - stackNavigator: The stack navigator that will be used to navigate between routes.
     /// - Returns: A coordinator that can navigate to `NoTwoFactorRoute`s.
     ///
-    func makeNoTwoFactorCoordinator(
+    func makeNoTwoFactorNoticeCoordinator(
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<NoTwoFactorRoute, Void>
 }
 
 extension DefaultAppModule: NoTwoFactorModule {
-    func makeNoTwoFactorCoordinator(
+    func makeNoTwoFactorNoticeCoordinator(
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<NoTwoFactorRoute, Void> {
         NoTwoFactorCoordinator(

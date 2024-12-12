@@ -305,7 +305,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     private func showTwoFactorNotice() {
         let navigationController = UINavigationController()
         navigationController.navigationBar.isHidden = true
-        let coordinator = module.makeNoTwoFactorCoordinator(stackNavigator: navigationController)
+        let coordinator = module.makeNoTwoFactorNoticeCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .emailAccess, context: delegate)
 

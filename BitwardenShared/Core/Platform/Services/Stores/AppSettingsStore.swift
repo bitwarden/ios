@@ -449,6 +449,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTimeoutAction(key: SessionTimeoutAction, userId: String)
 
+    /// Sets the display state for the two-factor notice.
+    ///
+    /// - Parameters:
+    ///   - state: The display state.
+    ///   - userId: The userID associated with the state.
+    ///
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String)
+
     /// Sets the two-factor token.
     ///
     /// - Parameters:
@@ -460,7 +468,7 @@ protocol AppSettingsStore: AnyObject {
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameters:
-    ///  -  attempts: The number of unsuccessful unlock attempts..
+    ///  -  attempts: The number of unsuccessful unlock attempts.
     ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
@@ -509,6 +517,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The  user's session timeout action.
     ///
     func timeoutAction(userId: String) -> Int?
+
+    /// Get the display state of the no-two-factor notice for a user ID.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the state.
+    /// - Returns: The state for the user ID.
+    ///
+    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState
 
     /// Get the two-factor token associated with a user's email.
     ///
@@ -709,6 +725,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case shouldTrustDevice(userId: String)
         case syncToAuthenticator(userId: String)
         case state
+        case twoFactorNoticeDisplayState(userId: String)
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
@@ -800,6 +817,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "state"
             case let .syncToAuthenticator(userId):
                 key = "shouldSyncToAuthenticator_\(userId)"
+            case let .twoFactorNoticeDisplayState(userId):
+                key = "twoFactorNoticeDisplayState_\(userId)"
             case let .twoFactorToken(email):
                 key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
@@ -1104,6 +1123,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .vaultTimeoutAction(userId: userId))
     }
 
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String) {
+        store(state, for: .twoFactorNoticeDisplayState(userId: userId))
+    }
+
     func setTwoFactorToken(_ token: String?, email: String) {
         store(token, for: .twoFactorToken(email: email))
     }
@@ -1126,6 +1149,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func timeoutAction(userId: String) -> Int? {
         fetch(for: .vaultTimeoutAction(userId: userId))
+    }
+
+    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState {
+        fetch(for: .twoFactorNoticeDisplayState(userId: userId)) ?? .hasNotSeen
     }
 
     func twoFactorToken(email: String) -> String? {
