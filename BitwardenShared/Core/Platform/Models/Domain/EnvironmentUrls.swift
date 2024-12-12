@@ -11,6 +11,9 @@ struct EnvironmentUrls: Equatable {
     /// The base URL.
     let baseURL: URL
 
+    /// The URL for changing email address.
+    let changeEmailURL: URL
+
     /// The URL for the events API.
     let eventsURL: URL
 
@@ -31,6 +34,9 @@ struct EnvironmentUrls: Equatable {
 
     /// The URL for vault settings.
     let settingsURL: URL
+
+    /// The URL for setting up two-factor login.
+    let setUpTwoFactorURL: URL
 
     /// The URL for the web vault.
     let webVaultURL: URL
@@ -70,5 +76,7 @@ extension EnvironmentUrls {
         )!
         sendShareURL = environmentUrlData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
         settingsURL = environmentUrlData.settingsURL ?? webVaultURL
+        changeEmailURL = environmentUrlData.changeEmailURL ?? settingsURL
+        setUpTwoFactorURL = environmentUrlData.setUpTwoFactorURL ?? settingsURL
     }
 }

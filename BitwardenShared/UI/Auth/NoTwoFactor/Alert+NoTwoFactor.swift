@@ -11,7 +11,7 @@ extension Alert {
     /// - Returns: An alert that asks if the user wants to navigate to the change email page
     ///
     static func changeEmailAlert(action: @escaping () -> Void) -> Alert {
-        Alert (
+        Alert(
             title: Localizations.changeEmail,
             message: Localizations.changeEmailConfirmation,
             alertActions: [
@@ -31,7 +31,7 @@ extension Alert {
     /// - Returns: An alert that asks if the user wants to navigate to the two-factor login setup page
     ///
     static func turnOnTwoFactorLoginAlert(action: @escaping () -> Void) -> Alert {
-        Alert (
+        Alert(
             title: Localizations.turnOnTwoStepLogin,
             message: Localizations.turnOnTwoStepLogin,
             alertActions: [

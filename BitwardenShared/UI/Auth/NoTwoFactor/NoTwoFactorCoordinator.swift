@@ -9,6 +9,7 @@ final class NoTwoFactorCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasApplication
         & HasAuthRepository
+        & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
         & HasTimeProvider

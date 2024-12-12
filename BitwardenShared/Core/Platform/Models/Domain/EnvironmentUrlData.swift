@@ -107,14 +107,14 @@ extension EnvironmentUrlData {
         return subpageUrl(additionalPath: "send")
     }
 
-    /// The URL to set up two-factor login.
-    var setUpTwoFactorURL: URL? {
-        subpageUrl(additionalPath: "settings/security/two-factor")
-    }
-
     /// The base url for the settings screen.
     var settingsURL: URL? {
         subpageUrl(additionalPath: "settings")
+    }
+
+    /// The URL to set up two-factor login.
+    var setUpTwoFactorURL: URL? {
+        subpageUrl(additionalPath: "settings/security/two-factor")
     }
 
     /// The host of URL to the user's web vault.

@@ -9,6 +9,7 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasEnvironmentService
         & HasStateService
         & HasTimeProvider
 
@@ -57,11 +58,11 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
             state.url = nil
         case .turnOnTwoFactorTapped:
             coordinator.showAlert(.turnOnTwoFactorLoginAlert {
-                self.state.url = ExternalLinksConstants.aboutOrganizations
+                self.state.url = self.services.environmentService.setUpTwoFactorURL
             })
         case .changeAccountEmailTapped:
             coordinator.showAlert(.changeEmailAlert {
-                self.state.url = ExternalLinksConstants.aboutOrganizations
+                self.state.url = self.services.environmentService.changeEmailURL
             })
         }
     }
