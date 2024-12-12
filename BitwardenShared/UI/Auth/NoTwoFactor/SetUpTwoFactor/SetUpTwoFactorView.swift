@@ -59,8 +59,8 @@ struct SetUpTwoFactorView: View {
             }
             .buttonStyle(.secondary())
 
-            Button(Localizations.remindMeLater) {
-                store.send(.remindMeLaterTapped)
+            AsyncButton(Localizations.remindMeLater) {
+                await store.perform(.remindMeLaterTapped)
             }
             .buttonStyle(.secondary())
 

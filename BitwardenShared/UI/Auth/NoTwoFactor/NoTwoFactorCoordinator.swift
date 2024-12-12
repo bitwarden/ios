@@ -11,6 +11,7 @@ final class NoTwoFactorCoordinator: Coordinator, HasStackNavigator {
         & HasAuthRepository
         & HasErrorReporter
         & HasStateService
+        & HasTimeProvider
 
     // MARK: Private Properties
 

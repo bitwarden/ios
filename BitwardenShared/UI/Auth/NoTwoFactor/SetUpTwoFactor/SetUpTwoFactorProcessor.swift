@@ -8,7 +8,9 @@ import SwiftUI
 class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFactorAction, SetUpTwoFactorEffect> {
     // MARK: Types
 
-    typealias Services = HasAuthRepository
+    typealias Services = HasErrorReporter
+        & HasStateService
+        & HasTimeProvider
 
     // MARK: Private Properties
 
@@ -44,6 +46,8 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
         switch effect {
         case .appeared:
             break
+        case .remindMeLaterTapped:
+            await handleDismiss()
         }
     }
 
@@ -59,8 +63,18 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
             coordinator.showAlert(.changeEmailAlert {
                 self.state.url = ExternalLinksConstants.aboutOrganizations
             })
-        case .remindMeLaterTapped:
+        }
+    }
+
+    // MARK: Private Methods
+
+    private func handleDismiss() async {
+        do {
+            let currentTime = services.timeProvider.presentTime
+            try await services.stateService.setTwoFactorNoticeDisplayState(state: .seen(currentTime))
             coordinator.navigate(to: .dismiss)
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 }
