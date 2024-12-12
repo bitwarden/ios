@@ -27,7 +27,7 @@ extension ClientExporters: ClientExportersServiceTemp {
     }
 
     func importCxf(payload: String) throws -> [BitwardenSdk.Cipher] {
-        [.fixture(), .fixture()]
+        []
     }
 }
 
