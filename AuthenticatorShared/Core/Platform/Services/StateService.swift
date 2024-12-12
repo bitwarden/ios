@@ -70,6 +70,12 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets the session timeout value for the logged in user.
+    ///
+    /// - Returns: The session timeout value.
+    ///
+    func getVaultTimeout() async -> SessionTimeoutValue
+
     /// Sets the app theme.
     ///
     /// - Parameter appTheme: The new app theme.
@@ -238,6 +244,13 @@ actor DefaultStateService: StateService {
 
     func getShowWebIcons() async -> Bool {
         !appSettingsStore.disableWebIcons
+    }
+
+    func getVaultTimeout() async -> SessionTimeoutValue {
+        let accountId = await getActiveAccountId()
+        guard let rawValue = appSettingsStore.vaultTimeout(userId: accountId) else { return .never }
+
+        return SessionTimeoutValue(rawValue: rawValue)
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {

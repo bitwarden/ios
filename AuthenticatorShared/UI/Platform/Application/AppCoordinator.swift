@@ -63,8 +63,10 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
         case .didStart:
+            let hasTimeout = await services.stateService.getVaultTimeout() != .never
             let isEnabled = await (try? services.biometricsRepository.getBiometricUnlockStatus().isEnabled) ?? false
-            if isEnabled {
+
+            if isEnabled, hasTimeout {
                 showAuth(.vaultUnlock)
             } else {
                 showTab(route: .itemList(.list))
