@@ -35,6 +35,8 @@ protocol SettingsRepository: AnyObject {
     /// Get the current value of the allow sync on refresh value.
     func getAllowSyncOnRefresh() async throws -> Bool
 
+    func getAutofillFilter() async throws -> AutofillFilter
+
     /// Get the current value of the connect to watch setting.
     func getConnectToWatch() async throws -> Bool
 
@@ -61,6 +63,8 @@ protocol SettingsRepository: AnyObject {
     /// - Parameter allowSyncOnRefresh: Whether the vault should sync on refreshing.
     ///
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws
+
+    func updateAutofillFilter(_ filter: AutofillFilter) async throws
 
     /// Update the cached value of the connect to watch setting.
     ///
@@ -179,6 +183,14 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getAllowSyncOnRefresh()
     }
 
+    func getAutofillFilter() async throws -> AutofillFilter {
+        let filter = try await stateService.getAutofillFilter()
+        guard let filter else {
+            return AutofillFilter(idType: .none)
+        }
+        return filter
+    }
+
     func getConnectToWatch() async throws -> Bool {
         try await stateService.getConnectToWatch()
     }
@@ -201,6 +213,14 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await stateService.setAllowSyncOnRefresh(allowSyncOnRefresh)
+    }
+
+    func updateAutofillFilter(_ filter: AutofillFilter) async throws {
+        guard filter.idType != .none else {
+            try await stateService.setAutofillFilter(nil)
+            return
+        }
+        try await stateService.setAutofillFilter(filter)
     }
 
     func updateConnectToWatch(_ connectToWatch: Bool) async throws {

@@ -133,7 +133,13 @@ protocol CipherService {
     ///
     /// - Returns: The list of encrypted ciphers.
     ///
-    func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error>
+    func ciphersPublisher(isAutofilling: Bool) async throws -> AnyPublisher<[Cipher], Error>
+}
+
+extension CipherService {
+    func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error> {
+        try await ciphersPublisher(isAutofilling: false)
+    }
 }
 
 // MARK: - DefaultCipherService
@@ -362,8 +368,28 @@ extension DefaultCipherService {
 
     // MARK: Publishers
 
-    func ciphersPublisher() async throws -> AnyPublisher<[Cipher], Error> {
+    func ciphersPublisher(isAutofilling: Bool) async throws -> AnyPublisher<[Cipher], Error> {
         let userId = try await stateService.getActiveAccountId()
-        return cipherDataStore.cipherPublisher(userId: userId)
+        let ciphersPublisher = cipherDataStore.cipherPublisher(userId: userId)
+        if !isAutofilling {
+            return ciphersPublisher
+        }
+        let autofillFilter = try await stateService.getAutofillFilter(userId: userId)
+        guard let autofillFilter else {
+            return ciphersPublisher
+        }
+        return switch autofillFilter.idType {
+        case .none:
+            ciphersPublisher
+        case .favorites:
+            ciphersPublisher.map { ciphers in
+                ciphers.filter{ $0.favorite }
+            }
+            .eraseToAnyPublisher()
+        case let .folder(folderId):
+            ciphersPublisher.map { ciphers in
+                ciphers.filter { $0.folderId == folderId }
+            }.eraseToAnyPublisher()
+        }
     }
 }

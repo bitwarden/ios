@@ -504,6 +504,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         searchText: String,
         filterType: VaultFilterType,
         isActive: Bool,
+        isAutofilling: Bool = false,
         cipherFilter: ((CipherView) -> Bool)? = nil
     ) async throws -> AnyPublisher<[CipherView], Error> {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -519,7 +520,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             cipher.type != .sshKey || isSSHKeyVaultItemEnabled
         }
 
-        return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherView] in
+        return try await cipherService.ciphersPublisher(isAutofilling: isAutofilling).asyncTryMap { ciphers -> [CipherView] in
             // Convert the Ciphers to CipherViews and filter appropriately.
             let matchingCiphers = try await ciphers.asyncMap { cipher in
                 try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
@@ -1226,7 +1227,7 @@ extension DefaultVaultRepository: VaultRepository {
         }
 
         return try await Publishers.CombineLatest(
-            cipherService.ciphersPublisher(),
+            cipherService.ciphersPublisher(isAutofilling: true),
             availableFido2CredentialsPublisher
         )
         .asyncTryMap { ciphers, availableFido2Credentials in
@@ -1266,7 +1267,8 @@ extension DefaultVaultRepository: VaultRepository {
             searchPublisher(
                 searchText: searchText,
                 filterType: filterType,
-                isActive: true
+                isActive: true,
+                isAutofilling: true
             ) { cipher in
                 cipher.type == .login
             },

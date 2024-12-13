@@ -129,6 +129,8 @@ protocol StateService: AnyObject {
     /// - Returns: The app theme.
     ///
     func getAppTheme() async -> AppTheme
+    
+    func getAutofillFilter(userId: String?) async throws -> AutofillFilter?
 
     /// Get the active user's Biometric Authentication Preference.
     ///
@@ -442,6 +444,8 @@ protocol StateService: AnyObject {
     /// - Parameter appTheme: The new app theme.
     ///
     func setAppTheme(_ appTheme: AppTheme) async
+    
+    func setAutofillFilter(_ filter: AutofillFilter?, userId: String?) async throws
 
     /// Sets the user's Biometric Authentication Preference.
     ///
@@ -822,6 +826,10 @@ extension StateService {
     func getAppRehydrationState() async throws -> AppRehydrationState? {
         try await getAppRehydrationState(userId: nil)
     }
+    
+    func getAutofillFilter() async throws -> AutofillFilter? {
+        try await getAutofillFilter(userId: nil)
+    }
 
     /// Gets the clear clipboard value for the active account.
     ///
@@ -1049,6 +1057,10 @@ extension StateService {
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool) async throws {
         try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
+    }
+    
+    func setAutofillFilter(_ filter: AutofillFilter?) async throws {
+        try await setAutofillFilter(filter, userId: nil)
     }
 
     /// Sets the clear clipboard value for the active account.
@@ -1425,6 +1437,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         AppTheme(appSettingsStore.appTheme)
     }
 
+    func getAutofillFilter(userId: String?) async throws -> AutofillFilter? {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.autofillFilter(userId: userId)
+    }
+
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.clearClipboardValue(userId: userId)
@@ -1686,6 +1703,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAppTheme(_ appTheme: AppTheme) async {
         appSettingsStore.appTheme = appTheme.value
         appThemeSubject.send(appTheme)
+    }
+    
+    func setAutofillFilter(_ filter: AutofillFilter?, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAutofillFilter(filter, userId: userId)
     }
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String?) async throws {

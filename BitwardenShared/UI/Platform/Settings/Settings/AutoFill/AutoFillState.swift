@@ -5,6 +5,13 @@
 struct AutoFillState {
     // MARK: Properties
 
+    var autofillFilter: AutofillFilter = AutofillFilter(idType: .none)
+
+    var autofillFilterOptions: [AutofillFilter] = [
+        AutofillFilter(idType: .none),
+        AutofillFilter(idType: .favorites)
+    ]
+
     /// The state of the badges in the settings tab.
     var badgeState: SettingsBadgeState?
 
