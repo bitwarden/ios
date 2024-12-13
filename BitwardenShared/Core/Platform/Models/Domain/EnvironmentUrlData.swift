@@ -63,12 +63,12 @@ extension EnvironmentUrlData {
 
     /// The URL for the user to change their email.
     var changeEmailURL: URL? {
-        subpageUrl(additionalPath: "settings/account")
+        subpageURL(additionalPath: "settings/account")
     }
 
     /// The base url for importing items.
     var importItemsURL: URL? {
-        subpageUrl(additionalPath: "tools/import")
+        subpageURL(additionalPath: "tools/import")
     }
 
     /// Whether all of the environment URLs are not set.
@@ -83,8 +83,8 @@ extension EnvironmentUrlData {
     }
 
     /// The URL for the recovery code help page.
-    var recoveryCodeUrl: URL? {
-        subpageUrl(additionalPath: "recover-2fa")
+    var recoveryCodeURL: URL? {
+        subpageURL(additionalPath: "recover-2fa")
     }
 
     /// Gets the region depending on the base url.
@@ -104,17 +104,17 @@ extension EnvironmentUrlData {
         guard region != .unitedStates else {
             return URL(string: "https://send.bitwarden.com/#")!
         }
-        return subpageUrl(additionalPath: "send")
+        return subpageURL(additionalPath: "send")
     }
 
     /// The base url for the settings screen.
     var settingsURL: URL? {
-        subpageUrl(additionalPath: "settings")
+        subpageURL(additionalPath: "settings")
     }
 
     /// The URL to set up two-factor login.
     var setUpTwoFactorURL: URL? {
-        subpageUrl(additionalPath: "settings/security/two-factor")
+        subpageURL(additionalPath: "settings/security/two-factor")
     }
 
     /// The host of URL to the user's web vault.
@@ -129,7 +129,7 @@ extension EnvironmentUrlData {
     ///
     /// - Parameters:
     ///   - additionalPath: The additional path string to append to the vault's base URL
-    private func subpageUrl(additionalPath: String) -> URL? {
+    private func subpageURL(additionalPath: String) -> URL? {
         // Foundation's URL appending methods percent encode the path component that is passed into the method,
         // which includes the `#` symbol. Since the `#` character is a critical portion of these urls, we use String
         // concatenation to get around this limitation.

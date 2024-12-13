@@ -71,7 +71,7 @@ extension EnvironmentUrls {
             webVaultURL = environmentUrlData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
         importItemsURL = environmentUrlData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
-        recoveryCodeURL = environmentUrlData.recoveryCodeUrl ?? URL(
+        recoveryCodeURL = environmentUrlData.recoveryCodeURL ?? URL(
             string: "https://vault.bitwarden.com/#/recover-2fa"
         )!
         sendShareURL = environmentUrlData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!

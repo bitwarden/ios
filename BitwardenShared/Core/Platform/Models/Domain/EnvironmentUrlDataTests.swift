@@ -5,6 +5,27 @@ import XCTest
 class EnvironmentUrlDataTests: XCTestCase {
     // MARK: Tests
 
+    /// `changeEmailURL` returns the change email URL for the base URL.
+    func test_changeEmailURL_baseURL() {
+        let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
+        XCTAssertEqual(subject.changeEmailURL?.absoluteString, "https://vault.example.com/#/settings/account")
+    }
+
+    /// `changeEmailURL` returns the default change email base URL.
+    func test_changeEmailURL_noURLs() {
+        let subject = EnvironmentUrlData(base: nil, webVault: nil)
+        XCTAssertNil(subject.changeEmailURL?.absoluteString)
+    }
+
+    /// `changeEmailURL` returns the change email URL for the web vault URL.
+    func test_changeEmailURL_webVaultURL() {
+        let subject = EnvironmentUrlData(
+            base: URL(string: "https://vault.example.com"),
+            webVault: URL(string: "https://web.vault.example.com")
+        )
+        XCTAssertEqual(subject.changeEmailURL?.absoluteString, "https://web.vault.example.com/#/settings/account")
+    }
+
     /// `defaultUS` returns the properly configured `EnvironmentUrlData`
     /// with the deafult Urls for united states region.
     func test_defaultUS() {
@@ -39,19 +60,19 @@ class EnvironmentUrlDataTests: XCTestCase {
         )
     }
 
-    /// `importItemsURL` returns the import items url for the base url.
+    /// `importItemsURL` returns the import items URL for the base URL.
     func test_importItemsURL_baseURL() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
         XCTAssertEqual(subject.importItemsURL?.absoluteString, "https://vault.example.com/#/tools/import")
     }
 
-    /// `importItemsURL` returns the default import items base url.
+    /// `importItemsURL` returns the default import items base URL.
     func test_importItemsURL_noURLs() {
         let subject = EnvironmentUrlData(base: nil, webVault: nil)
         XCTAssertNil(subject.importItemsURL?.absoluteString)
     }
 
-    /// `importItemsURL` returns the import items url for the web vault url.
+    /// `importItemsURL` returns the import items URL for the web vault URL.
     func test_importItemsURL_webVaultURL() {
         let subject = EnvironmentUrlData(
             base: URL(string: "https://vault.example.com"),
@@ -76,49 +97,70 @@ class EnvironmentUrlDataTests: XCTestCase {
         XCTAssertFalse(EnvironmentUrlData(webVault: .example).isEmpty)
     }
 
-    /// `region` returns `.unitedStates` if base url is the same as the default for US.
+    /// `recoveryCodeURL` returns the recovery code URL for the base URL.
+    func test_recoveryCodeURL_baseURL() {
+        let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
+        XCTAssertEqual(subject.recoveryCodeURL?.absoluteString, "https://vault.example.com/#/recover-2fa")
+    }
+
+    /// `recoveryCodeURL` returns the default settings base URL.
+    func test_recoveryCodeURL_noURLs() {
+        let subject = EnvironmentUrlData(base: nil, webVault: nil)
+        XCTAssertNil(subject.recoveryCodeURL?.absoluteString)
+    }
+
+    /// `recoveryCodeURL` returns the settings URL for the web vault URL.
+    func test_recoveryCodeURL_webVaultURL() {
+        let subject = EnvironmentUrlData(
+            base: URL(string: "https://vault.example.com"),
+            webVault: URL(string: "https://web.vault.example.com")
+        )
+        XCTAssertEqual(subject.recoveryCodeURL?.absoluteString, "https://web.vault.example.com/#/recover-2fa")
+    }
+
+    /// `region` returns `.unitedStates` if base URL is the same as the default for US.
     func test_region_unitedStates() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
         XCTAssertTrue(subject.region == .unitedStates)
     }
 
-    /// `region` returns `.europe` if base url is the same as the default for EU.
+    /// `region` returns `.europe` if base URL is the same as the default for EU.
     func test_region_europe() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.eu")!)
         XCTAssertTrue(subject.region == .europe)
     }
 
-    /// `region` returns `.selfHosted` if base url is neither the default for US nor for EU.
+    /// `region` returns `.selfHosted` if base URL is neither the default for US nor for EU.
     func test_region_selfHost() {
         let subject = EnvironmentUrlData(base: URL(string: "https://example.com")!)
         XCTAssertTrue(subject.region == .selfHosted)
     }
 
-    /// `sendShareURL` returns the send url for the united states region.
+    /// `sendShareURL` returns the send URL for the united states region.
     func test_sendShareURL_unitedStates() {
         let subject = EnvironmentUrlData.defaultUS
         XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://send.bitwarden.com/#")
     }
 
-    /// `sendShareURL` returns the send url for the europe region.
+    /// `sendShareURL` returns the send URL for the europe region.
     func test_sendShareURL_europe() {
         let subject = EnvironmentUrlData.defaultEU
         XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://vault.bitwarden.eu/#/send")
     }
 
-    /// `sendShareURL` returns the send url for the base url.
+    /// `sendShareURL` returns the send URL for the base URL.
     func test_sendShareURL_baseURL() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
         XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://vault.example.com/#/send")
     }
 
-    /// `sendShareURL` returns the default send base url.
+    /// `sendShareURL` returns the default send base URL.
     func test_sendShareURL_noURLs() {
         let subject = EnvironmentUrlData(base: nil, webVault: nil)
         XCTAssertNil(subject.sendShareURL?.absoluteString)
     }
 
-    /// `sendShareURL` returns the send url for the web vault url.
+    /// `sendShareURL` returns the send URL for the web vault URL.
     func test_sendShareURL_webVaultURL() {
         let subject = EnvironmentUrlData(
             base: URL(string: "https://vault.example.com"),
@@ -127,25 +169,46 @@ class EnvironmentUrlDataTests: XCTestCase {
         XCTAssertEqual(subject.sendShareURL?.absoluteString, "https://web.vault.example.com/#/send")
     }
 
-    /// `settingsURL` returns the settings url for the base url.
+    /// `settingsURL` returns the settings URL for the base URL.
     func test_settingsURL_baseURL() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
         XCTAssertEqual(subject.settingsURL?.absoluteString, "https://vault.example.com/#/settings")
     }
 
-    /// `settingsURL` returns the default settings base url.
+    /// `settingsURL` returns the default settings base URL.
     func test_settingsURL_noURLs() {
         let subject = EnvironmentUrlData(base: nil, webVault: nil)
         XCTAssertNil(subject.settingsURL?.absoluteString)
     }
 
-    /// `settingsURL` returns the settings url for the web vault url.
+    /// `settingsURL` returns the settings URL for the web vault URL.
     func test_settingsURL_webVaultURL() {
         let subject = EnvironmentUrlData(
             base: URL(string: "https://vault.example.com"),
             webVault: URL(string: "https://web.vault.example.com")
         )
         XCTAssertEqual(subject.settingsURL?.absoluteString, "https://web.vault.example.com/#/settings")
+    }
+
+    /// `setUpTwoFactorURL` returns the change email URL for the base URL.
+    func test_setUpTwoFactorURL_baseURL() {
+        let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
+        XCTAssertEqual(subject.setUpTwoFactorURL?.absoluteString, "https://vault.example.com/#/settings/security/two-factor")
+    }
+
+    /// `setUpTwoFactorURL` returns the default change email base URL.
+    func test_setUpTwoFactorURL_noURLs() {
+        let subject = EnvironmentUrlData(base: nil, webVault: nil)
+        XCTAssertNil(subject.setUpTwoFactorURL?.absoluteString)
+    }
+
+    /// `setUpTwoFactorURL` returns the change email URL for the web vault URL.
+    func test_setUpTwoFactorURL_webVaultURL() {
+        let subject = EnvironmentUrlData(
+            base: URL(string: "https://vault.example.com"),
+            webVault: URL(string: "https://web.vault.example.com")
+        )
+        XCTAssertEqual(subject.setUpTwoFactorURL?.absoluteString, "https://web.vault.example.com/#/settings/security/two-factor")
     }
 
     /// `webVaultHost` returns the host for the base URL if no web vault URL is set.
