@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Ugild hovudpassord. Freista om att.";
 "InvalidPIN" = "Ugild PIN-kode. Freista om att.";
 "Launch" = "Opna";
-"LogIn" = "Skriv deg inn";
+"LogIn" = "Log in";
 "LogInNoun" = "Innskriving";
 "LogOut" = "Skriv deg ut";
 "LogoutConfirmation" = "Er du trygg på at du vil skriva deg ut?";

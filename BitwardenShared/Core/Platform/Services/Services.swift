@@ -32,6 +32,7 @@ typealias Services = HasAPIService
     & HasPasteboardService
     & HasPolicyService
     & HasRehydrationHelper
+    & HasReviewPromptService
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService
@@ -260,6 +261,12 @@ protocol HasPolicyService {
 protocol HasRehydrationHelper {
     /// The helper for app rehydration.
     var rehydrationHelper: RehydrationHelper { get }
+}
+
+/// Protocol for an object that provides a `ReviewPromptService`.
+protocol HasReviewPromptService {
+    /// The service used by the application to determine if a user is eligible for a review prompt.
+    var reviewPromptService: ReviewPromptService { get }
 }
 
 /// Protocol for an object that provides a `SendRepository`.

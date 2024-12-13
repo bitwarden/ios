@@ -50,15 +50,6 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     // MARK: Tests
 
-    /// Tapping the add item button dispatches the `.addItemPressed` action.
-    @MainActor
-    func test_addItemButton_tap() throws {
-        processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
-    }
-
     /// Tapping the add the new login button dispatches the `.addItemPressed` action.
     @MainActor
     func test_newLoginButton_tap() throws {

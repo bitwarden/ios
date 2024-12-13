@@ -432,6 +432,76 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
     }
 
+    /// `checkSessionTimeout()` locks an account when the session timeout action is lock.
+    func test_checkSessionTimeout_lockAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` logs out an account when the session timeout action is logout.
+    func test_checkSessionTimeout_logoutAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+        XCTAssertTrue(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertTrue(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` takes no action to an active  account when the session timeout if the `handleActiveUser`
+    /// closure is nil.
+    func test_checkSessionTimeout_activeAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` calls `handleActiveUser` closure when the active account is timed out.
+    /// closure is nil.
+    func test_checkSessionTimeout_timedOut_activeAccount_handleActiveUser() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        await subject.checkSessionTimeouts { [beeAccount] userId in
+            XCTAssertEqual(userId, beeAccount.profile.userId)
+        }
+    }
+
+    /// `checkSessionTimeout()` takes no action to an active account is not timed out.
+    func test_checkSessionTimeout_activeAccount_handleActiveUser() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = false
+        await subject.checkSessionTimeouts { _ in
+            XCTFail(
+                "shouldn't be calling `handleActiveUser` closure if the active account is not timed out"
+            )
+        }
+    }
+
+    /// `checkSessionTimeout(handleActiveUser:)` logs an error if one occurs when checking timeouts.
+    func test_checkSessionTimeout_error() async {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accounts = [account]
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
     /// `getProfilesState()` throws an error when the accounts are nil.
     func test_getProfilesState_empty() async {
         let state = await subject.getProfilesState(
@@ -532,7 +602,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `getProfilesState()` can return `canBeLocked` accounts correctly.
-    func test_getProfilesState_canBeLocked() async {
+    func test_getProfilesState_canBeLocked() async { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount, // This account does not have a MasterPassword, Face ID, or PIN configured.
             beeAccount, // This account does not have a MasterPassword, Face ID configured, but has a PIN.
@@ -986,7 +1056,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `isLocked` returns the lock state of an active user.
     func test_isLocked_noHistory() async throws {
-        let account: Account = .fixture()
+        let account: BitwardenShared.Account = .fixture()
         stateService.activeAccount = account
         vaultTimeoutService.isClientLocked[account.profile.userId] = true
         let isLocked = try await subject.isLocked()

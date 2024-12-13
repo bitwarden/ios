@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Neteisingas pagrindinis slaptažodis. Pabandykite dar kartą.";
 "InvalidPIN" = "Neteisingas PIN kodas. Bandyti dar kartą.";
 "Launch" = "Paleisti";
-"LogIn" = "Prisijungti";
+"LogIn" = "Log in";
 "LogInNoun" = "Prisijungti";
 "LogOut" = "Atsijungti";
 "LogoutConfirmation" = "Ar tikrai norite atsijungti?";

@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Ongeldig hoofdwachtwoord. Probeer het opnieuw.";
 "InvalidPIN" = "Ongeldige PIN-code. Probeer het opnieuw.";
 "Launch" = "Starten";
-"LogIn" = "Inloggen";
+"LogIn" = "Log in";
 "LogInNoun" = "Login";
 "LogOut" = "Uitloggen";
 "LogoutConfirmation" = "Weet je zeker dat je wilt uitloggen?";

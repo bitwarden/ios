@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "A mesterjelszó érvénytelen. Próbáljuk újra.";
 "InvalidPIN" = "A pinkód érvénytelen. Próbáljuk újra.";
 "Launch" = "Indítás";
-"LogIn" = "Bejelentkezés";
+"LogIn" = "Log in";
 "LogInNoun" = "Bejelentkezés";
 "LogOut" = "Kijelentkezés";
 "LogoutConfirmation" = "Biztos, hogy ki szeretnél jelentkezni?";

@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Pasahitz nagusi baliogabea. Saiatu berriro.";
 "InvalidPIN" = "PIN baliogabea. Saiatu berriro.";
 "Launch" = "Abiarazi";
-"LogIn" = "Hasi saioa";
+"LogIn" = "Log in";
 "LogInNoun" = "Saio-hasiera";
 "LogOut" = "Itxi saioa";
 "LogoutConfirmation" = "Ziur zaude saioa itxi nahi duzula?";

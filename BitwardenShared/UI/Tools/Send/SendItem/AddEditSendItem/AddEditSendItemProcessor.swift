@@ -15,6 +15,7 @@ class AddEditSendItemProcessor:
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasSendRepository
 
     // MARK: Private Properties
@@ -258,6 +259,7 @@ class AddEditSendItemProcessor:
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
                 }
+                await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }

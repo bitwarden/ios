@@ -62,6 +62,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
+    var reviewPromptData: ReviewPromptData?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
@@ -294,6 +295,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
         preAuthServerConfig
+    }
+
+    func getReviewPromptData() async -> BitwardenShared.ReviewPromptData? {
+        reviewPromptData
     }
 
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
@@ -568,6 +573,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {
         preAuthServerConfig = config
+    }
+
+    func setReviewPromptData(_ data: BitwardenShared.ReviewPromptData) async {
+        reviewPromptData = data
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {

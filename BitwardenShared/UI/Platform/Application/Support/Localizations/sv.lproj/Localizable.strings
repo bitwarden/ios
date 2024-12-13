@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Ogiltigt huvudlösenord. Försök igen.";
 "InvalidPIN" = "Ogiltig PIN-kod. Försök igen.";
 "Launch" = "Öppna";
-"LogIn" = "Logga in";
+"LogIn" = "Log in";
 "LogInNoun" = "Inloggning";
 "LogOut" = "Logga ut";
 "LogoutConfirmation" = "Är du säker på att du vill logga ut?";

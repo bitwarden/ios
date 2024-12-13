@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Password principale non valida. Riprova.";
 "InvalidPIN" = "PIN non valido. Riprova.";
 "Launch" = "Avvia";
-"LogIn" = "Accedi";
+"LogIn" = "Log in";
 "LogInNoun" = "Login";
 "LogOut" = "Esci";
 "LogoutConfirmation" = "Sei sicuro di voler uscire?";

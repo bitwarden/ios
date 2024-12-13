@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Virheellinen pääsalasana. Yritä uudelleen.";
 "InvalidPIN" = "Virheellinen PIN-koodi. Yritä uudelleen.";
 "Launch" = "Avaa";
-"LogIn" = "Kirjaudu";
+"LogIn" = "Log in";
 "LogInNoun" = "Kirjautuminen";
 "LogOut" = "Kirjaudu ulos";
 "LogoutConfirmation" = "Haluatko varmasti kirjautua ulos?";

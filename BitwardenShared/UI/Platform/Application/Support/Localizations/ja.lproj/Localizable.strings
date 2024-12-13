@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "マスターパスワードが間違っています。入力し直してください。";
 "InvalidPIN" = "PIN が間違っています。入力し直してください。";
 "Launch" = "開く";
-"LogIn" = "ログイン";
+"LogIn" = "Log in";
 "LogInNoun" = "ログイン";
 "LogOut" = "ログアウト";
 "LogoutConfirmation" = "ログアウトしてもよろしいですか？";
@@ -130,7 +130,7 @@
 "VaultTimeoutAction" = "保管庫タイムアウト時のアクション";
 "VaultTimeoutLogOutConfirmation" = "ログアウトすると保管庫へのすべてのアクセスが制限され、タイムアウト期間後にオンライン認証が必要になります。 この設定を使用してもよろしいですか？";
 "LoggingIn" = "ログイン中...";
-"LogInToBitwarden" = "Log in to Bitwarden";
+"LogInToBitwarden" = "Bitwarden にログイン";
 "Manage" = "管理";
 "MasterPasswordConfirmationValMessage" = "パスワードの確認が正しくありません。";
 "MasterPasswordDescription" = "マスターパスワードは、パスワード保管庫へのアクセスに使用するパスワードです。マスターパスワードを忘れないように注意してください。忘れた場合、パスワードを回復する方法はありません。";
@@ -170,13 +170,13 @@
 "ItemUpdated" = "アイテムを更新しました。";
 "Submitting" = "送信中...";
 "Syncing" = "同期中...";
-"SyncingLogins" = "Syncing logins...";
+"SyncingLogins" = "ログインを同期...";
 "SyncingComplete" = "同期が完了しました。";
 "SyncingFailed" = "同期に失敗しました。";
 "SyncVaultNow" = "保管庫を同期する";
 "TouchID" = "Touch ID";
 "TwoStepLogin" = "2段階認証";
-"UnlockWith" = "%1$@でロック解除";
+"UnlockWith" = "%1$@ でロック解除";
 "UnlockWithPIN" = "PIN コードでロック解除";
 "Validating" = "認証中";
 "VerificationCode" = "認証コード";
@@ -187,8 +187,8 @@
 "ExtensionActivated" = "拡張機能を有効化しました！";
 "Icons" = "アイコン";
 "Translations" = "翻訳";
-"ItemsForUri" = "%1$@用のアイテム";
-"NoItemsForUri" = "保管庫に%1$@用のアイテムはありません。";
+"ItemsForUri" = "%1$@ 用のアイテム";
+"NoItemsForUri" = "保管庫に%1$@ 用のアイテムはありません。";
 "BitwardenAutofillServiceOverlay" = "入力欄を選んだときにBitwardenの自動入力のメッセージが見えたら、それをタップすれば自動入力が起動します。";
 "BitwardenAutofillServiceNotificationContent" = "この通知をタップすると保管庫から自動入力します。";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "ユーザー補助設定を開く";
@@ -1004,7 +1004,7 @@
 "Dismiss" = "閉じる";
 "SaveAndProtectYourData" = "データの保存と保護";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "保管庫はパスワードだけではなく、ログイン情報、ID、カード、メモを安全に保管できます。";
-"SendSensitiveInformationSafely" = "Send sensitive information, safely";
+"SendSensitiveInformationSafely" = "機密情報を安全に送信";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "どのプラットフォームでも、誰とでも安全にファイルとデータを共有できます。流出を防止しながら、あなたの情報はエンドツーエンドで暗号化されます。";
 "NewLogin" = "新しいログイン";
 "ImportSavedLogins" = "保存したログイン情報をインポート";
@@ -1024,7 +1024,7 @@
 "SaveTheExportedFileSomewhereOnYourComputerYouCanFindEasily" = "**Save the exported file** somewhere on your computer you can find easily.";
 "YoullDeleteThisFileAfterImportIsComplete" = "You’ll delete this file after import is complete.";
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
-"LogInToBitwarden" = "Log in to Bitwarden";
+"LogInToBitwarden" = "Bitwarden にログイン";
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Log in to the Bitwarden web app.**";
 "ImportLoginsToBitwarden" = "Import logins to Bitwarden";

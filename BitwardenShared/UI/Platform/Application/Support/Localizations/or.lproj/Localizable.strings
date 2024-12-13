@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Invalid master password. Try again.";
 "InvalidPIN" = "Invalid PIN. Try again.";
 "Launch" = "Launch";
-"LogIn" = "Log In";
+"LogIn" = "Log in";
 "LogInNoun" = "Login";
 "LogOut" = "Log out";
 "LogoutConfirmation" = "Are you sure you want to log out?";

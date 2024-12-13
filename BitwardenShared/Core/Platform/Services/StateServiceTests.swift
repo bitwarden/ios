@@ -1419,6 +1419,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.rememberedOrgIdentifier, "AndImOk")
     }
 
+    /// `.getReviewPromptData()` gets the review prompt data from the app settings store.
+    func test_getReviewPromptData() async throws {
+        let expectedData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.0",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
+        appSettingsStore.reviewPromptData = expectedData
+        let data = await subject.getReviewPromptData()
+
+        XCTAssertEqual(expectedData, data)
+    }
+
     /// `getShouldTrustDevice` gets the value as expected.
     func test_getShouldTrustDevice() async {
         appSettingsStore.shouldTrustDevice["1"] = true
@@ -1838,6 +1855,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setPreAuthServerConfig(config: config)
         XCTAssertEqual(appSettingsStore.preAuthServerConfig, config)
+    }
+
+    /// `setReviewPromptData(_:)` sets the review prompt data.
+    func test_setReviewPromptData() async {
+        let data = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.0",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 2
+                ),
+            ]
+        )
+
+        await subject.setReviewPromptData(data)
+        XCTAssertEqual(appSettingsStore.reviewPromptData, data)
     }
 
     /// `setServerConfig(_:)` sets the config values.

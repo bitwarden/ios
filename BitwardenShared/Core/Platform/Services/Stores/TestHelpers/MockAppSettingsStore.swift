@@ -25,6 +25,7 @@ class MockAppSettingsStore: AppSettingsStore {
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var reviewPromptData: BitwardenShared.ReviewPromptData?
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()

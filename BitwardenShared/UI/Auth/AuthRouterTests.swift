@@ -1247,6 +1247,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         let active = Account.fixture()
         authRepository.activeAccount = active
         authRepository.isLockedResult = .success(false)
+        vaultTimeoutService.lastActiveTime = [:]
         let route = await subject.handleAndRoute(
             .action(
                 .switchAccount(isAutomatic: true, userId: active.profile.userId)
@@ -1254,6 +1255,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
         XCTAssertEqual(route, .complete)
         XCTAssertEqual(authRepository.setActiveAccountId, active.profile.userId)
+        XCTAssertNil(vaultTimeoutService.lastActiveTime[active.profile.userId])
     }
 
     /// `handleAndRoute(_ :)` redirects `.switchAccount()` to `.vaultUnlock` when switching to a
@@ -1265,6 +1267,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
         authRepository.altAccounts = [inactive]
         authRepository.isLockedResult = .success(true)
         stateService.isAuthenticated["2"] = true
+        vaultTimeoutService.lastActiveTime = [:]
         let route = await subject.handleAndRoute(
             .action(
                 .switchAccount(isAutomatic: true, userId: inactive.profile.userId)
@@ -1280,6 +1283,7 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
             )
         )
         XCTAssertEqual(authRepository.setActiveAccountId, inactive.profile.userId)
+        XCTAssertNotNil(vaultTimeoutService.lastActiveTime[active.profile.userId])
     }
 
     /// `handleAndRoute(_ :)` redirects `.switchAccount()` to `.landingSoftLoggedOut` when that

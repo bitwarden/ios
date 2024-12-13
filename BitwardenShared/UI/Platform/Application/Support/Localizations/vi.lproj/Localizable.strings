@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Mật khẩu chính không đúng. Thử lại.";
 "InvalidPIN" = "Mã PIN không đúng. Thử lại.";
 "Launch" = "Khởi chạy";
-"LogIn" = "Đăng Nhập";
+"LogIn" = "Log in";
 "LogInNoun" = "Đăng nhập";
 "LogOut" = "Đăng xuất";
 "LogoutConfirmation" = "Bạn có chắc chắn muốn đăng xuất không?";

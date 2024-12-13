@@ -80,6 +80,7 @@ env:
   _BUILD_MODE: ${{ inputs.build-mode || 'Device' }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
+  _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
 jobs:
   build:
@@ -359,7 +360,7 @@ jobs:
 
       - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ env._COMPILER_FLAGS }}"
+          ./Scripts/update_app_ci_build_info.sh $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_SHA $GITHUB_RUN_ID $GITHUB_RUN_ATTEMPT "$_COMPILER_FLAGS"
 
       - name: Build iOS app
         run: |
@@ -414,7 +415,7 @@ jobs:
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
           Xcode ${{ env._XCODE_VERSION }}
           Compiler Flags: ${{ inputs.compiler-flags }}
-          $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          $_GITHUB_ACTION_RUN_URL"
 
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \

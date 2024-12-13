@@ -34,6 +34,12 @@ protocol AuthRepository: AnyObject {
     ///
     func canVerifyMasterPassword(userId: String?) async throws -> Bool
 
+    /// Checks the session timeout for all accounts, and locks or logs out as needed.
+    ///
+    /// - Parameter handleActiveUser: A closure to handle the active user.
+    ///
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async
+
     /// Clears the pins stored on device and in memory.
     ///
     func clearPins() async throws
@@ -513,6 +519,37 @@ extension DefaultAuthRepository: AuthRepository {
 
     func canVerifyMasterPassword(userId: String? = nil) async throws -> Bool {
         try await stateService.getUserHasMasterPassword(userId: userId)
+    }
+
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)? = nil) async {
+        do {
+            let accounts = try await getAccounts()
+            guard !accounts.isEmpty else { return }
+            let activeAccount = try await getActiveAccount()
+            let activeUserId = activeAccount.userId
+
+            for account in accounts {
+                let userId = account.userId
+                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
+                if shouldTimeout {
+                    if userId == activeUserId {
+                        await handleActiveUser?(activeUserId)
+                    } else {
+                        let timeoutAction = try await sessionTimeoutAction(userId: userId)
+                        switch timeoutAction {
+                        case .lock:
+                            await vaultTimeoutService.lockVault(userId: userId)
+                        case .logout:
+                            try await logout(userId: userId, userInitiated: false)
+                        }
+                    }
+                }
+            }
+        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
+            // No-op: nothing to do if there's no accounts or an active account.
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {

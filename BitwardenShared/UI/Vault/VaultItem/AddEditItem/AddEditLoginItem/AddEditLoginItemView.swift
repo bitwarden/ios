@@ -152,7 +152,7 @@ struct AddEditLoginItemView: View {
                         Text(Localizations.setupTotp)
                     }
                 }
-                .buttonStyle(.tertiary())
+                .buttonStyle(.secondary())
                 .accessibilityIdentifier("SetupTotpButton")
             }
         }
@@ -200,7 +200,7 @@ struct AddEditLoginItemView: View {
                     store.send(.newUriPressed)
                 }
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("LoginAddNewUriButton")
         }
     }
