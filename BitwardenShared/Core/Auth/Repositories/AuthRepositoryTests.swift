@@ -482,7 +482,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = beeAccount
         stateService.timeoutAction = [beeAccount.profile.userId: .lock]
         vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = false
-        await subject.checkSessionTimeouts { userId in
+        await subject.checkSessionTimeouts { _ in
             XCTFail(
                 "shouldn't be calling `handleActiveUser` closure if the active account is not timed out"
             )
@@ -602,7 +602,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `getProfilesState()` can return `canBeLocked` accounts correctly.
-    func test_getProfilesState_canBeLocked() async {
+    func test_getProfilesState_canBeLocked() async { // swiftlint:disable:this function_body_length
         stateService.accounts = [
             anneAccount, // This account does not have a MasterPassword, Face ID, or PIN configured.
             beeAccount, // This account does not have a MasterPassword, Face ID configured, but has a PIN.
@@ -1056,7 +1056,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `isLocked` returns the lock state of an active user.
     func test_isLocked_noHistory() async throws {
-        let account: Account = .fixture()
+        let account: BitwardenShared.Account = .fixture()
         stateService.activeAccount = account
         vaultTimeoutService.isClientLocked[account.profile.userId] = true
         let isLocked = try await subject.isLocked()

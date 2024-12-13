@@ -132,8 +132,8 @@ class VaultItemSelectionProcessor: StateProcessor<
         switch profileSwitcherAction {
         case let .accessibility(accessibilityAction):
             switch accessibilityAction {
-            case .logout:
-                // No-op: account logout not supported in the extension.
+            case .logout, .remove:
+                // No-op: account logout and remove are not supported in this view.
                 break
             }
         default:

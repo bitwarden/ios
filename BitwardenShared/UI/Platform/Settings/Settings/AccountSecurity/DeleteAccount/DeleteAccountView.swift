@@ -37,7 +37,7 @@ struct DeleteAccountView: View {
                 } label: {
                     Text(Localizations.cancel)
                 }
-                .buttonStyle(.tertiary(isDestructive: true))
+                .buttonStyle(.secondary(isDestructive: true))
                 .accessibilityIdentifier("CANCEL")
             }
         }

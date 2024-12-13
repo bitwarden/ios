@@ -1116,7 +1116,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
-
     /// `receive(.addItemPressed)` cancels the review prompt task.
     @MainActor
     func test_receive_addItemPressed_cancelsReviewPromptTask() async {

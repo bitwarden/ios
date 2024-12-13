@@ -182,12 +182,12 @@ struct TwoFactorAuthView: View {
             AsyncButton(Localizations.sendVerificationCodeAgain) {
                 await store.perform(.resendEmailTapped)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
         } else if store.state.authMethod == .yubiKey {
             AsyncButton(Localizations.tryAgain) {
                 await store.perform(.tryAgainTapped)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
         }
     }
 

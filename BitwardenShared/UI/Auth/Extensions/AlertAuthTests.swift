@@ -3,12 +3,14 @@ import XCTest
 @testable import BitwardenShared
 
 class AlertAuthTests: BitwardenTestCase {
-    /// `accountOptions(_:lockAction:logoutAction:)`
-    func test_accountOptions() {
+    /// `accountOptions(_:lockAction:logoutAction:removeAccountAction:)`
+    func test_accountOptions() async throws {
+        var actions = [String]()
         let subject = Alert.accountOptions(
             .fixture(email: "test@example.com", isUnlocked: true, webVault: "secureVault.example.com"),
-            lockAction: {},
-            logoutAction: {}
+            lockAction: { actions.append(Localizations.lock) },
+            logoutAction: { actions.append(Localizations.logOut) },
+            removeAccountAction: { actions.append(Localizations.removeAccount) }
         )
 
         XCTAssertEqual(subject.title, "test@example.com\nsecureVault.example.com")
@@ -18,6 +20,43 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[0].title, Localizations.lock)
         XCTAssertEqual(subject.alertActions[1].title, Localizations.logOut)
         XCTAssertEqual(subject.alertActions[2].title, Localizations.cancel)
+
+        try await subject.tapAction(title: Localizations.lock)
+        XCTAssertEqual(actions, [Localizations.lock])
+        actions.removeAll()
+
+        try await subject.tapAction(title: Localizations.logOut)
+        XCTAssertEqual(actions, [Localizations.logOut])
+        actions.removeAll()
+
+        try await subject.tapAction(title: Localizations.cancel)
+        XCTAssertTrue(actions.isEmpty)
+    }
+
+    /// `accountOptions(_:lockAction:logoutAction:removeAccountAction:)` shows the account options
+    /// for a logged out account.
+    func test_accountOptions_loggedOut() async throws {
+        var actions = [String]()
+        let subject = Alert.accountOptions(
+            .fixture(email: "test@example.com", isLoggedOut: true, webVault: "secureVault.example.com"),
+            lockAction: { actions.append(Localizations.lock) },
+            logoutAction: { actions.append(Localizations.logOut) },
+            removeAccountAction: { actions.append(Localizations.removeAccount) }
+        )
+
+        XCTAssertEqual(subject.title, "test@example.com\nsecureVault.example.com")
+        XCTAssertNil(subject.message)
+        XCTAssertEqual(subject.preferredStyle, .actionSheet)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.removeAccount)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+
+        try await subject.tapAction(title: Localizations.removeAccount)
+        XCTAssertEqual(actions, [Localizations.removeAccount])
+        actions.removeAll()
+
+        try await subject.tapAction(title: Localizations.cancel)
+        XCTAssertTrue(actions.isEmpty)
     }
 
     /// `accountOptions(_:lockAction:logoutAction:)` shows the account options for can not be locked account.
@@ -31,7 +70,8 @@ class AlertAuthTests: BitwardenTestCase {
                 webVault: "secureVault.example.com"
             ),
             lockAction: {},
-            logoutAction: {}
+            logoutAction: {},
+            removeAccountAction: {}
         )
 
         XCTAssertEqual(subject.title, "test@example.com\nsecureVault.example.com")
@@ -185,6 +225,31 @@ class AlertAuthTests: BitwardenTestCase {
         try await subject.tapAction(title: Localizations.cancel)
 
         await fulfillment(of: [expectation], timeout: 3)
+    }
+
+    /// `removeAccountConfirmation(action:)` constructs an `Alert` used to confirm that the user
+    /// wants to remove the account.
+    func test_removeAccountConfirmation() async throws {
+        var actionCalled = false
+        let subject = Alert.removeAccountConfirmation(.fixture(email: "user@bitwarden.com")) {
+            actionCalled = true
+        }
+
+        XCTAssertEqual(subject.title, Localizations.removeAccount)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.removeAccountConfirmation + "\n\n" + "user@bitwarden.com\nvault.bitwarden.com"
+        )
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+
+        try await subject.tapAction(title: Localizations.cancel)
+        XCTAssertFalse(actionCalled)
+
+        try await subject.tapAction(title: Localizations.yes)
+        XCTAssertTrue(actionCalled)
     }
 
     /// `setUpAutoFillLater(action:)` builds an `Alert` for setting up autofill later.

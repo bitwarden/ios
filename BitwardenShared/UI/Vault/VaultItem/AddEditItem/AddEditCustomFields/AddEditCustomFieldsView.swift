@@ -99,7 +99,7 @@ struct AddEditCustomFieldsView: View {
             Button(Localizations.newCustomField) {
                 store.send(.newCustomFieldPressed)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("NewCustomFieldButton")
         }
     }

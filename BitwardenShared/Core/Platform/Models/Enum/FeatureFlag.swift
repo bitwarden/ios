@@ -7,6 +7,12 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag to enable/disable the app review prompt.
     case appReviewPrompt = "app-review-prompt"
 
+    /// Flag to enable/disable Credential Exchange export flow.
+    case cxpExportMobile = "cxp-export-mobile"
+
+    /// Flag to enable/disable Credential Exchange import flow.
+    case cxpImportMobile = "cxp-import-mobile"
+
     /// Flag to enable/disable email verification during registration
     /// This flag introduces a new flow for account creation
     case emailVerification = "email-verification"
@@ -97,6 +103,8 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .testLocalInitialStringFlag:
             false
         case .appReviewPrompt,
+             .cxpExportMobile,
+             .cxpImportMobile,
              .emailVerification,
              .enableAuthenticatorSync,
              .refactorSsoDetailsEndpoint,
