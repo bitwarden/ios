@@ -285,6 +285,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             state: VaultListState(
                 iconBaseURL: services.environmentService.iconsURL
             ),
+            twoFactorNoticeHelper: DefaultTwoFactorNoticeHelper(
+                coordinator: asAnyCoordinator(),
+                services: services
+            ),
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
                 services: services

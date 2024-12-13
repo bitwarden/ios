@@ -35,6 +35,9 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
+    /// The helper to handle the two-factor notice.
+    private let twoFactorNoticeHelper: TwoFactorNoticeHelper
+
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
@@ -52,10 +55,12 @@ final class VaultListProcessor: StateProcessor<
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultListState,
+        twoFactorNoticeHelper: TwoFactorNoticeHelper,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
         self.services = services
+        self.twoFactorNoticeHelper = twoFactorNoticeHelper
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
     }
@@ -69,7 +74,7 @@ final class VaultListProcessor: StateProcessor<
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
-            await checkTwoFactorNotice()
+            await twoFactorNoticeHelper.maybeShowTwoFactorNotice()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
@@ -180,42 +185,6 @@ extension VaultListProcessor {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
-    }
-
-    /// Checks if we need to display the notice for not having two-factor set up
-    /// and displays the notice if necessary
-    ///
-    private func checkTwoFactorNotice() async {
-        let temporary = await services.configService.getFeatureFlag(
-            .newDeviceVerificationTemporaryDismiss,
-            defaultValue: false
-        )
-        let permanent = await services.configService.getFeatureFlag(
-            .newDeviceVerificationPermanentDismiss,
-            defaultValue: false
-        )
-        guard temporary || permanent else { return }
-        do {
-            let state = try await services.stateService.getTwoFactorNoticeDisplayState()
-            switch state {
-            case .canAccessEmail:
-                if permanent {
-                    coordinator.navigate(to: .twoFactorNotice(!permanent))
-                } else {
-                    return
-                }
-            case .canAccessEmailPermanent:
-                return
-            case .hasNotSeen:
-                coordinator.navigate(to: .twoFactorNotice(!permanent))
-            case let .seen(date):
-                if services.timeProvider.timeSince(date) >= /*(86400 * 7)*/ 70 { // Seven days
-                    coordinator.navigate(to: .twoFactorNotice(!permanent))
-                }
-            }
-        } catch {
-            services.errorReporter.log(error: error)
-        }
     }
 
     /// Entry point to handling things around push notifications.

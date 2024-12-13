@@ -39,8 +39,74 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
     // MARK: Types
 
     typealias Services = HasErrorReporter
+    & HasConfigService
+    & HasStateService
+    & HasTimeProvider
+
+    // MARK: Private Properties
+
+    /// The `Coordinator` that handles navigation.
+    private var coordinator: AnyCoordinator<VaultRoute, AuthAction>
+
+    /// The services used by this helper.
+    private var services: Services
+
+    // MARK: Initialization
+
+    /// Initialize a `TwoFactorNoticeHelper`.
+    ///
+    /// - Parameters:
+    ///   - coordinator: The coordinator that handles navigation.
+    ///   - services: The services used by this helper.
+    ///
+    init(
+        coordinator: AnyCoordinator<VaultRoute, AuthAction>,
+        services: Services
+    ) {
+        self.coordinator = coordinator
+        self.services = services
+    }
+
+    // MARK: Methods
 
     func maybeShowTwoFactorNotice() async {
-        
+        await checkTwoFactorNotice()
     }
+
+    /// Checks if we need to display the notice for not having two-factor set up
+    /// and displays the notice if necessary
+    ///
+    private func checkTwoFactorNotice() async {
+        let temporary = await services.configService.getFeatureFlag(
+            .newDeviceVerificationTemporaryDismiss,
+            defaultValue: false
+        )
+        let permanent = await services.configService.getFeatureFlag(
+            .newDeviceVerificationPermanentDismiss,
+            defaultValue: false
+        )
+        guard temporary || permanent else { return }
+        do {
+            let state = try await services.stateService.getTwoFactorNoticeDisplayState()
+            switch state {
+            case .canAccessEmail:
+                if permanent {
+                    coordinator.navigate(to: .twoFactorNotice(!permanent))
+                } else {
+                    return
+                }
+            case .canAccessEmailPermanent:
+                return
+            case .hasNotSeen:
+                coordinator.navigate(to: .twoFactorNotice(!permanent))
+            case let .seen(date):
+                if services.timeProvider.timeSince(date) >= /*(86400 * 7)*/ 70 { // Seven days
+                    coordinator.navigate(to: .twoFactorNotice(!permanent))
+                }
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
 }
