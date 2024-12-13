@@ -193,10 +193,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
-        case .setUpTwoFactor:
-            showTwoFactorSetup()
-        case .twoFactorNotice:
-            showTwoFactorNotice()
+        case let .twoFactorNotice(allowDelay):
+            showTwoFactorNotice(allowDelay)
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id):
@@ -300,9 +298,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.replace(view, animated: false)
     }
 
-    /// Shows the vault list screen.
+    /// Shows the notice that the user does not have two-factor set up.
     ///
-    private func showTwoFactorNotice() {
+    private func showTwoFactorNotice(_ allowDelay: Bool) {
         let navigationController = UINavigationController()
         navigationController.navigationBar.isHidden = true
         let coordinator = module.makeNoTwoFactorNoticeCoordinator(stackNavigator: navigationController)
@@ -310,36 +308,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         coordinator.navigate(to: .emailAccess, context: delegate)
 
         stackNavigator?.present(navigationController, overFullscreen: true)
-
-//        let processor = EmailAccessProcessor(
-//            coordinator: asAnyCoordinator(),
-//            services: services,
-//            state: EmailAccessState(
-//                canAccessEmail: false
-//            )
-//        )
-//        let store = Store(processor: processor)
-//        let view = EmailAccessView(
-//            store: store
-//        )
-//        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-//        navController.navigationBar.isHidden = true
-////        stackNavigator?.present(navController)//, animated: true, overFullscreen: true)
-//
-//        stackNavigator?.present(view, animated: true, overFullscreen: true)
-////        stackNavigator?.replace(view, animated: false)
-    }
-
-    private func showTwoFactorSetup() {
-//        let processor = SetUpTwoFactorProcessor(
-//            coordinator: asAnyCoordinator(),
-//            services: services,
-//            state: SetUpTwoFactorState()
-//        )
-//        let store = Store(processor: processor)
-//        let view = SetUpTwoFactorView(store: store)
-//
-//        stackNavigator?.push(view, animated: true)
     }
 
     /// Presents a vault item coordinator, which will navigate to the provided route.

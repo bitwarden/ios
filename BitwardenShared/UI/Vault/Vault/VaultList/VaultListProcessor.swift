@@ -186,16 +186,31 @@ extension VaultListProcessor {
     /// and displays the notice if necessary
     ///
     private func checkTwoFactorNotice() async {
+        let temporary = await services.configService.getFeatureFlag(
+            .newDeviceVerificationTemporaryDismiss,
+            defaultValue: false
+        )
+        let permanent = await services.configService.getFeatureFlag(
+            .newDeviceVerificationPermanentDismiss,
+            defaultValue: false
+        )
+        guard temporary || permanent else { return }
         do {
             let state = try await services.stateService.getTwoFactorNoticeDisplayState()
             switch state {
             case .canAccessEmail:
+                if permanent {
+                    coordinator.navigate(to: .twoFactorNotice(!permanent))
+                } else {
+                    return
+                }
+            case .canAccessEmailPermanent:
                 return
             case .hasNotSeen:
-                coordinator.navigate(to: .twoFactorNotice)
+                coordinator.navigate(to: .twoFactorNotice(!permanent))
             case let .seen(date):
                 if services.timeProvider.timeSince(date) >= /*(86400 * 7)*/ 70 { // Seven days
-                    coordinator.navigate(to: .twoFactorNotice)
+                    coordinator.navigate(to: .twoFactorNotice(!permanent))
                 }
             }
         } catch {

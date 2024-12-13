@@ -9,6 +9,7 @@ class MockEnvironmentService: EnvironmentService {
 
     var apiURL = URL(string: "https://example.com/api")!
     var baseURL = URL(string: "https://example.com")!
+    var changeEmailURL = URL(string: "https://example.com/#/settings/account")!
     var eventsURL = URL(string: "https://example.com/events")!
     var iconsURL = URL(string: "https://example.com/icons")!
     var identityURL = URL(string: "https://example.com/identity")!
@@ -17,6 +18,7 @@ class MockEnvironmentService: EnvironmentService {
     var region = RegionType.selfHosted
     var sendShareURL = URL(string: "https://example.com/#/send")!
     var settingsURL = URL(string: "https://example.com/#/settings")!
+    var setUpTwoFactorURL = URL(string: "https://example.com/#/settings/security/two-factor")!
     var webVaultURL = URL(string: "https://example.com")!
 
     func loadURLsForActiveAccount() async {

@@ -381,6 +381,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
+    /// `perform(_:)` with `.appeared` does not display two-factor notice if both feature flags are off
+    ///
+
     /// `perform(_:)` with `.dismissImportLoginsActionCard` sets the user's import logins setup
     /// progress to complete.
     @MainActor

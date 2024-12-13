@@ -54,9 +54,7 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case loginRequest(_ loginRequest: LoginRequest)
 
-    case setUpTwoFactor
-
-    case twoFactorNotice
+    case twoFactorNotice(_ allowDelay: Bool)
 
     /// A route to switch accounts.
     ///
