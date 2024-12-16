@@ -165,10 +165,19 @@ jobs:
           RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
           LAST_RELEASE_TAG: ${{ steps.get_last_tag.outputs.last_release_id }}
           RELEASE_URL: ${{ steps.update_release_description.outputs.release_url }}
+          VERSION_NAME: ${{ steps.version_info.outputs.version_name }}
+          VERSION_NUMBER: ${{ steps.version_info.outputs.version_number }}
         run: |
           echo "# :fish_cake: Release ready at:" >> $GITHUB_STEP_SUMMARY
           echo "$RELEASE_URL" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "$VERSION_NAME" == "0.0.0" || "$VERSION_NUMBER" == "0" ]]; then
+            echo "> [!CAUTION]" >> $GITHUB_STEP_SUMMARY
+            echo "> Version name or number wasn't previously found and a default value was used. You'll need to manually update the release Title, Tag and Description, specifically, the "Full Changelog" link." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo ":clipboard: Confirm that the defined GitHub Release options are correct:"  >> $GITHUB_STEP_SUMMARY
           echo " * :bookmark: New tag name: \`$RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
           echo " * :palm_tree: Target branch: \`$RELEASE_BRANCH\`" >> $GITHUB_STEP_SUMMARY
