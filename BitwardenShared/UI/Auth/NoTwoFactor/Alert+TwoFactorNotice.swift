@@ -1,4 +1,4 @@
-// MARK: - Alert + NoTwoFactor
+// MARK: - Alert + TwoFactorNotice
 
 extension Alert {
     // MARK: Methods
