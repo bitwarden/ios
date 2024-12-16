@@ -49,7 +49,7 @@ extension Account {
     ///
     init(
         identityTokenResponseModel: IdentityTokenResponseModel,
-        environmentUrls: EnvironmentUrlData?
+        environmentUrls: EnvironmentURLData?
     ) throws {
         let tokenPayload = try TokenParser.parseToken(identityTokenResponseModel.accessToken)
         self.init(
@@ -132,7 +132,7 @@ extension Account {
         // MARK: Properties
 
         /// The environment URLs for an account.
-        var environmentUrls: EnvironmentUrlData?
+        var environmentUrls: EnvironmentURLData?
     }
 
     /// Domain model for an account's API tokens.

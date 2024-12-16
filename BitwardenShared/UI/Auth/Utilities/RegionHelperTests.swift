@@ -129,20 +129,20 @@ class RegionHelperTests: BitwardenTestCase {
 
     /// `loadRegion()` with pre auth region
     func test_loadRegion_selfHosted() async throws {
-        stateService.preAuthEnvironmentUrls = EnvironmentUrlData(base: URL(string: "https://selfhosted.com"))
+        stateService.preAuthEnvironmentUrls = EnvironmentURLData(base: URL(string: "https://selfhosted.com"))
         await subject.loadRegion()
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .selfHosted)
-        XCTAssertEqual(regionDelegate.setRegionUrls, EnvironmentUrlData(base: URL(string: "https://selfhosted.com")))
+        XCTAssertEqual(regionDelegate.setRegionUrls, EnvironmentURLData(base: URL(string: "https://selfhosted.com")))
     }
 }
 
 class MockRegionDelegate: RegionDelegate {
     var setRegionCalled = false
     var setRegionType: RegionType?
-    var setRegionUrls: EnvironmentUrlData?
+    var setRegionUrls: EnvironmentURLData?
 
-    func setRegion(_ region: BitwardenShared.RegionType, _ urls: BitwardenShared.EnvironmentUrlData) async {
+    func setRegion(_ region: BitwardenShared.RegionType, _ urls: BitwardenShared.EnvironmentURLData) async {
         setRegionCalled = true
         setRegionType = region
         setRegionUrls = urls

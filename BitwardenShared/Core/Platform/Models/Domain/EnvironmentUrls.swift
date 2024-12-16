@@ -43,13 +43,13 @@ struct EnvironmentUrls: Equatable {
 }
 
 extension EnvironmentUrls {
-    /// Initialize `EnvironmentUrls` from `EnvironmentUrlData`.
+    /// Initialize `EnvironmentUrls` from `EnvironmentURLData`.
     ///
     /// - Parameter environmentUrlData: The environment URLs used to initialize `EnvironmentUrls`.
     ///
-    init(environmentUrlData: EnvironmentUrlData) {
+    init(environmentUrlData: EnvironmentURLData) {
         // Use the default URLs if the region matches US or EU.
-        let environmentUrlData: EnvironmentUrlData = switch environmentUrlData.region {
+        let environmentUrlData: EnvironmentURLData = switch environmentUrlData.region {
         case .europe: .defaultEU
         case .unitedStates: .defaultUS
         case .selfHosted: environmentUrlData

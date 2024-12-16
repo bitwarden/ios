@@ -56,7 +56,7 @@ protocol EnvironmentService {
     ///
     /// - Parameter urls: The URLs to set and use prior to user authentication.
     ///
-    func setPreAuthURLs(urls: EnvironmentUrlData) async
+    func setPreAuthURLs(urls: EnvironmentURLData) async
 }
 
 // MARK: - DefaultEnvironmentService
@@ -101,7 +101,7 @@ class DefaultEnvironmentService: EnvironmentService {
     // MARK: EnvironmentService
 
     func loadURLsForActiveAccount() async {
-        let urls: EnvironmentUrlData
+        let urls: EnvironmentURLData
         let managedSettingsUrls = managedSettingsUrls()
         if let environmentUrls = try? await stateService.getEnvironmentUrls() {
             urls = environmentUrls
@@ -122,7 +122,7 @@ class DefaultEnvironmentService: EnvironmentService {
         Logger.application.info("Loaded environment URLs: \(String(describing: self.environmentUrls))")
     }
 
-    func setPreAuthURLs(urls: EnvironmentUrlData) async {
+    func setPreAuthURLs(urls: EnvironmentURLData) async {
         await stateService.setPreAuthEnvironmentUrls(urls)
         environmentUrls = EnvironmentUrls(environmentUrlData: urls)
 
@@ -138,14 +138,14 @@ class DefaultEnvironmentService: EnvironmentService {
     ///
     /// - Returns: The environment URLs that are specified as part of a managed app configuration.
     ///
-    private func managedSettingsUrls() -> EnvironmentUrlData? {
+    private func managedSettingsUrls() -> EnvironmentURLData? {
         let managedSettings = standardUserDefaults.dictionary(forKey: "com.apple.configuration.managed")
         guard let baseUrlString = managedSettings?["baseEnvironmentUrl"] as? String,
               let baseUrl = URL(string: baseUrlString)
         else {
             return nil
         }
-        return EnvironmentUrlData(base: baseUrl)
+        return EnvironmentURLData(base: baseUrl)
     }
 }
 
@@ -183,9 +183,9 @@ extension DefaultEnvironmentService {
     }
 
     var region: RegionType {
-        if environmentUrls.baseURL == EnvironmentUrlData.defaultUS.base {
+        if environmentUrls.baseURL == EnvironmentURLData.defaultUS.base {
             return .unitedStates
-        } else if environmentUrls.baseURL == EnvironmentUrlData.defaultEU.base {
+        } else if environmentUrls.baseURL == EnvironmentURLData.defaultEU.base {
             return .europe
         } else {
             return .selfHosted

@@ -8,7 +8,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
     /// `init(environmentUrlData:)` sets the URLs from the passed data when such data is the default US.
     func test_init_environmentUrlData_defaultUS() {
         let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData.defaultUS
+            environmentUrlData: EnvironmentURLData.defaultUS
         )
         XCTAssertEqual(
             subject,
@@ -32,7 +32,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
     /// `init(environmentUrlData:)` sets the URLs from the passed data when such data is the default EU.
     func test_init_environmentUrlData_defaultEU() {
         let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData.defaultEU
+            environmentUrlData: EnvironmentURLData.defaultEU
         )
         XCTAssertEqual(
             subject,
@@ -57,7 +57,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
     /// `.unitedStates` nor `.europe` region type.
     func test_init_environmentUrlData_baseUrl() {
         let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://example.com")!)
+            environmentUrlData: EnvironmentURLData(base: URL(string: "https://example.com")!)
         )
         XCTAssertEqual(
             subject,
@@ -81,7 +81,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
     /// `init(environmentUrlData:)` defaults to the pre-defined EU URLs if the base URL matches the EU environment.
     func test_init_environmentUrlData_baseUrl_europe() {
         let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.eu")!)
+            environmentUrlData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.eu")!)
         )
         XCTAssertEqual(
             subject,
@@ -105,7 +105,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
     /// `init(environmentUrlData:)` defaults to the pre-defined US URLs if the base URL matches the US environment.
     func test_init_environmentUrlData_baseUrl_unitedStates() {
         let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
+            environmentUrlData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
         )
         XCTAssertEqual(
             subject,
@@ -129,7 +129,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
     /// `init(environmentUrlData:)` sets the URLs from the base URL which includes a trailing slash.
     func test_init_environmentUrlData_baseUrlWithTrailingSlash() {
         let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://example.com/")!)
+            environmentUrlData: EnvironmentURLData(base: URL(string: "https://example.com/")!)
         )
         XCTAssertEqual(
             subject,
@@ -153,7 +153,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
     /// `init(environmentUrlData:)` sets the URLs based on the corresponding URL if there isn't a base URL.
     func test_init_environmentUrlData_custom() {
         let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(
+            environmentUrlData: EnvironmentURLData(
                 api: URL(string: "https://api.example.com")!,
                 events: URL(string: "https://events.example.com")!,
                 icons: URL(string: "https://icons.example.com")!,
@@ -182,7 +182,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
 
     /// `init(environmentUrlData:)` sets the URLs to default values if the URLs are empty.
     func test_init_environmentUrlData_empty() {
-        let subject = EnvironmentUrls(environmentUrlData: EnvironmentUrlData())
+        let subject = EnvironmentUrls(environmentUrlData: EnvironmentURLData())
         XCTAssertEqual(
             subject,
             EnvironmentUrls(

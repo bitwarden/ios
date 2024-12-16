@@ -180,7 +180,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID associated with the environment URLs.
     /// - Returns: The user's environment URLs.
     ///
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
+    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentURLData?
 
     /// Gets the events stored to disk to be uploaded in the future.
     ///
@@ -254,14 +254,14 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The environment URLs used prior to user authentication.
     ///
-    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
+    func getPreAuthEnvironmentUrls() async -> EnvironmentURLData?
 
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
     /// - Returns: The environment URLs used prior to start the account creation.
     ///
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData?
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentURLData?
 
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
@@ -581,14 +581,14 @@ protocol StateService: AnyObject {
     ///
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
-    func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+    func setPreAuthEnvironmentUrls(_ urls: EnvironmentURLData) async
 
     /// Sets the environment URLs for a given email during account creation.
     /// - Parameters:
     ///   - urls: The environment urls used to start the account creation.
     ///   - email: The email used to start the account creation.
     ///
-    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentURLData, email: String) async
 
     /// Sets the server config used prior to user authentication
     /// - Parameter config: The server config to use prior to user authentication.
@@ -867,7 +867,7 @@ extension StateService {
     ///
     /// - Returns: The environment URLs for the active account.
     ///
-    func getEnvironmentUrls() async throws -> EnvironmentUrlData? {
+    func getEnvironmentUrls() async throws -> EnvironmentURLData? {
         try await getEnvironmentUrls(userId: nil)
     }
 
@@ -1450,7 +1450,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.encryptedPin(userId: userId)
     }
 
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
+    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentURLData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
     }
@@ -1502,11 +1502,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.passwordGenerationOptions(userId: userId)
     }
 
-    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
+    func getPreAuthEnvironmentUrls() async -> EnvironmentURLData? {
         appSettingsStore.preAuthEnvironmentUrls
     }
 
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentURLData? {
         appSettingsStore.accountCreationEnvironmentUrls(email: email)
     }
 
@@ -1786,11 +1786,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         ].pinProtectedUserKey = pinProtectedUserKey
     }
 
-    func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
+    func setPreAuthEnvironmentUrls(_ urls: EnvironmentURLData) async {
         appSettingsStore.preAuthEnvironmentUrls = urls
     }
 
-    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async {
+    func setAccountCreationEnvironmentUrls(urls: EnvironmentURLData, email: String) async {
         appSettingsStore.setAccountCreationEnvironmentUrls(
             environmentUrlData: urls,
             email: email

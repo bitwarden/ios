@@ -338,7 +338,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
     @MainActor
     func test_navigate_login() throws {
-        appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData.defaultEU
+        appSettingsStore.preAuthEnvironmentUrls = EnvironmentURLData.defaultEU
         subject.navigate(to: .login(username: "username"))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
@@ -356,7 +356,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.login` pushes the login view onto the stack navigator and hides the back button.
     @MainActor
     func test_navigate_login_newAccount() throws {
-        appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData.defaultEU
+        appSettingsStore.preAuthEnvironmentUrls = EnvironmentURLData.defaultEU
         subject.navigate(to: .login(username: "username", isNewAccount: true))
 
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)
@@ -377,7 +377,7 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// It also initializes `LoginState` with the self-hosted URL host.
     @MainActor
     func test_navigate_login_selfHosted() async throws {
-        appSettingsStore.preAuthEnvironmentUrls = EnvironmentUrlData(webVault: URL(string: "http://www.example.com")!)
+        appSettingsStore.preAuthEnvironmentUrls = EnvironmentURLData(webVault: URL(string: "http://www.example.com")!)
         subject.navigate(to: .login(username: "username"))
 
         let viewController = try XCTUnwrap(

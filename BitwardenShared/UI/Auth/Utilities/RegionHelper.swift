@@ -64,9 +64,9 @@ class RegionHelper {
             return
         }
 
-        if urls.base == EnvironmentUrlData.defaultUS.base {
+        if urls.base == EnvironmentURLData.defaultUS.base {
             await delegate?.setRegion(.unitedStates, urls)
-        } else if urls.base == EnvironmentUrlData.defaultEU.base {
+        } else if urls.base == EnvironmentURLData.defaultEU.base {
             await delegate?.setRegion(.europe, urls)
         } else {
             await delegate?.setRegion(.selfHosted, urls)
@@ -85,5 +85,5 @@ protocol RegionDelegate: AnyObject {
     ///   - region: The region to use.
     ///   - urls: The URLs that the app should use for the region.
     ///
-    func setRegion(_ region: RegionType, _ urls: EnvironmentUrlData) async
+    func setRegion(_ region: RegionType, _ urls: EnvironmentURLData) async
 }

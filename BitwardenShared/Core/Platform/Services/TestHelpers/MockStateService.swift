@@ -34,7 +34,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var encryptedPinByUserId = [String: String]()
-    var environmentUrls = [String: EnvironmentUrlData]()
+    var environmentUrls = [String: EnvironmentURLData]()
     var environmentUrlsError: Error?
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
@@ -58,8 +58,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
-    var preAuthEnvironmentUrls: EnvironmentUrlData?
-    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
+    var preAuthEnvironmentUrls: EnvironmentURLData?
+    var accountCreationEnvironmentUrls = [String: EnvironmentURLData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
     var reviewPromptData: ReviewPromptData?
@@ -229,7 +229,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return encryptedPinByUserId[userId] ?? nil
     }
 
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
+    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentURLData? {
         if let environmentUrlsError {
             throw environmentUrlsError
         }
@@ -284,11 +284,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return passwordGenerationOptions[userId]
     }
 
-    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
+    func getPreAuthEnvironmentUrls() async -> EnvironmentURLData? {
         preAuthEnvironmentUrls
     }
 
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
+    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentURLData? {
         accountCreationEnvironmentUrls[email]
     }
 
@@ -469,7 +469,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = pin
     }
 
-    func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
+    func setEnvironmentUrls(_ environmentUrls: EnvironmentURLData, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.environmentUrls[userId] = environmentUrls
     }
@@ -557,11 +557,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         ].pinProtectedUserKey = pin
     }
 
-    func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {
+    func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentURLData) async {
         preAuthEnvironmentUrls = urls
     }
 
-    func setAccountCreationEnvironmentUrls(urls: BitwardenShared.EnvironmentUrlData, email: String) async {
+    func setAccountCreationEnvironmentUrls(urls: BitwardenShared.EnvironmentURLData, email: String) async {
         accountCreationEnvironmentUrls[email] = urls
     }
 

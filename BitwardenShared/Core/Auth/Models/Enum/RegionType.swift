@@ -30,7 +30,7 @@ public enum RegionType: CaseIterable, Sendable {
     }
 
     /// The default URLs for the region.
-    var defaultURLs: EnvironmentUrlData? {
+    var defaultURLs: EnvironmentURLData? {
         switch self {
         case .europe:
             return .defaultEU

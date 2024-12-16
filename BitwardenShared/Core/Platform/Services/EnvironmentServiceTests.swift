@@ -58,7 +58,7 @@ class EnvironmentServiceTests: XCTestCase {
 
     /// `loadURLsForActiveAccount()` loads the URLs for the active account.
     func test_loadURLsForActiveAccount() async {
-        let urls = EnvironmentUrlData(base: .example)
+        let urls = EnvironmentURLData(base: .example)
         let account = Account.fixture(settings: .fixture(environmentUrls: urls))
         stateService.activeAccount = account
         stateService.environmentUrls = [account.profile.userId: urls]
@@ -86,7 +86,7 @@ class EnvironmentServiceTests: XCTestCase {
 
     /// `loadURLsForActiveAccount()` handles EU URLs
     func test_loadURLsForActiveAccount_europe() async {
-        let urls = EnvironmentUrlData.defaultEU
+        let urls = EnvironmentURLData.defaultEU
         let account = Account.fixture(settings: .fixture(environmentUrls: urls))
         stateService.activeAccount = account
         stateService.environmentUrls = [account.profile.userId: urls]
@@ -122,7 +122,7 @@ class EnvironmentServiceTests: XCTestCase {
 
         await subject.loadURLsForActiveAccount()
 
-        let urls = try EnvironmentUrlData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
+        let urls = try EnvironmentURLData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
         XCTAssertEqual(subject.apiURL, URL(string: "https://vault.example.com/api"))
         XCTAssertEqual(subject.baseURL, URL(string: "https://vault.example.com"))
         XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.example.com/#/settings/account"))
@@ -168,7 +168,7 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
 
-        let urls = try EnvironmentUrlData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
+        let urls = try EnvironmentURLData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
     }
 
@@ -200,7 +200,7 @@ class EnvironmentServiceTests: XCTestCase {
     /// `loadURLsForActiveAccount()` loads the preAuth URLs if there's no active account
     /// and there are preauth URLs.
     func test_loadURLsForActiveAccount_preAuth() async {
-        let urls = EnvironmentUrlData(base: .example)
+        let urls = EnvironmentURLData(base: .example)
         stateService.preAuthEnvironmentUrls = urls
 
         await subject.loadURLsForActiveAccount()
@@ -227,7 +227,7 @@ class EnvironmentServiceTests: XCTestCase {
 
     /// `setPreAuthURLs(urls:)` sets the pre-auth URLs.
     func test_setPreAuthURLs() async {
-        let urls = EnvironmentUrlData(base: .example)
+        let urls = EnvironmentURLData(base: .example)
 
         await subject.setPreAuthURLs(urls: urls)
 

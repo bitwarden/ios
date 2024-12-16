@@ -294,7 +294,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
     /// email and base URLs.
     func test_existingAccountUserId() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
         stateService.environmentUrls["1"] = .defaultUS
         stateService.isAuthenticated["1"] = true
@@ -307,7 +307,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `existingAccountUserId(email:)` returns `nil` if getting the environment URLs throws an error.
     func test_existingAccountUserId_getEnvironmentUrlsError() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
         stateService.environmentUrlsError = StateServiceError.noAccounts
         stateService.isAuthenticated["1"] = true
@@ -320,7 +320,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `existingAccountUserId(email:)` logs an error if determining whether an account is authenticated fails.
     func test_existingAccountUserId_isAuthenticatedError() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
         stateService.environmentUrls["1"] = .defaultUS
         stateService.isAuthenticatedError = BitwardenTestError.example
@@ -335,7 +335,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `existingAccountUserId(email:)` returns `nil` if there's an existing account with the same
     /// email but the base URLs are different.
     func test_existingAccountUserId_matchingAccountDifferentBaseUrl() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultEU.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
         stateService.environmentUrls["1"] = .defaultUS
         stateService.isAuthenticated["1"] = true
@@ -356,11 +356,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.isAuthenticated["2"] = true
         stateService.userIds = ["1", "2"]
 
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         var userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
         XCTAssertEqual(userId, "1")
 
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultEU.base)
         userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
         XCTAssertEqual(userId, "2")
     }
@@ -368,7 +368,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `existingAccountUserId(email:)` returns `nil` if there's an existing matching account, but
     /// the user isn't authenticated.
     func test_existingAccountUserId_notAuthenticated() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
         stateService.environmentUrls["1"] = .defaultUS
         stateService.isAuthenticated["1"] = false
@@ -1573,7 +1573,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `setActiveAccount(userId: )` loads the environment URLs for the active account.
     func test_setActiveAccount_loadsEnvironmentUrls() async throws {
-        let urls = EnvironmentUrlData(base: .example)
+        let urls = EnvironmentURLData(base: .example)
         let account = Account.fixture(settings: .fixture(environmentUrls: urls))
         stateService.accounts = [account]
         _ = try await subject.setActiveAccount(userId: account.profile.userId)

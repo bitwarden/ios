@@ -692,7 +692,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultUS)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                EnvironmentUrlData.self,
+                EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
@@ -706,7 +706,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultEU)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                EnvironmentUrlData.self,
+                EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
@@ -729,7 +729,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultUS)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                EnvironmentUrlData.self,
+                EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
@@ -743,7 +743,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultEU)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                EnvironmentUrlData.self,
+                EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?

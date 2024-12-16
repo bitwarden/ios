@@ -536,12 +536,12 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_didSaveEnvironment() async {
         subject.state.region = .unitedStates
-        await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
+        await subject.didSaveEnvironment(urls: EnvironmentURLData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
             environmentService.setPreAuthEnvironmentUrlsData,
-            EnvironmentUrlData(base: .example)
+            EnvironmentURLData(base: .example)
         )
     }
 
@@ -549,7 +549,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_didSaveEnvironment_empty() async {
         subject.state.region = .unitedStates
-        await subject.didSaveEnvironment(urls: EnvironmentUrlData())
+        await subject.didSaveEnvironment(urls: EnvironmentURLData())
         XCTAssertEqual(subject.state.region, .unitedStates)
         XCTAssertNil(environmentService.setPreAuthEnvironmentUrlsData)
     }
@@ -590,7 +590,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// and sets the URLs to the environment.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_selfHosted() async {
-        let urls = EnvironmentUrlData(base: .example)
+        let urls = EnvironmentURLData(base: .example)
         stateService.preAuthEnvironmentUrls = urls
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .selfHosted)

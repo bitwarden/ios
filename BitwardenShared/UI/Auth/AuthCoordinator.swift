@@ -512,7 +512,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
         let environmentUrls = EnvironmentUrls(
-            environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+            environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentURLData()
         )
 
         let state = LoginState(
@@ -667,7 +667,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///   - currentRegion: The user's region prior to showing the self-hosted settings view.
     ///
     private func showSelfHostedView(delegate: SelfHostedProcessorDelegate?, currentRegion: RegionType) {
-        let preAuthEnvironmentUrls = services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+        let preAuthEnvironmentUrls = services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentURLData()
         var state = SelfHostedState()
 
         if currentRegion == .selfHosted {
