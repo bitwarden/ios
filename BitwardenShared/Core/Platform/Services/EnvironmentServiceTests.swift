@@ -41,13 +41,18 @@ class EnvironmentServiceTests: XCTestCase {
     /// The default US URLs are returned if the URLs haven't been loaded.
     func test_defaultUrls() {
         XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
+        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
+        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.com/#/settings/account"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
     }
 
@@ -61,13 +66,17 @@ class EnvironmentServiceTests: XCTestCase {
         await subject.loadURLsForActiveAccount()
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
+        XCTAssertEqual(subject.baseURL, URL(string: "https://example.com"))
+        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://example.com/#/settings/account"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
+        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://example.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
 
@@ -85,13 +94,18 @@ class EnvironmentServiceTests: XCTestCase {
         await subject.loadURLsForActiveAccount()
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.eu"))
+        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.eu"))
+        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.eu/#/settings/account"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.eu"))
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.eu"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.eu"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.eu/#/tools/import"))
+        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.eu/#/recover-2fa"))
         XCTAssertEqual(subject.region, .europe)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.bitwarden.eu/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.eu/#/settings"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.eu"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
 
@@ -110,13 +124,18 @@ class EnvironmentServiceTests: XCTestCase {
 
         let urls = try EnvironmentUrlData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
         XCTAssertEqual(subject.apiURL, URL(string: "https://vault.example.com/api"))
+        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.example.com"))
+        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.example.com/#/settings/account"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://vault.example.com/events"))
         XCTAssertEqual(subject.iconsURL, URL(string: "https://vault.example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://vault.example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.example.com/#/tools/import"))
+        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://vault.example.com/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.example.com/#/settings"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.example.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
     }
@@ -135,13 +154,18 @@ class EnvironmentServiceTests: XCTestCase {
         await subject.loadURLsForActiveAccount()
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
+        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
+        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.com/#/settings/account"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
 
         let urls = try EnvironmentUrlData(base: XCTUnwrap(URL(string: "https://vault.example.com")))
@@ -154,13 +178,18 @@ class EnvironmentServiceTests: XCTestCase {
         await subject.loadURLsForActiveAccount()
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://api.bitwarden.com"))
+        XCTAssertEqual(subject.baseURL, URL(string: "https://vault.bitwarden.com"))
+        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://vault.bitwarden.com/#/settings/account"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://events.bitwarden.com"))
         XCTAssertEqual(subject.iconsURL, URL(string: "https://icons.bitwarden.net"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://identity.bitwarden.com"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://vault.bitwarden.com/#/tools/import"))
+        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://vault.bitwarden.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .unitedStates)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://send.bitwarden.com/#"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://vault.bitwarden.com/#/settings"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://vault.bitwarden.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, .defaultUS)
 
@@ -177,13 +206,18 @@ class EnvironmentServiceTests: XCTestCase {
         await subject.loadURLsForActiveAccount()
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
+        XCTAssertEqual(subject.baseURL, URL(string: "https://example.com"))
+        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://example.com/#/settings/account"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://example.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
 
@@ -198,13 +232,18 @@ class EnvironmentServiceTests: XCTestCase {
         await subject.setPreAuthURLs(urls: urls)
 
         XCTAssertEqual(subject.apiURL, URL(string: "https://example.com/api"))
+        XCTAssertEqual(subject.baseURL, URL(string: "https://example.com"))
+        XCTAssertEqual(subject.changeEmailURL, URL(string: "https://example.com/#/settings/account"))
         XCTAssertEqual(subject.eventsURL, URL(string: "https://example.com/events"))
         XCTAssertEqual(subject.iconsURL, URL(string: "https://example.com/icons"))
         XCTAssertEqual(subject.identityURL, URL(string: "https://example.com/identity"))
         XCTAssertEqual(subject.importItemsURL, URL(string: "https://example.com/#/tools/import"))
+        XCTAssertEqual(subject.recoveryCodeURL, URL(string: "https://example.com/#/recover-2fa"))
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
+        // swiftlint:disable:next line_length
+        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://example.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
         XCTAssertEqual(errorReporter.region?.region, "Self-Hosted")
