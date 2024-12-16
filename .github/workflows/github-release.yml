@@ -7,6 +7,14 @@ on:
         description: 'GitHub Action Run ID containing artifacts'
         required: true
         type: string
+      version-name:
+        description: 'Version Name Override - E.g. "2024.11.1"'
+        required: true
+        type: string
+      version-number:
+        description: 'Version Number Override - E.g. "123456"'
+        required: true
+        type: string
       draft:
         description: 'Create as draft release'
         type: boolean
@@ -83,6 +91,19 @@ jobs:
       - name: Parse version info
         id: version_info
         run: |
+          if [ ! -f ARTIFACTS_PATH/version_info.zip ]; then
+            echo "::warning::version-version.zip not found. Confirm why the build workflow skipped uploading it."
+            if [[ -z "$version_name" || -z "$version_number" ]]; then
+              echo "::error::version-info.json not found and version-name/version-number are empty. Cannot proceed with release."
+              exit 1
+            fi
+
+            echo "version_number=$version_number" >> $GITHUB_OUTPUT
+            echo "version_name=$version_name" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # version-info.zip was found, extracting info
           unzip -o "$ARTIFACTS_PATH/version-info.zip" -d "tmp"
           filepath="tmp/version-info/version_info.json"
           version_name=$(jq -r '.version_name' "$filepath")
