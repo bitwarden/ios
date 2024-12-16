@@ -334,7 +334,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `existingAccountUserId(email:)` returns `nil` if there's an existing account with the same
     /// email but the base URLs are different.
-    func test_existingAccountUserId_matchingAccountDifferentBaseUrl() async throws {
+    func test_existingAccountUserId_matchingAccountDifferentBaseURL() async throws {
         environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultEU.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
         stateService.environmentURLs["1"] = .defaultUS

@@ -742,7 +742,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 service: .addyIo(
                     apiToken: "ADDY IO TOKEN",
                     domain: "addy-example.com",
-                    baseUrl: "https://app.addy.io"
+                    baseURL: "https://app.addy.io"
                 ),
                 website: "example.com"
             )

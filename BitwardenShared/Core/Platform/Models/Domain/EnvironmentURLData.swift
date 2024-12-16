@@ -133,8 +133,8 @@ extension EnvironmentURLData {
         // Foundation's URL appending methods percent encode the path component that is passed into the method,
         // which includes the `#` symbol. Since the `#` character is a critical portion of these urls, we use String
         // concatenation to get around this limitation.
-        if let baseUrl = webVault ?? base,
-           let url = URL(string: baseUrl.sanitized.absoluteString.appending("/#/\(additionalPath)")) {
+        if let baseURL = webVault ?? base,
+           let url = URL(string: baseURL.sanitized.absoluteString.appending("/#/\(additionalPath)")) {
             return url
         }
         return nil

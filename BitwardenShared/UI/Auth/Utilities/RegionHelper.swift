@@ -35,7 +35,7 @@ class RegionHelper {
     ///
     func presentRegionSelectorAlert(title: String, currentRegion: RegionType?) async {
         let actions = RegionType.allCases.map { region in
-            AlertAction(title: region.baseUrlDescription, style: .default) { _ in
+            AlertAction(title: region.baseURLDescription, style: .default) { _ in
                 if let urls = region.defaultURLs {
                     await self.delegate?.setRegion(region, urls)
                 } else {

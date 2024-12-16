@@ -21,7 +21,7 @@ public enum RegionType: CaseIterable, Sendable {
     }
 
     /// A description of the base url for this region.
-    var baseUrlDescription: String {
+    var baseURLDescription: String {
         switch self {
         case .europe: return "bitwarden.eu"
         case .selfHosted: return Localizations.selfHosted

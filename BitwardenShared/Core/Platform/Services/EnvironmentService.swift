@@ -140,12 +140,12 @@ class DefaultEnvironmentService: EnvironmentService {
     ///
     private func managedSettingsUrls() -> EnvironmentURLData? {
         let managedSettings = standardUserDefaults.dictionary(forKey: "com.apple.configuration.managed")
-        guard let baseUrlString = managedSettings?["baseEnvironmentUrl"] as? String,
-              let baseUrl = URL(string: baseUrlString)
+        guard let baseURLString = managedSettings?["baseEnvironmentUrl"] as? String,
+              let baseURL = URL(string: baseURLString)
         else {
             return nil
         }
-        return EnvironmentURLData(base: baseUrl)
+        return EnvironmentURLData(base: baseURL)
     }
 }
 

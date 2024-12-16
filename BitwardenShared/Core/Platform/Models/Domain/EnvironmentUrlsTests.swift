@@ -55,7 +55,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
 
     /// `init(environmentURLData:)` sets the URLs from the base URL if one is set and is not
     /// `.unitedStates` nor `.europe` region type.
-    func test_init_environmentURLData_baseUrl() {
+    func test_init_environmentURLData_baseURL() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com")!)
         )
@@ -79,7 +79,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` defaults to the pre-defined EU URLs if the base URL matches the EU environment.
-    func test_init_environmentURLData_baseUrl_europe() {
+    func test_init_environmentURLData_baseURL_europe() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.eu")!)
         )
@@ -103,7 +103,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` defaults to the pre-defined US URLs if the base URL matches the US environment.
-    func test_init_environmentURLData_baseUrl_unitedStates() {
+    func test_init_environmentURLData_baseURL_unitedStates() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
         )
@@ -127,7 +127,7 @@ class EnvironmentURLsTests: BitwardenTestCase {
     }
 
     /// `init(environmentURLData:)` sets the URLs from the base URL which includes a trailing slash.
-    func test_init_environmentURLData_baseUrlWithTrailingSlash() {
+    func test_init_environmentURLData_baseURLWithTrailingSlash() {
         let subject = EnvironmentURLs(
             environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com/")!)
         )
