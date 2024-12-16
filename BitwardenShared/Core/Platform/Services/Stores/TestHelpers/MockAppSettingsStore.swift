@@ -259,8 +259,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId] = key
     }
 
-    func setAccountCreationEnvironmentUrls(environmentUrlData: BitwardenShared.EnvironmentURLData, email: String) {
-        accountCreationEnvironmentUrls[email] = environmentUrlData
+    func setAccountCreationEnvironmentUrls(environmentURLData: BitwardenShared.EnvironmentURLData, email: String) {
+        accountCreationEnvironmentUrls[email] = environmentURLData
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {

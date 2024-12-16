@@ -512,7 +512,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
         let environmentUrls = EnvironmentUrls(
-            environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentURLData()
+            environmentURLData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentURLData()
         )
 
         let state = LoginState(

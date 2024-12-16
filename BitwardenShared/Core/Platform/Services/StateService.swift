@@ -1792,7 +1792,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setAccountCreationEnvironmentUrls(urls: EnvironmentURLData, email: String) async {
         appSettingsStore.setAccountCreationEnvironmentUrls(
-            environmentUrlData: urls,
+            environmentURLData: urls,
             email: email
         )
     }

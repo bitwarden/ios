@@ -820,7 +820,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getAccountCreationEnvironmentUrls() async {
         let email = "example@email.com"
         let urls = EnvironmentURLData(base: .example)
-        appSettingsStore.setAccountCreationEnvironmentUrls(environmentUrlData: urls, email: email)
+        appSettingsStore.setAccountCreationEnvironmentUrls(environmentURLData: urls, email: email)
         let preAuthUrls = await subject.getAccountCreationEnvironmentUrls(email: email)
         XCTAssertEqual(preAuthUrls, urls)
     }

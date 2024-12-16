@@ -725,7 +725,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `accountCreationEnvironmentUrls` can be used to get and set the persisted value in user defaults.
     func test_accountCreationEnvironmentUrls_withValue() {
         let email = "example@email.com"
-        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultUS, email: email)
+        subject.setAccountCreationEnvironmentUrls(environmentURLData: .defaultUS, email: email)
         XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultUS)
         try XCTAssertEqual(
             JSONDecoder().decode(
@@ -739,7 +739,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             .defaultUS
         )
 
-        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultEU, email: email)
+        subject.setAccountCreationEnvironmentUrls(environmentURLData: .defaultEU, email: email)
         XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultEU)
         try XCTAssertEqual(
             JSONDecoder().decode(

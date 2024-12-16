@@ -418,9 +418,9 @@ protocol AppSettingsStore: AnyObject {
     ///
     /// - Parameters:
     ///  - email: The user's email address.
-    ///  - environmentUrlData: The environment data to be saved.
+    ///  - environmentURLData: The environment data to be saved.
     ///
-    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentURLData, email: String)
+    func setAccountCreationEnvironmentUrls(environmentURLData: EnvironmentURLData, email: String)
 
     /// Sets the server config.
     ///
@@ -1095,8 +1095,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
-    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentURLData, email: String) {
-        store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
+    func setAccountCreationEnvironmentUrls(environmentURLData: EnvironmentURLData, email: String) {
+        store(environmentURLData, for: .accountCreationEnvironmentUrls(email: email))
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {

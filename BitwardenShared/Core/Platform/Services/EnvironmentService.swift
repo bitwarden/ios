@@ -95,7 +95,7 @@ class DefaultEnvironmentService: EnvironmentService {
         self.stateService = stateService
         self.standardUserDefaults = standardUserDefaults
 
-        environmentUrls = EnvironmentUrls(environmentUrlData: .defaultUS)
+        environmentUrls = EnvironmentUrls(environmentURLData: .defaultUS)
     }
 
     // MARK: EnvironmentService
@@ -114,7 +114,7 @@ class DefaultEnvironmentService: EnvironmentService {
         }
 
         await setPreAuthURLs(urls: managedSettingsUrls ?? urls)
-        environmentUrls = EnvironmentUrls(environmentUrlData: urls)
+        environmentUrls = EnvironmentUrls(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
 
@@ -124,7 +124,7 @@ class DefaultEnvironmentService: EnvironmentService {
 
     func setPreAuthURLs(urls: EnvironmentURLData) async {
         await stateService.setPreAuthEnvironmentUrls(urls)
-        environmentUrls = EnvironmentUrls(environmentUrlData: urls)
+        environmentUrls = EnvironmentUrls(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: true)
 
