@@ -102,18 +102,18 @@ class DefaultEnvironmentService: EnvironmentService {
 
     func loadURLsForActiveAccount() async {
         let urls: EnvironmentURLData
-        let managedSettingsUrls = managedSettingsUrls()
+        let managedSettingsURLs = managedSettingsURLs()
         if let environmentURLs = try? await stateService.getEnvironmentURLs() {
             urls = environmentURLs
-        } else if let managedSettingsUrls {
-            urls = managedSettingsUrls
-        } else if let preAuthUrls = await stateService.getPreAuthEnvironmentURLs() {
-            urls = preAuthUrls
+        } else if let managedSettingsURLs {
+            urls = managedSettingsURLs
+        } else if let preAuthURLs = await stateService.getPreAuthEnvironmentURLs() {
+            urls = preAuthURLs
         } else {
             urls = .defaultUS
         }
 
-        await setPreAuthURLs(urls: managedSettingsUrls ?? urls)
+        await setPreAuthURLs(urls: managedSettingsURLs ?? urls)
         environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
@@ -138,7 +138,7 @@ class DefaultEnvironmentService: EnvironmentService {
     ///
     /// - Returns: The environment URLs that are specified as part of a managed app configuration.
     ///
-    private func managedSettingsUrls() -> EnvironmentURLData? {
+    private func managedSettingsURLs() -> EnvironmentURLData? {
         let managedSettings = standardUserDefaults.dictionary(forKey: "com.apple.configuration.managed")
         guard let baseURLString = managedSettings?["baseEnvironmentUrl"] as? String,
               let baseURL = URL(string: baseURLString)
