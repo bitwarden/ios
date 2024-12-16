@@ -221,7 +221,7 @@ extension GeneratorState.UsernameState {
             ForwarderServiceType.addyIo(
                 apiToken: addyIOAPIAccessToken,
                 domain: addyIODomainName,
-                baseURL: "https://app.addy.io"
+                baseUrl: "https://app.addy.io"
             )
         case .duckDuckGo:
             ForwarderServiceType.duckDuckGo(token: duckDuckGoAPIKey)
