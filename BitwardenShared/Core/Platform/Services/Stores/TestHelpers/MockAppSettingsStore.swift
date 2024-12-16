@@ -3,8 +3,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockAppSettingsStore: AppSettingsStore {
-    // swiftlint:disable:this type_body_length
+class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_body_length
     var accountSetupAutofill = [String: AccountSetupProgress]()
     var accountSetupImportLogins = [String: AccountSetupProgress]()
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
