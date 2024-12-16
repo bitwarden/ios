@@ -681,35 +681,35 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinKeyEncryptedUserKey_1"), pin)
     }
 
-    /// `preAuthEnvironmentUrls` returns `nil` if there isn't a previously stored value.
-    func test_preAuthEnvironmentUrls_isInitiallyNil() {
-        XCTAssertNil(subject.preAuthEnvironmentUrls)
+    /// `preAuthEnvironmentURLs` returns `nil` if there isn't a previously stored value.
+    func test_preAuthEnvironmentURLs_isInitiallyNil() {
+        XCTAssertNil(subject.preAuthEnvironmentURLs)
     }
 
-    /// `preAuthEnvironmentUrls` can be used to get and set the persisted value in user defaults.
-    func test_preAuthEnvironmentUrls_withValue() {
-        subject.preAuthEnvironmentUrls = .defaultUS
-        XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultUS)
+    /// `preAuthEnvironmentURLs` can be used to get and set the persisted value in user defaults.
+    func test_preAuthEnvironmentURLs_withValue() {
+        subject.preAuthEnvironmentURLs = .defaultUS
+        XCTAssertEqual(subject.preAuthEnvironmentURLs, .defaultUS)
         try XCTAssertEqual(
             JSONDecoder().decode(
                 EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentURLs")?
                         .data(using: .utf8)
                 )
             ),
             .defaultUS
         )
 
-        subject.preAuthEnvironmentUrls = .defaultEU
-        XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultEU)
+        subject.preAuthEnvironmentURLs = .defaultEU
+        XCTAssertEqual(subject.preAuthEnvironmentURLs, .defaultEU)
         try XCTAssertEqual(
             JSONDecoder().decode(
                 EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentURLs")?
                         .data(using: .utf8)
                 )
             ),
@@ -717,36 +717,36 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `accountCreationEnvironmentUrls` returns `nil` if there isn't a previously stored value.
-    func test_accountCreationEnvironmentUrls_isInitiallyNil() {
-        XCTAssertNil(subject.accountCreationEnvironmentUrls(email: "example@email.com"))
+    /// `accountCreationEnvironmentURLs` returns `nil` if there isn't a previously stored value.
+    func test_accountCreationEnvironmentURLs_isInitiallyNil() {
+        XCTAssertNil(subject.accountCreationEnvironmentURLs(email: "example@email.com"))
     }
 
-    /// `accountCreationEnvironmentUrls` can be used to get and set the persisted value in user defaults.
-    func test_accountCreationEnvironmentUrls_withValue() {
+    /// `accountCreationEnvironmentURLs` can be used to get and set the persisted value in user defaults.
+    func test_accountCreationEnvironmentURLs_withValue() {
         let email = "example@email.com"
-        subject.setAccountCreationEnvironmentUrls(environmentURLData: .defaultUS, email: email)
-        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultUS)
+        subject.setAccountCreationEnvironmentURLs(environmentURLData: .defaultUS, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentURLs(email: email), .defaultUS)
         try XCTAssertEqual(
             JSONDecoder().decode(
                 EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentURLs_\(email)")?
                         .data(using: .utf8)
                 )
             ),
             .defaultUS
         )
 
-        subject.setAccountCreationEnvironmentUrls(environmentURLData: .defaultEU, email: email)
-        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultEU)
+        subject.setAccountCreationEnvironmentURLs(environmentURLData: .defaultEU, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentURLs(email: email), .defaultEU)
         try XCTAssertEqual(
             JSONDecoder().decode(
                 EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentURLs_\(email)")?
                         .data(using: .utf8)
                 )
             ),

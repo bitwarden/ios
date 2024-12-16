@@ -45,11 +45,11 @@ extension Account {
     ///
     /// - Parameters:
     ///   - identityTokenResponseModel: The response model from the identity token request.
-    ///   - environmentUrls: The environment URLs for an account.
+    ///   - environmentURLs: The environment URLs for an account.
     ///
     init(
         identityTokenResponseModel: IdentityTokenResponseModel,
-        environmentUrls: EnvironmentURLData?
+        environmentURLs: EnvironmentURLData?
     ) throws {
         let tokenPayload = try TokenParser.parseToken(identityTokenResponseModel.accessToken)
         self.init(
@@ -71,7 +71,7 @@ extension Account {
                 userId: tokenPayload.userId
             ),
             settings: AccountSettings(
-                environmentUrls: environmentUrls
+                environmentURLs: environmentURLs
             ),
             _tokens: nil // Tokens have been moved out of `State` to the keychain.
         )
@@ -132,7 +132,7 @@ extension Account {
         // MARK: Properties
 
         /// The environment URLs for an account.
-        var environmentUrls: EnvironmentURLData?
+        var environmentURLs: EnvironmentURLData?
     }
 
     /// Domain model for an account's API tokens.

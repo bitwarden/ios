@@ -102,7 +102,7 @@ class RegionHelperTests: BitwardenTestCase {
 
     /// `loadRegion()` with pre auth region as nil default to us
     func test_loadRegion_nil() async throws {
-        stateService.preAuthEnvironmentUrls = nil
+        stateService.preAuthEnvironmentURLs = nil
         await subject.loadRegion()
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .unitedStates)
@@ -111,7 +111,7 @@ class RegionHelperTests: BitwardenTestCase {
 
     /// `loadRegion()` with pre auth region
     func test_loadRegion_us() async throws {
-        stateService.preAuthEnvironmentUrls = .defaultUS
+        stateService.preAuthEnvironmentURLs = .defaultUS
         await subject.loadRegion()
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .unitedStates)
@@ -120,7 +120,7 @@ class RegionHelperTests: BitwardenTestCase {
 
     /// `loadRegion()` with pre auth region
     func test_loadRegion_eu() async throws {
-        stateService.preAuthEnvironmentUrls = .defaultEU
+        stateService.preAuthEnvironmentURLs = .defaultEU
         await subject.loadRegion()
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .europe)
@@ -129,7 +129,7 @@ class RegionHelperTests: BitwardenTestCase {
 
     /// `loadRegion()` with pre auth region
     func test_loadRegion_selfHosted() async throws {
-        stateService.preAuthEnvironmentUrls = EnvironmentURLData(base: URL(string: "https://selfhosted.com"))
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://selfhosted.com"))
         await subject.loadRegion()
         XCTAssertTrue(regionDelegate.setRegionCalled)
         XCTAssertEqual(regionDelegate.setRegionType, .selfHosted)

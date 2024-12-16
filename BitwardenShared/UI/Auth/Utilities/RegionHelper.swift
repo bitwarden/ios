@@ -59,7 +59,7 @@ class RegionHelper {
     /// Sets the region to the last used region.
     ///
     func loadRegion() async {
-        guard let urls = await stateService.getPreAuthEnvironmentUrls() else {
+        guard let urls = await stateService.getPreAuthEnvironmentURLs() else {
             await delegate?.setRegion(.unitedStates, .defaultUS)
             return
         }

@@ -75,7 +75,7 @@ class DefaultEnvironmentService: EnvironmentService {
     // MARK: Private Properties
 
     /// The app's current environment URLs.
-    private var environmentUrls: EnvironmentUrls
+    private var environmentURLs: EnvironmentURLs
 
     /// The shared UserDefaults instance (NOTE: this should be the standard one just for the app,
     /// not one in the app group).
@@ -95,7 +95,7 @@ class DefaultEnvironmentService: EnvironmentService {
         self.stateService = stateService
         self.standardUserDefaults = standardUserDefaults
 
-        environmentUrls = EnvironmentUrls(environmentURLData: .defaultUS)
+        environmentURLs = EnvironmentURLs(environmentURLData: .defaultUS)
     }
 
     // MARK: EnvironmentService
@@ -103,33 +103,33 @@ class DefaultEnvironmentService: EnvironmentService {
     func loadURLsForActiveAccount() async {
         let urls: EnvironmentURLData
         let managedSettingsUrls = managedSettingsUrls()
-        if let environmentUrls = try? await stateService.getEnvironmentUrls() {
-            urls = environmentUrls
+        if let environmentURLs = try? await stateService.getEnvironmentURLs() {
+            urls = environmentURLs
         } else if let managedSettingsUrls {
             urls = managedSettingsUrls
-        } else if let preAuthUrls = await stateService.getPreAuthEnvironmentUrls() {
+        } else if let preAuthUrls = await stateService.getPreAuthEnvironmentURLs() {
             urls = preAuthUrls
         } else {
             urls = .defaultUS
         }
 
         await setPreAuthURLs(urls: managedSettingsUrls ?? urls)
-        environmentUrls = EnvironmentUrls(environmentURLData: urls)
+        environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
 
         // swiftformat:disable:next redundantSelf
-        Logger.application.info("Loaded environment URLs: \(String(describing: self.environmentUrls))")
+        Logger.application.info("Loaded environment URLs: \(String(describing: self.environmentURLs))")
     }
 
     func setPreAuthURLs(urls: EnvironmentURLData) async {
-        await stateService.setPreAuthEnvironmentUrls(urls)
-        environmentUrls = EnvironmentUrls(environmentURLData: urls)
+        await stateService.setPreAuthEnvironmentURLs(urls)
+        environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: true)
 
         // swiftformat:disable:next redundantSelf
-        Logger.application.info("Setting pre-auth URLs: \(String(describing: self.environmentUrls))")
+        Logger.application.info("Setting pre-auth URLs: \(String(describing: self.environmentURLs))")
     }
 
     // MARK: Private
@@ -151,41 +151,41 @@ class DefaultEnvironmentService: EnvironmentService {
 
 extension DefaultEnvironmentService {
     var apiURL: URL {
-        environmentUrls.apiURL
+        environmentURLs.apiURL
     }
 
     var baseURL: URL {
-        environmentUrls.baseURL
+        environmentURLs.baseURL
     }
 
     var changeEmailURL: URL {
-        environmentUrls.changeEmailURL
+        environmentURLs.changeEmailURL
     }
 
     var eventsURL: URL {
-        environmentUrls.eventsURL
+        environmentURLs.eventsURL
     }
 
     var iconsURL: URL {
-        environmentUrls.iconsURL
+        environmentURLs.iconsURL
     }
 
     var identityURL: URL {
-        environmentUrls.identityURL
+        environmentURLs.identityURL
     }
 
     var importItemsURL: URL {
-        environmentUrls.importItemsURL
+        environmentURLs.importItemsURL
     }
 
     var recoveryCodeURL: URL {
-        environmentUrls.recoveryCodeURL
+        environmentURLs.recoveryCodeURL
     }
 
     var region: RegionType {
-        if environmentUrls.baseURL == EnvironmentURLData.defaultUS.base {
+        if environmentURLs.baseURL == EnvironmentURLData.defaultUS.base {
             return .unitedStates
-        } else if environmentUrls.baseURL == EnvironmentURLData.defaultEU.base {
+        } else if environmentURLs.baseURL == EnvironmentURLData.defaultEU.base {
             return .europe
         } else {
             return .selfHosted
@@ -193,18 +193,18 @@ extension DefaultEnvironmentService {
     }
 
     var sendShareURL: URL {
-        environmentUrls.sendShareURL
+        environmentURLs.sendShareURL
     }
 
     var settingsURL: URL {
-        environmentUrls.settingsURL
+        environmentURLs.settingsURL
     }
 
     var setUpTwoFactorURL: URL {
-        environmentUrls.setUpTwoFactorURL
+        environmentURLs.setUpTwoFactorURL
     }
 
     var webVaultURL: URL {
-        environmentUrls.webVaultURL
+        environmentURLs.webVaultURL
     }
 }

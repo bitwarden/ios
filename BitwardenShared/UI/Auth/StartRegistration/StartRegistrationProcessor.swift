@@ -179,11 +179,11 @@ class StartRegistrationProcessor: StateProcessor<
                     userEmail: email
                 ))
             } else {
-                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentUrls() else {
+                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentURLs() else {
                     throw StartRegistrationError.preAuthUrlsEmpty
                 }
 
-                await services.stateService.setAccountCreationEnvironmentUrls(urls: preAuthUrls, email: email)
+                await services.stateService.setAccountCreationEnvironmentURLs(urls: preAuthUrls, email: email)
                 coordinator.navigate(to: .checkEmail(email: email))
             }
         } catch let error as StartRegistrationError {

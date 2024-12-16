@@ -34,8 +34,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var encryptedPinByUserId = [String: String]()
-    var environmentUrls = [String: EnvironmentURLData]()
-    var environmentUrlsError: Error?
+    var environmentURLs = [String: EnvironmentURLData]()
+    var environmentURLsError: Error?
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
@@ -58,8 +58,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
-    var preAuthEnvironmentUrls: EnvironmentURLData?
-    var accountCreationEnvironmentUrls = [String: EnvironmentURLData]()
+    var preAuthEnvironmentURLs: EnvironmentURLData?
+    var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
     var reviewPromptData: ReviewPromptData?
@@ -229,12 +229,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return encryptedPinByUserId[userId] ?? nil
     }
 
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentURLData? {
-        if let environmentUrlsError {
-            throw environmentUrlsError
+    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
+        if let environmentURLsError {
+            throw environmentURLsError
         }
         let userId = try unwrapUserId(userId)
-        return environmentUrls[userId]
+        return environmentURLs[userId]
     }
 
     func getEvents(userId: String?) async throws -> [EventData] {
@@ -284,12 +284,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return passwordGenerationOptions[userId]
     }
 
-    func getPreAuthEnvironmentUrls() async -> EnvironmentURLData? {
-        preAuthEnvironmentUrls
+    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
+        preAuthEnvironmentURLs
     }
 
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentURLData? {
-        accountCreationEnvironmentUrls[email]
+    func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData? {
+        accountCreationEnvironmentURLs[email]
     }
 
     func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
@@ -469,9 +469,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = pin
     }
 
-    func setEnvironmentUrls(_ environmentUrls: EnvironmentURLData, userId: String?) async throws {
+    func setEnvironmentURLs(_ environmentURLs: EnvironmentURLData, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
-        self.environmentUrls[userId] = environmentUrls
+        self.environmentURLs[userId] = environmentURLs
     }
 
     func setEvents(_ events: [EventData], userId: String?) async throws {
@@ -557,12 +557,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         ].pinProtectedUserKey = pin
     }
 
-    func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentURLData) async {
-        preAuthEnvironmentUrls = urls
+    func setPreAuthEnvironmentURLs(_ urls: BitwardenShared.EnvironmentURLData) async {
+        preAuthEnvironmentURLs = urls
     }
 
-    func setAccountCreationEnvironmentUrls(urls: BitwardenShared.EnvironmentURLData, email: String) async {
-        accountCreationEnvironmentUrls[email] = urls
+    func setAccountCreationEnvironmentURLs(urls: BitwardenShared.EnvironmentURLData, email: String) async {
+        accountCreationEnvironmentURLs[email] = urls
     }
 
     func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {

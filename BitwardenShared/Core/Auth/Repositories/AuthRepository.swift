@@ -625,7 +625,7 @@ extension DefaultAuthRepository: AuthRepository {
                 errorReporter.log(error: error)
             }
 
-            if let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
+            if let baseUrl = try? await stateService.getEnvironmentURLs(userId: userId)?.base,
                baseUrl == environmentService.baseURL {
                 return userId
             }
@@ -1053,7 +1053,7 @@ extension DefaultAuthRepository: AuthRepository {
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials(),
-            webVault: account.settings.environmentUrls?.webVaultHost ?? ""
+            webVault: account.settings.environmentURLs?.webVaultHost ?? ""
         )
     }
 

@@ -2,7 +2,7 @@ import Foundation
 
 /// A wrapper around non-optional URLs that the app uses in its environment.
 ///
-struct EnvironmentUrls: Equatable {
+struct EnvironmentURLs: Equatable {
     // MARK: Properties
 
     /// The URL for the API.
@@ -42,10 +42,10 @@ struct EnvironmentUrls: Equatable {
     let webVaultURL: URL
 }
 
-extension EnvironmentUrls {
-    /// Initialize `EnvironmentUrls` from `EnvironmentURLData`.
+extension EnvironmentURLs {
+    /// Initialize `EnvironmentURLs` from `EnvironmentURLData`.
     ///
-    /// - Parameter environmentURLData: The environment URLs used to initialize `EnvironmentUrls`.
+    /// - Parameter environmentURLData: The environment URLs used to initialize `EnvironmentURLs`.
     ///
     init(environmentURLData: EnvironmentURLData) {
         // Use the default URLs if the region matches US or EU.
