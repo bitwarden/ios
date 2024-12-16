@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Yararsız ana parol. Yenidən sınayın.";
 "InvalidPIN" = "Yararsız PIN. Yenidən sınayın.";
 "Launch" = "Başlat";
-"LogIn" = "Log in";
+"LogIn" = "Giriş et";
 "LogInNoun" = "Giriş";
 "LogOut" = "Çıxış";
 "LogoutConfirmation" = "Çıxış etmək istədiyinizə əminsiniz?";
@@ -88,9 +88,9 @@
 "AvoidAmbiguousCharacters" = "Anlaşılmaz simvollardan çəkinin";
 "BitwardenAppExtension" = "Bitwarden tətbiq uzantısı";
 "BitwardenAppExtensionAlert2" = "Seyfinizə yeni bir giriş əlavə etməyin ən asan yolu, Bitwarden tətbiq uzantısıdır. Bu uzantı haqqında daha ətraflı məlumat üçün \"Ayarlar\" ekranına gedin.";
-"BitwardenAppExtensionDescription" = "Giriş məlumatlarının avto-doldurulması üçün Safari-də və digər tətbiqlərdə Bitwarden-i istifadə edin.";
-"BitwardenAutofillService" = "Bitwarden avto-doldurma xidməti";
-"BitwardenAutofillAccessibilityServiceDescription" = "Giriş məlumatlarının avto-doldurulması üçün Bitwarden əlçatımlılıq xidmətini istifadə edin.";
+"BitwardenAppExtensionDescription" = "Girişləri avto-doldurmaq üçün Safari-də və digər tətbiqlərdə Bitwarden-i istifadə edin.";
+"BitwardenAutofillService" = "Bitwarden Avto-doldurma Xidməti";
+"BitwardenAutofillAccessibilityServiceDescription" = "Girişləri avto-doldurmaq üçün Bitwarden əlçatımlılıq xidmətini istifadə edin.";
 "ChangeEmail" = "E-poçtu dəyişdir";
 "ChangeEmailConfirmation" = "E-poçt ünvanınızı bitwarden.com veb seyfində dəyişdirə bilərsiniz. İndi saytı ziyarət etmək istəyirsiniz?";
 "ChangeMasterPassword" = "Ana parolu dəyişdir";
@@ -189,7 +189,7 @@
 "Translations" = "Tərcümələr";
 "ItemsForUri" = "%1$@ üçün elementlər";
 "NoItemsForUri" = "Seyfinizdə %1$@ üçün heç bir element yoxdur.";
-"BitwardenAutofillServiceOverlay" = "Bir giriş xanası seçdikdə və Bitwarden avto-doldurma örtüyünü gördükdə, avto-doldurma xidmətini başlatmaq üçün buna toxuna bilərsiniz.";
+"BitwardenAutofillServiceOverlay" = "Bir giriş xanasını seçdiyiniz və Bitwarden avto-doldurma örtüyünü gördüyünüz zaman, avto-doldurma xidmətini başlatmaq üçün buna toxuna bilərsiniz.";
 "BitwardenAutofillServiceNotificationContent" = "Bir elementi seyfinizdən avto-doldurmaq üçün bu bildirişə toxunun.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Əlçatımlılıq Ayarlarını aç";
 "BitwardenAutofillServiceStep1" = "1. Android əlçatımlılıq xidmətləri ekranında Xidmətlər başlığı altındakı \"Bitwarden\"ə toxunun.";
@@ -200,7 +200,7 @@
 "On" = "Açıq";
 "Status" = "Vəziyyət";
 "BitwardenAutofillServiceAlert2" = "Seyfinizə yeni bir giriş əlavə etməyin ən asan yolu, Bitwarden Avto-doldurma Xidmətidir. Bitwarden Avto-doldurma Xidmətini istifadə etməklə bağlı daha ətraflı məlumat üçün \"Ayarlar\" ekranına gedin.";
-"Autofill" = "Avto-doldurma";
+"Autofill" = "Avto-doldur";
 "AutofillOrView" = "Avto-doldurmaq və ya bu elementə baxmaq istəyirsiniz?";
 "BitwardenAutofillServiceMatchConfirm" = "Bu elementi avto-doldurmaq istədiyinizə əminsiniz? \"%1$@\" ilə tam uyuşmur.";
 "MatchingItems" = "Uyuşan elementlər";
@@ -238,7 +238,7 @@
 "Camera" = "Kamera";
 "Photos" = "Fotolar";
 "CopyTotp" = "TOTP-ni kopyala";
-"CopyTotpAutomaticallyDescription" = "Bir giriş prosesinin kimlik doğrulayıcı açarı varsa, giriş məlumatları avto-doldurulanda TOTP doğrulama kodunu kopyalayın.";
+"CopyTotpAutomaticallyDescription" = "Bir giriş prosesinin kimlik doğrulayıcı açarı varsa, giriş məlumatlarını avto-doldurduğunuz zaman TOTP doğrulama kodunu kopyalayın.";
 "CopyTotpAutomatically" = "TOTP-ni avtomatik kopyala";
 "PremiumRequired" = "Bu özəlliyi istifadə etmək üçün premium üzvlük lazımdır.";
 "AttachementAdded" = "Qoşma əlavə edildi";
@@ -323,7 +323,7 @@
 "NoItemsCollection" = "Bu kolleksiyada heç bir element yoxdur.";
 "NoItemsFolder" = "Bu qovluqda heç bir element yoxdur.";
 "NoItemsTrash" = "Tullantı qutusunda heç bir element yoxdur.";
-"AutofillAccessibilityService" = "Avto-doldurma əlçatımlılıq xidməti";
+"AutofillAccessibilityService" = "Avto-doldurma Əlçatımlılıq Xidməti";
 "AutofillServiceDescription" = "Bitwarden avto-doldurma xidməti, cihazınızdakı digər tətbiqlərə giriş məlumatlarını doldurmağa kömək edən Android Avto-doldurma Çərçivəsini istifadə edir.";
 "BitwardenAutofillServiceDescription" = "Giriş məlumatlarını digər tətbiqlərdə doldurmaq üçün Bitwarden avto-doldurma xidmətini istifadə edin.";
 "BitwardenAutofillServiceOpenAutofillSettings" = "Avto-doldurma ayarlarını aç";
@@ -453,7 +453,7 @@
 "Black" = "Qara";
 "Nord" = "Nord";
 "SolarizedDark" = "Günəşli tünd";
-"AutofillBlockedUris" = "Əngəllənən URI-lərin avto-doldurulması";
+"AutofillBlockedUris" = "Əngəllənən URI-ləri avto-doldur";
 "AskToAddLogin" = "Giriş əlavə etmək üçün soruş";
 "AskToAddLoginDescription" = "Seyfinizdə tapılmayan elementin əlavə edilməsi soruşulsun.";
 "OnRestart" = "Tətbiq yenidən başladılanda";
@@ -468,7 +468,7 @@
 "BiometricsDirection" = "Biometrik doğrulama";
 "Biometrics" = "Biometrik";
 "UseBiometricsToUnlock" = "Kilidi açmaq üçün biometrik istifadə et";
-"AccessibilityOverlayPermissionAlert" = "Bitwarden diqqətinizi tələb edir - Bitwarden ayarlarında \"Avto-doldurma əlçatımlılıq xidməti\"nə baxın";
+"AccessibilityOverlayPermissionAlert" = "Bitwarden diqqətinizi tələb edir - Bitwarden ayarlarında \"Avto-doldurma Əlçatımlılıq Xidməti\"nə baxın";
 "BitwardenAutofillServiceOverlayPermission" = "3. Android tətbiq ayarlarında Bitwarden-i tapın və \"Digər tətbiqlərin üzərində göstər\" seçiminə (\"Qabaqcıl\" seçimin altında ola bilər) gedin və örtük dəstəyinə icazə vermək üçün açara toxunun.";
 "OverlayPermission" = "İcazə";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "Üzərində göstərmə icazə ayarlarını açın";
@@ -490,7 +490,7 @@
 "Open" = "Aç";
 "UnableToSaveAttachment" = "Bu qoşmanı saxlayarkən problem yarandı. Əgər problem davam edərsə, veb seyfdən saxlaya bilərsiniz.";
 "SaveAttachmentSuccess" = "Qoşma uğurla saxlanıldı";
-"AutofillTileAccessibilityRequired" = "Avto-doldurma qutusunu istifadə etmək üçün lütfən \"Bitwarden\" ayarlarında \"Avto-doldurma əlçatımlılıq xidməti\"ni fəallaşdırın.";
+"AutofillTileAccessibilityRequired" = "Avto-doldurma qutusunu istifadə etmək üçün lütfən \"Bitwarden\" ayarlarında \"Avto-doldurma Əlçatımlılıq Xidməti\"ni fəallaşdırın.";
 "AutofillTileUriNotFound" = "Parol xanası aşkarlanmadı";
 "SoftDeleting" = "Tullantı qutusuna göndərilir...";
 "ItemSoftDeleted" = "Element tullantı qutusuna göndərildi.";
@@ -506,8 +506,8 @@
 "AccountBiometricInvalidatedExtension" = "Ana parolun doğrulanması gözlənildiyi üçün bu hesab üzrə avto-doldurma biometrik kilid açma sıradan çıxarıldı.";
 "EnableSyncOnRefresh" = "Təzələmə zamanı sinxrn icazə ver";
 "EnableSyncOnRefreshDescription" = "Barmağınızla aşağı çəkdikdə seyfi sinxronlaşdır.";
-"LogInSso" = "Müəssisə üçün tək daxil olma";
-"LogInSsoSummary" = "Təşkilatınızın tək daxil olma portalını istifadə edərək daha tez giriş edə bilərsiniz. Başlatmaq üçün lütfən təşkilatınızın identifikatorunu daxil edin.";
+"LogInSso" = "Müəssisə üçün vahid daxil olma";
+"LogInSsoSummary" = "Təşkilatınızın vahid daxil olma portalını istifadə edərək cəld giriş edin. Başlatmaq üçün lütfən təşkilatınızın identifikatorunu daxil edin.";
 "OrgIdentifier" = "Təşkilat identifikatoru";
 "LoginSsoError" = "Hazırda SSO ilə giriş edilə bilmir";
 "SetMasterPassword" = "Ana parolu ayarla";
@@ -888,7 +888,7 @@
 "VerifyingIdentityEllipsis" = "Kimlik doğrulanır...";
 "Passwords" = "Parollar";
 "UnknownAccount" = "Bilinməyən hesab";
-"SetUpAutofill" = "Avto-doldurmanı qur";
+"SetUpAutofill" = "Avto-doldurmanı quraşdır";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Parollarınıza və keçid açarlarınıza dərhal müraciət edin!";
 "SetUpAutoFillDescriptionLong" = "Parolların avto-doldurulmasını və keçid açarlarının idarə edilməsini qurmaq üçün iOS Ayarlarında \"Bitwarden\"i tərcih edilən provayderiniz olaraq ayarlayın.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Cihazda Ayarlar > Parollar > \"Parol seçimləri\"nə gedin";
@@ -1059,3 +1059,5 @@
 "CopyPrivateKey" = "Private açarı kopyala";
 "CopyFingerprint" = "Barmaq izini kopyala";
 "SSHKeys" = "SSH açarları";
+"ExportingFailed" = "Xaricə köçürmə uğursuzdur";
+"YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Cihaz parolunu və ya biometriklərini fəallaşdırmaq lazım gələ bilər.";

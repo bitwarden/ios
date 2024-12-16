@@ -1059,3 +1059,5 @@
 "CopyPrivateKey" = "Copiar chave privada";
 "CopyFingerprint" = "Copiar impressão digital";
 "SSHKeys" = "Chaves SSH";
+"ExportingFailed" = "Falha na exportação";
+"YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Poderá ter de ativar o código de acesso ou a biometria do dispositivo.";
