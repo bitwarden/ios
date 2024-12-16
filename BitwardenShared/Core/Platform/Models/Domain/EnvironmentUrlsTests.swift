@@ -15,6 +15,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             EnvironmentUrls(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
+                changeEmailURL: URL(string: "https://vault.bitwarden.com/#/settings/account")!,
                 eventsURL: URL(string: "https://events.bitwarden.com")!,
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
@@ -22,6 +23,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 recoveryCodeURL: URL(string: "https://vault.bitwarden.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com/#/settings")!,
+                setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!
             )
         )
@@ -37,6 +39,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             EnvironmentUrls(
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
+                changeEmailURL: URL(string: "https://vault.bitwarden.eu/#/settings/account")!,
                 eventsURL: URL(string: "https://events.bitwarden.eu")!,
                 iconsURL: URL(string: "https://icons.bitwarden.eu")!,
                 identityURL: URL(string: "https://identity.bitwarden.eu")!,
@@ -44,6 +47,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 recoveryCodeURL: URL(string: "https://vault.bitwarden.eu/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://vault.bitwarden.eu/#/send")!,
                 settingsURL: URL(string: "https://vault.bitwarden.eu/#/settings")!,
+                setUpTwoFactorURL: URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.eu")!
             )
         )
@@ -60,6 +64,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             EnvironmentUrls(
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com")!,
+                changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
                 eventsURL: URL(string: "https://example.com/events")!,
                 iconsURL: URL(string: "https://example.com/icons")!,
                 identityURL: URL(string: "https://example.com/identity")!,
@@ -67,6 +72,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 recoveryCodeURL: URL(string: "https://example.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
+                setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
                 webVaultURL: URL(string: "https://example.com")!
             )
         )
@@ -82,6 +88,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             EnvironmentUrls(
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
+                changeEmailURL: URL(string: "https://vault.bitwarden.eu/#/settings/account")!,
                 eventsURL: URL(string: "https://events.bitwarden.eu")!,
                 iconsURL: URL(string: "https://icons.bitwarden.eu")!,
                 identityURL: URL(string: "https://identity.bitwarden.eu")!,
@@ -89,6 +96,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 recoveryCodeURL: URL(string: "https://vault.bitwarden.eu/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://vault.bitwarden.eu/#/send")!,
                 settingsURL: URL(string: "https://vault.bitwarden.eu/#/settings")!,
+                setUpTwoFactorURL: URL(string: "https://vault.bitwarden.eu/#/settings/security/two-factor")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.eu")!
             )
         )
@@ -104,6 +112,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             EnvironmentUrls(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
+                changeEmailURL: URL(string: "https://vault.bitwarden.com/#/settings/account")!,
                 eventsURL: URL(string: "https://events.bitwarden.com")!,
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
@@ -111,6 +120,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 recoveryCodeURL: URL(string: "https://vault.bitwarden.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com/#/settings")!,
+                setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com/#/settings/security/two-factor")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!
             )
         )
@@ -126,6 +136,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             EnvironmentUrls(
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com/")!,
+                changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
                 eventsURL: URL(string: "https://example.com/events")!,
                 iconsURL: URL(string: "https://example.com/icons")!,
                 identityURL: URL(string: "https://example.com/identity")!,
@@ -133,6 +144,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 recoveryCodeURL: URL(string: "https://example.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
+                setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
                 webVaultURL: URL(string: "https://example.com/")!
             )
         )
@@ -154,6 +166,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             EnvironmentUrls(
                 apiURL: URL(string: "https://api.example.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
+                changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
                 eventsURL: URL(string: "https://events.example.com")!,
                 iconsURL: URL(string: "https://icons.example.com")!,
                 identityURL: URL(string: "https://identity.example.com")!,
@@ -161,6 +174,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 recoveryCodeURL: URL(string: "https://example.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://example.com/#/send")!,
                 settingsURL: URL(string: "https://example.com/#/settings")!,
+                setUpTwoFactorURL: URL(string: "https://example.com/#/settings/security/two-factor")!,
                 webVaultURL: URL(string: "https://example.com")!
             )
         )
@@ -174,6 +188,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
             EnvironmentUrls(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
+                changeEmailURL: URL(string: "https://vault.bitwarden.com")!,
                 eventsURL: URL(string: "https://events.bitwarden.com")!,
                 iconsURL: URL(string: "https://icons.bitwarden.net")!,
                 identityURL: URL(string: "https://identity.bitwarden.com")!,
@@ -181,6 +196,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
                 recoveryCodeURL: URL(string: "https://vault.bitwarden.com/#/recover-2fa")!,
                 sendShareURL: URL(string: "https://send.bitwarden.com/#")!,
                 settingsURL: URL(string: "https://vault.bitwarden.com")!,
+                setUpTwoFactorURL: URL(string: "https://vault.bitwarden.com")!,
                 webVaultURL: URL(string: "https://vault.bitwarden.com")!
             )
         )
