@@ -89,17 +89,29 @@ jobs:
         run: ./Scripts/download-artifacts.sh $ARTIFACTS_PATH $ARTIFACT_RUN_ID
 
       - name: Parse version info
+        env:
+          _VERSION_NAME: ${{ inputs.version-name }}
+          _VERSION_NUMBER: ${{ inputs.version-number }}
         id: version_info
         run: |
           if [ ! -f ARTIFACTS_PATH/version_info.zip ]; then
             echo "::warning::version-version.zip not found. Confirm why the build workflow skipped uploading it."
-            if [[ -z "$version_name" || -z "$version_number" ]]; then
-              echo "::error::version-info.json not found and version-name/version-number are empty. Cannot proceed with release."
-              exit 1
+
+            version_name="$_VERSION_NAME"
+            version_number="$_VERSION_NUMBER"
+            if [[ -z "$_VERSION_NAME" ]]; then
+              echo "::warning::version name override input is empty. Using default value."
+              version_name="0.0.0"
+            fi
+
+            if [[ -z "$_VERSION_NUMBER" ]]; then
+              echo "::warning::version number override input is empty. Using default value."
+              version_number="0"
             fi
 
             echo "version_number=$version_number" >> $GITHUB_OUTPUT
             echo "version_name=$version_name" >> $GITHUB_OUTPUT
+            echo "Version: $version_name ($version_number)"
             exit 0
           fi
 
