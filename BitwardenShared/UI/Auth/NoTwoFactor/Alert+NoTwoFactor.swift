@@ -12,7 +12,7 @@ extension Alert {
     ///
     static func changeEmailAlert(action: @escaping () -> Void) -> Alert {
         Alert(
-            title: Localizations.changeEmail,
+            title: Localizations.changeAccountEmail,
             message: Localizations.changeEmailConfirmation,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -33,7 +33,7 @@ extension Alert {
     static func turnOnTwoFactorLoginAlert(action: @escaping () -> Void) -> Alert {
         Alert(
             title: Localizations.turnOnTwoStepLogin,
-            message: Localizations.turnOnTwoStepLogin,
+            message: Localizations.turnOnTwoStepLoginConfirmation,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.continue, style: .default) { _ in

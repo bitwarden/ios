@@ -1069,3 +1069,4 @@
 "ChangeAccountEmail" = "Change account email";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
+"TurnOnTwoStepLoginConfirmation" = "You can turn on two-step login on the bitwarden.com web vault. Do you want to visit the website now?";
