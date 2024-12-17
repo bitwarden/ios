@@ -52,21 +52,22 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
 
     override func receive(_ action: SetUpTwoFactorAction) {
         switch action {
+        case .changeAccountEmailTapped:
+            coordinator.showAlert(.changeEmailAlert {
+                self.state.url = self.services.environmentService.changeEmailURL
+            })
         case .clearURL:
             state.url = nil
         case .turnOnTwoFactorTapped:
             coordinator.showAlert(.turnOnTwoFactorLoginAlert {
                 self.state.url = self.services.environmentService.setUpTwoFactorURL
             })
-        case .changeAccountEmailTapped:
-            coordinator.showAlert(.changeEmailAlert {
-                self.state.url = self.services.environmentService.changeEmailURL
-            })
         }
     }
 
     // MARK: Private Methods
 
+    /// Saves the current time to disk when the user dismisses the notice.
     private func handleDismiss() async {
         do {
             let currentTime = services.timeProvider.presentTime

@@ -57,6 +57,8 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
 
     // MARK: Private Methods
 
+    /// Checks the state of the UI when the user taps the continue button
+    /// and routes accordingly.
     private func handleContinue() async {
         do {
             if state.canAccessEmail {
