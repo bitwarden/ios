@@ -379,6 +379,33 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(value, "Test String")
     }
 
+    /// `getFeatureFlag(_:defaultValue:from:)` returns the initial value for booleans if it is configured
+    /// and the `ServerConfig` is not passed or the feature flag is not found in such config.
+    func test_getFeatureFlag_initialValueBool() {
+        let valueWhenConfigNil = subject.getFeatureFlag(
+            .testLocalInitialBoolFlag,
+            defaultValue: false,
+            from: nil
+        )
+        XCTAssertTrue(valueWhenConfigNil)
+
+        let valueWhenFlagNotFoundInConfig = subject.getFeatureFlag(
+            .testLocalInitialBoolFlag,
+            defaultValue: false,
+            from: ServerConfig(
+                date: .now,
+                responseModel: ConfigResponseModel(
+                    environment: nil,
+                    featureStates: ["test": .bool(true)],
+                    gitHash: nil,
+                    server: nil,
+                    version: "version"
+                )
+            )
+        )
+        XCTAssertTrue(valueWhenFlagNotFoundInConfig)
+    }
+
     // MARK: Tests - getFeatureFlag
 
     /// `getFeatureFlag(:)` can return a boolean if it's in the configuration
@@ -523,6 +550,55 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         let value = await subject.getFeatureFlag(.testLocalFeatureFlag, defaultValue: "fallback", forceRefresh: false)
         XCTAssertEqual(value, "fallback")
+    }
+
+    /// `getFeatureFlag(_:defaultValue:from:)` can return a boolean if it's in the configuration
+    func test_getFeatureFlagFromConfig_bool_exists() {
+        let config = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["test-remote-feature-flag": .bool(true)],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        let value = subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: false, from: config)
+        XCTAssertTrue(value)
+    }
+
+    /// `getFeatureFlag(_:defaultValue:from:)` returns the default value for booleans
+    func test_getFeatureFlagFromConfig_bool_fallback() async {
+        let config = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: [:],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        let value = subject.getFeatureFlag(.testRemoteFeatureFlag, defaultValue: true, from: config)
+        XCTAssertTrue(value)
+    }
+
+    /// `getFeatureFlag(_:defaultValue:from:)` returns the default value if the feature
+    /// is not remotely configurable for booleans.
+    func test_getFeatureFlagFromConfig_bool_notRemotelyConfigured() async {
+        let config = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["test-remote-feature-flag": .bool(true)],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        let value = subject.getFeatureFlag(.testLocalFeatureFlag, from: config)
+        XCTAssertFalse(value)
     }
 
     /// `getDebugFeatureFlags(:)` returns the default value if the feature is not remotely configurable for strings
