@@ -1,4 +1,3 @@
-import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -38,12 +37,14 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        errorReporter = nil
+        stateService = nil
         subject = nil
     }
 
     // MARK: Tests
 
-    /// `.perform` with `.continueTapped` navigates to set up two factor
+    /// `.perform(_:)` with `.continueTapped` navigates to set up two factor
     /// when the user does not indicate they can access their email
     @MainActor
     func test_perform_continueTapped_canAccessEmail_false() async {
@@ -53,7 +54,7 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .setUpTwoFactor(allowDelay: false))
     }
 
-    /// `.perform` with `.continueTapped` updates the state and navigates to dismiss
+    /// `.perform(_:)` with `.continueTapped` updates the state and navigates to dismiss
     /// when the user indicates they can access their email
     /// and delay is not allowed
     @MainActor
@@ -70,7 +71,7 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// `.perform` with `.continueTapped` updates the state and navigates to dismiss
+    /// `.perform(_:)` with `.continueTapped` updates the state and navigates to dismiss
     /// when the user indicates they can access their email
     /// and delay is allowed
     @MainActor
@@ -87,7 +88,7 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
-    /// `.perform` with `.continueTapped` handles errors
+    /// `.perform(_:)` with `.continueTapped` handles errors
     @MainActor
     func test_perform_continueTapped_error() async {
         let account = Account.fixture()
@@ -102,7 +103,7 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `.receive()` with `.canAccessEmailChanged` updates the state
+    /// `.receive(_:)` with `.canAccessEmailChanged` updates the state
     @MainActor
     func test_receive_canAccessEmailChanged() {
         subject.receive(.canAccessEmailChanged(true))

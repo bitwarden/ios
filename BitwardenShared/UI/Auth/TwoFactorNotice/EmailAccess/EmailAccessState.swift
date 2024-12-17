@@ -12,20 +12,4 @@ struct EmailAccessState: Equatable, Sendable {
 
     /// User-provided value for whether or not they can access their given email address.
     var canAccessEmail: Bool = false
-
-    /// A model representing the data to display on a single page in the carousel.
-    ///
-
-//    enum Page: CaseIterable, Equatable, Identifiable {
-//        case one
-//        case two
-//
-//        var id: Self {
-//            self
-//        }
-//    }
-    // MARK: Properties
-
-    /// The index of the currently visible page in the carousel.
-    var currentPageIndex = 0
 }

@@ -8,8 +8,8 @@ import SwiftUI
 class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFactorAction, SetUpTwoFactorEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
-        & HasEnvironmentService
+    typealias Services = HasEnvironmentService
+        & HasErrorReporter
         & HasStateService
         & HasTimeProvider
 
@@ -45,8 +45,6 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
 
     override func perform(_ effect: SetUpTwoFactorEffect) async {
         switch effect {
-        case .appeared:
-            break
         case .remindMeLaterTapped:
             await handleDismiss()
         }

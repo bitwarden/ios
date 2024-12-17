@@ -66,9 +66,6 @@ struct SetUpTwoFactorView: View {
 
             Spacer()
         }
-        .task {
-            await store.perform(.appeared)
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
