@@ -7,7 +7,7 @@ import SwiftUI
 struct EmailAccessState: Equatable, Sendable {
     // MARK: Properties
 
-    var canAccessEmail: Bool
+    var canAccessEmail: Bool = false
 
     /// A model representing the data to display on a single page in the carousel.
     ///
