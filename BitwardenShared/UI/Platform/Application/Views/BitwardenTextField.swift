@@ -81,19 +81,26 @@ struct BitwardenTextField<TrailingContent: View>: View {
     /// The main content for the view, containing the title label and text field.
     @ViewBuilder private var contentView: some View {
         HStack(spacing: 8) {
-            VStack(alignment: .leading, spacing: 2) {
-                // This preserves space for the title to lay out above the text field when
-                // it transitions from the centered to top position. But it's always hidden and
-                // the text above is the one that moves during the transition.
-                titleText(showPlaceholder: false)
-                    .hidden()
-
-                textField
-            }
-            .overlay(alignment: showPlaceholder ? .leading : .topLeading) {
+            ZStack(alignment: showPlaceholder ? .leading : .topLeading) {
                 // The placeholder and title text which is vertically centered in the view when the
                 // text field doesn't have focus and is empty and otherwise displays above the text field.
                 titleText(showPlaceholder: showPlaceholder)
+
+                // Since the title changes font size based on if it's the placeholder, this hidden
+                // view preserves space to show the title in it's placeholder form. This prevents
+                // the field from changing size when the placeholder's visibility changes.
+                titleText(showPlaceholder: true)
+                    .hidden()
+
+                VStack(alignment: .leading, spacing: 2) {
+                    // This preserves space for the title to lay out above the text field when
+                    // it transitions from the centered to top position. But it's always hidden and
+                    // the text above is the one that moves during the transition.
+                    titleText(showPlaceholder: false)
+                        .hidden()
+
+                    textField
+                }
             }
 
             HStack(spacing: 16) {
