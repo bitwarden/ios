@@ -12,6 +12,9 @@ protocol EnvironmentService {
     /// The environment's base URL.
     var baseURL: URL { get }
 
+    /// The URL for changing email address.
+    var changeEmailURL: URL { get }
+
     /// The URL for the events API.
     var eventsURL: URL { get }
 
@@ -35,6 +38,9 @@ protocol EnvironmentService {
 
     /// The URL for vault settings.
     var settingsURL: URL { get }
+
+    /// The URL for setting up two-factor login.
+    var setUpTwoFactorURL: URL { get }
 
     /// The URL for the web vault.
     var webVaultURL: URL { get }
@@ -152,6 +158,10 @@ extension DefaultEnvironmentService {
         environmentUrls.baseURL
     }
 
+    var changeEmailURL: URL {
+        environmentUrls.changeEmailURL
+    }
+
     var eventsURL: URL {
         environmentUrls.eventsURL
     }
@@ -188,6 +198,10 @@ extension DefaultEnvironmentService {
 
     var settingsURL: URL {
         environmentUrls.settingsURL
+    }
+
+    var setUpTwoFactorURL: URL {
+        environmentUrls.setUpTwoFactorURL
     }
 
     var webVaultURL: URL {
