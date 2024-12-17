@@ -90,6 +90,21 @@ struct AutoFillView: View {
                     .styleGuide(.subheadline)
                     .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             }
+
+            VStack(spacing: 2) {
+                SettingsMenuField(
+                    title: "Autofill vault filter",
+                    options: store.state.autofillFilterOptions,
+                    hasDivider: false,
+                    selection: store.binding(
+                        get: \.autofillFilter,
+                        send: AutoFillAction.autofillFilterChanged
+                    )
+                )
+                .cornerRadius(10)
+                .padding(.bottom, 8)
+                .accessibilityIdentifier("AutofillFilterChooser")
+            }
         }
     }
 

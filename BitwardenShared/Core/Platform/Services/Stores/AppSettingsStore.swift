@@ -93,6 +93,8 @@ protocol AppSettingsStore: AnyObject {
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
     func appRehydrationState(userId: String) -> AppRehydrationState?
+    
+    func autofillFilter(userId: String) -> AutofillFilter?
 
     /// Gets the time after which the clipboard should be cleared.
     ///
@@ -283,6 +285,8 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync on refresh setting.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+    
+    func setAutofillFilter(_ filter: AutofillFilter?, userId: String)
 
     /// Sets the user's Biometric Authentication Preference.
     ///
@@ -677,6 +681,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
+        case autofillFilter(userId: String)
         case appId
         case appLocale
         case appRehydrationState(userId: String)
@@ -734,6 +739,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
                 key = "syncOnRefresh_\(userId)"
+            case let .autofillFilter(userId):
+                key = "autofillFilter_\(userId)"
             case .appId:
                 key = "appId"
             case .appLocale:
@@ -924,6 +931,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     func appRehydrationState(userId: String) -> AppRehydrationState? {
         fetch(for: .appRehydrationState(userId: userId))
     }
+    
+    func autofillFilter(userId: String) -> AutofillFilter? {
+        fetch(for: .autofillFilter(userId: userId))
+    }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         if let rawValue: Int = fetch(for: .clearClipboardValue(userId: userId)),
@@ -1025,6 +1036,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+    
+    func setAutofillFilter(_ filter: AutofillFilter?, userId: String) {
+        store(filter, for: .autofillFilter(userId: userId))
     }
 
     func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {

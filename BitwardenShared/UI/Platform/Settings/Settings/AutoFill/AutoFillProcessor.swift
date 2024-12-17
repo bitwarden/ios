@@ -47,6 +47,7 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
             await fetchSettingValues()
         case .streamSettingsBadge:
             await streamSettingsBadge()
+            await streamFolders()
         }
     }
 
@@ -54,6 +55,16 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
         switch action {
         case .appExtensionTapped:
             coordinator.navigate(to: .appExtension)
+        case let .autofillFilterChanged(filter):
+            state.autofillFilter = filter
+            Task {
+                do {
+                    try await services.settingsRepository.updateAutofillFilter(filter)
+                } catch {
+                    coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                    services.errorReporter.log(error: error)
+                }
+            }
         case let .defaultUriMatchTypeChanged(newValue):
             state.defaultUriMatchType = newValue
             Task {
@@ -88,10 +99,39 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     ///
     private func fetchSettingValues() async {
         do {
+            state.autofillFilter = try await services.settingsRepository.getAutofillFilter()
             state.defaultUriMatchType = try await services.settingsRepository.getDefaultUriMatchType()
             state.isCopyTOTPToggleOn = try await !services.settingsRepository.getDisableAutoTotpCopy()
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Stream the list of folders
+    private func streamFolders() async {
+        do {
+            let publisher = try await services.settingsRepository.foldersListPublisher()
+            for try await value in publisher {
+                let folderOptions = value.compactMap { folder -> AutofillFilter? in
+                    guard let id = folder.id else {
+                        return nil
+                    }
+                    return AutofillFilter(
+                        idType: .folder(id),
+                        folderName: folder.name
+                    )
+                }
+                var autofillFilterOptions = [
+                    AutofillFilter(idType: .none),
+                    AutofillFilter(idType: .favorites)
+                ]
+                if !folderOptions.isEmpty {
+                    autofillFilterOptions.append(contentsOf: folderOptions)
+                }
+                state.autofillFilterOptions = autofillFilterOptions
+            }
+        } catch {
             services.errorReporter.log(error: error)
         }
     }
