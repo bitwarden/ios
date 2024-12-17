@@ -10,28 +10,19 @@ class TwoFactorNoticeCoordinatorTests: BitwardenTestCase {
 
     // MARK: Properties
 
-    var delegate: MockVaultCoordinatorDelegate!
-    var errorReporter: MockErrorReporter!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
     var subject: TwoFactorNoticeCoordinator!
-    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        errorReporter = MockErrorReporter()
-        delegate = MockVaultCoordinatorDelegate()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
-        vaultRepository = MockVaultRepository()
 
-        let services = ServiceContainer.withMocks(
-            errorReporter: errorReporter,
-            vaultRepository: vaultRepository
-        )
+        let services = ServiceContainer.withMocks()
 
         subject = TwoFactorNoticeCoordinator(
             module: module,
@@ -43,12 +34,9 @@ class TwoFactorNoticeCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        delegate = nil
-        errorReporter = nil
         module = nil
         stackNavigator = nil
         subject = nil
-        vaultRepository = nil
     }
 
     // MARK: Tests
