@@ -20,6 +20,11 @@ struct BitwardenTextField<TrailingContent: View>: View {
     /// A flag indicating if the text field is currently focused.
     @FocusState private var isTextFieldFocused
 
+    /// Whether the placeholder text should be shown in the text field.
+    private var showPlaceholder: Bool {
+        !isFocused && text.isEmpty
+    }
+
     // MARK: Properties
 
     /// The accessibility identifier for the text field.
@@ -55,11 +60,46 @@ struct BitwardenTextField<TrailingContent: View>: View {
     // MARK: View
 
     var body: some View {
-        let isTrailingContentShown = isPasswordVisible != nil || trailingContent != nil
-        if isTrailingContentShown {
-            BitwardenField(title: title, footer: footer) {
+        VStack(spacing: 0) {
+            contentView
+
+            footerView
+        }
+        .padding(.leading, 16)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .onTapGesture {
+            let isPassword = isPasswordVisible != nil || canViewPassword == false
+            let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
+            if isPassword, !isPasswordVisible {
+                isSecureFieldFocused = true
+            } else {
+                isTextFieldFocused = true
+            }
+        }
+    }
+
+    // MARK: Private views
+
+    /// The main content for the view, containing the title label and text field.
+    @ViewBuilder private var contentView: some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                // This preserves space for the title to lay out above the text field when
+                // it transitions from the centered to top position. But it's always hidden and
+                // the text above is the one that moves during the transition.
+                titleText(showPlaceholder: false)
+                    .hidden()
+
                 textField
-            } accessoryContent: {
+            }
+            .overlay(alignment: showPlaceholder ? .leading : .topLeading) {
+                // The placeholder and title text which is vertically centered in the view when the
+                // text field doesn't have focus and is empty and otherwise displays above the text field.
+                titleText(showPlaceholder: showPlaceholder)
+            }
+
+            HStack(spacing: 16) {
                 if let isPasswordVisible, canViewPassword {
                     AccessoryButton(
                         asset: isPasswordVisible.wrappedValue
@@ -72,22 +112,31 @@ struct BitwardenTextField<TrailingContent: View>: View {
                         isPasswordVisible.wrappedValue.toggle()
                     }
                     .accessibilityIdentifier(passwordVisibilityAccessibilityId ?? "TextVisibilityToggle")
-
-                    if let trailingContent {
-                        trailingContent
-                    }
-                } else if let trailingContent {
-                    trailingContent
                 }
+
+                trailingContent
             }
-        } else {
-            BitwardenField(title: title, footer: footer) {
-                textField
+        }
+        .animation(.linear(duration: 0.1), value: isFocused)
+        .padding(.trailing, 16)
+        .padding(.vertical, 12)
+        .frame(minHeight: 64)
+    }
+
+    /// The view to display at a footer below the text field.
+    @ViewBuilder private var footerView: some View {
+        if let footer {
+            VStack(alignment: .leading, spacing: 0) {
+                Divider()
+
+                Text(footer)
+                    .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .padding(.trailing, 16)
+                    .padding(.vertical, 12)
             }
         }
     }
-
-    // MARK: Private views
 
     /// The text field.
     private var textField: some View {
@@ -113,15 +162,6 @@ struct BitwardenTextField<TrailingContent: View>: View {
             }
             .frame(maxWidth: .infinity, minHeight: 28)
             .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
-
-            Button {
-                text = ""
-            } label: {
-                Asset.Images.circleX16.swiftUIImage
-                    .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-            }
-            .padding(.vertical, 5)
-            .hidden(text.isEmpty || !isFocused)
         }
         .tint(Asset.Colors.tintPrimary.swiftUIColor)
         .onAppear {
@@ -166,6 +206,23 @@ struct BitwardenTextField<TrailingContent: View>: View {
         _text = text
         self.title = title
         self.trailingContent = trailingContent()
+    }
+
+    // MARK: Private
+
+    /// The title/placeholder text for the field.
+    @ViewBuilder
+    private func titleText(showPlaceholder: Bool) -> some View {
+        if let title {
+            Text(title)
+                .styleGuide(
+                    showPlaceholder ? .body : .subheadline,
+                    weight: showPlaceholder ? .regular : .semibold, // semibold ??
+                    includeLinePadding: false,
+                    includeLineSpacing: false
+                )
+                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+        }
     }
 }
 
