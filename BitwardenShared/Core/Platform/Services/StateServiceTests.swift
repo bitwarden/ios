@@ -905,6 +905,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(value, .canAccessEmail)
     }
 
+    /// `getTwoFactorNoticeDisplayState()` gets the display state of the two-factor notice for the current user
+    /// and throws an error if there is no current user.
+    func test_getTwoFactorNoticeDisplayState_noId() async throws {
+        appSettingsStore.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "1")
+
+        do {
+            try await _ = subject.getTwoFactorNoticeDisplayState()
+            XCTFail("subject.getTwoFactorNoticeDisplayState() should throw an error if there is no active account")
+        } catch {
+            XCTAssertEqual(error as? StateServiceError, StateServiceError.noActiveAccount)
+        }
+    }
+
     /// `getTwoFactorToken(email:)` gets the two-factor code associated with the email.
     func test_getTwoFactorToken() async {
         appSettingsStore.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
