@@ -50,9 +50,6 @@ struct EmailAccessView: View {
 
             Spacer()
         }
-        .task {
-            await store.perform(.appeared)
-        }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
@@ -123,13 +120,13 @@ struct EmailAccessView: View {
 // MARK: - EmailAccessView Previews
 
 #if DEBUG
-#Preview("New Device Notice") {
+#Preview("Email Access") {
     NavigationView {
         EmailAccessView(
             store: Store(
                 processor: StateProcessor(
                     state: EmailAccessState(
-                        canAccessEmail: false
+                        allowDelay: true
                     )
                 )
             )

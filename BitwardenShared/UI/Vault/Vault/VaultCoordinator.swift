@@ -309,7 +309,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         navigationController.navigationBar.isHidden = true
         let coordinator = module.makeTwoFactorNoticeNoticeCoordinator(stackNavigator: navigationController)
         coordinator.start()
-        coordinator.navigate(to: .emailAccess, context: delegate)
+        coordinator.navigate(
+            to: .emailAccess(allowDelay: allowDelay),
+            context: delegate
+        )
 
         stackNavigator?.present(navigationController, overFullscreen: true)
     }

@@ -43,8 +43,6 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
 
     override func perform(_ effect: EmailAccessEffect) async {
         switch effect {
-        case .appeared:
-            break
         case .continueTapped:
             await handleContinue()
         }
@@ -54,8 +52,6 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
         switch action {
         case let .canAccessEmailChanged(canAccess):
             state.canAccessEmail = canAccess
-        case .currentPageIndexChanged:
-            break
         }
     }
 
@@ -64,10 +60,12 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
     private func handleContinue() async {
         do {
             if state.canAccessEmail {
-                try await services.stateService.setTwoFactorNoticeDisplayState(state: .canAccessEmail)
+                let displayState: TwoFactorNoticeDisplayState
+                displayState = state.allowDelay ? .canAccessEmail : .canAccessEmailPermanent
+                try await services.stateService.setTwoFactorNoticeDisplayState(state: displayState)
                 coordinator.navigate(to: .dismiss)
             } else {
-                coordinator.navigate(to: .setUpTwoFactor)
+                coordinator.navigate(to: .setUpTwoFactor(allowDelay: state.allowDelay))
             }
         } catch {
             services.errorReporter.log(error: error)

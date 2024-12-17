@@ -121,12 +121,27 @@ struct SetUpTwoFactorView: View {
 // MARK: - SetUpTwoFactorView Previews
 
 #if DEBUG
-#Preview("Set up two factor") {
+#Preview("Allowing Delay") {
     NavigationView {
         SetUpTwoFactorView(
             store: Store(
                 processor: StateProcessor(
                     state: SetUpTwoFactorState(
+                        allowDelay: true
+                    )
+                )
+            )
+        )
+    }
+}
+
+#Preview("Not Allowing Delay") {
+    NavigationView {
+        SetUpTwoFactorView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SetUpTwoFactorState(
+                        allowDelay: false
                     )
                 )
             )

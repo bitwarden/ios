@@ -74,6 +74,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var setTwoFactorNoticeDisplayStateError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
@@ -608,6 +609,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws {
+        if let error = setTwoFactorNoticeDisplayStateError {
+            throw error
+        }
         let userId = try unwrapUserId(userId)
         twoFactorNoticeDisplayState[userId] = state
     }

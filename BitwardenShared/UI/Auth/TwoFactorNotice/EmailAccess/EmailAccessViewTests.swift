@@ -16,7 +16,7 @@ class EmailAccessViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: EmailAccessState(canAccessEmail: false))
+        processor = MockProcessor(state: EmailAccessState(allowDelay: true))
         let store = Store(processor: processor)
 
         subject = EmailAccessView(store: store)

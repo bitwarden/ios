@@ -7,64 +7,25 @@ import SwiftUI
 struct EmailAccessState: Equatable, Sendable {
     // MARK: Properties
 
+    /// Whether or not the user can delay setting up two-factor authentication.
+    var allowDelay: Bool
+
+    /// User-provided value for whether or not they can access their given email address.
     var canAccessEmail: Bool = false
 
     /// A model representing the data to display on a single page in the carousel.
     ///
 
-    enum Page: CaseIterable, Equatable, Identifiable {
-        case one
-        case two
-
-        var id: Self {
-            self
-        }
-    }
-//    struct CarouselPage: Equatable, Identifiable {
-//        // MARK:
+//    enum Page: CaseIterable, Equatable, Identifiable {
+//        case one
+//        case two
 //
-//        /// A unique identifier of the page.
-//        let id: String = UUID().uuidString
-//
-//        /// An image to display.
-//        let image: Image
-//
-//        /// A message to display on the page.
-//        let message: String
-//
-//        /// A title to display on the page.
-//        let title: String
+//        var id: Self {
+//            self
+//        }
 //    }
-//
-//    // MARK: Properties
-//
+    // MARK: Properties
+
     /// The index of the currently visible page in the carousel.
     var currentPageIndex = 0
-//
-//    /// The list of scrollable pages displayed in the carousel.
-//    let pages: [CarouselPage] = [
-//        CarouselPage(
-//            image: Asset.Images.Illustrations.items.swiftUIImage,
-//            message: Localizations.introCarouselPage1Message,
-//            title: Localizations.introCarouselPage1Title
-//        ),
-//
-//        CarouselPage(
-//            image: Asset.Images.Illustrations.biometricsPhone.swiftUIImage,
-//            message: Localizations.introCarouselPage2Message,
-//            title: Localizations.introCarouselPage2Title
-//        ),
-//
-//        CarouselPage(
-//            image: Asset.Images.Illustrations.generate.swiftUIImage,
-//            message: Localizations.introCarouselPage3Message,
-//            title: Localizations.introCarouselPage3Title
-//        ),
-//
-//        CarouselPage(
-//            image: Asset.Images.Illustrations.secureDevices.swiftUIImage,
-//            message: Localizations.introCarouselPage4Message,
-//            title: Localizations.introCarouselPage4Title
-//        ),
-//    ]
 }

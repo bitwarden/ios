@@ -9,6 +9,8 @@ class EmailAccessProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<TwoFactorNoticeRoute, Void>!
+    var errorReporter: MockErrorReporter!
+    var stateService: MockStateService!
     var subject: EmailAccessProcessor!
 
     // MARK: Setup & Teardown
@@ -17,12 +19,18 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator()
-        let services = ServiceContainer.withMocks()
+        errorReporter = MockErrorReporter()
+        stateService = MockStateService()
+
+        let services = ServiceContainer.withMocks(
+            errorReporter: errorReporter,
+            stateService: stateService
+        )
 
         subject = EmailAccessProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: EmailAccessState()
+            state: EmailAccessState(allowDelay: true)
         )
     }
 
@@ -39,16 +47,59 @@ class EmailAccessProcessorTests: BitwardenTestCase {
     /// when the user does not indicate they can access their email
     @MainActor
     func test_perform_continueTapped_canAccessEmail_false() async {
+        subject.state.allowDelay = false
         subject.state.canAccessEmail = false
         await subject.perform(.continueTapped)
-        XCTAssertEqual(coordinator.routes.last, .setUpTwoFactor)
+        XCTAssertEqual(coordinator.routes.last, .setUpTwoFactor(allowDelay: false))
     }
 
     /// `.perform` with `.continueTapped` updates the state and navigates to dismiss
     /// when the user indicates they can access their email
+    /// and delay is not allowed
     @MainActor
-    func test_perform_continueTapped_canAccessEmail_true() {
+    func test_perform_continueTapped_canAccessEmail_true_allowDelay_false() async {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        subject.state.allowDelay = false
+        subject.state.canAccessEmail = true
+        await subject.perform(.continueTapped)
+        XCTAssertEqual(
+            stateService.twoFactorNoticeDisplayState["1"],
+            .canAccessEmailPermanent
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
 
+    /// `.perform` with `.continueTapped` updates the state and navigates to dismiss
+    /// when the user indicates they can access their email
+    /// and delay is allowed
+    @MainActor
+    func test_perform_continueTapped_canAccessEmail_true_allowDelay_true() async {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        subject.state.allowDelay = true
+        subject.state.canAccessEmail = true
+        await subject.perform(.continueTapped)
+        XCTAssertEqual(
+            stateService.twoFactorNoticeDisplayState["1"],
+            .canAccessEmail
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `.perform` with `.continueTapped` handles errors
+    @MainActor
+    func test_perform_continueTapped_error() async {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.setTwoFactorNoticeDisplayStateError = BitwardenTestError.example
+        subject.state.allowDelay = false
+        subject.state.canAccessEmail = true
+        await subject.perform(.continueTapped)
+        XCTAssertEqual(
+            errorReporter.errors.last as? BitwardenTestError,
+            BitwardenTestError.example
+        )
     }
 
     /// `.receive()` with `.canAccessEmailChanged` updates the state
