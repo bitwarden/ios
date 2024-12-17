@@ -45,9 +45,6 @@ struct BitwardenTextField<TrailingContent: View>: View {
     /// The accessibility identifier for the button to toggle password visibility.
     let passwordVisibilityAccessibilityId: String?
 
-    /// The placeholder that is displayed in the textfield.
-    let placeholder: String
-
     /// The text entered into the text field.
     @Binding var text: String
 
@@ -145,7 +142,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 let isPassword = isPasswordVisible != nil || canViewPassword == false
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
 
-                TextField(placeholder, text: $text)
+                TextField("", text: $text)
                     .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
                     .hidden(!isPasswordVisible && isPassword)
@@ -154,7 +151,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
                         textField.smartDashesType = isPassword ? .no : .default
                     }
                 if isPassword, !isPasswordVisible {
-                    SecureField(placeholder, text: $text)
+                    SecureField("", text: $text)
                         .focused($isSecureFieldFocused)
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                         .id(title)
@@ -182,7 +179,6 @@ struct BitwardenTextField<TrailingContent: View>: View {
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
-    ///   - placeholder: An optional placeholder to display in the text field.
     ///
     init(
         title: String? = nil,
@@ -193,7 +189,6 @@ struct BitwardenTextField<TrailingContent: View>: View {
         canViewPassword: Bool = true,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
-        placeholder: String? = nil,
         @ViewBuilder trailingContent: () -> TrailingContent
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -202,7 +197,6 @@ struct BitwardenTextField<TrailingContent: View>: View {
         self.footer = footer
         self.canViewPassword = canViewPassword
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
-        self.placeholder = placeholder ?? ""
         _text = text
         self.title = title
         self.trailingContent = trailingContent()
@@ -248,8 +242,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
         isPasswordAutoFocused: Bool = false,
-        isPasswordVisible: Binding<Bool>? = nil,
-        placeholder: String? = nil
+        isPasswordVisible: Binding<Bool>? = nil
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
@@ -257,7 +250,6 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
-        self.placeholder = placeholder ?? ""
         _text = text
         self.title = title
         trailingContent = nil
