@@ -51,7 +51,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
                 .frame(minHeight: textViewDynamicHeight)
             } else {
                 Text(value)
-                    .styleGuide(.body)
+                    .styleGuide(.body, includeLinePadding: false, includeLineSpacing: false)
                     .multilineTextAlignment(.leading)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
