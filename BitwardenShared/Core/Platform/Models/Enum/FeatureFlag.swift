@@ -4,6 +4,9 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 enum FeatureFlag: String, CaseIterable, Codable {
+    /// A feature flag to enable/disable the app review prompt.
+    case appReviewPrompt = "app-review-prompt"
+
     /// Flag to enable/disable Credential Exchange export flow.
     case cxpExportMobile = "cxp-export-mobile"
 
@@ -13,6 +16,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// Flag to enable/disable email verification during registration
     /// This flag introduces a new flow for account creation
     case emailVerification = "email-verification"
+
+    /// Flag to enable/disable the debug app review prompt.
+    case enableDebugAppReviewPrompt = "enable-debug-app-review-prompt"
 
     /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
     case enableAuthenticatorSync = "enable-authenticator-sync-ios"
@@ -87,6 +93,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
     var isRemotelyConfigured: Bool {
         switch self {
         case .enableCipherKeyEncryption,
+             .enableDebugAppReviewPrompt,
              .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
@@ -95,7 +102,8 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .testLocalInitialIntFlag,
              .testLocalInitialStringFlag:
             false
-        case .cxpExportMobile,
+        case .appReviewPrompt,
+             .cxpExportMobile,
              .cxpImportMobile,
              .emailVerification,
              .enableAuthenticatorSync,

@@ -23,6 +23,7 @@ final class VaultListProcessor: StateProcessor<
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -31,6 +32,9 @@ final class VaultListProcessor: StateProcessor<
 
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
+
+    /// The task that schedules the app review prompt.
+    private(set) var reviewPromptTask: Task<Void, Never>?
 
     /// The services used by this processor.
     private let services: Services
@@ -60,6 +64,10 @@ final class VaultListProcessor: StateProcessor<
         super.init(state: state)
     }
 
+    deinit {
+        reviewPromptTask?.cancel()
+    }
+
     // MARK: Methods
 
     override func perform(_ effect: VaultListEffect) async {
@@ -69,6 +77,12 @@ final class VaultListProcessor: StateProcessor<
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+        case .checkAppReviewEligibility:
+            if await services.reviewPromptService.isEligibleForReviewPrompt() {
+                await scheduleReviewPrompt()
+            } else {
+                state.isEligibleForAppReview = false
+            }
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
@@ -107,10 +121,13 @@ final class VaultListProcessor: StateProcessor<
         case .addItemPressed:
             setProfileSwitcher(visible: false)
             coordinator.navigate(to: .addItem())
+            reviewPromptTask?.cancel()
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
             break
+        case .disappeared:
+            reviewPromptTask?.cancel()
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
@@ -133,6 +150,12 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
+        case .appReviewPromptShown:
+            state.isEligibleForAppReview = false
+            Task {
+                await services.reviewPromptService.setReviewPromptShownVersion()
+                await services.reviewPromptService.clearUserActions()
+            }
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
@@ -287,6 +310,26 @@ extension VaultListProcessor {
             state.profileSwitcherState.hasSetAccessibilityFocus = false
         }
         state.profileSwitcherState.isVisible = visible
+    }
+
+    /// Triggers the app review prompt after a delay.
+    private func scheduleReviewPrompt() async {
+        reviewPromptTask?.cancel()
+        reviewPromptTask = Task {
+            do {
+                try await Task.sleep(nanoseconds: Constants.appReviewPromptDelay)
+                if await services.configService.getFeatureFlag(.appReviewPrompt) {
+                    state.isEligibleForAppReview = true
+                }
+                if await services.configService.getFeatureFlag(.enableDebugAppReviewPrompt) {
+                    state.toast = Toast(title: Constants.appReviewPromptEligibleDebugMessage)
+                }
+            } catch is CancellationError {
+                // Task was cancelled, no need to handle this error
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
     }
 
     /// Streams the user's account setup progress.
