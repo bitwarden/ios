@@ -8,7 +8,7 @@ import XCTest
 class EmailAccessProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<NoTwoFactorRoute, Void>!
+    var coordinator: MockCoordinator<TwoFactorNoticeRoute, Void>!
     var subject: EmailAccessProcessor!
 
     // MARK: Setup & Teardown

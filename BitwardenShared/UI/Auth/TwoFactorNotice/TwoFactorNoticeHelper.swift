@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - TwoFactorDisplayState
 
-/// An enum to track a user's status vis-à-vis the NoTwoFactor notice screen
+/// An enum to track a user's status vis-à-vis the TwoFactorNotice notice screen
 enum TwoFactorNoticeDisplayState: Codable, Equatable {
     /// The user has seen the screen and indicated they can access their email.
     case canAccessEmail

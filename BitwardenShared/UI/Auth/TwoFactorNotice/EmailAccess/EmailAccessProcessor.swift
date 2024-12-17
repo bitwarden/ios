@@ -14,7 +14,7 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<NoTwoFactorRoute, Void>
+    private let coordinator: AnyCoordinator<TwoFactorNoticeRoute, Void>
 
     /// The services required by this processor.
     private let services: Services
@@ -29,7 +29,7 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<NoTwoFactorRoute, Void>,
+        coordinator: AnyCoordinator<TwoFactorNoticeRoute, Void>,
         services: Services,
         state: EmailAccessState
     ) {

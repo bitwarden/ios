@@ -11,7 +11,7 @@ class MockAppModule:
     GeneratorModule,
     ImportLoginsModule,
     LoginRequestModule,
-    NoTwoFactorModule,
+    TwoFactorNoticeModule,
     PasswordAutoFillModule,
     PasswordHistoryModule,
     SendModule,
@@ -30,7 +30,7 @@ class MockAppModule:
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
-    var noTwoFactorNoticeCoordinator = MockCoordinator<NoTwoFactorRoute, Void>()
+    var noTwoFactorNoticeCoordinator = MockCoordinator<TwoFactorNoticeRoute, Void>()
     var passwordAutoFillCoordinator = MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>()
     var passwordAutoFillCoordinatorDelegate: PasswordAutoFillCoordinatorDelegate?
     // swiftlint:disable:next weak_navigator identifier_name
@@ -150,9 +150,9 @@ class MockAppModule:
         tabCoordinator.asAnyCoordinator()
     }
 
-    func makeNoTwoFactorNoticeCoordinator(
+    func makeTwoFactorNoticeNoticeCoordinator(
         stackNavigator: StackNavigator
-    ) -> AnyCoordinator<NoTwoFactorRoute, Void> {
+    ) -> AnyCoordinator<TwoFactorNoticeRoute, Void> {
         noTwoFactorNoticeCoordinator.asAnyCoordinator()
     }
 

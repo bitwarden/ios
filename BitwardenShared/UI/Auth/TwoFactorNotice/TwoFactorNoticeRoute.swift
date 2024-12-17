@@ -1,7 +1,7 @@
-// MARK: - NoTwoFactorRoute
+// MARK: - TwoFactorNoticeRoute
 
 /// A route to a specific screen in the No Two Factor notice.
-public enum NoTwoFactorRoute: Equatable, Hashable {
+public enum TwoFactorNoticeRoute: Equatable, Hashable {
     /// A route to dismiss the screen currently presented modally.
     case dismiss
 

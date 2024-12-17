@@ -1,8 +1,8 @@
-// MARK: - NoTwoFactorCoordinator
+// MARK: - TwoFactorNoticeCoordinator
 
 /// A coordinator that manages navigation in the no-two-factor notice.
 ///
-final class NoTwoFactorCoordinator: Coordinator, HasStackNavigator {
+final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = AuthModule
@@ -32,7 +32,7 @@ final class NoTwoFactorCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Initialization
 
-    /// Creates a new `NoTwoFactorCoordinator`.
+    /// Creates a new `TwoFactorNoticeCoordinator`.
     ///
     /// - Parameters:
     ///   - module: The module used by this coordinator to create child coordinators.
@@ -51,7 +51,7 @@ final class NoTwoFactorCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Methods
 
-    func navigate(to route: NoTwoFactorRoute, context: AnyObject?) {
+    func navigate(to route: TwoFactorNoticeRoute, context: AnyObject?) {
         switch route {
         case .dismiss:
             stackNavigator?.dismiss()

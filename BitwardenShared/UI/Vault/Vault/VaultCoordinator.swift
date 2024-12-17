@@ -59,7 +59,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = GeneratorModule
         & ImportLoginsModule
-        & NoTwoFactorModule
+        & TwoFactorNoticeModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -307,7 +307,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     private func showTwoFactorNotice(_ allowDelay: Bool) {
         let navigationController = UINavigationController()
         navigationController.navigationBar.isHidden = true
-        let coordinator = module.makeNoTwoFactorNoticeCoordinator(stackNavigator: navigationController)
+        let coordinator = module.makeTwoFactorNoticeNoticeCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .emailAccess, context: delegate)
 
