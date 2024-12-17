@@ -166,7 +166,7 @@ struct GeneratorView: View {
 
             AccessoryButton(
                 asset: Asset.Images.generate24,
-                accessibilityLabel: Localizations.setupTotp,
+                accessibilityLabel: Localizations.generatePassword,
                 accessibilityIdentifier: "RegenerateValueButton"
             ) {
                 store.send(.refreshGeneratedValue)

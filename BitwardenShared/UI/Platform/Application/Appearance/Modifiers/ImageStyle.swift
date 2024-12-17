@@ -25,10 +25,17 @@ struct ImageStyle {
 extension ImageStyle {
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
     ///
+    /// - Size: 16x16pt
+    /// - Color: `Asset.Colors.iconPrimary`
+    ///
+    static let accessoryIcon16 = accessoryIcon16()
+
+    /// An `ImageStyle` for applying common properties to a circular accessory icon.
+    ///
     /// - Size: 24x24pt
     /// - Color: `Asset.Colors.iconPrimary`
     ///
-    static let accessoryIcon = accessoryIcon()
+    static let accessoryIcon24 = accessoryIcon24()
 
     /// An `ImageStyle` for applying common properties for icons within a row.
     ///
@@ -51,6 +58,22 @@ extension ImageStyle {
 
     /// An `ImageStyle` for applying common properties to a circular accessory icon.
     ///
+    /// - Size: 16x16pt
+    /// - Color: Defaults to `Asset.Colors.iconSecondary`
+    ///
+    /// - Parameters:
+    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.iconPrimary`.
+    ///   - scaleWithFont: Whether the image should scale with font size changes.
+    ///
+    static func accessoryIcon16(
+        color: Color = Asset.Colors.iconPrimary.swiftUIColor,
+        scaleWithFont: Bool = false
+    ) -> ImageStyle {
+        ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 16, height: 16)
+    }
+
+    /// An `ImageStyle` for applying common properties to a circular accessory icon.
+    ///
     /// - Size: 24x24pt
     /// - Color: Defaults to `Asset.Colors.iconSecondary`
     ///
@@ -58,7 +81,7 @@ extension ImageStyle {
     ///   - color: The foreground color of the image. Defaults to `Asset.Colors.iconPrimary`.
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
-    static func accessoryIcon(
+    static func accessoryIcon24(
         color: Color = Asset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = false
     ) -> ImageStyle {

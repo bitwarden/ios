@@ -148,7 +148,7 @@ struct AddEditLoginItemView: View {
                 } label: {
                     HStack(alignment: .center, spacing: 4) {
                         Asset.Images.camera16.swiftUIImage
-                            .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            .imageStyle(.accessoryIcon16(scaleWithFont: true))
                         Text(Localizations.setupTotp)
                     }
                 }
@@ -188,7 +188,7 @@ struct AddEditLoginItemView: View {
                         }
                     } label: {
                         Asset.Images.cog24.swiftUIImage
-                            .imageStyle(.accessoryIcon)
+                            .imageStyle(.accessoryIcon24)
                     }
                     .accessibilityIdentifier("LoginUriOptionsButton")
                 }

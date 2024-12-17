@@ -123,7 +123,7 @@ struct AddEditCustomFieldsView: View {
             }
         } label: {
             Asset.Images.cog24.swiftUIImage
-                .imageStyle(.accessoryIcon)
+                .imageStyle(.accessoryIcon24)
                 .accessibilityLabel(Localizations.options)
         }
     }
