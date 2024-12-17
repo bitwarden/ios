@@ -218,7 +218,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
             Text(title)
                 .styleGuide(
                     showPlaceholder ? .body : .subheadline,
-                    weight: showPlaceholder ? .regular : .semibold, // semibold ??
+                    weight: showPlaceholder ? .regular : .semibold,
                     includeLinePadding: false,
                     includeLineSpacing: false
                 )
