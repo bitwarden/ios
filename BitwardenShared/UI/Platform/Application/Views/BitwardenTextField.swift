@@ -65,6 +65,7 @@ struct BitwardenTextField<TrailingContent: View>: View {
         .padding(.leading, 16)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .contain)
         .onTapGesture {
             let isPassword = isPasswordVisible != nil || canViewPassword == false
             let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
@@ -101,6 +102,11 @@ struct BitwardenTextField<TrailingContent: View>: View {
 
                     textField
                 }
+            }
+            .accessibilityRepresentation {
+                TextField("", text: $text)
+                    .accessibilityLabel(title ?? "")
+                    .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
             }
 
             HStack(spacing: 16) {
@@ -165,7 +171,6 @@ struct BitwardenTextField<TrailingContent: View>: View {
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 28)
-            .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
         }
         .tint(Asset.Colors.tintPrimary.swiftUIColor)
         .onAppear {
