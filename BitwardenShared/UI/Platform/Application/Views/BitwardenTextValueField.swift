@@ -169,7 +169,7 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
             useUIKitTextView: useUIKitTextView,
             accessoryContent: {
                 AccessoryButton(
-                    asset: Asset.Images.copy16,
+                    asset: Asset.Images.copy24,
                     accessibilityLabel: Localizations.copy,
                     accessibilityIdentifier: copyButtonAccessibilityIdentifier,
                     action: copyButtonAction

@@ -110,7 +110,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customHiddenField))
                                     } label: {
-                                        Asset.Images.copy16.swiftUIImage
+                                        Asset.Images.copy24.swiftUIImage
                                             .imageStyle(.accessoryIcon)
                                     }
                                     .accessibilityIdentifier("HiddenCustomFieldCopyValueButton")
@@ -118,7 +118,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customTextField))
                                     } label: {
-                                        Asset.Images.copy16.swiftUIImage
+                                        Asset.Images.copy24.swiftUIImage
                                             .imageStyle(.accessoryIcon)
                                     }
                                     .accessibilityIdentifier("TextCustomFieldCopyValueButton")
@@ -244,7 +244,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                             Button {
                                 openURL(url)
                             } label: {
-                                Asset.Images.externalLink16.swiftUIImage
+                                Asset.Images.externalLink24.swiftUIImage
                                     .imageStyle(.accessoryIcon)
                             }
                             .accessibilityLabel(Localizations.launch)
@@ -253,7 +253,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                         Button {
                             store.send(.copyPressed(value: uri.uri, field: .uri))
                         } label: {
-                            Asset.Images.copy16.swiftUIImage
+                            Asset.Images.copy24.swiftUIImage
                                 .imageStyle(.accessoryIcon)
                         }
                         .accessibilityLabel(Localizations.copy)
