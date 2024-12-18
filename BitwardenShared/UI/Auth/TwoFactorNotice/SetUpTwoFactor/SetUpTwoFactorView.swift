@@ -59,10 +59,12 @@ struct SetUpTwoFactorView: View {
             }
             .buttonStyle(.secondary())
 
-            AsyncButton(Localizations.remindMeLater) {
-                await store.perform(.remindMeLaterTapped)
+            if (store.state.allowDelay) {
+                AsyncButton(Localizations.remindMeLater) {
+                    await store.perform(.remindMeLaterTapped)
+                }
+                .buttonStyle(.secondary())
             }
-            .buttonStyle(.secondary())
 
             Spacer()
         }
