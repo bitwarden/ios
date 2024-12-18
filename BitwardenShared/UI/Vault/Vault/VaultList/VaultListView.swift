@@ -348,7 +348,7 @@ struct VaultListView: View {
         }
         .task(id: store.state.isEligibleForAppReview) {
             if store.state.isEligibleForAppReview {
-                requestReview()
+                SKStoreReviewController.requestReview()
                 store.send(.appReviewPromptShown)
             }
         }
@@ -379,15 +379,6 @@ struct VaultListView: View {
                 }
             )
         )
-    }
-
-    /// Requests a review of the app.
-    private func requestReview() {
-        if #available(iOS 16.0, *) {
-            Environment(\.requestReview).wrappedValue()
-        } else {
-            SKStoreReviewController.requestReview()
-        }
     }
 }
 
