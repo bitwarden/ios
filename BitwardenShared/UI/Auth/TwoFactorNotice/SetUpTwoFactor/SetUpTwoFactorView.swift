@@ -18,7 +18,7 @@ struct SetUpTwoFactorView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            dynamicStackView(minHeight: 0) {
+            DynamicImageTextStackView(minHeight: 0) {
                 Asset.Images.Illustrations.userLock.swiftUIImage
                     .resizable()
                     .frame(
@@ -77,42 +77,6 @@ struct SetUpTwoFactorView: View {
             guard let url = newValue else { return }
             openURL(url)
             store.send(.clearURL)
-        }
-    }
-
-    /// A dynamic stack view that lays out content vertically when in a regular vertical size class
-    /// and horizontally for the compact vertical size class.
-    @ViewBuilder
-    private func dynamicStackView(
-        minHeight: CGFloat,
-        @ViewBuilder imageContent: () -> some View,
-        @ViewBuilder textContent: () -> some View
-    ) -> some View {
-        Group {
-            if verticalSizeClass == .regular {
-                VStack(spacing: 24) {
-                    imageContent()
-                    textContent()
-                }
-                .padding(.top, 32)
-                .padding(.bottom, 24)
-                .frame(maxWidth: .infinity, minHeight: minHeight)
-            } else {
-                HStack(alignment: .top, spacing: 40) {
-                    VStack(spacing: 0) {
-                        Spacer(minLength: 0)
-                        imageContent()
-                            .padding(.leading, 36)
-                            .padding(.vertical, 16)
-                        Spacer(minLength: 0)
-                    }
-                    .frame(minHeight: minHeight)
-
-                    textContent()
-                        .padding(.vertical, 16)
-                        .frame(maxWidth: .infinity, minHeight: minHeight)
-                }
-            }
         }
     }
 }
