@@ -150,7 +150,7 @@ class MockAppModule:
         tabCoordinator.asAnyCoordinator()
     }
 
-    func makeTwoFactorNoticeNoticeCoordinator(
+    func makeTwoFactorNoticeCoordinator(
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<TwoFactorNoticeRoute, Void> {
         twoFactorNoticeCoordinator.asAnyCoordinator()

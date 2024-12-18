@@ -81,6 +81,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
     var syncToAuthenticatorSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
     var twoFactorNoticeDisplayState = [String: TwoFactorNoticeDisplayState]()
+    var twoFactorNoticeDisplayStateError: Error?
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
@@ -327,6 +328,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState {
+        if let error = twoFactorNoticeDisplayStateError {
+            throw error
+        }
         let userId = try unwrapUserId(userId)
         return twoFactorNoticeDisplayState[userId] ?? .hasNotSeen
     }

@@ -25,9 +25,7 @@ enum TwoFactorNoticeDisplayState: Codable, Equatable {
 ///
 protocol TwoFactorNoticeHelper {
     ///
-    func maybeShowTwoFactorNotice(
-
-    ) async
+    func maybeShowTwoFactorNotice() async
 }
 
 // MARK: - DefaultTwoFactorNoticeHelper
@@ -38,10 +36,10 @@ protocol TwoFactorNoticeHelper {
 class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
-    & HasConfigService
-    & HasStateService
-    & HasTimeProvider
+    typealias Services = HasConfigService
+        & HasErrorReporter
+        & HasStateService
+        & HasTimeProvider
 
     // MARK: Private Properties
 
@@ -100,7 +98,7 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
             case .hasNotSeen:
                 coordinator.navigate(to: .twoFactorNotice(!permanent))
             case let .seen(date):
-                if services.timeProvider.timeSince(date) >= /*(86400 * 7)*/ 70 { // Seven days
+                if services.timeProvider.timeSince(date) >= (86400 * 7) { // Seven days
                     coordinator.navigate(to: .twoFactorNotice(!permanent))
                 }
             }
@@ -108,5 +106,4 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
             services.errorReporter.log(error: error)
         }
     }
-
 }

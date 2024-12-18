@@ -12,13 +12,13 @@ protocol TwoFactorNoticeModule {
     ///   - stackNavigator: The stack navigator that will be used to navigate between routes.
     /// - Returns: A coordinator that can navigate to `TwoFactorNoticeRoute`s.
     ///
-    func makeTwoFactorNoticeNoticeCoordinator(
+    func makeTwoFactorNoticeCoordinator(
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<TwoFactorNoticeRoute, Void>
 }
 
 extension DefaultAppModule: TwoFactorNoticeModule {
-    func makeTwoFactorNoticeNoticeCoordinator(
+    func makeTwoFactorNoticeCoordinator(
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<TwoFactorNoticeRoute, Void> {
         TwoFactorNoticeCoordinator(
