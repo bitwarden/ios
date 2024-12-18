@@ -360,7 +360,8 @@ struct VaultListView: View {
                         isEligible: store.state.isEligibleForAppReview,
                         afterClosure: {
                             store.send(.appReviewPromptShown)
-                        })
+                        }
+                    )
                 )
             } else {
                 view.modifier(
@@ -368,7 +369,8 @@ struct VaultListView: View {
                         isEligible: store.state.isEligibleForAppReview,
                         afterClosure: {
                             store.send(.appReviewPromptShown)
-                        })
+                        }
+                    )
                 )
             }
         }
