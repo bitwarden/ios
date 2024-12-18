@@ -82,6 +82,8 @@
 				<true/>
 				<key>ProvidesPasswords</key>
 				<true/>
+				<key>ProvidesTextToInsert</key>
+				<true/>
 				<key>ShowsConfigurationUI</key>
 				<true/>
 			</dict>

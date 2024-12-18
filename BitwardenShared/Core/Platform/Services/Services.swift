@@ -39,9 +39,11 @@ typealias Services = HasAPIService
     & HasSystemDevice
     & HasTOTPExpirationManagerFactory
     & HasTOTPService
+    & HasTextAutofillHelperFactory
     & HasTimeProvider
     & HasTrustDeviceService
     & HasTwoStepLoginService
+    & HasUserVerificationHelperFactory
     & HasVaultRepository
     & HasVaultTimeoutService
     & HasWatchService
@@ -297,6 +299,13 @@ protocol HasSystemDevice {
     var systemDevice: SystemDevice { get }
 }
 
+/// Protocol for an object that provides a `TextAutofillHelperFactory`.
+///
+protocol HasTextAutofillHelperFactory {
+    /// Helper to create `TextAutofillHelper`s`.
+    var textAutofillHelperFactory: TextAutofillHelperFactory { get }
+}
+
 /// Protocol for an object that provides a `TimeProvider`.
 ///
 protocol HasTimeProvider {
@@ -330,6 +339,13 @@ protocol HasTrustDeviceService {
 protocol HasTwoStepLoginService {
     /// The service used by the application to generate a two step login URL.
     var twoStepLoginService: TwoStepLoginService { get }
+}
+
+/// Protocol for an object that provides a `UserVerificationHelperFactory`.
+///
+protocol HasUserVerificationHelperFactory {
+    /// A factory protocol to create `UserVerificationHelper`s.
+    var userVerificationHelperFactory: UserVerificationHelperFactory { get }
 }
 
 /// Protocol for an object that provides a `VaultRepository`.

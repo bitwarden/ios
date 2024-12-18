@@ -165,6 +165,19 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
+    /// onto the stack navigator filtered by a group.
+    @MainActor
+    func test_navigateTo_autofillListForGroup() throws {
+        subject.navigate(to: .autofillListForGroup(.identity))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+
+        let view = try XCTUnwrap((action.view as? UIHostingController<VaultAutofillListView>)?.rootView)
+        XCTAssertEqual(view.store.state.group, .identity)
+    }
+
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
     @MainActor
     func test_navigateTo_group() throws {

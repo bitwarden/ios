@@ -22,7 +22,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPasteboardService
         & HasStateService
         & HasTOTPExpirationManagerFactory
+        & HasTextAutofillHelperFactory
         & HasTimeProvider
+        & HasUserVerificationHelperFactory
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -44,6 +46,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// The services used by this processor.
     private var services: Services
+
+    /// The helper to be used when autofilling text to insert.
+    private var textAutofillHelper: TextAutofillHelper?
 
     // MARK: Calculated properties
 
@@ -88,9 +93,16 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
         super.init(state: state)
 
-        if autofillListMode == .totp {
+        switch autofillListMode {
+        case .all:
+            self.state.isAutofillingTextToInsertList = true
+            self.state.emptyViewMessage = Localizations.noItemsToList
+            textAutofillHelper = services.textAutofillHelperFactory.create(delegate: self)
+        case .totp:
             self.state.isAutofillingTotpList = true
             initTotpExpirationManagers()
+        default:
+            break
         }
     }
 
@@ -113,13 +125,15 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                    let autofillAppExtensionDelegate,
                    fido2CredentialAutofillView != nil || autofillAppExtensionDelegate.isCreatingFido2Credential {
                     await onCipherForFido2CredentialPicked(cipher: cipher)
+                } else if autofillListMode == .all {
+                    await handleCipherForTextAutofill(cipher: cipher)
                 } else {
                     await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
                         self?.state.toast = Toast(title: toastText)
                     }
                 }
-            case .group:
-                return
+            case let .group(group, _):
+                coordinator.navigate(to: .autofillListForGroup(group))
             case let .totp(_, totpModel):
                 if #available(iOSApplicationExtension 18.0, *) {
                     autofillAppExtensionDelegate?.completeOTPRequest(code: totpModel.totpCode.code)
@@ -236,6 +250,22 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         }
     }
 
+    /// Handles text autofill for cipher.
+    /// - Parameter cipher: The cipher selected to autofill some text from it.
+    private func handleCipherForTextAutofill(cipher: CipherView) async {
+        do {
+            try await textAutofillHelper?.handleCipherForAutofill(cipherView: cipher)
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.failedToAutofillItem(cipher.name)
+                )
+            )
+        }
+    }
+
     /// Initilaizes the TOTP expiration managers so the TOTP codes are refreshed automatically.
     func initTotpExpirationManagers() {
         vaultItemsTotpExpirationManager = services.totpExpirationManagerFactory.create(
@@ -305,7 +335,8 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     .fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: autofillListMode,
-                filterType: .allVaults,
+                filter: VaultListFilter(filterType: .allVaults),
+                group: state.group,
                 rpID: autofillAppExtensionDelegate?.rpID,
                 searchText: searchText
             )
@@ -339,6 +370,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                     .fido2UserInterfaceHelper
                     .availableCredentialsForAuthenticationPublisher(),
                 mode: autofillListMode,
+                group: state.group,
                 rpID: autofillAppExtensionDelegate?.rpID,
                 uri: uri
             ) {
@@ -614,5 +646,14 @@ extension VaultAutofillListProcessor {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
         }
+    }
+}
+
+// MARK: - TextAutofillHelperDelegate
+
+extension VaultAutofillListProcessor: TextAutofillHelperDelegate {
+    @available(iOSApplicationExtension 18.0, *)
+    func completeTextRequest(text: String) {
+        autofillAppExtensionDelegate?.completeTextRequest(text: text)
     }
 } // swiftlint:disable:this file_length
