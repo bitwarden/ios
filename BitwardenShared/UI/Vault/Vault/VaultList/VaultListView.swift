@@ -1,7 +1,6 @@
 // swiftlint:disable file_length
 
 import BitwardenSdk
-import StoreKit
 import SwiftUI
 
 // MARK: - SearchableVaultListView
@@ -346,12 +345,6 @@ struct VaultListView: View {
         .task(id: store.state.vaultFilterType) {
             await store.perform(.streamVaultList)
         }
-        .task(id: store.state.isEligibleForAppReview) {
-            if store.state.isEligibleForAppReview {
-                SKStoreReviewController.requestReview()
-                store.send(.appReviewPromptShown)
-            }
-        }
         .onAppear {
             Task {
                 await store.perform(.checkAppReviewEligibility)
@@ -359,6 +352,25 @@ struct VaultListView: View {
         }
         .onDisappear {
             store.send(.disappeared)
+        }
+        .apply { view in
+            if #available(iOS 16.0, *) {
+                view.modifier(
+                    ReviewModifier(
+                        isEligible: store.state.isEligibleForAppReview,
+                        afterClosure: {
+                        store.send(.appReviewPromptShown)
+                    })
+                )
+            } else {
+                view.modifier(
+                    RequestReviewLegacyModifier(
+                        isEligible: store.state.isEligibleForAppReview,
+                        afterClosure: {
+                        store.send(.appReviewPromptShown)
+                    })
+                )
+            }
         }
     }
 
