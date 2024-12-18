@@ -54,30 +54,26 @@ struct SliderFieldView<State>: View {
     let onValueChanged: (Double) -> Void
 
     var body: some View {
-        VStack(spacing: 8) {
-            HStack {
-                Text(field.title)
-                    .styleGuide(.body)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+        HStack(alignment: .center, spacing: 16) {
+            Text(field.title)
+                .styleGuide(.body)
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .accessibilityHidden(true)
 
-                Spacer()
-
-                Text(String(Int(field.value)))
-                    .styleGuide(.body, monoSpacedDigit: true)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .accessibilityIdentifier(field.sliderValueAccessibilityId ?? field.id)
-            }
-            .accessibilityHidden(true)
-
-            Divider()
-
-            Slider(
+            BitwardenSlider(
                 value: Binding(get: { field.value }, set: onValueChanged),
                 in: field.range,
                 step: field.step,
                 onEditingChanged: onEditingChanged
-            )
-            .tint(Asset.Colors.tintPrimary.swiftUIColor)
+            ) {
+                Circle()
+                    .fill(Asset.Colors.sliderFilled.swiftUIColor)
+                    .frame(width: 18, height: 18)
+                    .overlay(
+                        Circle()
+                            .stroke(Asset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2)
+                    )
+            }
             .accessibilityLabel(field.title)
             .accessibilityIdentifier(field.sliderAccessibilityId ?? field.title)
             .apply { view in
@@ -94,6 +90,13 @@ struct SliderFieldView<State>: View {
                     view
                 }
             }
+
+            Text(String(Int(field.value)))
+                .styleGuide(.body, monoSpacedDigit: true)
+                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                .accessibilityIdentifier(field.sliderValueAccessibilityId ?? field.id)
+                .accessibilityHidden(true)
+                .frame(minWidth: 25)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
