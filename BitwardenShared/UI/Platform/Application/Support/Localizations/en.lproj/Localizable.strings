@@ -1067,6 +1067,9 @@
 "YouCanSetUpTwoStepLoginAsAnAlternative" = "You can set up two-step login as an alternative way to protect your account or change your email to one you can access.";
 "TurnOnTwoStepLogin" = "Turn on two-step login";
 "ChangeAccountEmail" = "Change account email";
+"NothingAvailableToAutofill" = "Nothing available to autofill";
+"FailedToGenerateVerificationCode" = "Failed to generate verification code";
+"FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
 "TurnOnTwoStepLoginConfirmation" = "You can turn on two-step login on the bitwarden.com web vault. Do you want to visit the website now?";

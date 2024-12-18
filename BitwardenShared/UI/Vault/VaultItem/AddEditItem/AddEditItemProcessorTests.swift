@@ -1393,6 +1393,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
     }
 
+    /// `perform(_:)` with `.setupTotpPressed` when in the app extension navigates to the
+    /// `.setupTotpManual` route.
+    @MainActor
+    func test_perform_setupTotpPressed_extension() async {
+        appExtensionDelegate.isInAppExtension = true
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
     /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.
     @MainActor
     func test_receive_authKeyVisibilityTapped() {

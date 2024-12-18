@@ -201,6 +201,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
         let navigationController = UINavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: services,
             stackNavigator: navigationController
@@ -339,6 +340,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
         let navigationController = UINavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: services,
             stackNavigator: navigationController
