@@ -59,7 +59,7 @@ struct SetUpTwoFactorView: View {
             }
             .buttonStyle(.secondary())
 
-            if (store.state.allowDelay) {
+            if store.state.allowDelay {
                 AsyncButton(Localizations.remindMeLater) {
                     await store.perform(.remindMeLaterTapped)
                 }
