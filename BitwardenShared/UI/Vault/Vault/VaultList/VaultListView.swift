@@ -359,16 +359,16 @@ struct VaultListView: View {
                     ReviewModifier(
                         isEligible: store.state.isEligibleForAppReview,
                         afterClosure: {
-                        store.send(.appReviewPromptShown)
-                    })
+                            store.send(.appReviewPromptShown)
+                        })
                 )
             } else {
                 view.modifier(
                     RequestReviewLegacyModifier(
                         isEligible: store.state.isEligibleForAppReview,
                         afterClosure: {
-                        store.send(.appReviewPromptShown)
-                    })
+                            store.send(.appReviewPromptShown)
+                        })
                 )
             }
         }
