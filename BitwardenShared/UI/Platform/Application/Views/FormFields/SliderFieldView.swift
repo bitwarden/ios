@@ -53,6 +53,9 @@ struct SliderFieldView<State>: View {
     /// A closure containing the action to take when a new value is selected.
     let onValueChanged: (Double) -> Void
 
+    /// The width of the three digit text "000" based on the current font.
+    @SwiftUI.State private var minTextWidth: CGFloat = 14
+
     var body: some View {
         HStack(alignment: .center, spacing: 16) {
             Text(field.title)
@@ -96,12 +99,15 @@ struct SliderFieldView<State>: View {
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 .accessibilityIdentifier(field.sliderValueAccessibilityId ?? field.id)
                 .accessibilityHidden(true)
-                .frame(minWidth: 25)
+                .frame(minWidth: minTextWidth)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .cornerRadius(10)
+        .background {
+            calculateMinTextWidth()
+        }
     }
 
     // MARK: Initialization
@@ -121,5 +127,20 @@ struct SliderFieldView<State>: View {
         self.field = field
         self.onEditingChanged = onEditingChanged
         self.onValueChanged = onValueChanged
+    }
+
+    // MARK: Private methods
+
+    /// Calculate the width of the text "000" based on the current font.
+    private func calculateMinTextWidth() -> some View {
+        Text("000")
+            .styleGuide(.body, monoSpacedDigit: true)
+            .hidden()
+            .background(GeometryReader { geometry in
+                Color.clear
+                    .onAppear {
+                        minTextWidth = geometry.size.width
+                    }
+            })
     }
 }

@@ -377,7 +377,6 @@ extension InspectableView where View == BitwardenSliderType {
         if let valueBinding = mirror.descendant("content", "view", "_value") as? Binding<Double>,
            let range = mirror.descendant("content", "view", "range") as? ClosedRange<Double>,
            let step = mirror.descendant("content", "view", "step") as? Double {
-
             // Calculate the new value based on the fraction
             let newValue = (range.upperBound - range.lowerBound + step) * value + range.lowerBound
 
