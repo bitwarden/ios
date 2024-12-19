@@ -695,7 +695,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentURLs")?
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
                         .data(using: .utf8)
                 )
             ),
@@ -709,7 +709,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentURLs")?
+                        .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
                         .data(using: .utf8)
                 )
             ),
@@ -732,7 +732,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentURLs_\(email)")?
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
                         .data(using: .utf8)
                 )
             ),
@@ -746,7 +746,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
                 EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
-                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentURLs_\(email)")?
+                        .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
                         .data(using: .utf8)
                 )
             ),

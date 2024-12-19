@@ -787,9 +787,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             case let .pinProtectedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentURLs:
-                key = "preAuthEnvironmentURLs"
+                key = "preAuthEnvironmentUrls"
             case let .accountCreationEnvironmentURLs(email):
-                key = "accountCreationEnvironmentURLs_\(email)"
+                key = "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 key = "preAuthServerConfig"
             case .rememberedEmail:
