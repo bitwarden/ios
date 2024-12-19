@@ -73,7 +73,7 @@ struct ActionCard<LeadingContent: View>: View {
                 if let dismissButtonState {
                     AsyncButton(action: dismissButtonState.action) {
                         Image(asset: Asset.Images.close16, label: Text(dismissButtonState.title))
-                            .imageStyle(.accessoryIcon(color: Asset.Colors.iconPrimary.swiftUIColor))
+                            .imageStyle(.accessoryIcon16(color: Asset.Colors.iconPrimary.swiftUIColor))
                             .padding(16) // Add padding to increase tappable area...
                     }
                     .padding(-16) // ...but remove it to not affect layout.

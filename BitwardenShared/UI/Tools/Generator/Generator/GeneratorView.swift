@@ -156,25 +156,21 @@ struct GeneratorView: View {
             PasswordText(password: field.value, isPasswordVisible: true)
                 .accessibilityIdentifier("GeneratedPasswordLabel")
         } accessoryContent: {
-            Button {
+            AccessoryButton(
+                asset: Asset.Images.copy24,
+                accessibilityLabel: Localizations.copyPassword,
+                accessibilityIdentifier: "CopyValueButton"
+            ) {
                 store.send(.copyGeneratedValue)
-            } label: {
-                Asset.Images.copy16.swiftUIImage
-                    .imageStyle(.accessoryIcon)
             }
-            .buttonStyle(.accessory)
-            .accessibilityIdentifier("CopyValueButton")
-            .accessibilityLabel(Localizations.copyPassword)
 
-            Button {
+            AccessoryButton(
+                asset: Asset.Images.generate24,
+                accessibilityLabel: Localizations.generatePassword,
+                accessibilityIdentifier: "RegenerateValueButton"
+            ) {
                 store.send(.refreshGeneratedValue)
-            } label: {
-                Asset.Images.generate16.swiftUIImage
-                    .imageStyle(.accessoryIcon)
             }
-            .buttonStyle(.accessory)
-            .accessibilityIdentifier("RegenerateValueButton")
-            .accessibilityLabel(Localizations.generatePassword)
         }
     }
 
