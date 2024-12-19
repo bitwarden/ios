@@ -9,6 +9,7 @@ class MockAppModule:
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
+    ImportCXPModule,
     ImportLoginsModule,
     LoginRequestModule,
     PasswordAutoFillModule,
@@ -27,6 +28,7 @@ class MockAppModule:
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var importCXPCoordinator = MockCoordinator<ImportCXPRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
     var passwordAutoFillCoordinator = MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>()
@@ -86,6 +88,12 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute, Void> {
         generatorCoordinator.asAnyCoordinator()
+    }
+
+    func makeImportCXPCoordinator(
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<ImportCXPRoute, Void> {
+        importCXPCoordinator.asAnyCoordinator()
     }
 
     func makeImportLoginsCoordinator(

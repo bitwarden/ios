@@ -82,6 +82,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
+    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    let importCiphersRepository: ImportCiphersRepository
+
     /// The service used to access & store data on the device keychain.
     let keychainService: KeychainService
 
@@ -186,6 +189,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
     ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
+    ///   - importCiphersRepository: The repository used by the application to manage importing credential
+    ///   in Credential Exhange flow.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
     ///   - localAuthService: The service used by the application to evaluate local auth policies.
@@ -234,6 +239,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
         generatorRepository: GeneratorRepository,
+        importCiphersRepository: ImportCiphersRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
         localAuthService: LocalAuthService,
@@ -281,6 +287,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
         self.generatorRepository = generatorRepository
+        self.importCiphersRepository = importCiphersRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
         self.localAuthService = localAuthService
@@ -646,6 +653,17 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
+        let credentialManagerFactory = DefaultCredentialManagerFactory()
+
+        let importCiphersRepository = DefaultImportCiphersRepository(
+            clientService: clientService,
+            credentialManagerFactory: credentialManagerFactory,
+            importCiphersService: DefaultImportCiphersService(
+                importCiphersAPIService: apiService
+            ),
+            syncService: syncService
+        )
+
         let authenticatorDataStore = AuthenticatorBridgeDataStore(
             errorReporter: errorReporter,
             groupIdentifier: Bundle.main.sharedAppGroupIdentifier,
@@ -703,6 +721,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             generatorRepository: generatorRepository,
+            importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
             localAuthService: localAuthService,

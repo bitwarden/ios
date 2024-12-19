@@ -190,6 +190,33 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.vault))
     }
 
+    /// `navigate(to:)` with `.importCXP` presents the import view for Credential Exchange onto the stack navigator.
+    @MainActor
+    func test_navigateTo_importCXP() throws {
+        subject.navigate(
+            to: .importCXP(
+                .importCredentials(
+                    credentialImportToken: UUID(
+                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                    )!
+                )
+            )
+        )
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.importCXPCoordinator.isStarted)
+        XCTAssertEqual(
+            module.importCXPCoordinator.routes.last,
+            .importCredentials(
+                credentialImportToken: UUID(
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                )!
+            )
+        )
+    }
+
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
     @MainActor
     func test_navigateTo_list_withoutPresented() throws {

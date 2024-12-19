@@ -3,7 +3,7 @@ import Networking
 
 @testable import BitwardenShared
 
-extension ServiceContainer {
+extension ServiceContainer { // swiftlint:disable:this function_body_length
     static func withMocks(
         application: Application? = nil,
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
@@ -24,6 +24,7 @@ extension ServiceContainer {
         fido2CredentialStore: Fido2CredentialStore = MockFido2CredentialStore(),
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper = MockFido2UserInterfaceHelper(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
+        importCiphersRepository: ImportCiphersRepository = MockImportCiphersRepository(),
         httpClient: HTTPClient = MockHTTPClient(),
         keychainRepository: KeychainRepository = MockKeychainRepository(),
         keychainService: KeychainService = MockKeychainService(),
@@ -76,6 +77,7 @@ extension ServiceContainer {
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             generatorRepository: generatorRepository,
+            importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
             localAuthService: localAuthService,
