@@ -37,7 +37,7 @@ struct VaultListItemRowView: View {
 
                                 if cipherItem.organizationId != nil {
                                     Asset.Images.collections16.swiftUIImage
-                                        .imageStyle(.accessoryIcon(
+                                        .imageStyle(.accessoryIcon16(
                                             color: Asset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true
                                         ))
@@ -47,7 +47,7 @@ struct VaultListItemRowView: View {
 
                                 if cipherItem.attachments?.isEmpty == false {
                                     Asset.Images.paperclip16.swiftUIImage
-                                        .imageStyle(.accessoryIcon(
+                                        .imageStyle(.accessoryIcon16(
                                             color: Asset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true
                                         ))

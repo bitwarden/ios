@@ -61,8 +61,8 @@ struct ViewLoginItemView: View {
                 AsyncButton {
                     await store.perform(.checkPasswordPressed)
                 } label: {
-                    Asset.Images.checkCircle16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.checkCircle24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.checkPassword)
                 .accessibilityIdentifier("CheckPasswordButton")
@@ -70,8 +70,8 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: password, field: .password))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("LoginCopyPasswordButton")
@@ -107,8 +107,8 @@ struct ViewLoginItemView: View {
             Button {
                 store.send(.copyPressed(value: username, field: .username))
             } label: {
-                Asset.Images.copy16.swiftUIImage
-                    .imageStyle(.accessoryIcon)
+                Asset.Images.copy24.swiftUIImage
+                    .imageStyle(.accessoryIcon24)
             }
             .accessibilityLabel(Localizations.copy)
             .accessibilityIdentifier("LoginCopyUsernameButton")
@@ -165,8 +165,8 @@ struct ViewLoginItemView: View {
                 Button {
                     store.send(.copyPressed(value: model.code, field: .totp))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("CopyTotpValueButton")
