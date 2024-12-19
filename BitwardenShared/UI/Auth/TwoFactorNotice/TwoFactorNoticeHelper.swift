@@ -69,14 +69,10 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
 
     // MARK: Methods
 
-    func maybeShowTwoFactorNotice() async {
-        await checkTwoFactorNotice()
-    }
-
     /// Checks if we need to display the notice for not having two-factor set up
     /// and displays the notice if necessary
     ///
-    private func checkTwoFactorNotice() async {
+    func maybeShowTwoFactorNotice() async {
         let temporary = await services.configService.getFeatureFlag(
             .newDeviceVerificationTemporaryDismiss,
             defaultValue: false

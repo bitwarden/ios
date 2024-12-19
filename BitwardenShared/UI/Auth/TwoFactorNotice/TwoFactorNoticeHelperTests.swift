@@ -68,7 +68,67 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         subject = nil
     }
 
-    // MARK: Tests
+    // MARK: Tests based on properties of the account itself
+
+    /// `.maybeShowTwoFactorNotice()` will show the notice
+    /// if the user does not have a 2FA method configured,
+    /// is not self-hosted
+    /// and is not SSO-only
+    ///
+    @MainActor
+    func test_maybeShow() async {
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
+    }
+
+    /// `.maybeShowTwoFactorNotice()` will not show the notice
+    /// if the user already has a 2FA method configured
+    @MainActor
+    func test_maybeShow_preexistingTwoFactor() async {
+        stateService.doesActiveAccountHaveTwoFactorResult = .success(true)
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `.maybeShowTwoFactorNotice()` will show the notice
+    /// if the user is in the Europe region
+    @MainActor
+    func test_maybeShow_server_europe() async {
+        environmentService.region = .europe
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
+    }
+
+    /// `.maybeShowTwoFactorNotice()` will not show the notice
+    /// if the user is self-hosted
+    @MainActor
+    func test_maybeShow_server_selfHosted() async {
+        environmentService.region = .selfHosted
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `.maybeShowTwoFactorNotice()` will not show the notice
+    /// if the user is SSO-only
+    ///
+    /// policyService.policyAppliesToUser(.requresSso)
+    @MainActor
+    func test_maybeShow_ssoOnly() async {
+        policyService.policyAppliesToUserResult[.requireSSO] = true
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    // MARK: Tests based on feature flags and notice display state
 
     /// `.maybeShowTwoFactorNotice()` will not show the notice if both feature flags are off.
     @MainActor
@@ -175,6 +235,8 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [.twoFactorNotice(true)])
     }
 
+    // MARK: Other tests
+
     /// `.maybeShowTwoFactorNotice()` handles errors
     @MainActor
     func test_maybeShow_error() async {
@@ -189,61 +251,4 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [])
     }
 
-    /// `.maybeShowTwoFactorNotice()` will show the notice
-    /// if the user is in the Europe region
-    @MainActor
-    func test_maybeShow_europe() async {
-        environmentService.region = .europe
-
-        await subject.maybeShowTwoFactorNotice()
-
-        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
-    }
-
-    /// `.maybeShowTwoFactorNotice()` will not show the notice
-    /// if the user is self-hosted
-    @MainActor
-    func test_maybeShow_selfHosted() async {
-        environmentService.region = .selfHosted
-
-        await subject.maybeShowTwoFactorNotice()
-
-        XCTAssertEqual(coordinator.routes, [])
-    }
-
-    /// `.maybeShowTwoFactorNotice()` will not show the notice
-    /// if the user already has a 2FA method configured
-    @MainActor
-    func test_maybeShow_preexistingTwoFactor() async {
-        stateService.doesActiveAccountHaveTwoFactorResult = .success(true)
-
-        await subject.maybeShowTwoFactorNotice()
-
-        XCTAssertEqual(coordinator.routes, [])
-    }
-
-    /// `.maybeShowTwoFactorNotice()` will not show the notice
-    /// if the user is SSO-only
-    ///
-    /// policyService.policyAppliesToUser(.requresSso)
-    @MainActor
-    func test_maybeShow_ssoOnly() async {
-        policyService.policyAppliesToUserResult[.requireSSO] = true
-
-        await subject.maybeShowTwoFactorNotice()
-
-        XCTAssertEqual(coordinator.routes, [])
-    }
-
-    /// `.maybeShowTwoFactorNotice()` will show the notice
-    /// if the user does not have a 2FA method configured,
-    /// is not self-hosted
-    /// and is not SSO-only
-    ///
-    @MainActor
-    func test_maybeShow_conditions() async {
-        await subject.maybeShowTwoFactorNotice()
-
-        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
-    }
 }
