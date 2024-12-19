@@ -19,6 +19,9 @@ struct VaultListState: Equatable {
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
 
+    /// Whether the user is eligible for an app review prompt.
+    var isEligibleForAppReview: Bool = false
+
     /// The loading state of the My Vault screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)
 

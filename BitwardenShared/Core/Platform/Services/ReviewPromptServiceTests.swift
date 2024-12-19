@@ -33,6 +33,19 @@ class ReviewPromptServiceTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `clearUserActions()` clears the list of tracked user actions.
+    func test_clearUserActions() async {
+        stateService.reviewPromptData = ReviewPromptData(
+            userActions: [
+                UserActionItem(userAction: .addedNewItem, count: 3),
+            ]
+        )
+
+        await subject.clearUserActions()
+
+        XCTAssertTrue(stateService.reviewPromptData?.userActions.isEmpty ?? false)
+    }
+
     /// `isEligibleForReviewPrompt()` returns false if auto-fill is disabled.
     func test_isEligibleForReviewPrompt_autoFillDisabled() async throws {
         identityStore.state.mockIsEnabled = false
@@ -162,5 +175,13 @@ class ReviewPromptServiceTests: BitwardenTestCase {
         XCTAssertEqual(userActions?.count, 1)
         XCTAssertEqual(userActions?.first?.userAction, action)
         XCTAssertEqual(userActions?.first?.count, 3)
+    }
+
+    /// `setReviewPromptShownVersion()` sets the review prompt shown version to the current app version.
+    func test_setReviewPromptShownVersion() async {
+        XCTAssertNil(stateService.reviewPromptData?.reviewPromptShownForVersion)
+        await subject.setReviewPromptShownVersion()
+
+        XCTAssertEqual(stateService.reviewPromptData?.reviewPromptShownForVersion, "1.0")
     }
 }

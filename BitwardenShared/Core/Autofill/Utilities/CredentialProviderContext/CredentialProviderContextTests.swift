@@ -33,6 +33,10 @@ class CredentialProviderContextTests: BitwardenTestCase {
             ).authCompletionRoute
         )
         XCTAssertEqual(
+            DefaultCredentialProviderContext(.autofillText).authCompletionRoute,
+            AppRoute.vault(.autofillList)
+        )
+        XCTAssertEqual(
             DefaultCredentialProviderContext(.configureAutofill)
                 .authCompletionRoute,
             AppRoute.extensionSetup(.extensionActivation(type: .autofillExtension))
@@ -66,6 +70,9 @@ class CredentialProviderContextTests: BitwardenTestCase {
         XCTAssertFalse(
             DefaultCredentialProviderContext(.autofillFido2VaultList([], MockPasskeyCredentialRequestParameters()))
                 .configuring
+        )
+        XCTAssertFalse(
+            DefaultCredentialProviderContext(.autofillText).configuring
         )
         XCTAssertFalse(
             DefaultCredentialProviderContext(
@@ -140,6 +147,13 @@ class CredentialProviderContextTests: BitwardenTestCase {
         } else {
             XCTFail("ExtensionMode doesn't match")
         }
+
+        let context8 = DefaultCredentialProviderContext(.autofillText)
+        if case .autofillText = context8.extensionMode {
+            XCTAssert(true)
+        } else {
+            XCTFail("ExtensionMode doesn't match")
+        }
     }
 
     /// `getter:passwordCredentialIdentity` returns the identity of `autofillCredential` mode.
@@ -162,6 +176,10 @@ class CredentialProviderContextTests: BitwardenTestCase {
         )
         XCTAssertNil(
             DefaultCredentialProviderContext(.autofillFido2VaultList([], MockPasskeyCredentialRequestParameters()))
+                .passwordCredentialIdentity
+        )
+        XCTAssertNil(
+            DefaultCredentialProviderContext(.autofillText)
                 .passwordCredentialIdentity
         )
         XCTAssertNil(
@@ -213,6 +231,8 @@ class CredentialProviderContextTests: BitwardenTestCase {
             .autofillOTPCredential(MockOneTimeCodeCredentialIdentity(), userInteraction: false)
         )
         XCTAssertFalse(subjectOTPCredentialFalse.flowWithUserInteraction)
+
+        XCTAssertTrue(DefaultCredentialProviderContext(.autofillText).flowWithUserInteraction)
 
         let subject3 = DefaultCredentialProviderContext(.configureAutofill)
         XCTAssertTrue(subject3.flowWithUserInteraction)
@@ -270,6 +290,9 @@ class CredentialProviderContextTests: BitwardenTestCase {
             )
         )
         XCTAssertEqual(subject5.serviceIdentifiers, expectedIdentifiers)
+
+        let subject6 = DefaultCredentialProviderContext(.autofillText)
+        XCTAssertEqual(subject6.serviceIdentifiers, expectedIdentifiers)
     }
 }
 
