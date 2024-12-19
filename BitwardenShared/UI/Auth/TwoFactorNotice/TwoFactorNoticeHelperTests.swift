@@ -13,6 +13,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
+    var policyService: MockPolicyService!
     var stateService: MockStateService!
     var subject: DefaultTwoFactorNoticeHelper!
     var timeProvider: MockTimeProvider!
@@ -29,6 +30,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
+        policyService = MockPolicyService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 15, hour: 12, minute: 0)))
         vaultRepository = MockVaultRepository()
@@ -39,6 +41,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
             environmentService: environmentService,
             errorReporter: errorReporter,
             pasteboardService: pasteboardService,
+            policyService: policyService,
             stateService: stateService,
             timeProvider: timeProvider,
             vaultRepository: vaultRepository
@@ -48,6 +51,18 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: services
         )
+
+        // Because nearly all of the tests are "it doesn't show the notice if
+        // these conditions are true", it makes sense to set things up here to
+        // show the notice, and then in tests selectively set up the specific
+        // condition that causes it to not show. This hopefully makes the tests
+        // easier to read.
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
+        configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = true
+        environmentService.region = .unitedStates
+        stateService.doesActiveAccountHaveTwoFactorResult = .success(false)
+        policyService.policyAppliesToUserResult[.requireSSO] = false
     }
 
     override func tearDown() {
@@ -59,18 +74,10 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         environmentService = nil
         errorReporter = nil
         pasteboardService = nil
+        policyService = nil
         stateService = nil
         subject = nil
         vaultRepository = nil
-    }
-
-    // MARK: Functions
-
-    func setTwoFactorEnabled(_ enabled: Bool) {
-        stateService.activeAccount = .fixture(
-            profile: .fixture(twoFactorEnabled: enabled)
-        )
-        stateService.doesActiveAccountHaveTwoFactorResult = .success(true)
     }
 
     // MARK: Tests
@@ -78,10 +85,8 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// `.maybeShowTwoFactorNotice()` will not show the notice if both feature flags are off.
     @MainActor
     func test_maybeShow_neitherFeatureFlag() async {
-        setTwoFactorEnabled(false)
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = false
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = false
-        environmentService.region = .unitedStates
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -93,11 +98,9 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// and we are still in temporary mode
     @MainActor
     func test_maybeShow_canAccessEmail_temporary() async {
-        setTwoFactorEnabled(false)
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = false
         stateService.twoFactorNoticeDisplayState["1"] = .canAccessEmail
-        environmentService.region = .unitedStates
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -109,11 +112,9 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// and we are in permanent mode
     @MainActor
     func test_maybeShow_canAccessEmail_permanent() async {
-        setTwoFactorEnabled(false)
-        configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
+        configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = false
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = true
         stateService.twoFactorNoticeDisplayState["1"] = .canAccessEmail
-        environmentService.region = .unitedStates
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -124,11 +125,9 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// if the user indicated they can access the email in permanent mode
     @MainActor
     func test_maybeShow_canAccessEmailPermanent() async {
-        setTwoFactorEnabled(false)
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = true
         stateService.twoFactorNoticeDisplayState["1"] = .canAccessEmailPermanent
-        environmentService.region = .unitedStates
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -139,11 +138,9 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// if the user has not seen it
     @MainActor
     func test_maybeShow_hasNotSeen_permanent() async {
-        setTwoFactorEnabled(false)
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = false
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = true
         stateService.twoFactorNoticeDisplayState["1"] = .hasNotSeen
-        environmentService.region = .europe
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -154,11 +151,9 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// if the user has not seen it
     @MainActor
     func test_maybeShow_hasNotSeen_temporary() async {
-        setTwoFactorEnabled(false)
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = false
         stateService.twoFactorNoticeDisplayState["1"] = .hasNotSeen
-        environmentService.region = .unitedStates
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -169,11 +164,9 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// if the user last saw it less than seven days ago
     @MainActor
     func test_maybeShow_seenLessThenSevenDays() async {
-        setTwoFactorEnabled(false)
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = false
         stateService.twoFactorNoticeDisplayState["1"] = .seen(Date(year: 2024, month: 6, day: 8, hour: 12, minute: 1))
-        environmentService.region = .unitedStates
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -184,7 +177,6 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// if the user last saw it more than seven days ago
     @MainActor
     func test_maybeShow_seenMoreThenSevenDays() async {
-        setTwoFactorEnabled(false)
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = false
         stateService.twoFactorNoticeDisplayState["1"] = .seen(Date(year: 2024, month: 6, day: 8, hour: 11, minute: 59))
@@ -198,11 +190,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// `.maybeShowTwoFactorNotice()` handles errors
     @MainActor
     func test_maybeShow_error() async {
-        setTwoFactorEnabled(false)
-        configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
-        configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = false
         stateService.twoFactorNoticeDisplayStateError = BitwardenTestError.example
-        environmentService.region = .unitedStates
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -213,13 +201,21 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [])
     }
 
+    /// `.maybeShowTwoFactorNotice()` will show the notice
+    /// if the user is in the Europe region
+    @MainActor
+    func test_maybeShow_europe() async {
+        environmentService.region = .europe
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
+    }
+
     /// `.maybeShowTwoFactorNotice()` will not show the notice
     /// if the user is self-hosted
     @MainActor
     func test_maybeShow_selfHosted() async {
-        setTwoFactorEnabled(false)
-        configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
-        configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = false
         environmentService.region = .selfHosted
 
         await subject.maybeShowTwoFactorNotice()
@@ -231,10 +227,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// if the user already has a 2FA method configured
     @MainActor
     func test_maybeShow_preexistingTwoFactor() async {
-        setTwoFactorEnabled(true)
-        configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
-        configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = false
-        environmentService.region = .unitedStates
+        stateService.doesActiveAccountHaveTwoFactorResult = .success(true)
 
         await subject.maybeShowTwoFactorNotice()
 
@@ -245,11 +238,24 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// if the user is SSO-only
     ///
     /// policyService.policyAppliesToUser(.requresSso)
+    @MainActor
+    func test_maybeShow_ssoOnly() async {
+        policyService.policyAppliesToUserResult[.requireSSO] = true
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [])
+    }
 
     /// `.maybeShowTwoFactorNotice()` will show the notice
     /// if the user does not have a 2FA method configured,
     /// is not self-hosted
     /// and is not SSO-only
     ///
+    @MainActor
+    func test_maybeShow_conditions() async {
+        await subject.maybeShowTwoFactorNotice()
 
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
+    }
 }

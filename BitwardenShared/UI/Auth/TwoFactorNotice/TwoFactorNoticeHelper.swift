@@ -39,6 +39,7 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
     typealias Services = HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasPolicyService
         & HasStateService
         & HasTimeProvider
 
@@ -87,7 +88,8 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
         guard temporary || permanent else { return }
         do {
             guard services.environmentService.region != .selfHosted,
-                  try await !services.stateService.doesActiveAccountHaveTwoFactor()
+                  try await !services.stateService.doesActiveAccountHaveTwoFactor(),
+                  await !services.policyService.policyAppliesToUser(.requireSSO)
             else { return }
 
             let state = try await services.stateService.getTwoFactorNoticeDisplayState()
