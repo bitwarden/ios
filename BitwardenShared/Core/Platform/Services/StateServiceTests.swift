@@ -247,6 +247,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(hasPremium)
     }
 
+    /// `doesActiveAccountHaveTwoFactor()` returns whether the active account
+    /// has two-factor enabled
+    func test_doesActiveAccountHaveTwoFactor() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(twoFactorEnabled: true)))
+        let hasTwoFactor = try await subject.doesActiveAccountHaveTwoFactor()
+        XCTAssertTrue(hasTwoFactor)
+    }
+
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
     func test_getAccountEncryptionKeys() async throws {
         appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"
@@ -2175,6 +2183,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
                     hasPremiumPersonally: false,
                     name: "User",
                     stamp: "stamp",
+                    twoFactorEnabled: false,
                     userId: "1"
                 )
             )
@@ -2187,7 +2196,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 emailVerified: true,
                 name: "Other",
                 premium: true,
-                securityStamp: "new stamp"
+                securityStamp: "new stamp",
+                twoFactorEnabled: true
             ),
             userId: "1"
         )
@@ -2203,6 +2213,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
                     hasPremiumPersonally: true,
                     name: "Other",
                     stamp: "new stamp",
+                    twoFactorEnabled: true,
                     userId: "1"
                 )
             )

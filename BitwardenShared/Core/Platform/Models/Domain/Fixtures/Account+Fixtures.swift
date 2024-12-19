@@ -91,6 +91,7 @@ extension Account.AccountProfile {
         name: String? = nil,
         orgIdentifier: String? = nil,
         stamp: String? = "stamp",
+        twoFactorEnabled: Bool? = nil,
         userDecryptionOptions: UserDecryptionOptions? = nil,
         userId: String = "1"
     ) -> Account.AccountProfile {
@@ -107,6 +108,7 @@ extension Account.AccountProfile {
             name: name,
             orgIdentifier: orgIdentifier,
             stamp: stamp,
+            twoFactorEnabled: twoFactorEnabled,
             userDecryptionOptions: userDecryptionOptions,
             userId: userId
         )

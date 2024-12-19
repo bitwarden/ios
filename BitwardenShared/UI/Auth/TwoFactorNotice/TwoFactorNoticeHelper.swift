@@ -37,6 +37,7 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
         & HasTimeProvider
@@ -85,6 +86,10 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
         )
         guard temporary || permanent else { return }
         do {
+            guard services.environmentService.region != .selfHosted,
+                  try await !services.stateService.doesActiveAccountHaveTwoFactor()
+            else { return }
+
             let state = try await services.stateService.getTwoFactorNoticeDisplayState()
             switch state {
             case .canAccessEmail:

@@ -42,6 +42,12 @@ protocol StateService: AnyObject {
     ///
     func doesActiveAccountHavePremium() async throws -> Bool
 
+    /// Returns whether the active user account has two-factor authentication turned on.
+    ///
+    /// - Returns: Whether the active account has two-factor authentication turned on.
+    ///
+    func doesActiveAccountHaveTwoFactor() async throws -> Bool
+
     /// Gets the account for an id.
     ///
     /// - Parameter userId: The id for an account. If nil, the active account will be returned.
@@ -1386,6 +1392,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return !organizations.isEmpty
     }
 
+    func doesActiveAccountHaveTwoFactor() async throws -> Bool {
+        let account = try await getActiveAccount()
+        return account.profile.twoFactorEnabled ?? false
+    }
+
     func getAccount(userId: String?) throws -> Account {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -1924,6 +1935,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         profile.emailVerified = response.emailVerified
         profile.name = response.name
         profile.stamp = response.securityStamp
+        profile.twoFactorEnabled = response.twoFactorEnabled
 
         state.accounts[userId]?.profile = profile
     }
