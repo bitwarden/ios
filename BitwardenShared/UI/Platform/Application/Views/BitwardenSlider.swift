@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// A custom slider view that allows for a custom thumb view.
+/// A custom slider view that allows for custom styling and accessibility.
 ///
-struct BitwardenSlider<ThumbView: View>: View {
+struct BitwardenSlider: View {
     // MARK: Private Properties
 
     /// The size of the thumb view.
@@ -18,9 +18,6 @@ struct BitwardenSlider<ThumbView: View>: View {
 
     /// The distance between each valid value.
     let step: Double
-
-    /// The custom thumb view to display on the slider.
-    let thumbView: () -> ThumbView
 
     /// The current value of the slider.
     @Binding var value: Double
@@ -49,7 +46,13 @@ struct BitwardenSlider<ThumbView: View>: View {
                         alignment: .leading
                     )
 
-                thumbView()
+                Circle()
+                    .fill(Asset.Colors.sliderFilled.swiftUIColor)
+                    .frame(width: 18, height: 18)
+                    .overlay(
+                        Circle()
+                            .stroke(Asset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2)
+                    )
                     .onSizeChanged { size in
                         thumbSize = size
                     }
@@ -96,7 +99,6 @@ struct BitwardenSlider<ThumbView: View>: View {
     ///   - range: The range of allowable values for the slider.
     ///   - step: The distance between each valid value.
     ///   - onEditingChanged: A closure containing the action to take when the slider begins or ends editing.
-    ///   - thumbView: The custom thumb view to display on the slider.
     ///   - trackColor: The color of the slider track.
     ///   - filledTrackColor: The color of the filled portion of the slider track.
     ///
@@ -105,7 +107,6 @@ struct BitwardenSlider<ThumbView: View>: View {
         in range: ClosedRange<Double>,
         step: Double,
         onEditingChanged: @escaping (Bool) -> Void,
-        @ViewBuilder thumbView: @escaping () -> ThumbView,
         trackColor: Color = Asset.Colors.sliderTrack.swiftUIColor,
         filledTrackColor: Color = Asset.Colors.sliderFilled.swiftUIColor
     ) {
@@ -113,7 +114,6 @@ struct BitwardenSlider<ThumbView: View>: View {
         self.range = range
         self.step = step
         self.onEditingChanged = onEditingChanged
-        self.thumbView = thumbView
         self.trackColor = trackColor
         self.filledTrackColor = filledTrackColor
     }

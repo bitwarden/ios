@@ -68,15 +68,7 @@ struct SliderFieldView<State>: View {
                 in: field.range,
                 step: field.step,
                 onEditingChanged: onEditingChanged
-            ) {
-                Circle()
-                    .fill(Asset.Colors.sliderFilled.swiftUIColor)
-                    .frame(width: 18, height: 18)
-                    .overlay(
-                        Circle()
-                            .stroke(Asset.Colors.sliderThumbBorder.swiftUIColor, lineWidth: 2)
-                    )
-            }
+            )
             .accessibilityLabel(field.title)
             .accessibilityIdentifier(field.sliderAccessibilityId ?? field.title)
             .apply { view in
