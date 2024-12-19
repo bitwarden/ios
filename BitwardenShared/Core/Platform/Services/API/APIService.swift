@@ -70,7 +70,7 @@ class APIService {
 
         accountTokenProvider = AccountTokenProvider(
             httpService: HTTPService(
-                baseUrlGetter: { environmentService.identityURL },
+                baseURLGetter: { environmentService.identityURL },
                 client: client,
                 requestHandlers: [defaultHeadersRequestHandler],
                 responseHandlers: [responseValidationHandler]
@@ -79,20 +79,20 @@ class APIService {
         )
 
         apiService = HTTPService(
-            baseUrlGetter: { environmentService.apiURL },
+            baseURLGetter: { environmentService.apiURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
             responseHandlers: [responseValidationHandler],
             tokenProvider: accountTokenProvider
         )
         apiUnauthenticatedService = HTTPService(
-            baseUrlGetter: { environmentService.apiURL },
+            baseURLGetter: { environmentService.apiURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
             responseHandlers: [responseValidationHandler]
         )
         eventsService = HTTPService(
-            baseUrlGetter: { environmentService.eventsURL },
+            baseURLGetter: { environmentService.eventsURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
             responseHandlers: [responseValidationHandler],
@@ -105,7 +105,7 @@ class APIService {
             responseHandlers: [responseValidationHandler]
         )
         identityService = HTTPService(
-            baseUrlGetter: { environmentService.identityURL },
+            baseURLGetter: { environmentService.identityURL },
             client: client,
             requestHandlers: [defaultHeadersRequestHandler],
             responseHandlers: [responseValidationHandler]

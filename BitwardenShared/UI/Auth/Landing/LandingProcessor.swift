@@ -206,7 +206,7 @@ extension LandingProcessor: ProfileSwitcherHandler {
 // MARK: - SelfHostedProcessorDelegate
 
 extension LandingProcessor: SelfHostedProcessorDelegate {
-    func didSaveEnvironment(urls: EnvironmentUrlData) async {
+    func didSaveEnvironment(urls: EnvironmentURLData) async {
         await setRegion(.selfHosted, urls)
         state.toast = Toast(title: Localizations.environmentSaved)
         await regionHelper.loadRegion()
@@ -236,7 +236,7 @@ extension LandingProcessor: RegionDelegate {
     ///   - region: The region to use.
     ///   - urls: The URLs that the app should use for the region.
     ///
-    func setRegion(_ region: RegionType, _ urls: EnvironmentUrlData) async {
+    func setRegion(_ region: RegionType, _ urls: EnvironmentURLData) async {
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region

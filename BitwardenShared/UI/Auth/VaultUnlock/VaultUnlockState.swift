@@ -73,7 +73,7 @@ extension VaultUnlockState {
         self.init(
             email: account.profile.email,
             profileSwitcherState: profileSwitcherState,
-            webVaultHost: account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost
+            webVaultHost: account.settings.environmentURLs?.webVaultHost ?? Constants.defaultWebVaultHost
         )
     }
 }

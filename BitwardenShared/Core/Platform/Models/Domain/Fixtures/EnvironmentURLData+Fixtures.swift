@@ -2,7 +2,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-extension EnvironmentUrlData {
+extension EnvironmentURLData {
     static func fixture(
         api: URL? = nil,
         base: URL? = URL(string: "https://vault.bitwarden.com"),
@@ -11,8 +11,8 @@ extension EnvironmentUrlData {
         identity: URL? = nil,
         notifications: URL? = nil,
         webVault: URL? = nil
-    ) -> EnvironmentUrlData {
-        EnvironmentUrlData(
+    ) -> EnvironmentURLData {
+        EnvironmentURLData(
             api: api,
             base: base,
             events: events,

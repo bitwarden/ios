@@ -30,7 +30,7 @@ class AccountTests: BitwardenTestCase {
         let accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5MDg4NzksInN1YiI6IjEzNTEyNDY3LTljZmUtNDNiMC05NjlmLTA3NTM0MDg0NzY0YiIsIm5hbWUiOiJCaXR3YXJkZW4gVXNlciIsImVtYWlsIjoidXNlckBiaXR3YXJkZW4uY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlhdCI6MTUxNjIzOTAyMiwicHJlbWl1bSI6ZmFsc2UsImFtciI6WyJBcHBsaWNhdGlvbiJdfQ.KDqC8kUaOAgBiUY8eeLa0a4xYWN8GmheXTFXmataFwM"
         let subject = try Account(
             identityTokenResponseModel: .fixture(accessToken: accessToken),
-            environmentUrls: nil
+            environmentURLs: nil
         )
 
         XCTAssertEqual(
@@ -56,7 +56,7 @@ class AccountTests: BitwardenTestCase {
                     ),
                     userId: "13512467-9cfe-43b0-969f-07534084764b"
                 ),
-                settings: Account.AccountSettings(environmentUrls: nil),
+                settings: Account.AccountSettings(environmentURLs: nil),
                 _tokens: nil
             )
         )
