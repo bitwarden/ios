@@ -115,7 +115,7 @@ struct LandingView: View {
 
             RegionSelector(
                 selectorLabel: Localizations.loggingInOn,
-                regionName: store.state.region.baseUrlDescription
+                regionName: store.state.region.baseURLDescription
             ) {
                 await store.perform(.regionPressed)
             }
