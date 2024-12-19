@@ -1053,7 +1053,7 @@ extension DefaultAuthRepository: AuthRepository {
             isUnlocked: displayAsUnlocked,
             userId: account.profile.userId,
             userInitials: account.initials(),
-            webVault: account.settings.environmentURLs?.webVaultHost ?? ""
+            webVault: account.settings.environmentUrls?.webVaultHost ?? ""
         )
     }
 

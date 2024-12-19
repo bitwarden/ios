@@ -86,7 +86,7 @@ class ImportLoginsProcessor: StateProcessor<ImportLoginsState, ImportLoginsActio
     private func loadData() async {
         do {
             let account = try await services.stateService.getActiveAccount()
-            state.webVaultHost = account.settings.environmentURLs?.webVaultHost ?? Constants.defaultWebVaultHost
+            state.webVaultHost = account.settings.environmentUrls?.webVaultHost ?? Constants.defaultWebVaultHost
         } catch {
             services.errorReporter.log(error: error)
         }

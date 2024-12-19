@@ -71,7 +71,7 @@ extension Account {
                 userId: tokenPayload.userId
             ),
             settings: AccountSettings(
-                environmentURLs: environmentURLs
+                environmentUrls: environmentURLs
             ),
             _tokens: nil // Tokens have been moved out of `State` to the keychain.
         )
@@ -132,7 +132,7 @@ extension Account {
         // MARK: Properties
 
         /// The environment URLs for an account.
-        var environmentURLs: EnvironmentURLData?
+        var environmentUrls: EnvironmentURLData?
     }
 
     /// Domain model for an account's API tokens.

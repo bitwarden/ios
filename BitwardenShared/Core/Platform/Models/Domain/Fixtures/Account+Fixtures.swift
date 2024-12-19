@@ -30,7 +30,7 @@ extension Account {
                 userId: "13512467-9cfe-43b0-969f-07534084764b"
             ),
             settings: Account.AccountSettings(
-                environmentURLs: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
+                environmentUrls: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
             ),
             tokens: nil
         )
@@ -118,7 +118,7 @@ extension Account.AccountSettings {
         environmentURLs: EnvironmentURLData? = .fixture()
     ) -> Account.AccountSettings {
         Account.AccountSettings(
-            environmentURLs: environmentURLs
+            environmentUrls: environmentURLs
         )
     }
 }

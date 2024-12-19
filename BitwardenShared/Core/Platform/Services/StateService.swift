@@ -1452,7 +1452,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
         let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.state?.accounts[userId]?.settings.environmentURLs
+        return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
     }
 
     func getEvents(userId: String?) async throws -> [EventData] {
