@@ -48,6 +48,9 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Properties
 
+    /// A delegate used to communicate with the app extension.
+    private weak var appExtensionDelegate: AppExtensionDelegate?
+
     /// A delegate that responds to events in this coordinator.
     private weak var delegate: AuthenticatorKeyCaptureDelegate?
 
@@ -64,15 +67,18 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     /// Creates a new `AuthenticatorKeyCaptureCoordinator`.
     ///
     /// - Parameters:
+    ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: An optional delegate that responds to events in this coordinator.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        appExtensionDelegate: AppExtensionDelegate?,
         delegate: AuthenticatorKeyCaptureDelegate?,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.appExtensionDelegate = appExtensionDelegate
         self.delegate = delegate
         self.services = services
         self.stackNavigator = stackNavigator
@@ -168,11 +174,13 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp() {
+        let deviceSupportsCamera = services.cameraService.deviceSupportsCamera() &&
+            appExtensionDelegate?.isInAppExtension != true  // Extensions don't allow camera access.
         let processor = ManualEntryProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: DefaultEntryState(
-                deviceSupportsCamera: services.cameraService.deviceSupportsCamera()
+                deviceSupportsCamera: deviceSupportsCamera
             )
         )
         let view = ManualEntryView(
