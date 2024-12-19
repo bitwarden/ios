@@ -7,44 +7,35 @@ import XCTest
 class TwoFactorNoticeHelperTests: BitwardenTestCase {
     // MARK: Properties
 
-    var authRepository: MockAuthRepository!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
-    var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
     var subject: DefaultTwoFactorNoticeHelper!
     var timeProvider: MockTimeProvider!
-    var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        authRepository = MockAuthRepository()
         configService = MockConfigService()
         coordinator = MockCoordinator()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
-        pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 15, hour: 12, minute: 0)))
-        vaultRepository = MockVaultRepository()
 
         let services = ServiceContainer.withMocks(
-            authRepository: authRepository,
             configService: configService,
             environmentService: environmentService,
             errorReporter: errorReporter,
-            pasteboardService: pasteboardService,
             policyService: policyService,
             stateService: stateService,
-            timeProvider: timeProvider,
-            vaultRepository: vaultRepository
+            timeProvider: timeProvider
         )
 
         subject = DefaultTwoFactorNoticeHelper(
@@ -68,16 +59,13 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
-        authRepository = nil
         configService = nil
         coordinator = nil
         environmentService = nil
         errorReporter = nil
-        pasteboardService = nil
         policyService = nil
         stateService = nil
         subject = nil
-        vaultRepository = nil
     }
 
     // MARK: Tests
