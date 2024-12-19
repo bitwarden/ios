@@ -856,6 +856,21 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:shouldSyncToAuthenticator_2"))
     }
 
+    /// `twoFactorNoticeDisplayState(userId:)` returns `.hasNotSeen` if there isn't a previously stored value.
+    func test_twoFactorNoticeDisplayState_isInitiallyNotSeen() {
+        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "anyone@example.com"), .hasNotSeen)
+    }
+
+    /// `twoFactorToken(email:)` can be used to get and set the persisted value in user defaults.
+    func test_twoFactorNoticeDisplayState_withValue() {
+        let date = Date()
+        subject.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "person1@example.com")
+        subject.setTwoFactorNoticeDisplayState(.seen(date), userId: "person2@example.com")
+
+        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "person1@example.com"), .canAccessEmail)
+        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "person2@example.com"), .seen(date))
+    }
+
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
     func test_twoFactorToken_isInitiallyNil() {
         XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))
