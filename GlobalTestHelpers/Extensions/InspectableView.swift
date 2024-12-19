@@ -24,6 +24,17 @@ struct AsyncButtonType: BaseViewType {
     ]
 }
 
+/// A generic type wrapper around `BitwardenSlider` to allow `ViewInspector` to find instances of `BitwardenSlider`
+/// without needing to know the details of it's implementation.
+///
+struct BitwardenSliderType: BaseViewType {
+    static var typePrefix: String = "BitwardenSlider"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenSlider",
+    ]
+}
+
 /// A generic type wrapper around `BitwardenTextField` to allow `ViewInspector` to find instances of
 /// `BitwardenTextField` without needing to know the details of it's implementation.
 ///
@@ -250,8 +261,8 @@ extension InspectableView {
     func find(
         sliderWithAccessibilityLabel accessibilityLabel: String,
         locale: Locale = .testsDefault
-    ) throws -> InspectableView<ViewType.Slider> {
-        try find(ViewType.Slider.self) { view in
+    ) throws -> InspectableView<BitwardenSliderType> {
+        try find(BitwardenSliderType.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
     }
@@ -353,6 +364,28 @@ extension InspectableView where View == BitwardenTextFieldType {
             throw InspectionError.attributeNotFound(
                 label: "_text",
                 type: String(describing: BitwardenTextFieldType.self)
+            )
+        }
+    }
+}
+
+extension InspectableView where View == BitwardenSliderType {
+    /// Simulates a drag gesture on the slider to set a new value.
+    ///
+    func setValue(_ value: Double) throws {
+        let mirror = Mirror(reflecting: self)
+        if let valueBinding = mirror.descendant("content", "view", "_value") as? Binding<Double>,
+           let range = mirror.descendant("content", "view", "range") as? ClosedRange<Double>,
+           let step = mirror.descendant("content", "view", "step") as? Double {
+            // Calculate the new value based on the fraction
+            let newValue = (range.upperBound - range.lowerBound + step) * value + range.lowerBound
+
+            // Set the new value
+            valueBinding.wrappedValue = newValue
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_value",
+                type: String(describing: BitwardenSliderType.self)
             )
         }
     }
