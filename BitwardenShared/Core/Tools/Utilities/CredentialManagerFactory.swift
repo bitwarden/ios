@@ -18,5 +18,19 @@ protocol CredentialImportManager: AnyObject {
     func importCredentials(token: UUID) async throws -> ASExportedCredentialData
 }
 
+#if compiler(>=6.0.3)
+
 @available(iOS 18.2, *)
 extension ASCredentialImportManager: CredentialImportManager {}
+
+#else
+
+class ASCredentialImportManager: CredentialImportManager {
+    func importCredentials(token: UUID) async throws -> ASExportedCredentialData {
+        ASExportedCredentialData()
+    }
+}
+
+struct ASExportedCredentialData {}
+
+#endif

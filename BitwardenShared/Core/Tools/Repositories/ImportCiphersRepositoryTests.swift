@@ -1,3 +1,4 @@
+#if compiler(>=6.0.3)
 import AuthenticationServices
 import XCTest
 
@@ -235,3 +236,4 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(progressDelegate.progressReports, [0.3, 0.8])
     }
 }
+#endif
