@@ -47,8 +47,6 @@ struct EmailAccessView: View {
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-
-            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())

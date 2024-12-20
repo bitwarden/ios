@@ -65,8 +65,6 @@ struct SetUpTwoFactorView: View {
                 }
                 .buttonStyle(.secondary())
             }
-
-            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
