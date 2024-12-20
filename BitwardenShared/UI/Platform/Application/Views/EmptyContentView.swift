@@ -89,7 +89,7 @@ struct EmptyContentView<TextContent: View, ButtonContent: View>: View {
         Button {} label: {
             Label { Text(Localizations.addItem) } icon: {
                 Asset.Images.plus16.swiftUIImage
-                    .imageStyle(.accessoryIcon(
+                    .imageStyle(.accessoryIcon16(
                         color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                         scaleWithFont: true
                     ))

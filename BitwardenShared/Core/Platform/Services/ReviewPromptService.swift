@@ -6,10 +6,19 @@ import Foundation
 /// A protocol for a `ReviewPromptService` which determines if a user is eligible for a review prompt.
 ///
 protocol ReviewPromptService {
+    /// Clears all tracked user actions.
+    ///
+    func clearUserActions() async
+
     /// Determines if the user is eligible for a review prompt.
     ///
     /// - Returns: `true` if the user is eligible for a review prompt, `false` otherwise.
+    ///
     func isEligibleForReviewPrompt() async -> Bool
+
+    /// Sets app version that the review prompt was last shown for.
+    ///
+    func setReviewPromptShownVersion() async
 
     /// Tracks a user action.
     ///
@@ -51,28 +60,34 @@ class DefaultReviewPromptService: ReviewPromptService {
         self.identityStore = identityStore
     }
 
-    func isEligibleForReviewPrompt() async -> Bool {
-        // Check if autofill is enabled
-        let isAutofillEnabled = await identityStore.isAutofillEnabled()
-        guard isAutofillEnabled else {
-            return false
+    func clearUserActions() async {
+        if var reviewPromptData = await stateService.getReviewPromptData() {
+            reviewPromptData.userActions = []
+            await stateService.setReviewPromptData(reviewPromptData)
         }
+    }
 
-        // Check if the review prompt has already been shown for the current app version
-        guard let reviewPromptData = await stateService.getReviewPromptData(),
+    func isEligibleForReviewPrompt() async -> Bool {
+        let isAutofillEnabled = await identityStore.isAutofillEnabled()
+        guard isAutofillEnabled, let reviewPromptData = await stateService.getReviewPromptData(),
               reviewPromptData.reviewPromptShownForVersion != appVersion else {
             return false
         }
-
-        // Check if any user action has been performed at least three times
         return reviewPromptData.userActions.contains { $0.count >= Constants.minimumUserActions }
+    }
+
+    func setReviewPromptShownVersion() async {
+        var reviewPromptData = await stateService.getReviewPromptData() ?? ReviewPromptData()
+        reviewPromptData.reviewPromptShownForVersion = appVersion
+        await stateService.setReviewPromptData(reviewPromptData)
     }
 
     func trackUserAction(_ action: UserAction) async {
         var reviewPromptData = await stateService.getReviewPromptData() ?? ReviewPromptData()
-        if reviewPromptData.reviewPromptShownForVersion != appVersion {
-            reviewPromptData.addUserAction(action)
+        guard reviewPromptData.reviewPromptShownForVersion != appVersion else {
+            return
         }
+        reviewPromptData.addUserAction(action)
         await stateService.setReviewPromptData(reviewPromptData)
     }
 }

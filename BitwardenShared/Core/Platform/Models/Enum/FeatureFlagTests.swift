@@ -19,6 +19,7 @@ final class FeatureFlagTests: BitwardenTestCase {
 
     /// `getter:isRemotelyConfigured` returns the correct value for each flag.
     func test_isRemotelyConfigured() {
+        XCTAssertTrue(FeatureFlag.appReviewPrompt.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.cipherKeyEncryption.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.cxpExportMobile.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.cxpImportMobile.isRemotelyConfigured)
@@ -30,6 +31,7 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertTrue(FeatureFlag.testRemoteInitialIntFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialStringFlag.isRemotelyConfigured)
 
+        XCTAssertFalse(FeatureFlag.enableDebugAppReviewPrompt.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.enableCipherKeyEncryption.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.importLoginsFlow.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.nativeCarouselFlow.isRemotelyConfigured)
