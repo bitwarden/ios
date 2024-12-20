@@ -2,7 +2,7 @@ import Foundation
 
 /// Domain model containing the environment URLs for an account.
 ///
-struct EnvironmentUrlData: Codable, Equatable, Hashable {
+struct EnvironmentURLData: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// The URL for the API.
@@ -28,7 +28,7 @@ struct EnvironmentUrlData: Codable, Equatable, Hashable {
 
     // MARK: Initialization
 
-    /// Initialize `EnvironmentUrlData` with the specified URLs.
+    /// Initialize `EnvironmentURLData` with the specified URLs.
     ///
     /// - Parameters:
     ///   - api: The URL for the API.
@@ -58,7 +58,7 @@ struct EnvironmentUrlData: Codable, Equatable, Hashable {
     }
 }
 
-extension EnvironmentUrlData {
+extension EnvironmentURLData {
     // MARK: Properties
 
     /// The URL for the user to change their email.
@@ -90,9 +90,9 @@ extension EnvironmentUrlData {
     /// Gets the region depending on the base url.
     var region: RegionType {
         switch base {
-        case EnvironmentUrlData.defaultUS.base:
+        case EnvironmentURLData.defaultUS.base:
             .unitedStates
-        case EnvironmentUrlData.defaultEU.base:
+        case EnvironmentURLData.defaultEU.base:
             .europe
         default:
             .selfHosted
@@ -133,17 +133,17 @@ extension EnvironmentUrlData {
         // Foundation's URL appending methods percent encode the path component that is passed into the method,
         // which includes the `#` symbol. Since the `#` character is a critical portion of these urls, we use String
         // concatenation to get around this limitation.
-        if let baseUrl = webVault ?? base,
-           let url = URL(string: baseUrl.sanitized.absoluteString.appending("/#/\(additionalPath)")) {
+        if let baseURL = webVault ?? base,
+           let url = URL(string: baseURL.sanitized.absoluteString.appending("/#/\(additionalPath)")) {
             return url
         }
         return nil
     }
 }
 
-extension EnvironmentUrlData {
+extension EnvironmentURLData {
     /// The default URLs for the US region.
-    static let defaultUS = EnvironmentUrlData(
+    static let defaultUS = EnvironmentURLData(
         api: URL(string: "https://api.bitwarden.com")!,
         base: URL(string: "https://vault.bitwarden.com")!,
         events: URL(string: "https://events.bitwarden.com")!,
@@ -154,7 +154,7 @@ extension EnvironmentUrlData {
     )
 
     /// The default URLs for the EU region.
-    static let defaultEU = EnvironmentUrlData(
+    static let defaultEU = EnvironmentURLData(
         api: URL(string: "https://api.bitwarden.eu")!,
         base: URL(string: "https://vault.bitwarden.eu")!,
         events: URL(string: "https://events.bitwarden.eu")!,

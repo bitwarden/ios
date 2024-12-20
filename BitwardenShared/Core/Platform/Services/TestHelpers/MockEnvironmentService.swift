@@ -4,8 +4,8 @@ import Foundation
 
 class MockEnvironmentService: EnvironmentService {
     var didLoadURLsForActiveAccount = false
-    var setActiveAccountEnvironmentUrlsData: EnvironmentUrlData?
-    var setPreAuthEnvironmentUrlsData: EnvironmentUrlData?
+    var setActiveAccountEnvironmentURLsData: EnvironmentURLData?
+    var setPreAuthEnvironmentURLsData: EnvironmentURLData?
 
     var apiURL = URL(string: "https://example.com/api")!
     var baseURL = URL(string: "https://example.com")!
@@ -25,11 +25,11 @@ class MockEnvironmentService: EnvironmentService {
         didLoadURLsForActiveAccount = true
     }
 
-    func setActiveAccountURLs(urls: EnvironmentUrlData) {
-        setActiveAccountEnvironmentUrlsData = urls
+    func setActiveAccountURLs(urls: EnvironmentURLData) {
+        setActiveAccountEnvironmentURLsData = urls
     }
 
-    func setPreAuthURLs(urls: EnvironmentUrlData) async {
-        setPreAuthEnvironmentUrlsData = urls
+    func setPreAuthURLs(urls: EnvironmentURLData) async {
+        setPreAuthEnvironmentURLsData = urls
     }
 }

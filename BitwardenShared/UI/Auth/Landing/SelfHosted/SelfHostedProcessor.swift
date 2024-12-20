@@ -7,7 +7,7 @@ protocol SelfHostedProcessorDelegate: AnyObject {
     ///
     /// - Parameter urls: The URLs that the user specified for their environment.
     ///
-    func didSaveEnvironment(urls: EnvironmentUrlData) async
+    func didSaveEnvironment(urls: EnvironmentURLData) async
 }
 
 // MARK: - SelfHostedProcessor
@@ -97,7 +97,7 @@ final class SelfHostedProcessor: StateProcessor<SelfHostedState, SelfHostedActio
             return
         }
 
-        let urls = EnvironmentUrlData(
+        let urls = EnvironmentURLData(
             api: URL(string: state.apiServerUrl)?.sanitized,
             base: URL(string: state.serverUrl)?.sanitized,
             events: nil,
