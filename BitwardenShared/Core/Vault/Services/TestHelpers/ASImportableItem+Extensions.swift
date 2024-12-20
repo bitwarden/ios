@@ -1,3 +1,4 @@
+#if compiler(>=6.0.3)
 import AuthenticationServices
 
 @available(iOS 18.2, *)
@@ -25,3 +26,4 @@ extension ASImportableItem {
         )
     }
 }
+#endif
