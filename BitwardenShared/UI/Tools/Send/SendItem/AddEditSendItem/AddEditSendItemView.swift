@@ -439,7 +439,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     .styleGuide(.body)
 
                 Asset.Images.chevronDown16.swiftUIImage
-                    .imageStyle(.accessoryIcon)
+                    .imageStyle(.accessoryIcon16)
                     .rotationEffect(store.state.isOptionsExpanded ? Angle(degrees: 180) : .zero)
             }
             .padding(.vertical, 12)
