@@ -90,6 +90,25 @@ extension ASImportableAccount {
         dumpResult.append(itemsResult)
         return dumpResult
     }
+
+    /// Provides a fixture for `ASImportableAccount`
+    static func fixture(
+        id: Data = Data(capacity: 16),
+        userName: String = "",
+        email: String = "",
+        fullName: String? = nil,
+        collections: [ASImportableCollection] = [],
+        items: [ASImportableItem] = []
+    ) -> ASImportableAccount {
+        ASImportableAccount(
+            id: id,
+            userName: userName,
+            email: email,
+            fullName: fullName,
+            collections: collections,
+            items: items
+        )
+    }
 }
 
 private extension String {

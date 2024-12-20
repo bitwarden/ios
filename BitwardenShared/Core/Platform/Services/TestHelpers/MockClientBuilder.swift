@@ -37,7 +37,7 @@ class MockClient: BitwardenSdkClient {
         ""
     }
 
-    func exporters() -> any ClientExportersServiceTemp {
+    func exporters() -> any ClientExportersProtocol {
         clientExporters
     }
 
