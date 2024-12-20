@@ -120,6 +120,9 @@ extension Account {
         /// The account's security stamp.
         var stamp: String?
 
+        /// Whether the account has two-factor enabled.
+        var twoFactorEnabled: Bool?
+
         /// User decryption options for the account.
         var userDecryptionOptions: UserDecryptionOptions?
 

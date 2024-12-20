@@ -42,6 +42,12 @@ protocol StateService: AnyObject {
     ///
     func doesActiveAccountHavePremium() async throws -> Bool
 
+    /// Returns whether the active user account has two-factor authentication turned on.
+    ///
+    /// - Returns: Whether the active account has two-factor authentication turned on.
+    ///
+    func doesActiveAccountHaveTwoFactor() async throws -> Bool
+
     /// Gets the account for an id.
     ///
     /// - Parameter userId: The id for an account. If nil, the active account will be returned.
@@ -306,6 +312,14 @@ protocol StateService: AnyObject {
     /// - Returns: The action to perform when a session timeout occurs.
     ///
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction
+
+    /// Gets the display state of the no-two-factor notice for a user ID.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID for the account; defaults to current active user if `nil`.
+    /// - Returns: The display state.
+    ///
+    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState
 
     /// Get the two-factor token (non-nil if the user selected the "remember me" option).
     ///
@@ -642,6 +656,14 @@ protocol StateService: AnyObject {
     ///
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws
 
+    /// Sets the user's no-two-factor notice display state for a userID.
+    ///
+    /// - Parameters:
+    ///   - state: The display state to set.
+    ///   - userId: The user ID associated with the state
+    ///
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws
+
     /// Sets the user's two-factor token.
     ///
     /// - Parameters:
@@ -937,6 +959,14 @@ extension StateService {
         try await getTimeoutAction(userId: nil)
     }
 
+    /// Gets the display state of the no-two-factor notice for the current user.
+    ///
+    /// - Returns: The display state.
+    ///
+    func getTwoFactorNoticeDisplayState() async throws -> TwoFactorNoticeDisplayState {
+        try await getTwoFactorNoticeDisplayState(userId: nil)
+    }
+
     /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
     ///
     /// - Returns: The number of unsuccessful unlock attempts for the active account.
@@ -1155,6 +1185,15 @@ extension StateService {
         try await setSyncToAuthenticator(syncToAuthenticator, userId: nil)
     }
 
+    /// Sets the display state for the no-two-factor notice
+    ///
+    /// - Parameters:
+    ///   - state: The state to set.
+    ///
+    func setTwoFactorNoticeDisplayState(state: TwoFactorNoticeDisplayState) async throws {
+        try await setTwoFactorNoticeDisplayState(state, userId: nil)
+    }
+
     /// Sets the session timeout action.
     ///
     /// - Parameter action: The action to take when the user's session times out.
@@ -1353,6 +1392,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return !organizations.isEmpty
     }
 
+    func doesActiveAccountHaveTwoFactor() async throws -> Bool {
+        let account = try await getActiveAccount()
+        return account.profile.twoFactorEnabled ?? false
+    }
+
     func getAccount(userId: String?) throws -> Account {
         guard let accounts = appSettingsStore.state?.accounts else {
             throw StateServiceError.noAccounts
@@ -1543,6 +1587,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             return .lock
         }
         return timeoutAction
+    }
+
+    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.twoFactorNoticeDisplayState(userId: userId)
     }
 
     func getTwoFactorToken(email: String) async -> String? {
@@ -1835,6 +1884,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setTimeoutAction(key: action, userId: userId)
     }
 
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setTwoFactorNoticeDisplayState(state, userId: userId)
+    }
+
     func setTwoFactorToken(_ token: String?, email: String) async {
         appSettingsStore.setTwoFactorToken(token, email: email)
     }
@@ -1881,6 +1935,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         profile.emailVerified = response.emailVerified
         profile.name = response.name
         profile.stamp = response.securityStamp
+        profile.twoFactorEnabled = response.twoFactorEnabled
 
         state.accounts[userId]?.profile = profile
     }
