@@ -216,7 +216,7 @@ extension GeneratorState.UsernameState {
     /// Returns a `UsernameGeneratorRequest` used to generate a forwarded email alias username.
     ///
     private func forwardedEmailGeneratorRequest() -> UsernameGeneratorRequest {
-        let service: ForwarderServiceType = switch forwardedEmailService {
+        let service = switch forwardedEmailService {
         case .addyIO:
             ForwarderServiceType.addyIo(
                 apiToken: addyIOAPIAccessToken,

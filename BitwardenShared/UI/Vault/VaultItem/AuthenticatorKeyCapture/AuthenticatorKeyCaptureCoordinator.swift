@@ -175,7 +175,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showManualTotp() {
         let deviceSupportsCamera = services.cameraService.deviceSupportsCamera() &&
-            appExtensionDelegate?.isInAppExtension != true  // Extensions don't allow camera access.
+            appExtensionDelegate?.isInAppExtension != true // Extensions don't allow camera access.
         let processor = ManualEntryProcessor(
             coordinator: asAnyCoordinator(),
             services: services,

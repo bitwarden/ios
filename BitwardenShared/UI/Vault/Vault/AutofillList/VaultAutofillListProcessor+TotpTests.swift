@@ -402,4 +402,4 @@ class VaultAutofillListProcessorTotpTests: BitwardenTestCase { // swiftlint:disa
 
         waitFor(errorReporter.errors.last as? BitwardenTestError == BitwardenTestError.example)
     }
-}
+} // swiftlint:disable:this file_length

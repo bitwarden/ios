@@ -193,7 +193,10 @@ class EnvironmentUrlDataTests: XCTestCase {
     /// `setUpTwoFactorURL` returns the change email URL for the base URL.
     func test_setUpTwoFactorURL_baseURL() {
         let subject = EnvironmentUrlData(base: URL(string: "https://vault.example.com"))
-        XCTAssertEqual(subject.setUpTwoFactorURL?.absoluteString, "https://vault.example.com/#/settings/security/two-factor")
+        XCTAssertEqual(
+            subject.setUpTwoFactorURL?.absoluteString,
+            "https://vault.example.com/#/settings/security/two-factor"
+        )
     }
 
     /// `setUpTwoFactorURL` returns the default change email base URL.
@@ -208,7 +211,10 @@ class EnvironmentUrlDataTests: XCTestCase {
             base: URL(string: "https://vault.example.com"),
             webVault: URL(string: "https://web.vault.example.com")
         )
-        XCTAssertEqual(subject.setUpTwoFactorURL?.absoluteString, "https://web.vault.example.com/#/settings/security/two-factor")
+        XCTAssertEqual(
+            subject.setUpTwoFactorURL?.absoluteString,
+            "https://web.vault.example.com/#/settings/security/two-factor"
+        )
     }
 
     /// `webVaultHost` returns the host for the base URL if no web vault URL is set.
