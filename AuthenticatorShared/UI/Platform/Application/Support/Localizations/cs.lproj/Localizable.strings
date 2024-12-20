@@ -20,7 +20,7 @@
 "UseFingerprintToUnlock" = "Pro odemknutí použít otisk prstu";
 "Username" = "Uživatelské jméno";
 "ValidationFieldRequired" = "Pole %1$@ je vyžadováno.";
-"ValueHasBeenCopied" = "%1$@ zkopírováno";
+"ValueHasBeenCopied" = "%1$@ zkopírován";
 "Version" = "Verze";
 "Yes" = "Ano";
 "Close" = "Zavřít";
@@ -98,7 +98,7 @@
 "GetVerificationCodesForAllYourAccounts" = "Získejte ověřovací kódy pro všechny své účty pomocí dvoufázového ověření.";
 "UseYourDeviceCameraToScanCodes" = "Použijte kameru zařízení ke skenování kódů";
 "ScanTheQRCodeInYourSettings" = "Naskenujte QR kód v nastavení dvoufázového ověření pro jakýkoli účet.";
-"SignInUsingUniqueCodes" = "Přihlásit se pomocí jedinečných kódů";
+"SignInUsingUniqueCodes" = "Přihlašujte se pomocí jedinečných kódů";
 "WhenUsingTwoStepVerification" = "Používáte-li dvoufázové ověření, zadejte své uživatelské jméno a heslo a kód vygenerovaný v této aplikaci.";
 "GetStarted" = "Začínáme";
 "LaunchTutorial" = "Spustit tutoriál";
