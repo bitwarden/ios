@@ -34,6 +34,9 @@ class AutofillAppExtensionDelegateTests: BitwardenTestCase {
         subject.extensionMode = .autofillOTP([])
         XCTAssertEqual(subject.autofillListMode, .totp)
 
+        subject.extensionMode = .autofillText
+        XCTAssertEqual(subject.autofillListMode, .all)
+
         subject.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
         XCTAssertEqual(subject.autofillListMode, .combinedSingleSection)
 
