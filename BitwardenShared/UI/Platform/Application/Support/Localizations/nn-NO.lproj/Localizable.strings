@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Kopier privat nøkkel";
 "CopyFingerprint" = "Kopier fingeravtrykk";
 "SSHKeys" = "SSH-nøklar";
+"NothingAvailableToAutofill" = "Nothing available to autofill";
+"FailedToGenerateVerificationCode" = "Failed to generate verification code";
+"FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
