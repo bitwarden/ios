@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Kopiér privat nøgle";
 "CopyFingerprint" = "Kopiér fingeraftryk";
 "SSHKeys" = "SSH-nøgler";
+"NothingAvailableToAutofill" = "Intet tilgængeligt at autofylde";
+"FailedToGenerateVerificationCode" = "Bekræftelseskode kunne ikke genereres";
+"FailedToAutofillItem" = "Kunne ikke autoudfylde emnet %1$@";
 "ExportingFailed" = "Eksport mislykkedes";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Enhedens adgangskode eller biometri skal muligvis aktiveres.";
