@@ -105,7 +105,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `client(for:)` loads flags into the SDK.
     @MainActor
     func test_client_loadFlags() async throws {
-        configService.synchronicFeatureFlagsBool[.cipherKeyEncryption] = true
+        configService.featureFlagsBool[.cipherKeyEncryption] = true
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -130,7 +130,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// when the server version is old.
     @MainActor
     func test_client_loadFlagsEnableCipherKeyEncryptionFalseBecauseOfServerVersion() async throws {
-        configService.synchronicFeatureFlagsBool[.cipherKeyEncryption] = true
+        configService.featureFlagsBool[.cipherKeyEncryption] = true
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -155,7 +155,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// when the server version is old.
     @MainActor
     func test_client_loadFlagsEnableCipherKeyEncryptionFalseBecauseOfFeatureFlag() async throws {
-        configService.synchronicFeatureFlagsBool[.cipherKeyEncryption] = false
+        configService.featureFlagsBool[.cipherKeyEncryption] = false
         configService.configMocker.withResult(ServerConfig(
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
@@ -286,7 +286,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
         XCTAssertEqual(clientBuilder.clients.count, 1)
 
-        configService.synchronicFeatureFlagsBool[.cipherKeyEncryption] = false
+        configService.featureFlagsBool[.cipherKeyEncryption] = false
         configService.configSubject.send(
             MetaServerConfig(
                 isPreAuth: false,

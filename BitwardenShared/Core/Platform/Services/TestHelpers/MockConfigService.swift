@@ -11,7 +11,6 @@ class MockConfigService: ConfigService {
     var configSubject = CurrentValueSubject<BitwardenShared.MetaServerConfig?, Never>(nil)
     var debugFeatureFlags = [DebugMenuFeatureFlag]()
     var featureFlagsBool = [FeatureFlag: Bool]()
-    nonisolated(unsafe) var synchronicFeatureFlagsBool = [FeatureFlag: Bool]()
     var featureFlagsBoolPreAuth = [FeatureFlag: Bool]()
     var featureFlagsInt = [FeatureFlag: Int]()
     var featureFlagsIntPreAuth = [FeatureFlag: Int]()
@@ -52,14 +51,6 @@ class MockConfigService: ConfigService {
     ) async -> String? {
         let value = isPreAuth ? featureFlagsStringPreAuth[flag] : featureFlagsString[flag]
         return value ?? defaultValue
-    }
-
-    nonisolated func getFeatureFlag(
-        _ flag: BitwardenShared.FeatureFlag,
-        defaultValue: Bool,
-        from config: BitwardenShared.ServerConfig?
-    ) -> Bool {
-        synchronicFeatureFlagsBool[flag] ?? defaultValue
     }
 
     func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
