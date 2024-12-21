@@ -282,6 +282,9 @@ struct VaultListView: View {
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
+    /// The window scene for requesting a review.
+    var windowScene: UIWindowScene?
+
     var body: some View {
         ZStack {
             SearchableVaultListView(
@@ -353,26 +356,8 @@ struct VaultListView: View {
         .onDisappear {
             store.send(.disappeared)
         }
-        .apply { view in
-            if #available(iOS 16.0, *) {
-                view.modifier(
-                    ReviewModifier(
-                        isEligible: store.state.isEligibleForAppReview,
-                        afterClosure: {
-                            store.send(.appReviewPromptShown)
-                        }
-                    )
-                )
-            } else {
-                view.modifier(
-                    RequestReviewLegacyModifier(
-                        isEligible: store.state.isEligibleForAppReview,
-                        afterClosure: {
-                            store.send(.appReviewPromptShown)
-                        }
-                    )
-                )
-            }
+        .requestReview(windowScene: windowScene, isEligible: store.state.isEligibleForAppReview) {
+            store.send(.appReviewPromptShown)
         }
     }
 

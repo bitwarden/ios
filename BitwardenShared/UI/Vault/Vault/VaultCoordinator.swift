@@ -289,10 +289,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             )
         )
         let store = Store(processor: processor)
+        let windowScene = stackNavigator?.rootViewController?.view.window?.windowScene
         let view = VaultListView(
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
+            windowScene: windowScene
         )
+        if windowScene == nil {
+            services.errorReporter.log(error: WindowSceneError.nullWindowScene)
+        }
         stackNavigator?.replace(view, animated: false)
     }
 

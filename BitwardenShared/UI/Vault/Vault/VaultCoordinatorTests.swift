@@ -199,6 +199,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is VaultListView)
+        XCTAssertEqual(errorReporter.errors.last as? WindowSceneError, WindowSceneError.nullWindowScene)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
