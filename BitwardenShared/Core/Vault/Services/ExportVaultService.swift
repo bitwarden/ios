@@ -204,7 +204,7 @@ class DefultExportVaultService: ExportVaultService {
             .filter { $0.deletedDate == nil }
 
         let account = try await stateService.getAccount(userId: nil)
-        let sdkAccount = BitwardenSdkAccount(
+        let sdkAccount = BitwardenSdk.Account(
             id: account.profile.userId,
             email: account.profile.email,
             name: account.profile.name
