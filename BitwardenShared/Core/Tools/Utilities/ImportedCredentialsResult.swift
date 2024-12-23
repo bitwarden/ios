@@ -35,6 +35,11 @@ struct ImportedCredentialsResult: Equatable, Sendable {
         }
     }
 
+    /// Whether the result has no imported credentials for the type.
+    var isEmpty: Bool {
+        count == 0 // swiftlint:disable:this empty_count
+    }
+
     /// The credential type imported.
     let type: ImportedCredentialType
 }

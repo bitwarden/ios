@@ -39,4 +39,13 @@ class ImportedCredentialsResultTests: BitwardenTestCase {
         subject = ImportedCredentialsResult(count: 1, type: .sshKey)
         XCTAssertEqual(subject.localizedTypePlural, Localizations.sshKeys)
     }
+
+    /// `getter:isEmpty` returns `true` is no credential were imported, `false` otherwise.
+    func test_isEmpty() {
+        subject = ImportedCredentialsResult(count: 0, type: .identity)
+        XCTAssertTrue(subject.isEmpty)
+
+        subject = ImportedCredentialsResult(count: 1, type: .card)
+        XCTAssertFalse(subject.isEmpty)
+    }
 }

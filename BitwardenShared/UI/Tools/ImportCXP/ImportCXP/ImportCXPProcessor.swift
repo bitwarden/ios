@@ -89,7 +89,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
         do {
             let results = try await services.importCiphersRepository.importCiphers(
                 credentialImportToken: credentialImportToken,
-                progressDelegate: self
+                onProgress: { progress in state.progress = progress }
             )
 
             state.status = .success(
@@ -119,11 +119,5 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
             guard let self else { return }
             coordinator.navigate(to: .dismiss)
         })
-    }
-}
-
-extension ImportCXPProcessor: ProgressDelegate {
-    func report(progress: Double) {
-        state.progress = progress
     }
 }

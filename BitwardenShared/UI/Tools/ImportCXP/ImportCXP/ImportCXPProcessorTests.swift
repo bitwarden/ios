@@ -254,13 +254,6 @@ class ImportCXPProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// `report(progress:)` updates the progress in the state.
-    @MainActor
-    func test_report() async throws {
-        subject.report(progress: 0.6)
-        XCTAssertEqual(subject.state.progress, 0.6)
-    }
-
     // MARK: Private
 
     /// Performs `.perform(.mainButtonTapped)` to start import and checks everything went good.

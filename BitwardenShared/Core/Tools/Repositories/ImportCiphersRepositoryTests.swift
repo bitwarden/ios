@@ -12,7 +12,6 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
     var clientService: MockClientService!
     var credentialManagerFactory: MockCredentialManagerFactory!
     var importCiphersService: MockImportCiphersService!
-    var progressDelegate: MockProgressDelegate!
     var syncService: MockSyncService!
     var subject: ImportCiphersRepository!
 
@@ -24,7 +23,6 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         clientService = MockClientService()
         credentialManagerFactory = MockCredentialManagerFactory()
         importCiphersService = MockImportCiphersService()
-        progressDelegate = MockProgressDelegate()
         syncService = MockSyncService()
         subject = DefaultImportCiphersRepository(
             clientService: clientService,
@@ -40,7 +38,6 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         clientService = nil
         credentialManagerFactory = nil
         importCiphersService = nil
-        progressDelegate = nil
         subject = nil
         syncService = nil
     }
@@ -48,9 +45,9 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `importCiphers(credentialImportToken:progressDelegate:)` imports the ciphers,
-    /// updates progerss report and returns the credentials result with each type count.
+    /// updates progress report and returns the credentials result with each type count.
     @MainActor
-    func test_importCiphers_sucess() async throws {
+    func test_importCiphers_success() async throws {
         guard #available(iOS 18.2, *) else {
             throw XCTSkip("Importing ciphers requires iOS 18.2")
         }
@@ -88,11 +85,12 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             ImportedCredentialsResult(count: 1, type: .sshKey),
         ]
 
+        var progressReports: [Double] = []
         let result = try await subject.importCiphers(
             credentialImportToken: UUID(
                 uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
             )!,
-            progressDelegate: progressDelegate
+            onProgress: { progress in progressReports.append(progress) }
         )
 
         XCTAssertNotNil(clientService.mockExporters.importCxfPayload)
@@ -100,7 +98,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(importCiphersService.importCiphersCiphers?.count, 10)
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(syncService.fetchSyncForceSync == true)
-        XCTAssertEqual(progressDelegate.progressReports, [0.3, 0.8, 1.0])
+        XCTAssertEqual(progressReports, [0.3, 0.8, 1.0])
         XCTAssertEqual(result, expectedResults)
     }
 
@@ -126,7 +124,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
                 credentialImportToken: UUID(
                     uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
                 )!,
-                progressDelegate: progressDelegate
+                onProgress: { _ in }
             )
         }
     }
@@ -157,7 +155,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
                 credentialImportToken: UUID(
                     uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
                 )!,
-                progressDelegate: progressDelegate
+                onProgress: { _ in }
             )
         }
     }
@@ -188,15 +186,16 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         importCiphersService.importCiphersError = BitwardenTestError.example
 
+        var progressReports: [Double] = []
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.importCiphers(
                 credentialImportToken: UUID(
                     uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
                 )!,
-                progressDelegate: progressDelegate
+                onProgress: { progress in progressReports.append(progress) }
             )
         }
-        XCTAssertEqual(progressDelegate.progressReports, [0.3])
+        XCTAssertEqual(progressReports, [0.3])
     }
 
     /// `importCiphers(credentialImportToken:progressDelegate:)` throws when syncing after
@@ -225,15 +224,16 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         syncService.fetchSyncResult = .failure(BitwardenTestError.example)
 
+        var progressReports: [Double] = []
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.importCiphers(
                 credentialImportToken: UUID(
                     uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
                 )!,
-                progressDelegate: progressDelegate
+                onProgress: { progress in progressReports.append(progress) }
             )
         }
-        XCTAssertEqual(progressDelegate.progressReports, [0.3, 0.8])
+        XCTAssertEqual(progressReports, [0.3, 0.8])
     }
 }
 #endif

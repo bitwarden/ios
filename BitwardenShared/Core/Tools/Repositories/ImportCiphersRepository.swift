@@ -8,13 +8,13 @@ protocol ImportCiphersRepository: AnyObject {
     /// Performs an API request to import ciphers in the vault.
     /// - Parameters:
     ///   - credentialImportToken: The token used in `ASCredentialImportManager` to get the credentials to import.
-    ///   - progressDelegate: Delegate to update progress.
+    ///   - onProgress: Closure to update progress.
     /// - Returns: A dictionary containing the localized cipher type (key) and count (value) of that type
     /// that was imported, e.g. ["Passwords": 3, "Cards": 2].
     @available(iOS 18.2, *)
     func importCiphers(
         credentialImportToken: UUID,
-        progressDelegate: ProgressDelegate
+        onProgress: @MainActor (Double) -> Void
     ) async throws -> [ImportedCredentialsResult]
 }
 
@@ -66,7 +66,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
     @available(iOS 18.2, *)
     func importCiphers( // swiftlint:disable:this function_body_length
         credentialImportToken: UUID,
-        progressDelegate: ProgressDelegate
+        onProgress: @MainActor (Double) -> Void
     ) async throws -> [ImportedCredentialsResult] {
         #if compiler(>=6.0.3)
 
@@ -86,7 +86,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
 
         let ciphers = try await clientService.exporters().importCxf(payload: accountJsonString)
 
-        await progressDelegate.report(progress: 0.3)
+        await onProgress(0.3)
 
         _ = try await importCiphersService
             .importCiphers(
@@ -95,84 +95,43 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
                 folderRelationships: []
             )
 
-        await progressDelegate.report(progress: 0.8)
+        await onProgress(0.8)
 
         try await syncService.fetchSync(forceSync: true)
 
-        var importedCredentialsCount: [ImportedCredentialsResult] = []
-        appendImportedCredentialCountIfAny(
-            importedCredentialsCount: &importedCredentialsCount,
-            ciphers: ciphers,
-            type: .password,
-            when: { cipher in
-                cipher.type == .login && cipher.login?.fido2Credentials?.isEmpty != false
-            }
-        )
-        appendImportedCredentialCountIfAny(
-            importedCredentialsCount: &importedCredentialsCount,
-            ciphers: ciphers,
-            type: .passkey,
-            when: { cipher in
-                cipher.type == .login && cipher.login?.fido2Credentials?.isEmpty == false
-            }
-        )
-        appendImportedCredentialCountIfAny(
-            importedCredentialsCount: &importedCredentialsCount,
-            ciphers: ciphers,
-            type: .card,
-            when: { $0.type == .card }
-        )
-        appendImportedCredentialCountIfAny(
-            importedCredentialsCount: &importedCredentialsCount,
-            ciphers: ciphers,
-            type: .identity,
-            when: { $0.type == .identity }
-        )
-        appendImportedCredentialCountIfAny(
-            importedCredentialsCount: &importedCredentialsCount,
-            ciphers: ciphers,
-            type: .secureNote,
-            when: { $0.type == .secureNote }
-        )
-        appendImportedCredentialCountIfAny(
-            importedCredentialsCount: &importedCredentialsCount,
-            ciphers: ciphers,
-            type: .sshKey,
-            when: { $0.type == .sshKey }
-        )
+        let importedCredentialsCount: [ImportedCredentialsResult] = [
+            ImportedCredentialsResult(
+                count: ciphers.count { $0.type == .login && $0.login?.fido2Credentials?.isEmpty != false },
+                type: .password
+            ),
+            ImportedCredentialsResult(
+                count: ciphers.count { $0.type == .login && $0.login?.fido2Credentials?.isEmpty == false },
+                type: .passkey
+            ),
+            ImportedCredentialsResult(
+                count: ciphers.count { $0.type == .card },
+                type: .card
+            ),
+            ImportedCredentialsResult(
+                count: ciphers.count { $0.type == .identity },
+                type: .identity
+            ),
+            ImportedCredentialsResult(
+                count: ciphers.count { $0.type == .secureNote },
+                type: .secureNote
+            ),
+            ImportedCredentialsResult(
+                count: ciphers.count { $0.type == .sshKey },
+                type: .sshKey
+            ),
+        ]
 
-        await progressDelegate.report(progress: 1.0)
+        await onProgress(1.0)
 
-        return importedCredentialsCount
+        return importedCredentialsCount.filter { !$0.isEmpty }
         #else
         return []
         #endif
-    }
-
-    // MARK: Private
-
-    /// Appends imported credential count when the condition is true for the count.
-    /// - Parameters:
-    ///   - importedCredentialsCount: The array to update.
-    ///   - ciphers: The ciphers to count.
-    ///   - type: The type to add if the condition is met.
-    ///   - when: The filter to apply to count the ciphers.
-    private func appendImportedCredentialCountIfAny(
-        importedCredentialsCount: inout [ImportedCredentialsResult],
-        ciphers: [Cipher],
-        type: ImportedCredentialsResult.ImportedCredentialType,
-        when: (Cipher) -> Bool
-    ) {
-        let count = ciphers.count { when($0) }
-        if count > 0 { // swiftlint:disable:this empty_count
-            importedCredentialsCount
-                .append(
-                    ImportedCredentialsResult(
-                        count: count,
-                        type: type
-                    )
-                )
-        }
     }
 }
 

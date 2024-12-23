@@ -6,11 +6,13 @@ import Foundation
 class MockImportCiphersRepository: ImportCiphersRepository {
     var importCiphersResult = InvocationMockerWithThrowingResult<UUID, [ImportedCredentialsResult]>()
         .withResult([])
+    var progressReport: Double = 0
 
     func importCiphers(
         credentialImportToken: UUID,
-        progressDelegate: ProgressDelegate
+        onProgress: @MainActor (Double) -> Void
     ) async throws -> [ImportedCredentialsResult] {
-        try importCiphersResult.invoke(param: credentialImportToken)
+        await onProgress(progressReport)
+        return try importCiphersResult.invoke(param: credentialImportToken)
     }
 }
