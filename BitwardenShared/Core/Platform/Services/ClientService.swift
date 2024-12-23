@@ -255,7 +255,7 @@ actor DefaultClientService: ClientService {
 
                 // Get the current config and load the flags.
                 let config = await configService.getConfig()
-                loadFlags(config, for: newClient)
+                await loadFlags(config, for: newClient)
 
                 return newClient
             }
@@ -288,14 +288,20 @@ actor DefaultClientService: ClientService {
 
     /// Loads the flags into the SDK.
     /// - Parameter config: Config to update the flags.
-    private func loadFlags(_ config: ServerConfig?, for client: BitwardenSdkClient) {
+    private func loadFlags(_ config: ServerConfig?, for client: BitwardenSdkClient) async {
         do {
             guard let config else {
                 return
             }
 
+            let cipherKeyEncryptionFlagEnabled: Bool = await configService.getFeatureFlag(
+                .cipherKeyEncryption,
+                defaultValue: true
+            )
+            let enableCipherKeyEncryption = cipherKeyEncryptionFlagEnabled && config.supportsCipherKeyEncryption()
+
             try client.platform().loadFlags([
-                FeatureFlag.enableCipherKeyEncryption.rawValue: config.supportsCipherKeyEncryption(),
+                FeatureFlag.enableCipherKeyEncryption.rawValue: enableCipherKeyEncryption,
             ])
         } catch {
             errorReporter.log(error: error)
