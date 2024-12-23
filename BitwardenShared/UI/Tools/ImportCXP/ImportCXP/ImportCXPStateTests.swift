@@ -43,10 +43,10 @@ class ImportCXPStateTests: BitwardenTestCase {
     /// `getter:mainIcon` returns the appropriate value depending on the `status`.
     func test_mainIcon() {
         subject.status = .start
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.Illustrations.import.name)
+        XCTAssertEqual(subject.mainIcon.name, Asset.Images.fileUpload24.name)
 
         subject.status = .importing
-        XCTAssertEqual(subject.mainIcon.name, Asset.Images.Illustrations.import.name)
+        XCTAssertEqual(subject.mainIcon.name, Asset.Images.fileUpload24.name)
 
         subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertEqual(subject.mainIcon.name, Asset.Images.checkCircle24.name)
