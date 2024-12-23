@@ -1075,3 +1075,5 @@
 "ShowVault" = "Show vault";
 "ImportNotAvailable" = "Import not available";
 "ImportingFromAnotherProviderIsNotAvailableForThisDevice" = "Importing from another provider is not available for this device.";
+"ExportVaultToAFile" = "Export vault to a file";
+"ExportVaultToAnotherApp" = "Export vault to another app";
