@@ -62,8 +62,7 @@ class TwoFactorNoticeCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.setUpTwoFactor` navigates to the set up two factor view.
     @MainActor
     func test_navigateTo_setUpTwoFactor() throws {
-        subject.navigate(to: .setUpTwoFactor(allowDelay: true, emailAddress:
-                                        "person@example.com"))
+        subject.navigate(to: .setUpTwoFactor(allowDelay: true, emailAddress: "person@example.com"))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .pushed)
@@ -74,5 +73,6 @@ class TwoFactorNoticeCoordinatorTests: BitwardenTestCase {
     @MainActor
     func test_start() throws {
         subject.start()
+        XCTAssertTrue(stackNavigator.actions.isEmpty)
     }
 }
