@@ -57,4 +57,13 @@ class EmailAccessViewTests: BitwardenTestCase {
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }
+
+    @MainActor
+    func test_snapshot_emailAccessView_longEmailAddress() {
+        processor.state.emailAddress = "veryveryveryverylongname@veryveryveryverylongdomain.com"
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait]
+        )
+    }
 }
