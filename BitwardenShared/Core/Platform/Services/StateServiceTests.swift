@@ -247,14 +247,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(hasPremium)
     }
 
-    /// `doesActiveAccountHaveTwoFactor()` returns whether the active account
-    /// has two-factor enabled
-    func test_doesActiveAccountHaveTwoFactor() async throws {
-        await subject.addAccount(.fixture(profile: .fixture(twoFactorEnabled: true)))
-        let hasTwoFactor = try await subject.doesActiveAccountHaveTwoFactor()
-        XCTAssertTrue(hasTwoFactor)
-    }
-
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
     func test_getAccountEncryptionKeys() async throws {
         appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"
@@ -2175,6 +2167,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .fixture(
                 profile: .fixture(
                     avatarColor: nil,
+                    creationDate: nil,
                     email: "user@bitwarden.com",
                     emailVerified: false,
                     hasPremiumPersonally: false,
@@ -2189,6 +2182,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.updateProfile(
             from: .fixture(
                 avatarColor: "175DDC",
+                creationDate: Date(year: 2024, month: 12, day: 25),
                 email: "other@bitwarden.com",
                 emailVerified: true,
                 name: "Other",
@@ -2205,6 +2199,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .fixture(
                 profile: .fixture(
                     avatarColor: "175DDC",
+                    creationDate: Date(year: 2024, month: 12, day: 25),
                     email: "other@bitwarden.com",
                     emailVerified: true,
                     hasPremiumPersonally: true,

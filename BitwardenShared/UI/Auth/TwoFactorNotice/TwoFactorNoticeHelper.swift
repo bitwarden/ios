@@ -84,8 +84,12 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
         )
         guard temporary || permanent else { return }
         do {
+            let profile = try await services.stateService.getActiveAccount().profile
+
+            let hasTwoFactor = profile.twoFactorEnabled ?? false
+
             guard services.environmentService.region != .selfHosted,
-                  try await !services.stateService.doesActiveAccountHaveTwoFactor(),
+                  !hasTwoFactor,
                   await !services.policyService.policyAppliesToUser(.requireSSO)
             else { return }
 

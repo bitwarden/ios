@@ -48,11 +48,12 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         // show the notice, and then in tests selectively set up the specific
         // condition that causes it to not show. This hopefully makes the tests
         // easier to read.
-        stateService.activeAccount = .fixture()
+        stateService.activeAccount = .fixture(
+            profile: .fixture(twoFactorEnabled: false)
+        )
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = true
         environmentService.region = .unitedStates
-        stateService.doesActiveAccountHaveTwoFactorResult = .success(false)
         policyService.policyAppliesToUserResult[.requireSSO] = false
     }
 
@@ -87,7 +88,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     /// if the user already has a 2FA method configured
     @MainActor
     func test_maybeShow_preexistingTwoFactor() async {
-        stateService.doesActiveAccountHaveTwoFactorResult = .success(true)
+        stateService.activeAccount?.profile.twoFactorEnabled = true
 
         await subject.maybeShowTwoFactorNotice()
 

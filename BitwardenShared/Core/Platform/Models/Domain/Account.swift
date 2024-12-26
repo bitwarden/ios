@@ -1,3 +1,5 @@
+import Foundation
+
 /// Domain model for a user account.
 ///
 public struct Account: Codable, Equatable, Hashable, Sendable {
@@ -55,6 +57,7 @@ extension Account {
         self.init(
             profile: AccountProfile(
                 avatarColor: nil,
+                creationDate: nil,
                 email: tokenPayload.email,
                 emailVerified: nil,
                 forcePasswordResetReason: identityTokenResponseModel.forcePasswordReset ?
@@ -86,6 +89,9 @@ extension Account {
 
         /// The account's avatar color.
         var avatarColor: String?
+
+        /// The account's creation date.
+        var creationDate: Date?
 
         /// The account's email.
         var email: String

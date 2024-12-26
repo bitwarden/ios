@@ -80,6 +80,7 @@ extension Account {
 extension Account.AccountProfile {
     static func fixture(
         avatarColor: String? = nil,
+        creationDate: Date? = nil,
         email: String = "user@bitwarden.com",
         emailVerified: Bool? = true,
         forcePasswordResetReason: ForcePasswordResetReason? = nil,
@@ -97,6 +98,7 @@ extension Account.AccountProfile {
     ) -> Account.AccountProfile {
         Account.AccountProfile(
             avatarColor: avatarColor,
+            creationDate: creationDate,
             email: email,
             emailVerified: emailVerified,
             forcePasswordResetReason: forcePasswordResetReason,
