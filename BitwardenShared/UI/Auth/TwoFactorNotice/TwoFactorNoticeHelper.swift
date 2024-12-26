@@ -86,10 +86,17 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
         do {
             let profile = try await services.stateService.getActiveAccount().profile
 
+            // If we don't have a creation date (possible for older accounts that
+            // haven't synced recently, because the property is only being saved as of
+            // this notice being implemented) then assume the account is old enough
+            // to always qualify.
+            let creationDate = profile.creationDate ?? Date(timeIntervalSince1970: 0)
+            let accountAge = services.timeProvider.timeSince(creationDate)
             let hasTwoFactor = profile.twoFactorEnabled ?? false
 
-            guard services.environmentService.region != .selfHosted,
+            guard accountAge > Constants.twoFactorNoticeMinimumAccountAgeInterval,
                   !hasTwoFactor,
+                  services.environmentService.region != .selfHosted,
                   await !services.policyService.policyAppliesToUser(.requireSSO)
             else { return }
 

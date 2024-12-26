@@ -49,7 +49,10 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         // condition that causes it to not show. This hopefully makes the tests
         // easier to read.
         stateService.activeAccount = .fixture(
-            profile: .fixture(twoFactorEnabled: false)
+            profile: .fixture(
+                creationDate: Date(year: 2024, month: 4, day: 15),
+                twoFactorEnabled: false
+            )
         )
         configService.featureFlagsBool[.newDeviceVerificationTemporaryDismiss] = true
         configService.featureFlagsBool[.newDeviceVerificationPermanentDismiss] = true
@@ -73,15 +76,50 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     // MARK: Tests based on properties of the account itself
 
     /// `.maybeShowTwoFactorNotice()` will show the notice
-    /// if the user does not have a 2FA method configured,
-    /// is not self-hosted
-    /// and is not SSO-only
+    /// if all of the following is true about the user:
+    /// - has an account over seven days old
+    /// - does not have a 2FA method configured
+    /// - is not self-hosted
+    /// - is not SSO-only
     ///
     @MainActor
     func test_maybeShow() async {
         await subject.maybeShowTwoFactorNotice()
 
         XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
+    }
+
+    /// `.maybeShowTwoFactorNotice()` will show the notice
+    /// if the user's account's creation date is unknown
+    @MainActor
+    func test_maybeShow_ageUnknown() async {
+        stateService.activeAccount?.profile.creationDate = nil
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
+    }
+
+    /// `.maybeShowTwoFactorNotice()` will not show the notice
+    /// if the user's account is exactly seven days old
+    @MainActor
+    func test_maybeShow_ageExactlySevenDays() async {
+        stateService.activeAccount?.profile.creationDate = Date(year: 2024, month: 6, day: 8, hour: 12, minute: 0)
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `.maybeShowTwoFactorNotice()` will not show the notice
+    /// if the user's account is under seven days old
+    @MainActor
+    func test_maybeShow_ageUnderSevenDays() async {
+        stateService.activeAccount?.profile.creationDate = Date(year: 2024, month: 6, day: 10, hour: 12, minute: 0)
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [])
     }
 
     /// `.maybeShowTwoFactorNotice()` will not show the notice
