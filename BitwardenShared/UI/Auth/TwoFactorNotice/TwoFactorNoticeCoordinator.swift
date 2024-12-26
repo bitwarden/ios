@@ -63,6 +63,11 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
+    /// Shows the screen asking if the user can access their email.
+    ///
+    /// - Parameters:
+    ///   - allowDelay: Whether or not the user can temporarily dismiss the notice.
+    ///   - emailAddress: The email address of the user.
     func showEmailAccess(allowDelay: Bool, emailAddress: String) {
         let processor = EmailAccessProcessor(
             coordinator: asAnyCoordinator(),
@@ -79,6 +84,11 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.replace(view)
     }
 
+    /// Shows the screen providing options for setting up two-factor authentication.
+    ///
+    /// - Parameters:
+    ///   - allowDelay: Whether or not the user can temporarily dismiss the notice.
+    ///   - emailAddress: The email address of the user.
     func showSetUpTwoFactor(allowDelay: Bool, emailAddress: String) {
         let processor = SetUpTwoFactorProcessor(
             coordinator: asAnyCoordinator(),

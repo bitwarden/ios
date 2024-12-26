@@ -340,6 +340,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the notice that the user does not have two-factor set up.
     ///
+    /// - Parameters:
+    ///   - allowDelay: Whether or not the user can temporarily dismiss the notice.
+    ///   - emailAddress: The email address of the user.
     private func showTwoFactorNotice(allowDelay: Bool, emailAddress: String) {
         let navigationController = UINavigationController()
         navigationController.navigationBar.isHidden = true

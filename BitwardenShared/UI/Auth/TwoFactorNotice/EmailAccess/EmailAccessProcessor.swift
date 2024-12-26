@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - EmailAccessProcessor
 
-/// The processor used to manage state and handle actions for the new device notice screen.
+/// The processor used to manage state and handle actions for the email access screen.
 ///
 class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, EmailAccessEffect> {
     // MARK: Types

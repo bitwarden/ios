@@ -49,7 +49,7 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .remindMeLaterTapped)
     }
 
-    /// Tapping the turn on two-step login button sends `.changeAccountEmailTapped`
+    /// Tapping the turn on two-step login button sends `.turnOnTwoFactorTapped`
     @MainActor
     func test_turnOnTwoStep_tap() throws {
         let button = try subject.inspect().find(button: Localizations.turnOnTwoStepLogin)
