@@ -104,7 +104,7 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
             case .hasNotSeen:
                 coordinator.navigate(to: .twoFactorNotice(allowDelay: !permanent, emailAddress: emailAddress))
             case let .seen(date):
-                if services.timeProvider.timeSince(date) >= (86400 * 7) { // Seven days
+                if services.timeProvider.timeSince(date) >= Constants.twoFactorNoticeDelayInterval {
                     coordinator.navigate(to: .twoFactorNotice(allowDelay: !permanent, emailAddress: emailAddress))
                 }
             }

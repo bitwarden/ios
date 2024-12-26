@@ -71,7 +71,7 @@ enum Constants {
     /// The maximum number of unsuccessful attempts the user can make to unlock
     static let maxUnlockUnsuccessfulAttempts = 5
 
-    /// THe minimum number of minutes before attempting a server config sync again.
+    /// The minimum number of minutes before attempting a server config sync again.
     static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
 
     /// A default value for the minimum number of characters required when creating a password.
@@ -88,6 +88,10 @@ enum Constants {
 
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
+
+    /// The minimum number of seconds after a user delays the two-factor notice
+    /// before we display the notice again.
+    static let twoFactorNoticeDelayInterval: TimeInterval = 86400 * 7 // Seven days
 
     /// The default file name when the file name cannot be determined.
     static let unknownFileName = "unknown_file_name"
