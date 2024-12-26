@@ -12,4 +12,7 @@ struct EmailAccessState: Equatable, Sendable {
 
     /// User-provided value for whether or not they can access their given email address.
     var canAccessEmail: Bool = false
+
+    /// The user's email address.
+    var emailAddress: String
 }

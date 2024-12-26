@@ -74,7 +74,8 @@ struct SetUpTwoFactorView: View {
             store: Store(
                 processor: StateProcessor(
                     state: SetUpTwoFactorState(
-                        allowDelay: true
+                        allowDelay: true,
+                        emailAddress: ""
                     )
                 )
             )
@@ -88,7 +89,8 @@ struct SetUpTwoFactorView: View {
             store: Store(
                 processor: StateProcessor(
                     state: SetUpTwoFactorState(
-                        allowDelay: false
+                        allowDelay: false,
+                        emailAddress: ""
                     )
                 )
             )

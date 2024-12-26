@@ -29,7 +29,10 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         subject = EmailAccessProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: EmailAccessState(allowDelay: true)
+            state: EmailAccessState(
+                allowDelay: true,
+                emailAddress: "person@example.com"
+            )
         )
     }
 
@@ -51,7 +54,7 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         subject.state.allowDelay = false
         subject.state.canAccessEmail = false
         await subject.perform(.continueTapped)
-        XCTAssertEqual(coordinator.routes.last, .setUpTwoFactor(allowDelay: false))
+        XCTAssertEqual(coordinator.routes.last, .setUpTwoFactor(allowDelay: false, emailAddress: "person@example.com"))
     }
 
     /// `.perform(_:)` with `.continueTapped` updates the state and navigates to dismiss

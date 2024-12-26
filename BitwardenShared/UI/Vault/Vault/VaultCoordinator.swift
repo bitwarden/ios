@@ -198,8 +198,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
-        case let .twoFactorNotice(allowDelay):
-            showTwoFactorNotice(allowDelay)
+        case let .twoFactorNotice(allowDelay, emailAddress):
+            showTwoFactorNotice(allowDelay: allowDelay, emailAddress: emailAddress)
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id):
@@ -340,13 +340,13 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the notice that the user does not have two-factor set up.
     ///
-    private func showTwoFactorNotice(_ allowDelay: Bool) {
+    private func showTwoFactorNotice(allowDelay: Bool, emailAddress: String) {
         let navigationController = UINavigationController()
         navigationController.navigationBar.isHidden = true
         let coordinator = module.makeTwoFactorNoticeCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(
-            to: .emailAccess(allowDelay: allowDelay),
+            to: .emailAccess(allowDelay: allowDelay, emailAddress: emailAddress),
             context: delegate
         )
 

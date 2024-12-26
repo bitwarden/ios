@@ -89,21 +89,23 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
                   await !services.policyService.policyAppliesToUser(.requireSSO)
             else { return }
 
+            let emailAddress = try await services.stateService.getActiveAccount().profile.email
+
             let state = try await services.stateService.getTwoFactorNoticeDisplayState()
             switch state {
             case .canAccessEmail:
                 if permanent {
-                    coordinator.navigate(to: .twoFactorNotice(!permanent))
+                    coordinator.navigate(to: .twoFactorNotice(allowDelay: !permanent, emailAddress: emailAddress))
                 } else {
                     return
                 }
             case .canAccessEmailPermanent:
                 return
             case .hasNotSeen:
-                coordinator.navigate(to: .twoFactorNotice(!permanent))
+                coordinator.navigate(to: .twoFactorNotice(allowDelay: !permanent, emailAddress: emailAddress))
             case let .seen(date):
                 if services.timeProvider.timeSince(date) >= (86400 * 7) { // Seven days
-                    coordinator.navigate(to: .twoFactorNotice(!permanent))
+                    coordinator.navigate(to: .twoFactorNotice(allowDelay: !permanent, emailAddress: emailAddress))
                 }
             }
         } catch {

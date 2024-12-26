@@ -6,8 +6,8 @@ public enum TwoFactorNoticeRoute: Equatable, Hashable {
     case dismiss
 
     /// A route to the email access screen.
-    case emailAccess(allowDelay: Bool)
+    case emailAccess(allowDelay: Bool, emailAddress: String)
 
     /// A route to the screen to set up two-factor authentication.
-    case setUpTwoFactor(allowDelay: Bool)
+    case setUpTwoFactor(allowDelay: Bool, emailAddress: String)
 }

@@ -66,6 +66,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         policyService = nil
         stateService = nil
         subject = nil
+        timeProvider = nil
     }
 
     // MARK: Tests based on properties of the account itself
@@ -79,7 +80,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     func test_maybeShow() async {
         await subject.maybeShowTwoFactorNotice()
 
-        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
     }
 
     /// `.maybeShowTwoFactorNotice()` will not show the notice
@@ -101,7 +102,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
-        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
     }
 
     /// `.maybeShowTwoFactorNotice()` will not show the notice
@@ -166,7 +167,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
-        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
     }
 
     /// `.maybeShowTwoFactorNotice()` will not show the notice
@@ -192,7 +193,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
-        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(false)])
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
     }
 
     /// `.maybeShowTwoFactorNotice()` will show the notice
@@ -205,7 +206,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
-        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(true)])
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: true, emailAddress: "user@bitwarden.com")])
     }
 
     /// `.maybeShowTwoFactorNotice()` will not show the notice
@@ -232,7 +233,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
-        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(true)])
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: true, emailAddress: "user@bitwarden.com")])
     }
 
     // MARK: Other tests
@@ -250,5 +251,4 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         )
         XCTAssertEqual(coordinator.routes, [])
     }
-
 }

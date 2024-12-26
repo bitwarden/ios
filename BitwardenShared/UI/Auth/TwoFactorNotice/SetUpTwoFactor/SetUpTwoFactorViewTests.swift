@@ -16,7 +16,7 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: SetUpTwoFactorState(allowDelay: true))
+        processor = MockProcessor(state: SetUpTwoFactorState(allowDelay: true, emailAddress: "person@example.com"))
         let store = Store(processor: processor)
 
         subject = SetUpTwoFactorView(store: store)

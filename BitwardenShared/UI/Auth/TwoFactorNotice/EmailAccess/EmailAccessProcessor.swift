@@ -67,7 +67,12 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
                 try await services.stateService.setTwoFactorNoticeDisplayState(state: displayState)
                 coordinator.navigate(to: .dismiss)
             } else {
-                coordinator.navigate(to: .setUpTwoFactor(allowDelay: state.allowDelay))
+                coordinator.navigate(
+                    to: .setUpTwoFactor(
+                        allowDelay: state.allowDelay,
+                        emailAddress: state.emailAddress
+                    )
+                )
             }
         } catch {
             services.errorReporter.log(error: error)

@@ -168,7 +168,7 @@ class AppModuleTests: BitwardenTestCase {
         let coordinator = subject.makeTwoFactorNoticeCoordinator(
             stackNavigator: navigationController
         )
-        coordinator.navigate(to: .emailAccess(allowDelay: true))
+        coordinator.navigate(to: .emailAccess(allowDelay: true, emailAddress: "person@example.com"))
         XCTAssertEqual(navigationController.viewControllers.count, 1)
         XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<EmailAccessView>)
     }

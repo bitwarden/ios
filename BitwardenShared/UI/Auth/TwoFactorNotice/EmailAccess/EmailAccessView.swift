@@ -41,10 +41,14 @@ struct EmailAccessView: View {
 
     private var toggleCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmail("person\u{2060}@example.com")))
-                .styleGuide(.body)
-                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .accessibilityHidden(true)
+            Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmail(
+                // Adding the Word Joiner character (U+2060) in the middle of the email address
+                // keeps the markdown rendering from making the email address a tappable link.
+                store.state.emailAddress.replacingOccurrences(of: "@", with: "\u{2060}@")
+            )))
+            .styleGuide(.body)
+            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+            .accessibilityHidden(true)
 
             Divider()
 
@@ -72,7 +76,8 @@ struct EmailAccessView: View {
             store: Store(
                 processor: StateProcessor(
                     state: EmailAccessState(
-                        allowDelay: true
+                        allowDelay: true,
+                        emailAddress: "person@example.com"
                     )
                 )
             )

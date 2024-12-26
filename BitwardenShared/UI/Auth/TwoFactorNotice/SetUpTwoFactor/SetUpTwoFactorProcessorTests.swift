@@ -35,7 +35,7 @@ class SetUpTwoFactorProcessorTests: BitwardenTestCase {
         subject = SetUpTwoFactorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
-            state: SetUpTwoFactorState(allowDelay: true)
+            state: SetUpTwoFactorState(allowDelay: true, emailAddress: "person@example.com")
         )
     }
 

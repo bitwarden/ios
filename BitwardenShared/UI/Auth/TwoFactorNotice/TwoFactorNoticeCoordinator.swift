@@ -52,10 +52,10 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case .dismiss:
             stackNavigator?.dismiss()
-        case let .emailAccess(allowDelay):
-            showEmailAccess(allowDelay)
-        case let .setUpTwoFactor(allowDelay):
-            showSetUpTwoFactor(allowDelay)
+        case let .emailAccess(allowDelay, emailAddress):
+            showEmailAccess(allowDelay: allowDelay, emailAddress: emailAddress)
+        case let .setUpTwoFactor(allowDelay, emailAddress):
+            showSetUpTwoFactor(allowDelay: allowDelay, emailAddress: emailAddress)
         }
     }
 
@@ -63,12 +63,13 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Methods
 
-    func showEmailAccess(_ allowDelay: Bool) {
+    func showEmailAccess(allowDelay: Bool, emailAddress: String) {
         let processor = EmailAccessProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: EmailAccessState(
-                allowDelay: allowDelay
+                allowDelay: allowDelay,
+                emailAddress: emailAddress
             )
         )
         let store = Store(processor: processor)
@@ -78,12 +79,13 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.replace(view)
     }
 
-    func showSetUpTwoFactor(_ allowDelay: Bool) {
+    func showSetUpTwoFactor(allowDelay: Bool, emailAddress: String) {
         let processor = SetUpTwoFactorProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: SetUpTwoFactorState(
-                allowDelay: allowDelay
+                allowDelay: allowDelay,
+                emailAddress: emailAddress
             )
         )
         let store = Store(processor: processor)
