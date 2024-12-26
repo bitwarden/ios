@@ -48,6 +48,7 @@ struct SecondaryButtonStyle: ButtonStyle {
                 Capsule()
                     .strokeBorder(borderColor, lineWidth: 1.5)
             }
+            .contentShape(Capsule())
             .clipShape(Capsule())
             .opacity(configuration.isPressed ? 0.5 : 1)
     }

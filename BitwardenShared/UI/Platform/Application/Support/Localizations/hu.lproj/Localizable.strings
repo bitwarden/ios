@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Személyes kulcs másolása";
 "CopyFingerprint" = "Ujjlenyomat másolása";
 "SSHKeys" = "SSH kulcsok";
+"NothingAvailableToAutofill" = "Semmi sem érhető el az automatikus kitöltéshez.";
+"FailedToGenerateVerificationCode" = "Nem sikerült létrehozni az ellenőrző kódot.";
+"FailedToAutofillItem" = "%1$@ elemet nem sikerült automatikusan kitölteni.";
 "ExportingFailed" = "Az exportálás sikertelen volt.";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Lehetséges, hogy engedélyezni kell az eszköz jelkódot vagy a biometrikus adatokat.";

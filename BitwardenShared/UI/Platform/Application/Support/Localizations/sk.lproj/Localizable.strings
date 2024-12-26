@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Kopírovať súkromný kľúč";
 "CopyFingerprint" = "Kopírovať odtlačok prsta";
 "SSHKeys" = "Kľúče SSH";
+"NothingAvailableToAutofill" = "Nie je nič na vyplnenie";
+"FailedToGenerateVerificationCode" = "Nepodarilo sa vygenerovať overovací kód";
+"FailedToAutofillItem" = "Nepodarilo sa automaticky vyplniť položku %1$@";
 "ExportingFailed" = "Export zlyhal";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možno bude potrebné povoliť prístupový kód zariadenia alebo biometriu.";
