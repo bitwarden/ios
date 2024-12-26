@@ -57,7 +57,6 @@ extension Account {
         self.init(
             profile: AccountProfile(
                 avatarColor: nil,
-                creationDate: nil,
                 email: tokenPayload.email,
                 emailVerified: nil,
                 forcePasswordResetReason: identityTokenResponseModel.forcePasswordReset ?
