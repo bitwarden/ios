@@ -33,7 +33,7 @@ extension Alert {
     static func turnOnTwoFactorLoginAlert(action: @escaping () -> Void) -> Alert {
         Alert(
             title: Localizations.turnOnTwoStepLogin,
-            message: Localizations.turnOnTwoStepLoginConfirmation,
+            message: Localizations.twoStepLoginDescriptionLong,
             alertActions: [
                 AlertAction(title: Localizations.cancel, style: .cancel),
                 AlertAction(title: Localizations.continue, style: .default) { _ in

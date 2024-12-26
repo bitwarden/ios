@@ -32,7 +32,7 @@ class AlertTwoFactorNoticeTests: BitwardenTestCase {
         let subject = Alert.turnOnTwoFactorLoginAlert {}
 
         XCTAssertEqual(subject.title, Localizations.turnOnTwoStepLogin)
-        XCTAssertEqual(subject.message, Localizations.turnOnTwoStepLoginConfirmation)
+        XCTAssertEqual(subject.message, Localizations.twoStepLoginDescriptionLong)
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.alertActions.count, 2)
 

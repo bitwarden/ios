@@ -41,14 +41,13 @@ struct EmailAccessView: View {
 
     private var toggleCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmail(
+            Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmailDescriptionLong(
                 // Adding the Word Joiner character (U+2060) in the middle of the email address
                 // keeps the markdown rendering from making the email address a tappable link.
                 store.state.emailAddress.replacingOccurrences(of: "@", with: "\u{2060}@")
             )))
             .styleGuide(.body)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .accessibilityHidden(true)
 
             Divider()
 
@@ -57,7 +56,7 @@ struct EmailAccessView: View {
                 send: EmailAccessAction.canAccessEmailChanged
             ))
             .toggleStyle(.bitwarden)
-            .accessibilityIdentifier("ItemFavoriteToggle")
+            .accessibilityIdentifier("AccessEmailToggle")
         }
         .multilineTextAlignment(.leading)
         .padding(.horizontal, 16)

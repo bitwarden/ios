@@ -21,7 +21,7 @@ struct SetUpTwoFactorView: View {
             PageHeaderView(
                 image: Asset.Images.Illustrations.userLock.swiftUIImage,
                 title: Localizations.setUpTwoStepLogin,
-                message: Localizations.youCanSetUpTwoStepLoginAsAnAlternative
+                message: Localizations.youCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong
             )
 
             Button {
