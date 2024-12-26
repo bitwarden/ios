@@ -19,7 +19,7 @@ struct EmailAccessView: View {
             PageHeaderView(
                 image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
                 title: Localizations.importantNotice,
-                message: Localizations.bitwardenWillSendACodeToYourAccountEmail
+                message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong
             )
 
             toggleCard
@@ -41,7 +41,7 @@ struct EmailAccessView: View {
 
     private var toggleCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmailDescriptionLong(
+            Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmail(
                 // Adding the Word Joiner character (U+2060) in the middle of the email address
                 // keeps the markdown rendering from making the email address a tappable link.
                 store.state.emailAddress.replacingOccurrences(of: "@", with: "\u{2060}@")

@@ -1060,8 +1060,8 @@
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
 "ImportantNotice" = "Important notice";
-"BitwardenWillSendACodeToYourAccountEmail" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
-"DoYouHaveReliableAccessToYourEmailDescriptionLong" = "Do you have reliable access to your email, **%1$@**?";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
+"DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
 "YesICanReliablyAccessMyEmail" = "Yes, I can reliably access my email";
 "SetUpTwoStepLogin" = "Set up two-step login";
 "YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "You can set up two-step login as an alternative way to protect your account or change your email to one you can access.";
