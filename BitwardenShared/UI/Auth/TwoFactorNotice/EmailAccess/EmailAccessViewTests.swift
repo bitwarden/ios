@@ -33,9 +33,9 @@ class EmailAccessViewTests: BitwardenTestCase {
 
     /// Tapping the continue button sends the `.continueTapped` effect
     @MainActor
-    func test_continueButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.continue)
-        try button.tap()
+    func test_continueButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.continue)
+        try await button.tap()
 
         waitFor(!processor.effects.isEmpty)
 

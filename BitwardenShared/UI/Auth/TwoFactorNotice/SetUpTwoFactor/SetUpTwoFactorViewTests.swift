@@ -42,11 +42,9 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
 
     /// Tapping the remind me later button sends `.remindMeLater`
     @MainActor
-    func test_remindMeLater_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.remindMeLater)
-        try button.tap()
-
-        waitFor(!processor.effects.isEmpty)
+    func test_remindMeLater_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.remindMeLater)
+        try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .remindMeLaterTapped)
     }
