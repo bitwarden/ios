@@ -57,6 +57,10 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case loginRequest(_ loginRequest: LoginRequest)
 
+    /// A route to the two-factor notice screen.
+    ///
+    /// - Parameters:
+    ///   - allowDelay: Whether the user has a button to delay setting up two-factor authentication.
     case twoFactorNotice(_ allowDelay: Bool)
 
     /// A route to switch accounts.

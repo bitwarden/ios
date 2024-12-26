@@ -16,9 +16,6 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private Properties
 
-    /// The delegate for this coordinator, used to notify when the user logs out.
-    private weak var delegate: VaultCoordinatorDelegate?
-
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
 

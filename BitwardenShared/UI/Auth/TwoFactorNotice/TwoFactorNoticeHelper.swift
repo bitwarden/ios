@@ -24,7 +24,8 @@ enum TwoFactorNoticeDisplayState: Codable, Equatable {
 /// the two-factor notice, and displaying it if so.
 ///
 protocol TwoFactorNoticeHelper {
-    ///
+    /// Determines whether or not the user should see the two-factor notice.
+    /// If so, then this displays that notice.
     func maybeShowTwoFactorNotice() async
 }
 
