@@ -16,24 +16,11 @@ struct EmailAccessView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            DynamicImageTextStackView(minHeight: 0) {
-                Asset.Images.Illustrations.businessWarning.swiftUIImage
-                    .resizable()
-                    .frame(
-                        width: verticalSizeClass == .regular ? 152 : 124,
-                        height: verticalSizeClass == .regular ? 152 : 124
-                    )
-                    .accessibilityHidden(true)
-            } textContent: {
-                VStack(spacing: 16) {
-                    Text(Localizations.importantNotice)
-                        .styleGuide(.title, weight: .bold)
-
-                    Text(Localizations.bitwardenWillSendACodeToYourAccountEmail)
-                        .styleGuide(.title3)
-                }
-                .padding(.horizontal, 12)
-            }
+            PageHeaderView(
+                image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
+                title: Localizations.importantNotice,
+                message: Localizations.bitwardenWillSendACodeToYourAccountEmail
+            )
 
             toggleCard
                 .padding(.horizontal, 12)

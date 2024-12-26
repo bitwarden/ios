@@ -18,24 +18,11 @@ struct SetUpTwoFactorView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            DynamicImageTextStackView(minHeight: 0) {
-                Asset.Images.Illustrations.userLock.swiftUIImage
-                    .resizable()
-                    .frame(
-                        width: verticalSizeClass == .regular ? 152 : 124,
-                        height: verticalSizeClass == .regular ? 152 : 124
-                    )
-                    .accessibilityHidden(true)
-            } textContent: {
-                VStack(spacing: 16) {
-                    Text(Localizations.setUpTwoStepLogin)
-                        .styleGuide(.title, weight: .bold)
-
-                    Text(Localizations.youCanSetUpTwoStepLoginAsAnAlternative)
-                        .styleGuide(.title3)
-                }
-                .padding(.horizontal, 12)
-            }
+            PageHeaderView(
+                image: Asset.Images.Illustrations.userLock.swiftUIImage,
+                title: Localizations.setUpTwoStepLogin,
+                message: Localizations.youCanSetUpTwoStepLoginAsAnAlternative
+            )
 
             Button {
                 store.send(.turnOnTwoFactorTapped)
