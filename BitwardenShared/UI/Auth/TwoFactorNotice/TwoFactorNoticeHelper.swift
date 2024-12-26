@@ -94,11 +94,8 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
             let state = try await services.stateService.getTwoFactorNoticeDisplayState()
             switch state {
             case .canAccessEmail:
-                if permanent {
-                    coordinator.navigate(to: .twoFactorNotice(allowDelay: !permanent, emailAddress: emailAddress))
-                } else {
-                    return
-                }
+                guard permanent else { return }
+                coordinator.navigate(to: .twoFactorNotice(allowDelay: false, emailAddress: emailAddress))
             case .canAccessEmailPermanent:
                 return
             case .hasNotSeen:
