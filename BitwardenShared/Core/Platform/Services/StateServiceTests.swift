@@ -918,11 +918,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_getTwoFactorNoticeDisplayState_noId() async throws {
         appSettingsStore.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "1")
 
-        do {
-            try await _ = subject.getTwoFactorNoticeDisplayState()
-            XCTFail("subject.getTwoFactorNoticeDisplayState() should throw an error if there is no active account")
-        } catch {
-            XCTAssertEqual(error as? StateServiceError, StateServiceError.noActiveAccount)
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getTwoFactorNoticeDisplayState()
         }
     }
 
