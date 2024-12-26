@@ -23,7 +23,6 @@ struct EmailAccessView: View {
             )
 
             toggleCard
-                .padding(.horizontal, 12)
 
             VStack(spacing: 12) {
                 AsyncButton(Localizations.continue) {
@@ -32,11 +31,9 @@ struct EmailAccessView: View {
                 .buttonStyle(.primary())
             }
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-            .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
         .scrollView()
