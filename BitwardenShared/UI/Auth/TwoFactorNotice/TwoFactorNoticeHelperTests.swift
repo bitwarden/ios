@@ -91,6 +91,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
     /// `.maybeShowTwoFactorNotice()` will show the notice
     /// if the user's account's creation date is unknown
+    /// (and all other conditions are true)
     @MainActor
     func test_maybeShow_ageUnknown() async {
         stateService.activeAccount?.profile.creationDate = nil
@@ -131,6 +132,18 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         await subject.maybeShowTwoFactorNotice()
 
         XCTAssertEqual(coordinator.routes, [])
+    }
+
+    /// `.maybeShowTwoFactorNotice()` will show the notice
+    /// if whether the user has configured 2FA is unknown
+    /// (and all other conditions are true)
+    @MainActor
+    func test_maybeShow_preexistingTwoFactor_unknown() async {
+        stateService.activeAccount?.profile.twoFactorEnabled = nil
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
     }
 
     /// `.maybeShowTwoFactorNotice()` will show the notice
