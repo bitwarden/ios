@@ -277,6 +277,17 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.accountTapped, ["123"])
     }
 
+    /// `navigate(to:)` with `.twoFactorNotice` presents the two-factor notice screen.
+    @MainActor
+    func test_navigateTo_twoFactorNotice() throws {
+        subject.navigate(to: .twoFactorNotice(allowDelay: true, emailAddress: "person@example.com"))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.twoFactorNoticeCoordinator.isStarted)
+        XCTAssertEqual(module.twoFactorNoticeCoordinator.routes.last, .emailAccess(allowDelay: true, emailAddress: "person@example.com"))
+    }
+
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.
     @MainActor
     func test_navigateTo_vaultItemSelection() throws {

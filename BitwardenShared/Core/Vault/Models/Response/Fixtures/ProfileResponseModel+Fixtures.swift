@@ -5,6 +5,7 @@ import Foundation
 extension ProfileResponseModel {
     static func fixture(
         avatarColor: String? = nil,
+        creationDate: Date? = nil,
         culture: String? = nil,
         email: String? = nil,
         emailVerified: Bool = false,
@@ -23,6 +24,7 @@ extension ProfileResponseModel {
     ) -> ProfileResponseModel {
         self.init(
             avatarColor: avatarColor,
+            creationDate: creationDate,
             culture: culture,
             email: email,
             emailVerified: emailVerified,

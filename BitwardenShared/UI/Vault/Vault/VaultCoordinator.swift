@@ -59,6 +59,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = GeneratorModule
         & ImportLoginsModule
+        & TwoFactorNoticeModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -197,6 +198,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
+        case let .twoFactorNotice(allowDelay, emailAddress):
+            showTwoFactorNotice(allowDelay: allowDelay, emailAddress: emailAddress)
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id):
@@ -318,6 +321,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             state: VaultListState(
                 iconBaseURL: services.environmentService.iconsURL
             ),
+            twoFactorNoticeHelper: DefaultTwoFactorNoticeHelper(
+                coordinator: asAnyCoordinator(),
+                services: services
+            ),
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
                 services: services
@@ -329,6 +336,24 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             timeProvider: services.timeProvider
         )
         stackNavigator?.replace(view, animated: false)
+    }
+
+    /// Shows the notice that the user does not have two-factor set up.
+    ///
+    /// - Parameters:
+    ///   - allowDelay: Whether or not the user can temporarily dismiss the notice.
+    ///   - emailAddress: The email address of the user.
+    private func showTwoFactorNotice(allowDelay: Bool, emailAddress: String) {
+        let navigationController = UINavigationController()
+        navigationController.navigationBar.isHidden = true
+        let coordinator = module.makeTwoFactorNoticeCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(
+            to: .emailAccess(allowDelay: allowDelay, emailAddress: emailAddress),
+            context: delegate
+        )
+
+        stackNavigator?.present(navigationController, overFullscreen: true)
     }
 
     /// Presents a vault item coordinator, which will navigate to the provided route.

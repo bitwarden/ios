@@ -17,6 +17,7 @@ class MockAppModule:
     SendItemModule,
     SettingsModule,
     TabModule,
+    TwoFactorNoticeModule,
     VaultModule,
     VaultItemModule {
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
@@ -39,6 +40,7 @@ class MockAppModule:
     var settingsCoordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
     var settingsNavigator: StackNavigator? // swiftlint:disable:this weak_navigator
     var tabCoordinator = MockCoordinator<TabRoute, Void>()
+    var twoFactorNoticeCoordinator = MockCoordinator<TwoFactorNoticeRoute, Void>()
     var vaultCoordinator = MockCoordinator<VaultRoute, AuthAction>()
     var vaultItemCoordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
 
@@ -146,6 +148,12 @@ class MockAppModule:
         vaultRepository _: BitwardenShared.VaultRepository
     ) -> BitwardenShared.AnyCoordinator<BitwardenShared.TabRoute, Void> {
         tabCoordinator.asAnyCoordinator()
+    }
+
+    func makeTwoFactorNoticeCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<TwoFactorNoticeRoute, Void> {
+        twoFactorNoticeCoordinator.asAnyCoordinator()
     }
 
     func makeVaultCoordinator(

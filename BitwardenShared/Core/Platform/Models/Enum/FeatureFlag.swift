@@ -38,6 +38,15 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag for the create account flow.
     case nativeCreateAccountFlow = "native-create-account-flow"
 
+    /// A feature flag for the notice indicating a user does not have two-factor authentication set up.
+    /// If true, the user can dismiss the notice temporarily.
+    case newDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss"
+
+    /// A feature flag for the notice indicating a user does not have two-factor authentication set up.
+    /// If true, the user can not dismiss the notice, and must set up two-factor authentication.
+    /// Overrides the temporary flag.
+    case newDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss"
+
     case sshKeyVaultItem = "ssh-key-vault-item"
 
     /// A feature flag for the refactor on the SSO details endpoint.
@@ -101,6 +110,8 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
+             .newDeviceVerificationPermanentDismiss,
+             .newDeviceVerificationTemporaryDismiss,
              .testLocalFeatureFlag,
              .testLocalInitialBoolFlag,
              .testLocalInitialIntFlag,
