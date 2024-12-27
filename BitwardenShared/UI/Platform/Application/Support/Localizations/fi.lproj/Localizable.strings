@@ -1019,11 +1019,11 @@
 "DoYouHaveAComputerAvailableDescriptionLong" = "The following instructions will guide you through importing logins from your desktop or laptop computer.";
 "StepXOfY" = "Vaihe %1$@ / %2$@";
 "ExportYourSavedLogins" = "Vie tallennettuja kirjautumistietojasi";
-"OnYourComputerLogInToYourCurrentBrowserOrPasswordManager" = "On your computer, **log in to your current browser or password manager.**";
-"ExportYourPasswordsThisOptionIsUsuallyFoundInYourSettings" = "**Export your passwords.** This option is usually found in your settings.";
-"SaveTheExportedFileSomewhereOnYourComputerYouCanFindEasily" = "**Save the exported file** somewhere on your computer you can find easily.";
+"OnYourComputerLogInToYourCurrentBrowserOrPasswordManager" = "**Kirjaudu sisään nykyiseen selaimeesi tai salasanahallintaasi** tietokoneellasi.";
+"ExportYourPasswordsThisOptionIsUsuallyFoundInYourSettings" = "**Vie salasanasi.** Tämä vaihtoehto löytyy yleensä asetuksistasi.";
+"SaveTheExportedFileSomewhereOnYourComputerYouCanFindEasily" = "**Tallenna viety tiedosto** jonnekin tietokoneellesi, josta löydät sen helposti.";
 "YoullDeleteThisFileAfterImportIsComplete" = "Poistat tämän tiedoston, kun tuonti on valmis.";
-"NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
+"NeedHelpCheckOutImportHelp" = "Tarvitsetko apua? Tutustu **[tuontiohjeisiin](%1$@)**";
 "LogInToBitwarden" = "Kirjaudu Bitwardeniin";
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Kirjaudu Bitwarden-verkkosovellukseen.**";
@@ -1051,7 +1051,7 @@
 "NoLoginsWereImported" = "Kirjautumistietoja ei tuotu";
 "ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
 "LoginsImported" = "Kirjautumistiedot tuotiin";
-"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
+"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Muista poistaa tuotu salasanatiedosto tietokoneeltasi.";
 "SomethingWentWrong" = "Jokin meni pieleen";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Valittua kohdetta ei voitu siirtää. Yritä uudelleen.";
 "Done" = "Valmis";
@@ -1060,7 +1060,7 @@
 "CopyFingerprint" = "Kopioi sormenjälki";
 "SSHKeys" = "SSH-avaimet";
 "NothingAvailableToAutofill" = "Nothing available to autofill";
-"FailedToGenerateVerificationCode" = "Failed to generate verification code";
-"FailedToAutofillItem" = "Failed to autofill item %1$@";
-"ExportingFailed" = "Exporting failed";
+"FailedToGenerateVerificationCode" = "Vahvistuskoodin luonti epäonnistui";
+"FailedToAutofillItem" = "Kohteen %1$@ automaattitäyttö epäonnistui";
+"ExportingFailed" = "Vienti epäonnistui";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
