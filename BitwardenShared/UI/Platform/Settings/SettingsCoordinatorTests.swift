@@ -3,9 +3,10 @@ import XCTest
 
 @testable import BitwardenShared
 
-class SettingsCoordinatorTests: BitwardenTestCase {
+class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var configService: MockConfigService!
     var delegate: MockSettingsCoordinatorDelegate!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
@@ -16,6 +17,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         delegate = MockSettingsCoordinatorDelegate()
         module = MockAppModule()
         stackNavigator = MockStackNavigator()
@@ -23,7 +25,9 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         subject = SettingsCoordinator(
             delegate: delegate,
             module: module,
-            services: ServiceContainer.withMocks(),
+            services: ServiceContainer.withMocks(
+                configService: configService
+            ),
             stackNavigator: stackNavigator
         )
     }
@@ -31,6 +35,7 @@ class SettingsCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         delegate = nil
         module = nil
         stackNavigator = nil
@@ -166,14 +171,62 @@ class SettingsCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
-    /// `navigate(to:)` with `.exportVault` presents the export vault view.
+    /// `navigate(to:)` with `.exportVault` presents the export vault to file view when
+    /// Credential Exchange flag to export is disabled.
     @MainActor
-    func test_navigateTo_exportVault() throws {
-        subject.navigate(to: .exportVault)
+    func test_navigateTo_exportVaultCXPDisabled() async throws {
+        configService.featureFlagsBool[.cxpExportMobile] = false
+        let task = Task {
+            subject.navigate(to: .exportVault)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return stackNavigator.actions.last?.view is UINavigationController
+        }
 
         let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
         XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
+    }
+
+    /// `navigate(to:)` with `.exportVault` presents the export settings view when
+    /// Credential Exchange flag to export is enabled.
+    @MainActor
+    func test_navigateTo_exportVaultCXPEnabled() async throws {
+        configService.featureFlagsBool[.cxpExportMobile] = true
+        let task = Task {
+            subject.navigate(to: .exportVault)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return stackNavigator.actions.last != nil
+        }
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+        XCTAssertTrue(action.view is UIHostingController<ExportSettingsView>)
+    }
+
+    /// `navigate(to:)` with `.exportVaultToFile` presents the export vault to file view.
+    @MainActor
+    func test_navigateTo_exportVaultToFile() throws {
+        subject.navigate(to: .exportVaultToFile)
+
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
+    }
+
+    /// `navigate(to:)` with `.exportVaultToApp` presents the export vault
+    /// to another app view (Credential Exchnage flow).
+    @MainActor
+    func test_navigateTo_exportVaultToApp() throws {
+        subject.navigate(to: .exportVaultToApp)
+        throw XCTSkip("TODO: PM-16459")
     }
 
     /// `navigate(to:)` with `.importLogins` presents the import logins flow.

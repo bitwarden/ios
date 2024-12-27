@@ -34,8 +34,14 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route that dismisses the current view.
     case dismiss
 
-    /// A route to the export vault view.
+    /// A route to the export vault settings view.
     case exportVault
+
+    /// A route to the export vault to another app view (Credential Exchange flow).
+    case exportVaultToApp
+
+    /// A route to the export vault to file view.
+    case exportVaultToFile
 
     /// A route to view the folders in the vault.
     case folders
