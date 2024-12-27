@@ -84,7 +84,15 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
         )
         guard temporary || permanent else { return }
         do {
+            guard services.environmentService.region != .selfHosted else {
+                return
+            }
+
             let profile = try await services.stateService.getActiveAccount().profile
+
+            guard profile.twoFactorEnabled != true else {
+                return
+            }
 
             // If we don't have a creation date (possible for older accounts that
             // haven't synced recently, because the property is only being saved as of
@@ -92,11 +100,8 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
             // to always qualify.
             let creationDate = profile.creationDate ?? Date(timeIntervalSince1970: 0)
             let accountAge = services.timeProvider.timeSince(creationDate)
-            let hasTwoFactor = profile.twoFactorEnabled ?? false
 
             guard accountAge > Constants.twoFactorNoticeMinimumAccountAgeInterval,
-                  !hasTwoFactor,
-                  services.environmentService.region != .selfHosted,
                   await !services.policyService.policyAppliesToUser(.requireSSO)
             else { return }
 
