@@ -1,4 +1,4 @@
-@preconcurrency import AuthenticationServices
+import AuthenticationServices
 @preconcurrency import BitwardenSdk
 
 // MARK: - VaultAutofillListProcessor
