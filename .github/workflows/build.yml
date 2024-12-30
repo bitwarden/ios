@@ -355,8 +355,8 @@ jobs:
 
       - name: Update build version and number
         run: |
-          yq -i '.settings.MARKETING_VERSION = "${{ steps.version_info.outputs.version_name }}"' 'project.yml'
-          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ steps.version_info.outputs.version_number }}"' 'project.yml'
+          yq -i '.settings.MARKETING_VERSION = "${{ steps.version_info.outputs.version_name }}"' 'project_passwordmanager.yml'
+          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ steps.version_info.outputs.version_number }}"' 'project_passwordmanager.yml'
 
       - name: Update CI build info
         run: |

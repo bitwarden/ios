@@ -4,13 +4,14 @@ set -euo pipefail
 
 mint bootstrap
 
-mint run xcodegen xcodegen
+# Handle script being called from repo root or Scripts folder
+script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+repo_root=$(dirname "$script_dir")
+
+mint run xcodegen --spec "$repo_root/project_passwordmanager.yml"
 echo "✅ Bootstrapped!"
 
 # Check Xcode version matches .xcode-version
-# handle script being called from repo root or Scripts folder
-script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-repo_root=$(dirname "$script_dir")
 xcode_version_file="$repo_root/.xcode-version"
 
 if [ ! -f "$xcode_version_file" ]; then
