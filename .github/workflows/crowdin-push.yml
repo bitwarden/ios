@@ -34,6 +34,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
         with:
-          config: crowdin.yml
+          config: crowdin_passwordmanager.yml
           upload_sources: true
           upload_translations: false
