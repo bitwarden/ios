@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Kopírovat soukromý klíč";
 "CopyFingerprint" = "Kopírovat otisk prstu";
 "SSHKeys" = "SSH klíče";
+"NothingAvailableToAutofill" = "Není k dispozici nic k automatickému vyplnění";
+"FailedToGenerateVerificationCode" = "Generování ověřovacího kódu se nezdařilo";
+"FailedToAutofillItem" = "Nezdařilo se automaticky vyplnit položku %1$@";
 "ExportingFailed" = "Exportování selhalo";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možná budete muset povolit přístupový kód zařízení nebo biometriku.";

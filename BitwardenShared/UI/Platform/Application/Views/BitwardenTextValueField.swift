@@ -51,7 +51,7 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
                 .frame(minHeight: textViewDynamicHeight)
             } else {
                 Text(value)
-                    .styleGuide(.body)
+                    .styleGuide(.body, includeLinePadding: false, includeLineSpacing: false)
                     .multilineTextAlignment(.leading)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
@@ -169,7 +169,7 @@ extension BitwardenTextValueField where AccessoryContent == AccessoryButton {
             useUIKitTextView: useUIKitTextView,
             accessoryContent: {
                 AccessoryButton(
-                    asset: Asset.Images.copy16,
+                    asset: Asset.Images.copy24,
                     accessibilityLabel: Localizations.copy,
                     accessibilityIdentifier: copyButtonAccessibilityIdentifier,
                     action: copyButtonAction

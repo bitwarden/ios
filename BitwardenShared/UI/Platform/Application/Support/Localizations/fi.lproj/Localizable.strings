@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Virheellinen pääsalasana. Yritä uudelleen.";
 "InvalidPIN" = "Virheellinen PIN-koodi. Yritä uudelleen.";
 "Launch" = "Avaa";
-"LogIn" = "Log in";
+"LogIn" = "Kirjaudu";
 "LogInNoun" = "Kirjautuminen";
 "LogOut" = "Kirjaudu ulos";
 "LogoutConfirmation" = "Haluatko varmasti kirjautua ulos?";
@@ -200,7 +200,7 @@
 "On" = "Käytössä";
 "Status" = "Tila";
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the \"Settings\" screen.";
-"Autofill" = "Autofill";
+"Autofill" = "Automaattitäyttö";
 "AutofillOrView" = "Do you want to autofill or view this item?";
 "BitwardenAutofillServiceMatchConfirm" = "Haluatko varmasti täyttää kohteen automaattisesti? Se ei vastaa osoitetta \"%1$@\" täysin.";
 "MatchingItems" = "Tunnistetut kohteet";
@@ -316,14 +316,14 @@
 "ShowWebsiteIcons" = "Näytä sivustokuvakkeet";
 "ShowWebsiteIconsDescription" = "Näytä tunnistettava kuva jokaiselle kirjautumistiedolle.";
 "IconsUrl" = "Kuvakepalvelimen URL";
-"AutofillWithBitwarden" = "Autofill with Bitwarden";
+"AutofillWithBitwarden" = "Automaattitäytä Bitwardenilla";
 "VaultIsLocked" = "Holvi on lukittu";
 "GoToMyVault" = "Mene holviin";
 "Collections" = "Kokoelmat";
 "NoItemsCollection" = "Kokoelmassa ei ole kohteita.";
 "NoItemsFolder" = "Kansiossa ei ole kohteita.";
 "NoItemsTrash" = "Roskakorissa ei ole kohteita.";
-"AutofillAccessibilityService" = "Autofill Accessibility Service";
+"AutofillAccessibilityService" = "Automaattitäytön esteettömyyspalvelu";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
 "BitwardenAutofillServiceDescription" = "Use the Bitwarden autofill service to fill login information into other apps.";
 "BitwardenAutofillServiceOpenAutofillSettings" = "Avaa \"Automaattinen täyttö -palvelu\" -asetukset";
@@ -353,7 +353,7 @@
 "URIMatchDetection" = "URI:n tunnistustapa";
 "MatchDetection" = "Tunnistustapa";
 "YesAndSave" = "Kyllä, ja tallenna";
-"AutofillAndSave" = "Autofill and save";
+"AutofillAndSave" = "Automaattitäytä ja tallenna";
 "Organization" = "Organisaatio";
 "HoldYubikeyNearTop" = "Pidä YubiKey-todennuslaittettasi lähellä laitteen yläosaa.";
 "TryAgain" = "Yritä uudelleen";
@@ -372,7 +372,7 @@
 "AutofillTurnOn3" = "3. Napauta \"Täytä salasanat automaattisesti\"";
 "AutofillTurnOn4" = "4. Kytke automaattinen täyttö käyttöön";
 "AutofillTurnOn5" = "5. Valitse \"Bitwarden\"";
-"PasswordAutofill" = "Password autofill";
+"PasswordAutofill" = "Salasanan automaattitäyttö";
 "BitwardenAutofillAlert2" = "Helpoin tapa lisätä uusia kirjautumistietoja holviisi on Bitwardenin automaattisen täytön laajennus. Asetuksista löydät lisätietoja laajennuksen käytöstä.";
 "InvalidEmail" = "Virheellinen sähköpostiosoite.";
 "Cards" = "Kortit";
@@ -453,7 +453,7 @@
 "Black" = "Musta";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
-"AutofillBlockedUris" = "Autofill blocked URIs";
+"AutofillBlockedUris" = "Automaattitäytä estetyt URI:t";
 "AskToAddLogin" = "Kysy lisätäänkö kirjautumistieto";
 "AskToAddLoginDescription" = "Kysy lisätäänkö uusi kohde, jos holvissa ei vielä ole sopivaa kohdetta.";
 "OnRestart" = "Kun sovellus käynnistetään uudelleen";
@@ -808,7 +808,7 @@
 "TroubleLoggingIn" = "Ongelmia kirjautumisessa?";
 "LoggingInAsX" = "Kirjaudutaan tunnuksella %1$@";
 "VaultTimeoutActionChangedToLogOut" = "Holvin aikakatkaisutoiminnoksi vaihdettiin uloskirjaus";
-"BlockAutoFill" = "Block autofill";
+"BlockAutoFill" = "Estä automaattitäyttö";
 "AutoFillWillNotBeOfferedForTheseURIs" = "Autofill will not be offered for these URIs.";
 "NewBlockedURI" = "Uusi estetty URI";
 "URISaved" = "URI tallennettiin";
@@ -888,7 +888,7 @@
 "VerifyingIdentityEllipsis" = "Vahvistetaan henkilöllisyyttä...";
 "Passwords" = "Salasanat";
 "UnknownAccount" = "Tuntematon tili";
-"SetUpAutofill" = "Set up autofill";
+"SetUpAutofill" = "Määritä automaattitäyttö";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Tavoita salasanasi ja pääsyavaimesi välittömästi!";
 "SetUpAutoFillDescriptionLong" = "To set up password autofill and passkey management, set Bitwarden as your preferred provider in the iOS Settings.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Avaa laitteesi Asetukset > Salasanat > Salasanavalinnat";
@@ -1004,7 +1004,7 @@
 "Dismiss" = "Hylkää";
 "SaveAndProtectYourData" = "Tallenna ja suojaa tietojasi";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here.";
-"SendSensitiveInformationSafely" = "Send sensitive information, safely";
+"SendSensitiveInformationSafely" = "Lähetä arkaluonteisia tietoja turvallisesti";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
 "NewLogin" = "Uusi kirjautumistieto";
 "ImportSavedLogins" = "Tuo tallennetut kirjautumistiedot";
@@ -1019,11 +1019,11 @@
 "DoYouHaveAComputerAvailableDescriptionLong" = "The following instructions will guide you through importing logins from your desktop or laptop computer.";
 "StepXOfY" = "Vaihe %1$@ / %2$@";
 "ExportYourSavedLogins" = "Vie tallennettuja kirjautumistietojasi";
-"OnYourComputerLogInToYourCurrentBrowserOrPasswordManager" = "On your computer, **log in to your current browser or password manager.**";
-"ExportYourPasswordsThisOptionIsUsuallyFoundInYourSettings" = "**Export your passwords.** This option is usually found in your settings.";
-"SaveTheExportedFileSomewhereOnYourComputerYouCanFindEasily" = "**Save the exported file** somewhere on your computer you can find easily.";
-"YoullDeleteThisFileAfterImportIsComplete" = "You’ll delete this file after import is complete.";
-"NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
+"OnYourComputerLogInToYourCurrentBrowserOrPasswordManager" = "**Kirjaudu sisään nykyiseen selaimeesi tai salasanahallintaasi** tietokoneellasi.";
+"ExportYourPasswordsThisOptionIsUsuallyFoundInYourSettings" = "**Vie salasanasi.** Tämä vaihtoehto löytyy yleensä asetuksistasi.";
+"SaveTheExportedFileSomewhereOnYourComputerYouCanFindEasily" = "**Tallenna viety tiedosto** jonnekin tietokoneellesi, josta löydät sen helposti.";
+"YoullDeleteThisFileAfterImportIsComplete" = "Poistat tämän tiedoston, kun tuonti on valmis.";
+"NeedHelpCheckOutImportHelp" = "Tarvitsetko apua? Tutustu **[tuontiohjeisiin](%1$@)**";
 "LogInToBitwarden" = "Kirjaudu Bitwardeniin";
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Kirjaudu Bitwarden-verkkosovellukseen.**";
@@ -1051,7 +1051,7 @@
 "NoLoginsWereImported" = "Kirjautumistietoja ei tuotu";
 "ThisIsNotARecognizedServerDescriptionLong" = "This is not a recognized Bitwarden server. You may need to check with your provider or update your server.";
 "LoginsImported" = "Kirjautumistiedot tuotiin";
-"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Remember to delete your imported password file from your computer.";
+"RememberToDeleteYourImportedPasswordFileFromYourComputer" = "Muista poistaa tuotu salasanatiedosto tietokoneeltasi.";
 "SomethingWentWrong" = "Jokin meni pieleen";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Valittua kohdetta ei voitu siirtää. Yritä uudelleen.";
 "Done" = "Valmis";
@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Kopioi yksityinen avain";
 "CopyFingerprint" = "Kopioi sormenjälki";
 "SSHKeys" = "SSH-avaimet";
-"ExportingFailed" = "Exporting failed";
+"NothingAvailableToAutofill" = "Nothing available to autofill";
+"FailedToGenerateVerificationCode" = "Vahvistuskoodin luonti epäonnistui";
+"FailedToAutofillItem" = "Kohteen %1$@ automaattitäyttö epäonnistui";
+"ExportingFailed" = "Vienti epäonnistui";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";

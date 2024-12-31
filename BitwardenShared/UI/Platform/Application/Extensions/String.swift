@@ -25,7 +25,10 @@ extension String {
     /// Double paragraph breaks to show the next line of text separated by a blank line.
     static let newLine = "\n\n"
 
-    /// A zero width space. https://symbl.cc/en/200B/
+    /// A word joiner. https://en.wikipedia.org/wiki/Word_joiner
+    static let wordJoiner = "\u{2060}"
+
+    /// A zero-width space. https://en.wikipedia.org/wiki/Zero-width_space
     static let zeroWidthSpace = "\u{200B}"
 
     // MARK: Properties
@@ -121,5 +124,14 @@ extension String {
                 repeating: "=",
                 count: remainder == 0 ? 0 : 4 - remainder
             ))
+    }
+
+    /// Creates a new string that prevents email addresses from being turned into tappable links
+    /// when interpreted in a Markdown context. It does this by
+    /// applying a Word Joiner character before the @, which is sufficient
+    /// to break text autodetection. However, unlike using a zero-width
+    /// space, this will not affect where very long lines would be broken.
+    func withoutAutomaticEmailLinks() -> String {
+        replacingOccurrences(of: "@", with: "\u{2060}@")
     }
 }

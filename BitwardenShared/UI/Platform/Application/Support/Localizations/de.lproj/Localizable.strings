@@ -82,7 +82,7 @@
 "AccountCreated" = "Dein neues Konto wurde erstellt! Du kannst dich jetzt anmelden.";
 "AddAnItem" = "Neuer Eintrag";
 "AppExtension" = "App-Erweiterung";
-"AutofillAccessibilityDescription" = "Use the Bitwarden accessibility service to autofill your logins across apps and the web.";
+"AutofillAccessibilityDescription" = "Verwende den Bitwarden-Dienst in den Bedienungshilfen, um deine Zugangsdaten in Apps und im Web automatisch ausfüllen zu lassen.";
 "AutofillService" = "Dienst zum automatischen Ausfüllen";
 "SetBitwardenAsPasskeyManagerDescription" = "Lege Bitwarden in den Geräteeinstellungen als deinen Passkey-Anbieter fest.";
 "AvoidAmbiguousCharacters" = "Mehrdeutige Zeichen vermeiden";
@@ -90,7 +90,7 @@
 "BitwardenAppExtensionAlert2" = "Die einfachste Möglichkeit, neue Zugangsdaten zu deinem Tresor hinzuzufügen, ist die Bitwarden App-Erweiterung. Erfahre mehr über die Benutzung der Bitwarden App-Erweiterung, indem du zu den \"Einstellungen\" wechselst.";
 "BitwardenAppExtensionDescription" = "Nutze Bitwarden in Safari und anderen Apps, um Zugangsdaten automatisch einzufügen.";
 "BitwardenAutofillService" = "Bitwarden-Dienst zum automatischen Ausfüllen";
-"BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
+"BitwardenAutofillAccessibilityServiceDescription" = "Verwende den Bitwarden-Dienst in den Bedienungshilfen um deine Zugangsdaten automatisch auszufüllen.";
 "ChangeEmail" = "E-Mail-Adresse ändern";
 "ChangeEmailConfirmation" = "Du kannst deine E-Mail Adresse im Bitwarden.com Web-Tresor ändern. Möchtest du die Seite jetzt öffnen?";
 "ChangeMasterPassword" = "Master-Password ändern";
@@ -189,8 +189,8 @@
 "Translations" = "Übersetzungen";
 "ItemsForUri" = "Zugangsdaten für %1$@";
 "NoItemsForUri" = "Es befinden sich keine Zugangsdaten für %1$@ in deinem Tresor.";
-"BitwardenAutofillServiceOverlay" = "When you select an input field and see a Bitwarden autofill overlay, you can tap it to launch the autofill service.";
-"BitwardenAutofillServiceNotificationContent" = "Tap this notification to autofill an item from your vault.";
+"BitwardenAutofillServiceOverlay" = "Wenn Sie ein Eingabefeld auswählen und ein Auto-Fill-Overlay von Bitwarden sehen, können Sie darauf tippen, um den Dienst zum automatischen Ausfüllen zu starten.";
+"BitwardenAutofillServiceNotificationContent" = "Tippe auf diese Benachrichtigung, um einen Eintrag aus deinem Tresor automatisch auszufüllen.";
 "BitwardenAutofillServiceOpenAccessibilitySettings" = "Einstellungen für Bedienungshilfen öffnen";
 "BitwardenAutofillServiceStep1" = "1. Tippe auf \"Bitwarden\" unter \"Heruntergeladene Dienste\" in den Android Bedienungshilfen.";
 "BitwardenAutofillServiceStep2" = "2. Aktiviere den Schalter und tippe auf \"Ok\".";
@@ -199,7 +199,7 @@
 "Off" = "Aus";
 "On" = "Ein";
 "Status" = "Status";
-"BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the \"Settings\" screen.";
+"BitwardenAutofillServiceAlert2" = "Die einfachste Möglichkeit, neue Zugangsdaten zu deinem Tresor hinzuzufügen, ist der Bitwarden Auto-Ausfüllen Dienst. Erfahre mehr über den Bitwarden Auto-Ausfüllen Dienst, indem du zu \"Einstellungen\" wechselst.";
 "Autofill" = "Automatisches Ausfüllen";
 "AutofillOrView" = "Möchtest du diese Zugangsdaten automatisch ausfüllen oder ansehen?";
 "BitwardenAutofillServiceMatchConfirm" = "Bist du sicher, dass du diesen Eintrag automatisch ausfüllen möchtest? Er stimmt nicht komplett mit \"%1$@\" überein.";
@@ -238,7 +238,7 @@
 "Camera" = "Kamera";
 "Photos" = "Fotos";
 "CopyTotp" = "TOTP kopieren";
-"CopyTotpAutomaticallyDescription" = "If a login has an authenticator key, copy the TOTP verification code to your clipboard when you autofill the login.";
+"CopyTotpAutomaticallyDescription" = "Ist ein Authentifizierungsschlüssel mit deinen Zugangsdaten verknüpft, wird der TOTP-Verifizierungscode in die Zwischenablage kopiert, wenn du die Zugangsdaten automatisch ausfüllen lässt.";
 "CopyTotpAutomatically" = "TOTP automatisch kopieren";
 "PremiumRequired" = "Für diese Funktion benötigst du eine Premiummitgliedschaft.";
 "AttachementAdded" = "Anhang hinzugefügt";
@@ -324,8 +324,8 @@
 "NoItemsFolder" = "Es sind keine Objekte in diesem Ordner.";
 "NoItemsTrash" = "Es sind keine Einträge im Papierkorb.";
 "AutofillAccessibilityService" = "Bedienungshilfe für automatisches Ausfüllen";
-"AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
-"BitwardenAutofillServiceDescription" = "Use the Bitwarden autofill service to fill login information into other apps.";
+"AutofillServiceDescription" = "Der Auto-Ausfüllen-Dienst von Bitwarden benutzt das Android Autofill Framework, um Zugangsdaten in anderen Apps auf deinem Gerät auszufüllen.";
+"BitwardenAutofillServiceDescription" = "Verwende den Auto-Ausfüllen-Dienst von Bitwarden, um Zugangsdaten in anderen Apps auszufüllen.";
 "BitwardenAutofillServiceOpenAutofillSettings" = "Öffne Auto-Fill Einstellungen";
 "FaceID" = "Face ID";
 "FaceIDDirection" = "Verwende Face ID zum Verifizieren.";
@@ -358,7 +358,7 @@
 "HoldYubikeyNearTop" = "Halte deinen Yubikey an den oberen Bereich deines Geräts.";
 "TryAgain" = "Versuche es erneut";
 "YubiKeyInstructionIos" = "Um fortzufahren, halte deinen YubiKey NEO gegen die Rückseite des Gerätes.";
-"BitwardenAutofillAccessibilityServiceDescription2" = "The accessibility service may be helpful to use when apps do not support the standard autofill service.";
+"BitwardenAutofillAccessibilityServiceDescription2" = "Die Bedienungshilfen können möglicherweise hilfreich sein, wenn Apps nicht den Standard Auto-Ausfüllen-Dienst unterstützen.";
 "DatePasswordUpdated" = "Passwort aktualisiert";
 "DateUpdated" = "Aktualisiert";
 "AutofillActivated" = "Auto-Ausfüllen aktiviert!";
@@ -366,7 +366,7 @@
 "AutofillSetup" = "Du kannst nun direkt von der Tastatur auf deine Zugangsdaten zugreifen, wenn du dich auf Webseiten oder in Apps anmeldest.";
 "AutofillSetup2" = "Wir empfehlen alle anderen Auto Ausfüllen Apps in den Einstellungen zu deaktivieren wenn du sie nicht nutzt.";
 "BitwardenAutofillDescription" = "Greife auf deinen Tressor direkt von deiner Tastatur aus zu um Passwörter schnell und automatisch auszufüllen.";
-"AutofillTurnOn" = "To set up password autofill on your device, follow these instructions:";
+"AutofillTurnOn" = "Um das automatische Ausfüllen von Passwörtern auf deinem Gerät einzurichten, befolge bitte diese Anweisungen:";
 "AutofillTurnOn1" = "1. Gehe in die iOS Einstellungen";
 "AutofillTurnOn2" = "2. Tippe auf \"Passwörter\"";
 "AutofillTurnOn3" = "3. Tippe auf \"Automatisch ausfüllen\"";
@@ -440,7 +440,7 @@
 "ClearClipboard" = "Zwischenablage leeren";
 "ClearClipboardDescription" = "Kopierte Einträge automatisch aus der Zwischenablage löschen.";
 "DefaultUriMatchDetection" = "Standard URI-Übereinstimmungserkennung";
-"DefaultUriMatchDetectionDescription" = "Choose the default way that URI match detection is handled for logins when performing actions such as autofill.";
+"DefaultUriMatchDetectionDescription" = "Wähle die Standardmethode, mit der die URI-Match-Erkennung für Anmeldungen bei Aktionen wie dem automatischen Ausfüllen behandelt wird.";
 "Theme" = "Design";
 "ThemeDescription" = "Ändere das Farbschema der Anwendung.";
 "ThemeDefault" = "Standard (System)";
@@ -457,7 +457,7 @@
 "AskToAddLogin" = "Nach dem Hinzufügen von Zugangsdaten fragen";
 "AskToAddLoginDescription" = "Nach dem Hinzufügen eines Eintrags fragen, wenn dieser nicht in deinem Tresor gefunden wurde.";
 "OnRestart" = "Beim Neustart der App";
-"AutofillServiceNotEnabled" = "Autofill makes it easy to securely access your Bitwarden vault from other websites and apps. It looks like you have not set up an autofill service for Bitwarden. Set up autofill for Bitwarden from the \"Settings\" screen.";
+"AutofillServiceNotEnabled" = "Automatisches Ausfüllen vereinfacht es, sicher auf deinen Bitwarden-Tresor über andere Webseiten und Apps zuzugreifen. Es sieht aus, als ob du den Auto-Ausfüllen-Dienst für Bitwarden nicht eingerichtet hast. Richte Auto-Ausfüllen in den \"Einstellungen\" ein.";
 "ThemeAppliedOnRestart" = "Deine Änderungen am Aussehen der App werden beim nächsten Neustart der App angewendet.";
 "Capitalize" = "Wortanfänge großschreiben";
 "IncludeNumber" = "Ziffern einschließen";
@@ -468,7 +468,7 @@
 "BiometricsDirection" = "Biometrische Verifizierung";
 "Biometrics" = "Biometrie";
 "UseBiometricsToUnlock" = "Biometrie zum Entsperren verwenden";
-"AccessibilityOverlayPermissionAlert" = "Bitwarden needs attention - See \"Autofill Accessibility Service\" from Bitwarden settings";
+"AccessibilityOverlayPermissionAlert" = "Bitwarden braucht Aufmerksamkeit - Siehe \"Bedienungshilfen zum automatischen Ausfüllen\" in den Bitwarden-Einstellungen";
 "BitwardenAutofillServiceOverlayPermission" = "3. Gehe in den Android App-Einstellungen für Bitwarden zur Option \"Über anderen Apps einblenden\" (unter Erweitert) und tippe auf den Schalter, um die Overlay-Unterstützung zu aktivieren.";
 "OverlayPermission" = "Berechtigung";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "Overlay-Berechtigungseinstellungen öffnen";
@@ -490,7 +490,7 @@
 "Open" = "Öffnen";
 "UnableToSaveAttachment" = "Beim Speichern dieses Anhangs ist ein Problem aufgetreten. Wenn das Problem weiterhin besteht, kannst du ihn aus dem Web-Tresor speichern.";
 "SaveAttachmentSuccess" = "Anhang erfolgreich gespeichert";
-"AutofillTileAccessibilityRequired" = "Please turn on \"Autofill Accessibility Service\" from Bitwarden Settings to use the Autofill tile.";
+"AutofillTileAccessibilityRequired" = "Bitte aktiviere \"Bedienungshilfen zum automatischen Ausfüllen\" in den Bitwarden-Einstellungen, um die Auto-Ausfüllen-Kachel zu verwenden.";
 "AutofillTileUriNotFound" = "Keine Passwortfelder erkannt";
 "SoftDeleting" = "Wird in den Papierkorb verschoben…";
 "ItemSoftDeleted" = "Eintrag wurde in den Papierkorb gelegt.";
@@ -526,19 +526,19 @@
 "AcceptPoliciesError" = "Die Nutzungsbedingungen und Datenschutzerklärung wurden nicht akzeptiert.";
 "TermsOfService" = "Nutzungsbedingungen";
 "PrivacyPolicy" = "Datenschutzbestimmungen";
-"AccessibilityDrawOverPermissionAlert" = "Bitwarden needs attention - Turn on \"Draw-Over\" in \"Autofill Services\" from Bitwarden Settings";
+"AccessibilityDrawOverPermissionAlert" = "Bitwarden braucht Aufmerksamkeit - Aktiviere \"Überschreiben\" im \"Auto-Ausfüllen-Dienst\" in den Bitwarden-Einstellungen";
 "PasskeyManagement" = "Passkey-Verwaltung";
 "AutofillServices" = "Dienste zum automatischen Ausfüllen";
 "InlineAutofill" = "Inline Auto-Ausfüllen verwenden";
 "InlineAutofillDescription" = "Verwende Inline Auto-Ausfüllen, wenn deine gewählte Eingabemethode (Tastatur) dies unterstützt. Wenn deine Konfiguration nicht unterstützt wird (oder diese Option deaktiviert ist), wird das Standard-Auto-Ausfüllen-Overlay verwendet.";
 "Accessibility" = "Bedienungshilfen verwenden";
-"AccessibilityDescription" = "Use the Bitwarden Accessibility Service to autofill your logins across apps and the web. When set up, we'll display a popup when login fields are selected.";
-"AccessibilityDescription2" = "Use the Bitwarden Accessibility Service to autofill your logins across apps and the web. (Requires Draw-Over to be turned on as well)";
+"AccessibilityDescription" = "Verwende die Bitwarden-Bedienungshilfe, um deine Zugangsdaten innerhalb von Apps und dem Web automatisch auszufüllen. Wenn aktiviert, werden wir ein Pop-up anzeigen, falls Anmeldefelder ausgewählt sind.";
+"AccessibilityDescription2" = "Verwende die Bitwarden-Bedienungshilfe, um deine Zugangsdaten in Apps und im Web automatisch auszufüllen. (Benötigt, dass Überschreiben ebenfalls aktiviert ist)";
 "AccessibilityDescription3" = "Verwende die Bitwarden Bedienungshilfe, um die Auto-Ausfüllen-Schnellaktionskachel zu verwenden und/oder ein Pop-up mit Überschreiben anzuzeigen (wenn aktiviert).";
 "AccessibilityDescription4" = "Benötigt, um die Auto-Ausfüllen-Schnellaktionskachel zu verwenden oder um die Auto-Ausfüllen-Funktion durch Überschreiben (falls aktiviert) zu ermöglichen.";
 "DrawOver" = "Überschreiben verwenden";
 "DrawOverDescription" = "Erlaubt es der Bitwarden Bedienungshilfe ein Pop-up anzuzeigen, wenn Anmeldefelder ausgewählt sind.";
-"DrawOverDescription2" = "If turned on, the Bitwarden Accessibility Service will display a popup when login fields are selected to assist with autofilling your logins.";
+"DrawOverDescription2" = "Wenn aktiviert, wird die Bitwarden-Bedienungshilfe ein Pop-up anzeigen, falls Anmeldefelder ausgewählt sind, um beim automatischen Ausfüllen deiner Zugangsdaten zu helfen.";
 "DrawOverDescription3" = "Wenn aktiviert, wird die Bedienungshilfe ein Pop-up anzeigen, um das automatische Ausfüllen in älteren Apps zu ermöglichen, die das Android Autofill Framework nicht unterstützen.";
 "PersonalOwnershipSubmitError" = "Aufgrund einer Unternehmensrichtlinie darfst du keine Einträge in deinem persönlichen Tresor speichern. Ändere die Eigentümer-Option in eine Organisation und wähle aus den verfügbaren Sammlungen.";
 "PersonalOwnershipPolicyInEffect" = "Eine Organisationsrichtlinie beeinflusst deine Eigentümer-Optionen.";
@@ -890,7 +890,7 @@
 "UnknownAccount" = "Unbekanntes Konto";
 "SetUpAutofill" = "Automatisches Ausfüllen einrichten";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Erhalte sofortigen Zugriff auf deine Passwörter und Passkeys!";
-"SetUpAutoFillDescriptionLong" = "To set up password autofill and passkey management, set Bitwarden as your preferred provider in the iOS Settings.";
+"SetUpAutoFillDescriptionLong" = "Um das automatische Ausfüllen von Passwörtern und die Passkey-Verwaltung einzurichten, lege Bitwarden in den iOS-Einstellungen als deinen bevorzugten Anbieter fest.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Geh in deine Geräteeinstellungen > Passwörter > Passwortoptionen";
 "SecondDotTurnOnAutoFill" = "2. Schalte \"Automatisch ausfüllen\" ein";
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Wähle \"Bitwarden\" bei \"Passwörter und Passkeys verwenden von\"";
@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Privaten Schlüssel kopieren";
 "CopyFingerprint" = "Fingerabdruck kopieren";
 "SSHKeys" = "SSH-Schlüssel";
+"NothingAvailableToAutofill" = "Nichts zum automatischen Ausfüllen vorhanden";
+"FailedToGenerateVerificationCode" = "Fehler beim Generieren des Verifizierungscodes";
+"FailedToAutofillItem" = "Fehler beim automatischen Ausfüllen des Eintrags %1$@";
 "ExportingFailed" = "Exportieren fehlgeschlagen";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Möglicherweise musst du Gerätecodes oder Biometrie aktivieren.";

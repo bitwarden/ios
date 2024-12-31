@@ -897,6 +897,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(action, .logout)
     }
 
+    /// `getTwoFactorNoticeDisplayState(userId:)` gets the display state of the two-factor notice for the user.
+    func test_getTwoFactorNoticeDisplayState() async throws {
+        appSettingsStore.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "person@example.com")
+
+        let value = try await subject.getTwoFactorNoticeDisplayState(userId: "person@example.com")
+        XCTAssertEqual(value, .canAccessEmail)
+    }
+
+    /// `getTwoFactorNoticeDisplayState()` gets the display state of the two-factor notice for the current user
+    /// and throws an error if there is no current user.
+    func test_getTwoFactorNoticeDisplayState_noId() async throws {
+        appSettingsStore.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "1")
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getTwoFactorNoticeDisplayState()
+        }
+    }
+
     /// `getTwoFactorToken(email:)` gets the two-factor code associated with the email.
     func test_getTwoFactorToken() async {
         appSettingsStore.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
@@ -1976,6 +1994,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `setTwoFactorNoticeDisplayState(_:userId:)` sets the display state of the two-factor notice for the user.
+    func test_setTwoFactorNoticeDisplayState() async throws {
+        try await subject.setTwoFactorNoticeDisplayState(.hasNotSeen, userId: "person1@example.com")
+        XCTAssertEqual(appSettingsStore.twoFactorNoticeDisplayState(userId: "person1@example.com"), .hasNotSeen)
+    }
+
     /// `setTwoFactorToken(_:email:)` sets the two-factor code for the email.
     func test_setTwoFactorToken() async {
         await subject.setTwoFactorToken("yay_you_win!", email: "winner@email.com")
@@ -2143,11 +2167,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .fixture(
                 profile: .fixture(
                     avatarColor: nil,
+                    creationDate: nil,
                     email: "user@bitwarden.com",
                     emailVerified: false,
                     hasPremiumPersonally: false,
                     name: "User",
                     stamp: "stamp",
+                    twoFactorEnabled: false,
                     userId: "1"
                 )
             )
@@ -2156,11 +2182,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.updateProfile(
             from: .fixture(
                 avatarColor: "175DDC",
+                creationDate: Date(year: 2024, month: 12, day: 25),
                 email: "other@bitwarden.com",
                 emailVerified: true,
                 name: "Other",
                 premium: true,
-                securityStamp: "new stamp"
+                securityStamp: "new stamp",
+                twoFactorEnabled: true
             ),
             userId: "1"
         )
@@ -2171,11 +2199,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .fixture(
                 profile: .fixture(
                     avatarColor: "175DDC",
+                    creationDate: Date(year: 2024, month: 12, day: 25),
                     email: "other@bitwarden.com",
                     emailVerified: true,
                     hasPremiumPersonally: true,
                     name: "Other",
                     stamp: "new stamp",
+                    twoFactorEnabled: true,
                     userId: "1"
                 )
             )

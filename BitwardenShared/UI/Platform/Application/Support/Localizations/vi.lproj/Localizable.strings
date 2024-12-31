@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Chép khóa riêng tư";
 "CopyFingerprint" = "Chép vân tay";
 "SSHKeys" = "Khóa SSH";
-"ExportingFailed" = "Exporting failed";
-"YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
+"NothingAvailableToAutofill" = "Không có gì để điền tự động";
+"FailedToGenerateVerificationCode" = "Tạo mã xác thực thất bại";
+"FailedToAutofillItem" = "Điền tự động %1$@ thất bại";
+"ExportingFailed" = "Xuất thất bại";
+"YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Bạn cần bật mật mã hoặc sinh trắc học.";
