@@ -140,6 +140,7 @@ extension Account {
         // MARK: Properties
 
         /// The environment URLs for an account.
+        /// The "URL" acronym in the variable name needs to remain lowercase for backwards compatibility.
         var environmentUrls: EnvironmentURLData?
     }
 
