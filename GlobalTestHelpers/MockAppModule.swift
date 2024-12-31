@@ -6,6 +6,7 @@ class MockAppModule:
     AppModule,
     AuthModule,
     DebugMenuModule,
+    ExportCXFModule,
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
@@ -24,6 +25,7 @@ class MockAppModule:
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
+    var exportCXFCoordinator = MockCoordinator<ExportCXFRoute, Void>()
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
@@ -67,6 +69,12 @@ class MockAppModule:
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<DebugMenuRoute, Void> {
         debugMenuCoordinator.asAnyCoordinator()
+    }
+
+    func makeExportCXFCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<ExportCXFRoute, Void> {
+        exportCXFCoordinator.asAnyCoordinator()
     }
 
     func makeExtensionSetupCoordinator(

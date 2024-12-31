@@ -19,6 +19,7 @@ typealias Services = HasAPIService
     & HasEnvironmentService
     & HasErrorReporter
     & HasEventService
+    & HasExportCXFCiphersRepository
     & HasExportVaultService
     & HasFido2CredentialStore
     & HasFido2UserInterfaceHelper
@@ -173,6 +174,13 @@ protocol HasErrorReporter {
 protocol HasEventService {
     /// The service used by the application to record events.
     var eventService: EventService { get }
+}
+
+/// Protocol for an object that provides an `ExportCXFCiphersRepository`.
+///
+protocol HasExportCXFCiphersRepository {
+    /// The repository to handle exporting ciphers in Credential Exchange Format.
+    var exportCXFCiphersRepository: ExportCXFCiphersRepository { get }
 }
 
 /// Protocol for an object that provides a `ExportVaultService`.
