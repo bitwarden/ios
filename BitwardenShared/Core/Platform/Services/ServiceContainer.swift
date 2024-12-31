@@ -69,6 +69,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used to record and send events.
     let eventService: EventService
 
+    /// The repository to handle exporting ciphers in Credential Exchange Format
+    let exportCXFCiphersRepository: ExportCXFCiphersRepository
+
     /// The service used to export a vault.
     let exportVaultService: ExportVaultService
 
@@ -190,6 +193,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service used to record and send events.
+    ///   - exportCXFCiphersRepository: The repository to handle exporting ciphers in Credential Exchange Format.
     ///   - exportVaultService: The service used to export vaults.
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
     ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
@@ -242,6 +246,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         eventService: EventService,
+        exportCXFCiphersRepository: ExportCXFCiphersRepository,
         exportVaultService: ExportVaultService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
@@ -292,6 +297,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.eventService = eventService
+        self.exportCXFCiphersRepository = exportCXFCiphersRepository
         self.exportVaultService = exportVaultService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
@@ -665,14 +671,25 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let credentialManagerFactory = DefaultCredentialManagerFactory()
+        let cxfCredentialsResultBuilder = DefaultCXFCredentialsResultBuilder()
 
         let importCiphersRepository = DefaultImportCiphersRepository(
             clientService: clientService,
             credentialManagerFactory: credentialManagerFactory,
+            cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             importCiphersService: DefaultImportCiphersService(
                 importCiphersAPIService: apiService
             ),
             syncService: syncService
+        )
+
+        let exportCXFCiphersRepository = DefaultExportCXFCiphersRepository(
+            cipherService: cipherService,
+            clientService: clientService,
+            credentialManagerFactory: credentialManagerFactory,
+            cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
+            errorReporter: errorReporter,
+            stateService: stateService
         )
 
         let userVerificationHelperFactory = DefaultUserVerificationHelperFactory(
@@ -742,6 +759,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             errorReporter: errorReporter,
             eventService: eventService,
+            exportCXFCiphersRepository: exportCXFCiphersRepository,
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,

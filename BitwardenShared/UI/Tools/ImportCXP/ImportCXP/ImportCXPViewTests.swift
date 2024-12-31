@@ -77,9 +77,9 @@ class ImportCXPViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_success() {
         processor.state.status = .success(totalImportedCredentials: 10, importedResults: [
-            ImportedCredentialsResult(count: 13, type: .password),
-            ImportedCredentialsResult(count: 7, type: .passkey),
-            ImportedCredentialsResult(count: 10, type: .card),
+            CXFCredentialsResult(count: 13, type: .password),
+            CXFCredentialsResult(count: 7, type: .passkey),
+            CXFCredentialsResult(count: 10, type: .card),
         ])
         assertSnapshots(
             of: subject,

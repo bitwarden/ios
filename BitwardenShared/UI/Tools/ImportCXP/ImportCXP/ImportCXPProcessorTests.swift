@@ -264,9 +264,9 @@ class ImportCXPProcessorTests: BitwardenTestCase {
         }
 
         let expectedResults = [
-            ImportedCredentialsResult(count: 12, type: .password),
-            ImportedCredentialsResult(count: 7, type: .passkey),
-            ImportedCredentialsResult(count: 11, type: .card),
+            CXFCredentialsResult(count: 12, type: .password),
+            CXFCredentialsResult(count: 7, type: .passkey),
+            CXFCredentialsResult(count: 11, type: .card),
         ]
         importCiphersRepository.importCiphersResult.withVerification { _ in
             self.subject.state.status == .importing

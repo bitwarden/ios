@@ -11,6 +11,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
     var clientService: MockClientService!
     var credentialManagerFactory: MockCredentialManagerFactory!
+    var cxfCredentialsResultBuilder: MockCXFCredentialsResultBuilder!
     var importCiphersService: MockImportCiphersService!
     var syncService: MockSyncService!
     var subject: ImportCiphersRepository!
@@ -22,11 +23,13 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         clientService = MockClientService()
         credentialManagerFactory = MockCredentialManagerFactory()
+        cxfCredentialsResultBuilder = MockCXFCredentialsResultBuilder()
         importCiphersService = MockImportCiphersService()
         syncService = MockSyncService()
         subject = DefaultImportCiphersRepository(
             clientService: clientService,
             credentialManagerFactory: credentialManagerFactory,
+            cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             importCiphersService: importCiphersService,
             syncService: syncService
         )
@@ -37,6 +40,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         clientService = nil
         credentialManagerFactory = nil
+        cxfCredentialsResultBuilder = nil
         importCiphersService = nil
         subject = nil
         syncService = nil
@@ -77,12 +81,12 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         ])
 
         let expectedResults = [
-            ImportedCredentialsResult(count: 2, type: .password),
-            ImportedCredentialsResult(count: 1, type: .passkey),
-            ImportedCredentialsResult(count: 3, type: .card),
-            ImportedCredentialsResult(count: 1, type: .identity),
-            ImportedCredentialsResult(count: 2, type: .secureNote),
-            ImportedCredentialsResult(count: 1, type: .sshKey),
+            CXFCredentialsResult(count: 2, type: .password),
+            CXFCredentialsResult(count: 1, type: .passkey),
+            CXFCredentialsResult(count: 3, type: .card),
+            CXFCredentialsResult(count: 1, type: .identity),
+            CXFCredentialsResult(count: 2, type: .secureNote),
+            CXFCredentialsResult(count: 1, type: .sshKey),
         ]
 
         var progressReports: [Double] = []
