@@ -111,7 +111,7 @@
 "ExtensionSetup2" = "No Safari e no Chrome, encontre o Bitwarden utilizando o ícone de partilha (dica: deslize para a direita na linha inferior do menu de partilha).";
 "ExtensionTapIcon" = "Toque no ícone do Bitwarden no menu para iniciar a extensão.";
 "ExtensionTurnOn" = "Para ativar o Bitwarden no Safari e noutras aplicações, toque no ícone \"mais\" na linha inferior do menu.";
-"Favorite" = "Favorito";
+"Favorite" = "Adicionar aos favoritos";
 "Fingerprint" = "Impressão digital";
 "GeneratePassword" = "Gerar palavra-passe";
 "GetPasswordHint" = "Obter a dica da sua palavra-passe mestra";

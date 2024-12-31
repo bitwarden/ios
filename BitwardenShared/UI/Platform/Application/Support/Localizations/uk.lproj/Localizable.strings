@@ -1059,8 +1059,8 @@
 "CopyPrivateKey" = "Копіювати закритий ключ";
 "CopyFingerprint" = "Копіювати відбиток";
 "SSHKeys" = "Ключі SSH";
-"NothingAvailableToAutofill" = "Nothing available to autofill";
-"FailedToGenerateVerificationCode" = "Failed to generate verification code";
-"FailedToAutofillItem" = "Failed to autofill item %1$@";
+"NothingAvailableToAutofill" = "Немає записів для автозаповнення";
+"FailedToGenerateVerificationCode" = "Не вдалося згенерувати код підтвердження";
+"FailedToAutofillItem" = "Збій автозаповнення запису %1$@";
 "ExportingFailed" = "Не вдалося експортувати";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Можливо, необхідно ввімкнути код допуску або біометричну перевірку пристрою.";
