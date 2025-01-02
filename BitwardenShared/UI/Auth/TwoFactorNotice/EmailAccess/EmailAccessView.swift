@@ -16,14 +16,26 @@ struct EmailAccessView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            PageHeaderView(
-                image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
-                imageSizeMode: .largerInPortrait,
-                textSpacing: 12,
-                title: Localizations.importantNotice,
-                message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong
-            )
-            .padding(.top, 16)
+            if verticalSizeClass == .regular {
+                VStack(spacing: 24) {
+                    Asset.Images.Illustrations.businessWarning.swiftUIImage
+                        .resizable()
+                        .frame(width: 124, height: 124)
+
+                    textPortion
+                }
+                .padding(.top, 16)
+            } else {
+                HStack(spacing: 32) {
+                    Asset.Images.Illustrations.businessWarning.swiftUIImage
+                        .resizable()
+                        .frame(width: 100, height: 100)
+
+                    textPortion
+                }
+                .padding(.horizontal, 80)
+                .padding(.top, 16)
+            }
 
             toggleCard
 
@@ -37,6 +49,16 @@ struct EmailAccessView: View {
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
         .scrollView()
+    }
+
+    private var textPortion: some View {
+        VStack(spacing: 12) {
+            Text(Localizations.importantNotice)
+                .styleGuide(.title2, weight: .semibold)
+
+            Text(Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong)
+                .styleGuide(.body)
+        }
     }
 
     private var toggleCard: some View {

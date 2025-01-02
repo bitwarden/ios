@@ -43,7 +43,7 @@ struct SetUpTwoFactorView: View {
                     textPortion
                 }
                 .padding(.horizontal, 80)
-                .padding(.top, 16) // Being a scroll view gives us 16 already
+                .padding(.top, 16)
             }
 
             buttons
