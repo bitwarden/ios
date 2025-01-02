@@ -18,9 +18,11 @@ struct EmailAccessView: View {
         VStack(spacing: 24) {
             PageHeaderView(
                 image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
+                imageSizeMode: .largerInPortrait,
                 title: Localizations.importantNotice,
                 message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong
             )
+            .padding(.top, 16)
 
             toggleCard
 
@@ -37,7 +39,7 @@ struct EmailAccessView: View {
     }
 
     private var toggleCard: some View {
-        ContentBlock() {
+        ContentBlock {
             Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmail(
                 store.state.emailAddress.withoutAutomaticEmailLinks()
             )))

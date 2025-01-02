@@ -5,10 +5,18 @@ import SwiftUI
 /// A view that renders a header for page. This support displaying an image, title, and message.
 ///
 struct PageHeaderView: View {
+    enum ImageSizeMode: Equatable {
+        case constant
+        case largerInPortrait
+    }
+
     // MARK: Properties
 
     /// The image to display in the page header.
     let image: Image
+
+    /// How to handle image size between landscape and portrait.
+    let imageSizeMode: ImageSizeMode
 
     /// The message to display in the page header.
     let message: String
@@ -19,13 +27,24 @@ struct PageHeaderView: View {
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
+    // MARK: Computed Properties
+
+    var imageDimension: CGFloat {
+        switch imageSizeMode {
+        case .constant:
+            return 100
+        case .largerInPortrait:
+            return verticalSizeClass == .regular ? 124 : 100
+        }
+    }
+
     // MARK: View
 
     var body: some View {
         dynamicStackView {
             image
                 .resizable()
-                .frame(width: 100, height: 100)
+                .frame(width: imageDimension, height: imageDimension)
 
             VStack(spacing: 16) {
                 Text(title)
@@ -48,8 +67,9 @@ struct PageHeaderView: View {
     ///   - title: The title to display.
     ///   - message: The message to display.
     ///
-    init(image: Image, title: String, message: String) {
+    init(image: Image, imageSizeMode: ImageSizeMode = .constant, title: String, message: String) {
         self.image = image
+        self.imageSizeMode = imageSizeMode
         self.message = message
         self.title = title
     }
@@ -61,8 +81,9 @@ struct PageHeaderView: View {
     ///   - title: The title to display.
     ///   - message: The message to display.
     ///
-    init(image: ImageAsset, title: String, message: String) {
+    init(image: ImageAsset, imageSizeMode: ImageSizeMode = .constant, title: String, message: String) {
         self.image = image.swiftUIImage
+        self.imageSizeMode = imageSizeMode
         self.message = message
         self.title = title
     }
@@ -85,9 +106,18 @@ struct PageHeaderView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview("PageHeader") {
+#Preview("PageHeader Constant") {
     PageHeaderView(
         image: Asset.Images.Illustrations.biometricsPhone,
+        title: Localizations.setUpUnlock,
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+    )
+}
+
+#Preview("PageHeader LargerInPortrait") {
+    PageHeaderView(
+        image: Asset.Images.Illustrations.biometricsPhone,
+        imageSizeMode: .largerInPortrait,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
     )
