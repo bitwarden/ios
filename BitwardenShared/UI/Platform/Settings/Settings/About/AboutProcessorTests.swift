@@ -158,7 +158,7 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             pasteboardService.copiedString,
             """
-            © Bitwarden Inc. 2015-2024
+            © Bitwarden Inc. 2015-2025
 
             Version: 2024.6.0 (1)
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
@@ -181,7 +181,7 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             pasteboardService.copiedString,
             """
-            © Bitwarden Inc. 2015-2024
+            © Bitwarden Inc. 2015-2025
 
             Version: 2024.6.0 (1)
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
@@ -207,7 +207,7 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertEqual(
             pasteboardService.copiedString,
             """
-            © Bitwarden Inc. 2015-2024
+            © Bitwarden Inc. 2015-2025
 
             Version: 2024.6.0 (1)
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
