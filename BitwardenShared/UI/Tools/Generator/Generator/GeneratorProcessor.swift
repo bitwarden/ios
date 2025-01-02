@@ -249,17 +249,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             try await loadGeneratorOptionsTask?.value
 
             switch state.generatorType {
+            case .passphrase:
+                let passwordState = await validatePasswordOptionsAndApplyPolicies()
+                await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
             case .password:
                 let passwordState = await validatePasswordOptionsAndApplyPolicies()
-                switch state.passwordState.passwordGeneratorType {
-                case .passphrase:
-                    await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
-                case .password:
-                    await generatePassword(
-                        settings: passwordState.passwordGeneratorRequest,
-                        shouldSavePassword: shouldSavePassword
-                    )
-                }
+                await generatePassword(
+                    settings: passwordState.passwordGeneratorRequest,
+                    shouldSavePassword: shouldSavePassword
+                )
             case .username:
                 await generateUsername()
             }
@@ -317,7 +315,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     func saveGeneratorOptions() async {
         do {
             switch state.generatorType {
-            case .password:
+            case .passphrase, .password:
                 let passwordOptions = state.passwordState.passwordGenerationOptions
                 try await services.generatorRepository.setPasswordGenerationOptions(passwordOptions)
             case .username:
@@ -339,7 +337,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     ///
     func setGeneratedValue(_ value: String, shouldSavePassword: Bool = true) async throws {
         state.generatedValue = value
-        if state.generatorType == .password, shouldSavePassword {
+        if state.generatorType != .username, shouldSavePassword {
             try await saveGeneratedValue(value)
         }
     }

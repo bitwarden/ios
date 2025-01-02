@@ -4,18 +4,27 @@
 
 /// The type of value to generate.
 ///
-public enum GeneratorType: CaseIterable, Equatable, Menuable, Sendable {
-    /// Generate a password or passphrase.
+public enum GeneratorType: CaseIterable, Equatable, Identifiable, Menuable, Sendable {
+    /// Generate a passphrase.
+    case passphrase
+
+    /// Generate a password.
     case password
 
     /// Generate a username.
     case username
 
     /// All of the cases to show in the menu.
-    public static let allCases: [Self] = [.password, .username]
+    public static let allCases: [Self] = [.password, .passphrase, .username]
+
+    public var id: String {
+        localizedName
+    }
 
     var localizedName: String {
         switch self {
+        case .passphrase:
+            return Localizations.passphrase
         case .password:
             return Localizations.password
         case .username:
@@ -104,6 +113,8 @@ struct GeneratorState: Equatable {
     /// The list of sections to display in the generator form.
     var formSections: [FormSection<Self>] {
         let optionFields: [FormField<Self>] = switch generatorType {
+        case .passphrase:
+            passphraseFormFields
         case .password:
             passwordFormFields
         case .username:
@@ -182,13 +193,10 @@ struct GeneratorState: Equatable {
     mutating func showCopiedValueToast() {
         let valueCopied: String
         switch generatorType {
+        case .passphrase:
+            valueCopied = Localizations.passphrase
         case .password:
-            switch passwordState.passwordGeneratorType {
-            case .passphrase:
-                valueCopied = Localizations.passphrase
-            case .password:
-                valueCopied = Localizations.password
-            }
+            valueCopied = Localizations.password
         case .username:
             valueCopied = Localizations.username
         }
@@ -197,95 +205,96 @@ struct GeneratorState: Equatable {
 }
 
 extension GeneratorState {
+    /// Returns the list of fields for the passphrase generator.
+    ///
+    var passphraseFormFields: [FormField<Self>] {
+        [
+            passwordGeneratorTypeField(),
+            stepperField(
+                accessibilityId: "NumberOfWordsStepper",
+                keyPath: \.passwordState.numberOfWords,
+                range: 3 ... 20,
+                title: Localizations.numberOfWords
+            ),
+            textField(
+                accessibilityId: "WordSeparatorEntry",
+                keyPath: \.passwordState.wordSeparator,
+                title: Localizations.wordSeparator
+            ),
+            toggleField(
+                accessibilityId: "CapitalizePassphraseToggle",
+                isDisabled: policyOptions?.capitalize != nil,
+                keyPath: \.passwordState.capitalize,
+                title: Localizations.capitalize
+            ),
+            toggleField(
+                accessibilityId: "IncludeNumbersToggle",
+                isDisabled: policyOptions?.includeNumber != nil,
+                keyPath: \.passwordState.includeNumber,
+                title: Localizations.includeNumber
+            ),
+        ]
+    }
+
     /// Returns the list of fields for the password generator.
     ///
     var passwordFormFields: [FormField<Self>] {
-        switch passwordState.passwordGeneratorType {
-        case .passphrase:
-            [
-                passwordGeneratorTypeField(),
-                stepperField(
-                    accessibilityId: "NumberOfWordsStepper",
-                    keyPath: \.passwordState.numberOfWords,
-                    range: 3 ... 20,
-                    title: Localizations.numberOfWords
-                ),
-                textField(
-                    accessibilityId: "WordSeparatorEntry",
-                    keyPath: \.passwordState.wordSeparator,
-                    title: Localizations.wordSeparator
-                ),
-                toggleField(
-                    accessibilityId: "CapitalizePassphraseToggle",
-                    isDisabled: policyOptions?.capitalize != nil,
-                    keyPath: \.passwordState.capitalize,
-                    title: Localizations.capitalize
-                ),
-                toggleField(
-                    accessibilityId: "IncludeNumbersToggle",
-                    isDisabled: policyOptions?.includeNumber != nil,
-                    keyPath: \.passwordState.includeNumber,
-                    title: Localizations.includeNumber
-                ),
-            ]
-        case .password:
-            [
-                passwordGeneratorTypeField(),
-                sliderField(
-                    keyPath: \.passwordState.lengthDouble,
-                    range: 5 ... 128,
-                    sliderAccessibilityId: "PasswordLengthSlider",
-                    sliderValueAccessibilityId: "PasswordLengthLabel",
-                    title: Localizations.length,
-                    step: 1
-                ),
-                toggleField(
-                    accessibilityId: "UppercaseAtoZToggle",
-                    accessibilityLabel: Localizations.uppercaseAtoZ,
-                    isDisabled: policyOptions?.uppercase != nil,
-                    keyPath: \.passwordState.containsUppercase,
-                    title: "A-Z"
-                ),
-                toggleField(
-                    accessibilityId: "LowercaseAtoZToggle",
-                    accessibilityLabel: Localizations.lowercaseAtoZ,
-                    isDisabled: policyOptions?.lowercase != nil,
-                    keyPath: \.passwordState.containsLowercase,
-                    title: "a-z"
-                ),
-                toggleField(
-                    accessibilityId: "NumbersZeroToNineToggle",
-                    accessibilityLabel: Localizations.numbersZeroToNine,
-                    isDisabled: policyOptions?.number != nil,
-                    keyPath: \.passwordState.containsNumbers,
-                    title: "0-9"
-                ),
-                toggleField(
-                    accessibilityId: "SpecialCharactersToggle",
-                    accessibilityLabel: Localizations.specialCharacters,
-                    isDisabled: policyOptions?.special != nil,
-                    keyPath: \.passwordState.containsSpecial,
-                    title: "!@#$%^&*"
-                ),
-                stepperField(
-                    accessibilityId: "MinNumberValueLabel",
-                    keyPath: \.passwordState.minimumNumber,
-                    range: 0 ... 5,
-                    title: Localizations.minNumbers
-                ),
-                stepperField(
-                    accessibilityId: "MinSpecialValueLabel",
-                    keyPath: \.passwordState.minimumSpecial,
-                    range: 0 ... 5,
-                    title: Localizations.minSpecial
-                ),
-                toggleField(
-                    accessibilityId: "AvoidAmbiguousCharsToggle",
-                    keyPath: \.passwordState.avoidAmbiguous,
-                    title: Localizations.avoidAmbiguousCharacters
-                ),
-            ]
-        }
+        [
+            passwordGeneratorTypeField(),
+            sliderField(
+                keyPath: \.passwordState.lengthDouble,
+                range: 5 ... 128,
+                sliderAccessibilityId: "PasswordLengthSlider",
+                sliderValueAccessibilityId: "PasswordLengthLabel",
+                title: Localizations.length,
+                step: 1
+            ),
+            toggleField(
+                accessibilityId: "UppercaseAtoZToggle",
+                accessibilityLabel: Localizations.uppercaseAtoZ,
+                isDisabled: policyOptions?.uppercase != nil,
+                keyPath: \.passwordState.containsUppercase,
+                title: "A-Z"
+            ),
+            toggleField(
+                accessibilityId: "LowercaseAtoZToggle",
+                accessibilityLabel: Localizations.lowercaseAtoZ,
+                isDisabled: policyOptions?.lowercase != nil,
+                keyPath: \.passwordState.containsLowercase,
+                title: "a-z"
+            ),
+            toggleField(
+                accessibilityId: "NumbersZeroToNineToggle",
+                accessibilityLabel: Localizations.numbersZeroToNine,
+                isDisabled: policyOptions?.number != nil,
+                keyPath: \.passwordState.containsNumbers,
+                title: "0-9"
+            ),
+            toggleField(
+                accessibilityId: "SpecialCharactersToggle",
+                accessibilityLabel: Localizations.specialCharacters,
+                isDisabled: policyOptions?.special != nil,
+                keyPath: \.passwordState.containsSpecial,
+                title: "!@#$%^&*"
+            ),
+            stepperField(
+                accessibilityId: "MinNumberValueLabel",
+                keyPath: \.passwordState.minimumNumber,
+                range: 0 ... 5,
+                title: Localizations.minNumbers
+            ),
+            stepperField(
+                accessibilityId: "MinSpecialValueLabel",
+                keyPath: \.passwordState.minimumSpecial,
+                range: 0 ... 5,
+                title: Localizations.minSpecial
+            ),
+            toggleField(
+                accessibilityId: "AvoidAmbiguousCharsToggle",
+                keyPath: \.passwordState.avoidAmbiguous,
+                title: Localizations.avoidAmbiguousCharacters
+            ),
+        ]
     }
 
     /// Returns the list of fields for the username generator.

@@ -432,8 +432,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// pasteboard and shows a toast.
     @MainActor
     func test_receive_copiedGeneratedValue_passphrase() {
-        subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .passphrase
+        subject.state.generatorType = .passphrase
 
         subject.state.generatedValue = "PASSPHRASE"
         subject.receive(.copyGeneratedValue)
@@ -513,8 +512,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new passphrase.
     @MainActor
     func test_receive_refreshGeneratedValue_passphrase() throws {
-        subject.state.generatorType = .password
-        subject.state.passwordState.passwordGeneratorType = .passphrase
+        subject.state.generatorType = .passphrase
 
         subject.receive(.refreshGeneratedValue)
 

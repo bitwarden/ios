@@ -15,18 +15,30 @@ struct GeneratorView: View {
     @ObservedObject var store: Store<GeneratorState, GeneratorAction, GeneratorEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                if store.state.isPolicyInEffect {
-                    InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
-                        .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
-                }
+        VStack(spacing: 0) {
+            BitwardenSegmentedControl(
+                selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
+                selections: GeneratorType.allCases
+            )
+            .padding(.horizontal, 12)
+            .padding(.bottom, 12)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
 
-                ForEach(store.state.formSections) { section in
-                    sectionView(section)
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    if store.state.isPolicyInEffect {
+                        InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
+                            .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
+                    }
+
+                    ForEach(store.state.formSections) { section in
+                        sectionView(section)
+                    }
                 }
+                .padding(16)
             }
-            .padding(16)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
