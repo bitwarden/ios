@@ -40,14 +40,13 @@ struct EmailAccessView: View {
     }
 
     private var toggleCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        ContentBlock() {
             Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmail(
                 store.state.emailAddress.withoutAutomaticEmailLinks()
             )))
             .styleGuide(.body)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-
-            Divider()
+            .padding(16)
 
             Toggle(Localizations.yesICanReliablyAccessMyEmail, isOn: store.binding(
                 get: \.canAccessEmail,
@@ -55,11 +54,9 @@ struct EmailAccessView: View {
             ))
             .toggleStyle(.bitwarden)
             .accessibilityIdentifier("AccessEmailToggle")
+            .padding(16)
         }
         .multilineTextAlignment(.leading)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .cornerRadius(10)
     }
 }
