@@ -19,6 +19,7 @@ struct EmailAccessView: View {
             PageHeaderView(
                 image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
                 imageSizeMode: .largerInPortrait,
+                textSpacing: 12,
                 title: Localizations.importantNotice,
                 message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong
             )

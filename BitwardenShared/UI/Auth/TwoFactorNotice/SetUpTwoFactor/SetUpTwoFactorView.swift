@@ -17,13 +17,52 @@ struct SetUpTwoFactorView: View {
     @ObservedObject public var store: Store<SetUpTwoFactorState, SetUpTwoFactorAction, SetUpTwoFactorEffect>
 
     var body: some View {
-        VStack(spacing: 12) {
-            PageHeaderView(
-                image: Asset.Images.Illustrations.userLock.swiftUIImage,
-                title: Localizations.setUpTwoStepLogin,
-                message: Localizations.youCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong
-            )
+        VStack(spacing: 24) {
+            if verticalSizeClass == .regular {
+                VStack(spacing: 24) {
+                    // Despite the image being 96x96, the actual dimensions of the
+                    // illustration within that are 96x72 (4:3).
+                    // So to make how it interacts with other elements correct,
+                    // we have to apply negative padding equal to 1/8 of the width
+                    // to both top and bottom, thus making the image the "correct" size
+                    Asset.Images.Illustrations.userLock.swiftUIImage
+                        .resizable()
+                        .frame(width: 124, height: 124)
+                        .padding(.vertical, -15.5)
 
+                    textPortion
+                }
+                .padding(.top, 16)
+            } else {
+                HStack(spacing: 32) {
+                    Asset.Images.Illustrations.userLock.swiftUIImage
+                        .resizable()
+                        .frame(width: 100, height: 100)
+                        .padding(.vertical, -12.5)
+
+                    textPortion
+                }
+                .padding(.horizontal, 80)
+                .padding(.top, 16) // Being a scroll view gives us 16 already
+            }
+
+            buttons
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .multilineTextAlignment(.center)
+        .scrollView()
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
+    }
+
+    // MARK: Private
+
+    private var buttons: some View {
+        VStack(spacing: 12) {
             Button {
                 store.send(.turnOnTwoFactorTapped)
             } label: {
@@ -53,14 +92,15 @@ struct SetUpTwoFactorView: View {
                 .buttonStyle(.secondary())
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-        .multilineTextAlignment(.center)
-        .scrollView()
-        .onChange(of: store.state.url) { newValue in
-            guard let url = newValue else { return }
-            openURL(url)
-            store.send(.clearURL)
+    }
+
+    private var textPortion: some View {
+        VStack(spacing: 12) {
+            Text(Localizations.setUpTwoStepLogin)
+                .styleGuide(.title2, weight: .semibold)
+
+            Text(Localizations.youCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong)
+                .styleGuide(.body)
         }
     }
 }
