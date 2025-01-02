@@ -61,7 +61,7 @@ struct PageHeaderView: View {
     ///   - title: The title to display.
     ///   - message: The message to display.
     ///
-    init(image: ImageAsset, title: String,message: String) {
+    init(image: ImageAsset, title: String, message: String) {
         self.image = image.swiftUIImage
         self.message = message
         self.title = title
