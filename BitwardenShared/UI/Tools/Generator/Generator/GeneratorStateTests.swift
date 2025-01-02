@@ -19,13 +19,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Passphrase
-                Options: Password, Passphrase, Username
             Section: Options
-              Menu: Password type
-                Selection: Passphrase
-                Options: Password, Passphrase
               Stepper: Number of words Value: 3 Range: 3...20
               Text: Word separator Value: -
               Toggle: Capitalize Value: false
@@ -66,13 +60,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Password
-                Options: Password, Passphrase, Username
             Section: Options
-              Menu: Password type
-                Selection: Password
-                Options: Password, Passphrase
               Slider: Length Value: 14.0 Range: 5.0...128.0 Step: 1.0
               Toggle: A-Z Value: true
               Toggle: a-z Value: true
@@ -121,9 +109,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Catch-all email
@@ -192,9 +177,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -220,9 +202,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -247,9 +226,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -274,9 +250,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -301,9 +274,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -329,9 +299,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -355,9 +322,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Plus addressed email
@@ -425,9 +389,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Passphrase, Username
             Section: Options
               Menu: Username type
                 Selection: Random word
@@ -891,10 +852,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             case let .generatedValue(generatedValue):
                 result.append("Generated: \(generatedValue.value.isEmpty ? "(empty)" : generatedValue.value)")
             case let .menuEmailType(menu):
-                result.append(menu.dumpField(indent: indent))
-            case let .menuGeneratorType(menu):
-                result.append(menu.dumpField(indent: indent))
-            case let .menuPasswordGeneratorType(menu):
                 result.append(menu.dumpField(indent: indent))
             case let .menuUsernameForwardedEmailService(menu):
                 result.append(menu.dumpField(indent: indent))

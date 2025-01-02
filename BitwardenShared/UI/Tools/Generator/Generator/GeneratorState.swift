@@ -112,6 +112,8 @@ struct GeneratorState: Equatable {
 
     /// The list of sections to display in the generator form.
     var formSections: [FormSection<Self>] {
+        let generatorFields = [generatedValueField(keyPath: \.generatedValue)]
+
         let optionFields: [FormField<Self>] = switch generatorType {
         case .passphrase:
             passphraseFormFields
@@ -119,24 +121,6 @@ struct GeneratorState: Equatable {
             passwordFormFields
         case .username:
             usernameFormFields
-        }
-
-        let generatorFields: [FormField<Self>]
-        if presentationMode.isTypeFieldVisible {
-            generatorFields = [
-                generatedValueField(keyPath: \.generatedValue),
-                FormField(fieldType: .menuGeneratorType(FormMenuField(
-                    accessibilityIdentifier: "GeneratorTypePicker",
-                    keyPath: \.generatorType,
-                    options: GeneratorType.allCases,
-                    selection: generatorType,
-                    title: Localizations.whatWouldYouLikeToGenerate
-                ))),
-            ]
-        } else {
-            generatorFields = [
-                generatedValueField(keyPath: \.generatedValue),
-            ]
         }
 
         return [
@@ -209,7 +193,6 @@ extension GeneratorState {
     ///
     var passphraseFormFields: [FormField<Self>] {
         [
-            passwordGeneratorTypeField(),
             stepperField(
                 accessibilityId: "NumberOfWordsStepper",
                 keyPath: \.passwordState.numberOfWords,
@@ -240,7 +223,6 @@ extension GeneratorState {
     ///
     var passwordFormFields: [FormField<Self>] {
         [
-            passwordGeneratorTypeField(),
             sliderField(
                 keyPath: \.passwordState.lengthDouble,
                 range: 5 ... 128,

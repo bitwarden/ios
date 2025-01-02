@@ -499,16 +499,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.generatorType, .username)
     }
 
-    /// `receive(_:)` with `.passwordGeneratorTypeChanged` updates the state's password generator type value.
-    @MainActor
-    func test_receive_passwordGeneratorTypeChanged() {
-        subject.receive(.passwordGeneratorTypeChanged(.password))
-        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .password)
-
-        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
-        XCTAssertEqual(subject.state.passwordState.passwordGeneratorType, .passphrase)
-    }
-
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new passphrase.
     @MainActor
     func test_receive_refreshGeneratedValue_passphrase() throws {
@@ -824,7 +814,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Wait for the initial loading of the generation options to complete before making changes.
         waitFor { subject.didLoadGeneratorOptions }
 
-        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+        subject.receive(.generatorTypeChanged(.passphrase))
         waitFor { generatorRepository.passwordGenerationOptions.type == .passphrase }
         XCTAssertEqual(
             generatorRepository.passwordGenerationOptions,
@@ -882,7 +872,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_saveGeneratorOptions_password_error() {
         generatorRepository.setPasswordGenerationOptionsResult = .failure(StateServiceError.noActiveAccount)
 
-        subject.receive(.passwordGeneratorTypeChanged(.passphrase))
+        subject.receive(.generatorTypeChanged(.passphrase))
 
         waitFor { !errorReporter.errors.isEmpty }
         XCTAssertEqual(

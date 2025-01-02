@@ -88,24 +88,6 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .emailTypeChanged(.website))
     }
 
-    /// Updating the generator type dispatches the `.generatorTypeChanged` action.
-    @MainActor
-    func test_menuGeneratorTypeChanged() throws {
-        processor.state.generatorType = .password
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whatWouldYouLikeToGenerate)
-        try menuField.select(newValue: GeneratorType.username)
-        XCTAssertEqual(processor.dispatchedActions.last, .generatorTypeChanged(.username))
-    }
-
-    /// Updating the password generator type dispatches the `.passwordGeneratorTypeChanged` action.
-    @MainActor
-    func test_menuPasswordGeneratorTypeChanged() throws {
-        processor.state.passwordState.passwordGeneratorType = .password
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.passwordType)
-        try menuField.select(newValue: PasswordGeneratorType.passphrase)
-        XCTAssertEqual(processor.dispatchedActions.last, .passwordGeneratorTypeChanged(.passphrase))
-    }
-
     /// Updating the username generator forwarded email service dispatches the
     /// `.usernameForwardedEmailServiceChanged` action.
     @MainActor

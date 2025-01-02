@@ -16,13 +16,15 @@ struct GeneratorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            BitwardenSegmentedControl(
-                selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
-                selections: GeneratorType.allCases
-            )
-            .padding(.horizontal, 12)
-            .padding(.bottom, 12)
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            if store.state.presentationMode.isTypeFieldVisible {
+                BitwardenSegmentedControl(
+                    selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
+                    selections: GeneratorType.allCases
+                )
+                .padding(.horizontal, 12)
+                .padding(.bottom, 12)
+                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            }
 
             Divider()
 
@@ -85,7 +87,6 @@ struct GeneratorView: View {
     ///
     @ViewBuilder
     func sectionView(_ section: GeneratorState.FormSection<GeneratorState>) -> some View {
-        // swiftlint:disable:previous function_body_length
         if let title = section.title {
             Text(title.uppercased())
                 .styleGuide(.footnote)
@@ -105,14 +106,6 @@ struct GeneratorView: View {
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.emailTypeChanged(newValue))
                     }
-                case let .menuGeneratorType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.generatorTypeChanged(newValue))
-                    }
-                case let .menuPasswordGeneratorType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.passwordGeneratorTypeChanged(newValue))
-                    }.disabled(store.state.policyOptions?.overridePasswordType ?? false)
                 case let .menuUsernameForwardedEmailService(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.usernameForwardedEmailServiceChanged(newValue))

@@ -98,8 +98,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.updateEmailType(emailType)
         case let .generatorTypeChanged(generatorType):
             state.generatorType = generatorType
-        case let .passwordGeneratorTypeChanged(passwordGeneratorType):
-            state.passwordState.passwordGeneratorType = passwordGeneratorType
         case .refreshGeneratedValue:
             // Generating a new value happens below.
             break
