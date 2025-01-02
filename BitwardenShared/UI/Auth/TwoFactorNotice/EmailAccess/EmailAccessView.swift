@@ -15,7 +15,7 @@ struct EmailAccessView: View {
     @ObservedObject public var store: Store<EmailAccessState, EmailAccessAction, EmailAccessEffect>
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 24) {
             PageHeaderView(
                 image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
                 title: Localizations.importantNotice,
@@ -24,14 +24,11 @@ struct EmailAccessView: View {
 
             toggleCard
 
-            VStack(spacing: 12) {
-                AsyncButton(Localizations.continue) {
-                    await store.perform(.continueTapped)
-                }
-                .buttonStyle(.primary())
+            AsyncButton(Localizations.continue) {
+                await store.perform(.continueTapped)
             }
+            .buttonStyle(.primary())
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-            .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
