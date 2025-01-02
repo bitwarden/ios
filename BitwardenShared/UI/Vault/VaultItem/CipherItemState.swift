@@ -106,7 +106,7 @@ struct CipherItemState: Equatable {
     var addEditState: AddEditItemState {
         self
     }
-    
+
     /// Whether or not this item can be assign to collections.
     var canAssigntoCollection: Bool {
         guard !collectionIds.isEmpty else { return true }
