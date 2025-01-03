@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Ievietot starpliktuvē privāto atslēgu";
 "CopyFingerprint" = "Ievietot starpliktuvē pirkstu nospiedumu";
 "SSHKeys" = "SSH atslēgas";
+"ImportantNotice" = "Svarīgs paziņojums";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden, sākot ar 2025. gada februāri, nosūtīs kodu uz konta e-pasta adresi, lai apliecinātu pieteikšanos jaunās ierīcēs.";
+"DoYouHaveReliableAccessToYourEmail" = "Vai ir uzticama piekļuve savai e-pasta adresei **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Jā, varu uzticami piekļūt savam e-pastam";
+"SetUpTwoStepLogin" = "Iestatīt divpakāpju pieteikšanos";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Var iestatīt divpakāpju pieteikšanos kā citu veidu, kā aizsargāt savu kontu, vai iestatīt savu e-pasta adresi uz tādu, kurai ir piekļuve.";
+"TurnOnTwoStepLogin" = "Ieslēgt divpakāpju pieteikšanos";
+"ChangeAccountEmail" = "Mainīt konta e-pasta adresi";
 "NothingAvailableToAutofill" = "Nav piejams nekas automātiski aizpildāms";
 "FailedToGenerateVerificationCode" = "Neizdevās izveidot apliecināšanas kodu";
 "FailedToAutofillItem" = "Neizdevās automātiski aizpildīt vienumu %1$@";

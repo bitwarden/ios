@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Копіювати закритий ключ";
 "CopyFingerprint" = "Копіювати відбиток";
 "SSHKeys" = "Ключі SSH";
+"ImportantNotice" = "Important notice";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
+"DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Yes, I can reliably access my email";
+"SetUpTwoStepLogin" = "Set up two-step login";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "You can set up two-step login as an alternative way to protect your account or change your email to one you can access.";
+"TurnOnTwoStepLogin" = "Turn on two-step login";
+"ChangeAccountEmail" = "Change account email";
 "NothingAvailableToAutofill" = "Немає записів для автозаповнення";
 "FailedToGenerateVerificationCode" = "Не вдалося згенерувати код підтвердження";
 "FailedToAutofillItem" = "Збій автозаповнення запису %1$@";

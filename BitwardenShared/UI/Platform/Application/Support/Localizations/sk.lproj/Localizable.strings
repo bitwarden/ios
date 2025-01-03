@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Kopírovať súkromný kľúč";
 "CopyFingerprint" = "Kopírovať odtlačok prsta";
 "SSHKeys" = "Kľúče SSH";
+"ImportantNotice" = "Dôležité upozornenie";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden vám od februára 2025 pošle na e-mail vášho účtu kód na overenie prihlásenia z nových zariadení.";
+"DoYouHaveReliableAccessToYourEmail" = "Máte spoľahlivý prístup k svojmu e-mailu, **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Áno, mám spoľahlivý prístup k svojmu e-mailu";
+"SetUpTwoStepLogin" = "Nastaviť dvojstupňové prihlásenie";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Ako alternatívny spôsob ochrany svojho účtu môžete nastaviť dvojstupňové prihlásenie alebo zmeniť e-mail na taký, ku ktorému máte prístup.";
+"TurnOnTwoStepLogin" = "Zapnúť dvojstupňové prihlásenie";
+"ChangeAccountEmail" = "Zmeniť e-mail účtu";
 "NothingAvailableToAutofill" = "Nie je nič na vyplnenie";
 "FailedToGenerateVerificationCode" = "Nepodarilo sa vygenerovať overovací kód";
 "FailedToAutofillItem" = "Nepodarilo sa automaticky vyplniť položku %1$@";

@@ -854,7 +854,7 @@
 "ContinueToAppStore" = "Pokračovat do obchodu s aplikacemi?";
 "ContinueToDeviceSettings" = "Pokračovat do nastavení zařízení?";
 "TwoStepLoginDescriptionLong" = "Vytvořte svůj účet bezpečnějším nastavením dvoufázového přihlášení ve webové aplikaci Bitwarden.";
-"ChangeMasterPasswordDescriptionLong" = "Hlavní heslo můžete změnit na webové aplikaci Bitwarden.";
+"ChangeMasterPasswordDescriptionLong" = "Hlavní heslo můžete změnit ve webové aplikaci Bitwarden.";
 "YouCanImportDataToYourVaultOnX" = "Data můžete importovat do Vašeho trezoru na %1$@.";
 "LearnMoreAboutHowToUseBitwardenOnTheHelpCenter" = "Přečtěte si více o tom, jak používat Bitwarden v centru nápovědy.";
 "ContactSupportDescriptionLong" = "Nenašli jste to, co jste hledali? Na bitwarden.com získejte podporu.";
@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Kopírovat soukromý klíč";
 "CopyFingerprint" = "Kopírovat otisk prstu";
 "SSHKeys" = "SSH klíče";
+"ImportantNotice" = "Důležité upozornění";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025.";
+"DoYouHaveReliableAccessToYourEmail" = "Máte spolehlivý přístup ke svému e-mailu **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Ano, ke svému e-mailu mám přístup";
+"SetUpTwoStepLogin" = "Nastavit dvoufázové přihlášení";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat.";
+"TurnOnTwoStepLogin" = "Zapnout dvoufázové přihlášení";
+"ChangeAccountEmail" = "Změnit e-mail účtu";
 "NothingAvailableToAutofill" = "Není k dispozici nic k automatickému vyplnění";
 "FailedToGenerateVerificationCode" = "Generování ověřovacího kódu se nezdařilo";
 "FailedToAutofillItem" = "Nezdařilo se automaticky vyplnit položku %1$@";

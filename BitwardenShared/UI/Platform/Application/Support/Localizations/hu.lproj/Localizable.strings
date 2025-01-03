@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Személyes kulcs másolása";
 "CopyFingerprint" = "Ujjlenyomat másolása";
 "SSHKeys" = "SSH kulcsok";
+"ImportantNotice" = "Fontos megjegyzés";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések.";
+"DoYouHaveReliableAccessToYourEmail" = "Megbízható a hozzáférés az email címhez, **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Igen, megbízhatóan hozzáférek az email címhez";
+"SetUpTwoStepLogin" = "Kétlépéses bejelentkezés beüzemelése";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "A fiók védelmének alternatív módjaként beállíthatunk kétlépcsős bejelentkezést vagy módosíthatjuk az email címet egy elérhetőre.";
+"TurnOnTwoStepLogin" = "Kétlépéses bejelentkezés bekapcsolása";
+"ChangeAccountEmail" = "Fiók email cím megváltoztatása";
 "NothingAvailableToAutofill" = "Semmi sem érhető el az automatikus kitöltéshez.";
 "FailedToGenerateVerificationCode" = "Nem sikerült létrehozni az ellenőrző kódot.";
 "FailedToAutofillItem" = "%1$@ elemet nem sikerült automatikusan kitölteni.";

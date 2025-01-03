@@ -1060,6 +1060,14 @@
 "CopyPrivateKey" = "Kopiraj privatni ključ";
 "CopyFingerprint" = "Kopiraj otisak prsta";
 "SSHKeys" = "SSH ključevi";
+"ImportantNotice" = "Važna napomena";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden će, počevši od veljače 2025., za provjeru prijava s novih uređaja poslati kôd na e-poštu tvog računa.";
+"DoYouHaveReliableAccessToYourEmail" = "Imaš li pouzdan pristup svojoj e-pošti: **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Da, pouzdano mogu pristupiti svojoj e-pošti";
+"SetUpTwoStepLogin" = "Postavi dvostruku autentifikaciju";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Prijavu dvostrukom autentifikacijom možeš postaviti kao alternativni način zaštite svog računa ili promijeni svoju e-poštu u onu kojoj možeš pristupiti.";
+"TurnOnTwoStepLogin" = "Uključi prijavu dvostrukom autentifikacijom";
+"ChangeAccountEmail" = "Promjeni e-poštu računa";
 "NothingAvailableToAutofill" = "Nema ništa za auto-ispunu";
 "FailedToGenerateVerificationCode" = "Neuspješno generiranje kôda za provjeru";
 "FailedToAutofillItem" = "Nuspješna auto-ispuna za %1$@";

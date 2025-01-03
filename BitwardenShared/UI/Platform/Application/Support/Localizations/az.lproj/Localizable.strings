@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Private açarı kopyala";
 "CopyFingerprint" = "Barmaq izini kopyala";
 "SSHKeys" = "SSH açarları";
+"ImportantNotice" = "Vacib bildiriş";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden, 2025-ci ilin Fevral ayından etibarən yeni cihazlardan gələn girişləri doğrulamaq üçün hesabınızın e-poçtuna bir kod göndərəcək.";
+"DoYouHaveReliableAccessToYourEmail" = "**%1$@** e-poçtunuza güvənli şəkildə müraciət edə bilirsiniz?";
+"YesICanReliablyAccessMyEmail" = "Bəli, e-poçtuma güvənli şəkildə müraciət edə bilirəm";
+"SetUpTwoStepLogin" = "İki addımlı girişi qur";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Hesabınızı qorumaq üçün alternativ bir yol kimi iki addımlı girişi qura və ya e-poçtunuzu müraciət edə biləcəyiniz e-poçtla dəyişdirə bilərsiniz.";
+"TurnOnTwoStepLogin" = "İki addımlı girişi işə sal";
+"ChangeAccountEmail" = "Hesabın e-poçtunu dəyişdir";
 "NothingAvailableToAutofill" = "Avto-doldurmaq üçün istifadə ediləcək heç nə yoxdur";
 "FailedToGenerateVerificationCode" = "Doğrulama kodunu yaratma uğursuz oldu";
 "FailedToAutofillItem" = "%1$@ elementini avto-doldurmaq uğursuz oldu";

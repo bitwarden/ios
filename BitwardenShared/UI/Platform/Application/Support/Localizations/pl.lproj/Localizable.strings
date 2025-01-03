@@ -989,7 +989,7 @@
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "Nie można załadować adresu URL Pre Auth aby rozpocząć tworzenie konta.";
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "From your device settings, **toggle on autofill Passwords and Passkeys.**";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**Toggle off iCloud Keychain** to make Bitwarden your default autofill source.";
-"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Toggle on Bitwarden** to use your saved passwords to log into your accounts.";
+"ToggleOnBitwardenToUseYourSavedPasswordsToLogIntoYourAccounts" = "**Przełącz na Bitwarden** aby użyć zapisanych haseł, aby zalogować się na swoje konto.";
 "TurnOnAutoFill" = "Turn on autofill";
 "UseAutoFillToLogIntoYourAccountsWithASingleTap" = "Use autofill to log into your accounts with a single tap.";
 "NeedHelpCheckOutAutofillHelp" = "Need help? Check out **[autofill help](%1$@)**";
@@ -999,7 +999,7 @@
 "ContinueToBitwarden" = "Continue to Bitwarden";
 "BackToSettings" = "Back to settings";
 "YoureAllSet" = "You're all set!";
-"AutoFillActivatedDescriptionLong" = "You can now use autofill to log into apps and websites using your saved passwords. Now, you can explore everything else Bitwarden has to offer.";
+"AutoFillActivatedDescriptionLong" = "";
 "GetStarted" = "Get started";
 "Dismiss" = "Dismiss";
 "SaveAndProtectYourData" = "Save and protect your data";
@@ -1039,7 +1039,7 @@
 "GoToBitwardenToIntegrateBitwardenIntoYourFavoriteBrowserForASeamlessExperience" = "Go to bitwarden.com/download to integrate Bitwarden into your favorite browser for a seamless experience.";
 "UseTheWebApp" = "Use the web app";
 "LogInAtBitwardenToEasilyManageYourAccountAndUpdateSettings" = "Log in at bitwarden.com to easily manage your account and update settings.";
-"AutofillPasswords" = "Autofill passwords";
+"AutofillPasswords" = "Autouzupełnianie haseł";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Set up autofill on all your devices to login with a single tap anywhere.";
 "GotIt" = "Got it";
 "GenerateCrash" = "Generate crash";
@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Skopiuj klucz prywatny";
 "CopyFingerprint" = "Skopiuj odcisk palca";
 "SSHKeys" = "Klucze SSH";
+"ImportantNotice" = "Important notice";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
+"DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Yes, I can reliably access my email";
+"SetUpTwoStepLogin" = "Set up two-step login";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "You can set up two-step login as an alternative way to protect your account or change your email to one you can access.";
+"TurnOnTwoStepLogin" = "Turn on two-step login";
+"ChangeAccountEmail" = "Change account email";
 "NothingAvailableToAutofill" = "Nothing available to autofill";
 "FailedToGenerateVerificationCode" = "Failed to generate verification code";
 "FailedToAutofillItem" = "Failed to autofill item %1$@";

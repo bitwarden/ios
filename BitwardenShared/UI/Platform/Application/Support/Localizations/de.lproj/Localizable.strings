@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Privaten Schlüssel kopieren";
 "CopyFingerprint" = "Fingerabdruck kopieren";
 "SSHKeys" = "SSH-Schlüssel";
+"ImportantNotice" = "Wichtiger Hinweis";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Ab Februar 2025 wird Bitwarden einen Code an deine Konto-E-Mail-Adresse senden, um Anmeldungen von neuen Geräten zu verifizieren.";
+"DoYouHaveReliableAccessToYourEmail" = "Hast du zuverlässigen Zugriff auf deine E-Mail-Adresse, **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Ja, ich kann zuverlässig auf meine E-Mails zugreifen";
+"SetUpTwoStepLogin" = "Zwei-Faktor-Authentifizierung einrichten";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Du kannst die Zwei-Faktor-Authentifizierung als eine alternative Methode einrichten, um dein Konto zu schützen, oder deine E-Mail-Adresse zu einer anderen ändern, auf die du zugreifen kannst.";
+"TurnOnTwoStepLogin" = "Zwei-Faktor-Authentifizierung aktivieren";
+"ChangeAccountEmail" = "E-Mail-Adresse des Kontos ändern";
 "NothingAvailableToAutofill" = "Nichts zum automatischen Ausfüllen vorhanden";
 "FailedToGenerateVerificationCode" = "Fehler beim Generieren des Verifizierungscodes";
 "FailedToAutofillItem" = "Fehler beim automatischen Ausfüllen des Eintrags %1$@";

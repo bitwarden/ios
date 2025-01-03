@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Kopiér privat nøgle";
 "CopyFingerprint" = "Kopiér fingeraftryk";
 "SSHKeys" = "SSH-nøgler";
+"ImportantNotice" = "Vigtig notits";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Startende i februar 2025, sender Bitwarden en kode til kontoe-mailadressen for at bekræfte logins fra nye enheder.";
+"DoYouHaveReliableAccessToYourEmail" = "Er der pålidelig adgang til e-mailadressen, **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Ja, e-mailadressen kan pålideligt tilgås";
+"SetUpTwoStepLogin" = "Opsæt totrins-login";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Man kan opsætte totrins-login som en alternativ måde at beskytte sin konto på eller ændre sin e-mail til en, man kan tilgå.";
+"TurnOnTwoStepLogin" = "Slå totrins-login til";
+"ChangeAccountEmail" = "Skift kontoe-mailadresse";
 "NothingAvailableToAutofill" = "Intet tilgængeligt at autofylde";
 "FailedToGenerateVerificationCode" = "Bekræftelseskode kunne ikke genereres";
 "FailedToAutofillItem" = "Kunne ikke autoudfylde emnet %1$@";

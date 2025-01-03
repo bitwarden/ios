@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Копиране на частния ключ";
 "CopyFingerprint" = "Копиране на отпечатъка";
 "SSHKeys" = "SSH ключове";
+"ImportantNotice" = "Важно съобщение";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Битуорден ще изпрати код до е-пощата Ви, за потвърждаване на вписването от нови устройства. Това ще започне от февруари 2025.";
+"DoYouHaveReliableAccessToYourEmail" = "Имате ли сигурен достъп до е-пощата си – **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Да, имам достъп до е-пощата си";
+"SetUpTwoStepLogin" = "Настройте двустепенно удостоверяване";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Можете да настроите двустепенно удостоверяване, като различен метод на защита, или ако е необходимо да промените е-пощата си с такава, до която имате достъп.";
+"TurnOnTwoStepLogin" = "Включване на двустепенното удостоверяване";
+"ChangeAccountEmail" = "Промяна на е-пощата";
 "NothingAvailableToAutofill" = "Няма нищо налично за автоматично попълване";
 "FailedToGenerateVerificationCode" = "Кодът за потвърждение не може да бъде генериран";
 "FailedToAutofillItem" = "Елементът не успя да бъде попълнен автоматично %1$@";

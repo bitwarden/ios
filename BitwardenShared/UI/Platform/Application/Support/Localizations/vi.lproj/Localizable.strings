@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Chép khóa riêng tư";
 "CopyFingerprint" = "Chép vân tay";
 "SSHKeys" = "Khóa SSH";
+"ImportantNotice" = "Thông báo quan trọng";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden sẽ gửi mã đến email tài khoản của bạn để xác minh thông tin đăng nhập từ thiết bị mới bắt đầu từ tháng 2 năm 2025.";
+"DoYouHaveReliableAccessToYourEmail" = "Bạn có quyền truy cập vào email **%1$@**?";
+"YesICanReliablyAccessMyEmail" = "Có, tôi có quyền truy cập email này";
+"SetUpTwoStepLogin" = "Thiết lập đăng nhập hai bước";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Bạn có thể thiết lập đăng nhập hai bước như một cách thay thế để bảo vệ tài khoản của mình hoặc thay đổi email thành email mà bạn có thể truy cập.";
+"TurnOnTwoStepLogin" = "Bật đăng nhập hai bước";
+"ChangeAccountEmail" = "Đổi email tài khoản";
 "NothingAvailableToAutofill" = "Không có gì để điền tự động";
 "FailedToGenerateVerificationCode" = "Tạo mã xác thực thất bại";
 "FailedToAutofillItem" = "Điền tự động %1$@ thất bại";

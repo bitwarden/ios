@@ -1059,6 +1059,14 @@
 "CopyPrivateKey" = "Özel anahtarı kopyala";
 "CopyFingerprint" = "Parmak izini kopyala";
 "SSHKeys" = "SSH anahtarları";
+"ImportantNotice" = "Önemli uyarı";
+"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Şubat 2025 itibarıyla Bitwarden, yeni cihazlardan yeni girişleri doğrulamanız için e-posta adresinize bir kod gönderecektir.";
+"DoYouHaveReliableAccessToYourEmail" = "**%1$@** adresinize sağlıklı bir şekilde erişebiliyor musunuz?";
+"YesICanReliablyAccessMyEmail" = "Evet, e-postalarıma sağlıklı bir şekilde erişebiliyorum";
+"SetUpTwoStepLogin" = "İki adımlı girişi ayarlayın";
+"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Hesabınızı korumanın alternatif bir yolu olarak iki adımlı girişi etkinleştirebilirsiniz. Aksi halde e-posta adresinizin doğru olduğundan emin olmalısınız.";
+"TurnOnTwoStepLogin" = "İki adımlı girişi etkinleştir";
+"ChangeAccountEmail" = "Hesap e-postasını değiştir";
 "NothingAvailableToAutofill" = "Otomatik doldurulabilecek bir şey tok";
 "FailedToGenerateVerificationCode" = "Doğrulama kodu oluşturulamadı";
 "FailedToAutofillItem" = "%1$@ kaydı otomatik doldurulamadı";
