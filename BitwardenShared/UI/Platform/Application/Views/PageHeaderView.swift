@@ -106,15 +106,16 @@ struct PageHeaderView: View {
 // MARK: - Previews
 
 #if DEBUG
-#Preview("PageHeader SmallImage") {
+#Preview("SmallImage") {
     PageHeaderView(
         image: Asset.Images.Illustrations.biometricsPhone,
+        style: .smallImage,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
     )
 }
 
-#Preview("PageHeader MediumImage") {
+#Preview("MediumImage") {
     PageHeaderView(
         image: Asset.Images.Illustrations.biometricsPhone,
         style: .mediumImage,
