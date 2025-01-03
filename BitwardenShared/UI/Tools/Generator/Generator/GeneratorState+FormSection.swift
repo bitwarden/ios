@@ -33,12 +33,6 @@ extension GeneratorState {
             /// A menu field for the email type.
             case menuEmailType(FormMenuField<State, UsernameEmailType>)
 
-            /// A menu field for the generator type.
-            case menuGeneratorType(FormMenuField<State, GeneratorType>)
-
-            /// A menu field for the password generator type.
-            case menuPasswordGeneratorType(FormMenuField<State, PasswordGeneratorType>)
-
             /// A menu field for the user generator type.
             case menuUsernameGeneratorType(FormMenuField<State, UsernameGeneratorType>)
 
@@ -66,10 +60,6 @@ extension GeneratorState {
                 case let .generatedValue(field):
                     return field.id
                 case let .menuEmailType(field):
-                    return field.id
-                case let .menuGeneratorType(field):
-                    return field.id
-                case let .menuPasswordGeneratorType(field):
                     return field.id
                 case let .menuUsernameGeneratorType(field):
                     return field.id
@@ -143,22 +133,6 @@ extension GeneratorState {
     func generatedValueField(keyPath: WritableKeyPath<GeneratorState, String>) -> FormField<Self> {
         FormField(fieldType: .generatedValue(
             GeneratedValueField(keyPath: keyPath, value: self[keyPath: keyPath])
-        ))
-    }
-
-    /// A helper method for creating a menu field for the password generator type.
-    ///
-    /// - Returns: A form field for the password generator type menu.
-    ///
-    func passwordGeneratorTypeField() -> FormField<Self> {
-        FormField(fieldType: .menuPasswordGeneratorType(
-            FormMenuField(
-                accessibilityIdentifier: "PasswordTypePicker",
-                keyPath: \.passwordState.passwordGeneratorType,
-                options: PasswordGeneratorType.allCases,
-                selection: passwordState.passwordGeneratorType,
-                title: Localizations.passwordType
-            )
         ))
     }
 

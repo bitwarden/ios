@@ -133,6 +133,9 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
         let generatorNavigator = UINavigationController()
         generatorNavigator.navigationBar.prefersLargeTitles = true
+        // Remove the hairline divider under the navigation bar to make it appear that the segmented
+        // control is part of the navigation bar.
+        generatorNavigator.removeHairlineDivider()
         generatorCoordinator = module.makeGeneratorCoordinator(
             delegate: nil,
             stackNavigator: generatorNavigator

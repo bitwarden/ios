@@ -15,18 +15,33 @@ struct GeneratorView: View {
     @ObservedObject var store: Store<GeneratorState, GeneratorAction, GeneratorEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                if store.state.isPolicyInEffect {
-                    InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
-                        .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
-                }
-
-                ForEach(store.state.formSections) { section in
-                    sectionView(section)
-                }
+        VStack(spacing: 0) {
+            if store.state.availableGeneratorTypes.count > 1 {
+                BitwardenSegmentedControl(
+                    isSelectionDisabled: { store.state.isGeneratorTypeDisabled($0) },
+                    selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
+                    selections: store.state.availableGeneratorTypes
+                )
+                .padding(.horizontal, 12)
+                .padding(.bottom, 12)
+                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             }
-            .padding(16)
+
+            Divider()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    if store.state.isPolicyInEffect {
+                        InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
+                            .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
+                    }
+
+                    ForEach(store.state.formSections) { section in
+                        sectionView(section)
+                    }
+                }
+                .padding(16)
+            }
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
@@ -73,7 +88,6 @@ struct GeneratorView: View {
     ///
     @ViewBuilder
     func sectionView(_ section: GeneratorState.FormSection<GeneratorState>) -> some View {
-        // swiftlint:disable:previous function_body_length
         if let title = section.title {
             Text(title.uppercased())
                 .styleGuide(.footnote)
@@ -93,14 +107,6 @@ struct GeneratorView: View {
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.emailTypeChanged(newValue))
                     }
-                case let .menuGeneratorType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.generatorTypeChanged(newValue))
-                    }
-                case let .menuPasswordGeneratorType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.passwordGeneratorTypeChanged(newValue))
-                    }.disabled(store.state.policyOptions?.overridePasswordType ?? false)
                 case let .menuUsernameForwardedEmailService(menuField):
                     FormMenuFieldView(field: menuField) { newValue in
                         store.send(.usernameForwardedEmailServiceChanged(newValue))
