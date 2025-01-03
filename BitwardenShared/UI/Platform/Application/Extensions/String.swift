@@ -22,6 +22,9 @@ enum URLDecodingError: Error, Equatable {
 extension String {
     // MARK: Type Properties
 
+    /// En-dashes are used to represent number ranges. https://en.wikipedia.org/wiki/Dash#En_dash
+    static let enDash = "\u{2013}"
+
     /// Double paragraph breaks to show the next line of text separated by a blank line.
     static let newLine = "\n\n"
 
