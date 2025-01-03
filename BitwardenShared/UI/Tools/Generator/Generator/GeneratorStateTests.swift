@@ -280,6 +280,45 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when the
+    /// override is enabled and the default type is used.
+    func test_isGeneratorTypeDisabled_policy_overrideDefaultType() {
+        var subject = GeneratorState()
+        subject.policyOptions = PasswordGenerationOptions(overridePasswordType: true)
+        XCTAssertTrue(subject.isGeneratorTypeDisabled(.passphrase))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.password))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.username))
+    }
+
+    /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when the
+    /// passphrase override is applied.
+    func test_isGeneratorTypeDisabled_policy_passphrase() {
+        var subject = GeneratorState()
+        subject.policyOptions = PasswordGenerationOptions(type: .password, overridePasswordType: true)
+        XCTAssertTrue(subject.isGeneratorTypeDisabled(.passphrase))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.password))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.username))
+    }
+
+    /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when the password
+    /// override is applied.
+    func test_isGeneratorTypeDisabled_policy_password() {
+        var subject = GeneratorState()
+        subject.policyOptions = PasswordGenerationOptions(type: .passphrase, overridePasswordType: true)
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.passphrase))
+        XCTAssertTrue(subject.isGeneratorTypeDisabled(.password))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.username))
+    }
+
+    /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when there's no
+    /// policy applied.
+    func test_isGeneratorTypeDisabled_noPolicy() {
+        let subject = GeneratorState()
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.passphrase))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.password))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.username))
+    }
+
     /// `passwordState.minimumLength` correctly calculates the minimum length allowed
     func test_passwordState_minimumLength() {
         var subject = GeneratorState().passwordState

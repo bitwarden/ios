@@ -147,6 +147,17 @@ struct GeneratorState: Equatable {
 
     // MARK: Methods
 
+    /// Returns whether the specified `GeneratorType` should be disabled from user selection.
+    ///
+    /// - Parameter generatorType: The `GeneratorType` to determine if it's disabled.
+    /// - Returns: `true` if the generator type is disabled, or `false` otherwise.
+    ///
+    func isGeneratorTypeDisabled(_ generatorType: GeneratorType) -> Bool {
+        guard policyOptions?.overridePasswordType == true, generatorType != .username else { return false }
+        let overrideType = policyOptions?.type?.generatorType ?? .password
+        return generatorType != overrideType
+    }
+
     /// Sets the generator type based on the stored password generator type.
     ///
     /// - Parameter passwordGeneratorType: The stored `PasswordGeneratorType` used to determine the
@@ -155,12 +166,7 @@ struct GeneratorState: Equatable {
     mutating func setGeneratorType(passwordGeneratorType: PasswordGeneratorType?) {
         // Don't switch to password or passphrase if the generator type has been toggled to username.
         guard generatorType != .username else { return }
-
-        generatorType = switch passwordGeneratorType {
-        case .passphrase: .passphrase
-        case .password: .password
-        case .none: .password
-        }
+        generatorType = passwordGeneratorType?.generatorType ?? .password
     }
 
     /// Returns whether changing the slider value should generate a new value.

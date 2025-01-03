@@ -16,8 +16,9 @@ struct GeneratorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if !store.state.availableGeneratorTypes.isEmpty {
+            if store.state.availableGeneratorTypes.count > 1 {
                 BitwardenSegmentedControl(
+                    isSelectionDisabled: { store.state.isGeneratorTypeDisabled($0) },
                     selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
                     selections: store.state.availableGeneratorTypes
                 )

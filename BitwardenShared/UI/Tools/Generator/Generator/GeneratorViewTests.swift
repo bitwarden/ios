@@ -236,6 +236,7 @@ class GeneratorViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_generatorViewPassword_policyInEffect() {
         processor.state.isPolicyInEffect = true
+        processor.state.policyOptions = PasswordGenerationOptions(type: .password, overridePasswordType: true)
         assertSnapshot(
             of: snapshotView,
             as: .defaultPortrait
