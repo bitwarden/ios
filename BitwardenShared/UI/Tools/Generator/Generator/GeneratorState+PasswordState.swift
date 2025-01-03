@@ -4,11 +4,6 @@ extension GeneratorState {
     /// Data model for the values that can be set for generating a password.
     ///
     struct PasswordState: Equatable {
-        // MARK: Properties
-
-        /// The type of password to generate.
-        var passwordGeneratorType = PasswordGeneratorType.password
-
         // MARK: Password Properties
 
         /// Whether the generated password should avoid ambiguous characters.
@@ -69,16 +64,9 @@ extension GeneratorState {
 
         /// Updates the state based on the user's persisted password generation options.
         ///
-        /// - Parameters:
-        ///   - options: The user's saved options.
-        ///   - shouldUpdateGeneratorType: Whether the state's password generator type should be
-        ///     updated by the options.
+        /// - Parameter options: The user's saved options.
         ///
-        mutating func update(with options: PasswordGenerationOptions, shouldUpdateGeneratorType: Bool) {
-            if shouldUpdateGeneratorType {
-                passwordGeneratorType = options.type ?? passwordGeneratorType
-            }
-
+        mutating func update(with options: PasswordGenerationOptions) {
             // Password Properties
             avoidAmbiguous = !(options.allowAmbiguousChar ?? !avoidAmbiguous)
             containsLowercase = options.lowercase ?? containsLowercase
@@ -141,8 +129,13 @@ extension GeneratorState.PasswordState {
 
     /// Returns a `PasswordGenerationOptions` containing the user selected settings for generating
     /// a password used to persist the options between app launches.
-    var passwordGenerationOptions: PasswordGenerationOptions {
-        PasswordGenerationOptions(
+    func passwordGenerationOptions(generatorType: GeneratorType) -> PasswordGenerationOptions {
+        let type: PasswordGeneratorType = switch generatorType {
+        case .passphrase: .passphrase
+        case .password: .password
+        default: .password
+        }
+        return PasswordGenerationOptions(
             allowAmbiguousChar: !avoidAmbiguous,
             capitalize: capitalize,
             includeNumber: includeNumber,
@@ -155,7 +148,7 @@ extension GeneratorState.PasswordState {
             number: containsNumbers,
             numWords: numberOfWords,
             special: containsSpecial,
-            type: passwordGeneratorType,
+            type: type,
             uppercase: containsUppercase,
             wordSeparator: wordSeparator
         )

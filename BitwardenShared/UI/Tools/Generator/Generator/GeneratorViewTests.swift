@@ -207,7 +207,7 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Test a snapshot of the passphrase generation view.
     @MainActor
     func test_snapshot_generatorViewPassphrase() {
-        processor.state.passwordState.passwordGeneratorType = .passphrase
+        processor.state.generatorType = .passphrase
         assertSnapshot(
             of: snapshotView,
             as: .defaultPortrait
@@ -217,7 +217,7 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Test a snapshot of the password generation view.
     @MainActor
     func test_snapshot_generatorViewPassword() {
-        processor.state.passwordState.passwordGeneratorType = .password
+        processor.state.generatorType = .password
         assertSnapshot(
             of: snapshotView,
             as: .defaultPortrait
@@ -227,7 +227,7 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Test a snapshot of the password generation view with the select button.
     @MainActor
     func test_snapshot_generatorViewPassword_inPlace() {
-        processor.state.passwordState.passwordGeneratorType = .password
+        processor.state.generatorType = .password
         processor.state.presentationMode = .inPlace
         assertSnapshot(of: snapshotView, as: .tallPortrait)
     }

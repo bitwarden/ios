@@ -16,10 +16,10 @@ struct GeneratorView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if store.state.presentationMode.isTypeFieldVisible {
+            if !store.state.availableGeneratorTypes.isEmpty {
                 BitwardenSegmentedControl(
                     selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
-                    selections: GeneratorType.allCases
+                    selections: store.state.availableGeneratorTypes
                 )
                 .padding(.horizontal, 12)
                 .padding(.bottom, 12)

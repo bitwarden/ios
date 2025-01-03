@@ -71,14 +71,6 @@ struct GeneratorState: Equatable {
             case .inPlace: true
             }
         }
-
-        /// A flag indicating if the generator type field is visible.
-        var isTypeFieldVisible: Bool {
-            switch self {
-            case .tab: true
-            case .inPlace: false
-            }
-        }
     }
 
     // MARK: Properties
@@ -110,6 +102,21 @@ struct GeneratorState: Equatable {
 
     // MARK: Computed Properties
 
+    /// The list of available generator types that should be shown in the segmented control.
+    var availableGeneratorTypes: [GeneratorType] {
+        switch presentationMode {
+        case .tab:
+            GeneratorType.allCases
+        case .inPlace:
+            switch generatorType {
+            case .passphrase, .password:
+                [.password, .passphrase]
+            case .username:
+                []
+            }
+        }
+    }
+
     /// The list of sections to display in the generator form.
     var formSections: [FormSection<Self>] {
         let generatorFields = [generatedValueField(keyPath: \.generatedValue)]
@@ -139,6 +146,22 @@ struct GeneratorState: Equatable {
     }
 
     // MARK: Methods
+
+    /// Sets the generator type based on the stored password generator type.
+    ///
+    /// - Parameter passwordGeneratorType: The stored `PasswordGeneratorType` used to determine the
+    ///     generator type or `nil` if it hasn't been previously stored.
+    ///
+    mutating func setGeneratorType(passwordGeneratorType: PasswordGeneratorType?) {
+        // Don't switch to password or passphrase if the generator type has been toggled to username.
+        guard generatorType != .username else { return }
+
+        generatorType = switch passwordGeneratorType {
+        case .passphrase: .passphrase
+        case .password: .password
+        case .none: .password
+        }
+    }
 
     /// Returns whether changing the slider value should generate a new value.
     /// - Parameters:

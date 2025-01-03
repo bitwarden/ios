@@ -247,15 +247,23 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             try await loadGeneratorOptionsTask?.value
 
             switch state.generatorType {
-            case .passphrase:
-                let passwordState = await validatePasswordOptionsAndApplyPolicies()
-                await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
-            case .password:
-                let passwordState = await validatePasswordOptionsAndApplyPolicies()
-                await generatePassword(
-                    settings: passwordState.passwordGeneratorRequest,
-                    shouldSavePassword: shouldSavePassword
-                )
+            case .passphrase, .password:
+                let (type, passwordState) = await validatePasswordOptionsAndApplyPolicies()
+                // It's possible that applying a policy changes the generator type, so a second
+                // switch on the type is needed.
+                switch type {
+                case .passphrase:
+                    await generatePassphrase(settings: passwordState.passphraseGeneratorRequest)
+                case .password:
+                    await generatePassword(
+                        settings: passwordState.passwordGeneratorRequest,
+                        shouldSavePassword: shouldSavePassword
+                    )
+                case .username:
+                    // We shouldn't get here since validating the password options shouldn't switch
+                    // to the username generator.
+                    await generateUsername()
+                }
             case .username:
                 await generateUsername()
             }
@@ -272,7 +280,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         state.isPolicyInEffect = try await services.policyService.applyPasswordGenerationPolicy(
             options: &passwordOptions
         )
-        state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: true)
+        state.setGeneratorType(passwordGeneratorType: passwordOptions.type)
+        state.passwordState.update(with: passwordOptions)
 
         let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
         state.usernameState.update(with: usernameOptions)
@@ -314,7 +323,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         do {
             switch state.generatorType {
             case .passphrase, .password:
-                let passwordOptions = state.passwordState.passwordGenerationOptions
+                let passwordOptions = state.passwordState.passwordGenerationOptions(generatorType: state.generatorType)
                 try await services.generatorRepository.setPasswordGenerationOptions(passwordOptions)
             case .username:
                 try await services.generatorRepository.setUsernameGenerationOptions(
@@ -343,15 +352,16 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Validates any password options to ensure the combination of options are valid and applies
     /// any policies to ensure a generated password conforms to the set policies.
     ///
-    /// - Returns: A copy of the validated state, which can be used to generate a new password or
-    ///     passphrase.
+    /// - Returns: A copy of the generator type and validated state, which can be used to generate
+    ///     a new password or passphrase.
     ///
-    func validatePasswordOptionsAndApplyPolicies() async -> GeneratorState.PasswordState {
+    func validatePasswordOptionsAndApplyPolicies() async -> (GeneratorType, GeneratorState.PasswordState) {
         state.passwordState.validateOptions()
-        var passwordOptions = state.passwordState.passwordGenerationOptions
+        var passwordOptions = state.passwordState.passwordGenerationOptions(generatorType: state.generatorType)
         state.isPolicyInEffect = await (try? services.policyService
             .applyPasswordGenerationPolicy(options: &passwordOptions)) ?? false
-        state.passwordState.update(with: passwordOptions, shouldUpdateGeneratorType: true)
+        state.setGeneratorType(passwordGeneratorType: passwordOptions.type)
+        state.passwordState.update(with: passwordOptions)
 
         var policyOptions = PasswordGenerationOptions()
         _ = try? await services.policyService.applyPasswordGenerationPolicy(options: &policyOptions)
@@ -359,6 +369,6 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
         // Return the validated state to prevent any race conditions of the state being updated
         // before the value is generated.
-        return state.passwordState
+        return (state.generatorType, state.passwordState)
     }
 }
