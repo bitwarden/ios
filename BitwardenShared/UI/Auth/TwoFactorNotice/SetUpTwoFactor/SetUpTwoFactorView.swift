@@ -73,16 +73,6 @@ struct SetUpTwoFactorView: View {
             }
         }
     }
-
-    private var textPortion: some View {
-        VStack(spacing: 12) {
-            Text(Localizations.setUpTwoStepLogin)
-                .styleGuide(.title2, weight: .semibold)
-
-            Text(Localizations.youCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong)
-                .styleGuide(.body)
-        }
-    }
 }
 
 // MARK: - SetUpTwoFactorView Previews

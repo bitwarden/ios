@@ -38,16 +38,6 @@ struct EmailAccessView: View {
         .scrollView()
     }
 
-    private var textPortion: some View {
-        VStack(spacing: 12) {
-            Text(Localizations.importantNotice)
-                .styleGuide(.title2, weight: .semibold)
-
-            Text(Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong)
-                .styleGuide(.body)
-        }
-    }
-
     private var toggleCard: some View {
         ContentBlock {
             Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmail(
