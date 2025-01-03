@@ -5,6 +5,32 @@ import XCTest
 class JSONDecoderBitwardenTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `JSONDecoder.cxpDecoder` can decode Credential Exchange Format.
+    func test_cxpDecoder_decodesISO8601DateWithFractionalSeconds() {
+        let subject = JSONDecoder.cxpDecoder
+        let toDecode = #"{"credentialId":"credential","date":1697790414,"otherKey":"other","rpId":"rp"}"#
+
+        struct JSONBody: Codable, Equatable {
+            let credentialID: String
+            let date: Date
+            let otherKey: String
+            let rpID: String
+        }
+
+        let body = JSONBody(
+            credentialID: "credential",
+            date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54),
+            otherKey: "other",
+            rpID: "rp"
+        )
+
+        XCTAssertEqual(
+            try subject
+                .decode(JSONBody.self, from: Data(toDecode.utf8)),
+            body
+        )
+    }
+
     /// `JSONDecoder.defaultDecoder` can decode ISO8601 dates with fractional seconds.
     func test_defaultDecoder_decodesISO8601DateWithFractionalSeconds() {
         let subject = JSONDecoder.defaultDecoder
