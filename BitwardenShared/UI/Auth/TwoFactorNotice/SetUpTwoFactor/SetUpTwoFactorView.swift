@@ -26,23 +26,6 @@ struct SetUpTwoFactorView: View {
             )
             .padding(.top, 16)
 
-            buttons
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-        .multilineTextAlignment(.center)
-        .scrollView()
-        .onChange(of: store.state.url) { newValue in
-            guard let url = newValue else { return }
-            openURL(url)
-            store.send(.clearURL)
-        }
-    }
-
-    // MARK: Private
-
-    private var buttons: some View {
-        VStack(spacing: 12) {
             Button {
                 store.send(.turnOnTwoFactorTapped)
             } label: {
@@ -71,6 +54,15 @@ struct SetUpTwoFactorView: View {
                 }
                 .buttonStyle(.secondary())
             }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .multilineTextAlignment(.center)
+        .scrollView()
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
         }
     }
 }
