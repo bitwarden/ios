@@ -511,13 +511,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         guard let stackNavigator else { return }
         let isPresenting = stackNavigator.rootViewController?.presentedViewController != nil
 
-        let environmentUrls = EnvironmentUrls(
-            environmentUrlData: services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+        let environmentURLs = EnvironmentURLs(
+            environmentURLData: services.appSettingsStore.preAuthEnvironmentURLs ?? EnvironmentURLData()
         )
 
         let state = LoginState(
             isNewAccount: isNewAccount,
-            serverURLString: environmentUrls.webVaultURL.host ?? "",
+            serverURLString: environmentURLs.webVaultURL.host ?? "",
             username: username
         )
 
@@ -667,16 +667,16 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     ///   - currentRegion: The user's region prior to showing the self-hosted settings view.
     ///
     private func showSelfHostedView(delegate: SelfHostedProcessorDelegate?, currentRegion: RegionType) {
-        let preAuthEnvironmentUrls = services.appSettingsStore.preAuthEnvironmentUrls ?? EnvironmentUrlData()
+        let preAuthEnvironmentURLs = services.appSettingsStore.preAuthEnvironmentURLs ?? EnvironmentURLData()
         var state = SelfHostedState()
 
         if currentRegion == .selfHosted {
             state = SelfHostedState(
-                apiServerUrl: preAuthEnvironmentUrls.api?.sanitized.description ?? "",
-                iconsServerUrl: preAuthEnvironmentUrls.icons?.sanitized.description ?? "",
-                identityServerUrl: preAuthEnvironmentUrls.identity?.sanitized.description ?? "",
-                serverUrl: preAuthEnvironmentUrls.base?.sanitized.description ?? "",
-                webVaultServerUrl: preAuthEnvironmentUrls.webVault?.sanitized.description ?? ""
+                apiServerUrl: preAuthEnvironmentURLs.api?.sanitized.description ?? "",
+                iconsServerUrl: preAuthEnvironmentURLs.icons?.sanitized.description ?? "",
+                identityServerUrl: preAuthEnvironmentURLs.identity?.sanitized.description ?? "",
+                serverUrl: preAuthEnvironmentURLs.base?.sanitized.description ?? "",
+                webVaultServerUrl: preAuthEnvironmentURLs.webVault?.sanitized.description ?? ""
             )
         }
 

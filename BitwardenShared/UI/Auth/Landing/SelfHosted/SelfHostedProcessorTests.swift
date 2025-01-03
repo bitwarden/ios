@@ -42,7 +42,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             delegate.savedUrls,
-            EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
+            EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
         )
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
@@ -60,7 +60,7 @@ class SelfHostedProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             delegate.savedUrls,
-            EnvironmentUrlData(
+            EnvironmentURLData(
                 api: URL(string: "https://vault.bitwarden.com/api")!,
                 base: URL(string: "https://vault.bitwarden.com")!,
                 events: nil,
@@ -140,9 +140,9 @@ class SelfHostedProcessorTests: BitwardenTestCase {
 }
 
 class MockSelfHostedProcessorDelegate: SelfHostedProcessorDelegate {
-    var savedUrls: EnvironmentUrlData?
+    var savedUrls: EnvironmentURLData?
 
-    func didSaveEnvironment(urls: EnvironmentUrlData) {
+    func didSaveEnvironment(urls: EnvironmentURLData) {
         savedUrls = urls
     }
 }

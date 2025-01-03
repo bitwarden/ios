@@ -98,7 +98,7 @@ extension WatchConnectivityManager: WCSessionDelegate {
             StateService.shared.setUser(user: watchDTO.userData)
 //            StateService.shared.setVaultTimeout(watchDTO.settingsData?.vaultTimeoutInMinutes,
 //            watchDTO.settingsData?.vaultTimeoutAction ?? .lock)
-            EnvironmentService.shared.baseUrl = watchDTO.environmentData?.base
+            EnvironmentService.shared.baseURL = watchDTO.environmentData?.base
             EnvironmentService.shared.setIconsUrl(url: watchDTO.environmentData?.icons)
 
             if watchDTO.state.isDestructive {

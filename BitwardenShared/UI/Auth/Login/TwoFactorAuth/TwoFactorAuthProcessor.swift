@@ -472,7 +472,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
                     try coordinator.navigate(
                         to: .webAuthnSelfHosted(
                             webAuthnUrl(
-                                baseUrl: services.environmentService.webVaultURL,
+                                baseURL: services.environmentService.webVaultURL,
                                 data: webAuthnProvider,
                                 headerText: Localizations.fido2Title,
                                 buttonText: Localizations.fido2AuthenticateWebAuthn,
@@ -512,7 +512,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
     /// Generates a URL to display a WebAuthn challenge for Self-Hosted vault authentication.
     ///
     private func webAuthnUrl(
-        baseUrl: URL,
+        baseURL: URL,
         data: WebAuthn,
         headerText: String,
         buttonText: String,
@@ -532,7 +532,7 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
         let jsonData = try encoder.encode(connectorData)
         let base64string = jsonData.base64EncodedString()
 
-        guard let url = baseUrl
+        guard let url = baseURL
             .appendingPathComponent("/webauthn-mobile-connector.html")
             .appending(queryItems: [
                 URLQueryItem(name: "data", value: base64string),
