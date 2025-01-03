@@ -26,33 +26,35 @@ struct SetUpTwoFactorView: View {
             )
             .padding(.top, 16)
 
-            Button {
-                store.send(.turnOnTwoFactorTapped)
-            } label: {
-                Label {
-                    Text(Localizations.turnOnTwoStepLogin)
-                } icon: {
-                    Asset.Images.externalLink24.swiftUIImage
+            VStack(spacing: 12) {
+                Button {
+                    store.send(.turnOnTwoFactorTapped)
+                } label: {
+                    Label {
+                        Text(Localizations.turnOnTwoStepLogin)
+                    } icon: {
+                        Asset.Images.externalLink24.swiftUIImage
+                    }
                 }
-            }
-            .buttonStyle(.primary())
+                .buttonStyle(.primary())
 
-            Button {
-                store.send(.changeAccountEmailTapped)
-            } label: {
-                Label {
-                    Text(Localizations.changeAccountEmail)
-                } icon: {
-                    Asset.Images.externalLink24.swiftUIImage
-                }
-            }
-            .buttonStyle(.secondary())
-
-            if store.state.allowDelay {
-                AsyncButton(Localizations.remindMeLater) {
-                    await store.perform(.remindMeLaterTapped)
+                Button {
+                    store.send(.changeAccountEmailTapped)
+                } label: {
+                    Label {
+                        Text(Localizations.changeAccountEmail)
+                    } icon: {
+                        Asset.Images.externalLink24.swiftUIImage
+                    }
                 }
                 .buttonStyle(.secondary())
+
+                if store.state.allowDelay {
+                    AsyncButton(Localizations.remindMeLater) {
+                        await store.perform(.remindMeLaterTapped)
+                    }
+                    .buttonStyle(.secondary())
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
