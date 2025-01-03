@@ -16,26 +16,13 @@ struct EmailAccessView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            if verticalSizeClass == .regular {
-                VStack(spacing: 24) {
-                    Asset.Images.Illustrations.businessWarning.swiftUIImage
-                        .resizable()
-                        .frame(width: 124, height: 124)
-
-                    textPortion
-                }
-                .padding(.top, 16)
-            } else {
-                HStack(spacing: 32) {
-                    Asset.Images.Illustrations.businessWarning.swiftUIImage
-                        .resizable()
-                        .frame(width: 100, height: 100)
-
-                    textPortion
-                }
-                .padding(.horizontal, 80)
-                .padding(.top, 16)
-            }
+            PageHeaderView(
+                image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
+                style: .mediumImage,
+                title: Localizations.importantNotice,
+                message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong
+            )
+            .padding(.top, 16)
 
             toggleCard
 

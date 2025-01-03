@@ -18,33 +18,13 @@ struct SetUpTwoFactorView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            if verticalSizeClass == .regular {
-                VStack(spacing: 24) {
-                    // Despite the image being 96x96, the actual dimensions of the
-                    // illustration within that are 96x72 (4:3).
-                    // So to make how it interacts with other elements correct,
-                    // we have to apply negative padding equal to 1/8 of the width
-                    // to both top and bottom, thus making the image the "correct" size
-                    Asset.Images.Illustrations.userLock.swiftUIImage
-                        .resizable()
-                        .frame(width: 124, height: 124)
-                        .padding(.vertical, -15.5)
-
-                    textPortion
-                }
-                .padding(.top, 16)
-            } else {
-                HStack(spacing: 32) {
-                    Asset.Images.Illustrations.userLock.swiftUIImage
-                        .resizable()
-                        .frame(width: 100, height: 100)
-                        .padding(.vertical, -12.5)
-
-                    textPortion
-                }
-                .padding(.horizontal, 80)
-                .padding(.top, 16)
-            }
+            PageHeaderView(
+                image: Asset.Images.Illustrations.userLock.swiftUIImage,
+                style: .mediumImage,
+                title: Localizations.setUpTwoStepLogin,
+                message: Localizations.youCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong
+            )
+            .padding(.top, 16)
 
             buttons
         }
