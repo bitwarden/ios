@@ -2,10 +2,9 @@ import SwiftUI
 
 // MARK: - PageHeaderView
 
-/// A view that renders a header for page. This support displaying an image, title, and message.
+/// A view that renders a header for page. This support displaying a square image, title, and message.
 ///
 struct PageHeaderView: View {
-
     // MARK: Properties
 
     /// The image to display in the page header.
@@ -30,11 +29,11 @@ struct PageHeaderView: View {
             image
                 .resizable()
                 .frame(
-                    width: verticalSizeClass == .regular ? style.imageSizePortrait : style.imageSizeLandscape,
-                    height: verticalSizeClass == .regular ? style.imageSizePortrait : style.imageSizeLandscape
+                    width: style.imageSize(verticalSizeClass ?? .regular),
+                    height: style.imageSize(verticalSizeClass ?? .regular)
                 )
 
-            VStack(spacing: 16) {
+            VStack(spacing: style.spaceBetweenTitleAndMessage) {
                 Text(title)
                     .styleGuide(.title2, weight: .bold)
 
@@ -95,9 +94,9 @@ struct PageHeaderView: View {
     @ViewBuilder
     private func dynamicStackView(@ViewBuilder content: () -> some View) -> some View {
         if verticalSizeClass == .regular {
-            VStack(spacing: 32, content: content)
+            VStack(spacing: style.spaceBetweenImageAndText.value(.regular), content: content)
         } else {
-            HStack(spacing: 32, content: content)
+            HStack(spacing: style.spaceBetweenImageAndText.value(verticalSizeClass ?? .compact), content: content)
                 .padding(.horizontal, 80)
         }
     }
@@ -129,12 +128,22 @@ struct PageHeaderView: View {
 
 /// An `OrientationBasedValue` encapsulates values that might be different
 /// for rendering based on orientation, such as image size or space between text.
-struct OrientationBasedValue<T> {
+struct OrientationBasedValue<T: Equatable & Sendable>: Equatable, Sendable {
+    // MARK: Properties
+
     /// The dimension size in portrait mode.
     let portrait: T
 
     /// The dimension size in landscape mode.
     let landscape: T
+
+    // MARK: Functions
+
+    /// Convenience function for getting the correct value based on the orientation.
+    ///
+    func value(_ verticalSizeClass: UserInterfaceSizeClass) -> T {
+        verticalSizeClass == .regular ? portrait : landscape
+    }
 }
 
 // MARK: PageHeaderStyle
@@ -144,14 +153,31 @@ struct OrientationBasedValue<T> {
 struct PageHeaderStyle: Equatable, Sendable {
     // MARK: Properties
 
-    let imageSizePortrait: CGFloat
-    let imageSizeLandscape: CGFloat
+    /// The size of the image. Because the image is square, this value can be used for both
+    /// the height and the width.
+    let imageSize: OrientationBasedValue<CGFloat>
 
-    /// The height of the image
-//    let imageHeight: OrientationBasedValue<CGFloat>
+    /// The space between the image and the text block. In a portrait orientation, this is
+    /// vertical space; in a landscape orientation, this is horizontal space.
+    let spaceBetweenImageAndText: OrientationBasedValue<CGFloat>
 
-    /// The width of the image
-//    let imageWidth: OrientationBasedValue<CGFloat>
+    /// The space between the title and message in the text block. It is the same regardless of
+    /// orientation.
+    let spaceBetweenTitleAndMessage: CGFloat
+
+    // MARK: Functions
+
+    /// Convenience function for getting the image size based on the orientation.
+    /// Because the image is square, this value can be used for both the height and the width.
+    func imageSize(_ verticalSizeClass: UserInterfaceSizeClass) -> CGFloat {
+        imageSize.value(verticalSizeClass)
+    }
+
+    /// Convenience function for getting the space between the image and text based on the orientation.
+    /// In a portrait orientation, this is vertical space; in a landscape orientation, this is horizontal space.
+    func spaceBetweenImageAndText(_ verticalSizeClass: UserInterfaceSizeClass) -> CGFloat {
+        spaceBetweenImageAndText.value(verticalSizeClass)
+    }
 }
 
 // MARK: - PageHeaderStyle Internal Constants
@@ -168,41 +194,26 @@ private extension PageHeaderStyle {
 
 extension PageHeaderStyle {
     static let mediumImage = PageHeaderStyle(
-        imageSizePortrait: mediumSquareImageDimension,
-        imageSizeLandscape: smallSquareImageDimension
+        imageSize: OrientationBasedValue(
+            portrait: mediumSquareImageDimension,
+            landscape: smallSquareImageDimension
+        ),
+        spaceBetweenImageAndText: OrientationBasedValue(
+            portrait: 24,
+            landscape: 32
+        ),
+        spaceBetweenTitleAndMessage: 12
     )
 
     static let smallImage = PageHeaderStyle(
-        imageSizePortrait: smallSquareImageDimension,
-        imageSizeLandscape: smallSquareImageDimension
+        imageSize: OrientationBasedValue(
+            portrait: smallSquareImageDimension,
+            landscape: smallSquareImageDimension
+        ),
+        spaceBetweenImageAndText: OrientationBasedValue(
+            portrait: 32,
+            landscape: 32
+        ),
+        spaceBetweenTitleAndMessage: 16
     )
-
-    /// The style for a medium-sized image in portrait and small in landscape.
-    /// This is used in the two-factor authentication notice.
-//    static let mediumImage = PageHeaderStyle(
-//        imageHeight: OrientationBasedValue(
-//            portrait: PageHeaderStyle.mediumSquareImageDimension,
-//            landscape: PageHeaderStyle.smallSquareImageDimension
-//        ),
-//        imageWidth: OrientationBasedValue(
-//            portrait: PageHeaderStyle.mediumSquareImageDimension,
-//            landscape: PageHeaderStyle.smallSquareImageDimension
-//        )
-//    )
-
-    /// The style for a small-sized image in both portrait and landscape.
-    /// This is the default style.
-    /// This is used in `CompleteRegistrationView`, `EmailAccessView`,
-    /// `VaultUnlockSetupView`, `ExtensionActivationView`, `SendListView`,
-    /// `ImportLoginsView`, `ImportLoginsSuccessView`, and an empty vault list.
-//    static let smallImage = PageHeaderStyle(
-//        imageHeight: OrientationBasedDimension(
-//            portrait: PageHeaderStyle.smallSquareImageDimension,
-//            landscape: PageHeaderStyle.smallSquareImageDimension
-//        ),
-//        imageWidth: OrientationBasedDimension(
-//            portrait: PageHeaderStyle.smallSquareImageDimension,
-//            landscape: PageHeaderStyle.smallSquareImageDimension
-//        )
-//    )
 }
