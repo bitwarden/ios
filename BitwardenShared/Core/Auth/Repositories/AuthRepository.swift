@@ -20,10 +20,25 @@ protocol AuthRepository: AnyObject {
     ///
     func allowBioMetricUnlock(_ enabled: Bool) async throws
 
-    /// Whether master password verification can be done for the active  user.
+    /// Whether a user account can be locked.
     ///
+    /// - Parameter userId: The user Id to be mapped to an account.
+    /// - Returns: `true` if the account can be locked, `false` otherwise.
+    ///
+    func canBeLocked(userId: String?) async -> Bool
+
+    /// Whether master password verification can be done for a userId.
+    ///
+    /// - Parameter userId:  The user Id to be mapped to an account.
     /// - Returns: `true` if one can verify master password, `false` otherwise.
-    func canVerifyMasterPassword() async throws -> Bool
+    ///
+    func canVerifyMasterPassword(userId: String?) async throws -> Bool
+
+    /// Checks the session timeout for all accounts, and locks or logs out as needed.
+    ///
+    /// - Parameter handleActiveUser: A closure to handle the active user.
+    ///
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async
 
     /// Clears the pins stored on device and in memory.
     ///
@@ -72,11 +87,11 @@ protocol AuthRepository: AnyObject {
     ///
     func hasMasterPassword() async throws -> Bool
 
-    /// Whether pin unlock is available.
+    /// Whether pin unlock is available for a userId.
+    ///  - Parameter userId: The userId of the account.
+    ///  - Returns: Whether pin unlock is available.
     ///
-    /// - Returns: Whether pin unlock is available.
-    ///
-    func isPinUnlockAvailable() async throws -> Bool
+    func isPinUnlockAvailable(userId: String?) async throws -> Bool
 
     /// Checks the locked status of a user vault by user id.
     ///
@@ -273,6 +288,21 @@ protocol AuthRepository: AnyObject {
 }
 
 extension AuthRepository {
+    /// Whether active user account can be locked.
+    ///
+    /// - Returns: `true` if active user account can be locked, `false` otherwise.
+    ///
+    func canBeLocked() async -> Bool {
+        await canBeLocked(userId: nil)
+    }
+
+    /// Whether master password verification can be done for the active user.
+    ///
+    /// - Returns: `true` if active user has master password, `false` otherwise.
+    func canVerifyMasterPassword() async throws -> Bool {
+        try await canVerifyMasterPassword(userId: nil)
+    }
+
     /// Gets the account for the active user id.
     ///
     /// - Returns: The active user account.
@@ -295,6 +325,14 @@ extension AuthRepository {
     ///
     func isLocked() async throws -> Bool {
         try await isLocked(userId: nil)
+    }
+
+    /// Whether pin unlock is available for the active user.
+    ///
+    /// - Returns: `true` if pin unlock is available, `false` otherwise.
+    ///
+    func isPinUnlockAvailable() async throws -> Bool {
+        try await isPinUnlockAvailable(userId: nil)
     }
 
     /// Locks the user's vault and clears decrypted data from memory
@@ -466,8 +504,52 @@ extension DefaultAuthRepository: AuthRepository {
         )
     }
 
-    func canVerifyMasterPassword() async throws -> Bool {
-        try await stateService.getUserHasMasterPassword()
+    func canBeLocked(userId: String?) async -> Bool {
+        let hasMasterPassword: Bool = await (
+            try? canVerifyMasterPassword(userId: userId)
+        ) ?? false
+        let isUnlockWithPinOn: Bool = await (
+            try? isPinUnlockAvailable(userId: userId)
+        ) ?? false
+        let isUnlockWithBiometricOn: Bool = await (
+            try? biometricsRepository.getBiometricUnlockStatus().isEnabled
+        ) ?? false
+        return hasMasterPassword || isUnlockWithPinOn || isUnlockWithBiometricOn
+    }
+
+    func canVerifyMasterPassword(userId: String? = nil) async throws -> Bool {
+        try await stateService.getUserHasMasterPassword(userId: userId)
+    }
+
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)? = nil) async {
+        do {
+            let accounts = try await getAccounts()
+            guard !accounts.isEmpty else { return }
+            let activeAccount = try await getActiveAccount()
+            let activeUserId = activeAccount.userId
+
+            for account in accounts {
+                let userId = account.userId
+                let shouldTimeout = try await vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
+                if shouldTimeout {
+                    if userId == activeUserId {
+                        await handleActiveUser?(activeUserId)
+                    } else {
+                        let timeoutAction = try await sessionTimeoutAction(userId: userId)
+                        switch timeoutAction {
+                        case .lock:
+                            await vaultTimeoutService.lockVault(userId: userId)
+                        case .logout:
+                            try await logout(userId: userId, userInitiated: false)
+                        }
+                    }
+                }
+            }
+        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
+            // No-op: nothing to do if there's no accounts or an active account.
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
@@ -525,10 +607,11 @@ extension DefaultAuthRepository: AuthRepository {
             )
         )
 
-        // Get the user's ID before it's removed from `StateService`.
         let userId = try await stateService.getActiveAccountId()
-        try await stateService.deleteAccount()
         await vaultTimeoutService.remove(userId: userId)
+
+        // Delete the account last.
+        try await stateService.deleteAccount()
     }
 
     func existingAccountUserId(email: String) async -> String? {
@@ -611,8 +694,8 @@ extension DefaultAuthRepository: AuthRepository {
         try await vaultTimeoutService.isLocked(userId: userIdOrActive(userId))
     }
 
-    func isPinUnlockAvailable() async throws -> Bool {
-        try await stateService.pinProtectedUserKey() != nil
+    func isPinUnlockAvailable(userId: String?) async throws -> Bool {
+        try await stateService.pinProtectedUserKey(userId: userId) != nil
     }
 
     func lockVault(userId: String?, isManuallyLocking: Bool) async {
@@ -636,10 +719,10 @@ extension DefaultAuthRepository: AuthRepository {
         // Clear all user data.
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         try await keychainService.deleteItems(for: userId)
-        try await stateService.logoutAccount(userId: userId, userInitiated: userInitiated)
-
-        // Remove the user from the timeout service and their SDK client.
         await vaultTimeoutService.remove(userId: userId)
+
+        // Log the account out last.
+        try await stateService.logoutAccount(userId: userId, userInitiated: userInitiated)
     }
 
     func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
@@ -960,7 +1043,10 @@ extension DefaultAuthRepository: AuthRepository {
             account.profile.userId.hashColor
         }
 
+        let canBeLocked = await canBeLocked(userId: account.profile.userId)
+
         return ProfileSwitcherItem(
+            canBeLocked: canBeLocked,
             color: color,
             email: account.profile.email,
             isLoggedOut: !isAuthenticated,

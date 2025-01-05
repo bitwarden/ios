@@ -263,6 +263,26 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `handleEvent(_:)` with `.accountBecameActive` has the router handle account activation.
+    @MainActor
+    func test_handleEvent_accountBecameActive() async {
+        let account = Account.fixtureAccountLogin()
+        await subject.handleEvent(
+            .accountBecameActive(account, attemptAutomaticBiometricUnlock: true, didSwitchAccountAutomatically: true)
+        )
+        XCTAssertEqual(
+            router.events,
+            [
+                .accountBecameActive(
+                    account,
+                    animated: true,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: true
+                ),
+            ]
+        )
+    }
+
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
     @MainActor
     func test_navigateTo_auth() throws {

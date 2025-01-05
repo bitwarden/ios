@@ -4,7 +4,7 @@ import Networking
 @testable import BitwardenShared
 
 extension ServiceContainer {
-    static func withMocks(
+    static func withMocks( // swiftlint:disable:this function_body_length
         application: Application? = nil,
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
@@ -35,17 +35,20 @@ extension ServiceContainer {
         policyService: PolicyService = MockPolicyService(),
         notificationCenterService: NotificationCenterService = MockNotificationCenterService(),
         rehydrationHelper: RehydrationHelper = MockRehydrationHelper(),
+        reviewPromptService: ReviewPromptService = MockReviewPromptService(),
         sendRepository: SendRepository = MockSendRepository(),
         settingsRepository: SettingsRepository = MockSettingsRepository(),
         stateService: StateService = MockStateService(),
         syncService: SyncService = MockSyncService(),
         systemDevice: SystemDevice = MockSystemDevice(),
+        textAutofillHelperFactory: TextAutofillHelperFactory = MockTextAutofillHelperFactory(),
         timeProvider: TimeProvider = MockTimeProvider(.currentTime),
         trustDeviceService: TrustDeviceService = MockTrustDeviceService(),
         tokenService: TokenService = MockTokenService(),
         totpExpirationManagerFactory: TOTPExpirationManagerFactory = MockTOTPExpirationManagerFactory(),
         totpService: TOTPService = MockTOTPService(),
         twoStepLoginService: TwoStepLoginService = MockTwoStepLoginService(),
+        userVerificationHelperFactory: UserVerificationHelperFactory = MockUserVerificationHelperFactory(),
         vaultRepository: VaultRepository = MockVaultRepository(),
         vaultTimeoutService: VaultTimeoutService = MockVaultTimeoutService(),
         watchService: WatchService = MockWatchService()
@@ -85,17 +88,20 @@ extension ServiceContainer {
             pasteboardService: pasteboardService,
             policyService: policyService,
             rehydrationHelper: rehydrationHelper,
+            reviewPromptService: reviewPromptService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,
             syncService: syncService,
             systemDevice: systemDevice,
+            textAutofillHelperFactory: textAutofillHelperFactory,
             timeProvider: timeProvider,
             tokenService: tokenService,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
             trustDeviceService: trustDeviceService,
             twoStepLoginService: twoStepLoginService,
+            userVerificationHelperFactory: userVerificationHelperFactory,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService

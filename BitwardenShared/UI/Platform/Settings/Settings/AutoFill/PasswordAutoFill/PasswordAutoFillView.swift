@@ -99,7 +99,7 @@ struct PasswordAutoFillView: View {
                 AsyncButton(Localizations.turnOnLater) {
                     await store.perform(.turnAutoFillOnLaterButtonTapped)
                 }
-                .buttonStyle(.transparent)
+                .buttonStyle(.secondary())
             }
         }
         .scrollView(addVerticalPadding: false)
@@ -173,31 +173,11 @@ struct PasswordAutoFillView: View {
 
     /// The current auto fill instructions to present in the list.
     private var autofillInstructions: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEachIndexed(store.state.autofillInstructions, id: \.self) { index, instruction in
-                Group {
-                    HStack(spacing: 0) {
-                        Text("\(index + 1)")
-                            .styleGuide(.title)
-                            .foregroundColor(Asset.Colors.textCodeBlue.swiftUIColor)
-                            .frame(width: 34, height: 60, alignment: .leading)
-
-                        Text(LocalizedStringKey(instruction))
-                            .styleGuide(.body)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    }
-                    .padding(.vertical, 8)
-                    .padding(.horizontal, 16)
-
-                    if index < store.state.autofillInstructions.count - 1 {
-                        Divider()
-                            .padding(.leading, 48)
-                    }
-                }
+        NumberedList {
+            ForEach(store.state.autofillInstructions, id: \.self) { instruction in
+                NumberedListRow(title: instruction)
             }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
     /// The list of step by step instructions.

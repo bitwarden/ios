@@ -56,15 +56,6 @@ class VaultGroupViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
     }
 
-    /// Tapping the add an item toolbar button dispatches the `.addItemPressed` action.
-    @MainActor
-    func test_addAnItemToolbarButton_tap() throws {
-        processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
-    }
-
     /// Tapping a vault item dispatches the `.itemPressed` action.
     @MainActor
     func test_vaultItem_tap() throws {

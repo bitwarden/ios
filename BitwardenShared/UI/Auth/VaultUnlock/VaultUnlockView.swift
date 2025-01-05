@@ -64,24 +64,27 @@ struct VaultUnlockView: View {
     @ViewBuilder var scrollView: some View {
         ScrollView {
             VStack(spacing: 24) {
-                VStack(alignment: .leading, spacing: 8) {
-                    textField
+                if store.state.shouldShowPasswordOrPinFields {
+                    VStack(alignment: .leading, spacing: 8) {
+                        textField
 
-                    Text(footerText)
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .accessibilityIdentifier("UserAndEnvironmentDataLabel")
+                        Text(footerText)
+                            .styleGuide(.footnote)
+                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .accessibilityIdentifier("UserAndEnvironmentDataLabel")
+                    }
                 }
 
                 biometricAuthButton
-
-                AsyncButton {
-                    await store.perform(.unlockVault)
-                } label: {
-                    Text(Localizations.unlock)
+                if store.state.shouldShowPasswordOrPinFields {
+                    AsyncButton {
+                        await store.perform(.unlockVault)
+                    } label: {
+                        Text(Localizations.unlock)
+                    }
+                    .buttonStyle(.primary(shouldFillWidth: true))
+                    .accessibilityIdentifier("UnlockVaultButton")
                 }
-                .buttonStyle(.primary(shouldFillWidth: true))
-                .accessibilityIdentifier("UnlockVaultButton")
             }
             .padding(16)
         }

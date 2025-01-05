@@ -161,11 +161,7 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
-
-            -------- Device --------
-
-            Model: iPhone14,2
-            OS: iOS 16.4
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
             """
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
@@ -176,8 +172,9 @@ class AboutProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_versionTapped_withAdditionalInfo() {
         aboutAdditionalInfo.ciBuildInfo = [
-            "Repository": "www.github.com/bitwarden/ios",
-            "Branch": "test-branch",
+            "🧱 commit:": "bitwarden/ios/main@abc123",
+            "💻 build source:": "bitwarden/ios/actions/runs/123/attempts/123",
+            "🛠️ compiler flags:": "DEBUG_MENU",
         ]
 
         subject.receive(.versionTapped)
@@ -187,16 +184,35 @@ class AboutProcessorTests: BitwardenTestCase {
             © Bitwarden Inc. 2015-2024
 
             Version: 2024.6.0 (1)
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            🧱 commit: bitwarden/ios/main@abc123
+            💻 build source: bitwarden/ios/actions/runs/123/attempts/123
+            🛠️ compiler flags: DEBUG_MENU
+            """
+        )
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
+    }
 
-            -------- Device --------
+    /// `receive(_:)` with action `.versionTapped` copies the copyright, the version string,
+    /// device info and the additional info to the pasteboard, without including keys with empty values
+    @MainActor
+    func test_receive_versionTapped_additionalInfoFiltersEmptyValues() {
+        aboutAdditionalInfo.ciBuildInfo = [
+            "🧱 commit:": "bitwarden/ios/main@abc123",
+            "💻 build source:": "bitwarden/ios/actions/runs/123/attempts/123",
+            "🛠️ compiler flags:": "",
+        ]
 
-            Model: iPhone14,2
-            OS: iOS 16.4
+        subject.receive(.versionTapped)
+        XCTAssertEqual(
+            pasteboardService.copiedString,
+            """
+            © Bitwarden Inc. 2015-2024
 
-            ------- CI Info --------
-
-            Branch: test-branch
-            Repository: www.github.com/bitwarden/ios
+            Version: 2024.6.0 (1)
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            🧱 commit: bitwarden/ios/main@abc123
+            💻 build source: bitwarden/ios/actions/runs/123/attempts/123
             """
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
@@ -215,5 +231,5 @@ class AboutProcessorTests: BitwardenTestCase {
 }
 
 class MockAboutAdditionalInfo: AboutAdditionalInfo {
-    var ciBuildInfo: [String: String] = [:]
+    var ciBuildInfo: KeyValuePairs<String, String> = [:]
 }

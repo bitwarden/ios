@@ -5,6 +5,9 @@ enum VaultListEffect: Equatable {
     /// The vault list appeared on screen.
     case appeared
 
+    /// Check if the user is eligible for an app review prompt.
+    case checkAppReviewEligibility
+
     /// The user tapped the dismiss button on the import logins action card.
     case dismissImportLoginsActionCard
 

@@ -112,6 +112,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The helper used for app rehydration.
     let rehydrationHelper: RehydrationHelper
 
+    /// The service used by the appllication to manage app review prompts related data.
+    let reviewPromptService: ReviewPromptService
+
     /// The repository used by the application to manage send data for the UI layer.
     public let sendRepository: SendRepository
 
@@ -126,6 +129,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The object used by the application to retrieve information about this device.
     let systemDevice: SystemDevice
+
+    /// Factory to create `TextAutofillHelper`s.
+    let textAutofillHelperFactory: TextAutofillHelperFactory
 
     /// Provides the present time for TOTP Code Calculation.
     let timeProvider: TimeProvider
@@ -144,6 +150,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The service used by the application to generate a two step login URL.
     let twoStepLoginService: TwoStepLoginService
+
+    /// A factory protocol to create `UserVerificationHelper`s.
+    let userVerificationHelperFactory: UserVerificationHelperFactory
 
     /// The repository used by the application to manage vault data for the UI layer.
     let vaultRepository: VaultRepository
@@ -192,12 +201,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - notificationService: The service used by the application to handle notifications.
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - rehydrationHelper: The helper used for app rehydration.
+    ///   - reviewPromptService: The service used by the application to manage app review prompts related data.
     ///   - policyService: The service for managing the polices for the user.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
     ///   - stateService: The service used by the application to manage account state.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///   - systemDevice: The object used by the application to retrieve information about this device.
+    ///   - textAutofillHelperFactory: Factory to create `TextAutofillHelper`s.
     ///   - timeProvider: Provides the present time for TOTP Code Calculation.
     ///   - tokenService: The service used by the application to manage account access tokens.
     ///   - totpExpirationManagerFactory: The factory to create TOTP expiration managers.
@@ -240,17 +251,20 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         pasteboardService: PasteboardService,
         policyService: PolicyService,
         rehydrationHelper: RehydrationHelper,
+        reviewPromptService: ReviewPromptService,
         sendRepository: SendRepository,
         settingsRepository: SettingsRepository,
         stateService: StateService,
         syncService: SyncService,
         systemDevice: SystemDevice,
+        textAutofillHelperFactory: TextAutofillHelperFactory,
         timeProvider: TimeProvider,
         tokenService: TokenService,
         totpExpirationManagerFactory: TOTPExpirationManagerFactory,
         totpService: TOTPService,
         trustDeviceService: TrustDeviceService,
         twoStepLoginService: TwoStepLoginService,
+        userVerificationHelperFactory: UserVerificationHelperFactory,
         vaultRepository: VaultRepository,
         vaultTimeoutService: VaultTimeoutService,
         watchService: WatchService
@@ -286,17 +300,20 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.pasteboardService = pasteboardService
         self.policyService = policyService
         self.rehydrationHelper = rehydrationHelper
+        self.reviewPromptService = reviewPromptService
         self.sendRepository = sendRepository
         self.settingsRepository = settingsRepository
         self.stateService = stateService
         self.syncService = syncService
         self.systemDevice = systemDevice
+        self.textAutofillHelperFactory = textAutofillHelperFactory
         self.timeProvider = timeProvider
         self.tokenService = tokenService
         self.totpExpirationManagerFactory = totpExpirationManagerFactory
         self.totpService = totpService
         self.trustDeviceService = trustDeviceService
         self.twoStepLoginService = twoStepLoginService
+        self.userVerificationHelperFactory = userVerificationHelperFactory
         self.vaultRepository = vaultRepository
         self.vaultTimeoutService = vaultTimeoutService
         self.watchService = watchService
@@ -451,6 +468,18 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             tokenService: tokenService
         )
 
+        let vaultTimeoutService = DefaultVaultTimeoutService(
+            clientService: clientService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
+
+        let reviewPromptService = DefaultReviewPromptService(
+            appVersion: Bundle.main.appVersion,
+            stateService: stateService
+        )
+
         let syncService = DefaultSyncService(
             accountAPIService: apiService,
             cipherService: cipherService,
@@ -464,7 +493,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             settingsService: settingsService,
             stateService: stateService,
             syncAPIService: apiService,
-            timeProvider: timeProvider
+            timeProvider: timeProvider,
+            vaultTimeoutService: vaultTimeoutService
         )
 
         let trustDeviceService = DefaultTrustDeviceService(
@@ -476,11 +506,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let twoStepLoginService = DefaultTwoStepLoginService(environmentService: environmentService)
-        let vaultTimeoutService = DefaultVaultTimeoutService(
-            clientService: clientService,
-            stateService: stateService,
-            timeProvider: timeProvider
-        )
 
         let pasteboardService = DefaultPasteboardService(
             errorReporter: errorReporter,
@@ -627,8 +652,23 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             pasteboardService: pasteboardService,
             stateService: stateService,
+            timeProvider: timeProvider,
             totpService: totpService,
             vaultTimeoutService: vaultTimeoutService
+        )
+
+        let userVerificationHelperFactory = DefaultUserVerificationHelperFactory(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            localAuthService: localAuthService
+        )
+
+        let textAutofillHelperFactory = DefaultTextAutofillHelperFactory(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            eventService: eventService,
+            userVerificationHelperFactory: userVerificationHelperFactory,
+            vaultRepository: vaultRepository
         )
 
         let authenticatorDataStore = AuthenticatorBridgeDataStore(
@@ -698,17 +738,20 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             pasteboardService: pasteboardService,
             policyService: policyService,
             rehydrationHelper: rehydrationHelper,
+            reviewPromptService: reviewPromptService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
             stateService: stateService,
             syncService: syncService,
             systemDevice: UIDevice.current,
+            textAutofillHelperFactory: textAutofillHelperFactory,
             timeProvider: timeProvider,
             tokenService: tokenService,
             totpExpirationManagerFactory: totpExpirationManagerFactory,
             totpService: totpService,
             trustDeviceService: trustDeviceService,
             twoStepLoginService: twoStepLoginService,
+            userVerificationHelperFactory: userVerificationHelperFactory,
             vaultRepository: vaultRepository,
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService

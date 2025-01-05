@@ -8,6 +8,9 @@ import SwiftUI
 struct VaultAutofillListView: View {
     // MARK: Properties
 
+    /// The GroupSearchDelegate used to bridge UIKit to SwiftUI
+    var searchHandler: VaultAutofillSearchHandler?
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>
 
@@ -22,7 +25,7 @@ struct VaultAutofillListView: View {
 
             profileSwitcher
         }
-        .navigationBar(title: Localizations.items, titleDisplayMode: .inline)
+        .navigationBar(title: store.state.group?.navigationTitle ?? Localizations.items, titleDisplayMode: .inline)
         .searchable(
             text: store.binding(
                 get: \.searchText,
@@ -32,7 +35,7 @@ struct VaultAutofillListView: View {
             prompt: Localizations.search
         )
         .toolbar {
-            cancelToolbarItem {
+            cancelToolbarItem(hidden: store.state.group != nil) {
                 store.send(.cancelTapped)
             }
 
@@ -44,10 +47,6 @@ struct VaultAutofillListView: View {
                         mapEffect: VaultAutofillListEffect.profileSwitcher
                     )
                 )
-            }
-
-            addToolbarItem(hidden: !store.state.showAddItemButton) {
-                store.send(.addTapped(fromToolbar: true))
             }
         }
     }
@@ -121,7 +120,8 @@ private struct VaultAutofillListSearchableView: View {
     @ViewBuilder
     private func cipherListView(_ sections: [VaultListSection]) -> some View {
         Group {
-            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
+            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential ||
+                store.state.isAutofillingTextToInsertList {
                 cipherCombinedListView(sections)
             } else {
                 let items = sections.first?.items ?? []
@@ -209,11 +209,12 @@ private struct VaultAutofillListSearchableView: View {
                         image: Asset.Images.Illustrations.items.swiftUIImage,
                         text: store.state.emptyViewMessage
                     ) {
-                        if store.state.isAutofillingTotpList {
+                        if store.state.isAutofillingTotpList
+                            || store.state.isAutofillingTextToInsertList {
                             EmptyView()
                         } else {
                             Button {
-                                store.send(.addTapped(fromToolbar: false))
+                                store.send(.addTapped(fromFAB: false))
                             } label: {
                                 Label {
                                     Text(store.state.emptyViewButtonText)
@@ -232,8 +233,8 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
             .overlay(alignment: .bottomTrailing) {
-                addItemFloatingActionButton {
-                    store.send(.addTapped(fromToolbar: false))
+                addItemFloatingActionButton(hidden: store.state.isAutofillingTextToInsertList) {
+                    store.send(.addTapped(fromFAB: true))
                 }
             }
             .hidden(isSearching)

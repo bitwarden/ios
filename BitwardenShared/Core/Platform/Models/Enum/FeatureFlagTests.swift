@@ -14,18 +14,22 @@ final class FeatureFlagTests: BitwardenTestCase {
 
     /// `getter:isRemotelyConfigured` returns the correct value for each flag.
     func test_isRemotelyConfigured() {
+        XCTAssertTrue(FeatureFlag.appReviewPrompt.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.cxpExportMobile.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.cxpImportMobile.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.emailVerification.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.enableAuthenticatorSync.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.refactorSsoDetailsEndpoint.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.sshKeyVaultItem.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialBoolFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialIntFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialStringFlag.isRemotelyConfigured)
 
-        XCTAssertFalse(FeatureFlag.enableAuthenticatorSync.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.enableDebugAppReviewPrompt.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.enableCipherKeyEncryption.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.importLoginsFlow.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.nativeCarouselFlow.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.nativeCreateAccountFlow.isRemotelyConfigured)
-        XCTAssertFalse(FeatureFlag.sshKeyVaultItem.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalFeatureFlag.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalInitialBoolFlag.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalInitialIntFlag.isRemotelyConfigured)

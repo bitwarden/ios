@@ -4,6 +4,9 @@ import BitwardenSdk
 
 /// Actions that can be processed by a `VaultListProcessor`.
 enum VaultListAction: Equatable {
+    /// The app review prompt was attempted to be shown.
+    case appReviewPromptShown
+
     /// The add item button was pressed.
     case addItemPressed
 
@@ -13,6 +16,9 @@ enum VaultListAction: Equatable {
     /// The copy TOTP Code button was pressed.
     ///
     case copyTOTPCode(_ code: String)
+
+    /// The vault list disappeared from the screen.
+    case disappeared
 
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)

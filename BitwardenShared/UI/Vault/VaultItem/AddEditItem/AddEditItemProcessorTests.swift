@@ -20,6 +20,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var rehydrationHelper: MockRehydrationHelper!
+    var reviewPromptService: MockReviewPromptService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
@@ -43,6 +44,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         rehydrationHelper = MockRehydrationHelper()
+        reviewPromptService = MockReviewPromptService()
         stateService = MockStateService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
@@ -59,6 +61,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 pasteboardService: pasteboardService,
                 policyService: policyService,
                 rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
                 stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
@@ -87,6 +90,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         eventService = nil
         pasteboardService = nil
         rehydrationHelper = nil
+        reviewPromptService = nil
         stateService = nil
         subject = nil
         totpService = nil
@@ -818,7 +822,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             [.default] + folders.map { .custom($0) }
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertNil(eventService.collectCipherId)
         XCTAssertNil(eventService.collectEventType)
@@ -885,7 +889,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             [.default] + folders.map { .custom($0) }
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertEqual(eventService.collectCipherId, "100")
         XCTAssertEqual(eventService.collectEventType, .cipherClientViewed)
@@ -947,7 +951,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .organization(id: "123", name: "Test Org 1"),
             .organization(id: "987", name: "Test Org 2"),
         ])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCipherOwnershipOptionsIncludePersonal))
     }
 
@@ -978,6 +982,33 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.collectionIds, ["1"])
         XCTAssertEqual(subject.state.owner, owner)
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` includes read-only collections
+    /// so that the state can properly compute if it's deletable
+    @MainActor
+    func test_perform_fetchCipherOptions_readonly() async {
+        let owner = CipherOwner.organization(id: "123", name: "Test Org")
+        subject.state = CipherItemState(
+            collectionIds: ["1"],
+            hasPremium: false,
+            organizationId: owner.organizationId
+        )
+
+        vaultRepository.fetchCipherOwnershipOptions = [
+            .organization(id: "123", name: "Test Org"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success([
+            .fixture(id: "1", name: "Design", manage: false),
+        ])
+
+        await subject.perform(.fetchCipherOptions)
+
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        XCTAssertEqual(subject.state.collections.map(\.id), ["1"])
+        XCTAssertEqual(subject.state.collectionIds, ["1"])
+        XCTAssertEqual(subject.state.owner, owner)
+        XCTAssertFalse(subject.state.canBeDeleted)
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
@@ -1084,26 +1115,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             "secureNote"
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
-    }
-
-    /// `perform(_:)` with `.savePressed` saves the item for SSH Key
-    @MainActor
-    func test_perform_savePressed_sshKey() async {
-        subject.state.type = .sshKey
-        subject.state.name = "sshKey"
-
-        await subject.perform(.savePressed)
-
-        try XCTAssertEqual(
-            XCTUnwrap(vaultRepository.addCipherCiphers.first).type,
-            .sshKey
-        )
-
-        try XCTAssertEqual(
-            XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
-            "sshKey"
-        )
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -1149,6 +1161,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 )
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -1176,6 +1189,52 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item for `.sshKey`.
+    @MainActor
+    func test_perform_savePressed_sshKey() async throws {
+        subject.state.name = "vault item"
+        subject.state.type = .sshKey
+        let expectedSSHKeyItemState = SSHKeyItemState(
+            canViewPrivateKey: true,
+            isPrivateKeyVisible: false,
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            keyFingerprint: "fingerprint"
+        )
+        subject.state.sshKeyState = expectedSSHKeyItemState
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+
+        let added = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertNil(added.identity)
+        XCTAssertNil(added.login)
+        XCTAssertNil(added.secureNote)
+        XCTAssertNotNil(added.sshKey)
+        XCTAssertNil(added.card)
+        XCTAssertEqual(added.sshKeyItemState(), expectedSSHKeyItemState)
+        let unwrappedState = try XCTUnwrap(subject.state as? CipherItemState)
+        XCTAssertEqual(
+            added,
+            unwrappedState
+                .newCipherView(
+                    creationDate: vaultRepository.addCipherCiphers[0].creationDate
+                )
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` in the app extension completes the autofill request if a
@@ -1193,6 +1252,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` in the app extension cancels the autofill extension if no
@@ -1218,6 +1278,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was added and
@@ -1250,6 +1311,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was updated and
@@ -1298,6 +1360,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
@@ -1325,6 +1388,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_setupTotpPressed_cameraAuthorizationRestricted() async {
         cameraService.cameraAuthorizationStatus = .restricted
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `perform(_:)` with `.setupTotpPressed` when in the app extension navigates to the
+    /// `.setupTotpManual` route.
+    @MainActor
+    func test_perform_setupTotpPressed_extension() async {
+        appExtensionDelegate.isInAppExtension = true
         await subject.perform(.setupTotpPressed)
 
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)

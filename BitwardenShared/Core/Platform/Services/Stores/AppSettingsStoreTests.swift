@@ -952,6 +952,43 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
     }
 
+    /// `reviewPromptShownForVersion` returns `nil` if there isn't a previously stored value.
+    func test_reviewPromptShownForVersion_isInitiallyNil() {
+        XCTAssertNil(subject.reviewPromptData?.reviewPromptShownForVersion)
+    }
+
+    /// `reviewPromptData` returns `nil` if there isn't a previously stored value.
+    func test_reviewPromptData_isInitiallyNil() {
+        XCTAssertNil(subject.reviewPromptData)
+    }
+
+    /// `reviewPromptData` can be used to get and set the persisted value in user defaults.
+    func test_reviewPromptData_withValue() {
+        let reviewPromptData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.1",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
+        subject.reviewPromptData = reviewPromptData
+        XCTAssertEqual(subject.reviewPromptData, reviewPromptData)
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                ReviewPromptData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:reviewPromptData")?
+                        .data(using: .utf8)
+                )
+            ),
+            reviewPromptData
+        )
+    }
+
     /// `usesKeyConnector(userId:)` returns `false` if there isn't a previously stored value.
     func test_usesKeyConnector_isInitiallyNil() {
         XCTAssertFalse(subject.usesKeyConnector(userId: "-1"))

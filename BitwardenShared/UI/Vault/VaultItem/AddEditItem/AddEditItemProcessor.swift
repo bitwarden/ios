@@ -63,6 +63,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPasteboardService
         & HasPolicyService
         & HasRehydrationHelper
+        & HasReviewPromptService
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
@@ -261,7 +262,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             let ownershipOptions = try await services.vaultRepository
                 .fetchCipherOwnershipOptions(includePersonal: !isPersonalOwnershipDisabled)
 
-            state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: false)
+            // We need read-only collections so that we can include them in the state
+            // to correctly calculate if the item can be deleted
+            state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
             // Filter out any collection IDs that aren't included in the fetched collections.
             state.collectionIds = state.collectionIds.filter { collectionId in
                 state.collections.contains(where: { $0.id == collectionId })
@@ -623,6 +626,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         try await services.vaultRepository.addCipher(state.cipher)
         coordinator.hideLoadingOverlay()
         handleDismiss(didAddItem: true)
+        await services.reviewPromptService.trackUserAction(.addedNewItem)
     }
 
     /// Checks user verification if needed on Fido2 flows.
@@ -705,7 +709,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Kicks off the TOTP setup flow.
     ///
     private func setupTotp() async {
-        guard services.cameraService.deviceSupportsCamera() else {
+        guard services.cameraService.deviceSupportsCamera(),
+              appExtensionDelegate?.isInAppExtension != true // Extensions don't allow camera access.
+        else {
             coordinator.navigate(to: .setupTotpManual, context: self)
             return
         }

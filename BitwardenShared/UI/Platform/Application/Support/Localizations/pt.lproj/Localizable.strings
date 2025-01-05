@@ -932,7 +932,7 @@
 "UserVerificationForPasskey" = "Verificação do utilizador para a chave de acesso";
 "NewItem" = "Novo item";
 "ExportVaultFilePwProtectInfo" = "A exportação deste ficheiro será protegida por uma palavra-passe e exigirá a palavra-passe do ficheiro para ser desencriptada.";
-"IntroCarouselPage1Title" = "Segurança, prioridade";
+"IntroCarouselPage1Title" = "Segurança, com prioridade";
 "IntroCarouselPage1Message" = "Guarde credenciais, cartões e identidades no seu cofre seguro. O Bitwarden utiliza encriptação de conhecimento zero e de ponto a ponto para proteger o que é importante para si.";
 "IntroCarouselPage2Title" = "Início de sessão rápido e fácil";
 "IntroCarouselPage2Message" = "Configure o desbloqueio biométrico e o preenchimento automático para iniciar sessão nas suas contas sem escrever uma única letra.";
@@ -1059,3 +1059,5 @@
 "CopyPrivateKey" = "Copiar chave privada";
 "CopyFingerprint" = "Copiar impressão digital";
 "SSHKeys" = "Chaves SSH";
+"ExportingFailed" = "Falha na exportação";
+"YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Poderá ter de ativar o código de acesso ou a biometria do dispositivo.";

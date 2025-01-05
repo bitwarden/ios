@@ -47,6 +47,7 @@ extension ProfileSwitcherItem {
 
 extension ProfileSwitcherItem {
     static func fixture(
+        canBeLocked: Bool = true,
         color: Color = .purple,
         email: String = "",
         isLoggedOut: Bool = false,
@@ -56,6 +57,7 @@ extension ProfileSwitcherItem {
         webVault: String = "vault.bitwarden.com"
     ) -> ProfileSwitcherItem {
         ProfileSwitcherItem(
+            canBeLocked: canBeLocked,
             color: color,
             email: email,
             isLoggedOut: isLoggedOut,

@@ -1,4 +1,5 @@
 import BitwardenSdk
+import CoreData
 import XCTest
 
 @testable import BitwardenShared
@@ -1265,6 +1266,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             _ = try SendData(context: context, userId: "1", send: .fixture())
         }
 
+        var mergeChangesCount = 0
+        let publisher = NotificationCenter.default
+            .publisher(for: NSManagedObjectContext.didMergeChangesObjectIDsNotification)
+            .sink { _ in mergeChangesCount += 1 }
+        defer { publisher.cancel() }
+
         try await subject.logoutAccount(userInitiated: true)
 
         XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
@@ -1283,6 +1290,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: PolicyData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: SendData.fetchByUserIdRequest(userId: "1")), 0)
+
+        // All of the data should be deleted within a single merge.
+        XCTAssertEqual(mergeChangesCount, 1)
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
@@ -1399,6 +1409,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         // Setting the value should update the value in the app settings store.
         subject.rememberedOrgIdentifier = "AndImOk"
         XCTAssertEqual(appSettingsStore.rememberedOrgIdentifier, "AndImOk")
+    }
+
+    /// `.getReviewPromptData()` gets the review prompt data from the app settings store.
+    func test_getReviewPromptData() async throws {
+        let expectedData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.0",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
+        appSettingsStore.reviewPromptData = expectedData
+        let data = await subject.getReviewPromptData()
+
+        XCTAssertEqual(expectedData, data)
     }
 
     /// `getShouldTrustDevice` gets the value as expected.
@@ -1820,6 +1847,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setPreAuthServerConfig(config: config)
         XCTAssertEqual(appSettingsStore.preAuthServerConfig, config)
+    }
+
+    /// `setReviewPromptData(_:)` sets the review prompt data.
+    func test_setReviewPromptData() async {
+        let data = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.0",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 2
+                ),
+            ]
+        )
+
+        await subject.setReviewPromptData(data)
+        XCTAssertEqual(appSettingsStore.reviewPromptData, data)
     }
 
     /// `setServerConfig(_:)` sets the config values.

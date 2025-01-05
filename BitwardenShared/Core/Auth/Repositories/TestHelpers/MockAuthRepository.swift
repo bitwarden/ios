@@ -6,7 +6,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var allowBiometricUnlock: Bool?
     var allowBiometricUnlockResult: Result<Void, Error> = .success(())
     var accountForItemResult: Result<Account, Error> = .failure(StateServiceError.noAccounts)
+    var canActiveAccountBeLockedResult: Bool = true
+    var canBeLockedResult: [String: Bool] = [:]
     var canVerifyMasterPasswordResult: Result<Bool, Error> = .success(true)
+    var canVerifyMasterPasswordForUserResult: Result<[String: Bool], Error> = .success([:])
+    var checkSessionTimeoutCalled = false
     var clearPinsCalled = false
     var createNewSsoUserRememberDevice: Bool = false
     var createNewSsoUserOrgIdentifier: String = ""
@@ -23,10 +27,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var altAccounts = [Account]()
     var getAccountError: Error?
     var getSSOOrganizationIdentifierByResult: Result<String?, Error> = .success(nil)
+    var handleActiveUserClosure: ((String) async -> Void)?
     var hasManuallyLocked = false
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
+    var pinUnlockAvailabilityResult: Result<[String: Bool], Error> = .success([:])
     var lockVaultUserId: String?
     var logoutCalled = false
     var logoutUserId: String?
@@ -102,8 +108,29 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try allowBiometricUnlockResult.get()
     }
 
+    func canBeLocked(userId: String?) async -> Bool {
+        if let userId {
+            canBeLockedResult[userId] ?? false
+        } else {
+            canActiveAccountBeLockedResult
+        }
+    }
+
     func canVerifyMasterPassword() async throws -> Bool {
         try canVerifyMasterPasswordResult.get()
+    }
+
+    func canVerifyMasterPassword(userId: String?) async throws -> Bool {
+        if let userId {
+            try canVerifyMasterPasswordForUserResult.get()[userId] ?? false
+        } else {
+            try canVerifyMasterPasswordResult.get()
+        }
+    }
+
+    func checkSessionTimeouts(handleActiveUser: ((String) async -> Void)?) async {
+        checkSessionTimeoutCalled = true
+        handleActiveUserClosure = handleActiveUser
     }
 
     func clearPins() async throws {
@@ -182,6 +209,14 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     func isPinUnlockAvailable() async throws -> Bool {
         try isPinUnlockAvailableResult.get()
+    }
+
+    func isPinUnlockAvailable(userId: String?) async throws -> Bool {
+        if let userId {
+            try pinUnlockAvailabilityResult.get()[userId] ?? false
+        } else {
+            try isPinUnlockAvailableResult.get()
+        }
     }
 
     func passwordStrength(email: String, password: String, isPreAuth: Bool) async -> UInt8 {

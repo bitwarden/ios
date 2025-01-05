@@ -71,4 +71,19 @@ class IntroCarouselProcessorTests: BitwardenTestCase {
         subject.receive(.logIn)
         XCTAssertEqual(coordinator.routes.last, .landing)
     }
+
+    /// `switchToLegacyCreateAccountFlow()` dismisses the currently presented view and navigates to
+    /// create account.
+    @MainActor
+    func test_switchToLegacyCreateAccountFlow() throws {
+        subject.switchToLegacyCreateAccountFlow()
+
+        let dismissRoute = try XCTUnwrap(coordinator.routes.last)
+        guard case let .dismissWithAction(action) = dismissRoute else {
+            return XCTFail("Expected route `.dismissWithAction` not found.")
+        }
+        action?.action()
+
+        XCTAssertEqual(coordinator.routes, [.dismissWithAction(action), .createAccount])
+    }
 }

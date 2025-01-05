@@ -171,6 +171,36 @@ class VaultUnlockViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    /// Test a snapshot of the view with no master password or pin but with touch id.
+    @MainActor
+    func test_snapshot_shouldShowPasswordOrPinFields_false_touchId() {
+        processor.state.shouldShowPasswordOrPinFields = false
+        processor.state.biometricUnlockStatus = .available(
+            .touchID,
+            enabled: true
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the view with no master password or pin but with face id.
+    @MainActor
+    func test_snapshot_shouldShowPasswordOrPinFields_false_faceId() {
+        processor.state.shouldShowPasswordOrPinFields = false
+        processor.state.biometricUnlockStatus = .available(
+            .faceID,
+            enabled: true
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the view with no master password but with pin.
+    @MainActor
+    func test_snapshot_shouldShowPasswordOrPinFields_true_pin() {
+        processor.state.shouldShowPasswordOrPinFields = true
+        processor.state.unlockMethod = .pin
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     /// Test a snapshot of the view when the password is hidden.
     @MainActor
     func test_snapshot_vaultUnlock_passwordHidden() {
