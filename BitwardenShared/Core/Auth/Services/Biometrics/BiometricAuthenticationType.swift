@@ -13,5 +13,5 @@ enum BiometricAuthenticationType: Equatable {
     case opticID
 
     /// Unknown other biometric authentication
-    case biometrics
+    case unknown
 }

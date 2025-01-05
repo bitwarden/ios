@@ -94,7 +94,7 @@ class DefaultBiometricsService: BiometricsService {
         case .opticID:
             return .opticID
         @unknown default:
-            return .biometrics
+            return .unknown
         }
     }
 

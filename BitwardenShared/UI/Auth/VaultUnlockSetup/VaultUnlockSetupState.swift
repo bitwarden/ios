@@ -45,7 +45,7 @@ struct VaultUnlockSetupState: Equatable {
                     "TouchID"
                 case .opticID:
                     "OpticID"
-                case .biometrics:
+                case .unknown:
                     "Biometrics"
                 }
             case .pin:
@@ -64,7 +64,7 @@ struct VaultUnlockSetupState: Equatable {
                     Localizations.unlockWith(Localizations.touchID)
                 case .opticID:
                     Localizations.unlockWith(Localizations.opticID)
-                case .biometrics:
+                case .unknown:
                     Localizations.unlockWith(Localizations.biometrics)
                 }
             case .pin:

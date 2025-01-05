@@ -253,7 +253,7 @@ extension Alert {
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID)
         case .opticID:
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.opticID)
-        case .biometrics:
+        case .unknown:
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.biometrics)
         case nil:
             Localizations.pinRequireMasterPasswordRestart

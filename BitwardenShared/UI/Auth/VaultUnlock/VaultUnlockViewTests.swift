@@ -127,7 +127,7 @@ class VaultUnlockViewTests: BitwardenTestCase {
         button = try subject.inspect().find(button: expectedString)
 
         processor.state.biometricUnlockStatus = .available(
-            .biometrics,
+            .unknown,
             enabled: true
         )
         expectedString = Localizations.useBiometricsToUnlock
