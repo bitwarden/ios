@@ -286,11 +286,11 @@ protocol StateService: AnyObject {
     ///
     func getShouldTrustDevice(userId: String) async -> Bool?
 
-    /// Gets whether the learn new login action card has been shown.
+    /// Gets the status of Learn New Login Action Card.
     ///
-    /// - Returns: Whether the learn new login action card has been shown.
+    /// - Returns: The status of Learn New Login Action Card.
     ///
-    func getLearnNewLoginActionCardShown() async -> Bool
+    func getLearnNewLoginActionCardStatus() async -> LearnNewLoginActionCardStatus?
 
     /// Get whether to show the website icons.
     ///
@@ -519,11 +519,11 @@ protocol StateService: AnyObject {
     ///
     func setIntroCarouselShown(_ shown: Bool) async
 
-    /// Sets whether the learn new login action card has been shown.
+    /// Sets the status of Learn New Login Action Card.
     ///
-    /// - Parameter shown: Whether the learn new login action card has been shown.
+    /// - Parameter status: The status of Learn New Login Action Card.
     ///
-    func setLearnNewLoginActionCardShown(_ shown: Bool) async
+    func setLearnNewLoginActionCardStatus(_ status: LearnNewLoginActionCardStatus) async
 
     /// Sets the last active time within the app.
     ///
@@ -1572,8 +1572,8 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
 
-    func getLearnNewLoginActionCardShown() async -> Bool {
-        appSettingsStore.isLearnNewLoginActionCardShown
+    func getLearnNewLoginActionCardStatus() async -> LearnNewLoginActionCardStatus? {
+        appSettingsStore.learnNewLoginActionCardStatus
     }
 
     func getShowWebIcons() async -> Bool {
@@ -1785,8 +1785,8 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.introCarouselShown = shown
     }
 
-    func setLearnNewLoginActionCardShown(_ shown: Bool) async {
-        appSettingsStore.isLearnNewLoginActionCardShown = shown
+    func setLearnNewLoginActionCardStatus(_ status: LearnNewLoginActionCardStatus) async {
+        appSettingsStore.learnNewLoginActionCardStatus = status
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {

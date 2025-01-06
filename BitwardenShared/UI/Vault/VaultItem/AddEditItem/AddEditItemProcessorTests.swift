@@ -360,7 +360,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.showLearnNewLoginActionCard = true
         subject.receive(.showLearnNewLoginGuidedTour)
         XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
-        waitFor(stateService.learnNewLoginActionCardShown)
+        waitFor(stateService.learnNewLoginActionCardStatus == .completed)
     }
 
     /// `receive(_:)` with `.customField(.removeCustomFieldPressed(index:))` will remove
@@ -814,7 +814,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.showLearnNewLoginActionCard = true
         await subject.perform(.dismissNewLoginActionCard)
         XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
-        XCTAssertTrue(stateService.learnNewLoginActionCardShown)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .completed)
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.

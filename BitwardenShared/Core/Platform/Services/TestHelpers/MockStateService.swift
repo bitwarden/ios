@@ -43,7 +43,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var lastActiveTime = [String: Date]()
-    var learnNewLoginActionCardShown = false
+    var learnNewLoginActionCardStatus: LearnNewLoginActionCardStatus?
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
     var getAccountEncryptionKeysError: Error?
@@ -251,8 +251,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         introCarouselShown
     }
 
-    func getLearnNewLoginActionCardShown() async -> Bool {
-        learnNewLoginActionCardShown
+    func getLearnNewLoginActionCardStatus() async -> BitwardenShared.LearnNewLoginActionCardStatus? {
+        learnNewLoginActionCardStatus
     }
 
     func getLastActiveTime(userId: String?) async throws -> Date? {
@@ -510,8 +510,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         isAuthenticated[account.profile.userId] = true
     }
 
-    func setLearnNewLoginActionCardShown(_ shown: Bool) async {
-        learnNewLoginActionCardShown = shown
+    func setLearnNewLoginActionCardStatus(_ status: BitwardenShared.LearnNewLoginActionCardStatus) async {
+        learnNewLoginActionCardStatus = status
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {

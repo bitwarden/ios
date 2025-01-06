@@ -608,6 +608,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     try await stateService.setAccountSetupImportLogins(.incomplete)
                 }
                 try await stateService.setAccountSetupVaultUnlock(.incomplete)
+                await stateService.setLearnNewLoginActionCardStatus(.eligible)
             } catch {
                 errorReporter.log(error: error)
             }

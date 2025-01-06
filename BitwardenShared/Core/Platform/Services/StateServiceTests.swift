@@ -693,14 +693,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasShownCarousel)
     }
 
-    /// `getLearnNewLoginActionCardShown()` returns whether the learn new login action card has been shown.
+    /// `getLearnNewLoginActionCardStatus()` returns the status of the learn new login action card.
     func test_getLearnNewLoginActionCardShown() async {
-        var hasShownLearnNewLoginActionCard = await subject.getLearnNewLoginActionCardShown()
-        XCTAssertFalse(hasShownLearnNewLoginActionCard)
+        var learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
+        XCTAssertNil(learnNewLoginActionCardStatus)
 
-        appSettingsStore.isLearnNewLoginActionCardShown = true
-        hasShownLearnNewLoginActionCard = await subject.getLearnNewLoginActionCardShown()
-        XCTAssertTrue(hasShownLearnNewLoginActionCard)
+        appSettingsStore.learnNewLoginActionCardStatus = .completed
+        learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
+        XCTAssertEqual(learnNewLoginActionCardStatus, .completed)
     }
 
     /// `getLastActiveTime(userId:)` gets the user's last active time.
@@ -1772,12 +1772,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    func test_setLearnNewLoginActionCardShown() async {
-        await subject.setLearnNewLoginActionCardShown(true)
-        XCTAssertTrue(appSettingsStore.isLearnNewLoginActionCardShown)
+    /// `setLearnNewLoginActionCardStatus(_:)` sets the learn new login action card status.
+    func test_setLearnNewLoginActionCardStatus() async {
+        await subject.setLearnNewLoginActionCardStatus(.eligible)
+        XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .eligible)
 
-        await subject.setLearnNewLoginActionCardShown(false)
-        XCTAssertFalse(appSettingsStore.isLearnNewLoginActionCardShown)
+        await subject.setLearnNewLoginActionCardStatus(.completed)
+        XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .completed)
     }
 
     /// `setLoginRequest()` sets the pending login requests.

@@ -32,12 +32,12 @@ protocol AppSettingsStore: AnyObject {
     /// Whether the intro carousel screen has been shown.
     var introCarouselShown: Bool { get set }
 
-    /// Whether the learn new login action card has been shown.
-    var isLearnNewLoginActionCardShown: Bool { get set }
-
     /// The last value of the connect to watch setting, ignoring the user id. Used for
     /// sending the status to the watch if the user is logged out.
     var lastUserShouldConnectToWatch: Bool { get set }
+
+    /// The status of the learn new login action card.
+    var learnNewLoginActionCardStatus: LearnNewLoginActionCardStatus? { get set }
 
     /// The login request information received from a push notification.
     var loginRequest: LoginRequestNotification? { get set }
@@ -712,7 +712,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedUserKey(userId: String)
         case events(userId: String)
         case introCarouselShown
-        case isLearnNewLoginActionCardShown
+        case learnNewLoginActionCardStatus
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
@@ -787,8 +787,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "events_\(userId)"
             case .introCarouselShown:
                 key = "introCarouselShown"
-            case .isLearnNewLoginActionCardShown:
-                key = "isLearnNewLoginActionCardShown"
+            case .learnNewLoginActionCardStatus:
+                key = "learnNewLoginActionCardStatus"
             case let .lastActiveTime(userId):
                 key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
@@ -882,9 +882,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .introCarouselShown) }
     }
 
-    var isLearnNewLoginActionCardShown: Bool {
-        get { fetch(for: .isLearnNewLoginActionCardShown) }
-        set { store(newValue, for: .isLearnNewLoginActionCardShown) }
+    var learnNewLoginActionCardStatus: LearnNewLoginActionCardStatus? {
+        get { fetch(for: .learnNewLoginActionCardStatus) }
+        set { store(newValue, for: .learnNewLoginActionCardStatus) }
     }
 
     var lastUserShouldConnectToWatch: Bool {

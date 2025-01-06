@@ -122,7 +122,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
     @MainActor
     func test_navigateTo_addItem_showLearnNewLoginActionCard() throws {
         stateService.accounts = [Account.fixtureAccountLogin()]
-        stateService.learnNewLoginActionCardShown = false
+        stateService.learnNewLoginActionCardStatus = .eligible
         vaultRepository.isVaultEmptyResult = .success(true)
         let coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         module.vaultItemCoordinator = coordinator
