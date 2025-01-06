@@ -15,23 +15,22 @@ struct EmailAccessView: View {
     @ObservedObject public var store: Store<EmailAccessState, EmailAccessAction, EmailAccessEffect>
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 24) {
             PageHeaderView(
                 image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
+                style: .mediumImage,
                 title: Localizations.importantNotice,
                 message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong
             )
+            .padding(.top, 16)
 
             toggleCard
 
-            VStack(spacing: 12) {
-                AsyncButton(Localizations.continue) {
-                    await store.perform(.continueTapped)
-                }
-                .buttonStyle(.primary())
+            AsyncButton(Localizations.continue) {
+                await store.perform(.continueTapped)
             }
+            .buttonStyle(.primary())
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-            .padding(.vertical, 12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
@@ -40,14 +39,13 @@ struct EmailAccessView: View {
     }
 
     private var toggleCard: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        ContentBlock {
             Text(LocalizedStringKey(Localizations.doYouHaveReliableAccessToYourEmail(
                 store.state.emailAddress.withoutAutomaticEmailLinks()
             )))
             .styleGuide(.body)
             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-
-            Divider()
+            .padding(16)
 
             Toggle(Localizations.yesICanReliablyAccessMyEmail, isOn: store.binding(
                 get: \.canAccessEmail,
@@ -55,11 +53,9 @@ struct EmailAccessView: View {
             ))
             .toggleStyle(.bitwarden)
             .accessibilityIdentifier("AccessEmailToggle")
+            .padding(16)
         }
         .multilineTextAlignment(.leading)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .cornerRadius(10)
     }
 }
