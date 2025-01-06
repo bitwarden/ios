@@ -2,11 +2,20 @@ import SwiftUI
 
 // MARK: - PageHeaderViewButton
 
+/// The information necessary for `PageHeaderView` to construct a button.
+/// This button will appear as link-colored bare text.
 struct PageHeaderViewButton {
+    /// The action for the button to take when tapped.
     let action: () -> Void
+
+    /// The text of the button.
     let text: String
 
-    /// In opposite order for block syntax reasons
+    /// Initializes a `PageHeaderViewButton`. The parameters are in non-alphabetical
+    /// order to better enable trailing block syntax.
+    /// - Parameters:
+    ///   - text: The text of the button.
+    ///   - action: The action for the button to take when tapped.
     init(text: String, action: @escaping () -> Void) {
         self.action = action
         self.text = text
