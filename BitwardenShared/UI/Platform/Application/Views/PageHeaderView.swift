@@ -32,13 +32,18 @@ struct PageHeaderView: View {
                     width: style.imageSize(verticalSizeClass ?? .regular),
                     height: style.imageSize(verticalSizeClass ?? .regular)
                 )
+                .if(style.imageColor != nil) { view in
+                    return view.foregroundStyle(style.imageColor!)
+                }
 
             VStack(spacing: style.spaceBetweenTitleAndMessage) {
                 Text(title)
-                    .styleGuide(.title2, weight: .bold)
+                    .styleGuide(style.titleTextStyle, weight: .bold)
+                    .accessibilityIdentifier("HeaderTitle")
 
-                Text(message)
-                    .styleGuide(.body)
+                Text(LocalizedStringKey(message))
+                    .styleGuide(style.messageTextStyle)
+                    .accessibilityIdentifier("HeaderMessage")
             }
         }
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
@@ -54,6 +59,7 @@ struct PageHeaderView: View {
     ///   - style: The style of the page header.
     ///   - title: The title to display.
     ///   - message: The message to display.
+    ///   - style: The style to use for this view.
     ///
     init(
         image: Image,
@@ -74,6 +80,7 @@ struct PageHeaderView: View {
     ///   - style: The style of the page header.
     ///   - title: The title to display.
     ///   - message: The message to display.
+    ///   - style: The style to use for this view.
     ///
     init(
         image: ImageAsset,
@@ -122,6 +129,16 @@ struct PageHeaderView: View {
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
     )
 }
+
+#Preview("LargeTextTintedIcon") {
+    PageHeaderView(
+        image: Asset.Images.plus24,
+        style: .largeTextTintedIcon,
+        title: Localizations.setUpUnlock,
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+    )
+}
+
 #endif
 
 // MARK: OrientationBasedDimension
@@ -150,12 +167,18 @@ struct OrientationBasedValue<T: Equatable & Sendable>: Equatable, Sendable {
 
 /// A `PageHeaderStyle` contains the metrics for rendering a `PageHeaderView`.
 ///
-struct PageHeaderStyle: Equatable, Sendable {
+struct PageHeaderStyle: Sendable {
     // MARK: Properties
+
+    /// A foreground tint to apply to the image. Only applied if this has a value.
+    let imageColor: Color?
 
     /// The size of the image. Because the image is square, this value can be used for both
     /// the height and the width.
     let imageSize: OrientationBasedValue<CGFloat>
+
+    /// The text style applied to the message.
+    let messageTextStyle: StyleGuideFont
 
     /// The space between the image and the text block. In a portrait orientation, this is
     /// vertical space; in a landscape orientation, this is horizontal space.
@@ -164,6 +187,9 @@ struct PageHeaderStyle: Equatable, Sendable {
     /// The space between the title and message in the text block. It is the same regardless of
     /// orientation.
     let spaceBetweenTitleAndMessage: CGFloat
+
+    /// The text style applied to the title.
+    let titleTextStyle: StyleGuideFont
 
     // MARK: Functions
 
@@ -183,37 +209,62 @@ struct PageHeaderStyle: Equatable, Sendable {
 // MARK: - PageHeaderStyle Internal Constants
 
 private extension PageHeaderStyle {
+    /// The height and width of a square icon image
+    static let iconSquareImageDimension: CGFloat = 70
+
     /// The height and width of a square medium image
     static let mediumSquareImageDimension: CGFloat = 124
 
     /// The height and width of a square small image
     static let smallSquareImageDimension: CGFloat = 100
+
 }
 
 // MARK: - PageHeaderStyle Constants
 
 extension PageHeaderStyle {
-    static let mediumImage = PageHeaderStyle(
+    static let largeTextTintedIcon = PageHeaderStyle(
+        imageColor: Asset.Colors.iconSecondary.swiftUIColor,
         imageSize: OrientationBasedValue(
-            portrait: mediumSquareImageDimension,
-            landscape: smallSquareImageDimension
+            portrait: iconSquareImageDimension,
+            landscape: iconSquareImageDimension
         ),
-        spaceBetweenImageAndText: OrientationBasedValue(
-            portrait: 24,
-            landscape: 32
-        ),
-        spaceBetweenTitleAndMessage: 12
-    )
-
-    static let smallImage = PageHeaderStyle(
-        imageSize: OrientationBasedValue(
-            portrait: smallSquareImageDimension,
-            landscape: smallSquareImageDimension
-        ),
+        messageTextStyle: .title2,
         spaceBetweenImageAndText: OrientationBasedValue(
             portrait: 32,
             landscape: 32
         ),
-        spaceBetweenTitleAndMessage: 16
+        spaceBetweenTitleAndMessage: 16,
+        titleTextStyle: .hugeTitle
+    )
+
+    static let mediumImage = PageHeaderStyle(
+        imageColor: nil,
+        imageSize: OrientationBasedValue(
+            portrait: mediumSquareImageDimension,
+            landscape: smallSquareImageDimension
+        ),
+        messageTextStyle: .body,
+        spaceBetweenImageAndText: OrientationBasedValue(
+            portrait: 24,
+            landscape: 32
+        ),
+        spaceBetweenTitleAndMessage: 12,
+        titleTextStyle: .title2
+    )
+
+    static let smallImage = PageHeaderStyle(
+        imageColor: nil,
+        imageSize: OrientationBasedValue(
+            portrait: smallSquareImageDimension,
+            landscape: smallSquareImageDimension
+        ),
+        messageTextStyle: .body,
+        spaceBetweenImageAndText: OrientationBasedValue(
+            portrait: 32,
+            landscape: 32
+        ),
+        spaceBetweenTitleAndMessage: 16,
+        titleTextStyle: .title2
     )
 }
