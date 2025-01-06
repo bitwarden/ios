@@ -52,8 +52,13 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
         switch action {
         case let .canAccessEmailChanged(canAccess):
             state.canAccessEmail = canAccess
+        case .clearURL:
+            state.url = nil
         case .learnMoreTapped:
-            break
+            guard let helpUrl = URL("https://bitwarden.com/help/new-device-verification/") else { return }
+            coordinator.showAlert(.turnOnTwoFactorLoginAlert {
+                self.state.url = helpUrl
+            })
         }
     }
 
