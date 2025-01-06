@@ -29,6 +29,7 @@ struct PageHeaderViewButton {
 struct PageHeaderView: View {
     // MARK: Properties
 
+    /// An optional button to display after the message.
     let button: PageHeaderViewButton?
 
     /// The image to display in the page header.
