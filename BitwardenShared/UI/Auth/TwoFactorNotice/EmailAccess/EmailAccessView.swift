@@ -8,6 +8,9 @@ import SwiftUIIntrospect
 struct EmailAccessView: View {
     // MARK: Properties
 
+    /// An object used to open urls from this view.
+    @Environment(\.openURL) private var openURL
+
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
@@ -20,7 +23,14 @@ struct EmailAccessView: View {
                 image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
                 style: .mediumImage,
                 title: Localizations.importantNotice,
-                message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong
+                message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong,
+                accessory: Button {
+                    store.send(.learnMoreTapped)
+                } label: {
+                    Text(Localizations.learnMore)
+                        .styleGuide(.subheadline)
+                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                }
             )
             .padding(.top, 16)
 
@@ -36,6 +46,11 @@ struct EmailAccessView: View {
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
         .multilineTextAlignment(.center)
         .scrollView()
+        .onChange(of: store.state.url) { newValue in
+            guard let url = newValue else { return }
+            openURL(url)
+            store.send(.clearURL)
+        }
     }
 
     private var toggleCard: some View {

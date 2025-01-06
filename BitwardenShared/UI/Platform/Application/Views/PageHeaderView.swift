@@ -4,8 +4,11 @@ import SwiftUI
 
 /// A view that renders a header for page. This support displaying a square image, title, and message.
 ///
-struct PageHeaderView: View {
+struct PageHeaderView<Accessory: View>: View {
     // MARK: Properties
+
+    /// An optional accessory to display after the message, such as a button.
+    let accessory: Accessory?
 
     /// The image to display in the page header.
     let image: Image
@@ -33,7 +36,7 @@ struct PageHeaderView: View {
                     height: style.imageSize(verticalSizeClass ?? .regular)
                 )
                 .if(style.imageColor != nil) { view in
-                    return view.foregroundStyle(style.imageColor!)
+                    view.foregroundStyle(style.imageColor!)
                 }
 
             VStack(spacing: style.spaceBetweenTitleAndMessage) {
@@ -44,6 +47,10 @@ struct PageHeaderView: View {
                 Text(LocalizedStringKey(message))
                     .styleGuide(style.messageTextStyle)
                     .accessibilityIdentifier("HeaderMessage")
+
+                if let accessory {
+                    accessory
+                }
             }
         }
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
@@ -59,6 +66,68 @@ struct PageHeaderView: View {
     ///   - style: The style of the page header.
     ///   - title: The title to display.
     ///   - message: The message to display.
+    ///   - accessory: An optional accessory view to display.
+    ///
+    init(
+        image: Image,
+        style: PageHeaderStyle = .smallImage,
+        title: String,
+        message: String,
+        accessory: Accessory
+    ) {
+        self.accessory = accessory
+        self.image = image
+        self.message = message
+        self.style = style
+        self.title = title
+    }
+
+    /// Initialize a `PageHeaderView`.
+    ///
+    /// - Parameters:
+    ///   - image: The image asset to display.
+    ///   - style: The style of the page header.
+    ///   - title: The title to display.
+    ///   - message: The message to display.
+    ///   - accessory: An optional accessory view to display.
+    ///
+    init(
+        image: ImageAsset,
+        style: PageHeaderStyle = .smallImage,
+        title: String,
+        message: String,
+        accessory: Accessory
+    ) {
+        self.accessory = accessory
+        self.image = image.swiftUIImage
+        self.message = message
+        self.style = style
+        self.title = title
+    }
+
+    // MARK: Private
+
+    /// A dynamic stack view that lays out content vertically when in a regular vertical size class
+    /// and horizontally for the compact vertical size class.
+    @ViewBuilder
+    private func dynamicStackView(@ViewBuilder content: () -> some View) -> some View {
+        if verticalSizeClass == .regular {
+            VStack(spacing: style.spaceBetweenImageAndText.value(.regular), content: content)
+        } else {
+            HStack(spacing: style.spaceBetweenImageAndText.value(verticalSizeClass ?? .compact), content: content)
+                .padding(.horizontal, 80)
+        }
+    }
+}
+
+extension PageHeaderView where Accessory == EmptyView {
+    /// Initialize a `PageHeaderView`.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display.
+    ///   - style: The style of the page header.
+    ///   - title: The title to display.
+    ///   - message: The message to display.
     ///
     init(
         image: Image,
@@ -66,6 +135,7 @@ struct PageHeaderView: View {
         title: String,
         message: String
     ) {
+        accessory = nil
         self.image = image
         self.message = message
         self.style = style
@@ -86,24 +156,11 @@ struct PageHeaderView: View {
         title: String,
         message: String
     ) {
+        accessory = nil
         self.image = image.swiftUIImage
         self.message = message
         self.style = style
         self.title = title
-    }
-
-    // MARK: Private
-
-    /// A dynamic stack view that lays out content vertically when in a regular vertical size class
-    /// and horizontally for the compact vertical size class.
-    @ViewBuilder
-    private func dynamicStackView(@ViewBuilder content: () -> some View) -> some View {
-        if verticalSizeClass == .regular {
-            VStack(spacing: style.spaceBetweenImageAndText.value(.regular), content: content)
-        } else {
-            HStack(spacing: style.spaceBetweenImageAndText.value(verticalSizeClass ?? .compact), content: content)
-                .padding(.horizontal, 80)
-        }
     }
 }
 
@@ -128,6 +185,20 @@ struct PageHeaderView: View {
     )
 }
 
+#Preview("MediumImage With Button") {
+    PageHeaderView(
+        image: Asset.Images.Illustrations.biometricsPhone,
+        style: .mediumImage,
+        title: Localizations.setUpUnlock,
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+        accessory: Button {} label: {
+            Text(Localizations.learnMore)
+                .styleGuide(.subheadline)
+                .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+        }
+    )
+}
+
 #Preview("LargeTextTintedIcon") {
     PageHeaderView(
         image: Asset.Images.plus24,
@@ -136,7 +207,6 @@ struct PageHeaderView: View {
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
     )
 }
-
 #endif
 
 // MARK: PageHeaderStyle
