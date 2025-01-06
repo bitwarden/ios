@@ -114,4 +114,20 @@ class EmailAccessProcessorTests: BitwardenTestCase {
         subject.receive(.canAccessEmailChanged(false))
         XCTAssertFalse(subject.state.canAccessEmail)
     }
+
+    /// `receive(_:)` with `.clearURL` clears the URL in the state.
+    @MainActor
+    func test_receive_clearURL() {
+        subject.state.url = .example
+        subject.receive(.clearURL)
+        XCTAssertNil(subject.state.url)
+    }
+
+    /// `receive(_:)` with `.learnMoreTapped` sends the user to the
+    /// new device notice help site.
+    @MainActor
+    func test_receive_learnMoreTapped() {
+        subject.receive(.learnMoreTapped)
+        XCTAssertEqual(subject.state.url, ExternalLinksConstants.newDeviceVerification)
+    }
 }
