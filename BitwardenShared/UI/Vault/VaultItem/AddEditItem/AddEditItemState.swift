@@ -12,7 +12,7 @@ protocol AddEditItemState: Sendable {
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
-    /// Whether or not this item can be assign to collections.
+    /// Whether or not this item can be assigned to collections.
     var canAssigntoCollection: Bool { get }
 
     /// Whether the user is able to delete the item.
