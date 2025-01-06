@@ -108,7 +108,7 @@ struct CipherItemState: Equatable {
     }
 
     /// Whether or not this item can be assign to collections.
-    var canAssigntoCollection: Bool {
+    var canAssignToCollection: Bool {
         guard !collectionIds.isEmpty else { return true }
 
         return collections.contains { collection in
