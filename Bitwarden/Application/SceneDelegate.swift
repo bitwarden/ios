@@ -72,6 +72,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                let incomingURL = userActivity.webpageURL {
                 appProcessor.handleAppLinks(incomingURL: incomingURL)
             }
+
+            #if compiler(>=6.0.3)
+
+            if #available(iOS 18.2, *),
+               let userActivity = connectionOptions.userActivities.first {
+                await checkAndHandleCredentialExchangeActivity(appProcessor: appProcessor, userActivity: userActivity)
+            }
+
+            #endif
         }
     }
 
@@ -90,13 +99,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         #if compiler(>=6.0.3)
 
-        if #available(iOS 18.2, *),
-           userActivity.activityType == ASCredentialExchangeActivity {
-            guard let token = userActivity.userInfo?[ASCredentialImportToken] as? UUID else {
-                return
+        if #available(iOS 18.2, *) {
+            Task {
+                await checkAndHandleCredentialExchangeActivity(appProcessor: appProcessor, userActivity: userActivity)
             }
-
-            appProcessor.handleImportCredentials(credentialImportToken: token)
         }
 
         #endif
@@ -173,3 +179,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     #endif
 }
+
+// MARK: - SceneDelegate 18.2
+
+#if compiler(>=6.0.3)
+
+@available(iOS 18.2, *)
+extension SceneDelegate {
+    /// Checks  whether there is an `ASCredentialExchangeActivity` in the `userActivity` and handles it.
+    /// - Parameters:
+    ///   - appProcessor: The `AppProcessor` to handle the logic.
+    ///   - userActivity: The activity to handle.
+    private func checkAndHandleCredentialExchangeActivity(
+        appProcessor: AppProcessor,
+        userActivity: NSUserActivity
+    ) async {
+        guard userActivity.activityType == ASCredentialExchangeActivity,
+              let token = userActivity.userInfo?[ASCredentialImportToken] as? UUID else {
+            return
+        }
+
+        await appProcessor.handleImportCredentials(credentialImportToken: token)
+    }
+}
+
+#endif

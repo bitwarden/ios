@@ -10,7 +10,7 @@ class MockClientExporters {
     // MARK: Properties
 
     /// The account used in `exportOrganizationVault(_:)`.
-    var account: BitwardenSdkAccount?
+    var account: BitwardenSdk.Account?
 
     /// The ciphers exported in a call to `exportVault(_:)` or `exportOrganizationVault(_:)`
     /// or `exportOrganizationVault(_:)`.
@@ -28,23 +28,23 @@ class MockClientExporters {
     /// The result of a call to `exportVault(_:)`
     var exportVaultResult: Result<String, Error> = .failure(BitwardenTestError.example)
 
-    /// The folders exported in a call to `exportVault(_:)`.
-    var folders = [BitwardenSdk.Folder]()
-
-    /// The format of the export in a call to `exportVault(_:)` or `exportOrganizationVault(_:)`.
-    var format: BitwardenSdk.ExportFormat?
-
     /// The payload passed to `importCxf(payload:)`
     var importCxfPayload: String?
 
     /// The result of a call to `importCxf(payload:)`
     var importCxfResult: Result<[BitwardenSdk.Cipher], Error> = .failure(BitwardenTestError.example)
+
+    /// The folders exported in a call to `exportVault(_:)`.
+    var folders = [BitwardenSdk.Folder]()
+
+    /// The format of the export in a call to `exportVault(_:)` or `exportOrganizationVault(_:)`.
+    var format: BitwardenSdk.ExportFormat?
 }
 
 // MARK: - ClientExportersProtocol
 
-extension MockClientExporters: ClientExportersServiceTemp {
-    func exportCxf(account: BitwardenSdkAccount, ciphers: [BitwardenSdk.Cipher]) throws -> String {
+extension MockClientExporters: ClientExportersProtocol {
+    func exportCxf(account: BitwardenSdk.Account, ciphers: [BitwardenSdk.Cipher]) throws -> String {
         self.account = account
         self.ciphers = ciphers
         return try exportCxfResult.get()
