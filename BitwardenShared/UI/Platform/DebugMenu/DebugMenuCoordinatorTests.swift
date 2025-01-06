@@ -8,6 +8,7 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
 
     var appSettingsStore: MockAppSettingsStore!
     var configService: MockConfigService!
+    var delegate: MockDebugMenuCoordinatorDelegate!
     var stackNavigator: MockStackNavigator!
     var subject: DebugMenuCoordinator!
 
@@ -18,9 +19,11 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
 
         appSettingsStore = MockAppSettingsStore()
         configService = MockConfigService()
+        delegate = MockDebugMenuCoordinatorDelegate()
         stackNavigator = MockStackNavigator()
 
         subject = DebugMenuCoordinator(
+            delegate: delegate,
             services: ServiceContainer.withMocks(
                 appSettingsStore: appSettingsStore,
                 configService: configService
@@ -34,6 +37,7 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
 
         appSettingsStore = nil
         configService = nil
+        delegate = nil
         stackNavigator = nil
         subject = nil
     }
@@ -46,7 +50,8 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .dismiss)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .dismissed)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+        XCTAssertTrue(delegate.didDismissDebugMenuCalled)
     }
 
     /// `start()` correctly shows the `DebugMenuView`.
@@ -55,5 +60,13 @@ class DebugMenuCoordinatorTests: BitwardenTestCase {
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.last?.view is DebugMenuView)
+    }
+}
+
+class MockDebugMenuCoordinatorDelegate: DebugMenuCoordinatorDelegate {
+    var didDismissDebugMenuCalled = false
+
+    func didDismissDebugMenu() {
+        didDismissDebugMenuCalled = true
     }
 }
