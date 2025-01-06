@@ -168,6 +168,19 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [])
     }
 
+    /// `.maybeShowTwoFactorNotice()` will show the notice
+    /// if the user is self-hosted
+    /// and the "ignore environment check" feature flag is true
+    @MainActor
+    func test_maybeShow_server_selfHosted_ignoreEnvironmentCheck() async {
+        environmentService.region = .selfHosted
+        configService.featureFlagsBool[.ignoreEnvironmentCheck] = true
+
+        await subject.maybeShowTwoFactorNotice()
+
+        XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
+    }
+
     /// `.maybeShowTwoFactorNotice()` will not show the notice
     /// if the user is SSO-only
     ///

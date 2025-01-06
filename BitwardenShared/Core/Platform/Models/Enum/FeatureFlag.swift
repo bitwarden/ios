@@ -29,6 +29,11 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// An SDK flag that enables individual cipher encryption.
     case enableCipherKeyEncryption
 
+    /// A flag to ignore the environment check for the two-factor authentication
+    /// notice. If this is on, then it will display even on self-hosted servers,
+    /// which means it's easier to dev/QA the feature.
+    case ignoreEnvironmentCheck = "ignore-environment-check"
+
     /// A feature flag for the import logins flow for new accounts.
     case importLoginsFlow = "import-logins-flow"
 
@@ -107,6 +112,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
         switch self {
         case .enableCipherKeyEncryption,
              .enableDebugAppReviewPrompt,
+             .ignoreEnvironmentCheck,
              .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
