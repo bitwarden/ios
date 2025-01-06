@@ -24,8 +24,12 @@ struct EmailAccessView: View {
                 style: .mediumImage,
                 title: Localizations.importantNotice,
                 message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong,
-                button: PageHeaderViewButton(text: Localizations.learnMore) {
+                accessory: Button {
                     store.send(.learnMoreTapped)
+                } label: {
+                    Text(Localizations.learnMore)
+                        .styleGuide(.subheadline)
+                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                 }
             )
             .padding(.top, 16)

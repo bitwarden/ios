@@ -1,36 +1,14 @@
 import SwiftUI
 
-// MARK: - PageHeaderViewButton
-
-/// The information necessary for `PageHeaderView` to construct a button.
-/// This button will appear as link-colored bare text.
-struct PageHeaderViewButton {
-    /// The action for the button to take when tapped.
-    let action: () -> Void
-
-    /// The text of the button.
-    let text: String
-
-    /// Initializes a `PageHeaderViewButton`. The parameters are in non-alphabetical
-    /// order to better enable trailing block syntax.
-    /// - Parameters:
-    ///   - text: The text of the button.
-    ///   - action: The action for the button to take when tapped.
-    init(text: String, action: @escaping () -> Void) {
-        self.action = action
-        self.text = text
-    }
-}
-
 // MARK: - PageHeaderView
 
 /// A view that renders a header for page. This support displaying a square image, title, and message.
 ///
-struct PageHeaderView: View {
+struct PageHeaderView<Accessory: View>: View {
     // MARK: Properties
 
-    /// An optional button to display after the message.
-    let button: PageHeaderViewButton?
+    /// An optional accessory to display after the message, such as a button.
+    let accessory: Accessory?
 
     /// The image to display in the page header.
     let image: Image
@@ -70,14 +48,8 @@ struct PageHeaderView: View {
                     .styleGuide(style.messageTextStyle)
                     .accessibilityIdentifier("HeaderMessage")
 
-                if let button {
-                    Button {
-                        button.action()
-                    } label: {
-                        Text(button.text)
-                            .styleGuide(.subheadline)
-                            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
-                    }
+                if let accessory {
+                    accessory
                 }
             }
         }
@@ -94,15 +66,16 @@ struct PageHeaderView: View {
     ///   - style: The style of the page header.
     ///   - title: The title to display.
     ///   - message: The message to display.
+    ///   - accessory: An optional accessory view to display.
     ///
     init(
         image: Image,
         style: PageHeaderStyle = .smallImage,
         title: String,
         message: String,
-        button: PageHeaderViewButton? = nil
+        accessory: Accessory
     ) {
-        self.button = button
+        self.accessory = accessory
         self.image = image
         self.message = message
         self.style = style
@@ -116,15 +89,16 @@ struct PageHeaderView: View {
     ///   - style: The style of the page header.
     ///   - title: The title to display.
     ///   - message: The message to display.
+    ///   - accessory: An optional accessory view to display.
     ///
     init(
         image: ImageAsset,
         style: PageHeaderStyle = .smallImage,
         title: String,
         message: String,
-        button: PageHeaderViewButton? = nil
+        accessory: Accessory
     ) {
-        self.button = button
+        self.accessory = accessory
         self.image = image.swiftUIImage
         self.message = message
         self.style = style
@@ -143,6 +117,50 @@ struct PageHeaderView: View {
             HStack(spacing: style.spaceBetweenImageAndText.value(verticalSizeClass ?? .compact), content: content)
                 .padding(.horizontal, 80)
         }
+    }
+}
+
+extension PageHeaderView where Accessory == EmptyView {
+    /// Initialize a `PageHeaderView`.
+    ///
+    /// - Parameters:
+    ///   - image: The image to display.
+    ///   - style: The style of the page header.
+    ///   - title: The title to display.
+    ///   - message: The message to display.
+    ///
+    init(
+        image: Image,
+        style: PageHeaderStyle = .smallImage,
+        title: String,
+        message: String
+    ) {
+        accessory = nil
+        self.image = image
+        self.message = message
+        self.style = style
+        self.title = title
+    }
+
+    /// Initialize a `PageHeaderView`.
+    ///
+    /// - Parameters:
+    ///   - image: The image asset to display.
+    ///   - style: The style of the page header.
+    ///   - title: The title to display.
+    ///   - message: The message to display.
+    ///
+    init(
+        image: ImageAsset,
+        style: PageHeaderStyle = .smallImage,
+        title: String,
+        message: String
+    ) {
+        accessory = nil
+        self.image = image.swiftUIImage
+        self.message = message
+        self.style = style
+        self.title = title
     }
 }
 
@@ -173,7 +191,11 @@ struct PageHeaderView: View {
         style: .mediumImage,
         title: Localizations.setUpUnlock,
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-        button: PageHeaderViewButton(text: Localizations.learnMore) {}
+        accessory: Button {} label: {
+            Text(Localizations.learnMore)
+                .styleGuide(.subheadline)
+                .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+        }
     )
 }
 

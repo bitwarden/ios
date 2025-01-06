@@ -1,4 +1,5 @@
 import SnapshotTesting
+import SwiftUI
 import ViewInspector
 import XCTest
 
@@ -16,7 +17,13 @@ class PageHeaderViewTests: BitwardenTestCase {
             style: .mediumImage,
             title: Localizations.setUpUnlock,
             message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-            button: PageHeaderViewButton(text: Localizations.learnMore) { tapped = true }
+            accessory: Button {
+                tapped = true
+            } label: {
+                Text(Localizations.learnMore)
+                    .styleGuide(.subheadline)
+                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+            }
         )
         let button = try subject.inspect().find(button: Localizations.learnMore)
         try button.tap()
@@ -64,7 +71,11 @@ class PageHeaderViewTests: BitwardenTestCase {
             style: .mediumImage,
             title: Localizations.setUpUnlock,
             message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-            button: PageHeaderViewButton(text: Localizations.learnMore) {}
+            accessory: Button {} label: {
+                Text(Localizations.learnMore)
+                    .styleGuide(.subheadline)
+                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+            }
         )
         assertSnapshots(
             of: subject,
