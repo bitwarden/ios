@@ -1,10 +1,27 @@
 import SnapshotTesting
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
 
 class PageHeaderViewTests: BitwardenTestCase {
     // MARK: Tests
+
+    /// Tapping the button (if it is there) dispatches the action.
+    @MainActor
+    func test_button_tap() throws {
+        var tapped = false
+        let subject = PageHeaderView(
+            image: Asset.Images.Illustrations.biometricsPhone,
+            style: .mediumImage,
+            title: Localizations.setUpUnlock,
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+            button: PageHeaderViewButton(text: Localizations.learnMore) { tapped = true }
+        )
+        let button = try subject.inspect().find(button: Localizations.learnMore)
+        try button.tap()
+        XCTAssertTrue(tapped)
+    }
 
     /// Test snapshots of the largeTextTintedIcon style.
     func test_snapshot_largeTextTintedIcon() {
