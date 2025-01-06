@@ -59,7 +59,6 @@ struct PageHeaderView: View {
     ///   - style: The style of the page header.
     ///   - title: The title to display.
     ///   - message: The message to display.
-    ///   - style: The style to use for this view.
     ///
     init(
         image: Image,
@@ -80,7 +79,6 @@ struct PageHeaderView: View {
     ///   - style: The style of the page header.
     ///   - title: The title to display.
     ///   - message: The message to display.
-    ///   - style: The style to use for this view.
     ///
     init(
         image: ImageAsset,
@@ -141,28 +139,6 @@ struct PageHeaderView: View {
 
 #endif
 
-// MARK: OrientationBasedDimension
-
-/// An `OrientationBasedValue` encapsulates values that might be different
-/// for rendering based on orientation, such as image size or space between text.
-struct OrientationBasedValue<T: Equatable & Sendable>: Equatable, Sendable {
-    // MARK: Properties
-
-    /// The dimension size in portrait mode.
-    let portrait: T
-
-    /// The dimension size in landscape mode.
-    let landscape: T
-
-    // MARK: Functions
-
-    /// Convenience function for getting the correct value based on the orientation.
-    ///
-    func value(_ verticalSizeClass: UserInterfaceSizeClass) -> T {
-        verticalSizeClass == .regular ? portrait : landscape
-    }
-}
-
 // MARK: PageHeaderStyle
 
 /// A `PageHeaderStyle` contains the metrics for rendering a `PageHeaderView`.
@@ -217,7 +193,6 @@ private extension PageHeaderStyle {
 
     /// The height and width of a square small image
     static let smallSquareImageDimension: CGFloat = 100
-
 }
 
 // MARK: - PageHeaderStyle Constants
@@ -226,13 +201,11 @@ extension PageHeaderStyle {
     static let largeTextTintedIcon = PageHeaderStyle(
         imageColor: Asset.Colors.iconSecondary.swiftUIColor,
         imageSize: OrientationBasedValue(
-            portrait: iconSquareImageDimension,
-            landscape: iconSquareImageDimension
+            both: iconSquareImageDimension
         ),
         messageTextStyle: .title2,
         spaceBetweenImageAndText: OrientationBasedValue(
-            portrait: 32,
-            landscape: 32
+            both: 32
         ),
         spaceBetweenTitleAndMessage: 16,
         titleTextStyle: .hugeTitle
@@ -256,13 +229,11 @@ extension PageHeaderStyle {
     static let smallImage = PageHeaderStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(
-            portrait: smallSquareImageDimension,
-            landscape: smallSquareImageDimension
+            both: smallSquareImageDimension
         ),
         messageTextStyle: .body,
         spaceBetweenImageAndText: OrientationBasedValue(
-            portrait: 32,
-            landscape: 32
+            both: 32
         ),
         spaceBetweenTitleAndMessage: 16,
         titleTextStyle: .title2
