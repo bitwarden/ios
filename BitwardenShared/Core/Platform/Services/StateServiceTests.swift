@@ -693,6 +693,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasShownCarousel)
     }
 
+    /// `getLearnNewLoginActionCardShown()` returns whether the learn new login action card has been shown.
+    func test_getLearnNewLoginActionCardShown() async {
+        var hasShownLearnNewLoginActionCard = await subject.getLearnNewLoginActionCardShown()
+        XCTAssertFalse(hasShownLearnNewLoginActionCard)
+
+        appSettingsStore.isLearnNewLoginActionCardShown = true
+        hasShownLearnNewLoginActionCard = await subject.getLearnNewLoginActionCardShown()
+        XCTAssertTrue(hasShownLearnNewLoginActionCard)
+    }
+
     /// `getLastActiveTime(userId:)` gets the user's last active time.
     func test_getLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1760,6 +1770,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             Date().timeIntervalSince1970,
             accuracy: 1.0
         )
+    }
+
+    func test_setLearnNewLoginActionCardShown() async {
+        await subject.setLearnNewLoginActionCardShown(true)
+        XCTAssertTrue(appSettingsStore.isLearnNewLoginActionCardShown)
+
+        await subject.setLearnNewLoginActionCardShown(false)
+        XCTAssertFalse(appSettingsStore.isLearnNewLoginActionCardShown)
     }
 
     /// `setLoginRequest()` sets the pending login requests.

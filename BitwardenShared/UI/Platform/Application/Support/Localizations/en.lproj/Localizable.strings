@@ -207,6 +207,8 @@
 "PossibleMatchingItems" = "Possible matching items";
 "Search" = "Search";
 "BitwardenAutofillServiceSearch" = "You are searching for an autofill item for \"%1$@\".";
+"LearnLogin" = "Learn about new logins";
+"LearnLoginDescription" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Learn about organizations";
 "CannotOpenApp" = "Cannot open the app \"%1$@\".";
 "AuthenticatorAppTitle" = "Authenticator app";

@@ -286,6 +286,12 @@ protocol StateService: AnyObject {
     ///
     func getShouldTrustDevice(userId: String) async -> Bool?
 
+    /// Gets whether the learn new login action card has been shown.
+    ///
+    /// - Returns: Whether the learn new login action card has been shown.
+    ///
+    func getLearnNewLoginActionCardShown() async -> Bool
+
     /// Get whether to show the website icons.
     ///
     /// - Returns: Whether to show the website icons.
@@ -512,6 +518,12 @@ protocol StateService: AnyObject {
     /// - Parameter shown: Whether the intro carousel screen has been shown.
     ///
     func setIntroCarouselShown(_ shown: Bool) async
+
+    /// Sets whether the learn new login action card has been shown.
+    ///
+    /// - Parameter shown: Whether the learn new login action card has been shown.
+    ///
+    func setLearnNewLoginActionCardShown(_ shown: Bool) async
 
     /// Sets the last active time within the app.
     ///
@@ -1560,6 +1572,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
 
+    func getLearnNewLoginActionCardShown() async -> Bool {
+        appSettingsStore.isLearnNewLoginActionCardShown
+    }
+
     func getShowWebIcons() async -> Bool {
         !appSettingsStore.disableWebIcons
     }
@@ -1767,6 +1783,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func setIntroCarouselShown(_ shown: Bool) async {
         appSettingsStore.introCarouselShown = shown
+    }
+
+    func setLearnNewLoginActionCardShown(_ shown: Bool) async {
+        appSettingsStore.isLearnNewLoginActionCardShown = shown
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {

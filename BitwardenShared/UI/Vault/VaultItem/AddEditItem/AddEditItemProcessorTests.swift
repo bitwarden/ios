@@ -354,6 +354,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
     }
 
+    /// `receive(_:)` with `.showLearnNewLoginGuidedTour` sets `showLearnNewLoginActionCard` to `false`.
+    @MainActor
+    func test_receive_showLearnNewLoginGuidedTour() {
+        subject.state.showLearnNewLoginActionCard = true
+        subject.receive(.showLearnNewLoginGuidedTour)
+        XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
+        waitFor(stateService.learnNewLoginActionCardShown)
+    }
+
     /// `receive(_:)` with `.customField(.removeCustomFieldPressed(index:))` will remove
     /// the  custom field from given index.
     @MainActor
@@ -796,6 +805,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertTrue(delegate.itemSoftDeletedCalled)
+    }
+
+    /// `perform(_:)` with `.dismissNewLoginActionCard` will set `.showLearnNewLoginActionCard` to false
+    /// and updates `.learnNewLoginActionCardShown` via  stateService.
+    @MainActor
+    func test_perform_dismissNewLoginActionCard() async {
+        subject.state.showLearnNewLoginActionCard = true
+        await subject.perform(.dismissNewLoginActionCard)
+        XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
+        XCTAssertTrue(stateService.learnNewLoginActionCardShown)
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.

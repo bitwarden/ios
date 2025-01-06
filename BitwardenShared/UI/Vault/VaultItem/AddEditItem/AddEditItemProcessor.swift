@@ -111,7 +111,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
-
         super.init(state: state)
 
         if !state.configuration.isAdding {
@@ -134,6 +133,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+        case .dismissNewLoginActionCard:
+            state.showLearnNewLoginActionCard = false
+            await services.stateService.setLearnNewLoginActionCardShown(true)
         case .fetchCipherOptions:
             await fetchCipherOptions()
         case .savePressed:
@@ -209,6 +211,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                         cipherId: state.cipher.id
                     )
                 }
+            }
+        case .showLearnNewLoginGuidedTour:
+            // TODO: PM-16154
+            state.showLearnNewLoginActionCard = false
+            Task {
+                await services.stateService.setLearnNewLoginActionCardShown(true)
             }
         case let .sshKeyItemAction(sshKeyAction):
             handleSSHKeyAction(sshKeyAction)

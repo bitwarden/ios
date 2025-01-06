@@ -65,6 +65,20 @@ struct AddEditItemView: View {
                         .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
                 }
 
+                if case .add = store.state.configuration, store.state.type == .login,
+                   store.state.showLearnNewLoginActionCard {
+                    ActionCard(
+                        title: Localizations.learnLogin,
+                        message: Localizations.learnLoginDescription,
+                        actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                            store.send(.showLearnNewLoginGuidedTour)
+                        },
+                        dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                            await store.perform(.dismissNewLoginActionCard)
+                        }
+                    )
+                }
+
                 informationSection
                 miscellaneousSection
                 notesSection
@@ -343,7 +357,8 @@ struct AddEditItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: CipherItemState(
-                            hasPremium: true
+                            hasPremium: true,
+                            showLearnNewLoginActionCard: false
                         ).addEditState
                     )
                 )
@@ -372,7 +387,8 @@ struct AddEditItemView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: CipherItemState(
                             addItem: .card,
-                            hasPremium: true
+                            hasPremium: true,
+                            showLearnNewLoginActionCard: false
                         )
                         .addEditState
                     )

@@ -16,6 +16,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var cachedActiveUserId: String?
     var disableWebIcons = false
     var introCarouselShown = false
+    var isLearnNewLoginActionCardShown = false
     var lastUserShouldConnectToWatch = false
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0

@@ -75,6 +75,9 @@ protocol AddEditItemState: Sendable {
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
 
+    /// If the Learn New Login Action Card should be shown.
+    var showLearnNewLoginActionCard: Bool { get set }
+
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
 

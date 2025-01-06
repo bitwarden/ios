@@ -18,7 +18,12 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     override func setUp() {
         super.setUp()
-        processor = MockProcessor(state: CipherItemState(hasPremium: true))
+        processor = MockProcessor(
+            state: CipherItemState(
+                hasPremium: true,
+                showLearnNewLoginActionCard: false
+            )
+        )
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
         let store = Store(processor: processor)
         subject = AddEditItemView(store: store)
@@ -72,6 +77,36 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .removePasskeyPressed)
+    }
+
+    /// Tapping the dismiss button in the learn new login  action card sends the
+    /// `.dismissNewLoginActionCard` effect.
+    @MainActor
+    func test_learnNewLoginActionCard_visible_tapDismiss() async throws {
+        processor.state = CipherItemState(
+            hasPremium: true,
+            showLearnNewLoginActionCard: true
+        )
+        let actionCard = try subject.inspect().find(actionCard: Localizations.learnLogin)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissNewLoginActionCard])
+    }
+
+    /// Tapping the 'Get started' button in the learn new login  action card sends the
+    /// `.showLearnNewLoginGuidedTour` effect.
+    @MainActor
+    func test_learnNewLoginActionCard_visible_tapGetStarted() async throws {
+        processor.state = CipherItemState(
+            hasPremium: true,
+            showLearnNewLoginActionCard: true
+        )
+        let actionCard = try subject.inspect().find(actionCard: Localizations.learnLogin)
+
+        let button = try actionCard.find(asyncButton: Localizations.getStarted)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.showLearnNewLoginGuidedTour])
     }
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
@@ -487,6 +522,19 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_snapshot_add_empty() {
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+    }
+
+    /// Tests the snapshot with the add state with the learn new login action card.
+    @MainActor
+    func test_snapshot_learnNewLoginActionCard() throws {
+        processor.state = CipherItemState(
+            hasPremium: false,
+            showLearnNewLoginActionCard: true
+        )
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark]
+        )
     }
 
     /// Tests the add state with identity item empty.

@@ -43,6 +43,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var lastActiveTime = [String: Date]()
+    var learnNewLoginActionCardShown = false
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
     var getAccountEncryptionKeysError: Error?
@@ -248,6 +249,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getIntroCarouselShown() async -> Bool {
         introCarouselShown
+    }
+
+    func getLearnNewLoginActionCardShown() async -> Bool {
+        learnNewLoginActionCardShown
     }
 
     func getLastActiveTime(userId: String?) async throws -> Date? {
@@ -503,6 +508,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         let account = Account.fixture()
         activeAccount = account
         isAuthenticated[account.profile.userId] = true
+    }
+
+    func setLearnNewLoginActionCardShown(_ shown: Bool) async {
+        learnNewLoginActionCardShown = shown
     }
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
