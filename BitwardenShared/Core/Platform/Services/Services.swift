@@ -24,6 +24,7 @@ typealias Services = HasAPIService
     & HasFido2UserInterfaceHelper
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasImportCiphersRepository
     & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService
@@ -208,6 +209,13 @@ protocol HasFileAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `ImportCiphersRepository`.
+///
+protocol HasImportCiphersRepository {
+    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    var importCiphersRepository: ImportCiphersRepository { get }
 }
 
 /// Protocol for an object that provides a `LocalAuthService`.
