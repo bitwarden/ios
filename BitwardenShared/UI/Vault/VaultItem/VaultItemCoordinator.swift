@@ -79,13 +79,20 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
-        case let .addItem(allowTypeSelection, group, hasPremium, newCipherOptions):
+        case let .addItem(
+            allowTypeSelection,
+            group,
+            hasPremium,
+            newCipherOptions,
+            shouldShowNewLoginActionCard
+        ):
             showAddItem(
                 for: group,
                 allowTypeSelection: allowTypeSelection,
                 hasPremium: hasPremium,
                 newCipherOptions: newCipherOptions,
-                delegate: context as? CipherItemOperationDelegate
+                delegate: context as? CipherItemOperationDelegate,
+                showLearnNewLoginActionCard: shouldShowNewLoginActionCard
             )
         case let .attachments(cipher):
             showAttachments(for: cipher)
@@ -149,12 +156,13 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
-    private func showAddItem(
+    private func showAddItem(// swiftlint:disable:this function_parameter_count
         for group: VaultListGroup?,
         allowTypeSelection: Bool,
         hasPremium: Bool,
         newCipherOptions: NewCipherOptions?,
-        delegate: CipherItemOperationDelegate?
+        delegate: CipherItemOperationDelegate?,
+        showLearnNewLoginActionCard: Bool
     ) {
         let state = CipherItemState(
             addItem: group.flatMap(CipherType.init) ?? .login,
@@ -165,6 +173,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             name: newCipherOptions?.name,
             organizationId: group?.organizationId,
             password: newCipherOptions?.password,
+            showLearnNewLoginActionCard: showLearnNewLoginActionCard,
             totpKeyString: newCipherOptions?.totpKey,
             uri: newCipherOptions?.uri,
             username: newCipherOptions?.username

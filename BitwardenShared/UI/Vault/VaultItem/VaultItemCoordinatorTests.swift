@@ -56,7 +56,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_addItem_nonPremium() throws {
         vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         let task = Task {
-            subject.navigate(to: .addItem())
+            subject.navigate(to: .addItem(shouldShowLearnNewLoginActionCard: false))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -74,7 +74,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         struct TestError: Error {}
         vaultRepository.doesActiveAccountHavePremiumResult = .failure(TestError())
         let task = Task {
-            subject.navigate(to: .addItem())
+            subject.navigate(to: .addItem(shouldShowLearnNewLoginActionCard: false))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -97,7 +97,12 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
                 username: "user@bitwarden.com",
                 totpKey: .otpAuthUriKeyComplete
             )
-            subject.navigate(to: .addItem(newCipherOptions: newCipherOptions))
+            subject.navigate(
+                to: .addItem(
+                    newCipherOptions: newCipherOptions,
+                    shouldShowLearnNewLoginActionCard: false
+                )
+            )
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -118,7 +123,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_navigateTo_addItem_withoutGroup() throws {
         let task = Task {
-            subject.navigate(to: .addItem())
+            subject.navigate(to: .addItem(shouldShowLearnNewLoginActionCard: false))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -134,7 +139,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_navigateTo_addItem_withGroup() throws {
         let task = Task {
-            subject.navigate(to: .addItem(group: .card))
+            subject.navigate(to: .addItem(group: .card, shouldShowLearnNewLoginActionCard: false))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -151,7 +156,12 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// stack navigator and sets the collection and organization's ID on the new item.
     @MainActor
     func test_navigateTo_addItem_withGroupCollection() throws {
-        subject.navigate(to: .addItem(group: .collection(id: "12345", name: "Test", organizationId: "org-12345")))
+        subject.navigate(
+            to: .addItem(
+                group: .collection(id: "12345", name: "Test", organizationId: "org-12345"),
+                shouldShowLearnNewLoginActionCard: false
+            )
+        )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
@@ -167,7 +177,12 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// navigator and sets the folder's ID on the new item.
     @MainActor
     func test_navigateTo_addItem_withGroupFolder() throws {
-        subject.navigate(to: .addItem(group: .folder(id: "12345", name: "Test")))
+        subject.navigate(
+            to: .addItem(
+                group: .folder(id: "12345", name: "Test"),
+                shouldShowLearnNewLoginActionCard: false
+            )
+        )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
