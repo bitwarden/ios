@@ -84,9 +84,9 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
         )
         guard temporary || permanent else { return }
         do {
-            guard services.environmentService.region != .selfHosted else {
-                return
-            }
+//            guard services.environmentService.region != .selfHosted else {
+//                return
+//            }
 
             let profile = try await services.stateService.getActiveAccount().profile
 

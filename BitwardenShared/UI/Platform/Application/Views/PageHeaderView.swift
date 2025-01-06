@@ -1,11 +1,26 @@
 import SwiftUI
 
+// MARK: - PageHeaderViewButton
+
+struct PageHeaderViewButton {
+    let action: () -> Void
+    let text: String
+
+    /// In opposite order for block syntax reasons
+    init(text: String, action: @escaping () -> Void) {
+        self.action = action
+        self.text = text
+    }
+}
+
 // MARK: - PageHeaderView
 
 /// A view that renders a header for page. This support displaying a square image, title, and message.
 ///
 struct PageHeaderView: View {
     // MARK: Properties
+
+    let button: PageHeaderViewButton?
 
     /// The image to display in the page header.
     let image: Image
@@ -33,7 +48,7 @@ struct PageHeaderView: View {
                     height: style.imageSize(verticalSizeClass ?? .regular)
                 )
                 .if(style.imageColor != nil) { view in
-                    return view.foregroundStyle(style.imageColor!)
+                    view.foregroundStyle(style.imageColor!)
                 }
 
             VStack(spacing: style.spaceBetweenTitleAndMessage) {
@@ -44,6 +59,16 @@ struct PageHeaderView: View {
                 Text(LocalizedStringKey(message))
                     .styleGuide(style.messageTextStyle)
                     .accessibilityIdentifier("HeaderMessage")
+
+                if let button {
+                    Button {
+                        button.action()
+                    } label: {
+                        Text(button.text)
+                            .styleGuide(.subheadline)
+                            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                    }
+                }
             }
         }
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
@@ -64,8 +89,10 @@ struct PageHeaderView: View {
         image: Image,
         style: PageHeaderStyle = .smallImage,
         title: String,
-        message: String
+        message: String,
+        button: PageHeaderViewButton? = nil
     ) {
+        self.button = button
         self.image = image
         self.message = message
         self.style = style
@@ -84,8 +111,10 @@ struct PageHeaderView: View {
         image: ImageAsset,
         style: PageHeaderStyle = .smallImage,
         title: String,
-        message: String
+        message: String,
+        button: PageHeaderViewButton? = nil
     ) {
+        self.button = button
         self.image = image.swiftUIImage
         self.message = message
         self.style = style
@@ -128,6 +157,16 @@ struct PageHeaderView: View {
     )
 }
 
+#Preview("MediumImage With Button") {
+    PageHeaderView(
+        image: Asset.Images.Illustrations.biometricsPhone,
+        style: .mediumImage,
+        title: Localizations.setUpUnlock,
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
+        button: PageHeaderViewButton(text: Localizations.learnMore) {}
+    )
+}
+
 #Preview("LargeTextTintedIcon") {
     PageHeaderView(
         image: Asset.Images.plus24,
@@ -136,7 +175,6 @@ struct PageHeaderView: View {
         message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
     )
 }
-
 #endif
 
 // MARK: PageHeaderStyle

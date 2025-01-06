@@ -52,6 +52,8 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
         switch action {
         case let .canAccessEmailChanged(canAccess):
             state.canAccessEmail = canAccess
+        case .learnMoreTapped:
+            break
         }
     }
 

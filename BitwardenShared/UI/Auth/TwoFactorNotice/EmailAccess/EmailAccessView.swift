@@ -20,9 +20,23 @@ struct EmailAccessView: View {
                 image: Asset.Images.Illustrations.businessWarning.swiftUIImage,
                 style: .mediumImage,
                 title: Localizations.importantNotice,
-                message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong
+                message: Localizations.bitwardenWillSendACodeToYourAccountEmailDescriptionLong,
+                button: PageHeaderViewButton(text: Localizations.learnMore) {
+                    store.send(.learnMoreTapped)
+                }
             )
             .padding(.top, 16)
+//            .overlay {
+//                Rectangle().foregroundColor(Color.black.opacity(0.5))
+//            }
+
+//            Button {
+//                store.send(.learnMoreTapped)
+//            } label: {
+//                Text(Localizations.learnMore)
+//                    .styleGuide(.subheadline)
+//                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+//            }
 
             toggleCard
 
