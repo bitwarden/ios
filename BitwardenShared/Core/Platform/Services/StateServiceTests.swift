@@ -694,9 +694,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `getLearnNewLoginActionCardStatus()` returns the status of the learn new login action card.
-    func test_getLearnNewLoginActionCardShown() async {
+    func test_getLearnNewLoginActionCardStatus() async {
         var learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
-        XCTAssertNil(learnNewLoginActionCardStatus)
+        XCTAssertEqual(learnNewLoginActionCardStatus, .incomplete)
 
         appSettingsStore.learnNewLoginActionCardStatus = .complete
         learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()

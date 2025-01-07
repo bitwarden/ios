@@ -37,7 +37,7 @@ protocol AppSettingsStore: AnyObject {
     var lastUserShouldConnectToWatch: Bool { get set }
 
     /// The status of the learn new login action card.
-    var learnNewLoginActionCardStatus: AccountSetupProgress? { get set }
+    var learnNewLoginActionCardStatus: AccountSetupProgress { get set }
 
     /// The login request information received from a push notification.
     var loginRequest: LoginRequestNotification? { get set }
@@ -882,8 +882,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .introCarouselShown) }
     }
 
-    var learnNewLoginActionCardStatus: AccountSetupProgress? {
-        get { fetch(for: .learnNewLoginActionCardStatus) }
+    var learnNewLoginActionCardStatus: AccountSetupProgress {
+        get { fetch(for: .learnNewLoginActionCardStatus) ?? .incomplete }
         set { store(newValue, for: .learnNewLoginActionCardStatus) }
     }
 
