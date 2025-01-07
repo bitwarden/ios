@@ -155,15 +155,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         case let .addItem(allowTypeSelection, group, newCipherOptions):
             Task {
                 let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
-                let loginActionCardStatus = await services.stateService.getLearnNewLoginActionCardStatus()
-                let shouldShowLearnNewLoginActionCard = loginActionCardStatus == .incomplete
+                let showLearnNewLoginActionCard = await services.stateService.getLearnNewLoginActionCardStatus() == .incomplete
                 showVaultItem(
                     route: .addItem(
                         allowTypeSelection: allowTypeSelection,
                         group: group,
                         hasPremium: hasPremium ?? false,
                         newCipherOptions: newCipherOptions,
-                        shouldShowLearnNewLoginActionCard: shouldShowLearnNewLoginActionCard
+                        shouldShowLearnNewLoginActionCard: showLearnNewLoginActionCard
                     ),
                     delegate: context as? CipherItemOperationDelegate
                 )
