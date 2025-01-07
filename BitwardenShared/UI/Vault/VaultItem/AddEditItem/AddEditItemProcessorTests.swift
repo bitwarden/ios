@@ -354,15 +354,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions[3].title, Localizations.cancel)
     }
 
-    /// `receive(_:)` with `.showLearnNewLoginGuidedTour` sets `showLearnNewLoginActionCard` to `false`.
-    @MainActor
-    func test_receive_showLearnNewLoginGuidedTour() {
-        subject.state.showLearnNewLoginActionCard = true
-        subject.receive(.showLearnNewLoginGuidedTour)
-        XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
-        waitFor(stateService.learnNewLoginActionCardStatus == .completed)
-    }
-
     /// `receive(_:)` with `.customField(.removeCustomFieldPressed(index:))` will remove
     /// the  custom field from given index.
     @MainActor
@@ -1420,6 +1411,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.setupTotpPressed)
 
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `perform(_:)` with `.showLearnNewLoginGuidedTour` sets `showLearnNewLoginActionCard` to `false`.
+    @MainActor
+    func test_perform_showLearnNewLoginGuidedTour() async {
+        subject.state.showLearnNewLoginActionCard = true
+        await subject.perform(.showLearnNewLoginGuidedTour)
+        XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .completed)
     }
 
     /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.

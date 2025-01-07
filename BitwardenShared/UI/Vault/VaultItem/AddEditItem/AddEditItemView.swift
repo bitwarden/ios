@@ -65,13 +65,12 @@ struct AddEditItemView: View {
                         .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
                 }
 
-                if case .add = store.state.configuration, store.state.type == .login,
-                   store.state.showLearnNewLoginActionCard {
+                if store.state.shouldShowLearnNewLoginActionCard {
                     ActionCard(
-                        title: Localizations.learnLogin,
-                        message: Localizations.learnLoginDescription,
+                        title: Localizations.learnAboutNewLogins,
+                        message: Localizations.weLlWalkYouThroughTheKeyFeaturesToAddANewLogin,
                         actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
-                            store.send(.showLearnNewLoginGuidedTour)
+                            await store.perform(.showLearnNewLoginGuidedTour)
                         },
                         dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
                             await store.perform(.dismissNewLoginActionCard)

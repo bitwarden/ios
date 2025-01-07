@@ -92,9 +92,6 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The remove passkey button was pressed.
     case removePasskeyPressed
 
-    /// Show the learn new login guided tour.
-    case showLearnNewLoginGuidedTour
-
     /// The username field was changed.
     case usernameChanged(String)
 }

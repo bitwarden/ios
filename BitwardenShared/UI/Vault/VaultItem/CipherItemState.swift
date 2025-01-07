@@ -151,6 +151,11 @@ struct CipherItemState: Equatable {
         }
     }
 
+      /// The flag indicating if we should show the learn new login action card.
+    var shouldShowLearnNewLoginActionCard: Bool {
+        showLearnNewLoginActionCard && configuration == .add && type == .login
+    }
+
     /// The view state of the item.
     var viewState: ViewVaultItemState? {
         guard case .existing = configuration else {

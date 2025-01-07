@@ -27,4 +27,7 @@ enum AddEditItemEffect {
 
     /// The setup totp button was pressed.
     case setupTotpPressed
+
+    /// Show the learn new login guided tour.
+    case showLearnNewLoginGuidedTour
 }

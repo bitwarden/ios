@@ -144,6 +144,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await setupTotp()
         case .deletePressed:
             await showSoftDeleteConfirmation()
+        case .showLearnNewLoginGuidedTour:
+            // TODO: PM-16154
+            state.showLearnNewLoginActionCard = false
+            await services.stateService.setLearnNewLoginActionCardStatus(.completed)
         }
     }
 
@@ -211,12 +215,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                         cipherId: state.cipher.id
                     )
                 }
-            }
-        case .showLearnNewLoginGuidedTour:
-            // TODO: PM-16154
-            state.showLearnNewLoginActionCard = false
-            Task {
-                await services.stateService.setLearnNewLoginActionCardStatus(.completed)
             }
         case let .sshKeyItemAction(sshKeyAction):
             handleSSHKeyAction(sshKeyAction)

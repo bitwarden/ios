@@ -87,7 +87,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             hasPremium: true,
             showLearnNewLoginActionCard: true
         )
-        let actionCard = try subject.inspect().find(actionCard: Localizations.learnLogin)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
 
         let button = try actionCard.find(asyncButton: Localizations.dismiss)
         try await button.tap()
@@ -102,11 +102,11 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             hasPremium: true,
             showLearnNewLoginActionCard: true
         )
-        let actionCard = try subject.inspect().find(actionCard: Localizations.learnLogin)
+        let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
 
         let button = try actionCard.find(asyncButton: Localizations.getStarted)
         try await button.tap()
-        XCTAssertEqual(processor.dispatchedActions, [.showLearnNewLoginGuidedTour])
+        XCTAssertEqual(processor.effects, [.showLearnNewLoginGuidedTour])
     }
 
     /// Tapping the dismiss button dispatches the `.dismissPressed` action.
