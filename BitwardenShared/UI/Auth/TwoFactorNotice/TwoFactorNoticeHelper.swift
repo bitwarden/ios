@@ -82,9 +82,13 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
             .newDeviceVerificationPermanentDismiss,
             defaultValue: false
         )
+        let ignoreEnvironmentCheck = await services.configService.getFeatureFlag(
+            .ignore2FANoticeEnvironmentCheck,
+            defaultValue: false
+        )
         guard temporary || permanent else { return }
         do {
-            guard services.environmentService.region != .selfHosted else {
+            guard services.environmentService.region != .selfHosted || ignoreEnvironmentCheck else {
                 return
             }
 
