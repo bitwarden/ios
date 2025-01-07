@@ -228,12 +228,16 @@ class DefaultConfigService: ConfigService {
             ?? defaultValue
     }
 
+    // MARK: Debug Feature Flags
+
     func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
         let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
 
         let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
             let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
-            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue ?? false
+            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue
+                ?? FeatureFlag.initialValues[feature]?.boolValue
+                ?? false
 
             return DebugMenuFeatureFlag(
                 feature: feature,

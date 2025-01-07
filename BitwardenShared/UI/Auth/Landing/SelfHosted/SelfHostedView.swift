@@ -91,8 +91,7 @@ struct SelfHostedView: View {
                 text: store.binding(
                     get: \.serverUrl,
                     send: SelfHostedAction.serverUrlChanged
-                ),
-                placeholder: "ex. https://bitwarden.company.com"
+                )
             )
             .accessibilityIdentifier("ServerUrlEntry")
             .autocorrectionDisabled()

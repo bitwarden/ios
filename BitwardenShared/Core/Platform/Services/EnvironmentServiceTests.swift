@@ -216,8 +216,12 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
-        // swiftlint:disable:next line_length
-        XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://example.com/#/settings/security/two-factor"))
+        XCTAssertEqual(
+            subject.setUpTwoFactorURL,
+            URL(
+                string: "https://example.com/#/settings/security/two-factor"
+            )
+        )
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)
 
@@ -242,7 +246,6 @@ class EnvironmentServiceTests: XCTestCase {
         XCTAssertEqual(subject.region, .selfHosted)
         XCTAssertEqual(subject.sendShareURL, URL(string: "https://example.com/#/send"))
         XCTAssertEqual(subject.settingsURL, URL(string: "https://example.com/#/settings"))
-        // swiftlint:disable:next line_length
         XCTAssertEqual(subject.setUpTwoFactorURL, URL(string: "https://example.com/#/settings/security/two-factor"))
         XCTAssertEqual(subject.webVaultURL, URL(string: "https://example.com"))
         XCTAssertEqual(stateService.preAuthEnvironmentUrls, urls)

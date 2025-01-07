@@ -39,6 +39,9 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
+    /// The helper to handle the two-factor notice.
+    private let twoFactorNoticeHelper: TwoFactorNoticeHelper
+
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
@@ -56,10 +59,12 @@ final class VaultListProcessor: StateProcessor<
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultListState,
+        twoFactorNoticeHelper: TwoFactorNoticeHelper,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
         self.services = services
+        self.twoFactorNoticeHelper = twoFactorNoticeHelper
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
     }
@@ -77,6 +82,7 @@ final class VaultListProcessor: StateProcessor<
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+            await twoFactorNoticeHelper.maybeShowTwoFactorNotice()
         case .checkAppReviewEligibility:
             if await services.reviewPromptService.isEligibleForReviewPrompt() {
                 await scheduleReviewPrompt()
@@ -277,7 +283,7 @@ extension VaultListProcessor {
         do {
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
-                filterType: state.searchVaultFilterType
+                filter: VaultListFilter(filterType: state.searchVaultFilterType)
             )
             for try await ciphers in result {
                 return ciphers
@@ -360,7 +366,7 @@ extension VaultListProcessor {
     private func streamVaultList() async {
         do {
             for try await value in try await services.vaultRepository
-                .vaultListPublisher(filter: state.vaultFilterType) {
+                .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
 
