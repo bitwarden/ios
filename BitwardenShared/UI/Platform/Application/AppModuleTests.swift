@@ -57,6 +57,7 @@ class AppModuleTests: BitwardenTestCase {
     func test_makeDebugMenuCoordinator() {
         let navigationController = UINavigationController()
         let coordinator = subject.makeDebugMenuCoordinator(
+            delegate: MockDebugMenuCoordinatorDelegate(),
             stackNavigator: navigationController
         )
         coordinator.start()
