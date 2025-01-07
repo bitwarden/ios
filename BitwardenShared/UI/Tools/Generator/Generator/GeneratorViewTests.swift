@@ -208,9 +208,9 @@ class GeneratorViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_generatorViewPassphrase() {
         processor.state.generatorType = .passphrase
-        assertSnapshot(
+        assertSnapshots(
             of: snapshotView,
-            as: .defaultPortrait
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
 
@@ -218,9 +218,9 @@ class GeneratorViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_generatorViewPassword() {
         processor.state.generatorType = .password
-        assertSnapshot(
+        assertSnapshots(
             of: snapshotView,
-            as: .defaultPortrait
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
 
@@ -248,9 +248,9 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_snapshot_generatorViewUsernameCatchAll() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .catchAllEmail
-        assertSnapshot(
+        assertSnapshots(
             of: snapshotView,
-            as: .defaultPortrait
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
 
