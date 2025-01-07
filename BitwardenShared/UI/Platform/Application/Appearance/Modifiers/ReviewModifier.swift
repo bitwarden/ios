@@ -1,7 +1,7 @@
 import StoreKit
 import SwiftUI
 
-/// A view modifier that requests a review when the view appears.
+/// A view modifier that requests a review when the view appears if eligible.
 @available(iOS 16.0, *)
 struct ReviewModifier: ViewModifier {
     /// The environment key for the request review function.
