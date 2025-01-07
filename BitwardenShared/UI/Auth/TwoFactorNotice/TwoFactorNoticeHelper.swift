@@ -83,7 +83,7 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
             defaultValue: false
         )
         let ignoreEnvironmentCheck = await services.configService.getFeatureFlag(
-            .ignoreEnvironmentCheck,
+            .ignore2FANoticeEnvironmentCheck,
             defaultValue: false
         )
         guard temporary || permanent else { return }

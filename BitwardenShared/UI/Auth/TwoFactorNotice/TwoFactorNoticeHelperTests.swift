@@ -174,7 +174,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     @MainActor
     func test_maybeShow_server_selfHosted_ignoreEnvironmentCheck() async {
         environmentService.region = .selfHosted
-        configService.featureFlagsBool[.ignoreEnvironmentCheck] = true
+        configService.featureFlagsBool[.ignore2FANoticeEnvironmentCheck] = true
 
         await subject.maybeShowTwoFactorNotice()
 

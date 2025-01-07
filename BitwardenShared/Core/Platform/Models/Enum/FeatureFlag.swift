@@ -32,7 +32,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A flag to ignore the environment check for the two-factor authentication
     /// notice. If this is on, then it will display even on self-hosted servers,
     /// which means it's easier to dev/QA the feature.
-    case ignoreEnvironmentCheck = "ignore-environment-check"
+    case ignore2FANoticeEnvironmentCheck = "ignore-2fa-notice-environment-check"
 
     /// A feature flag for the import logins flow for new accounts.
     case importLoginsFlow = "import-logins-flow"
@@ -112,7 +112,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
         switch self {
         case .enableCipherKeyEncryption,
              .enableDebugAppReviewPrompt,
-             .ignoreEnvironmentCheck,
+             .ignore2FANoticeEnvironmentCheck,
              .importLoginsFlow,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
