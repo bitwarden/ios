@@ -158,7 +158,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
                 let learnNewLoginActionCardStatus = await services.stateService.getLearnNewLoginActionCardStatus()
                 let accountCount = try? await services.stateService.getAccounts().count
                 let isVaultEmpty = try? await services.vaultRepository.isVaultEmpty()
-                let shouldShowLearnNewLoginActionCard = learnNewLoginActionCardStatus == .eligible && isVaultEmpty == true && accountCount == 1
+                let shouldShowLearnNewLoginActionCard = learnNewLoginActionCardStatus == .incomplete && isVaultEmpty == true && accountCount == 1
                 showVaultItem(
                     route: .addItem(
                         allowTypeSelection: allowTypeSelection,

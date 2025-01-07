@@ -290,7 +290,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The status of Learn New Login Action Card.
     ///
-    func getLearnNewLoginActionCardStatus() async -> LearnNewLoginActionCardStatus?
+    func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress?
 
     /// Get whether to show the website icons.
     ///
@@ -523,7 +523,7 @@ protocol StateService: AnyObject {
     ///
     /// - Parameter status: The status of Learn New Login Action Card.
     ///
-    func setLearnNewLoginActionCardStatus(_ status: LearnNewLoginActionCardStatus) async
+    func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async
 
     /// Sets the last active time within the app.
     ///
@@ -1572,7 +1572,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.shouldTrustDevice(userId: userId)
     }
 
-    func getLearnNewLoginActionCardStatus() async -> LearnNewLoginActionCardStatus? {
+    func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
         appSettingsStore.learnNewLoginActionCardStatus
     }
 
@@ -1785,7 +1785,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.introCarouselShown = shown
     }
 
-    func setLearnNewLoginActionCardStatus(_ status: LearnNewLoginActionCardStatus) async {
+    func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
         appSettingsStore.learnNewLoginActionCardStatus = status
     }
 

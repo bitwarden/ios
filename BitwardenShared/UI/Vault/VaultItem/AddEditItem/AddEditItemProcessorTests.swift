@@ -805,7 +805,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.showLearnNewLoginActionCard = true
         await subject.perform(.dismissNewLoginActionCard)
         XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
-        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .completed)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
     }
 
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
@@ -1419,7 +1419,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.showLearnNewLoginActionCard = true
         await subject.perform(.showLearnNewLoginGuidedTour)
         XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
-        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .completed)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
     }
 
     /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.

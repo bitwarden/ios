@@ -470,19 +470,19 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `learnNewLoginActionCardStatus`  can be used to get and set the persisted value in user defaults.
     func test_learnNewLoginActionCardStatus_withValues() {
-        subject.learnNewLoginActionCardStatus = .completed
-        XCTAssertEqual(subject.learnNewLoginActionCardStatus, .completed)
+        subject.learnNewLoginActionCardStatus = .complete
+        XCTAssertEqual(subject.learnNewLoginActionCardStatus, .complete)
 
         try XCTAssertEqual(
             JSONDecoder().decode(
-                LearnNewLoginActionCardStatus.self,
+                AccountSetupProgress.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:learnNewLoginActionCardStatus")?
                         .data(using: .utf8)
                 )
             ),
-            LearnNewLoginActionCardStatus.completed
+            AccountSetupProgress.complete
         )
     }
 

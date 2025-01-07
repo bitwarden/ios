@@ -135,7 +135,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
         case .dismissNewLoginActionCard:
             state.showLearnNewLoginActionCard = false
-            await services.stateService.setLearnNewLoginActionCardStatus(.completed)
+            await services.stateService.setLearnNewLoginActionCardStatus(.complete)
         case .fetchCipherOptions:
             await fetchCipherOptions()
         case .savePressed:
@@ -147,7 +147,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .showLearnNewLoginGuidedTour:
             // TODO: PM-16154
             state.showLearnNewLoginActionCard = false
-            await services.stateService.setLearnNewLoginActionCardStatus(.completed)
+            await services.stateService.setLearnNewLoginActionCardStatus(.complete)
         }
     }
 

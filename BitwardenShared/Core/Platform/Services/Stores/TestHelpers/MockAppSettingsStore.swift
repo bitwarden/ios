@@ -17,7 +17,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var disableWebIcons = false
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
-    var learnNewLoginActionCardStatus: BitwardenShared.LearnNewLoginActionCardStatus?
+    var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
     var overrideDebugFeatureFlagCalled = false
