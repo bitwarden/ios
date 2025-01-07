@@ -363,7 +363,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///   - emailAddress: The email address of the user.
     private func showTwoFactorNotice(allowDelay: Bool, emailAddress: String) {
         let navigationController = UINavigationController()
-        navigationController.navigationBar.isHidden = true
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController.navigationBar.scrollEdgeAppearance = appearance
+
         let coordinator = module.makeTwoFactorNoticeCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(
