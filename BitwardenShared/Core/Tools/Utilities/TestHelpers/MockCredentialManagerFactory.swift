@@ -16,7 +16,7 @@ class MockCredentialManagerFactory: CredentialManagerFactory {
 class MockCredentialImportManager: CredentialImportManager {
     /// The result of calling `importCredentials(token:)`.
     /// A JSON encoded `String` is used as the value instead of the actual object
-    /// to avoid crashing on simulators older than iOS 18.2 becuase of not finding the symbol
+    /// to avoid crashing on simulators older than iOS 18.2 because of not finding the symbol
     /// thus resulting in bad access error when running the test suite.
     /// Use `JSONEncoder.cxpEncoder.encode` to encode data for this.
     var importCredentialsResult: Result<String, Error> = .failure(BitwardenTestError.example)
