@@ -14,11 +14,14 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// for snapshot tests.
     struct SnapshotView: UIViewControllerRepresentable {
         let subject: AddEditSendItemView
+        let removeHairlineDivider: Bool
 
         func makeUIViewController(context: Context) -> some UIViewController {
             let viewController = UIHostingController(rootView: subject)
             let navigationController = UINavigationController(rootViewController: viewController)
-            navigationController.removeHairlineDivider()
+            if removeHairlineDivider {
+                navigationController.removeHairlineDivider()
+            }
             return navigationController
         }
 
@@ -30,8 +33,11 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     var processor: MockProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect>!
     var subject: AddEditSendItemView!
 
-    var snapshotView: some View {
-        SnapshotView(subject: subject).edgesIgnoringSafeArea(.all)
+    @MainActor var snapshotView: some View {
+        SnapshotView(
+            subject: subject,
+            removeHairlineDivider: processor.state.mode == .add
+        ).edgesIgnoringSafeArea(.all)
     }
 
     // MARK: Setup & Teardown
