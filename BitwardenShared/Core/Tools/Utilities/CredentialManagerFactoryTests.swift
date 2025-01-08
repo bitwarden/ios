@@ -29,6 +29,15 @@ class CredentialManagerFactoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `createExportManager(presentationAnchor:)` creates an instance of the credential export manager.
+    @MainActor
+    func test_createExportManager() {
+        let manager = subject.createExportManager(presentationAnchor: UIWindow())
+
+        XCTAssertTrue(manager is ASCredentialExportManager)
+    }
+
+    /// `createImportManager()` creates an instance of the credential import manager.
     func test_createImportManager() {
         let manager = subject.createImportManager()
 
