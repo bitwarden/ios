@@ -13,13 +13,23 @@ class MockCredentialManagerFactory: CredentialManagerFactory {
     }
 }
 
-@available(iOS 18.2, *)
 class MockCredentialImportManager: CredentialImportManager {
-    var importCredentialsResult: Result<ASExportedCredentialData, Error> = .failure(BitwardenTestError.example)
+    /// The result of calling `importCredentials(token:)`.
+    /// A JSON encoded `String` is used as the value instead of the actual object
+    /// to avoid crashing on simulators older than iOS 18.2 becuase of not finding the symbol
+    /// thus resulting in bad access error when running the test suite.
+    /// Use `JSONEncoder.cxpEncoder.encode` to encode data for this.
+    var importCredentialsResult: Result<String, Error> = .failure(BitwardenTestError.example)
 
     @available(iOS 18.2, *)
     func importCredentials(token: UUID) async throws -> ASExportedCredentialData {
-        try importCredentialsResult.get()
+        guard let data = try importCredentialsResult.get().data(using: .utf8) else {
+            throw BitwardenError.dataError("importCredentialsResult data not set or not in UTF8")
+        }
+        return try JSONDecoder.cxpDecoder.decode(
+            ASExportedCredentialData.self,
+            from: data
+        )
     }
 }
 #endif

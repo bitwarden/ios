@@ -7,7 +7,6 @@ import XCTest
 
 // MARK: - CredentialManagerFactoryTests
 
-@available(iOS 18.2, *)
 class CredentialManagerFactoryTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -29,7 +28,10 @@ class CredentialManagerFactoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    func test_createImportManager() {
+    func test_createImportManager() throws {
+        guard #available(iOS 18.2, *) else {
+            throw XCTSkip("iOS 18.2 is required to run this test.")
+        }
         let manager = subject.createImportManager()
 
         XCTAssertTrue(manager is ASCredentialImportManager)
