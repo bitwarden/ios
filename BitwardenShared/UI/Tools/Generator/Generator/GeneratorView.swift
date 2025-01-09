@@ -29,19 +29,17 @@ struct GeneratorView: View {
 
             Divider()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    if store.state.isPolicyInEffect {
-                        InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
-                            .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
-                    }
-
-                    ForEach(store.state.formSections) { section in
-                        sectionView(section)
-                    }
+            VStack(alignment: .leading, spacing: 24) {
+                if store.state.isPolicyInEffect {
+                    InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
+                        .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
                 }
-                .padding(16)
+
+                ForEach(store.state.formSections) { section in
+                    sectionView(section)
+                }
             }
+            .scrollView(padding: 12)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
@@ -88,16 +86,20 @@ struct GeneratorView: View {
     ///
     @ViewBuilder
     func sectionView(_ section: GeneratorState.FormSection<GeneratorState>) -> some View {
-        if let title = section.title {
-            Text(title.uppercased())
-                .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityAddTraits(.isHeader)
+        VStack(spacing: 8) {
+            ForEach(section.groups) { group in
+                groupView(group)
+            }
         }
+    }
 
-        VStack(spacing: 12) {
-            ForEach(section.fields) { field in
+    /// Returns a view for displaying a group of items within a section of the form.
+    ///
+    /// - Parameter group: The group of items to display.
+    ///
+    func groupView(_ group: GeneratorState.FormSectionGroup<GeneratorState>) -> some View {
+        ContentBlock(dividerLeadingPadding: 16) {
+            ForEach(group.fields) { field in
                 switch field.fieldType {
                 case let .emailWebsite(website):
                     emailWebsiteView(website: website)
