@@ -1061,6 +1061,7 @@
 "SSHKeys" = "SSH keys";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Use Optic ID To Unlock";
+"UnknownBiometrics" = "biometrics";
 "NothingAvailableToAutofill" = "Nothing available to autofill";
 "FailedToGenerateVerificationCode" = "Failed to generate verification code";
 "FailedToAutofillItem" = "Failed to autofill item %1$@";
