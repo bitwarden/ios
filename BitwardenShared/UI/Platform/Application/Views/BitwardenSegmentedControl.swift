@@ -36,6 +36,7 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
                     )
                     .matchedGeometryEffect(id: selection, in: segmentedControl)
                 }
+                .accessibilityIdentifier(selection.accessibilityId)
                 .disabled(isSelectionDisabled(selection))
             }
         }
