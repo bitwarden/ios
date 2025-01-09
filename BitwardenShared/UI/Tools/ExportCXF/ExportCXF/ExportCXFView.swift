@@ -2,38 +2,42 @@ import SwiftUI
 
 // MARK: - ImportCXPView
 
-/// A view to import credentials in the Credential Exchange protocol flow.
+/// A view to export credentials in the Credential Exchange flow.
 ///
-struct ImportCXPView: View {
+struct ExportCXFView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ImportCXPState, Void, ImportCXPEffect>
+    @ObservedObject var store: Store<ExportCXFState, ExportCXFAction, ExportCXFEffect>
 
     // MARK: View
 
     var body: some View {
         Group {
-            VStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 16) {
                 PageHeaderView(
                     image: Image(decorative: store.state.mainIcon),
-                    style: .largeTextTintedIcon,
                     title: store.state.title,
-                    message: store.state.message
+                    message: store.state.message,
+                    style: .largeWithTintedIcon
                 )
+                .padding(.horizontal, 30)
+                .frame(maxWidth: .infinity)
+
+                Text(store.state.sectionTitle)
+                    .styleGuide(.title, weight: .bold)
+                    .padding(.horizontal, 20)
+                    .accessibilityIdentifier("SectionTitle")
+
                 switch store.state.status {
                 case .start:
-                    EmptyView()
-                case .importing:
-                    ProgressView(value: store.state.progress)
-                        .tint(Asset.Colors.tintPrimary.swiftUIColor)
-                        .frame(maxWidth: .infinity)
-                        .scaleEffect(x: 1, y: 3, anchor: .center)
-                        .accessibilityIdentifier("ImportProgress")
-                case let .success(_, results):
+                    Text(Localizations.exportAllItems(store.state.totalItemsToExport))
+                        .styleGuide(.title2)
+                        .padding(.horizontal, 20)
+                case let .prepared(results):
                     VStack(spacing: 16) {
                         ForEach(results) { result in
-                            importedTypeRow(result: result)
+                            exportingTypeRow(result: result)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -55,13 +59,11 @@ struct ImportCXPView: View {
                         .accessibilityIdentifier("MainButton")
                     }
 
-                    if store.state.showCancelButton {
-                        AsyncButton(Localizations.cancel) {
-                            await store.perform(.cancel)
-                        }
-                        .buttonStyle(.secondary())
-                        .accessibilityIdentifier("CancelButton")
+                    AsyncButton(Localizations.cancel) {
+                        await store.perform(.cancel)
                     }
+                    .buttonStyle(.secondary())
+                    .accessibilityIdentifier("CancelButton")
                 }
                 .padding(.horizontal, 16)
                 .background(Asset.Colors.backgroundSecondary.swiftUIColor)
@@ -73,7 +75,7 @@ struct ImportCXPView: View {
             await store.perform(.appeared)
         }
         .apply { view in
-            if #available(iOSApplicationExtension 16.0, *) {
+            if #available(iOS 16.0, *) {
                 view.toolbar(.hidden)
             } else {
                 view.navigationBarHidden(true)
@@ -83,16 +85,16 @@ struct ImportCXPView: View {
 
     // MARK: Private
 
-    /// The row for an imported type result.
+    /// The row for an exporting type result.
     @ViewBuilder
-    private func importedTypeRow(result: CXFCredentialsResult) -> some View {
+    private func exportingTypeRow(result: CXFCredentialsResult) -> some View {
         HStack {
             Text(result.localizedTypePlural)
                 .styleGuide(.body)
             Spacer()
             Text("\(result.count)")
                 .styleGuide(.body)
-                .accessibilityIdentifier("\(result.type)ImportTotal")
+                .accessibilityIdentifier("\(result.type)ExportTotal")
         }
     }
 }
@@ -101,31 +103,25 @@ struct ImportCXPView: View {
 
 #if DEBUG
 #Preview("Start") {
-    ImportCXPView(store: Store(processor: StateProcessor(state: ImportCXPState())))
-        .navStackWrapped
-}
-
-#Preview("Importing") {
-    ImportCXPView(
+    ExportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ImportCXPState(
-                    progress: 0.3,
-                    status: .importing
+                state: ExportCXFState(
+                    totalItemsToExport: 20
                 )
             )
         )
-    ).navStackWrapped
+    )
+    .navStackWrapped
 }
 
-#Preview("Success") {
-    ImportCXPView(
+#Preview("Prepared") {
+    ExportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ImportCXPState(
-                    status: .success(
-                        totalImportedCredentials: 30,
-                        importedResults: [
+                state: ExportCXFState(
+                    status: .prepared(
+                        itemsToExport: [
                             CXFCredentialsResult(count: 13, type: .password),
                             CXFCredentialsResult(count: 7, type: .passkey),
                             CXFCredentialsResult(count: 10, type: .card),
@@ -138,10 +134,10 @@ struct ImportCXPView: View {
 }
 
 #Preview("Failure") {
-    ImportCXPView(
+    ExportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ImportCXPState(
+                state: ExportCXFState(
                     status: .failure(
                         message: "Something went wrong"
                     )
