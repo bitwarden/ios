@@ -350,10 +350,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             )
         )
         let store = Store(processor: processor)
+        let windowScene = stackNavigator?.rootViewController?.view.window?.windowScene
         let view = VaultListView(
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
+            windowScene: windowScene
         )
+        if windowScene == nil {
+            services.errorReporter.log(error: WindowSceneError.nullWindowScene)
+        }
         stackNavigator?.replace(view, animated: false)
     }
 
@@ -364,7 +369,10 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     ///   - emailAddress: The email address of the user.
     private func showTwoFactorNotice(allowDelay: Bool, emailAddress: String) {
         let navigationController = UINavigationController()
-        navigationController.navigationBar.isHidden = true
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController.navigationBar.scrollEdgeAppearance = appearance
+
         let coordinator = module.makeTwoFactorNoticeCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(
