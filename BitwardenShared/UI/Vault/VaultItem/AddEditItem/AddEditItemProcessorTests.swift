@@ -15,6 +15,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
@@ -37,6 +38,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
+        configService = MockConfigService()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
@@ -55,6 +57,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 cameraService: cameraService,
+                configService: configService,
                 errorReporter: errorReporter,
                 eventService: eventService,
                 httpClient: client,
@@ -100,10 +103,11 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `init` method should set the `isLearnNewLoginActionCardEligible` to `true`
-    /// if the `learnNewLoginActionCardStatus` is `incomplete`.
+    /// if the `learnNewLoginActionCardStatus` is `incomplete`, and feature flag is enabled.
     @MainActor
     func test_initIsLearnNewLoginActionCardEligible() {
         XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.learnNewLoginActionCardStatus = .incomplete
         subject = AddEditItemProcessor(
             appExtensionDelegate: appExtensionDelegate,
@@ -112,6 +116,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 cameraService: cameraService,
+                configService: configService,
                 errorReporter: errorReporter,
                 eventService: eventService,
                 httpClient: client,
@@ -135,6 +140,46 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             )
         )
         waitFor(subject.state.isLearnNewLoginActionCardEligible)
+    }
+
+    /// `init` method should not set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the feature flag `nativeCreateAccountFlow` is `false`.
+    @MainActor
+    func test_initIsLearnNewLoginActionCardEligible_False() {
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                configService: configService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        waitFor(!subject.state.isLearnNewLoginActionCardEligible)
     }
 
     /// `receive(_:)` with `.customField(.booleanFieldChanged)` changes

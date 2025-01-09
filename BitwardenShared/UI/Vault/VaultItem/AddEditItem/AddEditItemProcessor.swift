@@ -57,6 +57,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     typealias Services = HasAPIService
         & HasAuthRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFido2UserInterfaceHelper
@@ -113,8 +114,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
         super.init(state: state)
         Task {
-            self.state.isLearnNewLoginActionCardEligible =  await services.stateService
-                .getLearnNewLoginActionCardStatus() == .incomplete
+            if await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+                self.state.isLearnNewLoginActionCardEligible = await services.stateService
+                    .getLearnNewLoginActionCardStatus() == .incomplete
+            }
+
             if !state.configuration.isAdding {
                 await self.services.rehydrationHelper.addRehydratableTarget(self)
             }
