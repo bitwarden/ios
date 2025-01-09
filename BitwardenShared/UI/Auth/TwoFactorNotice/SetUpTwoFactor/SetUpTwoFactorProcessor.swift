@@ -46,15 +46,11 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
     override func perform(_ effect: SetUpTwoFactorEffect) async {
         switch effect {
         case .changeAccountEmailTapped:
-            coordinator.showAlert(.changeEmailAlert {
-                self.state.url = self.services.environmentService.changeEmailURL
-            })
+            await handleChangeAccountEmail()
         case .remindMeLaterTapped:
             await handleDismiss()
         case .turnOnTwoFactorTapped:
-            coordinator.showAlert(.turnOnTwoFactorLoginAlert {
-                self.state.url = self.services.environmentService.setUpTwoFactorURL
-            })
+            await handleTurnOnTwoFactor()
         }
     }
 
@@ -67,12 +63,42 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
 
     // MARK: Private Methods
 
+    /// Handles when the user taps the Change Account Email button. This will
+    /// give the user the ability to go to the website to change their email, and
+    /// will in the process nil the last sync time so the next time the app launches
+    /// it will be able to sync immediately.
+    private func handleChangeAccountEmail() async {
+        do {
+            try await services.stateService.setLastSyncTime(nil)
+            coordinator.showAlert(.changeEmailAlert {
+                self.state.url = self.services.environmentService.changeEmailURL
+            })
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Saves the current time to disk when the user dismisses the notice.
     private func handleDismiss() async {
         do {
             let currentTime = services.timeProvider.presentTime
             try await services.stateService.setTwoFactorNoticeDisplayState(state: .seen(currentTime))
             coordinator.navigate(to: .dismiss)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Handles when the user taps the Turn On Two-Step button. This will
+    /// give the user the ability to go to the website to change their email, and
+    /// will in the process nil the last sync time so the next time the app launches
+    /// it will be able to sync immediately.
+    private func handleTurnOnTwoFactor() async {
+        do {
+            try await services.stateService.setLastSyncTime(nil)
+            coordinator.showAlert(.turnOnTwoFactorLoginAlert {
+                self.state.url = self.services.environmentService.setUpTwoFactorURL
+            })
         } catch {
             services.errorReporter.log(error: error)
         }

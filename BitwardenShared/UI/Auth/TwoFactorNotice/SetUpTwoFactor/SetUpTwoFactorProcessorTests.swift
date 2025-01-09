@@ -37,6 +37,10 @@ class SetUpTwoFactorProcessorTests: BitwardenTestCase {
             services: services,
             state: SetUpTwoFactorState(allowDelay: true, emailAddress: "person@example.com")
         )
+
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.lastSyncTimeByUserId["1"] = timeProvider.presentTime
     }
 
     override func tearDown() {
@@ -56,8 +60,6 @@ class SetUpTwoFactorProcessorTests: BitwardenTestCase {
     /// then dismisses
     @MainActor
     func test_perform_remindMeLaterTapped() async {
-        let account = Account.fixture()
-        stateService.activeAccount = account
         await subject.perform(.remindMeLaterTapped)
         XCTAssertEqual(
             stateService.twoFactorNoticeDisplayState["1"],
@@ -69,8 +71,6 @@ class SetUpTwoFactorProcessorTests: BitwardenTestCase {
     /// `.perform(_:)` with `.remindMeLaterTapped` handles errors
     @MainActor
     func test_perform_remindMeLaterTapped_error() async {
-        let account = Account.fixture()
-        stateService.activeAccount = account
         stateService.setTwoFactorNoticeDisplayStateError = BitwardenTestError.example
         await subject.perform(.remindMeLaterTapped)
         XCTAssertEqual(
@@ -86,9 +86,11 @@ class SetUpTwoFactorProcessorTests: BitwardenTestCase {
         let url = URL("https://www.example.com")!
         environmentService.changeEmailURL = url
         await subject.perform(.changeAccountEmailTapped)
+        waitFor(!coordinator.alertShown.isEmpty)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, url)
+        XCTAssertNil(stateService.lastSyncTimeByUserId["1"])
     }
 
     /// `receive(_:)` with `.clearURL` clears the URL in the state.
@@ -106,8 +108,10 @@ class SetUpTwoFactorProcessorTests: BitwardenTestCase {
         let url = URL("https://www.example.com")!
         environmentService.setUpTwoFactorURL = url
         await subject.perform(.turnOnTwoFactorTapped)
+        waitFor(!coordinator.alertShown.isEmpty)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, url)
+        XCTAssertNil(stateService.lastSyncTimeByUserId["1"])
     }
 }
