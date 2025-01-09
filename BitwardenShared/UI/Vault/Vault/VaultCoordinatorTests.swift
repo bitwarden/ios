@@ -112,8 +112,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(
             module.vaultItemCoordinator.routes.last,
             .addItem(
-                hasPremium: true,
-                shouldShowLearnNewLoginActionCard: false
+                hasPremium: true
             )
         )
     }
@@ -136,8 +135,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(
             module.vaultItemCoordinator.routes.last,
             .addItem(
-                hasPremium: true,
-                shouldShowLearnNewLoginActionCard: true
+                hasPremium: true
             )
         )
     }

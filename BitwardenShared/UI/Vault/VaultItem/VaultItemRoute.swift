@@ -12,14 +12,12 @@ enum VaultItemRoute: Equatable, Hashable {
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
     ///   - hasPremium: Whether the user has premium.
     ///   - newCipherOptions: Optional options for creating a new cipher.
-    ///   - shouldShowLearnNewLoginActionCard: Whether the user should be shown the learn new login action card.
     ///
     case addItem(
         allowTypeSelection: Bool = true,
         group: VaultListGroup? = nil,
         hasPremium: Bool = false,
-        newCipherOptions: NewCipherOptions? = nil,
-        shouldShowLearnNewLoginActionCard: Bool
+        newCipherOptions: NewCipherOptions? = nil
     )
 
     /// A route to view the attachments.

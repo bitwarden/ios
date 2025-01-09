@@ -99,6 +99,44 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `init` method should set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the `learnNewLoginActionCardStatus` is `incomplete`.
+    @MainActor
+    func test_initIsLearnNewLoginActionCardEligible() {
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        waitFor(subject.state.isLearnNewLoginActionCardEligible)
+    }
+
     /// `receive(_:)` with `.customField(.booleanFieldChanged)` changes
     /// the boolean value of the custom field.
     @MainActor
@@ -802,9 +840,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// and updates `.learnNewLoginActionCardShown` via  stateService.
     @MainActor
     func test_perform_dismissNewLoginActionCard() async {
-        subject.state.showLearnNewLoginActionCard = true
+        subject.state.isLearnNewLoginActionCardEligible = true
         await subject.perform(.dismissNewLoginActionCard)
-        XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
         XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
     }
 
@@ -1416,9 +1454,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.showLearnNewLoginGuidedTour` sets `showLearnNewLoginActionCard` to `false`.
     @MainActor
     func test_perform_showLearnNewLoginGuidedTour() async {
-        subject.state.showLearnNewLoginActionCard = true
+        subject.state.isLearnNewLoginActionCardEligible = true
         await subject.perform(.showLearnNewLoginGuidedTour)
-        XCTAssertFalse(subject.state.showLearnNewLoginActionCard)
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
         XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
     }
 

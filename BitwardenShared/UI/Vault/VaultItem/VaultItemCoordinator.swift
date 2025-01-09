@@ -83,16 +83,14 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             allowTypeSelection,
             group,
             hasPremium,
-            newCipherOptions,
-            shouldShowNewLoginActionCard
+            newCipherOptions
         ):
             showAddItem(
                 for: group,
                 allowTypeSelection: allowTypeSelection,
                 hasPremium: hasPremium,
                 newCipherOptions: newCipherOptions,
-                delegate: context as? CipherItemOperationDelegate,
-                showLearnNewLoginActionCard: shouldShowNewLoginActionCard
+                delegate: context as? CipherItemOperationDelegate
             )
         case let .attachments(cipher):
             showAttachments(for: cipher)
@@ -161,8 +159,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         allowTypeSelection: Bool,
         hasPremium: Bool,
         newCipherOptions: NewCipherOptions?,
-        delegate: CipherItemOperationDelegate?,
-        showLearnNewLoginActionCard: Bool
+        delegate: CipherItemOperationDelegate?
     ) {
         let state = CipherItemState(
             addItem: group.flatMap(CipherType.init) ?? .login,
@@ -173,7 +170,6 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             name: newCipherOptions?.name,
             organizationId: group?.organizationId,
             password: newCipherOptions?.password,
-            showLearnNewLoginActionCard: showLearnNewLoginActionCard,
             totpKeyString: newCipherOptions?.totpKey,
             uri: newCipherOptions?.uri,
             username: newCipherOptions?.username

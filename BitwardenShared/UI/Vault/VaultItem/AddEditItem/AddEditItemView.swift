@@ -68,7 +68,7 @@ struct AddEditItemView: View {
                 if store.state.shouldShowLearnNewLoginActionCard {
                     ActionCard(
                         title: Localizations.learnAboutNewLogins,
-                        message: Localizations.weLlWalkYouThroughTheKeyFeaturesToAddANewLogin,
+                        message: Localizations.weWillWalkYouThroughTheKeyFeaturesToAddANewLogin,
                         actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
                             await store.perform(.showLearnNewLoginGuidedTour)
                         },
@@ -356,8 +356,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: CipherItemState(
-                            hasPremium: true,
-                            showLearnNewLoginActionCard: false
+                            hasPremium: true
                         ).addEditState
                     )
                 )
@@ -386,8 +385,7 @@ struct AddEditItemView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: CipherItemState(
                             addItem: .card,
-                            hasPremium: true,
-                            showLearnNewLoginActionCard: false
+                            hasPremium: true
                         )
                         .addEditState
                     )

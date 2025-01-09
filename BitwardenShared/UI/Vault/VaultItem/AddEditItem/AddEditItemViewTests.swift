@@ -20,8 +20,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         super.setUp()
         processor = MockProcessor(
             state: CipherItemState(
-                hasPremium: true,
-                showLearnNewLoginActionCard: false
+                hasPremium: true
             )
         )
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
@@ -84,8 +83,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_learnNewLoginActionCard_visible_tapDismiss() async throws {
         processor.state = CipherItemState(
-            hasPremium: true,
-            showLearnNewLoginActionCard: true
+            hasPremium: true
         )
         let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
 
@@ -99,8 +97,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_learnNewLoginActionCard_visible_tapGetStarted() async throws {
         processor.state = CipherItemState(
-            hasPremium: true,
-            showLearnNewLoginActionCard: true
+            hasPremium: true
         )
         let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
 
@@ -528,8 +525,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_snapshot_learnNewLoginActionCard() throws {
         processor.state = CipherItemState(
-            hasPremium: false,
-            showLearnNewLoginActionCard: true
+            hasPremium: false
         )
         assertSnapshots(
             of: subject,

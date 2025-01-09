@@ -112,9 +112,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.delegate = delegate
         self.services = services
         super.init(state: state)
-
-        if !state.configuration.isAdding {
-            Task {
+        Task {
+            self.state.isLearnNewLoginActionCardEligible =  await services.stateService
+                .getLearnNewLoginActionCardStatus() == .incomplete
+            if !state.configuration.isAdding {
                 await self.services.rehydrationHelper.addRehydratableTarget(self)
             }
         }
@@ -134,7 +135,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             services.pasteboardService.copy(key)
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
         case .dismissNewLoginActionCard:
-            state.showLearnNewLoginActionCard = false
+            state.isLearnNewLoginActionCardEligible = false
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
         case .fetchCipherOptions:
             await fetchCipherOptions()
@@ -146,7 +147,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await showSoftDeleteConfirmation()
         case .showLearnNewLoginGuidedTour:
             // TODO: PM-16154
-            state.showLearnNewLoginActionCard = false
+            state.isLearnNewLoginActionCardEligible = false
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
         }
     }

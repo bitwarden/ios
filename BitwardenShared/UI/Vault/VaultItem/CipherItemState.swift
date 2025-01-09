@@ -88,8 +88,8 @@ struct CipherItemState: Equatable {
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
 
-    /// If the Learn New Login Action Card should be shown.
-    var showLearnNewLoginActionCard: Bool
+    /// If account is eligible for  Learn New Login Action Card.
+    var isLearnNewLoginActionCardEligible: Bool = false
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState
@@ -151,9 +151,9 @@ struct CipherItemState: Equatable {
         }
     }
 
-      /// The flag indicating if we should show the learn new login action card.
+    /// The flag indicating if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool {
-        showLearnNewLoginActionCard && configuration == .add && type == .login
+        isLearnNewLoginActionCardEligible && configuration == .add && type == .login
     }
 
     /// The view state of the item.
@@ -183,7 +183,6 @@ struct CipherItemState: Equatable {
         name: String,
         notes: String,
         organizationId: String?,
-        showLearnNewLoginActionCard: Bool = false,
         sshKeyState: SSHKeyItemState,
         type: CipherType,
         updatedDate: Date
@@ -206,7 +205,6 @@ struct CipherItemState: Equatable {
         self.organizationId = organizationId
         ownershipOptions = []
         showMasterPasswordReprompt = true
-        self.showLearnNewLoginActionCard = showLearnNewLoginActionCard
         self.sshKeyState = sshKeyState
         self.type = type
         self.updatedDate = updatedDate
@@ -223,7 +221,6 @@ struct CipherItemState: Equatable {
         name: String? = nil,
         organizationId: String? = nil,
         password: String? = nil,
-        showLearnNewLoginActionCard: Bool = false,
         totpKeyString: String? = nil,
         uri: String? = nil,
         username: String? = nil
@@ -250,7 +247,6 @@ struct CipherItemState: Equatable {
             name: name ?? uri.flatMap(URL.init)?.host ?? "",
             notes: "",
             organizationId: organizationId,
-            showLearnNewLoginActionCard: showLearnNewLoginActionCard,
             sshKeyState: .init(),
             type: type,
             updatedDate: .now
@@ -274,7 +270,6 @@ struct CipherItemState: Equatable {
             name: "\(cipherView.name) - \(Localizations.clone)",
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,
-            showLearnNewLoginActionCard: false,
             sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
@@ -306,7 +301,6 @@ struct CipherItemState: Equatable {
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,
-            showLearnNewLoginActionCard: false,
             sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate

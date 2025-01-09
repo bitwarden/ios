@@ -208,7 +208,7 @@
 "Search" = "Search";
 "BitwardenAutofillServiceSearch" = "You are searching for an autofill item for \"%1$@\".";
 "LearnAboutNewLogins" = "Learn about new logins";
-"WeLlWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Learn about organizations";
 "CannotOpenApp" = "Cannot open the app \"%1$@\".";
 "AuthenticatorAppTitle" = "Authenticator app";
@@ -1057,6 +1057,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
+"Next" = "Next";
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
