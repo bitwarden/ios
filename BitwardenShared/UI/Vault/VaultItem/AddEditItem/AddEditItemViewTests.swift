@@ -85,6 +85,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state = CipherItemState(
             hasPremium: true
         )
+        processor.state.isLearnNewLoginActionCardEligible = true
         let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
 
         let button = try actionCard.find(asyncButton: Localizations.dismiss)
@@ -99,6 +100,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state = CipherItemState(
             hasPremium: true
         )
+        processor.state.isLearnNewLoginActionCardEligible = true
         let actionCard = try subject.inspect().find(actionCard: Localizations.learnAboutNewLogins)
 
         let button = try actionCard.find(asyncButton: Localizations.getStarted)
@@ -527,6 +529,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state = CipherItemState(
             hasPremium: false
         )
+        processor.state.isLearnNewLoginActionCardEligible = true
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark]
