@@ -93,6 +93,18 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.faceID), .pin])
     }
 
+    /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with generic biometrics.
+    @MainActor
+    func test_perform_loadData_biometrics() async {
+        let status = BiometricsUnlockStatus.available(.unknown, enabled: false)
+        biometricsRepository.biometricUnlockStatus = .success(status)
+
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(subject.state.biometricsStatus, status)
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.unknown), .pin])
+    }
+
     /// `perform(_:)` with `.loadData` logs the error and shows an alert if one occurs.
     @MainActor
     func test_perform_loadData_error() async {
@@ -117,18 +129,6 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.unlockMethods, [.pin])
     }
 
-    /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Touch ID.
-    @MainActor
-    func test_perform_loadData_touchID() async {
-        let status = BiometricsUnlockStatus.available(.touchID, enabled: false)
-        biometricsRepository.biometricUnlockStatus = .success(status)
-
-        await subject.perform(.loadData)
-
-        XCTAssertEqual(subject.state.biometricsStatus, status)
-        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.touchID), .pin])
-    }
-
     /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Optic ID.
     @MainActor
     func test_perform_loadData_opticID() async {
@@ -141,16 +141,16 @@ class VaultUnlockSetupProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.opticID), .pin])
     }
 
-    /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with generic biometrics.
+    /// `perform(_:)` with `.loadData` fetches the biometrics unlock status for a device with Touch ID.
     @MainActor
-    func test_perform_loadData_biometrics() async {
-        let status = BiometricsUnlockStatus.available(.unknown, enabled: false)
+    func test_perform_loadData_touchID() async {
+        let status = BiometricsUnlockStatus.available(.touchID, enabled: false)
         biometricsRepository.biometricUnlockStatus = .success(status)
 
         await subject.perform(.loadData)
 
         XCTAssertEqual(subject.state.biometricsStatus, status)
-        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.unknown), .pin])
+        XCTAssertEqual(subject.state.unlockMethods, [.biometrics(.touchID), .pin])
     }
 
     /// `perform(_:)` with `.toggleUnlockMethod` disables biometrics unlock and updates the state.

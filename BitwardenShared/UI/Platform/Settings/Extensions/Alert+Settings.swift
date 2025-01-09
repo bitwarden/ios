@@ -249,10 +249,10 @@ extension Alert {
         let message = switch biometricType {
         case .faceID:
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID)
-        case .touchID:
-            Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID)
         case .opticID:
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.opticID)
+        case .touchID:
+            Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID)
         case .unknown:
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.unknownBiometrics)
         case nil:
