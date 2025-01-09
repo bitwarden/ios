@@ -70,7 +70,7 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
         )
     }
 
-    /// The set up two factor view renders correctly when delay is allowed
+    /// The set up two factor view renders correctly when delay is not allowed
     @MainActor
     func test_snapshot_setUpTwoFactorView_allowDelay_false() {
         processor.state.allowDelay = false
