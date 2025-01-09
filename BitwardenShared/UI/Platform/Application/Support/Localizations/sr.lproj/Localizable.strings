@@ -1060,5 +1060,8 @@
 "CopyPrivateKey" = "Копирај приватни кључ";
 "CopyFingerprint" = "Копирати отисак";
 "SSHKeys" = "SSH кључеве";
+"NothingAvailableToAutofill" = "Nothing available to autofill";
+"FailedToGenerateVerificationCode" = "Failed to generate verification code";
+"FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";

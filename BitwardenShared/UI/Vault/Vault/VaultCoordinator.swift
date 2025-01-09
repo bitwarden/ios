@@ -58,7 +58,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = GeneratorModule
+        & ImportCXPModule
         & ImportLoginsModule
+        & TwoFactorNoticeModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -191,12 +193,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss()
         case let .group(group, filter):
             showGroup(group, filter: filter)
+        case let .importCXP(cxpRoute):
+            showImportCXP(route: cxpRoute)
         case .importLogins:
             showImportLogins()
         case .list:
             showList()
         case let .loginRequest(loginRequest):
             delegate?.presentLoginRequest(loginRequest)
+        case let .twoFactorNotice(allowDelay, emailAddress):
+            showTwoFactorNotice(allowDelay: allowDelay, emailAddress: emailAddress)
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
         case let .viewItem(id):
@@ -295,6 +301,21 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         )
     }
 
+    /// Shows the Credential Exchange import route (not in a tab). This is used when another app
+    /// exporting credentials with Credential Exchange protocol chooses our app as a provider to import credentials.
+    ///
+    /// - Parameter route: The `ImportCXPRoute` to show.
+    ///
+    private func showImportCXP(route: ImportCXPRoute) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeImportCXPCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        coordinator.navigate(to: route)
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the import login items screen.
     ///
     private func showImportLogins() {
@@ -318,17 +339,47 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             state: VaultListState(
                 iconBaseURL: services.environmentService.iconsURL
             ),
+            twoFactorNoticeHelper: DefaultTwoFactorNoticeHelper(
+                coordinator: asAnyCoordinator(),
+                services: services
+            ),
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
                 services: services
             )
         )
         let store = Store(processor: processor)
+        let windowScene = stackNavigator?.rootViewController?.view.window?.windowScene
         let view = VaultListView(
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
+            windowScene: windowScene
         )
+        if windowScene == nil {
+            services.errorReporter.log(error: WindowSceneError.nullWindowScene)
+        }
         stackNavigator?.replace(view, animated: false)
+    }
+
+    /// Shows the notice that the user does not have two-factor set up.
+    ///
+    /// - Parameters:
+    ///   - allowDelay: Whether or not the user can temporarily dismiss the notice.
+    ///   - emailAddress: The email address of the user.
+    private func showTwoFactorNotice(allowDelay: Bool, emailAddress: String) {
+        let navigationController = UINavigationController()
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithTransparentBackground()
+        navigationController.navigationBar.scrollEdgeAppearance = appearance
+
+        let coordinator = module.makeTwoFactorNoticeCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(
+            to: .emailAccess(allowDelay: allowDelay, emailAddress: emailAddress),
+            context: delegate
+        )
+
+        stackNavigator?.present(navigationController, overFullscreen: true)
     }
 
     /// Presents a vault item coordinator, which will navigate to the provided route.

@@ -75,7 +75,7 @@ class LandingViewTests: BitwardenTestCase {
     @MainActor
     func test_regionButton_tap() throws {
         let button = try subject.inspect().find(
-            button: "\(Localizations.loggingInOn): \(RegionType.unitedStates.baseUrlDescription)"
+            button: "\(Localizations.loggingInOn): \(RegionType.unitedStates.baseURLDescription)"
         )
         try button.tap()
         waitFor(processor.effects.last != nil)

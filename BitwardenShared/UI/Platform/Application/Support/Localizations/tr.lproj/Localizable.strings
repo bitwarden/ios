@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Özel anahtarı kopyala";
 "CopyFingerprint" = "Parmak izini kopyala";
 "SSHKeys" = "SSH anahtarları";
+"NothingAvailableToAutofill" = "Otomatik doldurulabilecek bir şey tok";
+"FailedToGenerateVerificationCode" = "Doğrulama kodu oluşturulamadı";
+"FailedToAutofillItem" = "%1$@ kaydı otomatik doldurulamadı";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";

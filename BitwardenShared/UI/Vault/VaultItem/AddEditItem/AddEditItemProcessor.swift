@@ -543,12 +543,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// - Parameter type: The `GeneratorType` that is being overwritten.
     ///
     private func presentReplacementAlert(for type: GeneratorType) {
-        let title: String
-        switch type {
-        case .password:
-            title = Localizations.passwordOverrideAlert
+        let title = switch type {
+        case .passphrase, .password:
+            Localizations.passwordOverrideAlert
         case .username:
-            title = Localizations.areYouSureYouWantToOverwriteTheCurrentUsername
+            Localizations.areYouSureYouWantToOverwriteTheCurrentUsername
         }
 
         let alert = Alert(
@@ -731,7 +730,8 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
 
     func didCompleteGenerator(for type: GeneratorType, with value: String) {
         switch type {
-        case .password:
+        case .passphrase,
+             .password:
             state.loginState.password = value
         case .username:
             state.loginState.username = value

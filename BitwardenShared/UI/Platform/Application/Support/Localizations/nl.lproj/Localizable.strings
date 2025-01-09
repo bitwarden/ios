@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Privésleutel kopiëren";
 "CopyFingerprint" = "Vingerafdruk kopiëren";
 "SSHKeys" = "SSH-sleutels";
+"NothingAvailableToAutofill" = "Niets beschikbaar voor automatisch invullen";
+"FailedToGenerateVerificationCode" = "Genereren van verificatiecode mislukt";
+"FailedToAutofillItem" = "Automatisch invullen van item %1$@ mislukt";
 "ExportingFailed" = "Exporteren mislukt";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Je moet mogelijk apparaattoegangscode of biometrie inschakelen.";

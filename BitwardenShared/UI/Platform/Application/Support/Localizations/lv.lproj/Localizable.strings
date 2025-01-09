@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Ievietot starpliktuvē privāto atslēgu";
 "CopyFingerprint" = "Ievietot starpliktuvē pirkstu nospiedumu";
 "SSHKeys" = "SSH atslēgas";
+"NothingAvailableToAutofill" = "Nav piejams nekas automātiski aizpildāms";
+"FailedToGenerateVerificationCode" = "Neizdevās izveidot apliecināšanas kodu";
+"FailedToAutofillItem" = "Neizdevās automātiski aizpildīt vienumu %1$@";
 "ExportingFailed" = "Izgūšana neizdevās";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Var būt nepieciešams iespējot ierīces piekļuves kodu vai biometriju.";

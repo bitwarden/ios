@@ -1059,5 +1059,8 @@
 "CopyPrivateKey" = "Private açarı kopyala";
 "CopyFingerprint" = "Barmaq izini kopyala";
 "SSHKeys" = "SSH açarları";
+"NothingAvailableToAutofill" = "Avto-doldurmaq üçün istifadə ediləcək heç nə yoxdur";
+"FailedToGenerateVerificationCode" = "Doğrulama kodunu yaratma uğursuz oldu";
+"FailedToAutofillItem" = "%1$@ elementini avto-doldurmaq uğursuz oldu";
 "ExportingFailed" = "Xaricə köçürmə uğursuzdur";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Cihaz parolunu və ya biometriklərini fəallaşdırmaq lazım gələ bilər.";
