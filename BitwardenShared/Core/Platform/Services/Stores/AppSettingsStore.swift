@@ -43,7 +43,7 @@ protocol AppSettingsStore: AnyObject {
     var migrationVersion: Int { get set }
 
     /// The environment URLs used prior to user authentication.
-    var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
+    var preAuthEnvironmentURLs: EnvironmentURLData? { get set }
 
     /// The server config used prior to user authentication.
     var preAuthServerConfig: ServerConfig? { get set }
@@ -238,7 +238,7 @@ protocol AppSettingsStore: AnyObject {
     ///  - email: The email used to start the account creation.
     /// - Returns: The environment URLs used prior to start the account creation.
     ///
-    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData?
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData?
 
     /// The server configuration.
     ///
@@ -418,9 +418,9 @@ protocol AppSettingsStore: AnyObject {
     ///
     /// - Parameters:
     ///  - email: The user's email address.
-    ///  - environmentUrlData: The environment data to be saved.
+    ///  - environmentURLData: The environment data to be saved.
     ///
-    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String)
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String)
 
     /// Sets the server config.
     ///
@@ -719,8 +719,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
-        case preAuthEnvironmentUrls
-        case accountCreationEnvironmentUrls(email: String)
+        case preAuthEnvironmentURLs
+        case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
@@ -803,9 +803,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "passwordGenerationOptions_\(userId)"
             case let .pinProtectedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
-            case .preAuthEnvironmentUrls:
+            case .preAuthEnvironmentURLs:
                 key = "preAuthEnvironmentUrls"
-            case let .accountCreationEnvironmentUrls(email):
+            case let .accountCreationEnvironmentURLs(email):
                 key = "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 key = "preAuthServerConfig"
@@ -891,9 +891,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .migrationVersion) }
     }
 
-    var preAuthEnvironmentUrls: EnvironmentUrlData? {
-        get { fetch(for: .preAuthEnvironmentUrls) }
-        set { store(newValue, for: .preAuthEnvironmentUrls) }
+    var preAuthEnvironmentURLs: EnvironmentURLData? {
+        get { fetch(for: .preAuthEnvironmentURLs) }
+        set { store(newValue, for: .preAuthEnvironmentURLs) }
     }
 
     var preAuthServerConfig: ServerConfig? {
@@ -1020,9 +1020,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
-    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData? {
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
-            for: .accountCreationEnvironmentUrls(email: email)
+            for: .accountCreationEnvironmentURLs(email: email)
         )
     }
 
@@ -1114,8 +1114,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
-    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String) {
-        store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
+        store(environmentURLData, for: .accountCreationEnvironmentURLs(email: email))
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
