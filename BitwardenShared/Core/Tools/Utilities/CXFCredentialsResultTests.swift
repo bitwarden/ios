@@ -2,9 +2,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportedCredentialsResultTests
+// MARK: - CXFCredentialsResultTests
 
-class ImportedCredentialsResultTests: BitwardenTestCase {
+class CXFCredentialsResultTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: CXFCredentialsResult!

@@ -54,7 +54,7 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator, HasStackNavigator {
+final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Module = GeneratorModule
@@ -443,4 +443,4 @@ extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
 
 // MARK: - UserVerificationDelegate
 
-extension VaultCoordinator: UserVerificationDelegate {}
+extension VaultCoordinator: UserVerificationDelegate {} // swiftlint:disable:this file_length

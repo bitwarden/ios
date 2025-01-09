@@ -93,12 +93,8 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
 
     @available(iOS 18.2, *)
     func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws {
-        let exportManager = ASCredentialExportManager(
-            presentationAnchor: presentationAnchor()
-        )
-        let exportedData = ASExportedCredentialData(accounts: [data])
-
-        try await exportManager.exportCredentials(exportedData)
+        try await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
+            .exportCredentials(ASExportedCredentialData(accounts: [data]))
     }
 
     #endif

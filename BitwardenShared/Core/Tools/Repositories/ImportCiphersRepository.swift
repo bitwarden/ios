@@ -70,7 +70,7 @@ class DefaultImportCiphersRepository {
 
 extension DefaultImportCiphersRepository: ImportCiphersRepository {
     @available(iOS 18.2, *)
-    func importCiphers( // swiftlint:disable:this function_body_length
+    func importCiphers(
         credentialImportToken: UUID,
         onProgress: @MainActor (Double) -> Void
     ) async throws -> [CXFCredentialsResult] {
