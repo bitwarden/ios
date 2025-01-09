@@ -45,23 +45,23 @@ class SetUpTwoFactorProcessor: StateProcessor<SetUpTwoFactorState, SetUpTwoFacto
 
     override func perform(_ effect: SetUpTwoFactorEffect) async {
         switch effect {
+        case .changeAccountEmailTapped:
+            coordinator.showAlert(.changeEmailAlert {
+                self.state.url = self.services.environmentService.changeEmailURL
+            })
         case .remindMeLaterTapped:
             await handleDismiss()
+        case .turnOnTwoFactorTapped:
+            coordinator.showAlert(.turnOnTwoFactorLoginAlert {
+                self.state.url = self.services.environmentService.setUpTwoFactorURL
+            })
         }
     }
 
     override func receive(_ action: SetUpTwoFactorAction) {
         switch action {
-        case .changeAccountEmailTapped:
-            coordinator.showAlert(.changeEmailAlert {
-                self.state.url = self.services.environmentService.changeEmailURL
-            })
         case .clearURL:
             state.url = nil
-        case .turnOnTwoFactorTapped:
-            coordinator.showAlert(.turnOnTwoFactorLoginAlert {
-                self.state.url = self.services.environmentService.setUpTwoFactorURL
-            })
         }
     }
 

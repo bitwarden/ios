@@ -85,7 +85,7 @@ class SetUpTwoFactorProcessorTests: BitwardenTestCase {
     func test_receive_changeAccountEmailTapped() async throws {
         let url = URL("https://www.example.com")!
         environmentService.changeEmailURL = url
-        subject.receive(.changeAccountEmailTapped)
+        await subject.perform(.changeAccountEmailTapped)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, url)
@@ -105,7 +105,7 @@ class SetUpTwoFactorProcessorTests: BitwardenTestCase {
     func test_receive_turnOnTwoFactorTapped() async throws {
         let url = URL("https://www.example.com")!
         environmentService.setUpTwoFactorURL = url
-        subject.receive(.turnOnTwoFactorTapped)
+        await subject.perform(.turnOnTwoFactorTapped)
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         try await alert.tapAction(title: Localizations.continue)
         XCTAssertEqual(subject.state.url, url)
