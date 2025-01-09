@@ -42,6 +42,7 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
         & HasErrorReporter
         & HasPolicyService
         & HasStateService
+        & HasSyncService
         & HasTimeProvider
 
     // MARK: Private Properties
@@ -74,20 +75,23 @@ class DefaultTwoFactorNoticeHelper: TwoFactorNoticeHelper {
     /// and displays the notice if necessary
     ///
     func maybeShowTwoFactorNotice() async {
-        let temporary = await services.configService.getFeatureFlag(
-            .newDeviceVerificationTemporaryDismiss,
-            defaultValue: false
-        )
-        let permanent = await services.configService.getFeatureFlag(
-            .newDeviceVerificationPermanentDismiss,
-            defaultValue: false
-        )
-        let ignoreEnvironmentCheck = await services.configService.getFeatureFlag(
-            .ignore2FANoticeEnvironmentCheck,
-            defaultValue: false
-        )
-        guard temporary || permanent else { return }
         do {
+            try await services.syncService.fetchSync(forceSync: false)
+
+            let temporary = await services.configService.getFeatureFlag(
+                .newDeviceVerificationTemporaryDismiss,
+                defaultValue: false
+            )
+            let permanent = await services.configService.getFeatureFlag(
+                .newDeviceVerificationPermanentDismiss,
+                defaultValue: false
+            )
+            let ignoreEnvironmentCheck = await services.configService.getFeatureFlag(
+                .ignore2FANoticeEnvironmentCheck,
+                defaultValue: false
+            )
+            guard temporary || permanent else { return }
+
             guard services.environmentService.region != .selfHosted || ignoreEnvironmentCheck else {
                 return
             }
