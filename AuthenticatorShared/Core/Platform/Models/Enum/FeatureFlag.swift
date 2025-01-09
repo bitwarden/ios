@@ -62,13 +62,13 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// Whether this feature can be enabled remotely.
     var isRemotelyConfigured: Bool {
         switch self {
-        case .enablePasswordManagerSync,
-             .testLocalFeatureFlag,
+        case .testLocalFeatureFlag,
              .testLocalInitialBoolFlag,
              .testLocalInitialIntFlag,
              .testLocalInitialStringFlag:
             false
-        case .testRemoteFeatureFlag,
+        case .enablePasswordManagerSync,
+             .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,
              .testRemoteInitialStringFlag:

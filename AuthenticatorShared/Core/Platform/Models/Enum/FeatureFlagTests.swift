@@ -12,6 +12,20 @@ final class FeatureFlagTests: AuthenticatorTestCase {
         XCTAssertEqual(filtered, [])
     }
 
+    /// `isRemotelyConfigured` returns the correct value for each flag.
+    func test_isRemotelyConfigured() {
+        XCTAssertTrue(FeatureFlag.enablePasswordManagerSync.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.testRemoteFeatureFlag.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.testRemoteInitialBoolFlag.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.testRemoteInitialIntFlag.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.testRemoteInitialStringFlag.isRemotelyConfigured)
+
+        XCTAssertFalse(FeatureFlag.testLocalFeatureFlag.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.testLocalInitialBoolFlag.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.testLocalInitialIntFlag.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.testLocalInitialStringFlag.isRemotelyConfigured)
+    }
+
     /// `name` formats the raw value of a feature flag
     func test_name() {
         XCTAssertEqual(FeatureFlag.testLocalFeatureFlag.name, "Test Local Feature Flag")
