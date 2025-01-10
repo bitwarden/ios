@@ -73,7 +73,7 @@ struct VaultListItemRowView: View {
                                     .accessibilityIdentifier("CipherSubTitleLabel")
                             }
                         }
-                        .accessibilityElement(children: .combine)
+                        
 
                         Spacer()
 
@@ -111,6 +111,8 @@ struct VaultListItemRowView: View {
                     .padding(.leading, 22 + 16 + 16)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(store.state.item.vaultItemAccessibilityId)
     }
 
     // MARK: - Private Views

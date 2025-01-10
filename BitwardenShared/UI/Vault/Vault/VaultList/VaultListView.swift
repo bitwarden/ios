@@ -141,7 +141,6 @@ private struct SearchableVaultListView: View {
                             )
                             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         }
-                        .accessibilityIdentifier("CipherCell")
                     }
                 }
             }
@@ -265,7 +264,6 @@ private struct SearchableVaultListView: View {
             ),
             timeProvider: timeProvider
         )
-        .accessibilityIdentifier("CipherCell")
     }
 }
 
