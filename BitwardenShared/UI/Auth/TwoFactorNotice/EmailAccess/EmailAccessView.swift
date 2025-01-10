@@ -28,7 +28,7 @@ struct EmailAccessView: View {
                     store.send(.learnMoreTapped)
                 } label: {
                     Text(Localizations.learnMore)
-                        .styleGuide(.subheadline)
+                        .styleGuide(.callout, weight: .semibold)
                         .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                 }
             )
