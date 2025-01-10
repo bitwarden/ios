@@ -17,6 +17,9 @@ struct SendListState: Sendable {
     /// A flag indicating if the info button should be hidden.
     var isInfoButtonHidden: Bool { type != nil }
 
+    /// The loading state of the send list screen.
+    var loadingState: LoadingState<[SendListSection]> = .loading(nil)
+
     /// The navigation title for this screen.
     var navigationTitle: String { type?.localizedName ?? Localizations.sends }
 
@@ -25,9 +28,6 @@ struct SendListState: Sendable {
 
     /// An array of results matching the ``searchText``.
     var searchResults: [SendListItem] = []
-
-    /// The sections displayed in the send list.
-    var sections: [SendListSection] = []
 
     /// A toast message to show in the view.
     var toast: Toast?
