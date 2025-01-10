@@ -5,10 +5,4 @@
 enum SetUpTwoFactorAction: Equatable, Sendable {
     /// The url has been opened so clear the value in the state.
     case clearURL
-
-    /// The user tapped the button to turn on two-factor authentication.
-    case turnOnTwoFactorTapped
-
-    /// The user tapped the button to change email.
-    case changeAccountEmailTapped
 }
