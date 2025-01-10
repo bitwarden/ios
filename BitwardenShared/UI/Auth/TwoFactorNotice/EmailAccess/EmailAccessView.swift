@@ -51,6 +51,7 @@ struct EmailAccessView: View {
             openURL(url)
             store.send(.clearURL)
         }
+        .navigationBarHidden(true)
     }
 
     private var toggleCard: some View {

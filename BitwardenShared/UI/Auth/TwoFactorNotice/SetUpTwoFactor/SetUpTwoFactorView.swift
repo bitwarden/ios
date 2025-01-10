@@ -66,6 +66,9 @@ struct SetUpTwoFactorView: View {
             openURL(url)
             store.send(.clearURL)
         }
+        .navigationBarHidden(false)
+        .navigationBarTitle(Localizations.twoStepLogin)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
