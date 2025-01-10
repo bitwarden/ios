@@ -1,9 +1,9 @@
-/// Represents the result of imported credentials of one type.
-struct ImportedCredentialsResult: Equatable, Sendable {
+/// Represents the result of imported credentials or credentials to export of one type.
+struct CXFCredentialsResult: Equatable, Sendable {
     // MARK: Types
 
-    /// The available imported credential type.
-    enum ImportedCredentialType: String, Equatable, Sendable {
+    /// The available credential type to be used in Credential Exchange.
+    enum CXFCredentialType: String, Equatable, Sendable {
         case card = "Card"
         case identity = "Identity"
         case passkey = "Passkey"
@@ -14,7 +14,7 @@ struct ImportedCredentialsResult: Equatable, Sendable {
 
     // MARK: Properties
 
-    /// The number of credentials imported for the type
+    /// The number of credentials for the type
     let count: Int
 
     /// The localized type in plural.
@@ -35,19 +35,19 @@ struct ImportedCredentialsResult: Equatable, Sendable {
         }
     }
 
-    /// Whether the result has no imported credentials for the type.
+    /// Whether the result has no credentials for the type.
     var isEmpty: Bool {
         count == 0 // swiftlint:disable:this empty_count
     }
 
-    /// The credential type imported.
-    let type: ImportedCredentialType
+    /// The credential type.
+    let type: CXFCredentialType
 }
 
 // MARK: - Identifiable
 
-extension ImportedCredentialsResult: Identifiable {
-    public var id: ImportedCredentialType {
+extension CXFCredentialsResult: Identifiable {
+    public var id: CXFCredentialType {
         type
     }
 }

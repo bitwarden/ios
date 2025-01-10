@@ -11,6 +11,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
     var clientService: MockClientService!
     var credentialManagerFactory: MockCredentialManagerFactory!
+    var cxfCredentialsResultBuilder: MockCXFCredentialsResultBuilder!
     var importCiphersService: MockImportCiphersService!
     var syncService: MockSyncService!
     var subject: ImportCiphersRepository!
@@ -22,11 +23,13 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         clientService = MockClientService()
         credentialManagerFactory = MockCredentialManagerFactory()
+        cxfCredentialsResultBuilder = MockCXFCredentialsResultBuilder()
         importCiphersService = MockImportCiphersService()
         syncService = MockSyncService()
         subject = DefaultImportCiphersRepository(
             clientService: clientService,
             credentialManagerFactory: credentialManagerFactory,
+            cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
             importCiphersService: importCiphersService,
             syncService: syncService
         )
@@ -37,6 +40,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         clientService = nil
         credentialManagerFactory = nil
+        cxfCredentialsResultBuilder = nil
         importCiphersService = nil
         subject = nil
         syncService = nil
@@ -73,17 +77,19 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             .fixture(id: "7", type: .identity),
             .fixture(id: "8", type: .secureNote),
             .fixture(id: "9", type: .secureNote),
-            .fixture(id: "10", type: .sshKey),
         ])
 
         let expectedResults = [
-            ImportedCredentialsResult(count: 2, type: .password),
-            ImportedCredentialsResult(count: 1, type: .passkey),
-            ImportedCredentialsResult(count: 3, type: .card),
-            ImportedCredentialsResult(count: 1, type: .identity),
-            ImportedCredentialsResult(count: 2, type: .secureNote),
-            ImportedCredentialsResult(count: 1, type: .sshKey),
+            CXFCredentialsResult(count: 2, type: .password),
+            CXFCredentialsResult(count: 1, type: .passkey),
+            CXFCredentialsResult(count: 3, type: .card),
+            CXFCredentialsResult(count: 1, type: .identity),
+            CXFCredentialsResult(count: 2, type: .secureNote),
         ]
+
+        var cxfBuildResult = expectedResults
+        cxfBuildResult.append(CXFCredentialsResult(count: 0, type: .sshKey))
+        cxfCredentialsResultBuilder.buildResult = cxfBuildResult
 
         var progressReports: [Double] = []
         let result = try await subject.importCiphers(
@@ -95,7 +101,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         XCTAssertNotNil(clientService.mockExporters.importCxfPayload)
         XCTAssertTrue(importCiphersService.importCiphersCalled)
-        XCTAssertEqual(importCiphersService.importCiphersCiphers?.count, 10)
+        XCTAssertEqual(importCiphersService.importCiphersCiphers?.count, 9)
         XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(syncService.fetchSyncForceSync == true)
         XCTAssertEqual(progressReports, [0.3, 0.8, 1.0])

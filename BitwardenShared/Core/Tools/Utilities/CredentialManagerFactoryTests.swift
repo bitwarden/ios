@@ -28,6 +28,18 @@ class CredentialManagerFactoryTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `createExportManager(presentationAnchor:)` creates an instance of the credential export manager.
+    @MainActor
+    func test_createExportManager() throws {
+        guard #available(iOS 18.2, *) else {
+            throw XCTSkip("iOS 18.2 is required to run this test.")
+        }
+        let manager = subject.createExportManager(presentationAnchor: UIWindow())
+
+        XCTAssertTrue(manager is ASCredentialExportManager)
+    }
+
+    /// `createImportManager()` creates an instance of the credential import manager.
     func test_createImportManager() throws {
         guard #available(iOS 18.2, *) else {
             throw XCTSkip("iOS 18.2 is required to run this test.")

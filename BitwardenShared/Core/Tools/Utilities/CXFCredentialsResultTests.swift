@@ -2,12 +2,12 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportedCredentialsResultTests
+// MARK: - CXFCredentialsResultTests
 
-class ImportedCredentialsResultTests: BitwardenTestCase {
+class CXFCredentialsResultTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: ImportedCredentialsResult!
+    var subject: CXFCredentialsResult!
 
     // MARK: Setup & Teardown
 
@@ -21,31 +21,31 @@ class ImportedCredentialsResultTests: BitwardenTestCase {
 
     /// `localizedTypePlural` returns the localized string for the type in plural.
     func test_localizedTypePlural() {
-        subject = ImportedCredentialsResult(count: 1, type: .card)
+        subject = CXFCredentialsResult(count: 1, type: .card)
         XCTAssertEqual(subject.localizedTypePlural, Localizations.cards)
 
-        subject = ImportedCredentialsResult(count: 1, type: .identity)
+        subject = CXFCredentialsResult(count: 1, type: .identity)
         XCTAssertEqual(subject.localizedTypePlural, Localizations.identities)
 
-        subject = ImportedCredentialsResult(count: 1, type: .passkey)
+        subject = CXFCredentialsResult(count: 1, type: .passkey)
         XCTAssertEqual(subject.localizedTypePlural, Localizations.passkeys)
 
-        subject = ImportedCredentialsResult(count: 1, type: .password)
+        subject = CXFCredentialsResult(count: 1, type: .password)
         XCTAssertEqual(subject.localizedTypePlural, Localizations.passwords)
 
-        subject = ImportedCredentialsResult(count: 1, type: .secureNote)
+        subject = CXFCredentialsResult(count: 1, type: .secureNote)
         XCTAssertEqual(subject.localizedTypePlural, Localizations.secureNotes)
 
-        subject = ImportedCredentialsResult(count: 1, type: .sshKey)
+        subject = CXFCredentialsResult(count: 1, type: .sshKey)
         XCTAssertEqual(subject.localizedTypePlural, Localizations.sshKeys)
     }
 
     /// `getter:isEmpty` returns `true` is no credential were imported, `false` otherwise.
     func test_isEmpty() {
-        subject = ImportedCredentialsResult(count: 0, type: .identity)
+        subject = CXFCredentialsResult(count: 0, type: .identity)
         XCTAssertTrue(subject.isEmpty)
 
-        subject = ImportedCredentialsResult(count: 1, type: .card)
+        subject = CXFCredentialsResult(count: 1, type: .card)
         XCTAssertFalse(subject.isEmpty)
     }
 }

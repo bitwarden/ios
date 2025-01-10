@@ -222,11 +222,15 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `navigate(to:)` with `.exportVaultToApp` presents the export vault
-    /// to another app view (Credential Exchnage flow).
+    /// to another app view (Credential Exchnage flow) by starting its coordinator.
     @MainActor
     func test_navigateTo_exportVaultToApp() throws {
         subject.navigate(to: .exportVaultToApp)
-        throw XCTSkip("TODO: PM-16459")
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.exportCXFCoordinator.isStarted)
     }
 
     /// `navigate(to:)` with `.importLogins` presents the import logins flow.

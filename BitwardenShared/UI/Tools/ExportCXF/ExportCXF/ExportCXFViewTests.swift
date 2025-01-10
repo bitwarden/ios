@@ -4,23 +4,23 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportCXPViewTests
+// MARK: - ExportCXFViewTests
 
-class ImportCXPViewTests: BitwardenTestCase {
+class ExportCXFViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<ImportCXPState, Void, ImportCXPEffect>!
-    var subject: ImportCXPView!
+    var processor: MockProcessor<ExportCXFState, ExportCXFAction, ExportCXFEffect>!
+    var subject: ExportCXFView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: ImportCXPState())
+        processor = MockProcessor(state: ExportCXFState())
         let store = Store(processor: processor)
 
-        subject = ImportCXPView(store: store)
+        subject = ExportCXFView(store: store)
     }
 
     override func tearDown() {
@@ -62,24 +62,13 @@ class ImportCXPViewTests: BitwardenTestCase {
         )
     }
 
-    /// Test a snapshot on importing status.
+    /// Test a snapshot on prepared status.
     @MainActor
-    func test_snapshot_importing() {
-        processor.state.progress = 0.3
-        processor.state.status = .importing
-        assertSnapshots(
-            of: subject,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
-        )
-    }
-
-    /// Test a snapshot on success status.
-    @MainActor
-    func test_snapshot_success() {
-        processor.state.status = .success(totalImportedCredentials: 10, importedResults: [
-            CXFCredentialsResult(count: 13, type: .password),
-            CXFCredentialsResult(count: 7, type: .passkey),
-            CXFCredentialsResult(count: 10, type: .card),
+    func test_snapshot_prepared() {
+        processor.state.status = .prepared(itemsToExport: [
+            CXFCredentialsResult(count: 10, type: .password),
+            CXFCredentialsResult(count: 90, type: .passkey),
+            CXFCredentialsResult(count: 2, type: .identity),
         ])
         assertSnapshots(
             of: subject,
@@ -91,6 +80,16 @@ class ImportCXPViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_failure() {
         processor.state.status = .failure(message: "Something went wrong")
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// Test a snapshot on failure status but without showing main button.
+    @MainActor
+    func test_snapshot_failureNoMainButton() {
+        processor.state.showMainButton = false
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]

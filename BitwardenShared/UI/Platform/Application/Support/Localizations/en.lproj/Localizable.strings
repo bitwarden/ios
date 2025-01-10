@@ -1085,3 +1085,12 @@
 "ImportingFromAnotherProviderIsNotAvailableForThisDevice" = "Importing from another provider is not available for this device.";
 "ExportVaultToAFile" = "Export vault to a file";
 "ExportVaultToAnotherApp" = "Export vault to another app";
+"ExportItems" = "Export items";
+"ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
+"ExportOptions" = "Export options";
+"ExportAllItems" = "Export all items (%1$@)";
+"ExportSelectedItems" = "Export selected items";
+"SelectedItems" = "Selected items";
+"RetryExport" = "Retry export";
+"ExportFailed" = "Export failed";
+"ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
