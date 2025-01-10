@@ -141,7 +141,7 @@ jobs:
 
       - name: Upload version info artifact
         if: ${{ inputs.upload_version_info }}
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: version-info
           path: version-info/version_info.json
@@ -327,7 +327,7 @@ jobs:
 
       - name: Configure Ruby
         if: env._BUILD_MODE == 'Device'
-        uses: ruby/setup-ruby@401c19e14f474b54450cd3905bb8b86e2c8509cf # v1.204.0
+        uses: ruby/setup-ruby@4a9ddd6f338a97768b8006bf671dfbad383215f4 # v1.207.0
         with:
           bundler-cache: true
 
@@ -385,7 +385,7 @@ jobs:
           esac
 
       - name: Upload artifacts to GitHub
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env._BUILD_VARIANT }} ${{ env._XCODE_VERSION || env.DEFAULT_XCODE_VERSION }} ${{ env._BUILD_MODE }} ${{ env._COMPILER_FLAGS }}
           path: export
