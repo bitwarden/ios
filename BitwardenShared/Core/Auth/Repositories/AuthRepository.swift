@@ -625,8 +625,8 @@ extension DefaultAuthRepository: AuthRepository {
                 errorReporter.log(error: error)
             }
 
-            if let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
-               baseUrl == environmentService.baseURL {
+            if let baseURL = try? await stateService.getEnvironmentURLs(userId: userId)?.base,
+               baseURL == environmentService.baseURL {
                 return userId
             }
         }
