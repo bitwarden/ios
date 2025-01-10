@@ -92,10 +92,12 @@ struct VaultListItemRowView: View {
                         Text(group.name)
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            .accessibilityIdentifier("GroupNameLabel")
                         Spacer()
                         Text("\(count)")
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .accessibilityIdentifier("GroupCountLabel")
 
                     case let .totp(name, model):
                         totpCodeRow(name, model)
