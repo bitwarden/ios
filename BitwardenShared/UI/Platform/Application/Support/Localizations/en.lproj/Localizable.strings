@@ -1059,6 +1059,9 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
+"UnknownBiometrics" = "biometrics";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
