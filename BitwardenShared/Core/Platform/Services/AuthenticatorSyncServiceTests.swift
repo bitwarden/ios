@@ -574,7 +574,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         await stateService.addAccount(.fixture(
             profile: .fixture(email: "different@bitwarden.com", userId: "2"),
-            settings: .fixture(environmentUrls: .fixture(webVault: URL(string: "https://vault.example.com")))
+            settings: .fixture(environmentURLs: .fixture(webVault: URL(string: "https://vault.example.com")))
         ))
         stateService.syncToAuthenticatorByUserId["2"] = true
         vaultTimeoutService.isClientLocked["2"] = false
