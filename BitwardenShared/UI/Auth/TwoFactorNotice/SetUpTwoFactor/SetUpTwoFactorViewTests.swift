@@ -1,5 +1,4 @@
 import SnapshotTesting
-import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
