@@ -35,10 +35,11 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
                     Text(selection.localizedName)
                         .styleGuide(.callout, weight: .semibold)
                 }
-                .matchedGeometryEffect(id: selection, in: segmentedControl)
+                .accessibility(if: isSelected, addTraits: .isSelected)
+                .accessibilityIdentifier(selection.accessibilityId)
                 .buttonStyle(SegmentButtonStyle(isSelected: isSelected))
                 .disabled(isSelectionDisabled(selection))
-                .accessibility(if: isSelected, addTraits: .isSelected)
+                .matchedGeometryEffect(id: selection, in: segmentedControl)
             }
         }
         .background(
