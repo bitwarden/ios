@@ -65,7 +65,7 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
     func test_snapshot_setUpTwoFactorView_allowDelay_true() {
         processor.state.allowDelay = true
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }
@@ -75,7 +75,7 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
     func test_snapshot_setUpTwoFactorView_allowDelay_false() {
         processor.state.allowDelay = false
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }
