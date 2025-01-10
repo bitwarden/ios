@@ -1,4 +1,5 @@
 import SnapshotTesting
+import SwiftUI
 import XCTest
 
 @testable import BitwardenShared
@@ -6,10 +7,30 @@ import XCTest
 // MARK: - SetUpTwoFactorViewTests
 
 class SetUpTwoFactorViewTests: BitwardenTestCase {
+    // MARK: Types
+
+    /// Wraps the add/edit send view in a navigation controller with the hairline divider removed
+    /// for snapshot tests.
+    struct SnapshotView: UIViewControllerRepresentable {
+        let subject: SetUpTwoFactorView
+
+        func makeUIViewController(context: Context) -> some UIViewController {
+            let viewController = UIHostingController(rootView: subject)
+            let navigationController = UINavigationController(rootViewController: viewController)
+            return navigationController
+        }
+
+        func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
+    }
+
     // MARK: Properties
 
     var processor: MockProcessor<SetUpTwoFactorState, SetUpTwoFactorAction, SetUpTwoFactorEffect>!
     var subject: SetUpTwoFactorView!
+
+    @MainActor var snapshotView: some View {
+        SnapshotView(subject: subject).edgesIgnoringSafeArea(.all)
+    }
 
     // MARK: Setup & Teardown
 
@@ -65,7 +86,7 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
     func test_snapshot_setUpTwoFactorView_allowDelay_true() {
         processor.state.allowDelay = true
         assertSnapshots(
-            of: subject,
+            of: snapshotView,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }
@@ -75,7 +96,7 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
     func test_snapshot_setUpTwoFactorView_allowDelay_false() {
         processor.state.allowDelay = false
         assertSnapshots(
-            of: subject,
+            of: snapshotView,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }
