@@ -114,7 +114,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.services = services
         super.init(state: state)
         Task {
-            if await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+            if await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
+               appExtensionDelegate == nil {
                 self.state.isLearnNewLoginActionCardEligible = await services.stateService
                     .getLearnNewLoginActionCardStatus() == .incomplete
             }

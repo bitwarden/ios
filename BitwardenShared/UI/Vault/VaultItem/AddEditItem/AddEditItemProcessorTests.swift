@@ -107,11 +107,10 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// if the `learnNewLoginActionCardStatus` is `incomplete`, and feature flag is enabled.
     @MainActor
     func test_initIsLearnNewLoginActionCardEligible() {
-        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.learnNewLoginActionCardStatus = .incomplete
         subject = AddEditItemProcessor(
-            appExtensionDelegate: appExtensionDelegate,
+            appExtensionDelegate: nil,
             coordinator: coordinator.asAnyCoordinator(),
             delegate: delegate,
             services: ServiceContainer.withMocks(
@@ -146,8 +145,46 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `init` method should not set the `isLearnNewLoginActionCardEligible` to `true`
     /// if the feature flag `nativeCreateAccountFlow` is `false`.
     @MainActor
-    func test_initIsLearnNewLoginActionCardEligible_False() {
-        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+    func test_initIsLearnNewLoginActionCardEligible_false() {
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: nil,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                configService: configService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        waitFor(!subject.state.isLearnNewLoginActionCardEligible)
+    }
+
+    /// `init` method should not set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the feature flag `nativeCreateAccountFlow` is `true` and app is in iOS extension flow.
+    @MainActor
+    func test_initIsLearnNewLoginActionCardEligible_false_iOSExtension() {
         stateService.learnNewLoginActionCardStatus = .incomplete
         configService.featureFlagsBool[.nativeCreateAccountFlow] = false
         subject = AddEditItemProcessor(
