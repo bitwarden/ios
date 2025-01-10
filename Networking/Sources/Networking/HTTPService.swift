@@ -6,10 +6,10 @@ public class HTTPService {
     // MARK: Properties
 
     /// The URL against which requests are resolved.
-    var baseURL: URL { baseUrlGetter() }
+    var baseURL: URL { baseURLGetter() }
 
     /// A getter function for dynamically retrieving the base url against which requests are resolved.
-    let baseUrlGetter: () -> URL
+    let baseURLGetter: () -> URL
 
     /// The underlying `HTTPClient` that performs the network request.
     let client: HTTPClient
@@ -49,7 +49,7 @@ public class HTTPService {
         responseHandlers: [ResponseHandler] = [],
         tokenProvider: TokenProvider? = nil
     ) {
-        baseUrlGetter = { baseURL }
+        baseURLGetter = { baseURL }
         self.client = client
         self.requestHandlers = requestHandlers
         self.responseHandlers = responseHandlers
@@ -59,7 +59,7 @@ public class HTTPService {
     /// Initialize a `HTTPService`.
     ///
     /// - Parameters:
-    ///   - baseUrlGetter: A getter function for dynamically retrieving the base url against which
+    ///   - baseURLGetter: A getter function for dynamically retrieving the base url against which
     ///     requests are resolved.
     ///   - client: The underlying `HTTPClient` that performs the network request.
     ///   - requestHandlers: A list of `RequestHandler`s that have the option to view or modify the
@@ -69,13 +69,13 @@ public class HTTPService {
     ///   - tokenProvider: An object used to get an access token and refresh it when necessary.
     ///
     public init(
-        baseUrlGetter: @escaping () -> URL,
+        baseURLGetter: @escaping () -> URL,
         client: HTTPClient = URLSession.shared,
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = [],
         tokenProvider: TokenProvider? = nil
     ) {
-        self.baseUrlGetter = baseUrlGetter
+        self.baseURLGetter = baseURLGetter
         self.client = client
         self.requestHandlers = requestHandlers
         self.responseHandlers = responseHandlers

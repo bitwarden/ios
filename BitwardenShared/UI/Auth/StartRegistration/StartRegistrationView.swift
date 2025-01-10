@@ -137,7 +137,7 @@ struct StartRegistrationView: View {
 
                 RegionSelector(
                     selectorLabel: Localizations.creatingOn,
-                    regionName: store.state.region.baseUrlDescription
+                    regionName: store.state.region.baseURLDescription
                 ) {
                     await store.perform(.regionTapped)
                 }
