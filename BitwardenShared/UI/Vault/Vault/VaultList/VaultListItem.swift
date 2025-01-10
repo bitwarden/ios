@@ -5,7 +5,6 @@ import Foundation
 ///
 public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDecorativeIcon {
     // MARK: Types
-    
     /// An enumeration for the type of item being displayed by this item.
     public enum ItemType: Equatable, Sendable {
         /// The wrapped item is a cipher.
@@ -144,16 +143,17 @@ extension VaultListItem {
         }
     }
     
+    /// The accessibility ID for each vault item .
     var vaultItemAccessibilityId: String {
         switch itemType {
         case let .group(vaultListGroup, _):
             if vaultListGroup.isFolder {
                 return "FolderCell"
-            } else if vaultListGroup.collectionId != nil {
-                return "CollectionCell"
-            } else {
-                return "ItemFilterCell"
             }
+            if vaultListGroup.collectionId != nil {
+                return "CollectionCell"
+            }
+            return "ItemFilterCell"
         case .cipher:
             return "CipherCell"
         case .totp:

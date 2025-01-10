@@ -73,7 +73,7 @@ struct VaultListItemRowView: View {
                                     .accessibilityIdentifier("CipherSubTitleLabel")
                             }
                         }
-                        
+                        .accessibilityElement(children: .combine)
 
                         Spacer()
 

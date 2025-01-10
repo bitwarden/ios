@@ -187,7 +187,6 @@ private struct SearchableVaultListView: View {
     private var vaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: false,
-            accessibilityID: "ActiveFilterName",
             store: store.child(
                 state: \.vaultFilterState,
                 mapAction: { action in
