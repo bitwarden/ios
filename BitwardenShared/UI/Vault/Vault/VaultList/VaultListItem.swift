@@ -5,7 +5,6 @@ import Foundation
 ///
 public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDecorativeIcon {
     // MARK: Types
-
     /// An enumeration for the type of item being displayed by this item.
     public enum ItemType: Equatable, Sendable {
         /// The wrapped item is a cipher.
@@ -16,10 +15,10 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
         ///   of the `CipherView` to be displayed when needed (Optional).
         ///
         case cipher(CipherView, Fido2CredentialAutofillView? = nil)
-
+        
         /// The wrapped item is a group of items.
         case group(VaultListGroup, Int)
-
+        
         /// A TOTP Code Item.
         ///
         /// - Parameters
@@ -28,12 +27,12 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
         ///
         case totp(name: String, totpModel: VaultListTOTP)
     }
-
+    
     // MARK: Properties
-
+    
     /// The identifier for the item.
     public let id: String
-
+    
     /// The type of item being displayed by this item.
     public let itemType: ItemType
 }
@@ -56,7 +55,7 @@ extension VaultListItem {
         guard let id = cipherView.id else { return nil }
         self.init(id: id, itemType: .cipher(cipherView))
     }
-
+    
     /// Initialize a `VaultListItem` from a `CipherView`.
     /// - Parameters:
     ///   - cipherView: The `CipherView` used to initialize the `VaultListItem`.
@@ -79,7 +78,7 @@ extension VaultListItem {
             nil
         }
     }
-
+    
     /// An image asset for this item that can be used in the UI.
     var icon: ImageAsset {
         switch itemType {
@@ -103,7 +102,7 @@ extension VaultListItem {
             case .collection:
                 Asset.Images.collections24
             case .folder,
-                 .noFolder:
+                    .noFolder:
                 Asset.Images.folder24
             case .identity:
                 Asset.Images.idCard24
@@ -122,7 +121,7 @@ extension VaultListItem {
             Asset.Images.clock24
         }
     }
-
+    
     /// The accessibility ID for the ciphers icon.
     var iconAccessibilityId: String {
         switch itemType {
@@ -143,7 +142,25 @@ extension VaultListItem {
             return ""
         }
     }
-
+    
+    /// The accessibility ID for each vault item .
+    var vaultItemAccessibilityId: String {
+        switch itemType {
+        case let .group(vaultListGroup, _):
+            if vaultListGroup.isFolder {
+                return "FolderCell"
+            }
+            if vaultListGroup.collectionId != nil {
+                return "CollectionCell"
+            }
+            return "ItemFilterCell"
+        case .cipher:
+            return "CipherCell"
+        case .totp:
+            return "TOTPCell"
+        }
+    }
+    
     /// The login view containing the uri's to download the special decorative icon, if applicable.
     var loginView: BitwardenSdk.LoginView? {
         switch itemType {
@@ -155,7 +172,7 @@ extension VaultListItem {
             totpModel.loginView
         }
     }
-
+    
     /// Whether to show or not the Fido2 credential RpId
     var shouldShowFido2CredentialRpId: Bool {
         switch itemType {

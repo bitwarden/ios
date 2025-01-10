@@ -238,7 +238,6 @@ private struct VaultItemSelectionSearchableView: View {
                 ),
                 timeProvider: CurrentTime()
             )
-            .accessibilityIdentifier("CipherCell")
         }
     }
 }

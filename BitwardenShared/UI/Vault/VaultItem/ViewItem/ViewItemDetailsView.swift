@@ -140,7 +140,6 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
                 .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
 
             // check for type
             switch store.state.type {
