@@ -65,6 +65,19 @@ struct AddEditItemView: View {
                         .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
                 }
 
+                if store.state.shouldShowLearnNewLoginActionCard {
+                    ActionCard(
+                        title: Localizations.learnAboutNewLogins,
+                        message: Localizations.weWillWalkYouThroughTheKeyFeaturesToAddANewLogin,
+                        actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                            await store.perform(.showLearnNewLoginGuidedTour)
+                        },
+                        dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                            await store.perform(.dismissNewLoginActionCard)
+                        }
+                    )
+                }
+
                 informationSection
                 miscellaneousSection
                 notesSection

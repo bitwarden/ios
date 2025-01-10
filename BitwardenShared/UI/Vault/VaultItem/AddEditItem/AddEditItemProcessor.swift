@@ -57,6 +57,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     typealias Services = HasAPIService
         & HasAuthRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFido2UserInterfaceHelper
@@ -111,11 +112,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
-
         super.init(state: state)
+        Task {
+            if await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
+               appExtensionDelegate == nil {
+                self.state.isLearnNewLoginActionCardEligible = await services.stateService
+                    .getLearnNewLoginActionCardStatus() == .incomplete
+            }
 
-        if !state.configuration.isAdding {
-            Task {
+            if !state.configuration.isAdding {
                 await self.services.rehydrationHelper.addRehydratableTarget(self)
             }
         }
@@ -134,6 +139,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+        case .dismissNewLoginActionCard:
+            state.isLearnNewLoginActionCardEligible = false
+            await services.stateService.setLearnNewLoginActionCardStatus(.complete)
         case .fetchCipherOptions:
             await fetchCipherOptions()
         case .savePressed:
@@ -142,6 +150,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await setupTotp()
         case .deletePressed:
             await showSoftDeleteConfirmation()
+        case .showLearnNewLoginGuidedTour:
+            // TODO: PM-16154
+            state.isLearnNewLoginActionCardEligible = false
+            await services.stateService.setLearnNewLoginActionCardStatus(.complete)
         }
     }
 

@@ -15,6 +15,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
@@ -37,6 +38,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
+        configService = MockConfigService()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
@@ -55,6 +57,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 cameraService: cameraService,
+                configService: configService,
                 errorReporter: errorReporter,
                 eventService: eventService,
                 httpClient: client,
@@ -85,6 +88,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         appExtensionDelegate = nil
         cameraService = nil
         client = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         eventService = nil
@@ -98,6 +102,123 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `init` method should set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the `learnNewLoginActionCardStatus` is `incomplete`, and feature flag is enabled.
+    @MainActor
+    func test_initIsLearnNewLoginActionCardEligible() {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: nil,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                configService: configService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        waitFor(subject.state.isLearnNewLoginActionCardEligible)
+    }
+
+    /// `init` method should not set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the feature flag `nativeCreateAccountFlow` is `false`.
+    @MainActor
+    func test_initIsLearnNewLoginActionCardEligible_false() {
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: nil,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                configService: configService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        waitFor(!subject.state.isLearnNewLoginActionCardEligible)
+    }
+
+    /// `init` method should not set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the feature flag `nativeCreateAccountFlow` is `true` and app is in iOS extension flow.
+    @MainActor
+    func test_initIsLearnNewLoginActionCardEligible_false_iOSExtension() {
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                configService: configService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        waitFor(!subject.state.isLearnNewLoginActionCardEligible)
+    }
 
     /// `receive(_:)` with `.customField(.booleanFieldChanged)` changes
     /// the boolean value of the custom field.
@@ -810,6 +931,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.itemSoftDeletedCalled)
     }
 
+    /// `perform(_:)` with `.dismissNewLoginActionCard` will set `.showLearnNewLoginActionCard` to false
+    /// and updates `.learnNewLoginActionCardShown` via  stateService.
+    @MainActor
+    func test_perform_dismissNewLoginActionCard() async {
+        subject.state.isLearnNewLoginActionCardEligible = true
+        await subject.perform(.dismissNewLoginActionCard)
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
+    }
+
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
     @MainActor
     func test_perform_fetchCipherOptions() async {
@@ -1413,6 +1544,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.setupTotpPressed)
 
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `perform(_:)` with `.showLearnNewLoginGuidedTour` sets `showLearnNewLoginActionCard` to `false`.
+    @MainActor
+    func test_perform_showLearnNewLoginGuidedTour() async {
+        subject.state.isLearnNewLoginActionCardEligible = true
+        await subject.perform(.showLearnNewLoginGuidedTour)
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
     }
 
     /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.

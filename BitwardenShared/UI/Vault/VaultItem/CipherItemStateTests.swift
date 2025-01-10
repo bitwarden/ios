@@ -131,4 +131,43 @@ class CipherItemStateTests: BitwardenTestCase {
         ]
         XCTAssertEqual(state.collectionsForOwner.map(\.id), ["1", "2"])
     }
+
+    /// `shouldShowLearnNewLoginActionCard` should be `true`, if the cipher is a login type and configuration is `.add`.
+    func test_shouldShowLearnNewLoginActionCard_true() {
+        let cipher = CipherView.loginFixture(login: .fixture(fido2Credentials: [.fixture()]))
+        var state = CipherItemState(cloneItem: cipher, hasPremium: true)
+        state.isLearnNewLoginActionCardEligible = true
+        XCTAssertTrue(state.shouldShowLearnNewLoginActionCard)
+    }
+
+    /// `shouldShowLearnNewLoginActionCard` should be `false`, if the cipher is not a login type.
+    func test_shouldShowLearnNewLoginActionCard_false() {
+        let cipher = CipherView.cardFixture(card: .fixture(
+            code: "123",
+            number: "123456789"
+        ))
+        var state = CipherItemState(cloneItem: cipher, hasPremium: true)
+        state.isLearnNewLoginActionCardEligible = true
+        XCTAssertFalse(state.shouldShowLearnNewLoginActionCard)
+    }
+
+    /// `shouldShowLearnNewLoginActionCard` should be `false`, if the configuration is not `.add`.
+    func test_shouldShowLearnNewLoginActionCard_false_config() throws {
+        let cipher = CipherView.loginFixture(
+            collectionIds: ["1", "2"],
+            login: .fixture()
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.isLearnNewLoginActionCardEligible = true
+        XCTAssertFalse(state.shouldShowLearnNewLoginActionCard)
+    }
+
+    /// `shouldShowLearnNewLoginActionCard` should be `false`,
+    /// if `.isLearnNewLoginActionCardEligible` is false.
+    func test_shouldShowLearnNewLoginActionCard_false_isLearnNewLoginActionCardEligible() throws {
+        let cipher = CipherView.loginFixture(login: .fixture(fido2Credentials: [.fixture()]))
+        var state = CipherItemState(cloneItem: cipher, hasPremium: true)
+        state.isLearnNewLoginActionCardEligible = false
+        XCTAssertFalse(state.shouldShowLearnNewLoginActionCard)
+    }
 }
