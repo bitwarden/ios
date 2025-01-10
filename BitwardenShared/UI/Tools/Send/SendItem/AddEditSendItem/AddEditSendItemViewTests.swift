@@ -176,6 +176,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping on text button in the segmented control sends the `.typeChanged` action.
     @MainActor
     func test_segmentedControl_textTap() throws {
+        processor.state.type = .file
         let button = try subject.inspect().find(button: Localizations.text)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions, [.typeChanged(.text)])
