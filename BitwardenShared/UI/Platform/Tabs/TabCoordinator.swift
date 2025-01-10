@@ -119,6 +119,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
         let vaultNavigator = UINavigationController()
         vaultNavigator.navigationBar.prefersLargeTitles = true
+        vaultNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         vaultCoordinator = module.makeVaultCoordinator(
             delegate: vaultDelegate,
             stackNavigator: vaultNavigator
@@ -126,6 +127,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
         let sendNavigator = UINavigationController()
         sendNavigator.navigationBar.prefersLargeTitles = true
+        sendNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         sendCoordinator = module.makeSendCoordinator(
             stackNavigator: sendNavigator
         )
@@ -133,6 +135,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
         let generatorNavigator = UINavigationController()
         generatorNavigator.navigationBar.prefersLargeTitles = true
+        generatorNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         // Remove the hairline divider under the navigation bar to make it appear that the segmented
         // control is part of the navigation bar.
         generatorNavigator.removeHairlineDivider()
@@ -144,6 +147,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
         let settingsNavigator = UINavigationController()
         settingsNavigator.navigationBar.prefersLargeTitles = true
+        settingsNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         let settingsCoordinator = module.makeSettingsCoordinator(
             delegate: settingsDelegate,
             stackNavigator: settingsNavigator
