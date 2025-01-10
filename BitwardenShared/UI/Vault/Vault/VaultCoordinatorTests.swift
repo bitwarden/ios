@@ -12,7 +12,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var module: MockAppModule!
     var stackNavigator: MockStackNavigator!
-    var stateService: MockStateService!
     var subject: VaultCoordinator!
     var vaultRepository: MockVaultRepository!
 
@@ -24,7 +23,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         delegate = MockVaultCoordinatorDelegate()
         module = MockAppModule()
-        stateService = MockStateService()
         stackNavigator = MockStackNavigator()
         vaultRepository = MockVaultRepository()
         subject = VaultCoordinator(
@@ -33,7 +31,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
             module: module,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                stateService: stateService,
                 vaultRepository: vaultRepository
             ),
             stackNavigator: stackNavigator
@@ -109,12 +106,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(
-            module.vaultItemCoordinator.routes.last,
-            .addItem(
-                hasPremium: true
-            )
-        )
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true))
     }
 
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.

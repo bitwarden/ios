@@ -161,4 +161,13 @@ class CipherItemStateTests: BitwardenTestCase {
         state.isLearnNewLoginActionCardEligible = true
         XCTAssertFalse(state.shouldShowLearnNewLoginActionCard)
     }
+
+    /// `shouldShowLearnNewLoginActionCard` should be `false`,
+    /// if `.isLearnNewLoginActionCardEligible` is false.
+    func test_shouldShowLearnNewLoginActionCard_false_isLearnNewLoginActionCardEligible() throws {
+        let cipher = CipherView.loginFixture(login: .fixture(fido2Credentials: [.fixture()]))
+        var state = CipherItemState(cloneItem: cipher, hasPremium: true)
+        state.isLearnNewLoginActionCardEligible = false
+        XCTAssertFalse(state.shouldShowLearnNewLoginActionCard)
+    }
 }
