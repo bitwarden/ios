@@ -88,6 +88,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         appExtensionDelegate = nil
         cameraService = nil
         client = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         eventService = nil
