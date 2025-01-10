@@ -33,11 +33,11 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
 
     /// Tapping the change email button sends `.changeAccountEmailTapped`
     @MainActor
-    func test_changeEmail_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.changeAccountEmail)
-        try button.tap()
+    func test_changeEmail_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.changeAccountEmail)
+        try await button.tap()
 
-        XCTAssertEqual(processor.dispatchedActions.last, .changeAccountEmailTapped)
+        XCTAssertEqual(processor.effects.last, .changeAccountEmailTapped)
     }
 
     /// Tapping the remind me later button sends `.remindMeLater`
@@ -51,11 +51,11 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
 
     /// Tapping the turn on two-step login button sends `.turnOnTwoFactorTapped`
     @MainActor
-    func test_turnOnTwoStep_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.turnOnTwoStepLogin)
-        try button.tap()
+    func test_turnOnTwoStep_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.turnOnTwoStepLogin)
+        try await button.tap()
 
-        XCTAssertEqual(processor.dispatchedActions.last, .turnOnTwoFactorTapped)
+        XCTAssertEqual(processor.effects.last, .turnOnTwoFactorTapped)
     }
 
     // MARK: Previews
@@ -65,17 +65,17 @@ class SetUpTwoFactorViewTests: BitwardenTestCase {
     func test_snapshot_setUpTwoFactorView_allowDelay_true() {
         processor.state.allowDelay = true
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }
 
-    /// The set up two factor view renders correctly when delay is allowed
+    /// The set up two factor view renders correctly when delay is not allowed
     @MainActor
     func test_snapshot_setUpTwoFactorView_allowDelay_false() {
         processor.state.allowDelay = false
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5, .defaultLandscape]
         )
     }

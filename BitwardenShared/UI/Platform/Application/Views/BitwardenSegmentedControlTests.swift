@@ -39,4 +39,31 @@ class BitwardenSegmentedControlTests: BitwardenTestCase {
         try buttonThree.tap()
         XCTAssertEqual(selection, .three)
     }
+
+    /// Tapping on the selected segment doesn't update the selection binding.
+    func test_selectionCurrentTapped() throws {
+        var selection = Segment.one
+        var selectionChangedHistory = [Segment]()
+        let subject = BitwardenSegmentedControl(
+            selection: Binding(
+                get: { selection },
+                set: { newValue in
+                    selection = newValue
+                    selectionChangedHistory.append(newValue)
+                }
+            ),
+            selections: Segment.allCases
+        )
+
+        try subject.inspect().find(button: "One").tap()
+        XCTAssertEqual(selection, .one)
+        XCTAssertTrue(selectionChangedHistory.isEmpty)
+
+        try subject.inspect().find(button: "Two").tap()
+        XCTAssertEqual(selection, .two)
+        XCTAssertEqual(selectionChangedHistory, [.two])
+
+        try subject.inspect().find(button: "Two").tap()
+        XCTAssertEqual(selectionChangedHistory, [.two])
+    }
 }

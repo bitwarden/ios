@@ -54,7 +54,7 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
+final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable: this type_body_length
     // MARK: Types
 
     typealias Module = GeneratorModule
@@ -79,6 +79,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasReviewPromptService
         & HasSettingsRepository
         & HasStateService
+        & HasSyncService
         & HasTOTPExpirationManagerFactory
         & HasTextAutofillHelperFactory
         & HasTimeProvider
@@ -368,9 +369,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     ///   - emailAddress: The email address of the user.
     private func showTwoFactorNotice(allowDelay: Bool, emailAddress: String) {
         let navigationController = UINavigationController()
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        navigationController.navigationBar.scrollEdgeAppearance = appearance
 
         let coordinator = module.makeTwoFactorNoticeCoordinator(stackNavigator: navigationController)
         coordinator.start()

@@ -26,18 +26,20 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(selections) { selection in
+                let isSelected = self.selection.id == selection.id
                 Button {
+                    // Don't update the selection if this segment is already selected.
+                    guard !isSelected else { return }
                     self.selection = selection
                 } label: {
-                    segmentView(
-                        title: selection.localizedName,
-                        isDisabled: isSelectionDisabled(selection),
-                        isSelected: selection == self.selection
-                    )
-                    .matchedGeometryEffect(id: selection, in: segmentedControl)
+                    Text(selection.localizedName)
+                        .styleGuide(.callout, weight: .semibold)
                 }
+                .accessibility(if: isSelected, addTraits: .isSelected)
                 .accessibilityIdentifier(selection.accessibilityId)
+                .buttonStyle(SegmentButtonStyle(isSelected: isSelected))
                 .disabled(isSelectionDisabled(selection))
+                .matchedGeometryEffect(id: selection, in: segmentedControl)
             }
         }
         .background(
@@ -70,36 +72,38 @@ struct BitwardenSegmentedControl<T: Menuable & Identifiable>: View {
         _selection = selection
         self.selections = selections
     }
+}
 
-    // MARK: Private
+// MARK: - SegmentButtonStyle
 
-    /// Returns the foreground color for a segment.
-    ///
-    /// - Parameters:
-    ///   - isDisabled: Whether the segment is disabled.
-    ///   - isSelected: Whether the segment is selected.
-    ///
-    private func segmentForegroundColor(isDisabled: Bool, isSelected: Bool) -> Color {
-        guard !isDisabled else { return Asset.Colors.buttonFilledDisabledForeground.swiftUIColor }
+/// A `ButtonStyle` for displaying a segment within the `BitwardenSegmentedControl`.
+///
+private struct SegmentButtonStyle: ButtonStyle {
+    // MARK: Properties
+
+    @Environment(\.isEnabled) var isEnabled: Bool
+
+    /// Whether the segment is selected.
+    let isSelected: Bool
+
+    /// The color of the foreground elements in the button.
+    var foregroundColor: Color {
+        guard isEnabled else { return Asset.Colors.buttonFilledDisabledForeground.swiftUIColor }
         return isSelected ?
             Asset.Colors.textInteraction.swiftUIColor :
             Asset.Colors.textSecondary.swiftUIColor
     }
 
-    /// Returns a view for a single segment within the segmented control.
-    ///
-    /// - Parameters:
-    ///   - title: The title of the segment.
-    ///   - isDisabled: Whether the segment is disabled.
-    ///   - isSelected: Whether the segment is selected.
-    ///
-    private func segmentView(title: String, isDisabled: Bool, isSelected: Bool) -> some View {
-        Text(title)
-            .styleGuide(.callout, weight: .semibold)
+    // MARK: ButtonStyle
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
             .frame(maxWidth: .infinity)
-            .foregroundStyle(segmentForegroundColor(isDisabled: isDisabled, isSelected: isSelected))
+            .foregroundStyle(foregroundColor)
             .padding(.vertical, 8)
             .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+            .opacity(configuration.isPressed && !isSelected ? 0.5 : 1)
+            .contentShape(Capsule())
     }
 }
 
