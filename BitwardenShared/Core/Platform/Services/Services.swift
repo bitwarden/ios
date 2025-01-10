@@ -37,6 +37,7 @@ typealias Services = HasAPIService
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService
+    & HasSyncService
     & HasSystemDevice
     & HasTOTPExpirationManagerFactory
     & HasTOTPService
@@ -298,6 +299,13 @@ protocol HasSettingsRepository {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that has a `SyncService`.
+///
+protocol HasSyncService {
+    /// The service used by the application to sync account data.
+    var syncService: SyncService { get }
 }
 
 /// Protocol for an object that provides a `SystemDevice`.

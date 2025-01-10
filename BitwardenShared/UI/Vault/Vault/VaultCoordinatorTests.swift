@@ -313,7 +313,10 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.twoFactorNoticeCoordinator.isStarted)
-        XCTAssertEqual(module.twoFactorNoticeCoordinator.routes.last, .emailAccess(allowDelay: true, emailAddress: "person@example.com"))
+        XCTAssertEqual(
+            module.twoFactorNoticeCoordinator.routes.last,
+            .emailAccess(allowDelay: true, emailAddress: "person@example.com")
+        )
     }
 
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.
