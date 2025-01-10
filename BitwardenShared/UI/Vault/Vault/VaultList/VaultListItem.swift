@@ -143,18 +143,20 @@ extension VaultListItem {
             return ""
         }
     }
- 
+    
     var vaultItemAccessibilityId: String {
         switch itemType {
         case let .group(vaultListGroup, _):
-            if vaultListGroup.isFolder{
-                return "FolderCell" }
-            else {
+            if vaultListGroup.isFolder {
+                return "FolderCell"
+            } else if vaultListGroup.collectionId != nil {
                 return "CollectionCell"
+            } else {
+                return "ItemFilterCell"
             }
-        case .cipher(_, _):
+        case .cipher:
             return "CipherCell"
-        case .totp(name: let name, totpModel: let totpModel):
+        case .totp:
             return "TOTPCell"
         }
     }
