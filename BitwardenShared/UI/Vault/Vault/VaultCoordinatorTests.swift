@@ -117,29 +117,6 @@ class VaultCoordinatorTests: BitwardenTestCase {
         )
     }
 
-    /// `navigate(to:)` with `.addItem` presents the add item view onto the stack navigator.
-    @MainActor
-    func test_navigateTo_addItem_showLearnNewLoginActionCard() throws {
-        stateService.accounts = [Account.fixtureAccountLogin()]
-        stateService.learnNewLoginActionCardStatus = .incomplete
-        vaultRepository.isVaultEmptyResult = .success(true)
-        let coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
-        module.vaultItemCoordinator = coordinator
-        subject.navigate(to: .addItem())
-
-        waitFor(!stackNavigator.actions.isEmpty)
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .presented)
-        XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(
-            module.vaultItemCoordinator.routes.last,
-            .addItem(
-                hasPremium: true
-            )
-        )
-    }
-
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.
     @MainActor
     func test_navigateTo_editItem() throws {

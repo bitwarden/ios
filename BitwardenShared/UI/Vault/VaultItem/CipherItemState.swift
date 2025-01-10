@@ -64,6 +64,9 @@ struct CipherItemState: Equatable {
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool
 
+    /// If account is eligible for  Learn New Login Action Card.
+    var isLearnNewLoginActionCardEligible: Bool = false
+
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool
 
@@ -87,9 +90,6 @@ struct CipherItemState: Equatable {
 
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
-
-    /// If account is eligible for  Learn New Login Action Card.
-    var isLearnNewLoginActionCardEligible: Bool = false
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState
