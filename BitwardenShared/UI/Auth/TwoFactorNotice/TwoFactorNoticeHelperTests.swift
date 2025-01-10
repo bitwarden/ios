@@ -14,6 +14,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     var policyService: MockPolicyService!
     var stateService: MockStateService!
     var subject: DefaultTwoFactorNoticeHelper!
+    var syncService: MockSyncService!
     var timeProvider: MockTimeProvider!
 
     // MARK: Setup & Teardown
@@ -27,6 +28,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         errorReporter = MockErrorReporter()
         policyService = MockPolicyService()
         stateService = MockStateService()
+        syncService = MockSyncService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 15, hour: 12, minute: 0)))
 
         let services = ServiceContainer.withMocks(
@@ -35,6 +37,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
             errorReporter: errorReporter,
             policyService: policyService,
             stateService: stateService,
+            syncService: syncService,
             timeProvider: timeProvider
         )
 
@@ -70,6 +73,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
         policyService = nil
         stateService = nil
         subject = nil
+        syncService = nil
         timeProvider = nil
     }
 
@@ -86,6 +90,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
     func test_maybeShow() async {
         await subject.maybeShowTwoFactorNotice()
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
     }
 
@@ -98,6 +103,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
     }
 
@@ -109,6 +115,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertEqual(coordinator.routes, [])
     }
 
@@ -120,6 +127,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertEqual(coordinator.routes, [])
     }
 
@@ -131,6 +139,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertEqual(coordinator.routes, [])
     }
 
@@ -143,6 +152,7 @@ class TwoFactorNoticeHelperTests: BitwardenTestCase {
 
         await subject.maybeShowTwoFactorNotice()
 
+        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertEqual(coordinator.routes, [.twoFactorNotice(allowDelay: false, emailAddress: "user@bitwarden.com")])
     }
 

@@ -27,8 +27,8 @@ struct SetUpTwoFactorView: View {
             .padding(.top, 16)
 
             VStack(spacing: 12) {
-                Button {
-                    store.send(.turnOnTwoFactorTapped)
+                AsyncButton {
+                    await store.perform(.turnOnTwoFactorTapped)
                 } label: {
                     Label {
                         Text(Localizations.turnOnTwoStepLogin)
@@ -38,8 +38,8 @@ struct SetUpTwoFactorView: View {
                 }
                 .buttonStyle(.primary())
 
-                Button {
-                    store.send(.changeAccountEmailTapped)
+                AsyncButton {
+                    await store.perform(.changeAccountEmailTapped)
                 } label: {
                     Label {
                         Text(Localizations.changeAccountEmail)
