@@ -342,10 +342,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                 }
 
-                Text(Localizations.typeFileInfo)
-                    .styleGuide(.footnote)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-
             case .edit:
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
                     if let fileName = store.state.fileName {
@@ -439,13 +435,14 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             store.send(.optionsPressed)
         } label: {
             HStack(spacing: 8) {
-                Text(Localizations.options)
-                    .styleGuide(.body)
+                Text(Localizations.additionalOptions)
+                    .styleGuide(.callout, weight: .semibold)
 
                 Asset.Images.chevronDown16.swiftUIImage
-                    .imageStyle(.accessoryIcon16)
+                    .imageStyle(.accessoryIcon16(scaleWithFont: true))
                     .rotationEffect(store.state.isOptionsExpanded ? Angle(degrees: 180) : .zero)
             }
+            .multilineTextAlignment(.leading)
             .padding(.vertical, 12)
             .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
         }
