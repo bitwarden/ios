@@ -32,8 +32,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     VStack(alignment: .leading, spacing: 16) {
                         if store.state.isSendDisabled {
                             InfoContainer(Localizations.sendDisabledWarning)
+                                .accessibilityIdentifier("DisabledSendPolicyLabel")
                         } else if store.state.isSendHideEmailDisabled {
                             InfoContainer(Localizations.sendOptionsPolicyInEffect)
+                                .accessibilityIdentifier("HideEmailAddressPolicyLabel")
                         }
 
                         nameField
