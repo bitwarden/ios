@@ -102,7 +102,7 @@ struct StartRegistrationView: View {
                 get: \.nameText,
                 send: StartRegistrationAction.nameTextChanged
             ),
-            accessibilityIdentifier: "nameEntry"
+            accessibilityIdentifier: "NameEntry"
         )
         .textFieldConfiguration(.username)
     }
