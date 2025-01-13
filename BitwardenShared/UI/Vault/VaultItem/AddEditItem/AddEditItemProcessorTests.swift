@@ -1021,6 +1021,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.collectionIds, ["1"])
         XCTAssertEqual(subject.state.owner, owner)
         XCTAssertFalse(subject.state.canBeDeleted)
+        XCTAssertTrue(subject.state.canAssignToCollection)
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.

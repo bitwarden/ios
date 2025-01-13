@@ -14,8 +14,8 @@ struct ViewItemView: View {
 
     /// Whether to show the collections option in the toolbar menu.
     var isCollectionsEnabled: Bool {
-        guard let cipher = store.state.loadingState.data?.cipher else { return false }
-        return cipher.organizationId != nil
+        guard let data = store.state.loadingState.data else { return false }
+        return data.canAssignToCollection
     }
 
     /// Whether to show the delete option in the toolbar menu.
