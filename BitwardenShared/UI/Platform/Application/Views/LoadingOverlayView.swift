@@ -1,46 +1,33 @@
 import SwiftUI
 
-/// A loading overlay view which shows an activity indicator with text below it.
+/// A loading overlay which shows a circular activity indicator with text below it.
 ///
 struct LoadingOverlayView: View {
     // MARK: Properties
 
-    @Environment(\.colorScheme) private var colorScheme
-
     /// The state used to configure the display of the view.
     let state: LoadingOverlayState
 
+    // MARK: View
+
     var body: some View {
-        ProgressView {
+        VStack(spacing: 24) {
+            CircularActivityIndicator()
+
             Text(state.title)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                .font(.headline)
+                .styleGuide(.headline, weight: .semibold)
                 .multilineTextAlignment(.center)
         }
-        .padding(16)
-        .frame(width: 270, alignment: .center)
-        .background(
-            ZStack {
-                Asset.Colors.Legacy.materialRegularBase.swiftUIColor
-                Asset.Colors.Legacy.materialRegularBlend.swiftUIColor
-                    .blendMode(colorScheme == .light ? .colorDodge : .overlay)
-            }
-            .compositingGroup()
-        )
-        .cornerRadius(14)
-        .controlSize(.large)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .background(Asset.Colors.Legacy.backgroundDimmed.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 }
+
+// MARK: - Previews
 
 #if DEBUG
 #Preview {
     LoadingOverlayView(state: LoadingOverlayState(title: "Progress..."))
-}
-
-#Preview {
-    LoadingOverlayView(state: LoadingOverlayState(title: "Progress..."))
-        .preferredColorScheme(.dark)
 }
 #endif
