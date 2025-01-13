@@ -84,7 +84,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
             throw ImportCiphersRepositoryError.noDataFound
         }
 
-        let accountJsonData = try JSONEncoder.cxpEncoder.encode(accountData)
+        let accountJsonData = try JSONEncoder.cxfEncoder.encode(accountData)
         guard let accountJsonString = String(data: accountJsonData, encoding: .utf8) else {
             // this should never happen.
             throw ImportCiphersRepositoryError.dataEncodingFailed

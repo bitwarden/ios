@@ -213,7 +213,7 @@ public class AppProcessor {
     /// - Parameter credentialImportToken: The credentials import token to user with the `ASCredentialImportManager`.
     @available(iOSApplicationExtension 18.2, *)
     public func handleImportCredentials(credentialImportToken: UUID) async {
-        let route = AppRoute.tab(.vault(.importCXP(
+        let route = AppRoute.tab(.vault(.importCXF(
             .importCredentials(credentialImportToken: credentialImportToken)
         )))
         await checkIfLockedAndPerformNavigation(route: route)

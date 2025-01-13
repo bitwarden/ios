@@ -45,8 +45,8 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the vault item list screen for the specified group.
     case group(_ group: VaultListGroup, filter: VaultFilterType)
 
-    /// A route to the Credential Exchange import flow with the CXP specific route as a parameter.
-    case importCXP(ImportCXPRoute)
+    /// A route to the Credential Exchange import flow with the CXF specific route as a parameter.
+    case importCXF(ImportCXFRoute)
 
     /// A route to the import logins screen.
     case importLogins

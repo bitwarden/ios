@@ -127,7 +127,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
             name: account.profile.name
         )
         let serializedCXF = try await clientService.exporters().exportCxf(account: sdkAccount, ciphers: ciphers)
-        return try JSONDecoder.cxpDecoder.decode(ASImportableAccount.self, from: Data(serializedCXF.utf8))
+        return try JSONDecoder.cxfDecoder.decode(ASImportableAccount.self, from: Data(serializedCXF.utf8))
     }
 
     #endif

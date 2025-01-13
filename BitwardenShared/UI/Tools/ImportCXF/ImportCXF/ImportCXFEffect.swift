@@ -1,10 +1,10 @@
 import Foundation
 
-// MARK: - ImportCXPEffect
+// MARK: - ImportCXFEffect
 
-/// Effects that can be processed by a `ImportCXPProcessor`.
+/// Effects that can be processed by a `ImportCXFProcessor`.
 ///
-enum ImportCXPEffect: Equatable {
+enum ImportCXFEffect: Equatable {
     /// The view appeared.
     case appeared
 

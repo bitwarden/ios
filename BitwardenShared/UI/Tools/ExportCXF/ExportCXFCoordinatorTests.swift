@@ -63,7 +63,7 @@ class ExportCXFCoordinatorTests: BitwardenTestCase {
 
     /// `start()` shows the Credential Exchange export view.
     @MainActor
-    func test_start_showsExportCXP() {
+    func test_start_showsExportCXF() {
         subject.start()
 
         XCTAssertTrue(stackNavigator.actions.last?.view is ExportCXFView)

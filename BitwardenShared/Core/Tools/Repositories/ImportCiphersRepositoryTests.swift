@@ -246,7 +246,7 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
     @available(iOS 18.2, *)
     private func getASExportedCredentialDataAsJson(data: ASExportedCredentialData) throws -> String {
-        let credentialData = try JSONEncoder.cxpEncoder.encode(data)
+        let credentialData = try JSONEncoder.cxfEncoder.encode(data)
         guard let credentialDataJsonString = String(data: credentialData, encoding: .utf8) else {
             throw BitwardenError.dataError("Failed to encode ASExportedCredentialData")
         }

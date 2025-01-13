@@ -36,7 +36,7 @@ class PageHeaderViewTests: BitwardenTestCase {
             image: Asset.Images.plus24,
             style: .largeTextTintedIcon,
             title: Localizations.importPasswords,
-            message: Localizations.startImportCXPDescriptionLong
+            message: Localizations.startImportCXFDescriptionLong
         )
         assertSnapshots(
             of: subject,
