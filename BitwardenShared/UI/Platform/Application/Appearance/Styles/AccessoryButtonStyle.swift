@@ -7,12 +7,10 @@ import SwiftUI
 struct AccessoryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .frame(width: 14, height: 14)
-            .padding(10)
-            .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
-            .background(Asset.Colors.Legacy.fillTertiary.swiftUIColor)
-            .clipShape(Circle())
+            .frame(width: 24, height: 24)
+            .foregroundColor(Asset.Colors.iconPrimary.swiftUIColor)
             .opacity(configuration.isPressed ? 0.5 : 1)
+            .contentShape(Rectangle())
     }
 }
 
@@ -31,14 +29,14 @@ extension ButtonStyle where Self == AccessoryButtonStyle {
 #if DEBUG
 #Preview("Enabled") {
     Button {} label: {
-        Asset.Images.copy16.swiftUIImage
+        Asset.Images.copy24.swiftUIImage
     }
     .buttonStyle(.accessory)
 }
 
 #Preview("Disabled") {
     Button {} label: {
-        Asset.Images.copy16.swiftUIImage
+        Asset.Images.copy24.swiftUIImage
     }
     .buttonStyle(.accessory)
     .disabled(true)

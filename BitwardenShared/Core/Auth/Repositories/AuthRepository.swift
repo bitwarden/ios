@@ -625,8 +625,8 @@ extension DefaultAuthRepository: AuthRepository {
                 errorReporter.log(error: error)
             }
 
-            if let baseUrl = try? await stateService.getEnvironmentUrls(userId: userId)?.base,
-               baseUrl == environmentService.baseURL {
+            if let baseURL = try? await stateService.getEnvironmentURLs(userId: userId)?.base,
+               baseURL == environmentService.baseURL {
                 return userId
             }
         }
@@ -877,7 +877,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func unlockVaultFromLoginWithDevice(privateKey: String, key: String, masterPasswordHash: String?) async throws {
-        let method: AuthRequestMethod =
+        let method =
             if masterPasswordHash != nil,
             let encUserKey = try await stateService.getAccountEncryptionKeys().encryptedUserKey {
                 AuthRequestMethod.masterKey(protectedMasterKey: key, authRequestKey: encUserKey)

@@ -8,6 +8,9 @@ struct ProfileResponseModel: Codable, Equatable {
     /// The user's avatar color.
     let avatarColor: String?
 
+    /// The user's account creation date.
+    let creationDate: Date?
+
     /// The user's locale.
     let culture: String?
 

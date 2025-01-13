@@ -46,7 +46,7 @@ struct MoveToOrganizationView: View {
                         Text(collection.name)
                     }
                     .toggleStyle(.bitwarden)
-                    .accessibilityIdentifier("CollectionItemCell")
+                    .accessibilityIdentifier("CollectionItemSwitch")
                 }
             }
         }

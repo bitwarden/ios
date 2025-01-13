@@ -8,6 +8,9 @@ protocol Menuable: Equatable, Hashable {
     ///  The custom localizable title value for this default case, defaults to  `Default`.
     static var defaultValueLocalizedName: String { get }
 
+    /// The accessibility identifier for the menu option.
+    var accessibilityId: String { get }
+
     /// A localized name value. This value is displayed in the Menu when the user
     /// is making a selection between multiple options.
     var localizedName: String { get }
@@ -16,6 +19,10 @@ protocol Menuable: Equatable, Hashable {
 extension Menuable {
     static var defaultValueLocalizedName: String {
         Localizations.default
+    }
+
+    var accessibilityId: String {
+        localizedName
     }
 }
 
