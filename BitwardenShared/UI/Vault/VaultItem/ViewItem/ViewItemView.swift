@@ -15,7 +15,7 @@ struct ViewItemView: View {
     /// Whether to show the collections option in the toolbar menu.
     var isCollectionsEnabled: Bool {
         guard let data = store.state.loadingState.data else { return false }
-        return data.canAssigntoCollection
+        return data.canAssignToCollection
     }
 
     /// Whether to show the delete option in the toolbar menu.

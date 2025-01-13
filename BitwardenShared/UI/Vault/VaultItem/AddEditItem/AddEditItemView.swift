@@ -122,7 +122,7 @@ struct AddEditItemView: View {
 
                     VaultItemManagementMenuView(
                         isCloneEnabled: false,
-                        isCollectionsEnabled: store.state.canAssigntoCollection,
+                        isCollectionsEnabled: store.state.canAssignToCollection,
                         isDeleteEnabled: store.state.canBeDeleted,
                         isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
                         store: store.child(
