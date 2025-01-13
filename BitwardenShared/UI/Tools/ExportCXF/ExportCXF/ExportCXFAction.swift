@@ -3,6 +3,6 @@ enum ExportCXFAction {
     /// The export all items button was tapped.
     case exportAllItemsTapped
 
-    /// The xport selected items button was tapped.
+    /// The export selected items button was tapped.
     case exportSelectedItemsTapped
 }

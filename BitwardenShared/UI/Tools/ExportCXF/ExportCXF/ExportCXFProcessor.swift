@@ -139,9 +139,9 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
         #endif
     }
 
-    /// Shows the alert confirming the user wants to import logins later.
+    /// Shows the alert confirming the user wants to export items later.
     private func cancelWithConfirmation() {
-        coordinator.showAlert(.confirmCancelCXPImport { [weak self] in
+        coordinator.showAlert(.confirmCancelCXFExport { [weak self] in
             guard let self else { return }
             coordinator.navigate(to: .dismiss)
         })

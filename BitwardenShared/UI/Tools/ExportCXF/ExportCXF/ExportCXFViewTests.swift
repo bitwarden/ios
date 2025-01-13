@@ -34,24 +34,20 @@ class ExportCXFViewTests: BitwardenTestCase {
 
     /// Tapping on the continue button performs the `.mainButtonTapped` effect.
     @MainActor
-    func test_mainButton_tapped() throws {
+    func test_mainButton_tapped() async throws {
         processor.state.status = .start
-        let button = try subject.inspect().find(button: Localizations.continue)
-        try button.tap()
-        waitFor {
-            processor.effects.last == .mainButtonTapped
-        }
+        let button = try subject.inspect().find(asyncButton: Localizations.continue)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .mainButtonTapped)
     }
 
     /// Tapping on the cancel button performs the `.cancel` effect.
     @MainActor
-    func test_cancelButton_tapped() throws {
+    func test_cancelButton_tapped() async throws {
         processor.state.status = .start
-        let button = try subject.inspect().find(button: Localizations.cancel)
-        try button.tap()
-        waitFor {
-            processor.effects.last == .cancel
-        }
+        let button = try subject.inspect().find(asyncButton: Localizations.cancel)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .cancel)
     }
 
     /// Test a snapshot on start status.

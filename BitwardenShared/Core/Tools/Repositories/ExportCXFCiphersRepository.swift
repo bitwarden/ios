@@ -105,8 +105,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     }
 
     func getCipherCountToExportCXF() async throws -> Int {
-        try await cipherService.fetchAllCiphers()
-            .count { $0.deletedDate == nil }
+        try await getAllCiphersToExportCXF().count
     }
 
     #if compiler(>=6.0.3)

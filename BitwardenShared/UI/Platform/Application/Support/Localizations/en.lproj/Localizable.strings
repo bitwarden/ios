@@ -1094,3 +1094,4 @@
 "RetryExport" = "Retry export";
 "ExportFailed" = "Export failed";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
+"AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";

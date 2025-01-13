@@ -13,61 +13,59 @@ struct ExportCXFView: View {
     // MARK: View
 
     var body: some View {
-        Group {
-            VStack(alignment: .leading, spacing: 16) {
-                PageHeaderView(
-                    image: Image(decorative: store.state.mainIcon),
-                    style: .largeTextTintedIcon,
-                    title: store.state.title,
-                    message: store.state.message
-                )
-                .padding(.horizontal, 30)
-                .frame(maxWidth: .infinity)
-
-                Text(store.state.sectionTitle)
-                    .styleGuide(.title, weight: .bold)
-                    .padding(.horizontal, 20)
-                    .accessibilityIdentifier("SectionTitle")
-
-                switch store.state.status {
-                case .start:
-                    Text(Localizations.exportAllItems(store.state.totalItemsToExport))
-                        .styleGuide(.title2)
-                        .padding(.horizontal, 20)
-                case let .prepared(results):
-                    VStack(spacing: 16) {
-                        ForEach(results) { result in
-                            exportingTypeRow(result: result)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 12)
-                case .failure:
-                    EmptyView()
-                }
-            }
-            .padding(.top, 8)
+        VStack(alignment: .leading, spacing: 16) {
+            PageHeaderView(
+                image: Image(decorative: store.state.mainIcon),
+                style: .largeTextTintedIcon,
+                title: store.state.title,
+                message: store.state.message
+            )
+            .padding(.horizontal, 30)
             .frame(maxWidth: .infinity)
-            .scrollView(backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor)
-            .safeAreaInset(edge: .bottom) {
-                VStack {
-                    if store.state.showMainButton {
-                        AsyncButton(store.state.mainButtonTitle) {
-                            await store.perform(.mainButtonTapped)
-                        }
-                        .buttonStyle(.primary())
-                        .accessibilityIdentifier("MainButton")
-                    }
 
-                    AsyncButton(Localizations.cancel) {
-                        await store.perform(.cancel)
+            Text(store.state.sectionTitle)
+                .styleGuide(.title, weight: .bold)
+                .padding(.horizontal, 20)
+                .accessibilityIdentifier("SectionTitle")
+
+            switch store.state.status {
+            case .start:
+                Text(Localizations.exportAllItems(store.state.totalItemsToExport))
+                    .styleGuide(.title2)
+                    .padding(.horizontal, 20)
+            case let .prepared(results):
+                VStack(spacing: 16) {
+                    ForEach(results) { result in
+                        exportingTypeRow(result: result)
                     }
-                    .buttonStyle(.secondary())
-                    .accessibilityIdentifier("CancelButton")
                 }
-                .padding(.horizontal, 16)
-                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+                .padding(.horizontal, 20)
+                .padding(.top, 12)
+            case .failure:
+                EmptyView()
             }
+        }
+        .padding(.top, 8)
+        .frame(maxWidth: .infinity)
+        .scrollView(backgroundColor: Asset.Colors.backgroundSecondary.swiftUIColor)
+        .safeAreaInset(edge: .bottom) {
+            VStack {
+                if store.state.showMainButton {
+                    AsyncButton(store.state.mainButtonTitle) {
+                        await store.perform(.mainButtonTapped)
+                    }
+                    .buttonStyle(.primary())
+                    .accessibilityIdentifier("MainButton")
+                }
+
+                AsyncButton(Localizations.cancel) {
+                    await store.perform(.cancel)
+                }
+                .buttonStyle(.secondary())
+                .accessibilityIdentifier("CancelButton")
+            }
+            .padding(.horizontal, 16)
+            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         }
         .transition(.opacity)
         .animation(.easeInOut, value: store.state.status)
