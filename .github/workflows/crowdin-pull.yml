@@ -41,7 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
         with:
-          config: crowdin.yml
+          config: crowdin-pm.yml
           upload_sources: false
           upload_translations: false
           download_translations: true
