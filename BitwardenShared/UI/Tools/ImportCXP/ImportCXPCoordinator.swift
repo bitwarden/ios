@@ -8,6 +8,7 @@ class ImportCXPCoordinator: Coordinator, HasStackNavigator {
     typealias Services = HasConfigService
         & HasErrorReporter
         & HasImportCiphersRepository
+        & HasPolicyService
         & HasStateService
 
     // MARK: Private Properties
