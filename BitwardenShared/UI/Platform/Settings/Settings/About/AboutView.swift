@@ -17,13 +17,11 @@ struct AboutView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            submitCrashLogs
-
             miscSection
 
             copyrightNotice
         }
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.about, titleDisplayMode: .inline)
         .toast(store.binding(
             get: \.toast,
@@ -54,7 +52,9 @@ struct AboutView: View {
 
     /// The section of miscellaneous about items.
     private var miscSection: some View {
-        VStack(spacing: 0) {
+        ContentBlock(dividerLeadingPadding: 16) {
+            submitCrashLogs
+
             externalLinkRow(Localizations.bitwardenHelpCenter, action: .helpCenterTapped)
 
             externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
@@ -70,20 +70,18 @@ struct AboutView: View {
                     .imageStyle(.rowIcon)
             }
         }
-        .cornerRadius(10)
     }
 
     /// The submit crash logs toggle.
     private var submitCrashLogs: some View {
-        Toggle(isOn: store.binding(
-            get: \.isSubmitCrashLogsToggleOn,
-            send: AboutAction.toggleSubmitCrashLogs
-        )) {
-            Text(Localizations.submitCrashLogs)
-        }
-        .toggleStyle(.bitwarden)
-        .styleGuide(.body)
-        .accessibilityIdentifier("SubmitCrashLogsSwitch")
+        BitwardenToggle(
+            Localizations.submitCrashLogs,
+            isOn: store.binding(
+                get: \.isSubmitCrashLogsToggleOn,
+                send: AboutAction.toggleSubmitCrashLogs
+            ),
+            accessibilityIdentifier: "SubmitCrashLogsSwitch"
+        )
     }
 
     /// Returns a `SettingsListItem` configured for an external web link.
@@ -94,7 +92,7 @@ struct AboutView: View {
     /// - Returns: A `SettingsListItem` configured for an external web link.
     ///
     private func externalLinkRow(_ name: String, action: AboutAction) -> some View {
-        SettingsListItem(name) {
+        SettingsListItem(name, hasDivider: false) {
             store.send(action)
         } trailingContent: {
             Asset.Images.externalLink24.swiftUIImage
