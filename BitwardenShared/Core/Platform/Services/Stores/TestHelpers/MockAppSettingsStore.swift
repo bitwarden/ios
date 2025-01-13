@@ -20,7 +20,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
     var overrideDebugFeatureFlagCalled = false
-    var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var preAuthEnvironmentURLs: EnvironmentURLData?
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
@@ -43,7 +43,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
-    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
+    var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
@@ -152,8 +152,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId]
     }
 
-    func accountCreationEnvironmentUrls(email: String) -> BitwardenShared.EnvironmentUrlData? {
-        accountCreationEnvironmentUrls[email]
+    func accountCreationEnvironmentURLs(email: String) -> BitwardenShared.EnvironmentURLData? {
+        accountCreationEnvironmentURLs[email]
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -260,8 +260,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId] = key
     }
 
-    func setAccountCreationEnvironmentUrls(environmentUrlData: BitwardenShared.EnvironmentUrlData, email: String) {
-        accountCreationEnvironmentUrls[email] = environmentUrlData
+    func setAccountCreationEnvironmentURLs(environmentURLData: BitwardenShared.EnvironmentURLData, email: String) {
+        accountCreationEnvironmentURLs[email] = environmentURLData
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {

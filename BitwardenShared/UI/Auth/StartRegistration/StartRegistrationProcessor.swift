@@ -179,11 +179,11 @@ class StartRegistrationProcessor: StateProcessor<
                     userEmail: email
                 ))
             } else {
-                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentUrls() else {
+                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentURLs() else {
                     throw StartRegistrationError.preAuthUrlsEmpty
                 }
 
-                await services.stateService.setAccountCreationEnvironmentUrls(urls: preAuthUrls, email: email)
+                await services.stateService.setAccountCreationEnvironmentURLs(urls: preAuthUrls, email: email)
                 coordinator.navigate(to: .checkEmail(email: email))
             }
         } catch let error as StartRegistrationError {
@@ -219,7 +219,7 @@ class StartRegistrationProcessor: StateProcessor<
 // MARK: - SelfHostedProcessorDelegate
 
 extension StartRegistrationProcessor: SelfHostedProcessorDelegate {
-    func didSaveEnvironment(urls: EnvironmentUrlData) async {
+    func didSaveEnvironment(urls: EnvironmentURLData) async {
         await setRegion(.selfHosted, urls)
         state.toast = Toast(title: Localizations.environmentSaved)
     }
@@ -234,7 +234,7 @@ extension StartRegistrationProcessor: RegionDelegate {
     ///   - region: The region to use.
     ///   - urls: The URLs that the app should use for the region.
     ///
-    func setRegion(_ region: RegionType, _ urls: EnvironmentUrlData) async {
+    func setRegion(_ region: RegionType, _ urls: EnvironmentURLData) async {
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region

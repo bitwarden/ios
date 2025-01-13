@@ -22,36 +22,40 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     var body: some View {
         ZStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if store.state.isSendDisabled {
-                        InfoContainer(Localizations.sendDisabledWarning)
-                    } else if store.state.isSendHideEmailDisabled {
-                        InfoContainer(Localizations.sendOptionsPolicyInEffect)
-                    }
-
-                    nameField
-
-                    if store.state.mode == .add {
-                        typePicker
-                    }
-
-                    switch store.state.type {
-                    case .text:
-                        textSendAttributes
-                    case .file:
-                        fileSendAttributes
-                    }
-
-                    optionsButton
-
-                    if store.state.isOptionsExpanded {
-                        options
-                    }
+            VStack(spacing: 0) {
+                if store.state.mode == .add {
+                    typePicker
+                    Divider()
                 }
-                .padding(16)
-                .disabled(store.state.isSendDisabled)
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        if store.state.isSendDisabled {
+                            InfoContainer(Localizations.sendDisabledWarning)
+                        } else if store.state.isSendHideEmailDisabled {
+                            InfoContainer(Localizations.sendOptionsPolicyInEffect)
+                        }
+
+                        nameField
+
+                        switch store.state.type {
+                        case .text:
+                            textSendAttributes
+                        case .file:
+                            fileSendAttributes
+                        }
+
+                        optionsButton
+
+                        if store.state.isOptionsExpanded {
+                            options
+                        }
+                    }
+                    .padding(16)
+                }
             }
+            .disabled(store.state.isSendDisabled)
+
             profileSwitcher
         }
         .dismissKeyboardInteractively()
@@ -497,23 +501,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The type field.
     @ViewBuilder private var typePicker: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Localizations.type)
-                .styleGuide(.subheadline, weight: .semibold)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-            Picker(Localizations.type, selection: store.binding(
-                get: \.type,
-                send: AddEditSendItemAction.typeChanged
-            )) {
-                ForEach(SendType.allCases, id: \.self) { sendType in
-                    Text(sendType.localizedName)
-                        .tag(sendType)
-                        .accessibilityIdentifier(sendType == .file ? "SendFileButton" : "SendTextButton")
-                }
-            }
-            .pickerStyle(SegmentedPickerStyle())
-        }
+        BitwardenSegmentedControl(
+            selection: store.binding(get: \.type, send: AddEditSendItemAction.typeChanged),
+            selections: SendType.allCases
+        )
+        .padding(.horizontal, 12)
+        .padding(.bottom, 12)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
     }
 }
 

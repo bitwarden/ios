@@ -24,6 +24,7 @@ typealias Services = HasAPIService
     & HasFido2UserInterfaceHelper
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasImportCiphersRepository
     & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService
@@ -36,6 +37,7 @@ typealias Services = HasAPIService
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService
+    & HasSyncService
     & HasSystemDevice
     & HasTOTPExpirationManagerFactory
     & HasTOTPService
@@ -210,6 +212,13 @@ protocol HasGeneratorRepository {
     var generatorRepository: GeneratorRepository { get }
 }
 
+/// Protocol for an object that provides a `ImportCiphersRepository`.
+///
+protocol HasImportCiphersRepository {
+    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    var importCiphersRepository: ImportCiphersRepository { get }
+}
+
 /// Protocol for an object that provides a `LocalAuthService`.
 ///
 protocol HasLocalAuthService {
@@ -290,6 +299,13 @@ protocol HasSettingsRepository {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that has a `SyncService`.
+///
+protocol HasSyncService {
+    /// The service used by the application to sync account data.
+    var syncService: SyncService { get }
 }
 
 /// Protocol for an object that provides a `SystemDevice`.

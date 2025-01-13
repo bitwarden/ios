@@ -31,6 +31,9 @@ enum ExternalLinksConstants {
     /// A link to the import logins help page.
     static let importHelp = URL(string: "https://bitwarden.com/help/import-data/")!
 
+    /// A link to the new device verification help page.
+    static let newDeviceVerification = URL(string: "https://bitwarden.com/help/new-device-verification/")!
+
     /// A link to the password options within the passwords section of the settings menu.
     static let passwordOptions = URL(string: "App-prefs:PASSWORDS&path=PASSWORD_OPTIONS")!
 

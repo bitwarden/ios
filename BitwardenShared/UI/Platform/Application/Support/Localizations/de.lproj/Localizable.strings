@@ -1059,8 +1059,8 @@
 "CopyPrivateKey" = "Privaten Schlüssel kopieren";
 "CopyFingerprint" = "Fingerabdruck kopieren";
 "SSHKeys" = "SSH-Schlüssel";
-"NothingAvailableToAutofill" = "Nothing available to autofill";
-"FailedToGenerateVerificationCode" = "Failed to generate verification code";
-"FailedToAutofillItem" = "Failed to autofill item %1$@";
+"NothingAvailableToAutofill" = "Nichts zum automatischen Ausfüllen vorhanden";
+"FailedToGenerateVerificationCode" = "Fehler beim Generieren des Verifizierungscodes";
+"FailedToAutofillItem" = "Fehler beim automatischen Ausfüllen des Eintrags %1$@";
 "ExportingFailed" = "Exportieren fehlgeschlagen";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Möglicherweise musst du Gerätecodes oder Biometrie aktivieren.";
