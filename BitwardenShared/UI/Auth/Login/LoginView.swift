@@ -50,7 +50,7 @@ struct LoginView: View {
                     get: \.masterPassword,
                     send: LoginAction.masterPasswordChanged
                 ),
-                accessibilityIdentifier: "MasterPasswordEntry",
+                accessibilityIdentifier: "LoginMasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
