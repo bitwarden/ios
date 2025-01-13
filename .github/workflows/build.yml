@@ -80,6 +80,7 @@ env:
   _BUILD_MODE: ${{ inputs.build-mode || 'Device' }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
+  _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
 jobs:
   build:
@@ -140,7 +141,7 @@ jobs:
 
       - name: Upload version info artifact
         if: ${{ inputs.upload_version_info }}
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: version-info
           path: version-info/version_info.json
@@ -156,7 +157,7 @@ jobs:
 
       - name: Cache Mint packages
         id: mint-cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a # v4.1.2
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -326,7 +327,7 @@ jobs:
 
       - name: Configure Ruby
         if: env._BUILD_MODE == 'Device'
-        uses: ruby/setup-ruby@a2bbe5b1b236842c1cb7dd11e8e3b51e0a616acc # v1.202.0
+        uses: ruby/setup-ruby@401c19e14f474b54450cd3905bb8b86e2c8509cf # v1.204.0
         with:
           bundler-cache: true
 
@@ -359,7 +360,7 @@ jobs:
 
       - name: Update CI build info
         run: |
-          ./Scripts/update_app_ci_build_info.sh ${{ github.run_id }} ${{ github.run_number }} ${{ github.run_attempt }} "${{ env._COMPILER_FLAGS }}"
+          ./Scripts/update_app_ci_build_info.sh $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_SHA $GITHUB_RUN_ID $GITHUB_RUN_ATTEMPT "$_COMPILER_FLAGS"
 
       - name: Build iOS app
         run: |
@@ -384,7 +385,7 @@ jobs:
           esac
 
       - name: Upload artifacts to GitHub
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env._BUILD_VARIANT }} ${{ env._XCODE_VERSION || env.DEFAULT_XCODE_VERSION }} ${{ env._BUILD_MODE }} ${{ env._COMPILER_FLAGS }}
           path: export
@@ -414,7 +415,7 @@ jobs:
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
           Xcode ${{ env._XCODE_VERSION }}
           Compiler Flags: ${{ inputs.compiler-flags }}
-          $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          $_GITHUB_ACTION_RUN_URL"
 
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \

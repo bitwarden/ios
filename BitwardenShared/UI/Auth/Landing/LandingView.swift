@@ -105,7 +105,7 @@ struct LandingView: View {
                     get: \.email,
                     send: LandingAction.emailChanged
                 ),
-                accessibilityIdentifier: "EmailAddressEntry"
+                accessibilityIdentifier: "LoginEmailAddressEntry"
             )
             .textFieldConfiguration(.email)
             .onSubmit {
@@ -115,7 +115,7 @@ struct LandingView: View {
 
             RegionSelector(
                 selectorLabel: Localizations.loggingInOn,
-                regionName: store.state.region.baseUrlDescription
+                regionName: store.state.region.baseURLDescription
             ) {
                 await store.perform(.regionPressed)
             }
@@ -142,6 +142,7 @@ struct LandingView: View {
                 Button(Localizations.createAccount) {
                     store.send(.createAccountPressed)
                 }
+                .accessibilityIdentifier("CreateAccountButton")
                 .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
                 Spacer()
             }

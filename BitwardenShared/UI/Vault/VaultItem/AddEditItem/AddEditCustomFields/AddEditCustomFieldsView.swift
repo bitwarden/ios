@@ -99,7 +99,7 @@ struct AddEditCustomFieldsView: View {
             Button(Localizations.newCustomField) {
                 store.send(.newCustomFieldPressed)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("NewCustomFieldButton")
         }
     }
@@ -122,8 +122,8 @@ struct AddEditCustomFieldsView: View {
                 store.send(.removeCustomFieldPressed(index: index))
             }
         } label: {
-            Asset.Images.cog16.swiftUIImage
-                .imageStyle(.accessoryIcon)
+            Asset.Images.cog24.swiftUIImage
+                .imageStyle(.accessoryIcon24)
                 .accessibilityLabel(Localizations.options)
         }
     }

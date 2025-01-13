@@ -681,18 +681,18 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.string(forKey: "bwPreferencesStorage:pinKeyEncryptedUserKey_1"), pin)
     }
 
-    /// `preAuthEnvironmentUrls` returns `nil` if there isn't a previously stored value.
-    func test_preAuthEnvironmentUrls_isInitiallyNil() {
-        XCTAssertNil(subject.preAuthEnvironmentUrls)
+    /// `preAuthEnvironmentURLs` returns `nil` if there isn't a previously stored value.
+    func test_preAuthEnvironmentURLs_isInitiallyNil() {
+        XCTAssertNil(subject.preAuthEnvironmentURLs)
     }
 
-    /// `preAuthEnvironmentUrls` can be used to get and set the persisted value in user defaults.
-    func test_preAuthEnvironmentUrls_withValue() {
-        subject.preAuthEnvironmentUrls = .defaultUS
-        XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultUS)
+    /// `preAuthEnvironmentURLs` can be used to get and set the persisted value in user defaults.
+    func test_preAuthEnvironmentURLs_withValue() {
+        subject.preAuthEnvironmentURLs = .defaultUS
+        XCTAssertEqual(subject.preAuthEnvironmentURLs, .defaultUS)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                EnvironmentUrlData.self,
+                EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
@@ -702,11 +702,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             .defaultUS
         )
 
-        subject.preAuthEnvironmentUrls = .defaultEU
-        XCTAssertEqual(subject.preAuthEnvironmentUrls, .defaultEU)
+        subject.preAuthEnvironmentURLs = .defaultEU
+        XCTAssertEqual(subject.preAuthEnvironmentURLs, .defaultEU)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                EnvironmentUrlData.self,
+                EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:preAuthEnvironmentUrls")?
@@ -717,19 +717,19 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         )
     }
 
-    /// `accountCreationEnvironmentUrls` returns `nil` if there isn't a previously stored value.
-    func test_accountCreationEnvironmentUrls_isInitiallyNil() {
-        XCTAssertNil(subject.accountCreationEnvironmentUrls(email: "example@email.com"))
+    /// `accountCreationEnvironmentURLs` returns `nil` if there isn't a previously stored value.
+    func test_accountCreationEnvironmentURLs_isInitiallyNil() {
+        XCTAssertNil(subject.accountCreationEnvironmentURLs(email: "example@email.com"))
     }
 
-    /// `accountCreationEnvironmentUrls` can be used to get and set the persisted value in user defaults.
-    func test_accountCreationEnvironmentUrls_withValue() {
+    /// `accountCreationEnvironmentURLs` can be used to get and set the persisted value in user defaults.
+    func test_accountCreationEnvironmentURLs_withValue() {
         let email = "example@email.com"
-        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultUS, email: email)
-        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultUS)
+        subject.setAccountCreationEnvironmentURLs(environmentURLData: .defaultUS, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentURLs(email: email), .defaultUS)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                EnvironmentUrlData.self,
+                EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
@@ -739,11 +739,11 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             .defaultUS
         )
 
-        subject.setAccountCreationEnvironmentUrls(environmentUrlData: .defaultEU, email: email)
-        XCTAssertEqual(subject.accountCreationEnvironmentUrls(email: email), .defaultEU)
+        subject.setAccountCreationEnvironmentURLs(environmentURLData: .defaultEU, email: email)
+        XCTAssertEqual(subject.accountCreationEnvironmentURLs(email: email), .defaultEU)
         try XCTAssertEqual(
             JSONDecoder().decode(
-                EnvironmentUrlData.self,
+                EnvironmentURLData.self,
                 from: XCTUnwrap(
                     userDefaults
                         .string(forKey: "bwPreferencesStorage:accountCreationEnvironmentUrls_\(email)")?
@@ -856,6 +856,21 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:shouldSyncToAuthenticator_2"))
     }
 
+    /// `twoFactorNoticeDisplayState(userId:)` returns `.hasNotSeen` if there isn't a previously stored value.
+    func test_twoFactorNoticeDisplayState_isInitiallyNotSeen() {
+        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "anyone@example.com"), .hasNotSeen)
+    }
+
+    /// `twoFactorToken(email:)` can be used to get and set the persisted value in user defaults.
+    func test_twoFactorNoticeDisplayState_withValue() {
+        let date = Date()
+        subject.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "person1@example.com")
+        subject.setTwoFactorNoticeDisplayState(.seen(date), userId: "person2@example.com")
+
+        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "person1@example.com"), .canAccessEmail)
+        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "person2@example.com"), .seen(date))
+    }
+
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.
     func test_twoFactorToken_isInitiallyNil() {
         XCTAssertNil(subject.twoFactorToken(email: "anything@email.com"))
@@ -950,6 +965,43 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         subject.rememberedEmail = nil
         XCTAssertNil(subject.rememberedEmail)
         XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:rememberedEmail"))
+    }
+
+    /// `reviewPromptShownForVersion` returns `nil` if there isn't a previously stored value.
+    func test_reviewPromptShownForVersion_isInitiallyNil() {
+        XCTAssertNil(subject.reviewPromptData?.reviewPromptShownForVersion)
+    }
+
+    /// `reviewPromptData` returns `nil` if there isn't a previously stored value.
+    func test_reviewPromptData_isInitiallyNil() {
+        XCTAssertNil(subject.reviewPromptData)
+    }
+
+    /// `reviewPromptData` can be used to get and set the persisted value in user defaults.
+    func test_reviewPromptData_withValue() {
+        let reviewPromptData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.1",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
+        subject.reviewPromptData = reviewPromptData
+        XCTAssertEqual(subject.reviewPromptData, reviewPromptData)
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                ReviewPromptData.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:reviewPromptData")?
+                        .data(using: .utf8)
+                )
+            ),
+            reviewPromptData
+        )
     }
 
     /// `usesKeyConnector(userId:)` returns `false` if there isn't a previously stored value.

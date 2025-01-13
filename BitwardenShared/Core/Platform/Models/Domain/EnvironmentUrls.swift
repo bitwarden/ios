@@ -2,7 +2,7 @@ import Foundation
 
 /// A wrapper around non-optional URLs that the app uses in its environment.
 ///
-struct EnvironmentUrls: Equatable {
+struct EnvironmentURLs: Equatable {
     // MARK: Properties
 
     /// The URL for the API.
@@ -10,6 +10,9 @@ struct EnvironmentUrls: Equatable {
 
     /// The base URL.
     let baseURL: URL
+
+    /// The URL for changing email address.
+    let changeEmailURL: URL
 
     /// The URL for the events API.
     let eventsURL: URL
@@ -32,24 +35,27 @@ struct EnvironmentUrls: Equatable {
     /// The URL for vault settings.
     let settingsURL: URL
 
+    /// The URL for setting up two-factor login.
+    let setUpTwoFactorURL: URL
+
     /// The URL for the web vault.
     let webVaultURL: URL
 }
 
-extension EnvironmentUrls {
-    /// Initialize `EnvironmentUrls` from `EnvironmentUrlData`.
+extension EnvironmentURLs {
+    /// Initialize `EnvironmentURLs` from `EnvironmentURLData`.
     ///
-    /// - Parameter environmentUrlData: The environment URLs used to initialize `EnvironmentUrls`.
+    /// - Parameter environmentURLData: The environment URLs used to initialize `EnvironmentURLs`.
     ///
-    init(environmentUrlData: EnvironmentUrlData) {
+    init(environmentURLData: EnvironmentURLData) {
         // Use the default URLs if the region matches US or EU.
-        let environmentUrlData: EnvironmentUrlData = switch environmentUrlData.region {
+        let environmentURLData: EnvironmentURLData = switch environmentURLData.region {
         case .europe: .defaultEU
         case .unitedStates: .defaultUS
-        case .selfHosted: environmentUrlData
+        case .selfHosted: environmentURLData
         }
 
-        if environmentUrlData.region == .selfHosted, let base = environmentUrlData.base {
+        if environmentURLData.region == .selfHosted, let base = environmentURLData.base {
             apiURL = base.appendingPathComponent("api")
             baseURL = base
             eventsURL = base.appendingPathComponent("events")
@@ -57,18 +63,20 @@ extension EnvironmentUrls {
             identityURL = base.appendingPathComponent("identity")
             webVaultURL = base
         } else {
-            apiURL = environmentUrlData.api ?? URL(string: "https://api.bitwarden.com")!
-            baseURL = environmentUrlData.base ?? URL(string: "https://vault.bitwarden.com")!
-            eventsURL = environmentUrlData.events ?? URL(string: "https://events.bitwarden.com")!
-            iconsURL = environmentUrlData.icons ?? URL(string: "https://icons.bitwarden.net")!
-            identityURL = environmentUrlData.identity ?? URL(string: "https://identity.bitwarden.com")!
-            webVaultURL = environmentUrlData.webVault ?? URL(string: "https://vault.bitwarden.com")!
+            apiURL = environmentURLData.api ?? URL(string: "https://api.bitwarden.com")!
+            baseURL = environmentURLData.base ?? URL(string: "https://vault.bitwarden.com")!
+            eventsURL = environmentURLData.events ?? URL(string: "https://events.bitwarden.com")!
+            iconsURL = environmentURLData.icons ?? URL(string: "https://icons.bitwarden.net")!
+            identityURL = environmentURLData.identity ?? URL(string: "https://identity.bitwarden.com")!
+            webVaultURL = environmentURLData.webVault ?? URL(string: "https://vault.bitwarden.com")!
         }
-        importItemsURL = environmentUrlData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
-        recoveryCodeURL = environmentUrlData.recoveryCodeUrl ?? URL(
+        importItemsURL = environmentURLData.importItemsURL ?? URL(string: "https://vault.bitwarden.com/#/tools/import")!
+        recoveryCodeURL = environmentURLData.recoveryCodeURL ?? URL(
             string: "https://vault.bitwarden.com/#/recover-2fa"
         )!
-        sendShareURL = environmentUrlData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
-        settingsURL = environmentUrlData.settingsURL ?? webVaultURL
+        sendShareURL = environmentURLData.sendShareURL ?? URL(string: "https://send.bitwarden.com/#")!
+        settingsURL = environmentURLData.settingsURL ?? webVaultURL
+        changeEmailURL = environmentURLData.changeEmailURL ?? settingsURL
+        setUpTwoFactorURL = environmentURLData.setUpTwoFactorURL ?? settingsURL
     }
 }

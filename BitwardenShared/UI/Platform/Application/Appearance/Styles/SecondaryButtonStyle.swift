@@ -5,18 +5,51 @@ import SwiftUI
 /// The style for all secondary buttons in this application.
 ///
 struct SecondaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) var isEnabled: Bool
+
+    /// Whether the button is destructive.
+    var isDestructive = false
+
     /// If this button should fill to take up as much width as possible.
     var shouldFillWidth = true
 
+    /// The border stroke color.
+    var borderColor: Color {
+        if isDestructive {
+            Asset.Colors.error.swiftUIColor
+        } else {
+            isEnabled
+                ? Asset.Colors.buttonOutlinedBorder.swiftUIColor
+                : Asset.Colors.buttonOutlinedDisabledBorder.swiftUIColor
+        }
+    }
+
+    /// The color of the foreground elements in this button, including text and template
+    /// images.
+    var foregroundColor: Color {
+        if isDestructive {
+            Asset.Colors.error.swiftUIColor
+        } else {
+            isEnabled
+                ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
+                : Asset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
+        }
+    }
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
-            .styleGuide(.bodyBold)
-            .padding(.vertical, 14)
+            .foregroundColor(foregroundColor)
+            .multilineTextAlignment(.center)
+            .styleGuide(.bodyBold, includeLinePadding: false, includeLineSpacing: false)
+            .padding(.vertical, 12)
             .padding(.horizontal, 20)
-            .frame(maxWidth: shouldFillWidth ? .infinity : nil)
-            .background(Asset.Colors.buttonFilledBackground.swiftUIColor.opacity(0.08))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .frame(maxWidth: shouldFillWidth ? .infinity : nil, minHeight: 44)
+            .background {
+                Capsule()
+                    .strokeBorder(borderColor, lineWidth: 1.5)
+            }
+            .contentShape(Capsule())
+            .clipShape(Capsule())
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }
@@ -26,22 +59,29 @@ struct SecondaryButtonStyle: ButtonStyle {
 extension ButtonStyle where Self == SecondaryButtonStyle {
     /// The style for all secondary buttons in this application.
     ///
-    /// - Parameter shouldFillWidth: A flag indicating if this button should fill all available space.
+    /// - Parameters
+    ///   - isDestructive: Whether the button is destructive.
+    ///   - shouldFillWidth: A flag indicating if this button should fill all available space.
     ///
-    static func secondary(shouldFillWidth: Bool = true) -> SecondaryButtonStyle {
-        SecondaryButtonStyle(shouldFillWidth: shouldFillWidth)
+    static func secondary(isDestructive: Bool = false, shouldFillWidth: Bool = true) -> SecondaryButtonStyle {
+        SecondaryButtonStyle(isDestructive: isDestructive, shouldFillWidth: shouldFillWidth)
     }
 }
 
 #if DEBUG
 #Preview {
     VStack {
-        Button("Hello World!") {}
+        Group {
+            Button("Hello World!") {}
+
+            Button("Hello World!") {}
+                .disabled(true)
+        }
+        .buttonStyle(.secondary())
 
         Button("Hello World!") {}
-            .disabled(true)
+            .buttonStyle(.secondary(isDestructive: true))
     }
-    .buttonStyle(.secondary())
     .padding()
 }
 #endif

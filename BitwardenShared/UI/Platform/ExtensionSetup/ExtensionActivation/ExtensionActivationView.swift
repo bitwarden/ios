@@ -56,7 +56,7 @@ struct ExtensionActivationView: View {
             Button(Localizations.backToSettings) {
                 store.send(.cancelTapped)
             }
-            .buttonStyle(.transparent)
+            .buttonStyle(.secondary())
             .padding(.top, 12)
         }
     }

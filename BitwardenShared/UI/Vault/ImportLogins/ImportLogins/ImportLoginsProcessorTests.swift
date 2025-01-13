@@ -165,7 +165,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_appeared_webVaultHost() async throws {
         stateService.activeAccount = .fixture(settings: .fixture(
-            environmentUrls: .fixture(webVault: URL(string: "https://example.com")!)
+            environmentURLs: .fixture(webVault: URL(string: "https://example.com")!)
         ))
 
         await subject.perform(.appeared)
@@ -186,7 +186,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_appeared_webVaultHostNil() async throws {
         stateService.activeAccount = .fixture(settings: .fixture(
-            environmentUrls: .fixture(base: nil, webVault: nil)
+            environmentURLs: .fixture(base: nil, webVault: nil)
         ))
 
         await subject.perform(.appeared)

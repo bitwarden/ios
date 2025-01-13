@@ -201,6 +201,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
         let navigationController = UINavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: services,
             stackNavigator: navigationController
@@ -325,6 +326,11 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         delegate: GeneratorCoordinatorDelegate
     ) {
         let navigationController = UINavigationController()
+        if type != .username {
+            // Username doesn't show the segmented control so the divider should show. Otherwise,
+            // remove it to make the segmented control appear to be part of the navigation controller.
+            navigationController.removeHairlineDivider()
+        }
         let coordinator = module.makeGeneratorCoordinator(
             delegate: delegate,
             stackNavigator: navigationController
@@ -339,6 +345,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
         let navigationController = UINavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: services,
             stackNavigator: navigationController

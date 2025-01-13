@@ -38,7 +38,7 @@
 "InvalidMasterPassword" = "Chybné hlavní heslo. Zkuste to znovu.";
 "InvalidPIN" = "Chybný PIN. Zkuste to znovu.";
 "Launch" = "Spustit";
-"LogIn" = "Log in";
+"LogIn" = "Přihlásit se";
 "LogInNoun" = "Přihlašovací údaje";
 "LogOut" = "Odhlásit se";
 "LogoutConfirmation" = "Opravdu se chcete odhlásit?";
@@ -88,9 +88,9 @@
 "AvoidAmbiguousCharacters" = "Nepoužívat zaměnitelné znaky";
 "BitwardenAppExtension" = "Rozšíření aplikace Bitwarden";
 "BitwardenAppExtensionAlert2" = "Nejjednodušší způsob přidání nových přihlášení do trezoru je z rozšíření Bitwardenu. Další informace o používání rozšíření Bitwardenu získáte klepnutím na obrazovku Nastavení.";
-"BitwardenAppExtensionDescription" = "Použijte Bitwarden v Safari a ostatních prohlížečích pro automatické vyplnění přihlašovacích údajů.";
+"BitwardenAppExtensionDescription" = "Použije Bitwarden v Safari a ostatních prohlížečích pro automatické vyplnění přihlašovacích údajů.";
 "BitwardenAutofillService" = "Služba automatického vyplňování";
-"BitwardenAutofillAccessibilityServiceDescription" = "Použijte službu přístupnosti pro automatické vyplňování přihlašovacích údajů.";
+"BitwardenAutofillAccessibilityServiceDescription" = "Použije službu přístupnosti pro automatické vyplňování přihlašovacích údajů.";
 "ChangeEmail" = "Změnit e-mail";
 "ChangeEmailConfirmation" = "E-mailovou adresu si můžete změnit na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?";
 "ChangeMasterPassword" = "Změnit hlavní heslo";
@@ -199,7 +199,7 @@
 "Off" = "Vypnuto";
 "On" = "Zapnuto";
 "Status" = "Stav";
-"BitwardenAutofillServiceAlert2" = "Nejjednodušší způsob, jak přidat nové přihlašovací údaje do Vašeho trezoru, je služba automatického vyplňování Bitwardenu. Další informace o použití této služby naleznete na obrazovce \"Nastavení\".";
+"BitwardenAutofillServiceAlert2" = "Nejjednodušší způsob, jak přidat nové přihlašovací údaje do Vašeho trezoru, je služba automatického vyplňování Bitwarden. Další informace o použití této služby naleznete na obrazovce \"Nastavení\".";
 "Autofill" = "Automatické vyplňování";
 "AutofillOrView" = "Chcete automaticky vyplnit nebo zobrazit tyto přihlašovací údaje?";
 "BitwardenAutofillServiceMatchConfirm" = "Opravdu chcete tyto přihlašovací údaje automaticky vyplnit? Nejsou úplně shodné s \"%1$@\".";
@@ -238,7 +238,7 @@
 "Camera" = "Kamera";
 "Photos" = "Fotky";
 "CopyTotp" = "Kopírovat TOTP";
-"CopyTotpAutomaticallyDescription" = "Pokud mají Vaše přihlašovací údaje přidán autentizační klíč pro TOTP, vygenerovaný ověřovací kód (TOTP) se automaticky zkopíruje do schránky při každém automatickém vyplnění přihlašovacích údajů.";
+"CopyTotpAutomaticallyDescription" = "Pokud mají Vaše přihlašovací údaje přidán ověřovací klíč pro TOTP, vygenerovaný ověřovací kód (TOTP) se automaticky zkopíruje do schránky při každém automatickém vyplnění přihlašovacích údajů.";
 "CopyTotpAutomatically" = "Automaticky kopírovat TOTP";
 "PremiumRequired" = "Pro použití této funkce je potřebné členství Premium.";
 "AttachementAdded" = "Příloha byla přidána";
@@ -316,7 +316,7 @@
 "ShowWebsiteIcons" = "Zobrazit ikony webových stránek";
 "ShowWebsiteIconsDescription" = "Zobrazí rozeznatelný obrázek vedle každého přihlášení.";
 "IconsUrl" = "URL serveru ikon";
-"AutofillWithBitwarden" = "Automatické vyplnění aplikací Bitwarden";
+"AutofillWithBitwarden" = "Automatické vyplňování aplikací Bitwarden";
 "VaultIsLocked" = "Trezor je uzamčený";
 "GoToMyVault" = "Přejít do trezoru";
 "Collections" = "Kolekce";
@@ -468,7 +468,7 @@
 "BiometricsDirection" = "Použít biometrii k ověření";
 "Biometrics" = "Biometrie";
 "UseBiometricsToUnlock" = "Použít biometrii k odemknutí";
-"AccessibilityOverlayPermissionAlert" = "Bitwarden vyžaduje pozornost – Zkontrolujte \"Službu automatického vyplňování\" v nastavení Bitwardenu";
+"AccessibilityOverlayPermissionAlert" = "Bitwarden vyžaduje pozornost - zkontrolujte \"Službu automatického vyplňování\" v nastavení Bitwardenu";
 "BitwardenAutofillServiceOverlayPermission" = "3. V nastavení Android aplikace Bitwarden přejděte v části Rozšířená nastavení do \"Zobrazit přes ostatní aplikace\"  a povolte zobrazení přes jiné aplikace.";
 "OverlayPermission" = "Oprávnění";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "Otevřít nastavení oprávnění překrytí obrazovky";
@@ -526,7 +526,7 @@
 "AcceptPoliciesError" = "Podmínky použití a Zásady ochrany osobních údajů nebyly odsouhlaseny.";
 "TermsOfService" = "Podmínky použití";
 "PrivacyPolicy" = "Zásady ochrany osobních údajů";
-"AccessibilityDrawOverPermissionAlert" = "Bitwarden vyžaduje pozornost – Povolte volbu \"Zobrazit přes ostatní aplikace\" ve \"Službách automatického vyplňování“ v nastavení aplikace Bitwarden";
+"AccessibilityDrawOverPermissionAlert" = "Bitwarden vyžaduje pozornost - Povolte volbu \"Zobrazit přes ostatní aplikace\" ve \"Službách automatického vyplňování“ v nastavení aplikace Bitwarden";
 "PasskeyManagement" = "Správa přístupových klíčů";
 "AutofillServices" = "Služby automatického vyplňování";
 "InlineAutofill" = "Použít automatické vyplňování";
@@ -538,7 +538,7 @@
 "AccessibilityDescription4" = "Vyžadováno pro použití dlaždice rychlého automatického vyplnění nebo rozšíření služby automatického vyplnění pomocí vykreslování přes ostatní aplikace (pokud je povoleno).";
 "DrawOver" = "Použít vykreslování přes ostatní aplikace";
 "DrawOverDescription" = "Služba přístupnosti aplikace Bitwarden umožní zobrazovat vyskakovací okno při výběru pole s přihlašovacími údaji.";
-"DrawOverDescription2" = "Pokud je povoleno, služba usnadnění Bitwardenu zobrazí vyskakovací okno při výběru přihlašovacích polí pro automatické vyplňování přihlašovacích údajů.";
+"DrawOverDescription2" = "Pokud je povoleno, služba přístupnosti Bitwardenu zobrazí vyskakovací okno při výběru přihlašovacích polí pro automatické vyplňování přihlašovacích údajů.";
 "DrawOverDescription3" = "Pokud je povoleno, přístupnost zobrazí vyskakovací okno pro rozšíření služby automatického vyplňování pro starší aplikace, které nepodporují Android Autofill Framework.";
 "PersonalOwnershipSubmitError" = "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných kolekcí.";
 "PersonalOwnershipPolicyInEffect" = "Zásady organizace ovlivňují možnosti vlastnictví.";
@@ -1059,3 +1059,8 @@
 "CopyPrivateKey" = "Kopírovat soukromý klíč";
 "CopyFingerprint" = "Kopírovat otisk prstu";
 "SSHKeys" = "SSH klíče";
+"NothingAvailableToAutofill" = "Není k dispozici nic k automatickému vyplnění";
+"FailedToGenerateVerificationCode" = "Generování ověřovacího kódu se nezdařilo";
+"FailedToAutofillItem" = "Nezdařilo se automaticky vyplnit položku %1$@";
+"ExportingFailed" = "Exportování selhalo";
+"YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Možná budete muset povolit přístupový kód zařízení nebo biometriku.";

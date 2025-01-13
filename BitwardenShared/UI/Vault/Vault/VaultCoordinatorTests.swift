@@ -165,6 +165,19 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
+    /// onto the stack navigator filtered by a group.
+    @MainActor
+    func test_navigateTo_autofillListForGroup() throws {
+        subject.navigate(to: .autofillListForGroup(.identity))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+
+        let view = try XCTUnwrap((action.view as? UIHostingController<VaultAutofillListView>)?.rootView)
+        XCTAssertEqual(view.store.state.group, .identity)
+    }
+
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
     @MainActor
     func test_navigateTo_group() throws {
@@ -190,6 +203,33 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.vault))
     }
 
+    /// `navigate(to:)` with `.importCXP` presents the import view for Credential Exchange onto the stack navigator.
+    @MainActor
+    func test_navigateTo_importCXP() throws {
+        subject.navigate(
+            to: .importCXP(
+                .importCredentials(
+                    credentialImportToken: UUID(
+                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                    )!
+                )
+            )
+        )
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.importCXPCoordinator.isStarted)
+        XCTAssertEqual(
+            module.importCXPCoordinator.routes.last,
+            .importCredentials(
+                credentialImportToken: UUID(
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                )!
+            )
+        )
+    }
+
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
     @MainActor
     func test_navigateTo_list_withoutPresented() throws {
@@ -199,6 +239,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is VaultListView)
+        XCTAssertEqual(errorReporter.errors.last as? WindowSceneError, WindowSceneError.nullWindowScene)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
@@ -262,6 +303,20 @@ class VaultCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .switchAccount(userId: "123"))
 
         XCTAssertEqual(delegate.accountTapped, ["123"])
+    }
+
+    /// `navigate(to:)` with `.twoFactorNotice` presents the two-factor notice screen.
+    @MainActor
+    func test_navigateTo_twoFactorNotice() throws {
+        subject.navigate(to: .twoFactorNotice(allowDelay: true, emailAddress: "person@example.com"))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.twoFactorNoticeCoordinator.isStarted)
+        XCTAssertEqual(
+            module.twoFactorNoticeCoordinator.routes.last,
+            .emailAccess(allowDelay: true, emailAddress: "person@example.com")
+        )
     }
 
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.

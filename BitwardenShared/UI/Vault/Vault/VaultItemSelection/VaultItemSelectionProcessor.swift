@@ -132,8 +132,8 @@ class VaultItemSelectionProcessor: StateProcessor<
         switch profileSwitcherAction {
         case let .accessibility(accessibilityAction):
             switch accessibilityAction {
-            case .logout:
-                // No-op: account logout not supported in the extension.
+            case .logout, .remove:
+                // No-op: account logout and remove are not supported in this view.
                 break
             }
         default:
@@ -172,7 +172,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             let searchPublisher = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: .login,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             )
             for try await items in searchPublisher {
                 state.searchResults = items
@@ -224,7 +224,7 @@ class VaultItemSelectionProcessor: StateProcessor<
             for try await items in try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchName,
                 group: .login,
-                filterType: .allVaults
+                filter: VaultListFilter(filterType: .allVaults)
             ) {
                 guard !items.isEmpty else {
                     state.vaultListSections = []

@@ -50,7 +50,7 @@ struct LoginView: View {
                     get: \.masterPassword,
                     send: LoginAction.masterPasswordChanged
                 ),
-                accessibilityIdentifier: "MasterPasswordEntry",
+                accessibilityIdentifier: "LoginMasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
@@ -92,7 +92,7 @@ struct LoginView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(decorative: Asset.Images.mobile16)
-                            .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            .imageStyle(.accessoryIcon16(scaleWithFont: true))
                         Text(Localizations.logInWithDevice)
                     }
                 }
@@ -105,7 +105,7 @@ struct LoginView: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(decorative: Asset.Images.provider16)
-                        .imageStyle(.accessoryIcon(scaleWithFont: true))
+                        .imageStyle(.accessoryIcon16(scaleWithFont: true))
                     Text(Localizations.logInSso)
                 }
             }

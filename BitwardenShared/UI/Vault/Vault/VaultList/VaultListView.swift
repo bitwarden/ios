@@ -282,6 +282,9 @@ struct VaultListView: View {
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
+    /// The window scene for requesting a review.
+    var windowScene: UIWindowScene?
+
     var body: some View {
         ZStack {
             SearchableVaultListView(
@@ -326,9 +329,6 @@ struct VaultListView: View {
                     )
                 )
             }
-            addToolbarItem {
-                store.send(.addItemPressed)
-            }
         }
         .task {
             await store.perform(.refreshAccountProfiles)
@@ -347,6 +347,17 @@ struct VaultListView: View {
         }
         .task(id: store.state.vaultFilterType) {
             await store.perform(.streamVaultList)
+        }
+        .onAppear {
+            Task {
+                await store.perform(.checkAppReviewEligibility)
+            }
+        }
+        .onDisappear {
+            store.send(.disappeared)
+        }
+        .requestReview(windowScene: windowScene, isEligible: store.state.isEligibleForAppReview) {
+            store.send(.appReviewPromptShown)
         }
     }
 

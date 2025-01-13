@@ -1,14 +1,37 @@
 import SnapshotTesting
+import SwiftUI
 import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
 
 class GeneratorViewTests: BitwardenTestCase {
+    // MARK: Types
+
+    /// Wraps the generator view in a navigation controller with the hairline divider removed for
+    /// snapshot tests.
+    struct SnapshotView: UIViewControllerRepresentable {
+        let subject: GeneratorView
+
+        func makeUIViewController(context: Context) -> some UIViewController {
+            let viewController = UIHostingController(rootView: subject)
+            let navigationController = UINavigationController(rootViewController: viewController)
+            navigationController.navigationBar.prefersLargeTitles = true
+            navigationController.removeHairlineDivider()
+            return navigationController
+        }
+
+        func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
+    }
+
     // MARK: Properties
 
     var processor: MockProcessor<GeneratorState, GeneratorAction, GeneratorEffect>!
     var subject: GeneratorView!
+
+    var snapshotView: some View {
+        SnapshotView(subject: subject).edgesIgnoringSafeArea(.all)
+    }
 
     // MARK: Setup & Teardown
 
@@ -63,24 +86,6 @@ class GeneratorViewTests: BitwardenTestCase {
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.emailType)
         try menuField.select(newValue: UsernameEmailType.website)
         XCTAssertEqual(processor.dispatchedActions.last, .emailTypeChanged(.website))
-    }
-
-    /// Updating the generator type dispatches the `.generatorTypeChanged` action.
-    @MainActor
-    func test_menuGeneratorTypeChanged() throws {
-        processor.state.generatorType = .password
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.whatWouldYouLikeToGenerate)
-        try menuField.select(newValue: GeneratorType.username)
-        XCTAssertEqual(processor.dispatchedActions.last, .generatorTypeChanged(.username))
-    }
-
-    /// Updating the password generator type dispatches the `.passwordGeneratorTypeChanged` action.
-    @MainActor
-    func test_menuPasswordGeneratorTypeChanged() throws {
-        processor.state.passwordState.passwordGeneratorType = .password
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.passwordType)
-        try menuField.select(newValue: PasswordGeneratorType.passphrase)
-        XCTAssertEqual(processor.dispatchedActions.last, .passwordGeneratorTypeChanged(.passphrase))
     }
 
     /// Updating the username generator forwarded email service dispatches the
@@ -153,7 +158,7 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Updating the text value dispatches the `.textValueChanged` action.
     @MainActor
     func test_textValueChanged() throws {
-        processor.state.passwordState.passwordGeneratorType = .passphrase
+        processor.state.generatorType = .passphrase
         let field = FormTextField<GeneratorState>(
             accessibilityId: "WordSeparatorEntry",
             autocapitalization: .never,
@@ -194,7 +199,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatedValue = "pa11w0rd"
         processor.state.showCopiedValueToast()
         assertSnapshot(
-            of: subject.navStackWrapped,
+            of: snapshotView,
             as: .defaultPortrait
         )
     }
@@ -202,37 +207,38 @@ class GeneratorViewTests: BitwardenTestCase {
     /// Test a snapshot of the passphrase generation view.
     @MainActor
     func test_snapshot_generatorViewPassphrase() {
-        processor.state.passwordState.passwordGeneratorType = .passphrase
-        assertSnapshot(
-            of: subject.navStackWrapped,
-            as: .defaultPortrait
+        processor.state.generatorType = .passphrase
+        assertSnapshots(
+            of: snapshotView,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
 
     /// Test a snapshot of the password generation view.
     @MainActor
     func test_snapshot_generatorViewPassword() {
-        processor.state.passwordState.passwordGeneratorType = .password
-        assertSnapshot(
-            of: subject.navStackWrapped,
-            as: .defaultPortrait
+        processor.state.generatorType = .password
+        assertSnapshots(
+            of: snapshotView,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
 
     /// Test a snapshot of the password generation view with the select button.
     @MainActor
     func test_snapshot_generatorViewPassword_inPlace() {
-        processor.state.passwordState.passwordGeneratorType = .password
+        processor.state.generatorType = .password
         processor.state.presentationMode = .inPlace
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: snapshotView, as: .tallPortrait)
     }
 
     /// Test a snapshot of the password generation view with a policy in effect.
     @MainActor
     func test_snapshot_generatorViewPassword_policyInEffect() {
         processor.state.isPolicyInEffect = true
+        processor.state.policyOptions = PasswordGenerationOptions(type: .password, overridePasswordType: true)
         assertSnapshot(
-            of: subject.navStackWrapped,
+            of: snapshotView,
             as: .defaultPortrait
         )
     }
@@ -242,9 +248,9 @@ class GeneratorViewTests: BitwardenTestCase {
     func test_snapshot_generatorViewUsernameCatchAll() {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .catchAllEmail
-        assertSnapshot(
-            of: subject.navStackWrapped,
-            as: .defaultPortrait
+        assertSnapshots(
+            of: snapshotView,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
 
@@ -254,7 +260,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .forwardedEmail
         assertSnapshot(
-            of: subject.navStackWrapped,
+            of: snapshotView,
             as: .defaultPortrait
         )
     }
@@ -265,7 +271,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         assertSnapshot(
-            of: subject.navStackWrapped,
+            of: snapshotView,
             as: .defaultPortrait
         )
     }
@@ -276,7 +282,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .plusAddressedEmail
         processor.state.presentationMode = .inPlace
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: snapshotView, as: .defaultPortrait)
     }
 
     /// Test a snapshot of the random word username generation view.
@@ -285,7 +291,7 @@ class GeneratorViewTests: BitwardenTestCase {
         processor.state.generatorType = .username
         processor.state.usernameState.usernameGeneratorType = .randomWord
         assertSnapshot(
-            of: subject.navStackWrapped,
+            of: snapshotView,
             as: .defaultPortrait
         )
     }
