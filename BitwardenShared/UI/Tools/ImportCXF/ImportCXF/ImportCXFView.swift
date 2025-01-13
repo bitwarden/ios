@@ -1,14 +1,14 @@
 import SwiftUI
 
-// MARK: - ImportCXPView
+// MARK: - ImportCXFView
 
 /// A view to import credentials in the Credential Exchange protocol flow.
 ///
-struct ImportCXPView: View {
+struct ImportCXFView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<ImportCXPState, Void, ImportCXPEffect>
+    @ObservedObject var store: Store<ImportCXFState, Void, ImportCXFEffect>
 
     // MARK: View
 
@@ -101,15 +101,15 @@ struct ImportCXPView: View {
 
 #if DEBUG
 #Preview("Start") {
-    ImportCXPView(store: Store(processor: StateProcessor(state: ImportCXPState())))
+    ImportCXFView(store: Store(processor: StateProcessor(state: ImportCXFState())))
         .navStackWrapped
 }
 
 #Preview("Importing") {
-    ImportCXPView(
+    ImportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ImportCXPState(
+                state: ImportCXFState(
                     progress: 0.3,
                     status: .importing
                 )
@@ -119,10 +119,10 @@ struct ImportCXPView: View {
 }
 
 #Preview("Success") {
-    ImportCXPView(
+    ImportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ImportCXPState(
+                state: ImportCXFState(
                     status: .success(
                         totalImportedCredentials: 30,
                         importedResults: [
@@ -138,10 +138,10 @@ struct ImportCXPView: View {
 }
 
 #Preview("Failure") {
-    ImportCXPView(
+    ImportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ImportCXPState(
+                state: ImportCXFState(
                     status: .failure(
                         message: "Something went wrong"
                     )

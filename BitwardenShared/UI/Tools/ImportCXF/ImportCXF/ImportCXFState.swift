@@ -1,14 +1,14 @@
 import Foundation
 
-// MARK: - ImportCXPState
+// MARK: - ImportCXFState
 
-/// The state used to present the `ImportCXPView`.
+/// The state used to present the `ImportCXFView`.
 ///
-struct ImportCXPState: Equatable, Sendable {
+struct ImportCXFState: Equatable, Sendable {
     // MARK: Types
 
     /// The status of the import process.
-    enum ImportCXPStatus: Equatable, Sendable {
+    enum ImportCXFStatus: Equatable, Sendable {
         /// The import flow is at the start point.
         case start
 
@@ -27,7 +27,7 @@ struct ImportCXPState: Equatable, Sendable {
     /// The token used in `ASCredentialImportManager` to get the credentials to import.
     var credentialImportToken: UUID?
 
-    /// Whether the CXP import feature is available.
+    /// Whether the Credential Exchange import feature is available.
     var isFeatureUnvailable: Bool = false
 
     /// The title of the main button.
@@ -60,7 +60,7 @@ struct ImportCXPState: Equatable, Sendable {
     var message: String {
         return switch status {
         case .start:
-            Localizations.startImportCXPDescriptionLong
+            Localizations.startImportCXFDescriptionLong
         case .importing:
             ""
         case let .success(total, _):
@@ -103,5 +103,5 @@ struct ImportCXPState: Equatable, Sendable {
     }
 
     /// The current status of the import process.
-    var status: ImportCXPStatus = .start
+    var status: ImportCXFStatus = .start
 }

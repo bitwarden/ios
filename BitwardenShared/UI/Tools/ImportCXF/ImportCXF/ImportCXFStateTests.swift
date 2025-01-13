@@ -2,19 +2,19 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportCXPStateTests
+// MARK: - ImportCXFStateTests
 
-class ImportCXPStateTests: BitwardenTestCase {
+class ImportCXFStateTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: ImportCXPState!
+    var subject: ImportCXFState!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subject = ImportCXPState()
+        subject = ImportCXFState()
     }
 
     override func tearDown() {
@@ -58,7 +58,7 @@ class ImportCXPStateTests: BitwardenTestCase {
     /// `getter:message` returns the appropriate value depending on the `status`.
     func test_message() {
         subject.status = .start
-        XCTAssertEqual(subject.message, Localizations.startImportCXPDescriptionLong)
+        XCTAssertEqual(subject.message, Localizations.startImportCXFDescriptionLong)
 
         subject.status = .importing
         XCTAssertEqual(subject.message, "")
