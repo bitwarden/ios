@@ -11,6 +11,7 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
     typealias Services = HasConfigService
         & HasErrorReporter
         & HasExportCXFCiphersRepository
+        & HasPolicyService
         & HasStateService
         & HasVaultRepository
 
@@ -70,6 +71,12 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
     /// Loads the initial data for the view.
     private func load() async {
         do {
+            if await services.policyService.policyAppliesToUser(.disablePersonalVaultExport) {
+                state.status = .failure(message: Localizations.disablePersonalVaultExportPolicyInEffect)
+                state.showMainButton = false
+                return
+            }
+
             let totalItemsToExport = try await services.exportCXFCiphersRepository.getCipherCountToExportCXF()
             guard totalItemsToExport > 0 else {
                 state.status = .failure(message: Localizations.noItems)
@@ -141,6 +148,11 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 
     /// Shows the alert confirming the user wants to export items later.
     private func cancelWithConfirmation() {
+        guard state.showMainButton else {
+            coordinator.navigate(to: .dismiss)
+            return
+        }
+
         coordinator.showAlert(.confirmCancelCXFExport { [weak self] in
             guard let self else { return }
             coordinator.navigate(to: .dismiss)
