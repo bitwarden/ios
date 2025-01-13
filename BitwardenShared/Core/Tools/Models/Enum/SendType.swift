@@ -4,7 +4,7 @@ import BitwardenSdk
 
 /// An enum describing the type of data in a send.
 ///
-public enum SendType: Int, CaseIterable, Codable, Equatable, Menuable, Sendable {
+public enum SendType: Int, CaseIterable, Codable, Equatable, Identifiable, Menuable, Sendable {
     /// The send contains text data.
     case text = 0
 
@@ -16,6 +16,17 @@ public enum SendType: Int, CaseIterable, Codable, Equatable, Menuable, Sendable 
     public static let allCases: [SendType] = [.file, .text]
 
     // MARK: Properties
+
+    var accessibilityId: String {
+        switch self {
+        case .text: "SendTextButton"
+        case .file: "SendFileButton"
+        }
+    }
+
+    public var id: Int {
+        rawValue
+    }
 
     public var localizedName: String {
         switch self {

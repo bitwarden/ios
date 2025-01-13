@@ -53,14 +53,14 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         }
 
         let credentialImportManager = MockCredentialImportManager()
-        credentialImportManager.importCredentialsResult =
-            .success(
-                ASExportedCredentialData(
-                    accounts: [
-                        .fixture(items: [.fixture()]),
-                    ]
-                )
+
+        credentialImportManager.importCredentialsResult = try .success(getASExportedCredentialDataAsJson(
+            data: ASExportedCredentialData(
+                accounts: [
+                    .fixture(items: [.fixture()]),
+                ]
             )
+        ))
         credentialManagerFactory.importManager = credentialImportManager
 
         clientService.mockExporters.importCxfResult = .success([
@@ -112,11 +112,11 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
-            .success(
-                ASExportedCredentialData(
+            try .success(getASExportedCredentialDataAsJson(
+                data: ASExportedCredentialData(
                     accounts: []
                 )
-            )
+            ))
         credentialManagerFactory.importManager = credentialImportManager
 
         await assertAsyncThrows(error: ImportCiphersRepositoryError.noDataFound) {
@@ -139,13 +139,13 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
-            .success(
-                ASExportedCredentialData(
+            try .success(getASExportedCredentialDataAsJson(
+                data: ASExportedCredentialData(
                     accounts: [
                         .fixture(items: [.fixture()]),
                     ]
                 )
-            )
+            ))
         credentialManagerFactory.importManager = credentialImportManager
 
         clientService.mockExporters.importCxfResult = .failure(BitwardenTestError.example)
@@ -170,13 +170,13 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
-            .success(
-                ASExportedCredentialData(
+            try .success(getASExportedCredentialDataAsJson(
+                data: ASExportedCredentialData(
                     accounts: [
                         .fixture(items: [.fixture()]),
                     ]
                 )
-            )
+            ))
         credentialManagerFactory.importManager = credentialImportManager
 
         clientService.mockExporters.importCxfResult = .success([
@@ -208,13 +208,13 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
 
         let credentialImportManager = MockCredentialImportManager()
         credentialImportManager.importCredentialsResult =
-            .success(
-                ASExportedCredentialData(
+            try .success(getASExportedCredentialDataAsJson(
+                data: ASExportedCredentialData(
                     accounts: [
                         .fixture(items: [.fixture()]),
                     ]
                 )
-            )
+            ))
         credentialManagerFactory.importManager = credentialImportManager
 
         clientService.mockExporters.importCxfResult = .success([
@@ -234,6 +234,17 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
             )
         }
         XCTAssertEqual(progressReports, [0.3, 0.8])
+    }
+
+    // MARK: Private
+
+    @available(iOS 18.2, *)
+    private func getASExportedCredentialDataAsJson(data: ASExportedCredentialData) throws -> String {
+        let credentialData = try JSONEncoder.cxpEncoder.encode(data)
+        guard let credentialDataJsonString = String(data: credentialData, encoding: .utf8) else {
+            throw BitwardenError.dataError("Failed to encode ASExportedCredentialData")
+        }
+        return credentialDataJsonString
     }
 }
 #endif

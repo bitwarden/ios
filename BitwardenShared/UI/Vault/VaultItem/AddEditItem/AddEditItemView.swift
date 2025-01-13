@@ -299,7 +299,7 @@ private extension AddEditItemView {
                                     Text(collection.name)
                                 }
                                 .toggleStyle(.bitwarden)
-                                .accessibilityIdentifier("CollectionItemCell")
+                                .accessibilityIdentifier("CollectionItemSwitch")
                             }
                         }
                     }

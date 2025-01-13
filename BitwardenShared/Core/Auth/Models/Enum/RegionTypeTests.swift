@@ -12,11 +12,11 @@ class RegionTypeTests: BitwardenTestCase {
         XCTAssertEqual(RegionType.unitedStates.localizedName, Localizations.us)
     }
 
-    /// `getter:baseUrlDescription` returns the correct values.
-    func test_baseUrlDescription() {
-        XCTAssertEqual(RegionType.europe.baseUrlDescription, "bitwarden.eu")
-        XCTAssertEqual(RegionType.selfHosted.baseUrlDescription, Localizations.selfHosted)
-        XCTAssertEqual(RegionType.unitedStates.baseUrlDescription, "bitwarden.com")
+    /// `getter:baseURLDescription` returns the correct values.
+    func test_baseURLDescription() {
+        XCTAssertEqual(RegionType.europe.baseURLDescription, "bitwarden.eu")
+        XCTAssertEqual(RegionType.selfHosted.baseURLDescription, Localizations.selfHosted)
+        XCTAssertEqual(RegionType.unitedStates.baseURLDescription, "bitwarden.com")
     }
 
     /// `getter:defaultURLs` returns the correct values.

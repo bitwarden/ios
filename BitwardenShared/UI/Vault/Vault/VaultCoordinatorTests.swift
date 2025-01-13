@@ -239,6 +239,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is VaultListView)
+        XCTAssertEqual(errorReporter.errors.last as? WindowSceneError, WindowSceneError.nullWindowScene)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
@@ -312,7 +313,10 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.twoFactorNoticeCoordinator.isStarted)
-        XCTAssertEqual(module.twoFactorNoticeCoordinator.routes.last, .emailAccess(allowDelay: true, emailAddress: "person@example.com"))
+        XCTAssertEqual(
+            module.twoFactorNoticeCoordinator.routes.last,
+            .emailAccess(allowDelay: true, emailAddress: "person@example.com")
+        )
     }
 
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.

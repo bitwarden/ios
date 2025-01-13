@@ -2,17 +2,17 @@ import XCTest
 
 @testable import BitwardenShared
 
-class EnvironmentUrlsTests: BitwardenTestCase {
+class EnvironmentURLsTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `init(environmentUrlData:)` sets the URLs from the passed data when such data is the default US.
-    func test_init_environmentUrlData_defaultUS() {
-        let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData.defaultUS
+    /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default US.
+    func test_init_environmentURLData_defaultUS() {
+        let subject = EnvironmentURLs(
+            environmentURLData: EnvironmentURLData.defaultUS
         )
         XCTAssertEqual(
             subject,
-            EnvironmentUrls(
+            EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com/#/settings/account")!,
@@ -29,14 +29,14 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
     }
 
-    /// `init(environmentUrlData:)` sets the URLs from the passed data when such data is the default EU.
-    func test_init_environmentUrlData_defaultEU() {
-        let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData.defaultEU
+    /// `init(environmentURLData:)` sets the URLs from the passed data when such data is the default EU.
+    func test_init_environmentURLData_defaultEU() {
+        let subject = EnvironmentURLs(
+            environmentURLData: EnvironmentURLData.defaultEU
         )
         XCTAssertEqual(
             subject,
-            EnvironmentUrls(
+            EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.eu/#/settings/account")!,
@@ -53,15 +53,15 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
     }
 
-    /// `init(environmentUrlData:)` sets the URLs from the base URL if one is set and is not
+    /// `init(environmentURLData:)` sets the URLs from the base URL if one is set and is not
     /// `.unitedStates` nor `.europe` region type.
-    func test_init_environmentUrlData_baseUrl() {
-        let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://example.com")!)
+    func test_init_environmentURLData_baseURL() {
+        let subject = EnvironmentURLs(
+            environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com")!)
         )
         XCTAssertEqual(
             subject,
-            EnvironmentUrls(
+            EnvironmentURLs(
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
@@ -78,14 +78,14 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
     }
 
-    /// `init(environmentUrlData:)` defaults to the pre-defined EU URLs if the base URL matches the EU environment.
-    func test_init_environmentUrlData_baseUrl_europe() {
-        let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.eu")!)
+    /// `init(environmentURLData:)` defaults to the pre-defined EU URLs if the base URL matches the EU environment.
+    func test_init_environmentURLData_baseURL_europe() {
+        let subject = EnvironmentURLs(
+            environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.eu")!)
         )
         XCTAssertEqual(
             subject,
-            EnvironmentUrls(
+            EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.eu")!,
                 baseURL: URL(string: "https://vault.bitwarden.eu")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.eu/#/settings/account")!,
@@ -102,14 +102,14 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
     }
 
-    /// `init(environmentUrlData:)` defaults to the pre-defined US URLs if the base URL matches the US environment.
-    func test_init_environmentUrlData_baseUrl_unitedStates() {
-        let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://vault.bitwarden.com")!)
+    /// `init(environmentURLData:)` defaults to the pre-defined US URLs if the base URL matches the US environment.
+    func test_init_environmentURLData_baseURL_unitedStates() {
+        let subject = EnvironmentURLs(
+            environmentURLData: EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
         )
         XCTAssertEqual(
             subject,
-            EnvironmentUrls(
+            EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com/#/settings/account")!,
@@ -126,14 +126,14 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
     }
 
-    /// `init(environmentUrlData:)` sets the URLs from the base URL which includes a trailing slash.
-    func test_init_environmentUrlData_baseUrlWithTrailingSlash() {
-        let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(base: URL(string: "https://example.com/")!)
+    /// `init(environmentURLData:)` sets the URLs from the base URL which includes a trailing slash.
+    func test_init_environmentURLData_baseURLWithTrailingSlash() {
+        let subject = EnvironmentURLs(
+            environmentURLData: EnvironmentURLData(base: URL(string: "https://example.com/")!)
         )
         XCTAssertEqual(
             subject,
-            EnvironmentUrls(
+            EnvironmentURLs(
                 apiURL: URL(string: "https://example.com/api")!,
                 baseURL: URL(string: "https://example.com/")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
@@ -150,10 +150,10 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
     }
 
-    /// `init(environmentUrlData:)` sets the URLs based on the corresponding URL if there isn't a base URL.
-    func test_init_environmentUrlData_custom() {
-        let subject = EnvironmentUrls(
-            environmentUrlData: EnvironmentUrlData(
+    /// `init(environmentURLData:)` sets the URLs based on the corresponding URL if there isn't a base URL.
+    func test_init_environmentURLData_custom() {
+        let subject = EnvironmentURLs(
+            environmentURLData: EnvironmentURLData(
                 api: URL(string: "https://api.example.com")!,
                 events: URL(string: "https://events.example.com")!,
                 icons: URL(string: "https://icons.example.com")!,
@@ -163,7 +163,7 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
         XCTAssertEqual(
             subject,
-            EnvironmentUrls(
+            EnvironmentURLs(
                 apiURL: URL(string: "https://api.example.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://example.com/#/settings/account")!,
@@ -180,12 +180,12 @@ class EnvironmentUrlsTests: BitwardenTestCase {
         )
     }
 
-    /// `init(environmentUrlData:)` sets the URLs to default values if the URLs are empty.
-    func test_init_environmentUrlData_empty() {
-        let subject = EnvironmentUrls(environmentUrlData: EnvironmentUrlData())
+    /// `init(environmentURLData:)` sets the URLs to default values if the URLs are empty.
+    func test_init_environmentURLData_empty() {
+        let subject = EnvironmentURLs(environmentURLData: EnvironmentURLData())
         XCTAssertEqual(
             subject,
-            EnvironmentUrls(
+            EnvironmentURLs(
                 apiURL: URL(string: "https://api.bitwarden.com")!,
                 baseURL: URL(string: "https://vault.bitwarden.com")!,
                 changeEmailURL: URL(string: "https://vault.bitwarden.com")!,
