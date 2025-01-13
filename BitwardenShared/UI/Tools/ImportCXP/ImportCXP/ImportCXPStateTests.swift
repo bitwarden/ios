@@ -61,7 +61,7 @@ class ImportCXPStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, Localizations.startImportCXPDescriptionLong)
 
         subject.status = .importing
-        XCTAssertEqual(subject.message, "")
+        XCTAssertEqual(subject.message, Localizations.pleaseDoNotCloseTheApp)
 
         subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertEqual(subject.message, Localizations.itemsSuccessfullyImported(1))
