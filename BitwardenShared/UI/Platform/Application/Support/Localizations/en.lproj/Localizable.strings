@@ -551,7 +551,6 @@
 "TypeTextInfo" = "The text you want to send.";
 "HideTextByDefault" = "When accessing the Send, hide the text by default";
 "TypeFile" = "File";
-"TypeFileInfo" = "The file you want to send.";
 "FileTypeIsSelected" = "File type is selected.";
 "FileTypeIsNotSelected" = "File type is not selected, tap to select.";
 "TextTypeIsSelected" = "Text type is selected.";
