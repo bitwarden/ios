@@ -40,7 +40,8 @@ struct SingleSignOnView: View {
             text: store.binding(
                 get: \.identifierText,
                 send: SingleSignOnAction.identifierTextChanged
-            )
+            ),
+            accessibilityIdentifier: "SSOOrgIdField"
         )
     }
 
@@ -57,6 +58,7 @@ struct SingleSignOnView: View {
             await store.perform(.loginTapped)
         }
         .buttonStyle(.primary())
+        .accessibilityIdentifier("SSOLoginButton")
     }
 }
 
