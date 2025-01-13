@@ -192,7 +192,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                     let needsSync = try await services.vaultRepository.needsSync()
 
                     if needsSync, sections.isEmpty {
-                        // If a sync is needed and there's no sends in the user's vault, it could
+                        // If a sync is needed and there are no sends in the user's vault, it could
                         // mean the initial sync hasn't completed so sync first.
                         do {
                             try await services.sendRepository.fetchSync(forceSync: false)
