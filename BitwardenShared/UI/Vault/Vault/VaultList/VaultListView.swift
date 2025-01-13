@@ -141,7 +141,6 @@ private struct SearchableVaultListView: View {
                             )
                             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         }
-                        .accessibilityIdentifier("CipherCell")
                     }
                 }
             }
@@ -188,7 +187,6 @@ private struct SearchableVaultListView: View {
     private var vaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: false,
-            accessibilityID: "ActiveFilterRow",
             store: store.child(
                 state: \.vaultFilterState,
                 mapAction: { action in
@@ -265,7 +263,6 @@ private struct SearchableVaultListView: View {
             ),
             timeProvider: timeProvider
         )
-        .accessibilityIdentifier("CipherCell")
     }
 }
 

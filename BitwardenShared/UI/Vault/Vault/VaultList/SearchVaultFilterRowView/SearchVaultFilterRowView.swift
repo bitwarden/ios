@@ -23,6 +23,7 @@ struct SearchVaultFilterRowView: View {
                     Text(store.state.searchVaultFilterType.filterTitle)
                         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
                         .styleGuide(.body)
+                        .accessibilityIdentifier("ActiveFilterNameLabel")
 
                     Spacer()
 
@@ -44,14 +45,13 @@ struct SearchVaultFilterRowView: View {
                             .frame(width: 44, height: 44, alignment: .trailing)
                             .contentShape(Rectangle())
                     }
-                    .accessibilityIdentifier("OpenOrgFilter")
                     .accessibilityLabel(Localizations.filterByVault)
+                    .accessibilityIdentifier("ActiveFilterRow")
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 9)
                 .frame(minHeight: 60)
-                .accessibilityIdentifier(accessibilityID ?? "")
                 .background(Asset.Colors.backgroundSecondary.swiftUIColor)
 
                 if hasDivider {
