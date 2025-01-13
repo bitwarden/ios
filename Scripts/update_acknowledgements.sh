@@ -11,5 +11,5 @@ if [ "$CONFIGURATION" = "Debug" ]; then
     fi
 
     mint run LicensePlist license-plist \
-        --config-path .license_plist_passwordmanager.yml
+        --config-path .license_plist-pm.yml
 fi

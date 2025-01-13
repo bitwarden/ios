@@ -140,4 +140,4 @@ This project's structure is split into separate sections to support sharing as m
 
 ### GlobalTestHelpers
 
-`GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project_passwordmanager.yml` file.
+`GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project-pm.yml` file.

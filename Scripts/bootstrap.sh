@@ -8,7 +8,7 @@ mint bootstrap
 script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 repo_root=$(dirname "$script_dir")
 
-mint run xcodegen --spec "$repo_root/project_passwordmanager.yml"
+mint run xcodegen --spec "$repo_root/project-pm.yml"
 echo "✅ Bootstrapped!"
 
 # Check Xcode version matches .xcode-version
