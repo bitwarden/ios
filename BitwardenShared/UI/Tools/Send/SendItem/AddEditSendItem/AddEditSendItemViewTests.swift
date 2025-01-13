@@ -223,7 +223,10 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_snapshot_file_empty() {
         processor.state.type = .file
-        assertSnapshots(of: snapshotView, as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.1)])
+        assertSnapshots(
+            of: snapshotView,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.1)]
+        )
     }
 
     @MainActor
