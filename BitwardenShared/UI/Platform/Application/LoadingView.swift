@@ -13,7 +13,7 @@ struct LoadingView<T: Equatable & Sendable, Contents: View>: View {
     var body: some View {
         switch state {
         case .loading:
-            ProgressView()
+            CircularActivityIndicator()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         case let .data(data):
             contents(data)
