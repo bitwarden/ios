@@ -29,7 +29,10 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: delegate,
             module: module,
-            services: ServiceContainer.withMocks(errorReporter: errorReporter, vaultRepository: vaultRepository),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                vaultRepository: vaultRepository
+            ),
             stackNavigator: stackNavigator
         )
     }

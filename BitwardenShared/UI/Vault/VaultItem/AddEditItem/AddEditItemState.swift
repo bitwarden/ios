@@ -51,6 +51,9 @@ protocol AddEditItemState: Sendable {
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }
 
+    /// If account is eligible for Learn New Login Action Card.
+    var isLearnNewLoginActionCardEligible: Bool { get set }
+
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool { get set }
 
@@ -77,6 +80,9 @@ protocol AddEditItemState: Sendable {
 
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
+
+    /// A computed property that indicates if we should show the learn new login action card.
+    var shouldShowLearnNewLoginActionCard: Bool { get }
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }

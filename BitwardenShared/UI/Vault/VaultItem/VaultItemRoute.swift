@@ -11,7 +11,7 @@ enum VaultItemRoute: Equatable, Hashable {
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
     ///   - hasPremium: Whether the user has premium.
-    ///   - uri: A URI string used to populate the add item screen.
+    ///   - newCipherOptions: Optional options for creating a new cipher.
     ///
     case addItem(
         allowTypeSelection: Bool = true,
