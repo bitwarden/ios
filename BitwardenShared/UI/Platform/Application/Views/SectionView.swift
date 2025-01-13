@@ -16,6 +16,9 @@ struct SectionView<Content: View>: View {
     /// The section header title.
     let title: String
 
+    /// The version of the header to use.
+    let titleDesignVersion: SectionHeaderView.DesignVersion
+
     /// The spacing between title and content.
     let titleSpacing: CGFloat
 
@@ -23,7 +26,7 @@ struct SectionView<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: titleSpacing) {
-            SectionHeaderView(title)
+            SectionHeaderView(title, designVersion: titleDesignVersion)
 
             VStack(alignment: .leading, spacing: contentSpacing) {
                 content
@@ -44,11 +47,13 @@ struct SectionView<Content: View>: View {
     ///
     init(
         _ title: String,
+        titleDesignVersion: SectionHeaderView.DesignVersion = .v1,
         titleSpacing: CGFloat = 8,
         contentSpacing: CGFloat = 16,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
+        self.titleDesignVersion = titleDesignVersion
         self.titleSpacing = titleSpacing
         self.contentSpacing = contentSpacing
         self.content = content()
