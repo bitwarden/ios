@@ -441,4 +441,4 @@ extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
 
 // MARK: - UserVerificationDelegate
 
-extension VaultCoordinator: UserVerificationDelegate {}
+extension VaultCoordinator: UserVerificationDelegate {} // swiftlint:disable:this file_length

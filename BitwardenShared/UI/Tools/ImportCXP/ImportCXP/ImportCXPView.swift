@@ -85,7 +85,7 @@ struct ImportCXPView: View {
 
     /// The row for an imported type result.
     @ViewBuilder
-    private func importedTypeRow(result: ImportedCredentialsResult) -> some View {
+    private func importedTypeRow(result: CXFCredentialsResult) -> some View {
         HStack {
             Text(result.localizedTypePlural)
                 .styleGuide(.body)
@@ -126,9 +126,9 @@ struct ImportCXPView: View {
                     status: .success(
                         totalImportedCredentials: 30,
                         importedResults: [
-                            ImportedCredentialsResult(count: 13, type: .password),
-                            ImportedCredentialsResult(count: 7, type: .passkey),
-                            ImportedCredentialsResult(count: 10, type: .card),
+                            CXFCredentialsResult(count: 13, type: .password),
+                            CXFCredentialsResult(count: 7, type: .passkey),
+                            CXFCredentialsResult(count: 10, type: .card),
                         ]
                     )
                 )
