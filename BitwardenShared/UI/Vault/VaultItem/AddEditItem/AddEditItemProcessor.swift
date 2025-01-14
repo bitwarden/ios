@@ -113,14 +113,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.delegate = delegate
         self.services = services
         super.init(state: state)
-        Task {
-            if await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
-               appExtensionDelegate == nil {
-                self.state.isLearnNewLoginActionCardEligible = await services.stateService
-                    .getLearnNewLoginActionCardStatus() == .incomplete
-            }
 
-            if !state.configuration.isAdding {
+        if !state.configuration.isAdding {
+            Task {
                 await self.services.rehydrationHelper.addRehydratableTarget(self)
             }
         }
@@ -133,6 +128,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .appeared:
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
+            await checkLearnNewLoginActionCardEligibility()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
@@ -533,6 +529,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.postalCode = postalCode
         case let .countryChanged(country):
             state.identityState.country = country
+        }
+    }
+
+    /// Checks the eligibility of the Learn New Login action card.
+    ///
+    private func checkLearnNewLoginActionCardEligibility() async {
+        if await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
+           appExtensionDelegate == nil {
+            state.isLearnNewLoginActionCardEligible = await services.stateService
+                .getLearnNewLoginActionCardStatus() == .incomplete
         }
     }
 
