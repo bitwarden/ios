@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import SwiftUI
 
@@ -50,6 +51,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = AuthModule
+        & ExportCXFModule
         & ImportLoginsModule
         & LoginRequestModule
         & PasswordAutoFillModule
@@ -62,6 +64,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasExportCXFCiphersRepository
         & HasExportVaultService
         & HasNotificationCenterService
         & HasPasteboardService
@@ -370,7 +373,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the export vault to another app screen (Credential Exchange flow).
     ///
     private func showExportVaultToApp() {
-        // TODO: PM-16459 Implement Credential Exchange UI Flow.
+        let navigationController = UINavigationController()
+        let coordinator = module.makeExportCXFCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the folders screen.

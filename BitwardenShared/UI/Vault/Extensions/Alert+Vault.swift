@@ -4,6 +4,20 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// Returns an alert confirming cancelling the Credential Exchnage export process.
+    /// - Parameter action: The action to perform if the user confirms.
+    /// - Returns: An alert confirming cancelling the CXP export process.
+    static func confirmCancelCXFExport(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.cancel,
+            message: Localizations.areYouSureYouWantToCancelTheExportProcessQuestionMark,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
     /// Returns an alert confirming cancelling the CXP import process.
     /// - Parameter action: The action to perform if the user confirms.
     /// - Returns: An alert confirming cancelling the CXP import process.

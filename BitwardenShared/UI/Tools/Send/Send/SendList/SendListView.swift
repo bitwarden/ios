@@ -66,6 +66,7 @@ private struct MainSendListView: View {
                 VStack(spacing: 24) {
                     if store.state.isSendDisabled {
                         InfoContainer(Localizations.sendDisabledWarning)
+                            .accessibilityIdentifier("SendPolicyLabel")
                     }
 
                     Spacer()

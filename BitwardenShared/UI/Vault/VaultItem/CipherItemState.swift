@@ -107,6 +107,18 @@ struct CipherItemState: Equatable {
         self
     }
 
+    /// Whether or not this item can be assigned to collections.
+    var canAssignToCollection: Bool {
+        guard !collectionIds.isEmpty else { return true }
+
+        return collections.contains { collection in
+            guard let id = collection.id else { return false }
+            guard collection.manage || (!collection.readOnly && !collection.hidePasswords) else { return false }
+
+            return collectionIds.contains(id)
+        }
+    }
+
     /// Whether or not this item can be deleted by the user.
     var canBeDeleted: Bool {
         guard !collectionIds.isEmpty else { return true }
