@@ -95,7 +95,7 @@ extension GuidedTourState {
         spotlightShape: .rectangle,
         spotlightCornerRadius: 8,
         totalStep: 3,
-        title: Localizations.loginGuidedTourStep2
+        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
     )
 
     /// The third step of the learn new login guided tour.

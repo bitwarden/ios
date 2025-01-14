@@ -1545,7 +1545,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_showLearnNewLoginGuidedTour() async {
         subject.state.isLearnNewLoginActionCardEligible = true
-        subject.state.spotLight[.step1] = step1Spotlight
+        subject.state.spotlights[.step1] = step1Spotlight
         await subject.perform(.showLearnNewLoginGuidedTour)
         XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
         XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
@@ -1569,7 +1569,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_backPressed() {
         subject.state.guidedTourState = .loginStep3
-        subject.state.spotLight = [
+        subject.state.spotlights = [
             .step1: step1Spotlight,
             .step2: step2Spotlight,
             .step3: step3Spotlight,
@@ -1586,7 +1586,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_backPressed_updatesSpotlightRegion() {
         subject.state.guidedTourState = .loginStep3
-        subject.state.spotLight = [
+        subject.state.spotlights = [
             .step1: step1Spotlight,
             .step2: step2Spotlight,
             .step3: step3Spotlight,
@@ -1637,27 +1637,27 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.collectionIds, ["2"])
     }
 
-    /// `receive(_:)` with `.didRenderViewToSpotlight` updates `.spotLight`,
+    /// `receive(_:)` with `.didRenderViewToSpotlight` updates `.spotlights`,
     /// and will not update the `spotlightRegion`, if the current guided tour step not match the step.
     @MainActor
     func test_receive_didRenderViewToSpotlight() {
-        XCTAssertEqual(subject.state.spotLight, [:])
+        XCTAssertEqual(subject.state.spotlights, [:])
         subject.state.guidedTourState = .loginStep2
 
         subject.receive(.didRenderViewToSpotlight(frame: step1Spotlight, step: .step1))
-        XCTAssertEqual(subject.state.spotLight[.step1], step1Spotlight)
+        XCTAssertEqual(subject.state.spotlights[.step1], step1Spotlight)
         XCTAssertEqual(subject.state.guidedTourState?.spotlightRegion, .zero)
     }
 
-    /// `receive(_:)` with `.didRenderViewToSpotlight` updates `.spotLight`,
+    /// `receive(_:)` with `.didRenderViewToSpotlight` updates `.spotlights`,
     /// and will not update the guided tour state, if the current guided tour step not match the step.
     @MainActor
     func test_receive_didRenderViewToSpotlight_updateSpotlightRegion() {
-        XCTAssertEqual(subject.state.spotLight, [:])
+        XCTAssertEqual(subject.state.spotlights, [:])
         subject.state.guidedTourState = .loginStep1
 
         subject.receive(.didRenderViewToSpotlight(frame: step1Spotlight, step: .step1))
-        XCTAssertEqual(subject.state.spotLight[.step1], step1Spotlight)
+        XCTAssertEqual(subject.state.spotlights[.step1], step1Spotlight)
         XCTAssertEqual(subject.state.guidedTourState?.spotlightRegion, step1Spotlight)
     }
 

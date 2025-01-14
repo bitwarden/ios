@@ -1,10 +1,11 @@
 import SwiftUI
 
 /// A view that removes the background of a full-screen cover.
+/// This view is being used when we present guided tour view where we need to present a full-screen cover
+/// and remove the default background provided by SwiftUI.
+///
 struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
-
     private class BackgroundRemovalView: UIView {
-
         override func didMoveToWindow() {
             super.didMoveToWindow()
 
@@ -13,9 +14,8 @@ struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> UIView {
-        return BackgroundRemovalView()
+        BackgroundRemovalView()
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) { }
+    func updateUIView(_ uiView: UIView, context: Context) {}
 }
-

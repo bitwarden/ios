@@ -101,7 +101,7 @@ struct CipherItemState: Equatable {
     var showMasterPasswordReprompt: Bool
 
     /// The spotlight for each step in the guided tour.
-    var spotLight: [LearnLoginGuidedTourStep: CGRect] = [:]
+    var spotlights: [LearnLoginGuidedTourStep: CGRect] = [:]
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState

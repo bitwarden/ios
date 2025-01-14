@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// A view that displays dimmed background with a spotlight and a coach-mark card.
+///
 struct GuidedTourView: View {
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass

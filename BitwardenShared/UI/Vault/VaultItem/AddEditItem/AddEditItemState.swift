@@ -91,7 +91,7 @@ protocol AddEditItemState: Sendable {
     var shouldShowLearnNewLoginActionCard: Bool { get }
 
     /// The spotlight region for each step in the guided tour.
-    var spotLight: [LearnLoginGuidedTourStep: CGRect] { get set }
+    var spotlights: [LearnLoginGuidedTourStep: CGRect] { get set }
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
