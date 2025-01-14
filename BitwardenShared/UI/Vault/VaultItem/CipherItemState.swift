@@ -58,6 +58,12 @@ struct CipherItemState: Equatable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>]
 
+    /// The state for guided tour.
+    var guidedTourState: GuidedTourState?
+
+    /// The current step in the guided tour.
+    var guidedTourStep: LearnLoginGuidedTourStep?
+
     /// The state for a identity type item.
     var identityState: IdentityItemState
 
@@ -88,8 +94,14 @@ struct CipherItemState: Equatable {
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions: [CipherOwner]
 
+    /// The flag indicating if we should show the guided tour.
+    var showGuidedTour: Bool = false
+
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
+
+    /// The spotlight for each step in the guided tour.
+    var spotLight: [LearnLoginGuidedTourStep: CGRect] = [:]
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState

@@ -151,14 +151,30 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .deletePressed:
             await showSoftDeleteConfirmation()
         case .showLearnNewLoginGuidedTour:
-            // TODO: PM-16154
             state.isLearnNewLoginActionCardEligible = false
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
+            state.guidedTourState = .loginStep1
+            if let frame: CGRect = state.spotLight[.step1] {
+                state.guidedTourState?.spotlightRegion.origin = frame.origin
+                state.guidedTourState?.spotlightRegion.size = frame.size
+            }
+            state.guidedTourStep = .step1
+            state.showGuidedTour = true
         }
     }
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case let .toggleGuidedTourVisibilityChanged(show):
+            state.showGuidedTour = show
+        case let .didRenderViewToSpotlight(frame, step):
+            state.spotLight[step] = frame
+            if state.guidedTourState?.step == step.rawValue {
+                state.guidedTourState?.spotlightRegion.origin = CGPoint(x: frame.minX, y: frame.minY)
+                state.guidedTourState?.spotlightRegion.size = CGSize(width: frame.width, height: frame.height)
+            }
+        case let .guidedTourAction(action):
+            handleGuidedTourAction(action)
         case let .authKeyVisibilityTapped(newValue):
             state.loginState.isAuthKeyVisible = newValue
         case let .cardFieldChanged(cardFieldAction):
@@ -264,6 +280,44 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
         } else {
             appExtensionDelegate.didCancel()
+        }
+    }
+
+    /// Handles the action from `GuidedTourView`
+    private func handleGuidedTourAction(_ action: GuidedTourViewAction) {
+        switch action {
+        case .backPressed:
+            state.guidedTourState?.step -= 1
+        case .dismissPressed, .donePressed:
+            state.showGuidedTour = false
+        case .nextPressed:
+            state.guidedTourState?.step += 1
+        }
+
+        switch state.guidedTourState?.step {
+        case 1:
+            state.guidedTourState = .loginStep1
+            state.guidedTourStep = .step1
+            if let frame: CGRect = state.spotLight[.step1] {
+                state.guidedTourState?.spotlightRegion.origin = frame.origin
+                state.guidedTourState?.spotlightRegion.size = frame.size
+            }
+        case 2:
+            state.guidedTourState = .loginStep2
+            state.guidedTourStep = .step2
+            if let frame: CGRect = state.spotLight[.step2] {
+                state.guidedTourState?.spotlightRegion.origin = frame.origin
+                state.guidedTourState?.spotlightRegion.size = frame.size
+            }
+        case 3:
+            state.guidedTourState = .loginStep3
+            state.guidedTourStep = .step3
+            if let frame: CGRect = state.spotLight[.step3] {
+                state.guidedTourState?.spotlightRegion.origin = frame.origin
+                state.guidedTourState?.spotlightRegion.size = frame.size
+            }
+        default:
+            break
         }
     }
 

@@ -42,6 +42,12 @@ protocol AddEditItemState: Sendable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>] { get set }
 
+    /// The state for guided tour.
+    var guidedTourState: GuidedTourState? { get set }
+
+    /// The current step in the guided tour.
+    var guidedTourStep: LearnLoginGuidedTourStep? { get set }
+
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
 
@@ -75,11 +81,17 @@ protocol AddEditItemState: Sendable {
     /// The list of ownership options to allow the user to select from.
     var ownershipOptions: [CipherOwner] { get set }
 
+    /// The flag to show/hide guided tour.
+    var showGuidedTour: Bool { get set }
+
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
 
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }
+
+    /// The spotlight region for each step in the guided tour.
+    var spotLight: [LearnLoginGuidedTourStep: CGRect] { get set }
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
@@ -100,4 +112,17 @@ protocol AddEditItemState: Sendable {
     ///   - collectionId: The identifier of the collection.
     ///
     mutating func toggleCollection(newValue: Bool, collectionId: String)
+}
+
+/// A step in the learn new login guided tour being shown on this screen.
+///
+enum LearnLoginGuidedTourStep: Int, Equatable {
+    /// The first step of the guided tour. The generate password button is spotlit.
+    case step1 = 1
+
+    /// The second step of the guided tour. The authenticator key is spotlit.
+    case step2 = 2
+
+    /// The third step of the guided tour. The URI field is spotlit.
+    case step3 = 3
 }

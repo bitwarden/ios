@@ -22,6 +22,15 @@ struct AddEditLoginItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
+    /// The closure to call when the generate password icon is rendered.
+    var didRenderGeneratePasswordIcon: ((CGRect) -> Void)?
+
+    /// The closure to call when the TOTP field is rendered.
+    var didRenderTotpField: ((CGRect) -> Void)?
+
+    /// The closure to call when the URI field is rendered.
+    var didRenderURIField: ((CGRect) -> Void)?
+
     // MARK: View
 
     var body: some View {
@@ -32,6 +41,10 @@ struct AddEditLoginItemView: View {
         fidoField
 
         totpView
+            .onFrameChanged { origin, size in
+                didRenderTotpField?(CGRect(origin: origin, size: size))
+            }
+            .id(Constants.guidedTourTotp)
 
         uriSection
     }
@@ -84,6 +97,10 @@ struct AddEditLoginItemView: View {
                 .accessibilityIdentifier("CheckPasswordButton")
                 AccessoryButton(asset: Asset.Images.generate24, accessibilityLabel: Localizations.generatePassword) {
                     store.send(.generatePasswordPressed)
+                }
+                .id(Constants.guidedTourPasswordGenerator)
+                .onFrameChanged { origin, size in
+                    didRenderGeneratePasswordIcon?(CGRect(origin: origin, size: size))
                 }
                 .accessibilityIdentifier("RegeneratePasswordButton")
             }
@@ -194,6 +211,10 @@ struct AddEditLoginItemView: View {
                 }
                 .textFieldConfiguration(.url)
             }
+            .onFrameChanged { origin, size in
+                didRenderURIField?(CGRect(origin: origin, size: size))
+            }
+            .id(Constants.guidedTourUri)
 
             Button(Localizations.newUri) {
                 withAnimation {

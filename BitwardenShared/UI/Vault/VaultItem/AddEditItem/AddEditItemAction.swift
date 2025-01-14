@@ -1,6 +1,8 @@
 // MARK: - AddEditItemAction
 
 import BitwardenSdk
+import Foundation
+import SwiftUI
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable, Sendable {
@@ -16,6 +18,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// A custom field action was sent.
     case customField(AddEditCustomFieldsAction)
 
+    /// A region to be spotlit for step was rendered and is ready to have the spotlight drawn using the supplied frame.
+    case didRenderViewToSpotlight(frame: CGRect, step: LearnLoginGuidedTourStep)
+
     /// The dismiss button was pressed.
     case dismissPressed
 
@@ -30,6 +35,9 @@ enum AddEditItemAction: Equatable, Sendable {
 
     /// The generate username button was pressed.
     case generateUsernamePressed
+
+    /// The guided tour action.
+    case guidedTourAction(GuidedTourViewAction)
 
     /// The identity field was changed.
     case identityFieldChanged(AddEditIdentityItemAction)
@@ -63,6 +71,9 @@ enum AddEditItemAction: Equatable, Sendable {
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)
+
+    /// The guided tour visibility was toggled.
+    case toggleGuidedTourVisibilityChanged(Bool)
 
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool)

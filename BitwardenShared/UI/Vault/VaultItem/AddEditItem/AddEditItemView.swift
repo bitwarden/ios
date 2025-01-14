@@ -5,8 +5,11 @@ import SwiftUI
 
 /// A view that allows the user to add or edit a new item for a vault.
 ///
-struct AddEditItemView: View {
+struct AddEditItemView: View { // swiftlint:disable:this type_body_length
     // MARK: Private Properties
+
+    /// An environment variable for getting the vertical size class of the view.
+    @Environment(\.verticalSizeClass) var verticalSizeClass
 
     /// An object used to open urls in this view.
     @Environment(\.openURL) private var openURL
@@ -41,6 +44,18 @@ struct AddEditItemView: View {
             get: \.toast,
             send: AddEditItemAction.toastShown
         ))
+        .fullScreenCover(
+            isPresented: store.binding(
+                get: \.showGuidedTour,
+                send: AddEditItemAction.toggleGuidedTourVisibilityChanged
+            )
+        ) {
+            guidedTourView()
+        }
+        .transaction { transaction in
+            // disable the default FullScreenCover modal animation
+            transaction.disablesAnimations = true
+        }
     }
 
     private var addView: some View {
@@ -58,33 +73,41 @@ struct AddEditItemView: View {
     }
 
     private var content: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                if isPolicyEnabled {
-                    InfoContainer(Localizations.personalOwnershipPolicyInEffect)
-                        .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
-                }
+        ScrollViewReader { reader in
+            ScrollView {
+                VStack(spacing: 20) {
+                    if isPolicyEnabled {
+                        InfoContainer(Localizations.personalOwnershipPolicyInEffect)
+                            .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
+                    }
 
-                if store.state.shouldShowLearnNewLoginActionCard {
-                    ActionCard(
-                        title: Localizations.learnAboutNewLogins,
-                        message: Localizations.weWillWalkYouThroughTheKeyFeaturesToAddANewLogin,
-                        actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
-                            await store.perform(.showLearnNewLoginGuidedTour)
-                        },
-                        dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                            await store.perform(.dismissNewLoginActionCard)
-                        }
-                    )
-                }
+                    if store.state.shouldShowLearnNewLoginActionCard {
+                        ActionCard(
+                            title: Localizations.learnAboutNewLogins,
+                            message: Localizations.weWillWalkYouThroughTheKeyFeaturesToAddANewLogin,
+                            actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                                await store.perform(.showLearnNewLoginGuidedTour)
+                            },
+                            dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                                await store.perform(.dismissNewLoginActionCard)
+                            }
+                        )
+                    }
 
-                informationSection
-                miscellaneousSection
-                notesSection
-                customSection
-                ownershipSection
+                    informationSection
+                    miscellaneousSection
+                    notesSection
+                    customSection
+                    ownershipSection
+                }
+                .padding(16)
             }
-            .padding(16)
+            .task(id: verticalSizeClass) {
+                handleLandscapeScroll(reader)
+            }
+            .task(id: store.state.guidedTourStep) {
+                handleLandscapeScroll(reader)
+            }
         }
         .animation(.default, value: store.state.collectionsForOwner)
         .dismissKeyboardImmediately()
@@ -208,7 +231,32 @@ struct AddEditItemView: View {
                 },
                 mapAction: { $0 },
                 mapEffect: { $0 }
-            )
+            ),
+            didRenderGeneratePasswordIcon: { frame in
+                let enlargedFrame = frame.enlarged(by: 8)
+                store.send(
+                    .didRenderViewToSpotlight(
+                        frame: enlargedFrame,
+                        step: .step1
+                    )
+                )
+            }, didRenderTotpField: { frame in
+                let enlargedFrame = frame.enlarged(by: 8)
+                store.send(
+                    .didRenderViewToSpotlight(
+                        frame: enlargedFrame,
+                        step: .step2
+                    )
+                )
+            }, didRenderURIField: { frame in
+                let enlargedFrame = frame.enlarged(by: 8)
+                store.send(
+                    .didRenderViewToSpotlight(
+                        frame: enlargedFrame,
+                        step: .step3
+                    )
+                )
+            }
         )
     }
 
@@ -221,6 +269,35 @@ struct AddEditItemView: View {
                 mapEffect: nil
             )
         )
+    }
+
+    @ViewBuilder
+    private func guidedTourView() -> some View {
+        GuidedTourView(
+            store: store.child(
+                state: { state in
+                    state.guidedTourState ?? .loginStep1
+                },
+                mapAction: { action in
+                    .guidedTourAction(action)
+                },
+                mapEffect: nil
+            )
+        )
+    }
+
+    /// Scrolls to the guided tour step when in landscape mode.
+    private func handleLandscapeScroll(_ reader: ScrollViewProxy) {
+        switch store.state.guidedTourStep {
+        case .step1:
+            reader.scrollTo(Constants.guidedTourPasswordGenerator)
+        case .step2:
+            reader.scrollTo(Constants.guidedTourTotp)
+        case .step3:
+            reader.scrollTo(Constants.guidedTourUri)
+        case .none:
+            break
+        }
     }
 }
 

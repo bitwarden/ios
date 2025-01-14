@@ -34,6 +34,15 @@ enum Constants {
     /// The device type, iOS = 1.
     static let deviceType: DeviceType = 1
 
+    /// The Id for Password Generator button to be scrolled to during the Guided Tour.
+    static let guidedTourPasswordGenerator = "TourPasswordGenerator"
+
+    /// The Id for Totp field to be scrolled to during the Guided Tour.
+    static let guidedTourTotp = "TourTotp"
+    
+    /// The Id for Uri field to be scrolled to during the Guided Tour.
+    static let guidedTourUri = "TourUri"
+
     /// The length of a masked password.
     static let hiddenPasswordLength = 8
 
