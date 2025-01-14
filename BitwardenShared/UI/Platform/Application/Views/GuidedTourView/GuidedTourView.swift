@@ -89,7 +89,7 @@ struct GuidedTourView: View {
         .background(FullScreenCoverBackgroundRemovalView())
         .transition(.opacity)
         .onAppear {
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(.easeInOut(duration: UI.duration(0.3))) {
                 opacity = 1
             }
         }
