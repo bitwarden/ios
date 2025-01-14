@@ -152,7 +152,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping the options button sends the `.optionsPressed` action.
     @MainActor
     func test_optionsButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.options)
+        let button = try subject.inspect().find(button: Localizations.additionalOptions)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .optionsPressed)
     }
@@ -223,7 +223,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_snapshot_file_empty() {
         processor.state.type = .file
-        assertSnapshots(of: snapshotView, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: snapshotView, as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.1)])
     }
 
     @MainActor
