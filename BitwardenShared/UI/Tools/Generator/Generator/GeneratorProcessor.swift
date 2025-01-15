@@ -83,8 +83,10 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             await checkLearnGeneratorActionCardEligibility()
         case .dismissLearnGeneratorActionCard:
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+            state.isLearnGeneratorActionCardEligible = false
         case .showLearnGeneratorGuidedTour:
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+            state.isLearnGeneratorActionCardEligible = false
         }
     }
 

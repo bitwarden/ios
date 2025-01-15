@@ -78,6 +78,30 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
     }
 
+    /// Tapping the dismiss button in the learn generator action card sends the
+    /// `.dismissLearnGeneratorActionCard` effect.
+    @MainActor
+    func test_learnGeneratorActionCard_visible_tapDismiss() async throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.exploreTheGenerator)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissLearnGeneratorActionCard])
+    }
+
+    /// Tapping the 'Get started' button in the learn generator action card sends the
+    /// `.showLearnNewLoginGuidedTour` effect.
+    @MainActor
+    func test_learnGeneratorActionCard_visible_tapGetStarted() async throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.exploreTheGenerator)
+
+        let button = try actionCard.find(asyncButton: Localizations.getStarted)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.showLearnGeneratorGuidedTour])
+    }
+
     /// Updating the email type dispatches the `.emailTypeChanged` action.
     @MainActor
     func test_menuEmailTypeChanged() throws {
@@ -293,6 +317,16 @@ class GeneratorViewTests: BitwardenTestCase {
         assertSnapshot(
             of: snapshotView,
             as: .defaultPortrait
+        )
+    }
+
+    /// Tests the snapshot with the add state with the learn generator action card.
+    @MainActor
+    func test_snapshot_generatorView_learnGeneratorActionCard() throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark]
         )
     }
 }
