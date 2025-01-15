@@ -257,10 +257,6 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             VaultListItem(cipherView: .fixture(type: .sshKey))?.vaultItemAccessibilityId,
             "CipherCell"
         )
-        XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .sshKey))?.vaultItemAccessibilityId,
-            "CipherCell"
-        )
 
         XCTAssertEqual(
             VaultListItem.fixtureTOTP(totp: .fixture()).vaultItemAccessibilityId,
