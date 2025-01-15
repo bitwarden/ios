@@ -26,7 +26,7 @@ struct VaultListSectionView<Content: View>: View {
                 }
             }
             .accessibilityElement(children: .combine)
-            
+
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(section.items) { item in
                     itemContent(item)

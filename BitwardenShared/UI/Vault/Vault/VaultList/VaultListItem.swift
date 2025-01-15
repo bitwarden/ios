@@ -27,7 +27,7 @@ public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDec
         ///
         case totp(name: String, totpModel: VaultListTOTP)
     }
-    
+
     // MARK: Properties
 
     /// The identifier for the item.
@@ -102,7 +102,7 @@ extension VaultListItem {
             case .collection:
                 Asset.Images.collections24
             case .folder,
-                    .noFolder:
+                .noFolder:
                 Asset.Images.folder24
             case .identity:
                 Asset.Images.idCard24
@@ -173,7 +173,7 @@ extension VaultListItem {
             totpModel.loginView
         }
     }
-    
+
     /// Whether to show or not the Fido2 credential RpId
     var shouldShowFido2CredentialRpId: Bool {
         switch itemType {
