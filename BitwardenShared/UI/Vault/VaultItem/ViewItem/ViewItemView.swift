@@ -109,20 +109,18 @@ struct ViewItemView: View {
     /// added to all of them at once.
     @ViewBuilder
     private func details(for state: ViewVaultItemState) -> some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
-                ViewItemDetailsView(
-                    store: store.child(
-                        state: { _ in state },
-                        mapAction: { $0 },
-                        mapEffect: { $0 }
-                    ),
-                    timeProvider: timeProvider
-                )
-            }
-            .padding(16)
-            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        LazyVStack(alignment: .leading, spacing: 16) {
+            ViewItemDetailsView(
+                store: store.child(
+                    state: { _ in state },
+                    mapAction: { $0 },
+                    mapEffect: { $0 }
+                ),
+                timeProvider: timeProvider
+            )
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView(padding: 12)
     }
 }
 

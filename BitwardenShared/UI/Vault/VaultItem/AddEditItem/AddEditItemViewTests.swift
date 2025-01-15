@@ -43,7 +43,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the check password button performs the `.checkPassword` effect.
     @MainActor
     func test_checkPasswordButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.checkPassword)
+        let button = try subject.inspect().find(asyncButton: Localizations.checkPasswordForDataBreaches)
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .checkPasswordPressed)
