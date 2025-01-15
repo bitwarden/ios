@@ -28,7 +28,7 @@ struct ImportCXPState: Equatable, Sendable {
     var credentialImportToken: UUID?
 
     /// Whether the CXP import feature is available.
-    var isFeatureUnvailable: Bool = false
+    var isFeatureUnavailable: Bool = false
 
     /// The title of the main button.
     var mainButtonTitle: String {
@@ -62,7 +62,7 @@ struct ImportCXPState: Equatable, Sendable {
         case .start:
             Localizations.startImportCXPDescriptionLong
         case .importing:
-            ""
+            Localizations.pleaseDoNotCloseTheApp
         case let .success(total, _):
             Localizations.itemsSuccessfullyImported(total)
         case let .failure(message):
@@ -83,7 +83,7 @@ struct ImportCXPState: Equatable, Sendable {
         case .success:
             Localizations.importSuccessful
         case .failure:
-            isFeatureUnvailable ? Localizations.importNotAvailable : Localizations.importFailed
+            isFeatureUnavailable ? Localizations.importNotAvailable : Localizations.importFailed
         }
     }
 
@@ -99,7 +99,7 @@ struct ImportCXPState: Equatable, Sendable {
 
     /// Whether to show the main button.
     var showMainButton: Bool {
-        status != .importing || isFeatureUnvailable
+        status != .importing && !isFeatureUnavailable
     }
 
     /// The current status of the import process.

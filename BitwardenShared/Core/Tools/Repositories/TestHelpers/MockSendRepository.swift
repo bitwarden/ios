@@ -15,6 +15,7 @@ class MockSendRepository: SendRepository {
 
     var fetchSyncCalled = false
     var fetchSyncForceSync: Bool?
+    var fetchSyncHandler: (() -> Void)?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
     var searchSendSearchText: String?
@@ -84,6 +85,7 @@ class MockSendRepository: SendRepository {
     func fetchSync(forceSync: Bool) async throws {
         fetchSyncCalled = true
         fetchSyncForceSync = forceSync
+        fetchSyncHandler?()
         try fetchSyncResult.get()
     }
 

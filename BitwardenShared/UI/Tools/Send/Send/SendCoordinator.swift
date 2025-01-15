@@ -18,6 +18,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
+        & HasVaultRepository
 
     // MARK: - Private Properties
 
