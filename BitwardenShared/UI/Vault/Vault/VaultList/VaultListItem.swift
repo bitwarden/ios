@@ -5,6 +5,7 @@ import Foundation
 ///
 public struct VaultListItem: Equatable, Identifiable, Sendable, VaultItemWithDecorativeIcon {
     // MARK: Types
+
     /// An enumeration for the type of item being displayed by this item.
     public enum ItemType: Equatable, Sendable {
         /// The wrapped item is a cipher.
