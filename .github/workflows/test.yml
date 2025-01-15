@@ -102,15 +102,13 @@ jobs:
 
       - name: Build and test
         run: |
-          set -o pipefail && \
             xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
             -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}" \
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
-            -derivedDataPath build/DerivedData \
-            | xcbeautify --renderer github-actions
+            -derivedDataPath build/DerivedData
 
       - name: Convert coverage to Cobertura
         run: |
