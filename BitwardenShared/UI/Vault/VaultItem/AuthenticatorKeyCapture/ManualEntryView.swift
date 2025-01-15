@@ -32,7 +32,7 @@ struct ManualEntryView: View {
             )
         }
         .buttonStyle(.secondary())
-       ma .accessibilityIdentifier("AddTOTPManuallyButton")
+        .accessibilityIdentifier("AddTOTPManuallyButton")
     }
 
     /// The main content of the view.
