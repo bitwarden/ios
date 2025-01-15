@@ -144,7 +144,7 @@ jobs:
         uses: codecov/codecov-action@1e68e06f1dbfde0e4cefc87efeba9e4643565303 # v5.1.2
         continue-on-error: true
         with:
-          plugin: xcode
+          plugins: xcode
           files: test-reports
           fail_ci_if_error: true
 
