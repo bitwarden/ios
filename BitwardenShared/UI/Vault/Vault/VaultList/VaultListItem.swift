@@ -103,7 +103,7 @@ extension VaultListItem {
             case .collection:
                 Asset.Images.collections24
             case .folder,
-                 g.noFolder:
+                 .noFolder:
                 Asset.Images.folder24
             case .identity:
                 Asset.Images.idCard24
