@@ -6,11 +6,13 @@ import OSLog
 final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, GeneratorEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
         & HasPolicyService
         & HasReviewPromptService
+        & HasStateService
 
     /// The behavior that should be taken after receiving a new action for generating a new value
     /// and persisting it.
@@ -78,6 +80,11 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         switch effect {
         case .appeared:
             await generateValue(shouldSavePassword: true)
+            await checkLearnGeneratorActionCardEligibility()
+        case .dismissLearnGeneratorActionCard:
+            await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+        case .showLearnGeneratorGuidedTour:
+            await services.stateService.setLearnGeneratorActionCardStatus(.complete)
         }
     }
 
@@ -174,6 +181,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     }
 
     // MARK: Private
+
+    /// Checks the eligibility of the generator Login action card.
+    ///
+    private func checkLearnGeneratorActionCardEligibility() async {
+        if await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+            state.isLearnGeneratorActionCardEligible = await services.stateService
+                .getLearnGeneratorActionCardStatus() == .incomplete
+        }
+    }
 
     /// Generate a new passphrase.
     ///

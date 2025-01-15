@@ -1,4 +1,5 @@
 import BitwardenSdk
+import ViewInspector
 import XCTest
 
 @testable import BitwardenShared
@@ -373,6 +374,30 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 includeNumber: true
             )
         )
+    }
+
+    /// Tapping the dismiss button in the learn generator  action card sends the
+    /// `.dismissLearnGeneratorActionCard` effect.
+    @MainActor
+    func test_learnGeneratorActionCard_visible_tapDismiss() async throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.exploreTheGenerator)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissLearnGeneratorActionCard])
+    }
+
+    /// Tapping the 'Get started' button in the learn generator  action card sends the
+    /// `.showLearnNewLoginGuidedTour` effect.
+    @MainActor
+    func test_learnGeneratorActionCard_visible_tapGetStarted() async throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.exploreTheGenerator)
+
+        let button = try actionCard.find(asyncButton: Localizations.getStarted)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.showLearnGeneratorGuidedTour])
     }
 
     /// `perform(_:)` with `.appeared` generates a new generated value.
