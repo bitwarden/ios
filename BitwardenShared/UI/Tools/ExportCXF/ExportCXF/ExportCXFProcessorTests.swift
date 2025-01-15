@@ -157,15 +157,8 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_cancelMainButtonNotShown() async throws {
         subject.state.showMainButton = false
-        let task = Task {
-            await subject.perform(.cancel)
-        }
-        defer { task.cancel() }
 
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return !coordinator.routes.isEmpty
-        }
+        await subject.perform(.cancel)
 
         XCTAssertEqual(.dismiss, coordinator.routes.last)
     }
