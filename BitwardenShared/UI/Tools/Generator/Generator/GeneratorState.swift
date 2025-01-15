@@ -81,6 +81,9 @@ struct GeneratorState: Equatable {
     /// The generated value (password, passphrase or username).
     var generatedValue: String = ""
 
+    /// If account is eligible for learn generator action card.
+    var isLearnGeneratorActionCardEligible: Bool = false
+
     /// Whether there's a password generation policy in effect.
     var isPolicyInEffect = false
 
