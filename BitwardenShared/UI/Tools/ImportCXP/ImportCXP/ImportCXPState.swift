@@ -62,7 +62,7 @@ struct ImportCXPState: Equatable, Sendable {
         case .start:
             Localizations.startImportCXPDescriptionLong
         case .importing:
-            ""
+            Localizations.pleaseDoNotCloseTheApp
         case let .success(total, _):
             Localizations.itemsSuccessfullyImported(total)
         case let .failure(message):
