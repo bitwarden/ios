@@ -421,7 +421,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_checkLearnNewLoginActionCardEligibility() async {
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.learnGeneratorActionCardStatus = .incomplete
-        setUpSubject()
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.isLearnGeneratorActionCardEligible)
     }
@@ -432,7 +431,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_checkLearnNewLoginActionCardEligibility_false() async {
         configService.featureFlagsBool[.nativeCreateAccountFlow] = false
         stateService.learnGeneratorActionCardStatus = .incomplete
-        setUpSubject()
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
     }
@@ -443,7 +441,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_checkLearnNewLoginActionCardEligibility_false_complete() async {
         configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.learnGeneratorActionCardStatus = .complete
-        setUpSubject()
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
     }
