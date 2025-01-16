@@ -218,6 +218,12 @@ protocol StateService: AnyObject {
     ///
     func getLastUserShouldConnectToWatch() async -> Bool
 
+    /// Gets the status of Learn Generator Action Card.
+    ///
+    /// - Returns: The status of Learn generator Action Card.
+    ///
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress?
+
     /// Get any pending login request data.
     ///
     /// - Returns: The pending login request data from a push notification.
@@ -285,12 +291,6 @@ protocol StateService: AnyObject {
     /// - Returns: Whether to trust the device.
     ///
     func getShouldTrustDevice(userId: String) async -> Bool?
-
-    /// Gets the status of Learn Generator Action Card.
-    ///
-    /// - Returns: The status of Learn generator Action Card.
-    ///
-    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress?
 
     /// Get whether to show the website icons.
     ///
