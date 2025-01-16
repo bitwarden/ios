@@ -122,6 +122,7 @@ jobs:
           name: test-reports
           path: |
             ${{ env.COVERAGE_PATH }}
+            ${{ env.RESULT_BUNDLE_PATH }}
   report:
     name: Process Test Reports
     needs: test
