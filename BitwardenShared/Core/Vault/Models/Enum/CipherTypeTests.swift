@@ -7,7 +7,6 @@ class CipherTypeTests: BitwardenTestCase {
 
     /// `getter:allowedFieldTypes` return the correct `FielldType` array for the given cipher type..
     func test_allowedFieldTypes() {
-        sleep(120)
         XCTAssertEqual(CipherType.login.allowedFieldTypes, [.text, .hidden, .boolean, .linked])
         XCTAssertEqual(CipherType.card.allowedFieldTypes, [.text, .hidden, .boolean, .linked])
         XCTAssertEqual(CipherType.identity.allowedFieldTypes, [.text, .hidden, .boolean, .linked])
@@ -17,7 +16,6 @@ class CipherTypeTests: BitwardenTestCase {
 
     /// `localizedName` returns the correct values.
     func test_localizedName() {
-        sleep(120)
         XCTAssertEqual(CipherType.card.localizedName, Localizations.typeCard)
         XCTAssertEqual(CipherType.identity.localizedName, Localizations.typeIdentity)
         XCTAssertEqual(CipherType.login.localizedName, Localizations.typeLogin)
@@ -39,7 +37,6 @@ class CipherTypeTests: BitwardenTestCase {
 
     /// `canCreateCases` return the correct cipher types that the user can use to create ciphers.
     func test_canCreateCases() {
-        sleep(120)
         XCTAssertEqual(CipherType.canCreateCases, [.login, .card, .identity, .secureNote])
     }
 }

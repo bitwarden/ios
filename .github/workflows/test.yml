@@ -107,9 +107,7 @@ jobs:
             -configuration Debug \
             -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}" \
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
-            -derivedDataPath build/DerivedData \
-            -test-timeouts-enabled yes \
-            -maximum-test-execution-time-allowance 1
+            -derivedDataPath build/DerivedData
 
       - name: Convert coverage to Cobertura
         run: |
@@ -124,7 +122,6 @@ jobs:
           name: test-reports
           path: |
             ${{ env.COVERAGE_PATH }}
-            ${{ env.RESULT_BUNDLE_PATH }}
   report:
     name: Process Test Reports
     needs: test
