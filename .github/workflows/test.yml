@@ -107,13 +107,15 @@ jobs:
             -configuration Debug \
             -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}" \
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
-            -derivedDataPath build/DerivedData
+            -derivedDataPath build/DerivedData \
+            -test-timeouts-enabled yes \
+            -maximum-test-execution-time-allowance 1
 
       - name: Convert coverage to Cobertura
         run: |
           set -o pipefail && \
             xcresultparser --output-format cobertura \
-            "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
+            "$RESULT_BUNDLE_PATH" > "$COVERAGE_PATH"
 
       - name: Upload test reports
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
