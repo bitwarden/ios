@@ -101,7 +101,6 @@ jobs:
 
       - name: Build and test
         run: |
-          set -o pipefail && \
             xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
@@ -110,8 +109,7 @@ jobs:
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
-            -maximum-test-execution-time-allowance 1 \
-            | xcbeautify --renderer github-actions
+            -maximum-test-execution-time-allowance 1
 
       - name: Convert coverage to Cobertura
         run: |
