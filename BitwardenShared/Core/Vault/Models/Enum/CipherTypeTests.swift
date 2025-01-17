@@ -7,7 +7,6 @@ class CipherTypeTests: BitwardenTestCase {
 
     /// `getter:allowedFieldTypes` return the correct `FielldType` array for the given cipher type..
     func test_allowedFieldTypes() {
-        sleep(120)
         XCTAssertEqual(CipherType.login.allowedFieldTypes, [.text, .hidden, .boolean, .linked])
         XCTAssertEqual(CipherType.card.allowedFieldTypes, [.text, .hidden, .boolean, .linked])
         XCTAssertEqual(CipherType.identity.allowedFieldTypes, [.text, .hidden, .boolean, .linked])
