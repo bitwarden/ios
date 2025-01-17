@@ -21,11 +21,13 @@ struct OtherSettingsView: View {
 
             syncNow
 
-            clearClipboard
+            VStack(alignment: .leading, spacing: 8) {
+                clearClipboard
 
-            connectToWatch
+                connectToWatch
+            }
         }
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.other, titleDisplayMode: .inline)
         .toast(store.binding(
             get: \.toast,
@@ -43,58 +45,45 @@ struct OtherSettingsView: View {
 
     /// The allow sync on refresh toggle and description.
     private var allowSyncOnRefresh: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Toggle(isOn: store.binding(
+        BitwardenToggle(
+            Localizations.enableSyncOnRefresh,
+            isOn: store.binding(
                 get: \.isAllowSyncOnRefreshToggleOn,
                 send: OtherSettingsAction.toggleAllowSyncOnRefresh
-            )) {
-                Text(Localizations.enableSyncOnRefresh)
-            }
-            .toggleStyle(.bitwarden)
-            .styleGuide(.body)
-            .accessibilityIdentifier("SyncOnRefreshSwitch")
-
+            ),
+            accessibilityIdentifier: "SyncOnRefreshSwitch"
+        ) {
             Text(Localizations.enableSyncOnRefreshDescription)
                 .styleGuide(.footnote)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .multilineTextAlignment(.leading)
         }
+        .contentBlock()
     }
 
     /// The clear clipboard button and description.
     private var clearClipboard: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            SettingsMenuField(
-                title: Localizations.clearClipboard,
-                options: ClearClipboardValue.allCases,
-                hasDivider: false,
-                selectionAccessibilityID: "ClearClipboardAfterLabel",
-                selection: store.binding(
-                    get: \.clearClipboardValue,
-                    send: OtherSettingsAction.clearClipboardValueChanged
-                )
+        BitwardenMenuField(
+            title: Localizations.clearClipboard,
+            footer: Localizations.clearClipboardDescription,
+            accessibilityIdentifier: "ClearClipboardChooser",
+            options: ClearClipboardValue.allCases,
+            selection: store.binding(
+                get: \.clearClipboardValue,
+                send: OtherSettingsAction.clearClipboardValueChanged
             )
-            .cornerRadius(10)
-            .accessibilityIdentifier("ClearClipboardChooser")
-
-            Text(Localizations.clearClipboardDescription)
-                .styleGuide(.footnote)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .multilineTextAlignment(.leading)
-        }
+        )
     }
 
     /// The connect to watch toggle.
     private var connectToWatch: some View {
-        Toggle(isOn: store.binding(
-            get: \.isConnectToWatchToggleOn,
-            send: OtherSettingsAction.toggleConnectToWatch
-        )) {
-            Text(Localizations.connectToWatch)
-        }
-        .toggleStyle(.bitwarden)
-        .styleGuide(.body)
-        .padding(.top, 8)
+        BitwardenToggle(
+            Localizations.connectToWatch,
+            isOn: store.binding(
+                get: \.isConnectToWatchToggleOn,
+                send: OtherSettingsAction.toggleConnectToWatch
+            )
+        )
+        .contentBlock()
     }
 
     /// The sync now button and last synced description.
@@ -117,6 +106,7 @@ struct OtherSettingsView: View {
                         .accessibilityIdentifier("LastSyncLabel")
                 }
             }
+            .padding(.leading, 16)
             .styleGuide(.footnote)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .multilineTextAlignment(.leading)
