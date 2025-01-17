@@ -27,8 +27,8 @@ struct ImportCXFState: Equatable, Sendable {
     /// The token used in `ASCredentialImportManager` to get the credentials to import.
     var credentialImportToken: UUID?
 
-    /// Whether the Credential Exchange import feature is available.
-    var isFeatureUnvailable: Bool = false
+    /// Whether the Credential Exchange import feature is unavailable.
+    var isFeatureUnavailable: Bool = false
 
     /// The title of the main button.
     var mainButtonTitle: String {
@@ -62,7 +62,7 @@ struct ImportCXFState: Equatable, Sendable {
         case .start:
             Localizations.startImportCXFDescriptionLong
         case .importing:
-            ""
+            Localizations.pleaseDoNotCloseTheApp
         case let .success(total, _):
             Localizations.itemsSuccessfullyImported(total)
         case let .failure(message):
@@ -83,7 +83,7 @@ struct ImportCXFState: Equatable, Sendable {
         case .success:
             Localizations.importSuccessful
         case .failure:
-            isFeatureUnvailable ? Localizations.importNotAvailable : Localizations.importFailed
+            isFeatureUnavailable ? Localizations.importNotAvailable : Localizations.importFailed
         }
     }
 
@@ -99,7 +99,7 @@ struct ImportCXFState: Equatable, Sendable {
 
     /// Whether to show the main button.
     var showMainButton: Bool {
-        status != .importing || isFeatureUnvailable
+        status != .importing && !isFeatureUnavailable
     }
 
     /// The current status of the import process.

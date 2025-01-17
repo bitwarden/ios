@@ -11,6 +11,7 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
     typealias Services = HasConfigService
         & HasErrorReporter
         & HasImportCiphersRepository
+        & HasPolicyService
         & HasStateService
 
     // MARK: Private Properties
@@ -68,6 +69,10 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
             state.status = .failure(message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice)
             return
         }
+        if await services.policyService.policyAppliesToUser(.personalOwnership) {
+            state.isFeatureUnavailable = true
+            state.status = .failure(message: Localizations.personalOwnershipPolicyInEffect)
+        }
     }
 
     /// Starts the import process.
@@ -110,7 +115,7 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
 
     /// Shows the alert confirming the user wants to import logins later.
     private func cancelWithConfirmation() {
-        guard !state.isFeatureUnvailable else {
+        guard !state.isFeatureUnavailable else {
             coordinator.navigate(to: .dismiss)
             return
         }

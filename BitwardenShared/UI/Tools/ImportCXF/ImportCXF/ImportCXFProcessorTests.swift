@@ -11,6 +11,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<ImportCXFRoute, Void>!
     var errorReporter: MockErrorReporter!
     var importCiphersRepository: MockImportCiphersRepository!
+    var policyService: MockPolicyService!
     var state: ImportCXFState!
     var stateService: MockStateService!
     var subject: ImportCXFProcessor!
@@ -24,6 +25,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<ImportCXFRoute, Void>()
         errorReporter = MockErrorReporter()
         importCiphersRepository = MockImportCiphersRepository()
+        policyService = MockPolicyService()
         state = ImportCXFState()
         stateService = MockStateService()
         subject = ImportCXFProcessor(
@@ -32,6 +34,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
                 configService: configService,
                 errorReporter: errorReporter,
                 importCiphersRepository: importCiphersRepository,
+                policyService: policyService,
                 stateService: stateService
             ),
             state: state
@@ -45,6 +48,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
         coordinator = nil
         errorReporter = nil
         importCiphersRepository = nil
+        policyService = nil
         state = nil
         stateService = nil
         subject = nil
@@ -65,7 +69,30 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     }
 
     /// `perform(_:)` with `.appeared` sets the status as `.failure` with a message
-    /// when the feature flag `.cxpImportMobile` is not enabled.
+    /// when the feature flag `.cxpImportMobile` is enabled. but `.personalOwnership`
+    /// policy applies to user.
+    @MainActor
+    func test_perform_appearedPersonalOwnership() async throws {
+        guard #available(iOS 18.2, *) else {
+            throw XCTSkip("CXP Import feature is not available on this device")
+        }
+
+        configService.featureFlagsBool[.cxpImportMobile] = true
+        policyService.policyAppliesToUserResult[.personalOwnership] = true
+
+        await subject.perform(.appeared)
+
+        guard case let .failure(message) = subject.state.status else {
+            XCTFail("Status should be failure")
+            return
+        }
+        XCTAssertEqual(message, Localizations.personalOwnershipPolicyInEffect)
+        XCTAssertTrue(subject.state.isFeatureUnavailable)
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't set the status as `.failure`
+    /// when the feature flag `.cxpImportMobile` is enabled and `.personalOwnership`
+    /// policy doesn't apply to user.
     @MainActor
     func test_perform_appearedFeatureFlagEnabled() async throws {
         guard #available(iOS 18.2, *) else {
@@ -82,7 +109,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.cancel` with feature available shows confirmation and navigates to dismiss.
     @MainActor
     func test_perform_cancel() async throws {
-        subject.state.isFeatureUnvailable = false
+        subject.state.isFeatureUnavailable = false
         let task = Task {
             await subject.perform(.cancel)
         }
@@ -108,7 +135,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// doesn't navigate to dismiss if the user cancels the confirmation dialog.
     @MainActor
     func test_perform_cancelNoConfirmation() async throws {
-        subject.state.isFeatureUnvailable = false
+        subject.state.isFeatureUnavailable = false
         let task = Task {
             await subject.perform(.cancel)
         }
@@ -128,7 +155,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.cancel` with feature unavailable navigates to dismiss.
     @MainActor
     func test_perform_cancelFeatureUnavailable() async throws {
-        subject.state.isFeatureUnvailable = true
+        subject.state.isFeatureUnavailable = true
         let task = Task {
             await subject.perform(.cancel)
         }
