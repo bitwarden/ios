@@ -62,16 +62,22 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: Read default Xcode version and simulator configuration
+      - name: Read Xcode version and simulator configuration from file if not provided
         run: |
-          echo "DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
-          echo "DEFAULT_SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
-          echo "DEFAULT_SIMULATOR_VERSION=$(cat .test-simulator-ios-version | tr -d '\n')" >> "$GITHUB_ENV"
+          if [ -z "$XCODE_VERSION" ]; then
+            echo "XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
+          if [ -z "$SIMULATOR_NAME" ]; then
+            echo "SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
+          if [ -z "$SIMULATOR_VERSION" ]; then
+            echo "SIMULATOR_VERSION=$(cat .test-simulator-ios-version | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: ${{ env.XCODE_VERSION || env.DEFAULT_XCODE_VERSION }}
+          xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Configure Ruby
         uses: ruby/setup-ruby@401c19e14f474b54450cd3905bb8b86e2c8509cf # v1.204.0
@@ -105,8 +111,8 @@ jobs:
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}" \
-            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
+            -destination "platform=iOS Simulator,name=$SIMULATOR_NAME,OS=$SIMULATOR_VERSION" \
+            -resultBundlePath $RESULT_BUNDLE_PATH \
             -derivedDataPath build/DerivedData
 
       - name: Convert coverage to Cobertura
