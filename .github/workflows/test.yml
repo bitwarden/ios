@@ -101,13 +101,16 @@ jobs:
           ./Scripts/bootstrap.sh
 
       - name: Build and test
+        env:
+          _SIMULATOR_NAME: ${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }}
+          _SIMULATOR_VERSION: ${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}
         run: |
             NSUnbufferedIO=YES xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}" \
-            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
+            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+            -resultBundlePath $RESULT_BUNDLE_PATH \
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
