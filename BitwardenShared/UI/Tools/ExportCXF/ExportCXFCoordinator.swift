@@ -53,12 +53,12 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
     }
 
     func start() {
-        showExportCXP()
+        showExportCXF()
     }
 
     // MARK: Private Methods
 
-    private func showExportCXP() {
+    private func showExportCXF() {
         let processor = ExportCXFProcessor(
             coordinator: asAnyCoordinator(),
             delegate: self,

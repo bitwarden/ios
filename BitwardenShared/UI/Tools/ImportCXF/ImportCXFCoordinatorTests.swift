@@ -2,9 +2,9 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportCXPCoordinatorTests
+// MARK: - ImportCXFCoordinatorTests
 
-class ImportCXPCoordinatorTests: BitwardenTestCase {
+class ImportCXFCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var configService: MockConfigService!
@@ -12,7 +12,7 @@ class ImportCXPCoordinatorTests: BitwardenTestCase {
     var importCiphersRepository: MockImportCiphersRepository!
     var stackNavigator: MockStackNavigator!
     var stateService: MockStateService!
-    var subject: ImportCXPCoordinator!
+    var subject: ImportCXFCoordinator!
 
     // MARK: Setup & Teardown
 
@@ -25,7 +25,7 @@ class ImportCXPCoordinatorTests: BitwardenTestCase {
         stackNavigator = MockStackNavigator()
         stateService = MockStateService()
 
-        subject = ImportCXPCoordinator(
+        subject = ImportCXFCoordinator(
             services: ServiceContainer.withMocks(
                 configService: configService,
                 errorReporter: errorReporter,
@@ -72,7 +72,7 @@ class ImportCXPCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
-        XCTAssertTrue(action.view is ImportCXPView)
+        XCTAssertTrue(action.view is ImportCXFView)
     }
 
     /// `start()` has no effect.

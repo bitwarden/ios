@@ -2,19 +2,19 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportCXPProcessorTests
+// MARK: - ImportCXFProcessorTests
 
-class ImportCXPProcessorTests: BitwardenTestCase {
+class ImportCXFProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var configService: MockConfigService!
-    var coordinator: MockCoordinator<ImportCXPRoute, Void>!
+    var coordinator: MockCoordinator<ImportCXFRoute, Void>!
     var errorReporter: MockErrorReporter!
     var importCiphersRepository: MockImportCiphersRepository!
     var policyService: MockPolicyService!
-    var state: ImportCXPState!
+    var state: ImportCXFState!
     var stateService: MockStateService!
-    var subject: ImportCXPProcessor!
+    var subject: ImportCXFProcessor!
 
     // MARK: Setup & Teardown
 
@@ -22,13 +22,13 @@ class ImportCXPProcessorTests: BitwardenTestCase {
         super.setUp()
 
         configService = MockConfigService()
-        coordinator = MockCoordinator<ImportCXPRoute, Void>()
+        coordinator = MockCoordinator<ImportCXFRoute, Void>()
         errorReporter = MockErrorReporter()
         importCiphersRepository = MockImportCiphersRepository()
         policyService = MockPolicyService()
-        state = ImportCXPState()
+        state = ImportCXFState()
         stateService = MockStateService()
-        subject = ImportCXPProcessor(
+        subject = ImportCXFProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 configService: configService,
@@ -324,7 +324,7 @@ class ImportCXPProcessorTests: BitwardenTestCase {
         #endif
     }
 
-    /// Checks whether the alert is shown when not in the correct iOS version for CXP Import to work.
+    /// Checks whether the alert is shown when not in the correct iOS version for CXF Import to work.
     @MainActor
     private func checkAlertShownWhenNotInCorrectIOSVersion() -> Bool {
         guard #available(iOS 18.2, *) else {

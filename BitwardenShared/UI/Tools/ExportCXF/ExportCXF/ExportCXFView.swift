@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - ImportCXPView
+// MARK: - ExportCXFView
 
 /// A view to export credentials in the Credential Exchange flow.
 ///
