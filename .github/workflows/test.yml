@@ -113,7 +113,7 @@ jobs:
             -maximum-test-execution-time-allowance 1 \
             2>&1 \
             | tee $BUILD_LOG_PATH \
-            | xcbeautify --renderer github-actions
+            | xcbeautify --renderer github-actions && exit ${PIPESTATUS[0]}
       - name: Convert coverage to Cobertura
         run: |
           set -o pipefail && \
