@@ -5,10 +5,24 @@ import SwiftUI
 /// A data model for a toast.
 ///
 struct Toast: Equatable, Identifiable {
+    // MARK: Types
+
+    /// A mode that captures what sort of toast this is.
+    enum ToastMode {
+        /// The toast should dismiss itself after a few seconds.
+        case automaticDismiss
+
+        /// The toast should not automatically dismiss itself, and something else should do the dismissal.
+        case manualDismiss
+    }
+
     // MARK: Properties
 
     /// A unique identifier of the toast.
     let id = UUID()
+
+    /// The mode of the toast.
+    let mode: ToastMode
 
     /// The title text displayed in the toast.
     let title: String
@@ -23,10 +37,12 @@ struct Toast: Equatable, Identifiable {
     /// - Parameters:
     ///   - title: The title text displayed in the toast.
     ///   - subtitle: The subtitle text displayed in the toast.
+    ///   - mode: The mode for the toast
     ///
-    init(title: String, subtitle: String? = nil) {
+    init(title: String, subtitle: String? = nil, mode: ToastMode = .automaticDismiss) {
         self.title = title
         self.subtitle = subtitle
+        self.mode = mode
     }
 
     static func == (lhs: Toast, rhs: Toast) -> Bool {
@@ -76,6 +92,7 @@ struct ToastView: View {
             .accessibilityElement(children: .combine)
             .padding(.horizontal, 12)
             .task(id: toast.id) {
+                guard self.toast?.mode == .automaticDismiss else { return }
                 do {
                     try await Task.sleep(nanoseconds: 3 * NSEC_PER_SEC)
                     withAnimation {

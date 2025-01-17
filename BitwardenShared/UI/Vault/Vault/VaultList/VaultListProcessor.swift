@@ -226,6 +226,19 @@ extension VaultListProcessor {
     ///
     private func refreshVault() async {
         do {
+            let takingTimeTask = Task {
+                let delay: UInt64 = 5
+                if #available(iOS 16.0, *) {
+                    try await Task.sleep(for: .seconds(delay), tolerance: .seconds(1))
+                } else {
+                    try await Task.sleep(nanoseconds: delay * 1_000_000_000)
+                }
+                self.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+            }
+            defer {
+                state.toast = nil
+                takingTimeTask.cancel()
+            }
             guard let sections = try await services.vaultRepository.fetchSync(
                 forceSync: false,
                 filter: state.vaultFilterType
