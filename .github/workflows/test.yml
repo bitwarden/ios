@@ -129,6 +129,15 @@ jobs:
           path: |
             ${{ env.COVERAGE_PATH }}
             ${{ env.RESULT_BUNDLE_PATH }}
+
+      - name: Print summary
+        run: |
+          xcresultparser -o cli "$RESULT_BUNDLE_PATH"
+          xcresultparser -f -o cli "$RESULT_BUNDLE_PATH" >> $GITHUB_STEP_SUMMARY
+          echo "\n\n" >> $GITHUB_STEP_SUMMARY
+          xcresultparser -f -o md "$RESULT_BUNDLE_PATH" >> $GITHUB_STEP_SUMMARY
+
+
   report:
     name: Process Test Reports
     needs: test
