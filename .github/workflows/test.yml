@@ -114,6 +114,14 @@ jobs:
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
             -quiet
+
+      - name: Print Logs Summary
+        if: always()
+        run: |
+          xcresultparser -o cli "$RESULT_BUNDLE_PATH"
+          echo "# Test Summary" >> $GITHUB_STEP_SUMMARY
+          xcresultparser -f -o txt "$RESULT_BUNDLE_PATH" | grep "Number of" >> $GITHUB_STEP_SUMMARY
+
       - name: Convert coverage to Cobertura
         run: |
           set -o pipefail && \
@@ -130,12 +138,6 @@ jobs:
             ${{ env.COVERAGE_PATH }}
             ${{ env.RESULT_BUNDLE_PATH }}
 
-      - name: Print summary
-        run: |
-          xcresultparser -o cli "$RESULT_BUNDLE_PATH"
-          xcresultparser -f -o cli "$RESULT_BUNDLE_PATH" >> $GITHUB_STEP_SUMMARY
-          echo "\n\n" >> $GITHUB_STEP_SUMMARY
-          xcresultparser -f -o md "$RESULT_BUNDLE_PATH" >> $GITHUB_STEP_SUMMARY
 
 
   report:
