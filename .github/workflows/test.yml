@@ -36,7 +36,6 @@ env:
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
   RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
-  BUILD_LOG_PATH: build/xcodebuild.log
   SIMULATOR_NAME: ${{ inputs.simulator-name }}
   SIMULATOR_VERSION: ${{ inputs.simulator-version }}
   XCODE_VERSION: ${{ inputs.xcode-version }}
@@ -95,9 +94,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Install Mint, xcbeautify, and xcresultparser
+      - name: Install Mint and xcresultparser
         run: |
-          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
+          brew install mint xcresultparser
           ./Scripts/bootstrap.sh
 
       - name: Build and test
@@ -105,7 +104,7 @@ jobs:
           _SIMULATOR_NAME: ${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }}
           _SIMULATOR_VERSION: ${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}
         run: |
-            NSUnbufferedIO=YES xcrun xcodebuild test \
+            xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
@@ -114,9 +113,6 @@ jobs:
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
-            2>&1 \
-            | tee $BUILD_LOG_PATH \
-            | xcbeautify --renderer github-actions && exit ${PIPESTATUS[0]}
       - name: Convert coverage to Cobertura
         run: |
           set -o pipefail && \
@@ -131,7 +127,6 @@ jobs:
           path: |
             ${{ env.COVERAGE_PATH }}
             ${{ env.RESULT_BUNDLE_PATH }}
-            ${{ env.BUILD_LOG_PATH }}
   report:
     name: Process Test Reports
     needs: test
