@@ -13,6 +13,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var delegate: MockExportCXFProcessorDelegate!
     var errorReporter: MockErrorReporter!
     var exportCXFCiphersRepository: MockExportCXFCiphersRepository!
+    var policyService: MockPolicyService!
     var stackNavigator: MockStackNavigator!
     var stateService: MockStateService!
     var subject: ExportCXFProcessor!
@@ -28,6 +29,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         delegate = MockExportCXFProcessorDelegate()
         errorReporter = MockErrorReporter()
         exportCXFCiphersRepository = MockExportCXFCiphersRepository()
+        policyService = MockPolicyService()
         stackNavigator = MockStackNavigator()
         stateService = MockStateService()
         vaultRepository = MockVaultRepository()
@@ -38,6 +40,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
                 configService: configService,
                 errorReporter: errorReporter,
                 exportCXFCiphersRepository: exportCXFCiphersRepository,
+                policyService: policyService,
                 stateService: stateService,
                 vaultRepository: vaultRepository
             ),
@@ -53,6 +56,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         delegate = nil
         errorReporter = nil
         exportCXFCiphersRepository = nil
+        policyService = nil
         stackNavigator = nil
         stateService = nil
         subject = nil
@@ -67,6 +71,22 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         exportCXFCiphersRepository.getCipherCountToExportCXFResult = .success(100)
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.totalItemsToExport, 100)
+    }
+
+    /// `perform(_:)` appeared doesn't load the initial data when `.disablePersonalVaultExport`
+    /// applies to user changing the status to failure.
+    @MainActor
+    func test_perform_appearedDisablePersonalVaultExportPolicy() async throws {
+        policyService.policyAppliesToUserResult[.disablePersonalVaultExport] = true
+
+        await subject.perform(.appeared)
+
+        guard case let .failure(message) = subject.state.status else {
+            XCTFail("Status should be failure")
+            return
+        }
+        XCTAssertEqual(message, Localizations.disablePersonalVaultExportPolicyInEffect)
+        XCTAssertFalse(subject.state.showMainButton)
     }
 
     /// `perform(_:)` appeared loads the initial data but there are zero items
@@ -131,6 +151,16 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await confirmCancelAlert.tapAction(title: Localizations.no)
 
         XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.cancel` when not showing main button navigates to dismiss.
+    @MainActor
+    func test_perform_cancelMainButtonNotShown() async throws {
+        subject.state.showMainButton = false
+
+        await subject.perform(.cancel)
+
+        XCTAssertEqual(.dismiss, coordinator.routes.last)
     }
 
     /// `perform(_:)` with `.mainButtonTapped` in `.start` status prepares export.
