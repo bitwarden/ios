@@ -32,11 +32,11 @@ class ExportCXFViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping on the continue button performs the `.mainButtonTapped` effect.
+    /// Tapping on the export items button performs the `.mainButtonTapped` effect.
     @MainActor
     func test_mainButton_tapped() async throws {
-        processor.state.status = .start
-        let button = try subject.inspect().find(asyncButton: Localizations.continue)
+        processor.state.status = .prepared(itemsToExport: [])
+        let button = try subject.inspect().find(asyncButton: Localizations.exportItems)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .mainButtonTapped)
     }
@@ -82,10 +82,10 @@ class ExportCXFViewTests: BitwardenTestCase {
         )
     }
 
-    /// Test a snapshot on failure status but without showing main button.
+    /// Test a snapshot on failure status but when feature unavailable.
     @MainActor
-    func test_snapshot_failureNoMainButton() {
-        processor.state.showMainButton = false
+    func test_snapshot_failureFeatureUnavailable() {
+        processor.state.isFeatureUnavailable = true
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
