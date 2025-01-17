@@ -13,32 +13,27 @@ struct ExpiredLinkView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .center, spacing: 0) {
+        VStack(spacing: 24) {
+            VStack(alignment: .center, spacing: 12) {
                 Text(Localizations.expiredLink)
-                    .styleGuide(.title2)
-                    .padding(.bottom, 8)
+                    .styleGuide(.title2, weight: .semibold)
 
                 Text(Localizations.pleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount)
                     .styleGuide(.headline)
                     .multilineTextAlignment(.center)
-                    .padding(.bottom, 40)
-                    .padding(.horizontal, 16)
+            }
 
+            VStack(spacing: 12) {
                 Button(Localizations.restartRegistration) {
                     store.send(.restartRegistrationTapped)
                 }
                 .accessibilityIdentifier("RestartRegistrationButton")
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
                 .buttonStyle(.primary())
 
                 Button(Localizations.logIn) {
                     store.send(.logInTapped)
                 }
                 .accessibilityIdentifier("LogInButton")
-                .padding(.horizontal, 16)
-                .padding(.bottom, 32)
                 .buttonStyle(.secondary())
             }
         }

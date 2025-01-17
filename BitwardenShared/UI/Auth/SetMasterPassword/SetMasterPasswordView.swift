@@ -84,13 +84,14 @@ struct SetMasterPasswordView: View {
                     }
                 )
             }
+
             AsyncButton(Localizations.submit) {
                 await store.perform(.submitPressed)
             }
             .accessibilityIdentifier("SubmitButton")
             .buttonStyle(.primary())
         }
-        .scrollView(padding: 16)
+        .scrollView(padding: 12)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.setMasterPassword)
         .navigationBarTitleDisplayMode(.inline)

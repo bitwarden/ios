@@ -11,32 +11,31 @@ struct PasswordHintView: View {
     @ObservedObject var store: Store<PasswordHintState, PasswordHintAction, PasswordHintEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                BitwardenTextField(
-                    title: Localizations.emailAddress,
-                    text: store.binding(
-                        get: \.emailAddress,
-                        send: PasswordHintAction.emailAddressChanged
-                    ),
-                    footer: Localizations.enterEmailForHint
-                )
-                .textFieldConfiguration(.email)
-
-                AsyncButton(Localizations.submit) {
-                    await store.perform(.submitPressed)
-                }
-                .accessibilityIdentifier("SubmitButton")
-                .buttonStyle(.primary())
-                .disabled(!store.state.isSubmitButtonEnabled)
-            }
-            .padding(16)
+        VStack(spacing: 24) {
+            BitwardenTextField(
+                title: Localizations.emailAddress,
+                text: store.binding(
+                    get: \.emailAddress,
+                    send: PasswordHintAction.emailAddressChanged
+                ),
+                footer: Localizations.enterEmailForHint
+            )
+            .textFieldConfiguration(.email)
         }
+        .scrollView(padding: 12)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.passwordHint)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismissPressed)
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                toolbarButton(Localizations.submit) {
+                    await store.perform(.submitPressed)
+                }
+                .accessibilityIdentifier("SubmitButton")
+                .disabled(!store.state.isSubmitButtonEnabled)
             }
         }
     }
