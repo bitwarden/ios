@@ -125,6 +125,7 @@ jobs:
         if: always()
         with:
           name: test-reports
+          compression-level: 9
           path: |
             ${{ env.COVERAGE_PATH }}
             ${{ env.RESULT_BUNDLE_PATH }}
