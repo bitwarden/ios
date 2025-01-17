@@ -36,6 +36,7 @@ env:
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
   RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
+  BUILD_LOG_PATH: build/xcodebuild.log
   SIMULATOR_NAME: ${{ inputs.simulator-name }}
   SIMULATOR_VERSION: ${{ inputs.simulator-version }}
   XCODE_VERSION: ${{ inputs.xcode-version }}
@@ -101,7 +102,7 @@ jobs:
 
       - name: Build and test
         run: |
-            xcrun xcodebuild test \
+            NSUnbufferedIO=YES xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
@@ -109,8 +110,10 @@ jobs:
             -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
-            -maximum-test-execution-time-allowance 1
-
+            -maximum-test-execution-time-allowance 1 \
+            2>&1 \
+            | tee $BUILD_LOG_PATH \
+            | xcbeautify --renderer github-actions
       - name: Convert coverage to Cobertura
         run: |
           set -o pipefail && \
@@ -125,6 +128,7 @@ jobs:
           path: |
             ${{ env.COVERAGE_PATH }}
             ${{ env.RESULT_BUNDLE_PATH }}
+            ${{ env.BUILD_LOG_PATH }}
   report:
     name: Process Test Reports
     needs: test
