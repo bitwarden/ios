@@ -222,7 +222,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `navigate(to:)` with `.exportVaultToApp` presents the export vault
-    /// to another app view (Credential Exchnage flow) by starting its coordinator.
+    /// to another app view (Credential Exchange flow) by starting its coordinator.
     @MainActor
     func test_navigateTo_exportVaultToApp() throws {
         subject.navigate(to: .exportVaultToApp)
