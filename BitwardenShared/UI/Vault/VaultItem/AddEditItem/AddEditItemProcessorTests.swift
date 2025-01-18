@@ -1545,14 +1545,9 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_showLearnNewLoginGuidedTour() async {
         subject.state.isLearnNewLoginActionCardEligible = true
-        subject.state.spotlights[.step1] = step1Spotlight
         await subject.perform(.showLearnNewLoginGuidedTour)
         XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
         XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
-        var step1: GuidedTourState = .loginStep1
-        step1.spotlightRegion = step1Spotlight
-        XCTAssertEqual(subject.state.guidedTourState, step1)
-        XCTAssertEqual(subject.state.guidedTourStep, .step1)
         XCTAssertTrue(subject.state.showGuidedTour)
     }
 
@@ -1565,38 +1560,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.loginState.isAuthKeyVisible)
     }
 
-    /// `receive(_:)` with `.backPressed` updates the guided tour state to the previous step.
+    /// `receive(_:)` with `.backTapped` updates the guided tour state to the previous step.
     @MainActor
-    func test_receive_backPressed() {
-        subject.state.guidedTourState = .loginStep3
-        subject.state.spotlights = [
-            .step1: step1Spotlight,
-            .step2: step2Spotlight,
-            .step3: step3Spotlight,
-        ]
+    func test_receive_backTapped() {
+        subject.state.guidedTourViewState.currentIndex = 2
 
-        subject.receive(.guidedTourAction(.backPressed))
-        XCTAssertEqual(subject.state.guidedTourState?.spotlightRegion, step2Spotlight)
+        subject.receive(.guidedTourViewAction(.backTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 1)
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState, .loginStep2)
 
-        subject.receive(.guidedTourAction(.backPressed))
-        XCTAssertEqual(subject.state.guidedTourState?.spotlightRegion, step1Spotlight)
-    }
-
-    /// `receive(_:)` with `.backPressed` updates the spotlightRegion to the previous step's spotlight frame.
-    @MainActor
-    func test_receive_backPressed_updatesSpotlightRegion() {
-        subject.state.guidedTourState = .loginStep3
-        subject.state.spotlights = [
-            .step1: step1Spotlight,
-            .step2: step2Spotlight,
-            .step3: step3Spotlight,
-        ]
-
-        subject.receive(.guidedTourAction(.backPressed))
-        XCTAssertEqual(subject.state.guidedTourState?.spotlightRegion, step2Spotlight)
-
-        subject.receive(.guidedTourAction(.backPressed))
-        XCTAssertEqual(subject.state.guidedTourState?.spotlightRegion, step1Spotlight)
+        subject.receive(.guidedTourViewAction(.backTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 0)
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState, .loginStep1)
     }
 
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
@@ -1637,36 +1612,21 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.collectionIds, ["2"])
     }
 
-    /// `receive(_:)` with `.didRenderViewToSpotlight` updates `.spotlights`,
-    /// and will not update the `spotlightRegion`, if the current guided tour step not match the step.
+    /// `receive(_:)` with `.guidedTourAction(.didRenderViewToSpotlight)` updates `.spotlightRegion`.
     @MainActor
     func test_receive_didRenderViewToSpotlight() {
-        XCTAssertEqual(subject.state.spotlights, [:])
-        subject.state.guidedTourState = .loginStep2
+        subject.receive(.guidedTourAction(.didRenderViewToSpotlight(frame: step1Spotlight, step: .step1)))
 
-        subject.receive(.didRenderViewToSpotlight(frame: step1Spotlight, step: .step1))
-        XCTAssertEqual(subject.state.spotlights[.step1], step1Spotlight)
-        XCTAssertEqual(subject.state.guidedTourState?.spotlightRegion, .zero)
+        XCTAssertEqual(
+            subject.state.guidedTourViewState.guidedTourStepStates[0].spotlightRegion,
+            step1Spotlight
+        )
     }
 
-    /// `receive(_:)` with `.didRenderViewToSpotlight` updates `.spotlights`,
-    /// and will not update the guided tour state, if the current guided tour step not match the step.
+    /// `receive(_:)` with `.guidedTourViewAction(.dismissTapped)` dismisses the guided tour.
     @MainActor
-    func test_receive_didRenderViewToSpotlight_updateSpotlightRegion() {
-        XCTAssertEqual(subject.state.spotlights, [:])
-        subject.state.guidedTourState = .loginStep1
-
-        subject.receive(.didRenderViewToSpotlight(frame: step1Spotlight, step: .step1))
-        XCTAssertEqual(subject.state.spotlights[.step1], step1Spotlight)
-        XCTAssertEqual(subject.state.guidedTourState?.spotlightRegion, step1Spotlight)
-    }
-
-    /// `receive(_:)` with `.dismissPressed` dismisses the guided tour.
-    @MainActor
-    func test_receive_dismissPressed() {
-        subject.state.guidedTourState = .loginStep2
-
-        subject.receive(.guidedTourAction(.dismissPressed))
+    func test_receive_dismissTapped() {
+        subject.receive(.guidedTourViewAction(.dismissTapped))
         XCTAssertFalse(subject.state.showGuidedTour)
     }
 
@@ -1678,12 +1638,10 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
-    /// `receive(_:)` with `.donePressed` completes the guided tour.
+    /// `receive(_:)` with `.guidedTourViewAction(.doneTapped)` completes the guided tour.
     @MainActor
-    func test_receive_donePressed() {
-        subject.state.guidedTourState = .loginStep2
-
-        subject.receive(.guidedTourAction(.donePressed))
+    func test_receive_doneTapped() {
+        subject.receive(.guidedTourViewAction(.doneTapped))
         XCTAssertFalse(subject.state.showGuidedTour)
     }
 
@@ -1924,28 +1882,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         // TODO: BIT-901 state assertion for added field
     }
 
-    /// `receive(_:)` with `.nextPressed` updates the guided tour state to the next step.
+    /// `receive(_:)` with `.guidedTourViewAction(.nextTapped)` updates the guided tour state to the next step.
     @MainActor
-    func test_receive_nextPressed() {
-        subject.state.guidedTourState = .loginStep1
+    func test_receive_nextTapped() {
+        subject.state.guidedTourViewState.currentIndex = 0
 
-        subject.receive(.guidedTourAction(.nextPressed))
-        XCTAssertEqual(subject.state.guidedTourState, .loginStep2)
+        subject.receive(.guidedTourViewAction(.nextTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState, .loginStep2)
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 1)
 
-        subject.receive(.guidedTourAction(.nextPressed))
-        XCTAssertEqual(subject.state.guidedTourState, .loginStep3)
-    }
-
-    /// `receive(_:)` with `.nextPressed` updates the spotlightRegion to the next step's spotlight frame.
-    @MainActor
-    func test_receive_nextPressed_updatesSpotlightRegion() {
-        subject.state.guidedTourState = .loginStep3
-
-        subject.receive(.guidedTourAction(.backPressed))
-        XCTAssertEqual(subject.state.guidedTourState, .loginStep2)
-
-        subject.receive(.guidedTourAction(.backPressed))
-        XCTAssertEqual(subject.state.guidedTourState, .loginStep1)
+        subject.receive(.guidedTourViewAction(.nextTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState, .loginStep3)
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 2)
     }
 
     /// `receive(_:)` with `.notesChanged` with a value updates the state correctly.
@@ -2027,15 +1975,15 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, toast)
     }
 
-    /// `receive(_:)` with `.toggleGuidedTourVisibilityChanged`  updates the state correctly.
+    /// `receive(_:)` with `guidedTourAction(.toggleGuidedTourVisibilityChanged)`  updates the state correctly.
     @MainActor
-    func test_receive_toggleGuidedTourVisibilityChanged() {
+    func test_receive_guidedTourAction_toggleGuidedTourVisibilityChanged() {
         subject.state.showGuidedTour = false
 
-        subject.receive(.toggleGuidedTourVisibilityChanged(true))
+        subject.receive(.guidedTourAction(.toggleGuidedTourVisibilityChanged(true)))
         XCTAssertTrue(subject.state.showGuidedTour)
 
-        subject.receive(.toggleGuidedTourVisibilityChanged(false))
+        subject.receive(.guidedTourAction(.toggleGuidedTourVisibilityChanged(false)))
         XCTAssertFalse(subject.state.showGuidedTour)
     }
 

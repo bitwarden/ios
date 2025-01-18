@@ -42,11 +42,8 @@ protocol AddEditItemState: Sendable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>] { get set }
 
-    /// The state for guided tour.
-    var guidedTourState: GuidedTourState? { get set }
-
-    /// The current step in the guided tour.
-    var guidedTourStep: LearnLoginGuidedTourStep? { get set }
+    /// The state for guided tour view.
+    var guidedTourViewState: GuidedTourViewState { get set }
 
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
@@ -90,9 +87,6 @@ protocol AddEditItemState: Sendable {
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }
 
-    /// The spotlight region for each step in the guided tour.
-    var spotlights: [LearnLoginGuidedTourStep: CGRect] { get set }
-
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
 
@@ -114,15 +108,30 @@ protocol AddEditItemState: Sendable {
     mutating func toggleCollection(newValue: Bool, collectionId: String)
 }
 
-/// A step in the learn new login guided tour being shown on this screen.
-///
-enum LearnLoginGuidedTourStep: Int, Equatable {
-    /// The first step of the guided tour. The generate password button is spotlit.
-    case step1 = 1
+/// extension for `GuidedTourState` to provide some common states for learn new login guided tour.
+extension GuidedTourStepState {
+    /// The first step of the learn new login guided tour.
+    static let loginStep1 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        cardLeadingPadding: 37,
+        cardTrailingPadding: 24,
+        spotlightShape: .circle,
+        title: Localizations.useThisButtonToGenerateANewUniquePassword
+    )
 
-    /// The second step of the guided tour. The authenticator key is spotlit.
-    case step2 = 2
+    /// The second step of the learn new login guided tour.
+    static let loginStep2 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle,
+        spotlightCornerRadius: 8,
+        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
+    )
 
-    /// The third step of the guided tour. The URI field is spotlit.
-    case step3 = 3
+    /// The third step of the learn new login guided tour.
+    static let loginStep3 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle,
+        spotlightCornerRadius: 8,
+        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount
+    )
 }

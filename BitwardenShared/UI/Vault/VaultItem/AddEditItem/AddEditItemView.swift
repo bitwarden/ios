@@ -44,12 +44,11 @@ struct AddEditItemView: View { // swiftlint:disable:this type_body_length
             get: \.toast,
             send: AddEditItemAction.toastShown
         ))
-        .fullScreenCover(
-            isPresented: store.binding(
-                get: \.showGuidedTour,
-                send: AddEditItemAction.toggleGuidedTourVisibilityChanged
-            )
-        ) {
+        .fullScreenCover(isPresented: store.binding(get: { state in
+            state.showGuidedTour
+        }, send: { state in
+            AddEditItemAction.guidedTourAction(.toggleGuidedTourVisibilityChanged(state))
+        })) {
             guidedTourView()
         }
         .transaction { transaction in
@@ -75,6 +74,11 @@ struct AddEditItemView: View { // swiftlint:disable:this type_body_length
     private var content: some View {
         ScrollViewReader { reader in
             ScrollView {
+                // Dummy spacer view for scroll view to locate when scrolling to top
+                Spacer()
+                    .frame(height: 0)
+                    .id(Constants.top)
+
                 VStack(spacing: 20) {
                     if isPolicyEnabled {
                         InfoContainer(Localizations.personalOwnershipPolicyInEffect)
@@ -105,8 +109,13 @@ struct AddEditItemView: View { // swiftlint:disable:this type_body_length
             .task(id: verticalSizeClass) {
                 handleLandscapeScroll(reader)
             }
-            .task(id: store.state.guidedTourStep) {
+            .task(id: store.state.guidedTourViewState.currentIndex) {
                 handleLandscapeScroll(reader)
+            }
+            .task(id: store.state.showGuidedTour) {
+                if store.state.showGuidedTour == false {
+                    reader.scrollTo(Constants.top)
+                }
             }
         }
         .animation(.default, value: store.state.collectionsForOwner)
@@ -232,29 +241,13 @@ struct AddEditItemView: View { // swiftlint:disable:this type_body_length
                 mapAction: { $0 },
                 mapEffect: { $0 }
             ),
-            didRenderGeneratePasswordIcon: { frame in
+            didRenderFrame: { step, frame in
                 let enlargedFrame = frame.enlarged(by: 8)
                 store.send(
-                    .didRenderViewToSpotlight(
+                    .guidedTourAction(.didRenderViewToSpotlight(
                         frame: enlargedFrame,
-                        step: .step1
-                    )
-                )
-            }, didRenderTotpField: { frame in
-                let enlargedFrame = frame.enlarged(by: 8)
-                store.send(
-                    .didRenderViewToSpotlight(
-                        frame: enlargedFrame,
-                        step: .step2
-                    )
-                )
-            }, didRenderURIField: { frame in
-                let enlargedFrame = frame.enlarged(by: 8)
-                store.send(
-                    .didRenderViewToSpotlight(
-                        frame: enlargedFrame,
-                        step: .step3
-                    )
+                        step: step
+                    ))
                 )
             }
         )
@@ -271,15 +264,16 @@ struct AddEditItemView: View { // swiftlint:disable:this type_body_length
         )
     }
 
+    /// A view that presents the guided tour.
     @ViewBuilder
     private func guidedTourView() -> some View {
         GuidedTourView(
             store: store.child(
                 state: { state in
-                    state.guidedTourState ?? .loginStep1
+                    state.guidedTourViewState
                 },
                 mapAction: { action in
-                    .guidedTourAction(action)
+                    .guidedTourViewAction(action)
                 },
                 mapEffect: nil
             )
@@ -288,14 +282,14 @@ struct AddEditItemView: View { // swiftlint:disable:this type_body_length
 
     /// Scrolls to the guided tour step when in landscape mode.
     private func handleLandscapeScroll(_ reader: ScrollViewProxy) {
-        switch store.state.guidedTourStep {
-        case .step1:
-            reader.scrollTo(Constants.guidedTourPasswordGenerator)
-        case .step2:
-            reader.scrollTo(Constants.guidedTourTotp)
-        case .step3:
-            reader.scrollTo(Constants.guidedTourUri)
-        case .none:
+        switch store.state.guidedTourViewState.currentIndex {
+        case GuidedTourStep.step1.rawValue:
+            reader.scrollTo(GuidedTourStep.step1)
+        case GuidedTourStep.step2.rawValue:
+            reader.scrollTo(GuidedTourStep.step2)
+        case GuidedTourStep.step3.rawValue:
+            reader.scrollTo(GuidedTourStep.step3)
+        default:
             break
         }
     }

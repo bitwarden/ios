@@ -22,14 +22,8 @@ struct AddEditLoginItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
-    /// The closure to call when the generate password icon is rendered.
-    var didRenderGeneratePasswordIcon: ((CGRect) -> Void)?
-
-    /// The closure to call when the TOTP field is rendered.
-    var didRenderTotpField: ((CGRect) -> Void)?
-
-    /// The closure to call when the URI field is rendered.
-    var didRenderURIField: ((CGRect) -> Void)?
+    /// The closure to call when the fields are rendered for the guided tour.
+    var didRenderFrame: ((GuidedTourStep, CGRect) -> Void)?
 
     // MARK: View
 
@@ -41,8 +35,8 @@ struct AddEditLoginItemView: View {
         fidoField
 
         totpView
-            .onFrameChanged { origin, size in
-                didRenderTotpField?(CGRect(origin: origin, size: size))
+            .guidedTourStep(.step2) { frame in
+                didRenderFrame?(.step2, frame)
             }
             .id(Constants.guidedTourTotp)
 
@@ -98,9 +92,8 @@ struct AddEditLoginItemView: View {
                 AccessoryButton(asset: Asset.Images.generate24, accessibilityLabel: Localizations.generatePassword) {
                     store.send(.generatePasswordPressed)
                 }
-                .id(Constants.guidedTourPasswordGenerator)
-                .onFrameChanged { origin, size in
-                    didRenderGeneratePasswordIcon?(CGRect(origin: origin, size: size))
+                .guidedTourStep(.step1) { frame in
+                    didRenderFrame?(.step1, frame)
                 }
                 .accessibilityIdentifier("RegeneratePasswordButton")
             }
@@ -211,8 +204,8 @@ struct AddEditLoginItemView: View {
                 }
                 .textFieldConfiguration(.url)
             }
-            .onFrameChanged { origin, size in
-                didRenderURIField?(CGRect(origin: origin, size: size))
+            .guidedTourStep(.step3) { frame in
+                didRenderFrame?(.step3, frame)
             }
             .id(Constants.guidedTourUri)
 

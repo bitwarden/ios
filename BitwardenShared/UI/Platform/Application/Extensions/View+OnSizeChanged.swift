@@ -27,7 +27,7 @@ extension View {
                 Color.clear
                     .preference(
                         key: ViewFrameKey.self,
-                        value: ViewFrame(
+                        value: CGRect(
                             origin: geometry.frame(in: .global).origin,
                             size: geometry.size
                         )
@@ -37,6 +37,21 @@ extension View {
         .onPreferenceChange(ViewFrameKey.self) { value in
             perform(value.origin, value.size)
         }
+    }
+
+    /// A view modifier that informs the guided tour the spotlight region of the
+    /// view and assigns an identifier to the view.
+    ///
+    /// - Parameters:
+    ///   - step: The guided tour step.
+    ///   - perform: A closure called when the size or origin of the view changes.
+    /// - Returns: A copy of the view with the guided tour step modifier applied.
+    ///
+    func guidedTourStep(_ step: GuidedTourStep, perform: @escaping (CGRect) -> Void) -> some View {
+        onFrameChanged { origin, size in
+            perform(CGRect(origin: origin, size: size))
+        }
+        .id(step)
     }
 }
 
@@ -53,24 +68,11 @@ private struct ViewSizeKey: PreferenceKey {
 /// A `PreferenceKey` used to calculate the size and origin of a view.
 ///
 private struct ViewFrameKey: PreferenceKey {
-    static var defaultValue = ViewFrame(origin: .zero, size: .zero)
+    static var defaultValue = CGRect.zero
 
-    static func reduce(value: inout ViewFrame, nextValue: () -> ViewFrame) {
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
         if nextValue() != defaultValue {
             value = nextValue()
         }
-    }
-}
-
-/// A structure that represents the origin and size of a view.
-struct ViewFrame: Equatable {
-    /// The origin of the view.
-    var origin: CGPoint
-
-    /// The size of the view.
-    var size: CGSize
-
-    static func == (lhs: ViewFrame, rhs: ViewFrame) -> Bool {
-        lhs.size == rhs.size && lhs.origin == rhs.origin
     }
 }
