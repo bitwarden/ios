@@ -9,11 +9,16 @@ struct GuidedTourView: View {
     /// The store for the guided tour view.
     @ObservedObject var store: Store<GuidedTourViewState, GuidedTourViewAction, Void>
 
-    /// The height of the coach-mark card.
-    @SwiftUI.State var cardHeight: CGFloat = 0
+    // MARK: Private Properties
+
+    /// The actual size of the coach-mark card.
+    @SwiftUI.State private var cardSize: CGSize = .zero
 
     /// The opacity of the guided tour view.
     @SwiftUI.State private var opacity: Double = 0.0
+
+    /// The size of the view.
+    @SwiftUI.State private var viewSize: CGSize = .zero
 
     /// The size of the coach-mark arrow icon.
     let arrowSize = CGSize(width: 47, height: 13)
@@ -31,8 +36,8 @@ struct GuidedTourView: View {
         store.state.currentStepState.cardTrailingPadding
     }
 
-    /// The width of the coach-mark card.
-    var cardWidth: CGFloat {
+    /// The max width of the coach-mark card.
+    var cardMaxWidth: CGFloat {
         if verticalSizeClass == .compact {
             480
         } else {
@@ -41,55 +46,61 @@ struct GuidedTourView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .top) {
-            Color.black.opacity(0.4).edgesIgnoringSafeArea(.all)
-                .mask(
-                    Spotlight(
-                        spotlight: store.state.currentStepState.spotlightRegion,
-                        spotlightCornerRadius: store.state.currentStepState.spotlightCornerRadius,
-                        spotlightShape: store.state.currentStepState.spotlightShape
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                Color.black.opacity(0.4).edgesIgnoringSafeArea(.all)
+                    .mask(
+                        Spotlight(
+                            spotlight: store.state.currentStepState.spotlightRegion,
+                            spotlightCornerRadius: store.state.currentStepState.spotlightCornerRadius,
+                            spotlightShape: store.state.currentStepState.spotlightShape
+                        )
+                        .fill(style: FillStyle(eoFill: true))
                     )
-                    .fill(style: FillStyle(eoFill: true))
-                )
 
-            VStack(alignment: .leading, spacing: 0) {
-                let coachMarkVerticalPosition = calculateCoachMarkPosition()
-                if coachMarkVerticalPosition == .bottom {
-                    if store.state.currentStepState.arrowHorizontalPosition == .center {
-                        Image(asset: Asset.Images.arrowUp)
-                            .offset(x: calculateArrowHorizontalOffset())
-                    }
-                }
-                VStack(alignment: .leading) {
-                    cardContent()
-                        .frame(maxWidth: cardWidth)
-                        .onFrameChanged { _, size in
-                            cardHeight = size.height
+                VStack(alignment: .leading, spacing: 0) {
+                    let coachMarkVerticalPosition = calculateCoachMarkPosition()
+                    if coachMarkVerticalPosition == .bottom {
+                        if store.state.currentStepState.arrowHorizontalPosition == .center {
+                            Image(asset: Asset.Images.arrowUp)
+                                .offset(x: calculateArrowHorizontalOffset())
                         }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .offset(x: calculateCoachMarkCardHorizontalOffset())
-                .padding(.leading, cardLeadingPadding)
-                .padding(.trailing, cardTrailingPadding)
+                    }
+                    VStack(alignment: .leading) {
+                        cardContent()
+                            .frame(maxWidth: cardMaxWidth)
+                            .onFrameChanged { _, size in
+                                cardSize = size
+                            }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .offset(x: calculateCoachMarkCardHorizontalOffset())
+                    .padding(.leading, cardLeadingPadding)
+                    .padding(.trailing, cardTrailingPadding)
 
-                if coachMarkVerticalPosition == .top {
-                    if store.state.currentStepState.arrowHorizontalPosition == .center {
-                        Image(asset: Asset.Images.arrowDown)
-                            .offset(x: calculateArrowHorizontalOffset())
+                    if coachMarkVerticalPosition == .top {
+                        if store.state.currentStepState.arrowHorizontalPosition == .center {
+                            Image(asset: Asset.Images.arrowDown)
+                                .offset(x: calculateArrowHorizontalOffset())
+                        }
                     }
                 }
+                .padding(0)
+                .frame(maxWidth: .infinity)
+                .offset(y: calculateCoachMarkOffsetY())
             }
-            .padding(0)
-            .frame(maxWidth: .infinity)
-            .offset(y: calculateCoachMarkOffsetY())
-        }
-        .opacity(opacity)
-        .ignoresSafeArea(.all)
-        .background(FullScreenCoverBackgroundRemovalView())
-        .transition(.opacity)
-        .onAppear {
-            withAnimation(.easeInOut(duration: UI.duration(0.3))) {
-                opacity = 1
+            .opacity(opacity)
+            .ignoresSafeArea(.all)
+            .background(FullScreenCoverBackgroundRemovalView())
+            .transition(.opacity)
+            .task(id: verticalSizeClass) {
+                viewSize = geometry.size
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: UI.duration(0.3))) {
+                    opacity = 1
+                }
+                viewSize = geometry.size
             }
         }
     }
@@ -100,7 +111,7 @@ struct GuidedTourView: View {
     @ViewBuilder
     private func cardContent() -> some View {
         VStack(alignment: .leading) {
-            HStack {
+            HStack(spacing: 0) {
                 Text(store.state.progressText)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.caption1, weight: .bold)
@@ -169,15 +180,16 @@ extension GuidedTourView {
 
         // If the card is too far from the coach mark arrow,
         // calculate the offset to show the card near the arrow.
-        if cardLeadingPadding + cardWidth < arrowOffset + arrowSize.width {
-            return (arrowOffset + arrowSize.width) - (cardLeadingPadding + cardWidth)
+        if cardLeadingPadding + cardSize.width < arrowOffset + arrowSize.width {
+            return (arrowOffset + arrowSize.width) - (cardLeadingPadding + cardSize.width)
         }
 
         // If there is enough space to show the card as center of the arrow,
         // calculate the offset to show the card as center of the arrow.
-        if UIScreen.main.bounds.width - arrowOffset + arrowSize.width > cardWidth / 2,
-           arrowOffset > cardWidth / 2 {
-            return (arrowOffset + arrowSize.width / 2 + cardWidth / 2) - (cardLeadingPadding + cardWidth)
+        if viewSize.width - arrowOffset + arrowSize.width > cardSize.width / 2,
+           arrowOffset > cardSize.width / 2 {
+            return (arrowOffset + arrowSize.width / 2 + cardSize.width / 2)
+                - (cardLeadingPadding + cardSize.width)
         }
         return 0
     }
@@ -200,7 +212,7 @@ extension GuidedTourView {
         if calculateCoachMarkPosition() == .top {
             return store.state.currentStepState.spotlightRegion.origin.y
                 - spotLightAndCoachMarkMargin
-                - cardHeight
+            - cardSize.height
                 - arrowSize.height
         } else {
             return store.state.currentStepState.spotlightRegion.origin.y
@@ -216,10 +228,10 @@ extension GuidedTourView {
     private func calculateCoachMarkPosition() -> CoachMarkVerticalPosition {
         let topSpace = store.state.currentStepState.spotlightRegion.origin.y
 
-        let bottomSpace = UIScreen.main.bounds.height
+        let bottomSpace = viewSize.height
             - (
                 store.state.currentStepState.spotlightRegion.origin.y
-                + store.state.currentStepState.spotlightRegion.size.height
+                    + store.state.currentStepState.spotlightRegion.size.height
             )
 
         if topSpace > bottomSpace {

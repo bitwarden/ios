@@ -5,7 +5,7 @@ import SwiftUI
 
 /// A view that allows the user to add or edit a new item for a vault.
 ///
-struct AddEditItemView: View { // swiftlint:disable:this type_body_length
+struct AddEditItemView: View {
     // MARK: Private Properties
 
     /// An environment variable for getting the vertical size class of the view.
