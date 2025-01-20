@@ -240,3 +240,92 @@ extension GuidedTourView {
         }
     }
 }
+
+// MARK: Previews
+
+#if DEBUG
+struct GuidedTourView_Previews: PreviewProvider {
+    static let loginStep1: GuidedTourStepState = {
+        var step = GuidedTourStepState.loginStep1
+        step.spotlightRegion = CGRect(x: 338, y: 120, width: 40, height: 40)
+        return step
+
+    }()
+
+    static let loginStep2: GuidedTourStepState = {
+        var step = GuidedTourStepState.loginStep2
+        step.spotlightRegion = CGRect(x: 10, y: 185, width: 380, height: 94)
+        return step
+
+    }()
+
+    static let guidedTourViewState: GuidedTourViewState = {
+        var state = GuidedTourViewState(guidedTourStepStates: [loginStep1, loginStep2])
+        state.currentIndex = 1
+        return state
+    }()
+
+    static let loginItemView = AddEditLoginItemView(
+        store: Store(
+            processor: StateProcessor(
+                state: LoginItemState(
+                    isTOTPAvailable: false,
+                    totpState: .none
+                )
+            )
+        )
+    )
+
+    static var previews: some View {
+        NavigationView {
+            ScrollView {
+                LazyVStack(spacing: 20) {
+                    loginItemView
+                }
+                .padding(16)
+            }
+            .fullScreenCover(isPresented: .constant(true)) {
+                GuidedTourView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: GuidedTourViewState(guidedTourStepStates: [loginStep1, loginStep2])
+                        )
+                    )
+                )
+            }
+            .transaction { transaction in
+                // disable the default FullScreenCover modal animation
+                transaction.disablesAnimations = true
+            }
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .ignoresSafeArea()
+        }
+        .previewDisplayName("Circle")
+
+        NavigationView {
+            ScrollView {
+                LazyVStack(spacing: 20) {
+                    loginItemView
+                }
+                .padding(16)
+            }
+            .fullScreenCover(isPresented: .constant(true)) {
+                GuidedTourView(
+                    store: Store(
+                        processor: StateProcessor(
+                            state: guidedTourViewState
+                        )
+                    )
+                )
+            }
+            .transaction { transaction in
+                // disable the default FullScreenCover modal animation
+                transaction.disablesAnimations = true
+            }
+            .background(Asset.Colors.backgroundPrimary.swiftUIColor)
+            .ignoresSafeArea()
+        }
+        .previewDisplayName("Rectangle")
+    }
+}
+#endif
