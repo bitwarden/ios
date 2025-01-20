@@ -16,7 +16,7 @@ enum GuidedTourViewAction: Equatable, Sendable {
     case nextTapped
 }
 
-/// Common actions that can be handled by a processor of the `GuidedTourView`.
+/// Common actions that can be handled by a processor of the view that hosts the guided tour.
 ///
 enum GuidedTourAction: Equatable, Sendable {
     /// A region to be spotlit for step was rendered and is ready to have the spotlight drawn using the supplied frame.

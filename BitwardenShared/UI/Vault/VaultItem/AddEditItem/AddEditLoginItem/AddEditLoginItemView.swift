@@ -38,7 +38,6 @@ struct AddEditLoginItemView: View {
             .guidedTourStep(.step2) { frame in
                 didRenderFrame?(.step2, frame)
             }
-            .id(Constants.guidedTourTotp)
 
         uriSection
     }
@@ -207,7 +206,6 @@ struct AddEditLoginItemView: View {
             .guidedTourStep(.step3) { frame in
                 didRenderFrame?(.step3, frame)
             }
-            .id(Constants.guidedTourUri)
 
             Button(Localizations.newUri) {
                 withAnimation {

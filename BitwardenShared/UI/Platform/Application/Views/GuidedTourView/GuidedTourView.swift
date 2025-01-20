@@ -143,7 +143,6 @@ struct GuidedTourView: View {
                 }
 
                 Spacer()
-                    .frame(maxWidth: .infinity)
 
                 Button {
                     if store.state.step < store.state.totalSteps {
