@@ -2,6 +2,8 @@ import Foundation
 import SwiftUI
 import ViewInspector
 
+// swiftlint:disable file_length
+
 /// A generic type wrapper around `ActionCard` to allow `ViewInspector` to find instances of
 /// `ActionCard` without needing to know the details of it's implementation.
 ///

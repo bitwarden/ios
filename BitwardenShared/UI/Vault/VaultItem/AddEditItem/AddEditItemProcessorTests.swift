@@ -484,6 +484,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
+    /// `didCompleteGenerator` with a passphrase value updates the state with the new password value
+    /// and navigates to the `.dismiss()` route.
+    @MainActor
+    func test_didCompleteGenerator_withPassphrase() {
+        subject.state.loginState.username = "username123"
+        subject.state.loginState.password = "password123"
+        subject.didCompleteGenerator(for: .passphrase, with: "passphrase")
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(subject.state.loginState.password, "passphrase")
+        XCTAssertEqual(subject.state.loginState.username, "username123")
+    }
+
     /// `didCompleteGenerator` with a password value updates the state with the new password value
     /// and navigates to the `.dismiss()` route.
     @MainActor
@@ -1145,6 +1157,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.collectionIds, ["1"])
         XCTAssertEqual(subject.state.owner, owner)
         XCTAssertFalse(subject.state.canBeDeleted)
+        XCTAssertTrue(subject.state.canAssignToCollection)
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.

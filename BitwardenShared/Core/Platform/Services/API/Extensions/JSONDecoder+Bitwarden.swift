@@ -1,25 +1,6 @@
 import Foundation
 
 extension JSONDecoder {
-    // MARK: Types
-
-    /// `AnyKey` is a `CodingKey` type that can be used for encoding and decoding keys for custom
-    /// key decoding strategies.
-    struct AnyKey: CodingKey {
-        let stringValue: String
-        let intValue: Int?
-
-        init(stringValue: String) {
-            self.stringValue = stringValue
-            intValue = nil
-        }
-
-        init(intValue: Int) {
-            stringValue = String(intValue)
-            self.intValue = intValue
-        }
-    }
-
     // MARK: Static Properties
 
     /// The default `JSONDecoder` used to decode JSON payloads throughout the app.
@@ -72,13 +53,13 @@ extension JSONDecoder {
         return decoder
     }()
 
-    /// A `JSONDecoder` instance that handles decoding JSON from CXP format to Apple's expected format.
-    static let cxpDecoder: JSONDecoder = {
+    /// A `JSONDecoder` instance that handles decoding JSON from Credential Exchange format to Apple's expected format.
+    static let cxfDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .custom { keys in
             let key = keys.last!.stringValue
             let camelCaseKey = keyToCamelCase(key: key)
-            return AnyKey(stringValue: customTransformCodingKeyForCXP(key: camelCaseKey))
+            return AnyKey(stringValue: customTransformCodingKeyForCXF(key: camelCaseKey))
         }
         decoder.dateDecodingStrategy = .secondsSince1970
         return decoder
@@ -103,8 +84,9 @@ extension JSONDecoder {
 
     // MARK: Private Static Functions
 
-    /// Transforms the keys from CXP format handled by the Bitwarden SDK into the keys that Apple expects.
-    private static func customTransformCodingKeyForCXP(key: String) -> String {
+    /// Transforms the keys from Credential Exchange format handled by the Bitwarden SDK
+    /// into the keys that Apple expects.
+    private static func customTransformCodingKeyForCXF(key: String) -> String {
         return switch key {
         case "credentialId":
             "credentialID"

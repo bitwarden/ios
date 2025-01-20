@@ -4,6 +4,29 @@ import AuthenticationServices
 
 @available(iOS 18.2, *)
 extension ASImportableAccount {
+    // MARK: Static methods
+
+    /// Provides a fixture for `ASImportableAccount`
+    static func fixture(
+        id: Data = Data(capacity: 16),
+        userName: String = "",
+        email: String = "",
+        fullName: String? = nil,
+        collections: [ASImportableCollection] = [],
+        items: [ASImportableItem] = []
+    ) -> ASImportableAccount {
+        ASImportableAccount(
+            id: id,
+            userName: userName,
+            email: email,
+            fullName: fullName,
+            collections: collections,
+            items: items
+        )
+    }
+
+    // MARK: Methods
+
     /// Dumps the content of the `ASImportableAccount` into lines which can be used with
     /// inline snapshot assertion.
     func dump() -> String { // swiftlint:disable:this cyclomatic_complexity function_body_length

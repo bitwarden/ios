@@ -1,7 +1,6 @@
 // swiftlint:disable file_length
 
 import BitwardenSdk
-import StoreKit
 import SwiftUI
 
 // MARK: - SearchableVaultListView
@@ -283,6 +282,9 @@ struct VaultListView: View {
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
 
+    /// The window scene for requesting a review.
+    var windowScene: UIWindowScene?
+
     var body: some View {
         ZStack {
             SearchableVaultListView(
@@ -346,12 +348,6 @@ struct VaultListView: View {
         .task(id: store.state.vaultFilterType) {
             await store.perform(.streamVaultList)
         }
-        .task(id: store.state.isEligibleForAppReview) {
-            if store.state.isEligibleForAppReview {
-                requestReview()
-                store.send(.appReviewPromptShown)
-            }
-        }
         .onAppear {
             Task {
                 await store.perform(.checkAppReviewEligibility)
@@ -359,6 +355,9 @@ struct VaultListView: View {
         }
         .onDisappear {
             store.send(.disappeared)
+        }
+        .requestReview(windowScene: windowScene, isEligible: store.state.isEligibleForAppReview) {
+            store.send(.appReviewPromptShown)
         }
     }
 
@@ -379,15 +378,6 @@ struct VaultListView: View {
                 }
             )
         )
-    }
-
-    /// Requests a review of the app.
-    private func requestReview() {
-        if #available(iOS 16.0, *) {
-            Environment(\.requestReview).wrappedValue()
-        } else {
-            SKStoreReviewController.requestReview()
-        }
     }
 }
 

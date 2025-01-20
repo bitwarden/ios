@@ -52,6 +52,10 @@ class EmailAccessProcessor: StateProcessor<EmailAccessState, EmailAccessAction, 
         switch action {
         case let .canAccessEmailChanged(canAccess):
             state.canAccessEmail = canAccess
+        case .clearURL:
+            state.url = nil
+        case .learnMoreTapped:
+            state.url = ExternalLinksConstants.newDeviceVerification
         }
     }
 

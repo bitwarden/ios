@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import SwiftUI
 
@@ -50,6 +51,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = AuthModule
+        & ExportCXFModule
         & ImportLoginsModule
         & LoginRequestModule
         & PasswordAutoFillModule
@@ -62,6 +64,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasExportCXFCiphersRepository
         & HasExportVaultService
         & HasNotificationCenterService
         & HasPasteboardService
@@ -153,7 +156,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .dismiss:
             stackNavigator?.dismiss()
         case .exportVault:
-            showExportVault()
+            Task {
+                await showExportVault()
+            }
+        case .exportVaultToApp:
+            showExportVaultToApp()
+        case .exportVaultToFile:
+            showExportVaultToFile()
         case .folders:
             showFolders()
         case .importLogins:
@@ -335,7 +344,23 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the export vault screen.
     ///
-    private func showExportVault() {
+    @MainActor
+    private func showExportVault() async {
+        guard await services.configService.getFeatureFlag(.cxpExportMobile) else {
+            navigate(to: .exportVaultToFile)
+            return
+        }
+
+        let processor = ExportSettingsProcessor(coordinator: asAnyCoordinator())
+        let view = ExportSettingsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator?.push(viewController, navigationTitle: Localizations.exportVault)
+    }
+
+    /// Shows the export vault to file screen.
+    ///
+    private func showExportVaultToFile() {
         let processor = ExportVaultProcessor(
             coordinator: asAnyCoordinator(),
             services: services
@@ -343,6 +368,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let view = ExportVaultView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Shows the export vault to another app screen (Credential Exchange flow).
+    ///
+    private func showExportVaultToApp() {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeExportCXFCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the folders screen.
