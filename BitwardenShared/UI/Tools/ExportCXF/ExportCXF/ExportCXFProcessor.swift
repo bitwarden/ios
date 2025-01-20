@@ -70,30 +70,25 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 
     /// Loads the initial data for the view.
     private func load() async {
-        do {
-            if await services.policyService.policyAppliesToUser(.disablePersonalVaultExport) {
-                state.status = .failure(message: Localizations.disablePersonalVaultExportPolicyInEffect)
-                state.showMainButton = false
-                return
-            }
-
-            let totalItemsToExport = try await services.exportCXFCiphersRepository.getCipherCountToExportCXF()
-            guard totalItemsToExport > 0 else {
-                state.status = .failure(message: Localizations.noItems)
-                state.showMainButton = false
-                return
-            }
-            state.totalItemsToExport = totalItemsToExport
-        } catch {
-            services.errorReporter.log(error: error)
-            state.status = .failure(message: Localizations.exportVaultFailure)
+        if await services.policyService.policyAppliesToUser(.disablePersonalVaultExport) {
+            state.isFeatureUnavailable = true
+            state.status = .failure(message: Localizations.disablePersonalVaultExportPolicyInEffect)
+            return
         }
+
+        await prepareExport()
     }
 
-    /// Prepares the export process depending on if the user wants to export all items or some of them.
+    /// Prepares the export process of all items.
     private func prepareExport() async {
         do {
             let allCiphers = try await services.exportCXFCiphersRepository.getAllCiphersToExportCXF()
+            guard !allCiphers.isEmpty else {
+                state.isFeatureUnavailable = true
+                state.status = .failure(message: Localizations.noItems)
+                return
+            }
+
             let itemsToExport = services.exportCXFCiphersRepository.buildCiphersToExportSummary(from: allCiphers)
             state.status = .prepared(itemsToExport: itemsToExport)
         } catch {
@@ -148,7 +143,7 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 
     /// Shows the alert confirming the user wants to export items later.
     private func cancelWithConfirmation() {
-        guard state.showMainButton else {
+        guard !state.isFeatureUnavailable else {
             coordinator.navigate(to: .dismiss)
             return
         }

@@ -12,7 +12,7 @@ class BitwardenSliderTests: BitwardenTestCase {
     func test_snapshot_slider_minValue() {
         let subject = BitwardenSlider(
             value: .constant(0),
-            in: 0...50,
+            in: 0 ... 50,
             step: 1,
             onEditingChanged: { _ in }
         )
@@ -26,7 +26,7 @@ class BitwardenSliderTests: BitwardenTestCase {
     func test_snapshot_slider_midValue() {
         let subject = BitwardenSlider(
             value: .constant(25),
-            in: 0...50,
+            in: 0 ... 50,
             step: 1,
             onEditingChanged: { _ in }
         )
@@ -40,7 +40,7 @@ class BitwardenSliderTests: BitwardenTestCase {
     func test_snapshot_slider_maxValue() {
         let subject = BitwardenSlider(
             value: .constant(50),
-            in: 0...50,
+            in: 0 ... 50,
             step: 1,
             onEditingChanged: { _ in }
         )

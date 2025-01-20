@@ -10,7 +10,6 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
     var exportCredentialsError: Error?
     #endif
     var getAllCiphersToExportCXFResult: Result<[Cipher], Error> = .failure(BitwardenTestError.example)
-    var getCipherCountToExportCXFResult: Result<Int, Error> = .success(0)
     #if compiler(>=6.0.3)
     var getExportVaultDataForCXFResult: Result<ImportableAccountProxy, Error> = .failure(BitwardenTestError.example)
     #endif
@@ -33,10 +32,6 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
 
     func getAllCiphersToExportCXF() async throws -> [Cipher] {
         try getAllCiphersToExportCXFResult.get()
-    }
-
-    func getCipherCountToExportCXF() async throws -> Int {
-        try getCipherCountToExportCXFResult.get()
     }
 
     #if compiler(>=6.0.3)

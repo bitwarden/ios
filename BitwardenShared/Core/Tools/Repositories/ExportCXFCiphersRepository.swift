@@ -23,11 +23,6 @@ protocol ExportCXFCiphersRepository {
     /// - Returns: Ciphers to export.
     func getAllCiphersToExportCXF() async throws -> [Cipher]
 
-    /// Gets the number of ciphers to export in Credential Exchange flow.
-    ///
-    /// - Returns: Number of ciphers to export.
-    func getCipherCountToExportCXF() async throws -> Int
-
     #if compiler(>=6.0.3)
     /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
     ///
@@ -108,10 +103,6 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     func getAllCiphersToExportCXF() async throws -> [Cipher] {
         try await cipherService.fetchAllCiphers()
             .filter { $0.deletedDate == nil }
-    }
-
-    func getCipherCountToExportCXF() async throws -> Int {
-        try await getAllCiphersToExportCXF().count
     }
 
     #if compiler(>=6.0.3)
