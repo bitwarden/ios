@@ -36,8 +36,8 @@ env:
   MINT_LINK_PATH: .mint/bin
   MINT_PATH: .mint/lib
   RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
-  SIMULATOR_NAME: ${{ inputs.simulator-name }}
-  SIMULATOR_VERSION: ${{ inputs.simulator-version }}
+  _SIMULATOR_NAME: ${{ inputs.simulator-name }}
+  _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
   XCODE_VERSION: ${{ inputs.xcode-version }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
@@ -106,9 +106,6 @@ jobs:
           ./Scripts/bootstrap.sh
 
       - name: Build and test
-        env:
-          _SIMULATOR_NAME: ${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }}
-          _SIMULATOR_VERSION: ${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}
         run: |
             xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
