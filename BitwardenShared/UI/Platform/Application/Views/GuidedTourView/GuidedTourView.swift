@@ -61,10 +61,8 @@ struct GuidedTourView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     let coachMarkVerticalPosition = calculateCoachMarkPosition()
                     if coachMarkVerticalPosition == .bottom {
-                        if store.state.currentStepState.arrowHorizontalPosition == .center {
-                            Image(asset: Asset.Images.arrowUp)
-                                .offset(x: calculateArrowHorizontalOffset())
-                        }
+                        Image(asset: Asset.Images.arrowUp)
+                            .offset(x: calculateArrowHorizontalOffset())
                     }
                     VStack(alignment: .leading) {
                         cardContent()
@@ -79,10 +77,8 @@ struct GuidedTourView: View {
                     .padding(.trailing, cardTrailingPadding)
 
                     if coachMarkVerticalPosition == .top {
-                        if store.state.currentStepState.arrowHorizontalPosition == .center {
-                            Image(asset: Asset.Images.arrowDown)
-                                .offset(x: calculateArrowHorizontalOffset())
-                        }
+                        Image(asset: Asset.Images.arrowDown)
+                            .offset(x: calculateArrowHorizontalOffset())
                     }
                 }
                 .padding(0)
@@ -193,14 +189,52 @@ extension GuidedTourView {
         return 0
     }
 
-    /// Calculates the horizontal offset for centering the coach mark arrow.
+    /// Calculates the horizontal offset of the coach-mark arrow.
     ///
     /// - Returns: The horizontal offset value.
     ///
     private func calculateArrowHorizontalOffset() -> CGFloat {
+        switch store.state.currentStepState.arrowHorizontalPosition {
+        case .left:
+            calculateArrowHorizontalOffsetForLeft()
+        case .center:
+            calculateArrowHorizontalOffsetForCenter()
+        case .right:
+            calculateArrowHorizontalOffsetForRight()
+        }
+    }
+
+    /// Calculates the horizontal offset for centering the coach mark arrow.
+    ///
+    /// - Returns: The horizontal offset value.
+    ///
+    private func calculateArrowHorizontalOffsetForCenter() -> CGFloat {
         store.state.currentStepState.spotlightRegion.origin.x
             + store.state.currentStepState.spotlightRegion.size.width / 2
             - (arrowSize.width / 2)
+    }
+
+    /// Calculates the horizontal offset for positioning the coach mark arrow when the arrow is on the left.
+    ///
+    /// - Returns: The horizontal offset value.
+    ///
+    private func calculateArrowHorizontalOffsetForLeft() -> CGFloat {
+        let result = store.state.currentStepState.spotlightRegion.origin.x
+            + (store.state.currentStepState.spotlightRegion.size.width / 3) / 2
+            - (arrowSize.width / 2)
+        return result
+    }
+
+    /// Calculates the horizontal offset for positioning the coach mark arrow when the arrow is on the right.
+    ///
+    /// - Returns: The horizontal offset value.
+    ///
+    private func calculateArrowHorizontalOffsetForRight() -> CGFloat {
+        let result = store.state.currentStepState.spotlightRegion.origin.x
+        + store.state.currentStepState.spotlightRegion.size.width
+        - (store.state.currentStepState.spotlightRegion.size.width / 3) / 2
+        - (arrowSize.width / 2)
+        return result
     }
 
     /// Calculates the Y offset of the coach-mark card.
@@ -211,7 +245,7 @@ extension GuidedTourView {
         if calculateCoachMarkPosition() == .top {
             return store.state.currentStepState.spotlightRegion.origin.y
                 - spotLightAndCoachMarkMargin
-            - cardSize.height
+                - cardSize.height
                 - arrowSize.height
         } else {
             return store.state.currentStepState.spotlightRegion.origin.y
