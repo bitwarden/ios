@@ -20,7 +20,6 @@ class GuidedTourViewStateTests: BitwardenTestCase {
             ]
         )
     }
-    
     // MARK: Tests
 
     /// Tests the `currentStepState` computed property.
