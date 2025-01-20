@@ -30,8 +30,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var vaultRepository: MockVaultRepository!
 
     let step1Spotlight = CGRect(x: 5, y: 5, width: 25, height: 25)
-    let step2Spotlight = CGRect(x: 35, y: 235, width: 225, height: 58)
-    let step3Spotlight = CGRect(x: 23, y: 123, width: 344, height: 90)
 
     // MARK: Setup & Teardown
 
