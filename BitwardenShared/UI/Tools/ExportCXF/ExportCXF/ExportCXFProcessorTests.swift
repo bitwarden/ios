@@ -194,8 +194,6 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await preparesExportZeroItemsFromStatusTest(status: .failure(message: "failure"), fromAppeared: true)
     }
 
-    #if compiler(>=6.0.3)
-
     /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status starts export.
     @MainActor
     func test_perform_mainButtonTappedPreparedStartsExport() async throws {
@@ -328,18 +326,6 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             Localizations.youMayNeedToEnableDevicePasscodeOrBiometrics
         )
     }
-
-    #else
-
-    /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status does nothing.
-    @MainActor
-    func test_perform_mainButtonTappedPreparedNothing() async throws {
-        subject.state.status = .prepared(itemsToExport: [])
-        await subject.perform(.mainButtonTapped)
-        throw XCTSkip("This feature is available on iOS 18.2 or later compiling with Xcode 16.2 or later")
-    }
-
-    #endif
 
     // MARK: Private
 
