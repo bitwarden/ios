@@ -94,34 +94,52 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
 
-      - name: Install Mint, xcbeautify, and xcresultparser
+      - name: Install Mint and xcresultparser
         run: |
-          brew install mint xcbeautify a7ex/homebrew-formulae/xcresultparser
+          brew install mint xcresultparser
           ./Scripts/bootstrap.sh
 
       - name: Build and test
+        env:
+          _SIMULATOR_NAME: ${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }}
+          _SIMULATOR_VERSION: ${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}
         run: |
             xcrun xcodebuild test \
             -project Bitwarden.xcodeproj \
             -scheme Bitwarden \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=${{ env.SIMULATOR_NAME || env.DEFAULT_SIMULATOR_NAME }},OS=${{ env.SIMULATOR_VERSION || env.DEFAULT_SIMULATOR_VERSION }}" \
-            -resultBundlePath ${{ env.RESULT_BUNDLE_PATH }} \
-            -derivedDataPath build/DerivedData
+            -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
+            -resultBundlePath $RESULT_BUNDLE_PATH \
+            -derivedDataPath build/DerivedData \
+            -test-timeouts-enabled yes \
+            -maximum-test-execution-time-allowance 1 \
+            -quiet
+
+      - name: Print Logs Summary
+        if: always()
+        run: |
+          xcresultparser -o cli "$RESULT_BUNDLE_PATH"
+          echo "# Test Summary" >> $GITHUB_STEP_SUMMARY
+          xcresultparser -f -o txt "$RESULT_BUNDLE_PATH" | grep "Number of" >> $GITHUB_STEP_SUMMARY
 
       - name: Convert coverage to Cobertura
         run: |
           set -o pipefail && \
             xcresultparser --output-format cobertura \
-            "$RESULT_BUNDLE_PATH" >"$COVERAGE_PATH"
+            "$RESULT_BUNDLE_PATH" > "$COVERAGE_PATH"
 
       - name: Upload test reports
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         if: always()
         with:
           name: test-reports
+          compression-level: 9
           path: |
             ${{ env.COVERAGE_PATH }}
+            ${{ env.RESULT_BUNDLE_PATH }}
+
+
+
   report:
     name: Process Test Reports
     needs: test
