@@ -409,4 +409,4 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
         switchAccountUserId = userId
         switchedAccounts = true
     }
-}
+} // swiftlint:disable:this file_length
