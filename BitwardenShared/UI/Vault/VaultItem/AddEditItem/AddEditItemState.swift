@@ -108,13 +108,11 @@ protocol AddEditItemState: Sendable {
     mutating func toggleCollection(newValue: Bool, collectionId: String)
 }
 
-/// extension for `GuidedTourState` to provide some common states for learn new login guided tour.
+/// extension for `GuidedTourStepState` to provide states for learn new login guided tour.
 extension GuidedTourStepState {
     /// The first step of the learn new login guided tour.
     static let loginStep1 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
-        cardLeadingPadding: 37,
-        cardTrailingPadding: 24,
         spotlightShape: .circle,
         title: Localizations.useThisButtonToGenerateANewUniquePassword
     )
