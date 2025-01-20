@@ -20,7 +20,7 @@ class GuidedTourViewStateTests: BitwardenTestCase {
             ]
         )
     }
-
+    
     // MARK: Tests
 
     /// Tests the `currentStepState` computed property.
@@ -50,10 +50,10 @@ class GuidedTourViewStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.step, 1)
 
         subject.currentIndex = 1
-        XCTAssertEqual(subject.step, 3)
+        XCTAssertEqual(subject.step, 2)
 
         subject.currentIndex = 2
-        XCTAssertEqual(subject.step, 4)
+        XCTAssertEqual(subject.step, 3)
     }
 
     /// Tests the `totalSteps` computed property.
