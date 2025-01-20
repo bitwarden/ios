@@ -85,6 +85,14 @@ extension StyleGuideFont {
     /// The font for the subheadline style.
     static let subheadline = StyleGuideFont.dmSans(lineHeight: 16, size: 12, textStyle: .subheadline)
 
+    /// The font for the subheadline semibold style.
+    static let subheadlineSemibold = StyleGuideFont(
+        font: FontFamily.DMSans.semiBold,
+        lineHeight: 16,
+        size: 12,
+        textStyle: .subheadline
+    )
+
     /// The font for the footnote style.
     static let footnote = StyleGuideFont.dmSans(lineHeight: 18, size: 12, textStyle: .footnote)
 
