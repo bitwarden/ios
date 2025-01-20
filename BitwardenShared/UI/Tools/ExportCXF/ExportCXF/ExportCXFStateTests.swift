@@ -27,15 +27,15 @@ class ExportCXFStateTests: BitwardenTestCase {
 
     /// `init` should have the desired default values.
     func test_init() {
-        XCTAssertTrue(subject.showMainButton)
+        XCTAssertFalse(subject.showMainButton)
         XCTAssertEqual(subject.status, .start)
-        XCTAssertEqual(subject.totalItemsToExport, 0)
+        XCTAssertFalse(subject.isFeatureUnavailable)
     }
 
     /// `getter:mainButtonTitle` gets the main button title depending on the status.
     func test_mainButtonTitle() {
         subject.status = .start
-        XCTAssertEqual(subject.mainButtonTitle, Localizations.continue)
+        XCTAssertEqual(subject.mainButtonTitle, "")
 
         subject.status = .prepared(itemsToExport: [])
         XCTAssertEqual(subject.mainButtonTitle, Localizations.exportItems)
@@ -74,16 +74,29 @@ class ExportCXFStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.message, "Something went wrong")
     }
 
-    /// `getter:sectionTitle` gets the section title depending on the status.
-    func test_sectionTitle() {
+    /// `getter:showMainButton` gets whether to show the main button.
+    func test_showMainButton_featureAvailable() {
         subject.status = .start
-        XCTAssertEqual(subject.sectionTitle, Localizations.exportOptions)
+        XCTAssertFalse(subject.showMainButton)
 
         subject.status = .prepared(itemsToExport: [])
-        XCTAssertEqual(subject.sectionTitle, Localizations.selectedItems)
+        XCTAssertTrue(subject.showMainButton)
 
         subject.status = .failure(message: "")
-        XCTAssertEqual(subject.sectionTitle, "")
+        XCTAssertTrue(subject.showMainButton)
+    }
+
+    /// `getter:showMainButton` returns `false` when feature is unavailable.
+    func test_showMainButton_featureUnavailable() {
+        subject.isFeatureUnavailable = true
+        subject.status = .start
+        XCTAssertFalse(subject.showMainButton)
+
+        subject.status = .prepared(itemsToExport: [])
+        XCTAssertFalse(subject.showMainButton)
+
+        subject.status = .failure(message: "")
+        XCTAssertFalse(subject.showMainButton)
     }
 
     /// `getter:title` gets the title depending on the status.

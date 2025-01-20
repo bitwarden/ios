@@ -15,11 +15,14 @@ struct ExportCXFState: Equatable, Sendable {
 
     // MARK: Properties
 
+    /// Whether the Credential Exchange export feature is unavailable.
+    var isFeatureUnavailable: Bool = false
+
     /// The title of the main button.
     var mainButtonTitle: String {
         return switch status {
         case .start:
-            Localizations.continue
+            ""
         case .prepared:
             Localizations.exportItems
         case .failure:
@@ -47,20 +50,19 @@ struct ExportCXFState: Equatable, Sendable {
         }
     }
 
-    /// The title to show in the section for each state.
-    var sectionTitle: String {
+    /// Whether the main button should be shown.
+    var showMainButton: Bool {
+        guard !isFeatureUnavailable else {
+            return false
+        }
+
         return switch status {
-        case .prepared:
-            Localizations.selectedItems
+        case .failure, .prepared:
+            true
         case .start:
-            Localizations.exportOptions
-        case .failure:
-            ""
+            false
         }
     }
-
-    /// Whether the main button should be shown.
-    var showMainButton: Bool = true
 
     /// The title to display on the page header.
     var title: String {
@@ -74,7 +76,4 @@ struct ExportCXFState: Equatable, Sendable {
 
     /// The current status of the export process.
     var status: ExportCXFStatus = .start
-
-    /// The number of items to export.
-    var totalItemsToExport: Int = 0
 }
