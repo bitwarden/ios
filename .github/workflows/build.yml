@@ -412,13 +412,11 @@ jobs:
 
       - name: Upload app to TestFlight with Fastlane
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
-        env:
-          COMPILER_FLAGS: ${{ inputs.compiler-flags }}
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
-          Compiler Flags: $COMPILER_FLAGS
           Xcode $_XCODE_VERSION
+          Compiler Flags: $_COMPILER_FLAGS
           $_GITHUB_ACTION_RUN_URL"
 
           fastlane upload_build \

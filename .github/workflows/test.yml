@@ -67,11 +67,11 @@ jobs:
           if [ -z "$_XCODE_VERSION" ]; then
             echo "_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
           fi
-          if [ -z "$SIMULATOR_NAME" ]; then
-            echo "SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
+          if [ -z "$_SIMULATOR_NAME" ]; then
+            echo "_SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
           fi
-          if [ -z "$SIMULATOR_VERSION" ]; then
-            echo "SIMULATOR_VERSION=$(cat .test-simulator-ios-version | tr -d '\n')" >> "$GITHUB_ENV"
+          if [ -z "$_SIMULATOR_VERSION" ]; then
+            echo "_SIMULATOR_VERSION=$(cat .test-simulator-ios-version | tr -d '\n')" >> "$GITHUB_ENV"
           fi
 
       - name: Set Xcode version
