@@ -69,6 +69,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used to record and send events.
     let eventService: EventService
 
+    /// The repository to handle exporting ciphers in Credential Exchange Format
+    let exportCXFCiphersRepository: ExportCXFCiphersRepository
+
     /// The service used to export a vault.
     let exportVaultService: ExportVaultService
 
@@ -81,6 +84,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
+
+    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    let importCiphersRepository: ImportCiphersRepository
 
     /// The service used to access & store data on the device keychain.
     let keychainService: KeychainService
@@ -187,11 +193,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - environmentService: The service used by the application to manage the environment settings.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service used to record and send events.
+    ///   - exportCXFCiphersRepository: The repository to handle exporting ciphers in Credential Exchange Format.
     ///   - exportVaultService: The service used to export vaults.
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
     ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
     ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
+    ///   - importCiphersRepository: The repository used by the application to manage importing credential
+    ///   in Credential Exhange flow.
     ///   - keychainRepository: The repository used to manages keychain items.
     ///   - keychainService: The service used to access & store data on the device keychain.
     ///   - localAuthService: The service used by the application to evaluate local auth policies.
@@ -237,10 +246,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         environmentService: EnvironmentService,
         errorReporter: ErrorReporter,
         eventService: EventService,
+        exportCXFCiphersRepository: ExportCXFCiphersRepository,
         exportVaultService: ExportVaultService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
         generatorRepository: GeneratorRepository,
+        importCiphersRepository: ImportCiphersRepository,
         keychainRepository: KeychainRepository,
         keychainService: KeychainService,
         localAuthService: LocalAuthService,
@@ -286,10 +297,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.environmentService = environmentService
         self.errorReporter = errorReporter
         self.eventService = eventService
+        self.exportCXFCiphersRepository = exportCXFCiphersRepository
         self.exportVaultService = exportVaultService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
         self.generatorRepository = generatorRepository
+        self.importCiphersRepository = importCiphersRepository
         self.keychainService = keychainService
         self.keychainRepository = keychainRepository
         self.localAuthService = localAuthService
@@ -657,6 +670,28 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
+        let credentialManagerFactory = DefaultCredentialManagerFactory()
+        let cxfCredentialsResultBuilder = DefaultCXFCredentialsResultBuilder()
+
+        let importCiphersRepository = DefaultImportCiphersRepository(
+            clientService: clientService,
+            credentialManagerFactory: credentialManagerFactory,
+            cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
+            importCiphersService: DefaultImportCiphersService(
+                importCiphersAPIService: apiService
+            ),
+            syncService: syncService
+        )
+
+        let exportCXFCiphersRepository = DefaultExportCXFCiphersRepository(
+            cipherService: cipherService,
+            clientService: clientService,
+            credentialManagerFactory: credentialManagerFactory,
+            cxfCredentialsResultBuilder: cxfCredentialsResultBuilder,
+            errorReporter: errorReporter,
+            stateService: stateService
+        )
+
         let userVerificationHelperFactory = DefaultUserVerificationHelperFactory(
             authRepository: authRepository,
             errorReporter: errorReporter,
@@ -724,10 +759,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             errorReporter: errorReporter,
             eventService: eventService,
+            exportCXFCiphersRepository: exportCXFCiphersRepository,
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
             generatorRepository: generatorRepository,
+            importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,
             keychainService: keychainService,
             localAuthService: localAuthService,

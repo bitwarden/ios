@@ -19,11 +19,13 @@ typealias Services = HasAPIService
     & HasEnvironmentService
     & HasErrorReporter
     & HasEventService
+    & HasExportCXFCiphersRepository
     & HasExportVaultService
     & HasFido2CredentialStore
     & HasFido2UserInterfaceHelper
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasImportCiphersRepository
     & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService
@@ -36,6 +38,7 @@ typealias Services = HasAPIService
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService
+    & HasSyncService
     & HasSystemDevice
     & HasTOTPExpirationManagerFactory
     & HasTOTPService
@@ -174,6 +177,13 @@ protocol HasEventService {
     var eventService: EventService { get }
 }
 
+/// Protocol for an object that provides an `ExportCXFCiphersRepository`.
+///
+protocol HasExportCXFCiphersRepository {
+    /// The repository to handle exporting ciphers in Credential Exchange Format.
+    var exportCXFCiphersRepository: ExportCXFCiphersRepository { get }
+}
+
 /// Protocol for an object that provides a `ExportVaultService`.
 ///
 protocol HasExportVaultService {
@@ -208,6 +218,13 @@ protocol HasFileAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `ImportCiphersRepository`.
+///
+protocol HasImportCiphersRepository {
+    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    var importCiphersRepository: ImportCiphersRepository { get }
 }
 
 /// Protocol for an object that provides a `LocalAuthService`.
@@ -290,6 +307,13 @@ protocol HasSettingsRepository {
 protocol HasStateService {
     /// The service used by the application to manage account state.
     var stateService: StateService { get }
+}
+
+/// Protocol for an object that has a `SyncService`.
+///
+protocol HasSyncService {
+    /// The service used by the application to sync account data.
+    var syncService: SyncService { get }
 }
 
 /// Protocol for an object that provides a `SystemDevice`.

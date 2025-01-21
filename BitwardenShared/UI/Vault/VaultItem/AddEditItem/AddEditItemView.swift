@@ -135,7 +135,7 @@ struct AddEditItemView: View {
 
                     VaultItemManagementMenuView(
                         isCloneEnabled: false,
-                        isCollectionsEnabled: store.state.cipher.organizationId != nil,
+                        isCollectionsEnabled: store.state.canAssignToCollection,
                         isDeleteEnabled: store.state.canBeDeleted,
                         isMoveToOrganizationEnabled: store.state.cipher.organizationId == nil,
                         store: store.child(
@@ -312,7 +312,7 @@ private extension AddEditItemView {
                                     Text(collection.name)
                                 }
                                 .toggleStyle(.bitwarden)
-                                .accessibilityIdentifier("CollectionItemCell")
+                                .accessibilityIdentifier("CollectionItemSwitch")
                             }
                         }
                     }

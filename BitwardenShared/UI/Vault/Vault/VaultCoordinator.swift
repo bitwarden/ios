@@ -54,10 +54,11 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator, HasStackNavigator {
+final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Module = GeneratorModule
+        & ImportCXFModule
         & ImportLoginsModule
         & TwoFactorNoticeModule
         & VaultItemModule
@@ -78,6 +79,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         & HasReviewPromptService
         & HasSettingsRepository
         & HasStateService
+        & HasSyncService
         & HasTOTPExpirationManagerFactory
         & HasTextAutofillHelperFactory
         & HasTimeProvider
@@ -192,6 +194,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             stackNavigator?.dismiss()
         case let .group(group, filter):
             showGroup(group, filter: filter)
+        case let .importCXF(cxfRoute):
+            showImportCXF(route: cxfRoute)
         case .importLogins:
             showImportLogins()
         case .list:
@@ -298,6 +302,21 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
         )
     }
 
+    /// Shows the Credential Exchange import route (not in a tab). This is used when another app
+    /// exporting credentials with Credential Exchange protocol chooses our app as a provider to import credentials.
+    ///
+    /// - Parameter route: The `ImportCXFRoute` to show.
+    ///
+    private func showImportCXF(route: ImportCXFRoute) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeImportCXFCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        coordinator.navigate(to: route)
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the import login items screen.
     ///
     private func showImportLogins() {
@@ -331,10 +350,15 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
             )
         )
         let store = Store(processor: processor)
+        let windowScene = stackNavigator?.rootViewController?.view.window?.windowScene
         let view = VaultListView(
             store: store,
-            timeProvider: services.timeProvider
+            timeProvider: services.timeProvider,
+            windowScene: windowScene
         )
+        if windowScene == nil {
+            services.errorReporter.log(error: WindowSceneError.nullWindowScene)
+        }
         stackNavigator?.replace(view, animated: false)
     }
 
@@ -345,7 +369,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator {
     ///   - emailAddress: The email address of the user.
     private func showTwoFactorNotice(allowDelay: Bool, emailAddress: String) {
         let navigationController = UINavigationController()
-        navigationController.navigationBar.isHidden = true
+
         let coordinator = module.makeTwoFactorNoticeCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(
@@ -417,4 +441,4 @@ extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
 
 // MARK: - UserVerificationDelegate
 
-extension VaultCoordinator: UserVerificationDelegate {}
+extension VaultCoordinator: UserVerificationDelegate {} // swiftlint:disable:this file_length

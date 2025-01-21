@@ -15,4 +15,7 @@ struct EmailAccessState: Equatable, Sendable {
 
     /// The user's email address.
     var emailAddress: String
+
+    /// The url to open in the device's web browser.
+    var url: URL?
 }

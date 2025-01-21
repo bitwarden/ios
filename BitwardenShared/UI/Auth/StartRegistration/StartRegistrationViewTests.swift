@@ -69,7 +69,7 @@ class StartRegistrationViewTests: BitwardenTestCase {
     @MainActor
     func test_regionButton_tap() throws {
         let button = try subject.inspect().find(
-            button: "\(Localizations.creatingOn): \(subject.store.state.region.baseUrlDescription)"
+            button: "\(Localizations.creatingOn): \(subject.store.state.region.baseURLDescription)"
         )
         try button.tap()
         waitFor(!processor.effects.isEmpty)

@@ -6,9 +6,11 @@ class MockAppModule:
     AppModule,
     AuthModule,
     DebugMenuModule,
+    ExportCXFModule,
     ExtensionSetupModule,
     FileSelectionModule,
     GeneratorModule,
+    ImportCXFModule,
     ImportLoginsModule,
     LoginRequestModule,
     PasswordAutoFillModule,
@@ -24,10 +26,13 @@ class MockAppModule:
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
     var debugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
+    var debugMenuCoordinatorDelegate: DebugMenuCoordinatorDelegate?
+    var exportCXFCoordinator = MockCoordinator<ExportCXFRoute, Void>()
     var extensionSetupCoordinator = MockCoordinator<ExtensionSetupRoute, Void>()
     var fileSelectionDelegate: FileSelectionDelegate?
     var fileSelectionCoordinator = MockCoordinator<FileSelectionRoute, Void>()
     var generatorCoordinator = MockCoordinator<GeneratorRoute, Void>()
+    var importCXFCoordinator = MockCoordinator<ImportCXFRoute, Void>()
     var importLoginsCoordinator = MockCoordinator<ImportLoginsRoute, ImportLoginsEvent>()
     var loginRequestCoordinator = MockCoordinator<LoginRequestRoute, Void>()
     var passwordAutoFillCoordinator = MockCoordinator<PasswordAutofillRoute, PasswordAutofillEvent>()
@@ -64,9 +69,17 @@ class MockAppModule:
     }
 
     func makeDebugMenuCoordinator(
+        delegate: DebugMenuCoordinatorDelegate,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<DebugMenuRoute, Void> {
-        debugMenuCoordinator.asAnyCoordinator()
+        debugMenuCoordinatorDelegate = delegate
+        return debugMenuCoordinator.asAnyCoordinator()
+    }
+
+    func makeExportCXFCoordinator(
+        stackNavigator: StackNavigator
+    ) -> AnyCoordinator<ExportCXFRoute, Void> {
+        exportCXFCoordinator.asAnyCoordinator()
     }
 
     func makeExtensionSetupCoordinator(
@@ -88,6 +101,12 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<GeneratorRoute, Void> {
         generatorCoordinator.asAnyCoordinator()
+    }
+
+    func makeImportCXFCoordinator(
+        stackNavigator: any StackNavigator
+    ) -> AnyCoordinator<ImportCXFRoute, Void> {
+        importCXFCoordinator.asAnyCoordinator()
     }
 
     func makeImportLoginsCoordinator(

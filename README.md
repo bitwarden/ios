@@ -58,7 +58,7 @@
 
 ### Run the App
 
-1. Open the project in Xcode 16.1+.
+1. Open the project in Xcode 16.2+.
 2. Run the app in the Simulator with the `Bitwarden` target.
 
 ### Running Tests
@@ -140,4 +140,4 @@ This project's structure is split into separate sections to support sharing as m
 
 ### GlobalTestHelpers
 
-`GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project.yml` file.
+`GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project-pm.yml` file.

@@ -33,6 +33,7 @@ final class FeatureFlagTests: BitwardenTestCase {
 
         XCTAssertFalse(FeatureFlag.enableDebugAppReviewPrompt.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.enableCipherKeyEncryption.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.ignore2FANoticeEnvironmentCheck.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.importLoginsFlow.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.nativeCarouselFlow.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.nativeCreateAccountFlow.isRemotelyConfigured)

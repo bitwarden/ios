@@ -51,6 +51,7 @@ struct EditCollectionsView: View {
                             Text(collection.name)
                         }
                         .toggleStyle(.bitwarden)
+                        .accessibilityIdentifier("CollectionItemSwitch")
                     }
                 }
             }
