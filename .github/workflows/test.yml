@@ -32,13 +32,13 @@ on:
         type: string
 
 env:
-  COVERAGE_PATH: build/coverage.xml
-  MINT_LINK_PATH: .mint/bin
-  MINT_PATH: .mint/lib
-  RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
+  MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
+  MINT_PATH: .mint/lib # used by mint in bootstrap.sh
+  _COVERAGE_PATH: build/coverage.xml
+  _RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
   _SIMULATOR_NAME: ${{ inputs.simulator-name }}
   _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
-  XCODE_VERSION: ${{ inputs.xcode-version }}
+  _XCODE_VERSION: ${{ inputs.xcode-version }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
 jobs:
@@ -64,8 +64,8 @@ jobs:
 
       - name: Read Xcode version and simulator configuration from file if not provided
         run: |
-          if [ -z "$XCODE_VERSION" ]; then
-            echo "XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+          if [ -z "$_XCODE_VERSION" ]; then
+            echo "_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
           fi
           if [ -z "$SIMULATOR_NAME" ]; then
             echo "SIMULATOR_NAME=$(cat .test-simulator-device-name | tr -d '\n')" >> "$GITHUB_ENV"
@@ -77,7 +77,7 @@ jobs:
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: ${{ env.XCODE_VERSION }}
+          xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Configure Ruby
         uses: ruby/setup-ruby@401c19e14f474b54450cd3905bb8b86e2c8509cf # v1.204.0
@@ -112,7 +112,7 @@ jobs:
             -scheme Bitwarden \
             -configuration Debug \
             -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
-            -resultBundlePath $RESULT_BUNDLE_PATH \
+            -resultBundlePath $_RESULT_BUNDLE_PATH \
             -derivedDataPath build/DerivedData \
             -test-timeouts-enabled yes \
             -maximum-test-execution-time-allowance 1 \
@@ -121,15 +121,15 @@ jobs:
       - name: Print Logs Summary
         if: always()
         run: |
-          xcresultparser -o cli "$RESULT_BUNDLE_PATH"
+          xcresultparser -o cli "$_RESULT_BUNDLE_PATH"
           echo "# Test Summary" >> $GITHUB_STEP_SUMMARY
-          xcresultparser -f -o txt "$RESULT_BUNDLE_PATH" | grep "Number of" >> $GITHUB_STEP_SUMMARY
+          xcresultparser -f -o txt "$_RESULT_BUNDLE_PATH" | grep "Number of" >> $GITHUB_STEP_SUMMARY
 
       - name: Convert coverage to Cobertura
         run: |
           set -o pipefail && \
             xcresultparser --output-format cobertura \
-            "$RESULT_BUNDLE_PATH" > "$COVERAGE_PATH"
+            "$_RESULT_BUNDLE_PATH" > "$_COVERAGE_PATH"
 
       - name: Upload test reports
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
@@ -138,10 +138,8 @@ jobs:
           name: test-reports
           compression-level: 9
           path: |
-            ${{ env.COVERAGE_PATH }}
-            ${{ env.RESULT_BUNDLE_PATH }}
-
-
+            ${{ env._COVERAGE_PATH }}
+            ${{ env._RESULT_BUNDLE_PATH }}
 
   report:
     name: Process Test Reports
