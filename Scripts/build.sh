@@ -52,6 +52,7 @@ case "$MODE" in
       -configuration Debug \
       -destination "generic/platform=iOS Simulator" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
+      -resultBundlePath BitwardenTests.xcresult \
       | xcbeautify --renderer github-actions
     ;;
   "Device")
@@ -62,6 +63,7 @@ case "$MODE" in
       -configuration Release \
       -archivePath "${ARCHIVE_PATH}" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
+      -resultBundlePath BitwardenTests.xcresult \
       | xcbeautify --renderer github-actions
 
     echo "🚚 Performing Xcode archive export"
@@ -69,6 +71,7 @@ case "$MODE" in
       -archivePath "${ARCHIVE_PATH}" \
       -exportPath "${EXPORT_PATH}" \
       -exportOptionsPlist "Configs/export_options.plist" \
+      -resultBundlePath BitwardenTests.xcresult \
       | xcbeautify --renderer github-actions
     ;;
   *)

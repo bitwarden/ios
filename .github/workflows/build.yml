@@ -366,6 +366,14 @@ jobs:
         run: |
           ./Scripts/build.sh ${{ env._BUILD_MODE }}
 
+      - name: Upload test reports
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        if: always()
+        with:
+          name: test-reports
+          compression-level: 9
+          path: BitwardenTests.xcresult
+
       - name: Prepare artifacts for upload to GitHub
         run: |
           mkdir -p export
