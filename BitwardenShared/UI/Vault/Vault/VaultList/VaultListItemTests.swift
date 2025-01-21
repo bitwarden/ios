@@ -298,6 +298,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             "ItemFilterCell"
         )
     }
+
     /// `name` returns the expected value.
     func test_name() {
         XCTAssertEqual(subject.name, "")

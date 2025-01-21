@@ -161,6 +161,7 @@ extension VaultListItem {
             return "TOTPCell"
         }
     }
+
     /// The login view containing the uri's to download the special decorative icon, if applicable.
     var loginView: BitwardenSdk.LoginView? {
         switch itemType {
