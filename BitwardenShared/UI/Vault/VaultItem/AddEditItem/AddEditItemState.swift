@@ -81,9 +81,6 @@ protocol AddEditItemState: Sendable {
     /// The list of ownership options to allow the user to select from.
     var ownershipOptions: [CipherOwner] { get set }
 
-    /// The flag to show/hide guided tour.
-    var showGuidedTour: Bool { get set }
-
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
 

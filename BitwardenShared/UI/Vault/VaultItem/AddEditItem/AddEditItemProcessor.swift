@@ -150,7 +150,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.isLearnNewLoginActionCardEligible = false
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
             state.guidedTourViewState.currentIndex = 0
-            state.showGuidedTour = true
+            state.guidedTourViewState.showGuidedTour = true
         }
     }
 
@@ -183,15 +183,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             } else {
                 presentReplacementAlert(for: .username)
             }
-        case let .guidedTourAction(action):
-            switch action {
-            case let .didRenderViewToSpotlight(frame, step):
-                state.guidedTourViewState.guidedTourStepStates[step.rawValue].spotlightRegion = frame
-            case let .toggleGuidedTourVisibilityChanged(show):
-                state.showGuidedTour = show
-            }
         case let .guidedTourViewAction(action):
-            handleGuidedTourAction(action)
+            state.guidedTourViewState.updateStateForGuidedTourViewAction(action)
         case let .identityFieldChanged(action):
             updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):
@@ -270,18 +263,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             appExtensionDelegate.completeAutofillRequest(username: username, password: password, fields: nil)
         } else {
             appExtensionDelegate.didCancel()
-        }
-    }
-
-    /// Handles the action from `GuidedTourView`
-    private func handleGuidedTourAction(_ action: GuidedTourViewAction) {
-        switch action {
-        case .backTapped:
-            state.guidedTourViewState.currentIndex -= 1
-        case .dismissTapped, .doneTapped:
-            state.showGuidedTour = false
-        case .nextTapped:
-            state.guidedTourViewState.currentIndex += 1
         }
     }
 

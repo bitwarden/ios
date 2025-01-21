@@ -23,6 +23,10 @@ struct GuidedTourView: View {
     /// The size of the coach-mark arrow icon.
     let arrowSize = CGSize(width: 47, height: 13)
 
+    /// The maximum dynamic type size for the view
+    ///     Default is `.xxLarge`
+    let maxDynamicTypeSize: DynamicTypeSize = .xxxLarge
+
     /// The margin between the spotlight and the coach-mark.
     let spotLightAndCoachMarkMargin: CGFloat = 3
 
@@ -110,6 +114,7 @@ struct GuidedTourView: View {
                 Text(store.state.progressText)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.caption1, weight: .bold)
+                    .dynamicTypeSize(...maxDynamicTypeSize)
 
                 Spacer()
 
@@ -122,6 +127,7 @@ struct GuidedTourView: View {
             }
 
             Text(store.state.currentStepState.title)
+                .dynamicTypeSize(...maxDynamicTypeSize)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.body)
 
@@ -134,6 +140,7 @@ struct GuidedTourView: View {
                             .styleGuide(.callout, weight: .semibold)
                             .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                             .multilineTextAlignment(.leading)
+                            .dynamicTypeSize(...maxDynamicTypeSize)
                     }
                 }
 
@@ -153,6 +160,7 @@ struct GuidedTourView: View {
                     .styleGuide(.callout, weight: .semibold)
                     .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                     .multilineTextAlignment(.leading)
+                    .dynamicTypeSize(...maxDynamicTypeSize)
                 }
             }
             .padding(0)

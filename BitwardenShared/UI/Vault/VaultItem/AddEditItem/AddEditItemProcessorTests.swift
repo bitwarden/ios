@@ -1559,7 +1559,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.showLearnNewLoginGuidedTour)
         XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
         XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
-        XCTAssertTrue(subject.state.showGuidedTour)
+        XCTAssertTrue(subject.state.guidedTourViewState.showGuidedTour)
     }
 
     /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.
@@ -1623,10 +1623,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.collectionIds, ["2"])
     }
 
-    /// `receive(_:)` with `.guidedTourAction(.didRenderViewToSpotlight)` updates `.spotlightRegion`.
+    /// `receive(_:)` with `.guidedTourViewAction(.didRenderViewToSpotlight)` updates `.spotlightRegion`.
     @MainActor
     func test_receive_didRenderViewToSpotlight() {
-        subject.receive(.guidedTourAction(.didRenderViewToSpotlight(frame: step1Spotlight, step: .step1)))
+        subject.receive(
+            .guidedTourViewAction(
+                .didRenderViewToSpotlight(frame: step1Spotlight, step: .step1)
+            )
+        )
 
         XCTAssertEqual(
             subject.state.guidedTourViewState.guidedTourStepStates[0].spotlightRegion,
@@ -1638,7 +1642,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_dismissTapped() {
         subject.receive(.guidedTourViewAction(.dismissTapped))
-        XCTAssertFalse(subject.state.showGuidedTour)
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
     }
 
     /// `receive(_:)` with `.dismiss()` navigates to the `.dismiss()` route.
@@ -1653,7 +1657,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_receive_doneTapped() {
         subject.receive(.guidedTourViewAction(.doneTapped))
-        XCTAssertFalse(subject.state.showGuidedTour)
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
     }
 
     /// `receive(_:)` with `.favoriteChanged` with `true` updates the state correctly.
@@ -1986,16 +1990,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, toast)
     }
 
-    /// `receive(_:)` with `guidedTourAction(.toggleGuidedTourVisibilityChanged)`  updates the state correctly.
+    /// `receive(_:)` with `guidedTourViewAction(.toggleGuidedTourVisibilityChanged)`
+    /// updates the state correctly.
     @MainActor
-    func test_receive_guidedTourAction_toggleGuidedTourVisibilityChanged() {
-        subject.state.showGuidedTour = false
+    func test_receive_guidedTourViewAction_toggleGuidedTourVisibilityChanged() {
+        subject.state.guidedTourViewState.showGuidedTour = false
 
-        subject.receive(.guidedTourAction(.toggleGuidedTourVisibilityChanged(true)))
-        XCTAssertTrue(subject.state.showGuidedTour)
+        subject.receive(.guidedTourViewAction(.toggleGuidedTourVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.guidedTourViewState.showGuidedTour)
 
-        subject.receive(.guidedTourAction(.toggleGuidedTourVisibilityChanged(false)))
-        XCTAssertFalse(subject.state.showGuidedTour)
+        subject.receive(.guidedTourViewAction(.toggleGuidedTourVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.

@@ -97,9 +97,6 @@ struct CipherItemState: Equatable {
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions: [CipherOwner]
 
-    /// The flag indicating if we should show the guided tour.
-    var showGuidedTour: Bool = false
-
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
 

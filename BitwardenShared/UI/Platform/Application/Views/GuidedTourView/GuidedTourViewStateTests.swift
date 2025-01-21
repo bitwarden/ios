@@ -20,6 +20,13 @@ class GuidedTourViewStateTests: BitwardenTestCase {
             ]
         )
     }
+
+    override func tearDown() {
+        super.tearDown()
+
+        subject = nil
+    }
+
     // MARK: Tests
 
     /// Tests the `currentStepState` computed property.
@@ -58,5 +65,48 @@ class GuidedTourViewStateTests: BitwardenTestCase {
     /// Tests the `totalSteps` computed property.
     func test_totalSteps() {
         XCTAssertEqual(subject.totalSteps, 3)
+    }
+
+    /// Tests the `updateStateForGuidedTourViewAction(_:)` method with `.backTapped` action.
+    func test_updateStateForGuidedTourViewAction_backTapped() {
+        subject.currentIndex = 1
+        subject.updateStateForGuidedTourViewAction(.backTapped)
+        XCTAssertEqual(subject.currentIndex, 0)
+    }
+
+    /// Tests the `updateStateForGuidedTourViewAction(_:)` method with `.didRenderViewToSpotlight` action.
+    func test_updateStateForGuidedTourViewAction_didRenderViewToSpotlight() {
+        let frame = CGRect(x: 10, y: 10, width: 100, height: 100)
+        subject.updateStateForGuidedTourViewAction(.didRenderViewToSpotlight(frame: frame, step: .step1))
+        XCTAssertEqual(subject.guidedTourStepStates[0].spotlightRegion, frame)
+    }
+
+    /// Tests the `updateStateForGuidedTourViewAction(_:)` method with `.dismissTapped` action.
+    func test_updateStateForGuidedTourViewAction_dismissTapped() {
+        subject.showGuidedTour = true
+        subject.updateStateForGuidedTourViewAction(.dismissTapped)
+        XCTAssertFalse(subject.showGuidedTour)
+    }
+
+    /// Tests the `updateStateForGuidedTourViewAction(_:)` method with `.doneTapped` action.
+    func test_updateStateForGuidedTourViewAction_doneTapped() {
+        subject.showGuidedTour = true
+        subject.updateStateForGuidedTourViewAction(.doneTapped)
+        XCTAssertFalse(subject.showGuidedTour)
+    }
+
+    /// Tests the `updateStateForGuidedTourViewAction(_:)` method with `.nextTapped` action.
+    func test_updateStateForGuidedTourViewAction_nextTapped() {
+        subject.updateStateForGuidedTourViewAction(.nextTapped)
+        XCTAssertEqual(subject.currentIndex, 1)
+    }
+
+    /// Tests the `updateStateForGuidedTourViewAction(_:)` method with `.toggleGuidedTourVisibilityChanged` action.
+    func test_updateStateForGuidedTourViewAction_toggleGuidedTourVisibilityChanged() {
+        subject.updateStateForGuidedTourViewAction(.toggleGuidedTourVisibilityChanged(true))
+        XCTAssertTrue(subject.showGuidedTour)
+
+        subject.updateStateForGuidedTourViewAction(.toggleGuidedTourVisibilityChanged(false))
+        XCTAssertFalse(subject.showGuidedTour)
     }
 }

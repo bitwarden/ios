@@ -19,6 +19,9 @@ struct GuidedTourViewState: Equatable {
         Localizations.stepOfStep(step, totalSteps)
     }
 
+    /// The flag to show/hide guided tour.
+    var showGuidedTour: Bool = false
+
     /// The spotlight region for the current step.
     var spotlightRegion: CGRect {
         currentStepState.spotlightRegion
@@ -32,5 +35,26 @@ struct GuidedTourViewState: Equatable {
     /// The total number of steps in the guided tour.
     var totalSteps: Int {
         guidedTourStepStates.count
+    }
+}
+
+extension GuidedTourViewState {
+    /// Updates the state of the guided tour view based on the given `GuidedTourViewAction`.
+    ///
+    /// - Parameter action: The action to process.
+    ///
+    mutating func updateStateForGuidedTourViewAction(_ action: GuidedTourViewAction) {
+        switch action {
+        case .backTapped:
+            currentIndex -= 1
+        case let .didRenderViewToSpotlight(frame, step):
+            guidedTourStepStates[step.rawValue].spotlightRegion = frame
+        case .dismissTapped, .doneTapped:
+            showGuidedTour = false
+        case .nextTapped:
+            currentIndex += 1
+        case let .toggleGuidedTourVisibilityChanged(show):
+            showGuidedTour = show
+        }
     }
 }

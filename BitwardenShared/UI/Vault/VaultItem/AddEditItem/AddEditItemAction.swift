@@ -18,9 +18,6 @@ enum AddEditItemAction: Equatable, Sendable {
     /// A custom field action was sent.
     case customField(AddEditCustomFieldsAction)
 
-    /// A common guided tour action.
-    case guidedTourAction(GuidedTourAction)
-
     /// The dismiss button was pressed.
     case dismissPressed
 

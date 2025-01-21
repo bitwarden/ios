@@ -44,13 +44,6 @@ struct AddEditItemView: View {
             get: \.toast,
             send: AddEditItemAction.toastShown
         ))
-        .fullScreenCover(isPresented: store.binding(get: { state in
-            state.showGuidedTour
-        }, send: { state in
-            AddEditItemAction.guidedTourAction(.toggleGuidedTourVisibilityChanged(state))
-        })) {
-            guidedTourView()
-        }
         .transaction { transaction in
             // disable the default FullScreenCover modal animation
             transaction.disablesAnimations = true
@@ -72,51 +65,43 @@ struct AddEditItemView: View {
     }
 
     private var content: some View {
-        ScrollViewReader { reader in
-            ScrollView {
-                // Dummy spacer view for scroll view to locate when scrolling to top
-                Spacer()
-                    .frame(height: 0)
-                    .id(Constants.top)
-
-                VStack(spacing: 20) {
-                    if isPolicyEnabled {
-                        InfoContainer(Localizations.personalOwnershipPolicyInEffect)
-                            .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
-                    }
-
-                    if store.state.shouldShowLearnNewLoginActionCard {
-                        ActionCard(
-                            title: Localizations.learnAboutNewLogins,
-                            message: Localizations.weWillWalkYouThroughTheKeyFeaturesToAddANewLogin,
-                            actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
-                                await store.perform(.showLearnNewLoginGuidedTour)
-                            },
-                            dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
-                                await store.perform(.dismissNewLoginActionCard)
-                            }
-                        )
-                    }
-
-                    informationSection
-                    miscellaneousSection
-                    notesSection
-                    customSection
-                    ownershipSection
+        GuidedTourScrollView(
+            store: store.child(
+                state: { state in
+                    state.guidedTourViewState
+                },
+                mapAction: { action in
+                    .guidedTourViewAction(action)
+                },
+                mapEffect: nil
+            )
+        ) {
+            VStack(spacing: 20) {
+                if isPolicyEnabled {
+                    InfoContainer(Localizations.personalOwnershipPolicyInEffect)
+                        .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
                 }
-                .padding(16)
-            }
-            .task(id: verticalSizeClass) {
-                handleLandscapeScroll(reader)
-            }
-            .task(id: store.state.guidedTourViewState.currentIndex) {
-                handleLandscapeScroll(reader)
-            }
-            .task(id: store.state.showGuidedTour) {
-                if store.state.showGuidedTour == false {
-                    reader.scrollTo(Constants.top)
+
+                if store.state.shouldShowLearnNewLoginActionCard {
+                    ActionCard(
+                        title: Localizations.learnAboutNewLogins,
+                        message: Localizations.weWillWalkYouThroughTheKeyFeaturesToAddANewLogin,
+                        actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                            await store.perform(.showLearnNewLoginGuidedTour)
+                        },
+                        dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                            await store.perform(.dismissNewLoginActionCard)
+                        }
+                    )
                 }
+
+                informationSection
+                miscellaneousSection
+                notesSection
+                customSection
+                ownershipSection
             }
+            .padding(16)
         }
         .animation(.default, value: store.state.collectionsForOwner)
         .dismissKeyboardImmediately()
@@ -244,7 +229,7 @@ struct AddEditItemView: View {
             didRenderFrame: { step, frame in
                 let enlargedFrame = frame.enlarged(by: 8)
                 store.send(
-                    .guidedTourAction(.didRenderViewToSpotlight(
+                    .guidedTourViewAction(.didRenderViewToSpotlight(
                         frame: enlargedFrame,
                         step: step
                     ))
@@ -259,22 +244,6 @@ struct AddEditItemView: View {
             store: store.child(
                 state: { _ in store.state.sshKeyState },
                 mapAction: { .sshKeyItemAction($0) },
-                mapEffect: nil
-            )
-        )
-    }
-
-    /// A view that presents the guided tour.
-    @ViewBuilder
-    private func guidedTourView() -> some View {
-        GuidedTourView(
-            store: store.child(
-                state: { state in
-                    state.guidedTourViewState
-                },
-                mapAction: { action in
-                    .guidedTourViewAction(action)
-                },
                 mapEffect: nil
             )
         )
