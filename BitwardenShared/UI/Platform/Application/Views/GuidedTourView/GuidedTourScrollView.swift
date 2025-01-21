@@ -4,12 +4,15 @@ import SwiftUI
 struct GuidedTourScrollView<Content: View>: View {
     /// The store for the guided tour view.
     @ObservedObject var store: Store<GuidedTourViewState, GuidedTourViewAction, Void>
-    
+
     /// The content of the scroll view.
     @ViewBuilder var content: Content
 
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass
+
+    /// The ID for scrolling to top of the view.
+    let top = "top"
 
     var body: some View {
         ScrollViewReader { reader in
@@ -17,7 +20,7 @@ struct GuidedTourScrollView<Content: View>: View {
                 // Dummy spacer view for scroll view to locate when scrolling to top
                 Spacer()
                     .frame(height: 0)
-                    .id(Constants.top)
+                    .id(top)
 
                 content
             }
@@ -40,7 +43,7 @@ struct GuidedTourScrollView<Content: View>: View {
             }
             .onChange(of: store.state.showGuidedTour) { newValue in
                 if newValue == false {
-                    reader.scrollTo(Constants.top)
+                    reader.scrollTo(top)
                 }
             }
         }
