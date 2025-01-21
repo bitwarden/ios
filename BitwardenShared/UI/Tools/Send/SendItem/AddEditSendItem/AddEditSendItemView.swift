@@ -345,11 +345,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         SectionView(Localizations.file, titleDesignVersion: .v2, contentSpacing: 8) {
             switch store.state.mode {
             case .add, .shareExtension:
-                BitwardenField {
-                    Text(store.state.fileName ?? Localizations.noFileChosen)
-                        .styleGuide(.body)
-                        .accessibilityIdentifier(store.state.fileName != nil ? "SendCurrentFileNameLabel" : "")
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                if let fileName = store.state.fileName {
+                    BitwardenField {
+                        Text(fileName)
+                            .styleGuide(.body)
+                            .accessibilityIdentifier("SendCurrentFileNameLabel")
+                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
