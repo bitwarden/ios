@@ -123,16 +123,14 @@ extension GuidedTourStepState {
     /// The second step of the learn new login guided tour.
     static let loginStep2 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
-        spotlightShape: .rectangle,
-        spotlightCornerRadius: 8,
+        spotlightShape: .rectangle(cornerRadius: 8),
         title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
     )
 
     /// The third step of the learn new login guided tour.
     static let loginStep3 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
-        spotlightShape: .rectangle,
-        spotlightCornerRadius: 8,
+        spotlightShape: .rectangle(cornerRadius: 8),
         title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount
     )
 }

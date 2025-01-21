@@ -18,9 +18,6 @@ struct GuidedTourStepState: Equatable {
     /// The shape of the spotlight.
     var spotlightShape: SpotlightShape
 
-    /// The corner radius of the spotlight.
-    var spotlightCornerRadius: CGFloat?
-
     /// The title of the guided tour card.
     var title: String
 }
@@ -31,8 +28,8 @@ enum SpotlightShape: Equatable {
     /// The spotlight is a circle.
     case circle
 
-    /// The spotlight is a rectangle.
-    case rectangle
+    /// The spotlight is a rectangle with rounded corners.
+    case rectangle(cornerRadius: CGFloat)
 }
 
 /// The horizontal position of the arrow.

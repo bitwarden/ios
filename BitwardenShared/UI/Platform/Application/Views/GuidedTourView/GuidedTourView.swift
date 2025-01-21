@@ -52,7 +52,6 @@ struct GuidedTourView: View {
                     .mask(
                         Spotlight(
                             spotlight: store.state.currentStepState.spotlightRegion,
-                            spotlightCornerRadius: store.state.currentStepState.spotlightCornerRadius,
                             spotlightShape: store.state.currentStepState.spotlightShape
                         )
                         .fill(style: FillStyle(eoFill: true))
