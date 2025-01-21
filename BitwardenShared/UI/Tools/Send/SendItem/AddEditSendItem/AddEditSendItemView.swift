@@ -395,12 +395,11 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The name field.
     @ViewBuilder private var nameField: some View {
         BitwardenTextField(
-            title: Localizations.name,
+            title: Localizations.sendNameRequired,
             text: store.binding(
                 get: \.name,
                 send: AddEditSendItemAction.nameChanged
             ),
-            footer: Localizations.nameInfo,
             accessibilityIdentifier: "SendNameEntry"
         )
     }

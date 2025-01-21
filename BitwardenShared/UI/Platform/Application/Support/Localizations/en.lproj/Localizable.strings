@@ -545,7 +545,6 @@
 "Send" = "Send";
 "AllSends" = "All Sends";
 "Sends" = "Sends";
-"NameInfo" = "A friendly name to describe this Send.";
 "Text" = "Text";
 "TypeText" = "Text";
 "HideTextByDefault" = "When accessing the Send, hide the text by default";
@@ -1093,3 +1092,4 @@
 "ItemsToExport" = "Items to export";
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";
