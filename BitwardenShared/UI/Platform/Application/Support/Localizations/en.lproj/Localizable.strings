@@ -545,10 +545,8 @@
 "Send" = "Send";
 "AllSends" = "All Sends";
 "Sends" = "Sends";
-"NameInfo" = "A friendly name to describe this Send.";
 "Text" = "Text";
 "TypeText" = "Text";
-"TypeTextInfo" = "The text you want to send.";
 "HideTextByDefault" = "When accessing the Send, hide the text by default";
 "TypeFile" = "File";
 "FileTypeIsSelected" = "File type is selected.";
@@ -1092,3 +1090,6 @@
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
 "PleaseDoNotCloseTheApp" = "Please do not close the app.";
 "ItemsToExport" = "Items to export";
+"TextToShare" = "Text to share";
+"SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";
