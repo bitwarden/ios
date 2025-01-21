@@ -99,8 +99,6 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 
     /// Starts the export process.
     private func startExport() async {
-        #if compiler(>=6.0.3)
-
         guard #available(iOS 18.2, *) else {
             coordinator.showAlert(
                 .defaultAlert(
@@ -137,8 +135,6 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
             state.status = .failure(message: Localizations.thereHasBeenAnIssueExportingItems)
             services.errorReporter.log(error: error)
         }
-
-        #endif
     }
 
     /// Shows the alert confirming the user wants to export items later.
