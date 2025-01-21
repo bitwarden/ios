@@ -417,8 +417,8 @@ jobs:
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
-          Xcode $._XCODE_VERSION
           Compiler Flags: $COMPILER_FLAGS
+          Xcode $_XCODE_VERSION
           $_GITHUB_ACTION_RUN_URL"
 
           fastlane upload_build \
