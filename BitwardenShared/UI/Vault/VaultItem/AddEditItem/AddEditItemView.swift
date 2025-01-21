@@ -8,6 +8,9 @@ import SwiftUI
 struct AddEditItemView: View {
     // MARK: Private Properties
 
+    /// A responder to keyboard visibility events.
+    @ObservedObject private var keyboard = KeyboardResponder()
+
     /// An object used to open urls in this view.
     @Environment(\.openURL) private var openURL
 
@@ -80,6 +83,11 @@ struct AddEditItemView: View {
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
+        .apply { view in
+            if #available(iOS 17.0, *) {
+                view.contentMargins(.bottom, keyboard.isShown ? 30.0 : 0.0, for: .scrollContent)
+            }
+        }
     }
 
     @ViewBuilder private var cardItems: some View {
