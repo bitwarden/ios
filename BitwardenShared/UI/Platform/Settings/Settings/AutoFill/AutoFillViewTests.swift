@@ -41,7 +41,7 @@ class AutoFillViewTests: BitwardenTestCase {
     @MainActor
     func test_defaultUriMatchTypeChanged_updateValue() throws {
         processor.state.defaultUriMatchType = .host
-        let menuField = try subject.inspect().find(settingsMenuField: Localizations.defaultUriMatchDetection)
+        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.defaultUriMatchDetection)
         try menuField.select(newValue: UriMatchType.exact)
         XCTAssertEqual(processor.dispatchedActions.last, .defaultUriMatchTypeChanged(.exact))
     }

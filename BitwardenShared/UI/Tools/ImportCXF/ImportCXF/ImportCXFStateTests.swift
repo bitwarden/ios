@@ -2,19 +2,19 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportCXPStateTests
+// MARK: - ImportCXFStateTests
 
-class ImportCXPStateTests: BitwardenTestCase {
+class ImportCXFStateTests: BitwardenTestCase {
     // MARK: Properties
 
-    var subject: ImportCXPState!
+    var subject: ImportCXFState!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        subject = ImportCXPState()
+        subject = ImportCXFState()
     }
 
     override func tearDown() {
@@ -58,10 +58,10 @@ class ImportCXPStateTests: BitwardenTestCase {
     /// `getter:message` returns the appropriate value depending on the `status`.
     func test_message() {
         subject.status = .start
-        XCTAssertEqual(subject.message, Localizations.startImportCXPDescriptionLong)
+        XCTAssertEqual(subject.message, Localizations.startImportCXFDescriptionLong)
 
         subject.status = .importing
-        XCTAssertEqual(subject.message, "")
+        XCTAssertEqual(subject.message, Localizations.pleaseDoNotCloseTheApp)
 
         subject.status = .success(totalImportedCredentials: 1, importedResults: [])
         XCTAssertEqual(subject.message, Localizations.itemsSuccessfullyImported(1))
@@ -84,7 +84,7 @@ class ImportCXPStateTests: BitwardenTestCase {
         subject.status = .failure(message: "Something went wrong")
         XCTAssertEqual(subject.title, Localizations.importFailed)
 
-        subject.isFeatureUnvailable = true
+        subject.isFeatureUnavailable = true
         XCTAssertEqual(subject.title, Localizations.importNotAvailable)
     }
 
@@ -116,5 +116,21 @@ class ImportCXPStateTests: BitwardenTestCase {
 
         subject.status = .failure(message: "Something went wrong")
         XCTAssertTrue(subject.showMainButton)
+    }
+
+    /// `getter:showMainButton` returns `false` when feature unavailable.
+    func test_showMainButton_featureUnavailable() {
+        subject.isFeatureUnavailable = true
+        subject.status = .start
+        XCTAssertFalse(subject.showMainButton)
+
+        subject.status = .importing
+        XCTAssertFalse(subject.showMainButton)
+
+        subject.status = .success(totalImportedCredentials: 1, importedResults: [])
+        XCTAssertFalse(subject.showMainButton)
+
+        subject.status = .failure(message: "Something went wrong")
+        XCTAssertFalse(subject.showMainButton)
     }
 }

@@ -13,14 +13,14 @@ struct AppearanceView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 8) {
             language
 
             theme
 
             webSiteIconsToggle
         }
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.appearance, titleDisplayMode: .inline)
         .task {
             await store.perform(.loadData)
@@ -31,62 +31,50 @@ struct AppearanceView: View {
 
     /// The language picker view
     private var language: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SettingsListItem(
-                Localizations.language,
-                hasDivider: false
+        Button {
+            store.send(.languageTapped)
+        } label: {
+            BitwardenField(
+                title: Localizations.language,
+                footer: Localizations.languageChangeRequiresAppRestart
             ) {
-                store.send(.languageTapped)
-            } trailingContent: {
                 Text(store.state.currentLanguage.title)
+                    .styleGuide(.body)
+                    .foregroundColor(Color(asset: Asset.Colors.textPrimary))
+                    .multilineTextAlignment(.leading)
+            } accessoryContent: {
+                Asset.Images.chevronDown24.swiftUIImage
+                    .imageStyle(.rowIcon)
             }
-            .cornerRadius(10)
-
-            Text(Localizations.languageChangeRequiresAppRestart)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
         }
     }
 
     /// The application's color theme picker view
     private var theme: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            SettingsMenuField(
-                title: Localizations.theme,
-                options: AppTheme.allCases,
-                hasDivider: false,
-                selection: store.binding(
-                    get: \.appTheme,
-                    send: AppearanceAction.appThemeChanged
-                )
+        BitwardenMenuField(
+            title: Localizations.theme,
+            footer: Localizations.themeDescription,
+            accessibilityIdentifier: "ThemeChooser",
+            options: AppTheme.allCases,
+            selection: store.binding(
+                get: \.appTheme,
+                send: AppearanceAction.appThemeChanged
             )
-            .cornerRadius(10)
-            .accessibilityIdentifier("ThemeChooser")
-
-            Text(Localizations.themeDescription)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-        }
+        )
     }
 
     /// The show website icons toggle.
     private var webSiteIconsToggle: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Toggle(isOn: store.binding(
+        BitwardenToggle(
+            Localizations.showWebsiteIcons,
+            footer: Localizations.showWebsiteIconsDescription,
+            isOn: store.binding(
                 get: \.isShowWebsiteIconsToggleOn,
                 send: AppearanceAction.toggleShowWebsiteIcons
-            )) {
-                Text(Localizations.showWebsiteIcons)
-            }
-            .toggleStyle(.bitwarden)
-            .styleGuide(.body)
-            .accessibilityIdentifier("ShowWebsiteIconsSwitch")
-
-            Text(Localizations.showWebsiteIconsDescription)
-                .styleGuide(.subheadline)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-        }
-        .padding(.bottom, 12)
+            ),
+            accessibilityIdentifier: "ShowWebsiteIconsSwitch"
+        )
+        .contentBlock()
     }
 }
 

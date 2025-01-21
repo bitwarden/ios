@@ -401,4 +401,4 @@ extension CipherItemState {
             revisionDate: creationDate
         )
     }
-}
+} // swiftlint:disable:this file_length

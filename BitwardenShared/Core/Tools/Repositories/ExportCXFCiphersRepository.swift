@@ -23,11 +23,6 @@ protocol ExportCXFCiphersRepository {
     /// - Returns: Ciphers to export.
     func getAllCiphersToExportCXF() async throws -> [Cipher]
 
-    /// Gets the number of ciphers to export in Credential Exchange flow.
-    ///
-    /// - Returns: Number of ciphers to export.
-    func getCipherCountToExportCXF() async throws -> Int
-
     #if compiler(>=6.0.3)
     /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
     ///
@@ -110,10 +105,6 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
             .filter { $0.deletedDate == nil }
     }
 
-    func getCipherCountToExportCXF() async throws -> Int {
-        try await getAllCiphersToExportCXF().count
-    }
-
     #if compiler(>=6.0.3)
 
     @available(iOS 18.2, *)
@@ -127,7 +118,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
             name: account.profile.name
         )
         let serializedCXF = try await clientService.exporters().exportCxf(account: sdkAccount, ciphers: ciphers)
-        return try JSONDecoder.cxpDecoder.decode(ASImportableAccount.self, from: Data(serializedCXF.utf8))
+        return try JSONDecoder.cxfDecoder.decode(ASImportableAccount.self, from: Data(serializedCXF.utf8))
     }
 
     #endif

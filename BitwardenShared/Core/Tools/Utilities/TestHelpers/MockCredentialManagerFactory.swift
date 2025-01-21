@@ -25,7 +25,7 @@ class MockCredentialExportManager: CredentialExportManager {
     /// A JSON encoded `String` is used as the value instead of the actual object
     /// to avoid crashing on simulators older than iOS 18.2 because of not finding the symbol
     /// thus resulting in bad access error when running the test suite.
-    /// Use `JSONDecoder.cxpDecoder.decode` to decode data for this.
+    /// Use `JSONDecoder.cxfDecoder.decode` to decode data for this.
     var exportCredentialsJSONData: String?
     var exportCredentialsError: Error?
 
@@ -33,7 +33,7 @@ class MockCredentialExportManager: CredentialExportManager {
     func exportCredentials(_ credentialData: ASExportedCredentialData) async throws {
         exportCredentialsCalled = true
 
-        let data = try JSONEncoder.cxpEncoder.encode(credentialData)
+        let data = try JSONEncoder.cxfEncoder.encode(credentialData)
         guard let dataJsonString = String(data: data, encoding: .utf8) else {
             // this should never happen.
             throw BitwardenError.dataError("Failed encoding credential data")
@@ -51,7 +51,7 @@ class MockCredentialImportManager: CredentialImportManager {
     /// A JSON encoded `String` is used as the value instead of the actual object
     /// to avoid crashing on simulators older than iOS 18.2 because of not finding the symbol
     /// thus resulting in bad access error when running the test suite.
-    /// Use `JSONEncoder.cxpEncoder.encode` to encode data for this.
+    /// Use `JSONEncoder.cxfEncoder.encode` to encode data for this.
     var importCredentialsResult: Result<String, Error> = .failure(BitwardenTestError.example)
 
     @available(iOS 18.2, *)
@@ -59,7 +59,7 @@ class MockCredentialImportManager: CredentialImportManager {
         guard let data = try importCredentialsResult.get().data(using: .utf8) else {
             throw BitwardenError.dataError("importCredentialsResult data not set or not in UTF8")
         }
-        return try JSONDecoder.cxpDecoder.decode(
+        return try JSONDecoder.cxfDecoder.decode(
             ASExportedCredentialData.self,
             from: data
         )
