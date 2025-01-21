@@ -38,14 +38,14 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                                 .accessibilityIdentifier("HideEmailAddressPolicyLabel")
                         }
 
-                        nameField
-
                         switch store.state.type {
                         case .text:
                             textSendAttributes
                         case .file:
                             fileSendAttributes
                         }
+
+                        sendDetails
 
                         optionsButton
 
@@ -407,8 +407,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// Additional options.
     @ViewBuilder private var options: some View {
-        deletionDate
-
         expirationDate
 
         accessCount
@@ -501,6 +499,25 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
+    /// Additional details for the send.
+    @ViewBuilder private var sendDetails: some View {
+        SectionView(Localizations.sendDetails, titleDesignVersion: .v2, contentSpacing: 8) {
+            nameField
+
+            if store.state.type == .text {
+                ContentBlock {
+                    BitwardenToggle(Localizations.hideTextByDefault, isOn: store.binding(
+                        get: \.isHideTextByDefaultOn,
+                        send: AddEditSendItemAction.hideTextByDefaultChanged
+                    ))
+                    .accessibilityIdentifier("SendHideTextByDefaultToggle")
+                }
+            }
+
+            deletionDate
+        }
+    }
+
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
         BitwardenField(title: Localizations.textToShare) {
@@ -514,14 +531,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             .frame(minHeight: textSendDynamicHeight)
             .accessibilityLabel(Localizations.text)
             .accessibilityIdentifier("SendTextContentEntry")
-        }
-
-        ContentBlock {
-            BitwardenToggle(Localizations.hideTextByDefault, isOn: store.binding(
-                get: \.isHideTextByDefaultOn,
-                send: AddEditSendItemAction.hideTextByDefaultChanged
-            ))
-            .accessibilityIdentifier("SendHideTextByDefaultToggle")
         }
     }
 
