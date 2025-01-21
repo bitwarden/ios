@@ -1,6 +1,4 @@
-#if compiler(>=6.0.3)
 import AuthenticationServices
-#endif
 import XCTest
 
 @testable import BitwardenShared

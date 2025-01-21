@@ -1,4 +1,3 @@
-#if compiler(>=6.0.3)
 import AuthenticationServices
 import BitwardenSdk
 
@@ -65,4 +64,3 @@ class MockCredentialImportManager: CredentialImportManager {
         )
     }
 }
-#endif
