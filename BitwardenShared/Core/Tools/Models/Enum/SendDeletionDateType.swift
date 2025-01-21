@@ -2,9 +2,9 @@ import Foundation
 
 // MARK: - SendDeletionDateType
 
-/// An object that repsents the options available when setting the deletion period for a Send Item.
+/// An object that represents the options available when setting the deletion period for a Send Item.
 ///
-enum SendDeletionDateType: CaseIterable, Menuable {
+enum SendDeletionDateType: Menuable {
     /// A time period of one hour.
     case oneHour
 
@@ -24,7 +24,7 @@ enum SendDeletionDateType: CaseIterable, Menuable {
     case thirtyDays
 
     /// A custom time period.
-    case custom
+    case custom(Date)
 
     // MARK: Properties
 
@@ -36,7 +36,8 @@ enum SendDeletionDateType: CaseIterable, Menuable {
         case .threeDays: Localizations.threeDays
         case .sevenDays: Localizations.sevenDays
         case .thirtyDays: Localizations.thirtyDays
-        case .custom: Localizations.custom
+        case let .custom(customDate):
+            customDate.formatted(date: .abbreviated, time: .shortened)
         }
     }
 
@@ -44,11 +45,9 @@ enum SendDeletionDateType: CaseIterable, Menuable {
 
     /// Calculates the date representation of this value.
     ///
-    /// - Parameters:
-    ///   - originDate: The date that this calculation should be based on. Defaults to `Date()`.
-    ///   - customValue: This value will be used when this value is `.custom`.
+    /// - Parameters originDate: The date that this calculation should be based on. Defaults to `Date()`.
     ///
-    func calculateDate(from originDate: Date = Date(), customValue: Date) -> Date? {
+    func calculateDate(from originDate: Date = Date()) -> Date? {
         switch self {
         case .oneHour:
             Calendar.current.date(byAdding: .hour, value: 1, to: originDate)
@@ -62,8 +61,8 @@ enum SendDeletionDateType: CaseIterable, Menuable {
             Calendar.current.date(byAdding: .day, value: 7, to: originDate)
         case .thirtyDays:
             Calendar.current.date(byAdding: .day, value: 30, to: originDate)
-        case .custom:
-            customValue
+        case let .custom(customDate):
+            customDate
         }
     }
 }

@@ -263,7 +263,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
         processor.state.isHideTextByDefaultOn = true
-        processor.state.deletionDate = .custom
+        processor.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41))
         processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
@@ -284,7 +284,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.fileName = "example_file.txt"
         processor.state.fileSize = "420.42 KB"
-        processor.state.deletionDate = .custom
+        processor.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41))
         processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = nil
@@ -335,7 +335,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.text = "Text."
         processor.state.isHideTextByDefaultOn = true
-        processor.state.deletionDate = .custom
+        processor.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41))
         processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
@@ -355,7 +355,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.isOptionsExpanded = true
         processor.state.name = "Name"
         processor.state.text = "Text"
-        processor.state.deletionDate = .custom
+        processor.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41))
         processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = nil

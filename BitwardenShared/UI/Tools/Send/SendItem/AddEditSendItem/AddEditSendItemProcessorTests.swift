@@ -211,7 +211,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
+        subject.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5))
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.addTextSendResult = .success(sendView)
@@ -236,7 +236,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
+        subject.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5))
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
         sendRepository.addTextSendResult = .failure(URLError(.timedOut))
 
@@ -376,7 +376,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
+        subject.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5))
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
         let sendView = SendView.fixture(
             id: "SEND_ID",
@@ -415,7 +415,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
+        subject.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5))
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.updateSendResult = .success(sendView)
@@ -441,7 +441,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
+        subject.state.deletionDate = .custom(Date(year: 2023, month: 11, day: 5))
         subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
         sendRepository.updateSendResult = .failure(URLError(.timedOut))
 
@@ -506,15 +506,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.clearExpirationDatePressed)
 
         XCTAssertNil(subject.state.customExpirationDate)
-    }
-
-    /// `receive(_:)` with `.customDeletionDateChanged` updates the custom deletion date.
-    @MainActor
-    func test_receive_customDeletionDateChanged() {
-        subject.state.customDeletionDate = Date(year: 2000, month: 5, day: 5)
-        subject.receive(.customDeletionDateChanged(Date(year: 2023, month: 11, day: 5)))
-
-        XCTAssertEqual(subject.state.customDeletionDate, Date(year: 2023, month: 11, day: 5))
     }
 
     /// `receive(_:)` with `.customExpirationDateChanged` updates the custom expiration date.
