@@ -1,14 +1,14 @@
 import Foundation
 
-// MARK: - ImportCXPState
+// MARK: - ImportCXFState
 
-/// The state used to present the `ImportCXPView`.
+/// The state used to present the `ImportCXFView`.
 ///
-struct ImportCXPState: Equatable, Sendable {
+struct ImportCXFState: Equatable, Sendable {
     // MARK: Types
 
     /// The status of the import process.
-    enum ImportCXPStatus: Equatable, Sendable {
+    enum ImportCXFStatus: Equatable, Sendable {
         /// The import flow is at the start point.
         case start
 
@@ -27,8 +27,8 @@ struct ImportCXPState: Equatable, Sendable {
     /// The token used in `ASCredentialImportManager` to get the credentials to import.
     var credentialImportToken: UUID?
 
-    /// Whether the CXP import feature is available.
-    var isFeatureUnvailable: Bool = false
+    /// Whether the Credential Exchange import feature is unavailable.
+    var isFeatureUnavailable: Bool = false
 
     /// The title of the main button.
     var mainButtonTitle: String {
@@ -60,9 +60,9 @@ struct ImportCXPState: Equatable, Sendable {
     var message: String {
         return switch status {
         case .start:
-            Localizations.startImportCXPDescriptionLong
+            Localizations.startImportCXFDescriptionLong
         case .importing:
-            ""
+            Localizations.pleaseDoNotCloseTheApp
         case let .success(total, _):
             Localizations.itemsSuccessfullyImported(total)
         case let .failure(message):
@@ -83,7 +83,7 @@ struct ImportCXPState: Equatable, Sendable {
         case .success:
             Localizations.importSuccessful
         case .failure:
-            isFeatureUnvailable ? Localizations.importNotAvailable : Localizations.importFailed
+            isFeatureUnavailable ? Localizations.importNotAvailable : Localizations.importFailed
         }
     }
 
@@ -99,9 +99,9 @@ struct ImportCXPState: Equatable, Sendable {
 
     /// Whether to show the main button.
     var showMainButton: Bool {
-        status != .importing || isFeatureUnvailable
+        status != .importing && !isFeatureUnavailable
     }
 
     /// The current status of the import process.
-    var status: ImportCXPStatus = .start
+    var status: ImportCXFStatus = .start
 }
