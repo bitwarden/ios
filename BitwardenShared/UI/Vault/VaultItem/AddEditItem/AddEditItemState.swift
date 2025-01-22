@@ -45,6 +45,9 @@ protocol AddEditItemState: Sendable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>] { get set }
 
+    /// The state for guided tour view.
+    var guidedTourViewState: GuidedTourViewState { get set }
+
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
 
@@ -103,4 +106,28 @@ protocol AddEditItemState: Sendable {
     ///   - collectionId: The identifier of the collection.
     ///
     mutating func toggleCollection(newValue: Bool, collectionId: String)
+}
+
+/// extension for `GuidedTourStepState` to provide states for learn new login guided tour.
+extension GuidedTourStepState {
+    /// The first step of the learn new login guided tour.
+    static let loginStep1 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .circle,
+        title: Localizations.useThisButtonToGenerateANewUniquePassword
+    )
+
+    /// The second step of the learn new login guided tour.
+    static let loginStep2 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
+    )
+
+    /// The third step of the learn new login guided tour.
+    static let loginStep3 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount
+    )
 }

@@ -147,9 +147,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .deletePressed:
             await showSoftDeleteConfirmation()
         case .showLearnNewLoginGuidedTour:
-            // TODO: PM-16154
             state.isLearnNewLoginActionCardEligible = false
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
+            state.guidedTourViewState.currentIndex = 0
+            state.guidedTourViewState.showGuidedTour = true
         }
     }
 
@@ -182,6 +183,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             } else {
                 presentReplacementAlert(for: .username)
             }
+        case let .guidedTourViewAction(action):
+            state.guidedTourViewState.updateStateForGuidedTourViewAction(action)
         case let .identityFieldChanged(action):
             updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):

@@ -67,6 +67,9 @@
 "Tools" = "Tools";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Use fingerprint to unlock";
+"UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Username";
 "ValidationFieldRequired" = "The %1$@ field is required.";
 "ValueHasBeenCopied" = "%1$@ copied";
@@ -79,6 +82,7 @@
 "Website" = "Website";
 "Yes" = "Yes";
 "Account" = "Account";
+"StepOfStep" = "%1$d OF %2$d";
 "AccountCreated" = "Your new account has been created! You may now log in.";
 "AddAnItem" = "Add an Item";
 "AppExtension" = "App extension";
