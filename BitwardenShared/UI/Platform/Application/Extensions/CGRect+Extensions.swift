@@ -8,7 +8,7 @@ extension CGRect {
     /// - Returns: A new `CGRect` that is enlarged by the given value.
     ///
     func enlarged(by value: CGFloat) -> CGRect {
-        return CGRect(
+        CGRect(
             x: origin.x - value,
             y: origin.y - value,
             width: size.width + 2 * value,
