@@ -131,44 +131,50 @@ struct GuidedTourView: View {
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.body)
 
-            HStack(spacing: 0) {
-                if store.state.step > 1 {
-                    Button {
-                        store.send(.backTapped)
-                    } label: {
-                        Text(Localizations.back)
-                            .styleGuide(.callout, weight: .semibold)
-                            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
-                            .multilineTextAlignment(.leading)
-                            .dynamicTypeSize(...maxDynamicTypeSize)
-                    }
-                }
-
-                Spacer()
-
-                Button {
-                    if store.state.step < store.state.totalSteps {
-                        store.send(.nextTapped)
-                    } else {
-                        store.send(.doneTapped)
-                    }
-
-                } label: {
-                    Text(
-                        store.state.step < store.state.totalSteps ? Localizations.next : Localizations.done
-                    )
-                    .styleGuide(.callout, weight: .semibold)
-                    .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .dynamicTypeSize(...maxDynamicTypeSize)
-                }
-            }
-            .padding(0)
-            .frame(maxWidth: .infinity)
+            cardNavigationButtons()
         }
         .padding(16)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    /// The navigation `Next` and `Back` buttons of the coach-mark card.
+    @ViewBuilder
+    private func cardNavigationButtons() -> some View {
+        HStack(spacing: 0) {
+            if store.state.step > 1 {
+                Button {
+                    store.send(.backTapped)
+                } label: {
+                    Text(Localizations.back)
+                        .styleGuide(.callout, weight: .semibold)
+                        .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                        .multilineTextAlignment(.leading)
+                        .dynamicTypeSize(...maxDynamicTypeSize)
+                }
+            }
+
+            Spacer()
+
+            Button {
+                if store.state.step < store.state.totalSteps {
+                    store.send(.nextTapped)
+                } else {
+                    store.send(.doneTapped)
+                }
+
+            } label: {
+                Text(
+                    store.state.step < store.state.totalSteps ? Localizations.next : Localizations.done
+                )
+                .styleGuide(.callout, weight: .semibold)
+                .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+                .multilineTextAlignment(.leading)
+                .dynamicTypeSize(...maxDynamicTypeSize)
+            }
+        }
+        .padding(0)
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -238,9 +244,9 @@ extension GuidedTourView {
     ///
     private func calculateArrowHorizontalOffsetForRight() -> CGFloat {
         let result = store.state.currentStepState.spotlightRegion.origin.x
-        + store.state.currentStepState.spotlightRegion.size.width
-        - (store.state.currentStepState.spotlightRegion.size.width / 3) / 2
-        - (arrowSize.width / 2)
+            + store.state.currentStepState.spotlightRegion.size.width
+            - (store.state.currentStepState.spotlightRegion.size.width / 3) / 2
+            - (arrowSize.width / 2)
         return result
     }
 

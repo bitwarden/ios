@@ -33,7 +33,7 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The generate username button was pressed.
     case generateUsernamePressed
 
-     /// A forwarded action from the guided tour view.
+    /// A forwarded action from the guided tour view.
     case guidedTourViewAction(GuidedTourViewAction)
 
     /// The identity field was changed.

@@ -8,9 +8,6 @@ import SwiftUI
 struct AddEditItemView: View {
     // MARK: Private Properties
 
-    /// An environment variable for getting the vertical size class of the view.
-    @Environment(\.verticalSizeClass) var verticalSizeClass
-
     /// An object used to open urls in this view.
     @Environment(\.openURL) private var openURL
 
@@ -44,10 +41,6 @@ struct AddEditItemView: View {
             get: \.toast,
             send: AddEditItemAction.toastShown
         ))
-        .transaction { transaction in
-            // disable the default FullScreenCover modal animation
-            transaction.disablesAnimations = true
-        }
     }
 
     private var addView: some View {
@@ -67,12 +60,8 @@ struct AddEditItemView: View {
     private var content: some View {
         GuidedTourScrollView(
             store: store.child(
-                state: { state in
-                    state.guidedTourViewState
-                },
-                mapAction: { action in
-                    .guidedTourViewAction(action)
-                },
+                state: \.guidedTourViewState,
+                mapAction: AddEditItemAction.guidedTourViewAction,
                 mapEffect: nil
             )
         ) {
@@ -247,20 +236,6 @@ struct AddEditItemView: View {
                 mapEffect: nil
             )
         )
-    }
-
-    /// Scrolls to the guided tour step when in landscape mode.
-    private func handleLandscapeScroll(_ reader: ScrollViewProxy) {
-        switch store.state.guidedTourViewState.currentIndex {
-        case GuidedTourStep.step1.rawValue:
-            reader.scrollTo(GuidedTourStep.step1)
-        case GuidedTourStep.step2.rawValue:
-            reader.scrollTo(GuidedTourStep.step2)
-        case GuidedTourStep.step3.rawValue:
-            reader.scrollTo(GuidedTourStep.step3)
-        default:
-            break
-        }
     }
 }
 
