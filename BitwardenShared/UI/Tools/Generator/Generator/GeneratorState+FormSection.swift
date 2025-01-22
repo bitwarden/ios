@@ -9,7 +9,7 @@ extension GeneratorState {
         /// The list of fields to display grouped together in the section.
         let fields: [FormField<State>]
 
-        /// The groups's unique identifier.
+        /// The group's unique identifier.
         let id: String
 
         /// Whether the content in the group should be shown in a content block.
