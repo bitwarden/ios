@@ -121,7 +121,8 @@ struct GeneratorState: Equatable {
     var formSections: [FormSection<Self>] {
         let generatorGroup = FormSectionGroup(
             fields: [generatedValueField(keyPath: \.generatedValue)],
-            id: "GeneratorGroup"
+            id: "GeneratorGroup",
+            showInContentBlock: false
         )
 
         let optionGroups: [FormSectionGroup<Self>] = switch generatorType {

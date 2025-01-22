@@ -9,8 +9,26 @@ extension GeneratorState {
         /// The list of fields to display grouped together in the section.
         let fields: [FormField<State>]
 
-        /// The section's unique identifier.
+        /// The groups's unique identifier.
         let id: String
+
+        /// Whether the content in the group should be shown in a content block.
+        let showInContentBlock: Bool
+
+        // MARK: Initialization
+
+        /// Initialize a `FormSectionGroup`.
+        ///
+        /// - Parameters:
+        ///   - fields: The list of fields to display grouped together in the section.
+        ///   - id: The groups's unique identifier.
+        ///   - showInContentBlock: Whether the content in the group should be shown in a content block.
+        ///
+        init(fields: [FormField<State>], id: String, showInContentBlock: Bool = true) {
+            self.fields = fields
+            self.id = id
+            self.showInContentBlock = showInContentBlock
+        }
     }
 
     /// Data model containing the data to display a section of fields in a form.
