@@ -31,6 +31,7 @@ struct BitwardenToggle<FooterContent: View>: View {
                 .toggleStyle(.bitwarden)
                 .padding(.vertical, 12)
                 .accessibilityIdentifier(accessibilityIdentifier ?? "")
+                .accessibilityLabel(title)
 
             if footer != nil || footerContent != nil {
                 Divider()

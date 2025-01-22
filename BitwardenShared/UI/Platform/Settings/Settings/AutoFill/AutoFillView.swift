@@ -13,7 +13,7 @@ struct AutoFillView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             autofillActionCard
 
             autoFillSection
@@ -21,7 +21,7 @@ struct AutoFillView: View {
             additionalOptionsSection
         }
         .animation(.easeInOut, value: store.state.badgeState?.autofillSetupProgress == .complete)
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
         .task {
             await store.perform(.fetchSettingValues)
@@ -52,54 +52,36 @@ struct AutoFillView: View {
 
     /// The additional options section.
     private var additionalOptionsSection: some View {
-        VStack(alignment: .leading) {
-            SectionHeaderView(Localizations.additionalOptions)
-
-            VStack(alignment: .leading, spacing: 6) {
-                Toggle(isOn: store.binding(
+        SectionView(Localizations.additionalOptions, titleDesignVersion: .v2, contentSpacing: 8) {
+            BitwardenToggle(
+                Localizations.copyTotpAutomatically,
+                footer: Localizations.copyTotpAutomaticallyDescription,
+                isOn: store.binding(
                     get: \.isCopyTOTPToggleOn,
                     send: AutoFillAction.toggleCopyTOTPToggle
-                )) {
-                    Text(Localizations.copyTotpAutomatically)
-                }
-                .toggleStyle(.bitwarden)
-                .styleGuide(.body)
-                .accessibilityIdentifier("CopyTotpAutomaticallySwitch")
+                ),
+                accessibilityIdentifier: "CopyTotpAutomaticallySwitch"
+            )
+            .contentBlock()
 
-                Text(Localizations.copyTotpAutomaticallyDescription)
-                    .styleGuide(.subheadline)
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-            }
-            .padding(.bottom, 12)
-
-            VStack(spacing: 2) {
-                SettingsMenuField(
-                    title: Localizations.defaultUriMatchDetection,
-                    options: UriMatchType.allCases,
-                    hasDivider: false,
-                    selection: store.binding(
-                        get: \.defaultUriMatchType,
-                        send: AutoFillAction.defaultUriMatchTypeChanged
-                    )
+            BitwardenMenuField(
+                title: Localizations.defaultUriMatchDetection,
+                footer: Localizations.defaultUriMatchDetectionDescription,
+                accessibilityIdentifier: "DefaultUriMatchDetectionChooser",
+                options: UriMatchType.allCases,
+                selection: store.binding(
+                    get: \.defaultUriMatchType,
+                    send: AutoFillAction.defaultUriMatchTypeChanged
                 )
-                .cornerRadius(10)
-                .padding(.bottom, 8)
-                .accessibilityIdentifier("DefaultUriMatchDetectionChooser")
-
-                Text(Localizations.defaultUriMatchDetectionDescription)
-                    .styleGuide(.subheadline)
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-            }
+            )
         }
     }
 
     /// The auto-fill section.
     private var autoFillSection: some View {
-        VStack(alignment: .leading) {
-            SectionHeaderView(Localizations.autofill)
-
-            VStack(spacing: 0) {
-                SettingsListItem(Localizations.passwordAutofill) {
+        SectionView(Localizations.autofill, titleDesignVersion: .v2, contentSpacing: 8) {
+            ContentBlock(dividerLeadingPadding: 16) {
+                SettingsListItem(Localizations.passwordAutofill, hasDivider: false) {
                     store.send(.passwordAutoFillTapped)
                 }
 
@@ -110,7 +92,6 @@ struct AutoFillView: View {
                     store.send(.appExtensionTapped)
                 }
             }
-            .cornerRadius(10)
         }
     }
 }

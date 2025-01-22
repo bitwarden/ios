@@ -20,7 +20,8 @@ if [ ! -f "$xcode_version_file" ]; then
 fi
 
 required_version=$(cat "$xcode_version_file")
-current_version=$(system_profiler SPDeveloperToolsDataType | grep "Xcode:" | awk '{print $2}')
+xcode_line=$(xcodebuild -version 2>/dev/null || system_profiler SPDeveloperToolsDataType | grep "Xcode:")
+current_version=$(echo "$xcode_line" | head -n 1 | awk '{print $2}')
 if [ -z "$current_version" ]; then
     echo "❌ Could not determine current Xcode version. Is Xcode installed?"
     exit 1

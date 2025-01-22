@@ -2,19 +2,19 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportCXPProcessorTests
+// MARK: - ImportCXFProcessorTests
 
-class ImportCXPProcessorTests: BitwardenTestCase {
+class ImportCXFProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var configService: MockConfigService!
-    var coordinator: MockCoordinator<ImportCXPRoute, Void>!
+    var coordinator: MockCoordinator<ImportCXFRoute, Void>!
     var errorReporter: MockErrorReporter!
     var importCiphersRepository: MockImportCiphersRepository!
     var policyService: MockPolicyService!
-    var state: ImportCXPState!
+    var state: ImportCXFState!
     var stateService: MockStateService!
-    var subject: ImportCXPProcessor!
+    var subject: ImportCXFProcessor!
 
     // MARK: Setup & Teardown
 
@@ -22,13 +22,13 @@ class ImportCXPProcessorTests: BitwardenTestCase {
         super.setUp()
 
         configService = MockConfigService()
-        coordinator = MockCoordinator<ImportCXPRoute, Void>()
+        coordinator = MockCoordinator<ImportCXFRoute, Void>()
         errorReporter = MockErrorReporter()
         importCiphersRepository = MockImportCiphersRepository()
         policyService = MockPolicyService()
-        state = ImportCXPState()
+        state = ImportCXFState()
         stateService = MockStateService()
-        subject = ImportCXPProcessor(
+        subject = ImportCXFProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 configService: configService,
@@ -199,10 +199,6 @@ class ImportCXPProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.mainButtonTapped` with `.start` status but no data found.
     @MainActor
     func test_perform_mainButtonTappedStartNoDataFound() async throws {
-        guard try checkCompiler() else {
-            return
-        }
-
         subject.state.status = .start
         subject.state.credentialImportToken = UUID(uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec")
 
@@ -227,10 +223,6 @@ class ImportCXPProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.mainButtonTapped` with `.start` status but data encoding failed.
     @MainActor
     func test_perform_mainButtonTappedStartDataEncodingFailed() async throws {
-        guard try checkCompiler() else {
-            return
-        }
-
         subject.state.status = .start
         subject.state.credentialImportToken = UUID(uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec")
 
@@ -255,10 +247,6 @@ class ImportCXPProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.mainButtonTapped` with `.start` status but throws error.
     @MainActor
     func test_perform_mainButtonTappedStartThrowing() async throws {
-        guard try checkCompiler() else {
-            return
-        }
-
         subject.state.status = .start
         subject.state.credentialImportToken = UUID(uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec")
 
@@ -286,10 +274,6 @@ class ImportCXPProcessorTests: BitwardenTestCase {
     /// Performs `.perform(.mainButtonTapped)` to start import and checks everything went good.
     @MainActor
     private func perform_mainButtonTapped_startImport() async throws {
-        guard try checkCompiler() else {
-            return
-        }
-
         let expectedResults = [
             CXFCredentialsResult(count: 12, type: .password),
             CXFCredentialsResult(count: 7, type: .passkey),
@@ -314,17 +298,7 @@ class ImportCXPProcessorTests: BitwardenTestCase {
         XCTAssertEqual(results, expectedResults)
     }
 
-    /// Checks whether the appropriate compiler is being used to have the code available.
-    /// - Returns: `true` if the compiler is correct, `false`otherwise.
-    private func checkCompiler() throws -> Bool {
-        #if compiler(>=6.0.3)
-        return true
-        #else
-        throw XCTSkip("CXP Import works only from 6.0.3 compiler.")
-        #endif
-    }
-
-    /// Checks whether the alert is shown when not in the correct iOS version for CXP Import to work.
+    /// Checks whether the alert is shown when not in the correct iOS version for CXF Import to work.
     @MainActor
     private func checkAlertShownWhenNotInCorrectIOSVersion() -> Bool {
         guard #available(iOS 18.2, *) else {
