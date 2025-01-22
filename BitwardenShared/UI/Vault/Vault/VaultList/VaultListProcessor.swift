@@ -240,10 +240,6 @@ extension VaultListProcessor {
                 forceSync: false,
                 filter: state.vaultFilterType
             ) else { return }
-            // These lines are duplicated so the toast is dismissed *before* the data is loaded, rather than after,
-            // because when it's just the `defer` block's run, the toast remains for too long.
-            state.toast = nil
-            takingTimeTask.cancel()
             state.loadingState = .data(sections)
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
@@ -386,6 +382,9 @@ extension VaultListProcessor {
 
                 // If the data is empty, check to ensure that a sync is not needed.
                 if !needsSync || !value.isEmpty {
+                    // Dismiss the "this is taking a while" toast now that we have data,
+                    // since this might not happen because of the sync in `refreshVault()`.
+                    state.toast = nil
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
                 } else {
