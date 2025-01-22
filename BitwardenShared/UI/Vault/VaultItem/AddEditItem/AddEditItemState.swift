@@ -12,6 +12,9 @@ protocol AddEditItemState: Sendable {
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
+    /// Whether or not this item can be assigned to collections.
+    var canAssignToCollection: Bool { get }
+
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
 
@@ -42,11 +45,17 @@ protocol AddEditItemState: Sendable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>] { get set }
 
+    /// The state for guided tour view.
+    var guidedTourViewState: GuidedTourViewState { get set }
+
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
 
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }
+
+    /// If account is eligible for Learn New Login Action Card.
+    var isLearnNewLoginActionCardEligible: Bool { get set }
 
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool { get set }
@@ -75,6 +84,9 @@ protocol AddEditItemState: Sendable {
     /// If master password reprompt toggle should be shown.
     var showMasterPasswordReprompt: Bool { get set }
 
+    /// A computed property that indicates if we should show the learn new login action card.
+    var shouldShowLearnNewLoginActionCard: Bool { get }
+
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
 
@@ -94,4 +106,28 @@ protocol AddEditItemState: Sendable {
     ///   - collectionId: The identifier of the collection.
     ///
     mutating func toggleCollection(newValue: Bool, collectionId: String)
+}
+
+/// extension for `GuidedTourStepState` to provide states for learn new login guided tour.
+extension GuidedTourStepState {
+    /// The first step of the learn new login guided tour.
+    static let loginStep1 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .circle,
+        title: Localizations.useThisButtonToGenerateANewUniquePassword
+    )
+
+    /// The second step of the learn new login guided tour.
+    static let loginStep2 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.youWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong
+    )
+
+    /// The third step of the learn new login guided tour.
+    static let loginStep3 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.youMustAddAWebAddressToUseAutofillToAccessThisAccount
+    )
 }

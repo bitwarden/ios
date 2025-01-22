@@ -1,5 +1,3 @@
-#if compiler(>=6.0.3)
-
 import AuthenticationServices
 
 @available(iOS 18.2, *)
@@ -121,5 +119,3 @@ private extension String {
         append("\(indentation)\(other)")
     }
 }
-
-#endif

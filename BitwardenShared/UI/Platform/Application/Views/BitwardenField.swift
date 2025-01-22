@@ -37,7 +37,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
 
             footerView()
         }
-        .padding(.horizontal, 16)
+        .padding(.leading, 16)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
@@ -107,6 +107,7 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
             }
         }
         .padding(.vertical, 12)
+        .padding(.trailing, 16)
         .frame(minHeight: 64)
     }
 
@@ -120,8 +121,10 @@ struct BitwardenField<Content, AccessoryContent>: View where Content: View, Acce
                 Text(footer)
                     .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
                     .accessibilityIdentifier(footerAccessibilityIdentifier ?? footer)
                     .padding(.vertical, 12)
+                    .padding(.trailing, 16)
             }
         }
     }

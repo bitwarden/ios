@@ -15,7 +15,7 @@ protocol ImportCiphersRepository: AnyObject {
     func importCiphers(
         credentialImportToken: UUID,
         onProgress: @MainActor (Double) -> Void
-    ) async throws -> [ImportedCredentialsResult]
+    ) async throws -> [CXFCredentialsResult]
 }
 
 // MARK: - DefaultImportCiphersRepository
@@ -31,6 +31,9 @@ class DefaultImportCiphersRepository {
     /// The factory to create credential managers.
     let credentialManagerFactory: CredentialManagerFactory
 
+    /// Builder to be used to create helper objects for the Credential Exchange flow.
+    let cxfCredentialsResultBuilder: CXFCredentialsResultBuilder
+
     /// The service that manages importing credentials.
     let importCiphersService: ImportCiphersService
 
@@ -44,17 +47,20 @@ class DefaultImportCiphersRepository {
     /// - Parameters:
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - credentialManagerFactory: A factory to create credential managers.
+    ///   - cxfCredentialsResultBuilder: Builder to be used to create helper objects for the Credential Exchange flow.
     ///   - importCiphersService: A service that manages importing credentials.
     ///   - syncService: The service used to handle syncing vault data with the API.
     ///
     init(
         clientService: ClientService,
         credentialManagerFactory: CredentialManagerFactory,
+        cxfCredentialsResultBuilder: CXFCredentialsResultBuilder,
         importCiphersService: ImportCiphersService,
         syncService: SyncService
     ) {
         self.clientService = clientService
         self.credentialManagerFactory = credentialManagerFactory
+        self.cxfCredentialsResultBuilder = cxfCredentialsResultBuilder
         self.importCiphersService = importCiphersService
         self.syncService = syncService
     }
@@ -64,12 +70,10 @@ class DefaultImportCiphersRepository {
 
 extension DefaultImportCiphersRepository: ImportCiphersRepository {
     @available(iOS 18.2, *)
-    func importCiphers( // swiftlint:disable:this function_body_length
+    func importCiphers(
         credentialImportToken: UUID,
         onProgress: @MainActor (Double) -> Void
-    ) async throws -> [ImportedCredentialsResult] {
-        #if compiler(>=6.0.3)
-
+    ) async throws -> [CXFCredentialsResult] {
         let credentialData = try await credentialManagerFactory.createImportManager().importCredentials(
             token: credentialImportToken
         )
@@ -78,7 +82,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
             throw ImportCiphersRepositoryError.noDataFound
         }
 
-        let accountJsonData = try JSONEncoder.cxpEncoder.encode(accountData)
+        let accountJsonData = try JSONEncoder.cxfEncoder.encode(accountData)
         guard let accountJsonString = String(data: accountJsonData, encoding: .utf8) else {
             // this should never happen.
             throw ImportCiphersRepositoryError.dataEncodingFailed
@@ -99,39 +103,11 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
 
         try await syncService.fetchSync(forceSync: true)
 
-        let importedCredentialsCount: [ImportedCredentialsResult] = [
-            ImportedCredentialsResult(
-                count: ciphers.count { $0.type == .login && $0.login?.fido2Credentials?.isEmpty != false },
-                type: .password
-            ),
-            ImportedCredentialsResult(
-                count: ciphers.count { $0.type == .login && $0.login?.fido2Credentials?.isEmpty == false },
-                type: .passkey
-            ),
-            ImportedCredentialsResult(
-                count: ciphers.count { $0.type == .card },
-                type: .card
-            ),
-            ImportedCredentialsResult(
-                count: ciphers.count { $0.type == .identity },
-                type: .identity
-            ),
-            ImportedCredentialsResult(
-                count: ciphers.count { $0.type == .secureNote },
-                type: .secureNote
-            ),
-            ImportedCredentialsResult(
-                count: ciphers.count { $0.type == .sshKey },
-                type: .sshKey
-            ),
-        ]
+        let importedCredentialsCount = cxfCredentialsResultBuilder.build(from: ciphers)
 
         await onProgress(1.0)
 
         return importedCredentialsCount.filter { !$0.isEmpty }
-        #else
-        return []
-        #endif
     }
 }
 

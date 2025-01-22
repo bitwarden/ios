@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - VaultCoordinatorTests
 
-class VaultCoordinatorTests: BitwardenTestCase {
+class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var delegate: MockVaultCoordinatorDelegate!
@@ -29,7 +29,10 @@ class VaultCoordinatorTests: BitwardenTestCase {
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: delegate,
             module: module,
-            services: ServiceContainer.withMocks(errorReporter: errorReporter, vaultRepository: vaultRepository),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                vaultRepository: vaultRepository
+            ),
             stackNavigator: stackNavigator
         )
     }
@@ -203,11 +206,11 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.vault))
     }
 
-    /// `navigate(to:)` with `.importCXP` presents the import view for Credential Exchange onto the stack navigator.
+    /// `navigate(to:)` with `.importCXF` presents the import view for Credential Exchange onto the stack navigator.
     @MainActor
-    func test_navigateTo_importCXP() throws {
+    func test_navigateTo_importCXF() throws {
         subject.navigate(
-            to: .importCXP(
+            to: .importCXF(
                 .importCredentials(
                     credentialImportToken: UUID(
                         uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
@@ -219,9 +222,9 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(action.view is UINavigationController)
-        XCTAssertTrue(module.importCXPCoordinator.isStarted)
+        XCTAssertTrue(module.importCXFCoordinator.isStarted)
         XCTAssertEqual(
-            module.importCXPCoordinator.routes.last,
+            module.importCXFCoordinator.routes.last,
             .importCredentials(
                 credentialImportToken: UUID(
                     uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
@@ -409,4 +412,4 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
         switchAccountUserId = userId
         switchedAccounts = true
     }
-}
+} // swiftlint:disable:this file_length

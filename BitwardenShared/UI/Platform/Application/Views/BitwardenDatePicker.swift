@@ -54,9 +54,9 @@ struct BitwardenDatePicker: View {
                     )
                     .labelsHidden()
                     // Set an extremely low opacity here to hide this DatePicker from view while
-                    // simultaniously allowing to still recieve touch events. This is the lowest
+                    // simultaneously allowing to still receive touch events. This is the lowest
                     // opacity value that still allows user interaction.
-                    .opacity(0.011)
+                    .opacity(0.1)
                     .accessibilityIdentifier(accessibilityIdentifier ?? "")
 
                 HStack {

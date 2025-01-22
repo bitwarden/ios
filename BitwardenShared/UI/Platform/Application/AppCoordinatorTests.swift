@@ -320,7 +320,6 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(subject.isShowingDebugMenu)
         XCTAssertTrue(module.debugMenuCoordinatorDelegate === subject)
 
-        let originalDebugMenuCoordinator = module.debugMenuCoordinator
         let newDebugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
         module.debugMenuCoordinator = newDebugMenuCoordinator
 

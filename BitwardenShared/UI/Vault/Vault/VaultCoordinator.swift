@@ -54,11 +54,11 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 
 /// A coordinator that manages navigation in the vault tab.
 ///
-final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable: this type_body_length
+final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     typealias Module = GeneratorModule
-        & ImportCXPModule
+        & ImportCXFModule
         & ImportLoginsModule
         & TwoFactorNoticeModule
         & VaultItemModule
@@ -194,8 +194,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             stackNavigator?.dismiss()
         case let .group(group, filter):
             showGroup(group, filter: filter)
-        case let .importCXP(cxpRoute):
-            showImportCXP(route: cxpRoute)
+        case let .importCXF(cxfRoute):
+            showImportCXF(route: cxfRoute)
         case .importLogins:
             showImportLogins()
         case .list:
@@ -305,11 +305,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// Shows the Credential Exchange import route (not in a tab). This is used when another app
     /// exporting credentials with Credential Exchange protocol chooses our app as a provider to import credentials.
     ///
-    /// - Parameter route: The `ImportCXPRoute` to show.
+    /// - Parameter route: The `ImportCXFRoute` to show.
     ///
-    private func showImportCXP(route: ImportCXPRoute) {
+    private func showImportCXF(route: ImportCXFRoute) {
         let navigationController = UINavigationController()
-        let coordinator = module.makeImportCXPCoordinator(
+        let coordinator = module.makeImportCXFCoordinator(
             stackNavigator: navigationController
         )
         coordinator.start()
@@ -441,4 +441,4 @@ extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
 
 // MARK: - UserVerificationDelegate
 
-extension VaultCoordinator: UserVerificationDelegate {}
+extension VaultCoordinator: UserVerificationDelegate {} // swiftlint:disable:this file_length
