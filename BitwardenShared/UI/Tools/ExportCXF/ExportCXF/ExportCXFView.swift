@@ -1,6 +1,6 @@
 import SwiftUI
 
-// MARK: - ImportCXPView
+// MARK: - ExportCXFView
 
 /// A view to export credentials in the Credential Exchange flow.
 ///
@@ -23,16 +23,17 @@ struct ExportCXFView: View {
             .padding(.horizontal, 30)
             .frame(maxWidth: .infinity)
 
-            Text(store.state.sectionTitle)
-                .styleGuide(.title, weight: .bold)
-                .padding(.horizontal, 20)
-                .accessibilityIdentifier("SectionTitle")
+            if case .prepared = store.state.status {
+                Text(Localizations.itemsToExport)
+                    .styleGuide(.title, weight: .bold)
+                    .padding(.horizontal, 20)
+                    .accessibilityIdentifier("SectionTitle")
+            }
 
             switch store.state.status {
             case .start:
-                Text(Localizations.exportAllItems(store.state.totalItemsToExport))
-                    .styleGuide(.title2)
-                    .padding(.horizontal, 20)
+                CircularActivityIndicator()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             case let .prepared(results):
                 VStack(spacing: 16) {
                     ForEach(results) { result in
@@ -104,9 +105,7 @@ struct ExportCXFView: View {
     ExportCXFView(
         store: Store(
             processor: StateProcessor(
-                state: ExportCXFState(
-                    totalItemsToExport: 20
-                )
+                state: ExportCXFState()
             )
         )
     )
