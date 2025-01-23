@@ -83,8 +83,8 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                 }
 
                 content
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             if let accessoryContent {
                 HStack(spacing: 16) {

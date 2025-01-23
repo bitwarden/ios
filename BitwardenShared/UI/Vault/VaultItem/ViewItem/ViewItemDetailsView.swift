@@ -82,11 +82,16 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                         password: value,
                                         isPasswordVisible: customField.isPasswordVisible
                                     )
+                                } else {
+                                    Text(" ") // Placeholder so the field's title is positioned correctly.
                                 }
                             case .text:
-                                if let value = customField.value {
-                                    Text(value).textSelection(.enabled)
-                                }
+                                // An empty string is a placeholder when the value is nil so the
+                                // field's title is positioned correctly.
+                                Text(customField.value ?? "")
+                                    .textSelection(.enabled)
+                                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                    .styleGuide(.body)
                             case .linked:
                                 if let linkedIdType = customField.linkedIdType {
                                     HStack(spacing: 8) {
@@ -95,6 +100,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                                 .accessoryIcon16(color: Asset.Colors.textSecondary.swiftUIColor)
                                             )
                                         Text(linkedIdType.localizedName)
+                                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                            .styleGuide(.body)
                                     }
                                 }
                             }
