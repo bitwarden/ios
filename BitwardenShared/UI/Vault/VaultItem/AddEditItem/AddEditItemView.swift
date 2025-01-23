@@ -58,11 +58,30 @@ struct AddEditItemView: View {
     }
 
     private var content: some View {
-        ScrollView {
+        GuidedTourScrollView(
+            store: store.child(
+                state: \.guidedTourViewState,
+                mapAction: AddEditItemAction.guidedTourViewAction,
+                mapEffect: nil
+            )
+        ) {
             VStack(spacing: 20) {
                 if isPolicyEnabled {
                     InfoContainer(Localizations.personalOwnershipPolicyInEffect)
                         .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
+                }
+
+                if store.state.shouldShowLearnNewLoginActionCard {
+                    ActionCard(
+                        title: Localizations.learnAboutNewLogins,
+                        message: Localizations.weWillWalkYouThroughTheKeyFeaturesToAddANewLogin,
+                        actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                            await store.perform(.showLearnNewLoginGuidedTour)
+                        },
+                        dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                            await store.perform(.dismissNewLoginActionCard)
+                        }
+                    )
                 }
 
                 informationSection
@@ -195,7 +214,16 @@ struct AddEditItemView: View {
                 },
                 mapAction: { $0 },
                 mapEffect: { $0 }
-            )
+            ),
+            didRenderFrame: { step, frame in
+                let enlargedFrame = frame.enlarged(by: 8)
+                store.send(
+                    .guidedTourViewAction(.didRenderViewToSpotlight(
+                        frame: enlargedFrame,
+                        step: step
+                    ))
+                )
+            }
         )
     }
 

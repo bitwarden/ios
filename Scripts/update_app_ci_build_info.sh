@@ -16,8 +16,6 @@ if [ $# -ne 6 ]; then
     exit 1
 fi
 
-set -euo pipefail
-
 repository=$1
 branch=$2
 commit_hash=$3

@@ -1,6 +1,8 @@
 // MARK: - AddEditItemAction
 
 import BitwardenSdk
+import Foundation
+import SwiftUI
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable, Sendable {
@@ -30,6 +32,9 @@ enum AddEditItemAction: Equatable, Sendable {
 
     /// The generate username button was pressed.
     case generateUsernamePressed
+
+    /// A forwarded action from the guided tour view.
+    case guidedTourViewAction(GuidedTourViewAction)
 
     /// The identity field was changed.
     case identityFieldChanged(AddEditIdentityItemAction)

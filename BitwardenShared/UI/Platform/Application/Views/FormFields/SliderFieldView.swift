@@ -95,8 +95,6 @@ struct SliderFieldView<State>: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-        .cornerRadius(10)
         .background {
             calculateMinTextWidth()
         }

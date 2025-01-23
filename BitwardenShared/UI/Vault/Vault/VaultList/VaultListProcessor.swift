@@ -226,6 +226,16 @@ extension VaultListProcessor {
     ///
     private func refreshVault() async {
         do {
+            let takingTimeTask = Task {
+                try await Task.sleep(forSeconds: 5)
+                // If we already have data, don't show the toast
+                guard case .loading = self.state.loadingState else { return }
+                self.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+            }
+            defer {
+                state.toast = nil
+                takingTimeTask.cancel()
+            }
             guard let sections = try await services.vaultRepository.fetchSync(
                 forceSync: false,
                 filter: state.vaultFilterType
@@ -372,6 +382,9 @@ extension VaultListProcessor {
 
                 // If the data is empty, check to ensure that a sync is not needed.
                 if !needsSync || !value.isEmpty {
+                    // Dismiss the "this is taking a while" toast now that we have data,
+                    // since this might not happen because of the sync in `refreshVault()`.
+                    state.toast = nil
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
                 } else {

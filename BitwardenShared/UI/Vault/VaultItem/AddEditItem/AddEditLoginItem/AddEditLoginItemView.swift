@@ -22,6 +22,9 @@ struct AddEditLoginItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
+    /// The closure to call when the fields are rendered for the guided tour.
+    var didRenderFrame: ((GuidedTourStep, CGRect) -> Void)?
+
     // MARK: View
 
     var body: some View {
@@ -32,6 +35,9 @@ struct AddEditLoginItemView: View {
         fidoField
 
         totpView
+            .guidedTourStep(.step2) { frame in
+                didRenderFrame?(.step2, frame)
+            }
 
         uriSection
     }
@@ -84,6 +90,9 @@ struct AddEditLoginItemView: View {
                 .accessibilityIdentifier("CheckPasswordButton")
                 AccessoryButton(asset: Asset.Images.generate24, accessibilityLabel: Localizations.generatePassword) {
                     store.send(.generatePasswordPressed)
+                }
+                .guidedTourStep(.step1) { frame in
+                    didRenderFrame?(.step1, frame)
                 }
                 .accessibilityIdentifier("RegeneratePasswordButton")
             }
@@ -193,6 +202,9 @@ struct AddEditLoginItemView: View {
                     .accessibilityIdentifier("LoginUriOptionsButton")
                 }
                 .textFieldConfiguration(.url)
+            }
+            .guidedTourStep(.step3) { frame in
+                didRenderFrame?(.step3, frame)
             }
 
             Button(Localizations.newUri) {

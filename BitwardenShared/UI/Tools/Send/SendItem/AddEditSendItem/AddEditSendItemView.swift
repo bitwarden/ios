@@ -38,14 +38,14 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                                 .accessibilityIdentifier("HideEmailAddressPolicyLabel")
                         }
 
-                        nameField
-
                         switch store.state.type {
                         case .text:
                             textSendAttributes
                         case .file:
                             fileSendAttributes
                         }
+
+                        sendDetails
 
                         optionsButton
 
@@ -206,56 +206,15 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The deletion date field.
     @ViewBuilder private var deletionDate: some View {
         ContentBlock(dividerLeadingPadding: 16) {
-            VStack(alignment: .leading, spacing: 0) {
-                switch store.state.mode {
-                case .add,
-                     .shareExtension:
-                    BitwardenMenuField(
-                        title: Localizations.deletionDate,
-                        accessibilityIdentifier: "SendDeletionOptionsPicker",
-                        options: SendDeletionDateType.allCases,
-                        selection: store.binding(
-                            get: \.deletionDate,
-                            send: AddEditSendItemAction.deletionDateChanged
-                        )
-                    )
-
-                    if store.state.expirationDate == .custom {
-                        Divider()
-                            .padding(.leading, 16)
-                    }
-                case .edit:
-                    Text(Localizations.deletionDate)
-                        .styleGuide(.subheadline, weight: .semibold)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .padding(.top, 12)
-                        .padding(.horizontal, 16)
-                }
-
-                if store.state.deletionDate == .custom {
-                    AccessibleHStack(alignment: .leading, spacing: 8) {
-                        BitwardenDatePicker(
-                            selection: store.binding(
-                                get: \.customDeletionDate,
-                                send: AddEditSendItemAction.customDeletionDateChanged
-                            ),
-                            displayComponents: .date,
-                            accessibilityIdentifier: "SendCustomDeletionDatePicker"
-                        )
-
-                        BitwardenDatePicker(
-                            selection: store.binding(
-                                get: \.customDeletionDate,
-                                send: AddEditSendItemAction.customDeletionDateChanged
-                            ),
-                            displayComponents: .hourAndMinute,
-                            accessibilityIdentifier: "SendCustomDeletionTimePicker"
-                        )
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                }
-            }
+            BitwardenMenuField(
+                title: Localizations.deletionDate,
+                accessibilityIdentifier: "SendDeletionOptionsPicker",
+                options: store.state.availableDeletionDateTypes,
+                selection: store.binding(
+                    get: \.deletionDate,
+                    send: AddEditSendItemAction.deletionDateChanged
+                )
+            )
 
             Text(Localizations.deletionDateInfo)
                 .styleGuide(.footnote)
@@ -345,11 +304,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         SectionView(Localizations.file, titleDesignVersion: .v2, contentSpacing: 8) {
             switch store.state.mode {
             case .add, .shareExtension:
-                BitwardenField {
-                    Text(store.state.fileName ?? Localizations.noFileChosen)
-                        .styleGuide(.body)
-                        .accessibilityIdentifier(store.state.fileName != nil ? "SendCurrentFileNameLabel" : "")
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                if let fileName = store.state.fileName {
+                    BitwardenField {
+                        Text(fileName)
+                            .styleGuide(.body)
+                            .accessibilityIdentifier("SendCurrentFileNameLabel")
+                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -395,20 +356,17 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The name field.
     @ViewBuilder private var nameField: some View {
         BitwardenTextField(
-            title: Localizations.name,
+            title: Localizations.sendNameRequired,
             text: store.binding(
                 get: \.name,
                 send: AddEditSendItemAction.nameChanged
             ),
-            footer: Localizations.nameInfo,
             accessibilityIdentifier: "SendNameEntry"
         )
     }
 
     /// Additional options.
     @ViewBuilder private var options: some View {
-        deletionDate
-
         expirationDate
 
         accessCount
@@ -501,12 +459,28 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
+    /// Additional details for the send.
+    @ViewBuilder private var sendDetails: some View {
+        SectionView(Localizations.sendDetails, titleDesignVersion: .v2, contentSpacing: 8) {
+            nameField
+
+            if store.state.type == .text {
+                ContentBlock {
+                    BitwardenToggle(Localizations.hideTextByDefault, isOn: store.binding(
+                        get: \.isHideTextByDefaultOn,
+                        send: AddEditSendItemAction.hideTextByDefaultChanged
+                    ))
+                    .accessibilityIdentifier("SendHideTextByDefaultToggle")
+                }
+            }
+
+            deletionDate
+        }
+    }
+
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
-        BitwardenField(
-            title: Localizations.text,
-            footer: Localizations.typeTextInfo
-        ) {
+        BitwardenField(title: Localizations.textToShare) {
             BitwardenUITextView(
                 text: store.binding(
                     get: \.text,
@@ -517,14 +491,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             .frame(minHeight: textSendDynamicHeight)
             .accessibilityLabel(Localizations.text)
             .accessibilityIdentifier("SendTextContentEntry")
-        }
-
-        ContentBlock {
-            BitwardenToggle(Localizations.hideTextByDefault, isOn: store.binding(
-                get: \.isHideTextByDefaultOn,
-                send: AddEditSendItemAction.hideTextByDefaultChanged
-            ))
-            .accessibilityIdentifier("SendHideTextByDefaultToggle")
         }
     }
 
@@ -609,7 +575,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             store: Store(
                 processor: StateProcessor(
                     state: AddEditSendItemState(
-                        deletionDate: .custom,
+                        deletionDate: .custom(.now),
                         expirationDate: .custom,
                         isOptionsExpanded: true
                     )
@@ -628,7 +594,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         currentAccessCount: 42,
                         customDeletionDate: Date(),
                         customExpirationDate: nil,
-                        deletionDate: .custom,
+                        deletionDate: .custom(.now),
                         expirationDate: .custom,
                         isHideTextByDefaultOn: true,
                         isOptionsExpanded: true,
@@ -652,7 +618,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         currentAccessCount: 42,
                         customDeletionDate: Date(),
                         customExpirationDate: nil,
-                        deletionDate: .custom,
+                        deletionDate: .custom(.now),
                         expirationDate: .custom,
                         fileName: "example.txt",
                         fileSize: "420.42 KB",
@@ -677,7 +643,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         currentAccessCount: 42,
                         customDeletionDate: Date(),
                         customExpirationDate: nil,
-                        deletionDate: .custom,
+                        deletionDate: .custom(.now),
                         expirationDate: .custom,
                         isHideTextByDefaultOn: true,
                         isOptionsExpanded: true,

@@ -19,6 +19,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         & GeneratorCoordinator.Services
         & HasAPIService
         & HasAuthRepository
+        & HasConfigService
         & HasEventService
         & HasFido2UserInterfaceHelper
         & HasRehydrationHelper
@@ -79,7 +80,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
-        case let .addItem(allowTypeSelection, group, hasPremium, newCipherOptions):
+        case let .addItem(
+            allowTypeSelection,
+            group,
+            hasPremium,
+            newCipherOptions
+        ):
             showAddItem(
                 for: group,
                 allowTypeSelection: allowTypeSelection,

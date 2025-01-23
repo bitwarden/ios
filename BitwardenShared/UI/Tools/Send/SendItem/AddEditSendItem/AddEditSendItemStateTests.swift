@@ -6,12 +6,43 @@ import XCTest
 class AddEditSendItemStateTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `availableDeletionDateTypes` returns the available options to display in the deletion date
+    /// menu when adding a new send.
+    func test_availableDeletionDateTypes_add() {
+        let subject = AddEditSendItemState(mode: .add)
+        XCTAssertEqual(
+            subject.availableDeletionDateTypes,
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
+        )
+    }
+
+    /// `availableDeletionDateTypes` returns the available options to display in the deletion date
+    /// menu when editing an existing send.
+    func test_availableDeletionDateTypes_edit() {
+        let deletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        let subject = AddEditSendItemState(customDeletionDate: deletionDate, mode: .edit)
+        XCTAssertEqual(
+            subject.availableDeletionDateTypes,
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(deletionDate)]
+        )
+    }
+
+    /// `availableDeletionDateTypes` returns the available options to display in the deletion date
+    /// menu when adding a new send from the share extension.
+    func test_availableDeletionDateTypes_shareExtension() {
+        let subject = AddEditSendItemState(mode: .shareExtension(.singleAccount))
+        XCTAssertEqual(
+            subject.availableDeletionDateTypes,
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
+        )
+    }
+
     func test_newSendView_text() {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
             customDeletionDate: date,
             customExpirationDate: date,
-            deletionDate: .custom,
+            deletionDate: .custom(date),
             expirationDate: .never,
             isDeactivateThisSendOn: true,
             isHideMyEmailOn: false,

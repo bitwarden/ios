@@ -44,29 +44,25 @@ struct StepperFieldView<State>: View {
     let field: StepperField<State>
 
     var body: some View {
-        VStack(spacing: 16) {
-            Stepper(
-                value: Binding(get: { field.value }, set: action),
-                in: field.range
-            ) {
-                HStack {
-                    Text(field.title)
-                        .styleGuide(.body)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+        Stepper(
+            value: Binding(get: { field.value }, set: action),
+            in: field.range
+        ) {
+            HStack {
+                Text(field.title)
+                    .styleGuide(.body)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
-                    Spacer()
+                Spacer()
 
-                    Text(String(field.value))
-                        .styleGuide(.body, monoSpacedDigit: true)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                }
-                .padding(.trailing, 4)
+                Text(String(field.value))
+                    .styleGuide(.body, monoSpacedDigit: true)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
             }
-            .padding(.top, 4)
-            .accessibilityIdentifier(field.accessibilityId ?? field.id)
-
-            Divider()
+            .padding(.trailing, 4)
         }
+        .accessibilityIdentifier(field.accessibilityId ?? field.id)
+        .padding(16)
     }
 
     // MARK: Initialization
