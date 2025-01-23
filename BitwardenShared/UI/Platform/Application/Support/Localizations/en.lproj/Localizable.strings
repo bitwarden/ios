@@ -1094,3 +1094,5 @@
 "ExportFailed" = "Export failed";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescription" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
