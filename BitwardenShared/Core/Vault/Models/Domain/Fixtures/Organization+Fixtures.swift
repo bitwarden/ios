@@ -15,6 +15,7 @@ extension Organization {
         type: OrganizationUserType = .user,
         useEvents: Bool = false,
         usePolicies: Bool = true,
+        userIsManagedByOrganization: Bool = false,
         usersGetPremium: Bool = false
     ) -> Organization {
         Organization(
@@ -29,6 +30,7 @@ extension Organization {
             type: type,
             useEvents: useEvents,
             usePolicies: usePolicies,
+            userIsManagedByOrganization: userIsManagedByOrganization,
             usersGetPremium: usersGetPremium
         )
     }

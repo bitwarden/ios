@@ -605,6 +605,7 @@ struct VaultListView_Previews: PreviewProvider {
                                     type: .user,
                                     useEvents: false,
                                     usePolicies: true,
+                                    userIsManagedByOrganization: false,
                                     usersGetPremium: false
                                 ),
                             ]
