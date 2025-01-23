@@ -563,9 +563,7 @@
 "DeletionTime" = "Deletion time";
 "DeletionDateInfo" = "The Send will be permanently deleted on the specified date and time.";
 "PendingDelete" = "Pending deletion";
-"ExpirationDate" = "Expiration date";
 "ExpirationTime" = "Expiration time";
-"ExpirationDateInfo" = "If set, access to this Send will expire on the specified date and time.";
 "Expired" = "Expired";
 "MaximumAccessCount" = "Maximum access count";
 "MaximumAccessCountInfo" = "If set, users will no longer be able to access this Send once the maximum access count is reached.";

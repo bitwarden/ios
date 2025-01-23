@@ -43,14 +43,11 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// The custom deletion date.
     var customDeletionDate = Date.midnightOneWeekFromToday() ?? Date()
 
-    /// The custom expiration date.
-    var customExpirationDate: Date?
-
     /// The deletion date for this item.
     var deletionDate: SendDeletionDateType = .sevenDays
 
     /// The expiration date for this item.
-    var expirationDate: SendExpirationDateType = .never
+    var expirationDate: Date?
 
     /// The data for the selected file.
     var fileData: Data?
@@ -146,9 +143,8 @@ extension AddEditSendItemState {
             accessId: sendView.accessId,
             currentAccessCount: Int(sendView.accessCount),
             customDeletionDate: sendView.deletionDate,
-            customExpirationDate: sendView.expirationDate,
             deletionDate: .custom(sendView.deletionDate),
-            expirationDate: .custom,
+            expirationDate: sendView.expirationDate,
             fileData: nil,
             fileName: sendView.file?.fileName,
             fileSize: sendView.file?.sizeName,
@@ -191,7 +187,7 @@ extension AddEditSendItemState {
             hideEmail: isHideMyEmailOn,
             revisionDate: Date(),
             deletionDate: deletionDate.calculateDate() ?? Date(),
-            expirationDate: expirationDate.calculateDate(customValue: customExpirationDate)
+            expirationDate: expirationDate
         )
     }
 

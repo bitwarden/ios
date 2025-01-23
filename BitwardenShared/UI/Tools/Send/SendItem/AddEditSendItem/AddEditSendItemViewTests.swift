@@ -70,16 +70,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(processor.dispatchedActions.last, .chooseFilePressed)
     }
 
-    /// Tapping the clear expiration date button sends the `.clearExpirationDatePressed` action.
-    @MainActor
-    func test_clearExpirationDateButton_tap() throws {
-        processor.state.isOptionsExpanded = true
-        processor.state.mode = .edit
-        let button = try subject.inspect().find(button: Localizations.clear)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .clearExpirationDatePressed)
-    }
-
     /// Updating the deletion date menu sends the `.deletionDateChanged` action.
     @MainActor
     func test_deletionDateMenu_updated() throws {
@@ -87,15 +77,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.deletionDate)
         try menuField.select(newValue: SendDeletionDateType.thirtyDays)
         XCTAssertEqual(processor.dispatchedActions.last, .deletionDateChanged(.thirtyDays))
-    }
-
-    /// Updating the expiration date menu sends the `.expirationDateChanged` action.
-    @MainActor
-    func test_expirationDateMenu_updated() throws {
-        processor.state.isOptionsExpanded = true
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.expirationDate)
-        try menuField.select(newValue: SendExpirationDateType.thirtyDays)
-        XCTAssertEqual(processor.dispatchedActions.last, .expirationDateChanged(.thirtyDays))
     }
 
     /// Updating the maximum access count stepper sends the `.maximumAccessCountChanged` action.
@@ -268,8 +249,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.isHideTextByDefaultOn = true
         processor.state.deletionDate = .custom(deletionDate)
         processor.state.customDeletionDate = deletionDate
-        processor.state.expirationDate = .custom
-        processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
         processor.state.maximumAccessCountText = "42"
         processor.state.password = "pa$$w0rd"
@@ -289,8 +268,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.fileSize = "420.42 KB"
         processor.state.deletionDate = .custom(deletionDate)
         processor.state.customDeletionDate = deletionDate
-        processor.state.expirationDate = .custom
-        processor.state.customExpirationDate = nil
         processor.state.maximumAccessCount = 420
         processor.state.maximumAccessCountText = "420"
         processor.state.currentAccessCount = 42
@@ -340,8 +317,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.isHideTextByDefaultOn = true
         processor.state.deletionDate = .custom(deletionDate)
         processor.state.customDeletionDate = deletionDate
-        processor.state.expirationDate = .custom
-        processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
         processor.state.maximumAccessCountText = "42"
         processor.state.password = "pa$$w0rd"
@@ -360,8 +335,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.text = "Text"
         processor.state.deletionDate = .custom(deletionDate)
         processor.state.customDeletionDate = deletionDate
-        processor.state.expirationDate = .custom
-        processor.state.customExpirationDate = nil
         processor.state.maximumAccessCount = 420
         processor.state.maximumAccessCountText = "420"
         processor.state.currentAccessCount = 42
