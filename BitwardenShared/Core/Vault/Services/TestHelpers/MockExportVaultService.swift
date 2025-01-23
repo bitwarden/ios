@@ -19,7 +19,7 @@ class MockExportVaultService: ExportVaultService {
         didClearFiles = true
     }
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
     @available(iOS 18.2, *)
     func exportVaultForCXP() async throws -> ASImportableAccount {
         guard let result = try exportVaultForCXPResult.get() as? ASImportableAccount else {
@@ -48,7 +48,7 @@ class MockExportVaultService: ExportVaultService {
 
 protocol ImportableAccountProxy {}
 
-#if compiler(>=6.0.3)
+#if SUPPORTS_CXP
 @available(iOS 18.2, *)
 extension ASImportableAccount: ImportableAccountProxy {}
 #endif
