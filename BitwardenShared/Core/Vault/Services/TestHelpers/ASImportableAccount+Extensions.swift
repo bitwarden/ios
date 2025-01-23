@@ -1,3 +1,5 @@
+#if SUPPORTS_CXP
+
 import AuthenticationServices
 
 @available(iOS 18.2, *)
@@ -119,3 +121,5 @@ private extension String {
         append("\(indentation)\(other)")
     }
 }
+
+#endif
