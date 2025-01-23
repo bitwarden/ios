@@ -16,9 +16,6 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
     /// The (optional) footer content to display underneath the field.
     var footerContent: FooterContent?
 
-    /// The vertical padding to apply around `content`. Defaults to `8`.
-    var verticalPadding: CGFloat
-
     /// The content that should be displayed in the field.
     var content: Content
 
@@ -47,7 +44,6 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
     ///   - title: The (optional) title of the field.
     ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the title of the field (if it exists)
-    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
@@ -56,14 +52,12 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
-        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessoryContent: () -> AccessoryContent,
         @ViewBuilder footerContent: () -> FooterContent
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
-        self.verticalPadding = verticalPadding
         self.content = content()
         self.accessoryContent = accessoryContent()
         self.footerContent = footerContent()
@@ -140,20 +134,17 @@ extension BitwardenField where AccessoryContent == EmptyView {
     ///   - title: The (optional) title of the field.
     ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the title of the field (if it exists)
-    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///   - footer: The (optional) footer content to display underneath the field.
     ///
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
-        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content,
         @ViewBuilder footer footerContent: () -> FooterContent
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
-        self.verticalPadding = verticalPadding
         self.content = content()
         accessoryContent = nil
         self.footerContent = footerContent()
@@ -167,7 +158,6 @@ extension BitwardenField where FooterContent == EmptyView {
     ///   - title: The (optional) title of the field.
     ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the title of the field (if it exists)
-    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
@@ -175,13 +165,11 @@ extension BitwardenField where FooterContent == EmptyView {
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
-        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
-        self.verticalPadding = verticalPadding
         self.content = content()
         self.accessoryContent = accessoryContent()
     }
@@ -194,19 +182,16 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == E
     ///   - title: The (optional) title of the field.
     ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the title of the field (if it exists)
-    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
-        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
         footerContent = nil
-        self.verticalPadding = verticalPadding
         self.content = content()
         accessoryContent = nil
     }
@@ -220,7 +205,6 @@ extension BitwardenField where FooterContent == Text {
     ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the title of the field (if it exists)
     ///   - footer: The (optional) footer content to display underneath the field.
-    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///   - accessoryContent: Any accessory content that should be displayed on the trailing edge of
     ///     the field. This content automatically has the `AccessoryButtonStyle` applied to it.
@@ -229,14 +213,12 @@ extension BitwardenField where FooterContent == Text {
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
         footer: String,
-        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content,
         @ViewBuilder accessoryContent: () -> AccessoryContent
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
         footerContent = Text(footer)
-        self.verticalPadding = verticalPadding
         self.content = content()
         self.accessoryContent = accessoryContent()
     }
@@ -250,20 +232,17 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == T
     ///   - titleAccessibilityIdentifier: The (optional) accessibility identifier to apply
     ///     to the title of the field (if it exists)
     ///   - footer: The (optional) footer content to display underneath the field.
-    ///   - verticalPadding: The vertical padding to apply around `content`. Defaults to `8`.
     ///   - content: The content that should be displayed in the field.
     ///
     init(
         title: String? = nil,
         titleAccessibilityIdentifier: String? = nil,
         footer: String,
-        verticalPadding: CGFloat = 8,
         @ViewBuilder content: () -> Content
     ) {
         self.title = title
         self.titleAccessibilityIdentifier = titleAccessibilityIdentifier
         footerContent = Text(footer)
-        self.verticalPadding = verticalPadding
         self.content = content()
     }
 }
