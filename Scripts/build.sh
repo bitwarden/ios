@@ -6,7 +6,7 @@
 #
 # Usage:
 #
-#   $ ./build.sh <build_mode>
+#   $ ./Scripts/build.sh <build_mode>
 #
 # Where mode is one of:
 #   - Device: Build for physical iOS devices
