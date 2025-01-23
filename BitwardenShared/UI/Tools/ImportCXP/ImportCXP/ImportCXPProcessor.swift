@@ -72,7 +72,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
 
     /// Starts the import process.
     private func startImport() async {
-        #if compiler(>=6.0.3)
+        #if SUPPORTS_CXP
 
         guard #available(iOS 18.2, *), let credentialImportToken = state.credentialImportToken else {
             coordinator.showAlert(

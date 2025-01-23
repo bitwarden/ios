@@ -193,7 +193,7 @@ final class ExportVaultServiceTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Tests
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
 
     /// `exportVaultForCXP()` CXP exporting the vault succeeds.
     func test_exportVaultForCXP_success() async throws {

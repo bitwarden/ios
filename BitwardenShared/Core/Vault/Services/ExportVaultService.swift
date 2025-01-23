@@ -43,7 +43,7 @@ protocol ExportVaultService: AnyObject {
     ///
     func exportVaultFileContents(format: ExportFileType) async throws -> String
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
     /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
     /// - Returns: An `ASImportableAccount`
     @available(iOS 18.2, *)
@@ -196,7 +196,7 @@ class DefultExportVaultService: ExportVaultService {
         )
     }
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
 
     @available(iOS 18.2, *)
     func exportVaultForCXP() async throws -> ASImportableAccount {

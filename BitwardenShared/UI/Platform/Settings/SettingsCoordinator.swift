@@ -343,7 +343,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///
     @MainActor
     private func showExportVault() async {
-        guard await services.configService.getFeatureFlag(.cxpExportMobile) else {
+        #if SUPPORTS_CXP
+        let cxpEnabled = true
+        #else
+        let cxpEnabled = false
+        #endif
+
+        guard cxpEnabled, await services.configService.getFeatureFlag(.cxpExportMobile) else {
             navigate(to: .exportVaultToFile)
             return
         }
