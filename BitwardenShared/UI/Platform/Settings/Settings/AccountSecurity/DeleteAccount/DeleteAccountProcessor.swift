@@ -9,6 +9,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasStateService
 
@@ -45,6 +46,8 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         switch effect {
         case .deleteAccount:
             await showAccountVerification()
+        case .loadData:
+            await loadData()
         }
     }
 
@@ -120,6 +123,19 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
                     await self.deleteAccount(otp: otp, passwordText: nil)
                 })
             }
+        } catch {
+            coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Load any initial data for the view.
+    private func loadData() async {
+        do {
+            let isUserManagedByOrganization = try await services.authRepository.isUserManagedByOrganization()
+
+            state.shouldPreventUserFromDeletingAccount =
+                await services.configService.getFeatureFlag(.accountDeprovisioning) && isUserManagedByOrganization
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)

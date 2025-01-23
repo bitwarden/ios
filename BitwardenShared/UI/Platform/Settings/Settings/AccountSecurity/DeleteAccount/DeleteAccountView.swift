@@ -14,6 +14,27 @@ struct DeleteAccountView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
+            if store.state.shouldPreventUserFromDeletingAccount {
+                preventAccountDeletionSection
+            } else {
+                deleteAccountSection
+            }
+        }
+        .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
+        .scrollView()
+        .toolbar {
+            cancelToolbarItem {
+                store.send(.dismiss)
+            }
+        }
+        .task {
+            await store.perform(.loadData)
+        }
+    }
+
+    /// The other section.
+    private var deleteAccountSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
             Image(asset: Asset.Images.warning24)
                 .foregroundColor(Color(asset: Asset.Colors.error))
 
@@ -25,28 +46,43 @@ struct DeleteAccountView: View {
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                 .styleGuide(.subheadline)
 
-            VStack(spacing: 12) {
-                AsyncButton(Localizations.deleteAccount) {
-                    await store.perform(.deleteAccount)
-                }
-                .buttonStyle(.primary(isDestructive: true))
-                .accessibilityIdentifier("DELETE ACCOUNT")
+            AsyncButton(Localizations.deleteAccount) {
+                await store.perform(.deleteAccount)
+            }
+            .buttonStyle(.primary(isDestructive: true))
+            .accessibilityIdentifier("DELETE ACCOUNT")
 
-                Button {
-                    store.send(.dismiss)
-                } label: {
-                    Text(Localizations.cancel)
-                }
-                .buttonStyle(.secondary(isDestructive: true))
-                .accessibilityIdentifier("CANCEL")
-            }
-        }
-        .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
-        .scrollView()
-        .toolbar {
-            cancelToolbarItem {
+            Button {
                 store.send(.dismiss)
+            } label: {
+                Text(Localizations.cancel)
             }
+            .buttonStyle(.secondary(isDestructive: true))
+            .accessibilityIdentifier("CANCEL")
+        }
+    }
+
+    /// The other section.
+    private var preventAccountDeletionSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Image(asset: Asset.Images.circleX16)
+                .foregroundColor(Color(asset: Asset.Colors.error))
+
+            Text(Localizations.cannotDeleteAccount)
+                .foregroundColor(Color(asset: Asset.Colors.error))
+                .styleGuide(.headline, weight: .semibold)
+
+            Text(Localizations.cannotDeleteAccountDescription)
+                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                .styleGuide(.subheadline)
+
+            Button {
+                store.send(.dismiss)
+            } label: {
+                Text(Localizations.close)
+            }
+            .buttonStyle(.secondary(isDestructive: true))
+            .accessibilityIdentifier("CLOSE")
         }
     }
 }
