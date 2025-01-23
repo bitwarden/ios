@@ -73,19 +73,29 @@ struct FormMenuFieldView<State, T: Menuable, TrailingContent: View>: View {
     let field: FormMenuField<State, T>
 
     /// Optional content view that is displayed to the right of the menu value.
-    let trailingContent: TrailingContent
+    let trailingContent: TrailingContent?
 
     // MARK: View
 
     var body: some View {
-        BitwardenMenuField(
-            title: field.title,
-            footer: field.footer,
-            accessibilityIdentifier: field.accessibilityIdentifier,
-            options: field.options,
-            selection: Binding(get: { field.selection }, set: action),
-            trailingContent: { trailingContent }
-        )
+        if let trailingContent {
+            BitwardenMenuField(
+                title: field.title,
+                footer: field.footer,
+                accessibilityIdentifier: field.accessibilityIdentifier,
+                options: field.options,
+                selection: Binding(get: { field.selection }, set: action),
+                trailingContent: { trailingContent }
+            )
+        } else {
+            BitwardenMenuField(
+                title: field.title,
+                footer: field.footer,
+                accessibilityIdentifier: field.accessibilityIdentifier,
+                options: field.options,
+                selection: Binding(get: { field.selection }, set: action)
+            )
+        }
     }
 
     // MARK: Initialization
@@ -102,7 +112,7 @@ struct FormMenuFieldView<State, T: Menuable, TrailingContent: View>: View {
     ) where TrailingContent == EmptyView {
         self.action = action
         self.field = field
-        trailingContent = EmptyView()
+        trailingContent = nil
     }
 
     /// Initialize a `FormMenuFieldView`.

@@ -119,9 +119,13 @@ struct GeneratorState: Equatable {
 
     /// The list of sections to display in the generator form.
     var formSections: [FormSection<Self>] {
-        let generatorFields = [generatedValueField(keyPath: \.generatedValue)]
+        let generatorGroup = FormSectionGroup(
+            fields: [generatedValueField(keyPath: \.generatedValue)],
+            id: "GeneratorGroup",
+            showInContentBlock: false
+        )
 
-        let optionFields: [FormField<Self>] = switch generatorType {
+        let optionGroups: [FormSectionGroup<Self>] = switch generatorType {
         case .passphrase:
             passphraseFormFields
         case .password:
@@ -132,13 +136,13 @@ struct GeneratorState: Equatable {
 
         return [
             FormSection(
-                fields: generatorFields,
+                groups: [generatorGroup],
                 id: "Generator",
                 title: nil
             ),
 
             FormSection<Self>(
-                fields: optionFields,
+                groups: optionGroups,
                 id: "Generator Options",
                 title: Localizations.options
             ),
@@ -220,111 +224,128 @@ struct GeneratorState: Equatable {
 extension GeneratorState {
     /// Returns the list of fields for the passphrase generator.
     ///
-    var passphraseFormFields: [FormField<Self>] {
+    var passphraseFormFields: [FormSectionGroup<Self>] {
         [
-            stepperField(
-                accessibilityId: "NumberOfWordsStepper",
-                keyPath: \.passwordState.numberOfWords,
-                range: 3 ... 20,
-                title: Localizations.numberOfWords
-            ),
-            textField(
-                accessibilityId: "WordSeparatorEntry",
-                keyPath: \.passwordState.wordSeparator,
-                title: Localizations.wordSeparator
-            ),
-            toggleField(
-                accessibilityId: "CapitalizePassphraseToggle",
-                isDisabled: policyOptions?.capitalize != nil,
-                keyPath: \.passwordState.capitalize,
-                title: Localizations.capitalize
-            ),
-            toggleField(
-                accessibilityId: "IncludeNumbersToggle",
-                isDisabled: policyOptions?.includeNumber != nil,
-                keyPath: \.passwordState.includeNumber,
-                title: Localizations.includeNumber
+            FormSectionGroup(
+                fields: [
+                    stepperField(
+                        accessibilityId: "NumberOfWordsStepper",
+                        keyPath: \.passwordState.numberOfWords,
+                        range: 3 ... 20,
+                        title: Localizations.numberOfWords
+                    ),
+                    textField(
+                        accessibilityId: "WordSeparatorEntry",
+                        keyPath: \.passwordState.wordSeparator,
+                        title: Localizations.wordSeparator
+                    ),
+                    toggleField(
+                        accessibilityId: "CapitalizePassphraseToggle",
+                        isDisabled: policyOptions?.capitalize != nil,
+                        keyPath: \.passwordState.capitalize,
+                        title: Localizations.capitalize
+                    ),
+                    toggleField(
+                        accessibilityId: "IncludeNumbersToggle",
+                        isDisabled: policyOptions?.includeNumber != nil,
+                        keyPath: \.passwordState.includeNumber,
+                        title: Localizations.includeNumber
+                    ),
+                ],
+                id: "PassphraseGroup"
             ),
         ]
     }
 
     /// Returns the list of fields for the password generator.
     ///
-    var passwordFormFields: [FormField<Self>] {
+    var passwordFormFields: [FormSectionGroup<Self>] {
         [
-            sliderField(
-                keyPath: \.passwordState.lengthDouble,
-                range: 5 ... 128,
-                sliderAccessibilityId: "PasswordLengthSlider",
-                sliderValueAccessibilityId: "PasswordLengthLabel",
-                title: Localizations.length,
-                step: 1
-            ),
-            toggleField(
-                accessibilityId: "UppercaseAtoZToggle",
-                accessibilityLabel: Localizations.uppercaseAtoZ,
-                isDisabled: policyOptions?.uppercase != nil,
-                keyPath: \.passwordState.containsUppercase,
-                title: "A-Z"
-            ),
-            toggleField(
-                accessibilityId: "LowercaseAtoZToggle",
-                accessibilityLabel: Localizations.lowercaseAtoZ,
-                isDisabled: policyOptions?.lowercase != nil,
-                keyPath: \.passwordState.containsLowercase,
-                title: "a-z"
-            ),
-            toggleField(
-                accessibilityId: "NumbersZeroToNineToggle",
-                accessibilityLabel: Localizations.numbersZeroToNine,
-                isDisabled: policyOptions?.number != nil,
-                keyPath: \.passwordState.containsNumbers,
-                title: "0-9"
-            ),
-            toggleField(
-                accessibilityId: "SpecialCharactersToggle",
-                accessibilityLabel: Localizations.specialCharacters,
-                isDisabled: policyOptions?.special != nil,
-                keyPath: \.passwordState.containsSpecial,
-                title: "!@#$%^&*"
-            ),
-            stepperField(
-                accessibilityId: "MinNumberValueLabel",
-                keyPath: \.passwordState.minimumNumber,
-                range: 0 ... 5,
-                title: Localizations.minNumbers
-            ),
-            stepperField(
-                accessibilityId: "MinSpecialValueLabel",
-                keyPath: \.passwordState.minimumSpecial,
-                range: 0 ... 5,
-                title: Localizations.minSpecial
-            ),
-            toggleField(
-                accessibilityId: "AvoidAmbiguousCharsToggle",
-                keyPath: \.passwordState.avoidAmbiguous,
-                title: Localizations.avoidAmbiguousCharacters
+            FormSectionGroup(
+                fields: [
+                    sliderField(
+                        keyPath: \.passwordState.lengthDouble,
+                        range: 5 ... 128,
+                        sliderAccessibilityId: "PasswordLengthSlider",
+                        sliderValueAccessibilityId: "PasswordLengthLabel",
+                        title: Localizations.length,
+                        step: 1
+                    ),
+                    toggleField(
+                        accessibilityId: "UppercaseAtoZToggle",
+                        accessibilityLabel: Localizations.uppercaseAtoZ,
+                        isDisabled: policyOptions?.uppercase != nil,
+                        keyPath: \.passwordState.containsUppercase,
+                        title: "A-Z"
+                    ),
+                    toggleField(
+                        accessibilityId: "LowercaseAtoZToggle",
+                        accessibilityLabel: Localizations.lowercaseAtoZ,
+                        isDisabled: policyOptions?.lowercase != nil,
+                        keyPath: \.passwordState.containsLowercase,
+                        title: "a-z"
+                    ),
+                    toggleField(
+                        accessibilityId: "NumbersZeroToNineToggle",
+                        accessibilityLabel: Localizations.numbersZeroToNine,
+                        isDisabled: policyOptions?.number != nil,
+                        keyPath: \.passwordState.containsNumbers,
+                        title: "0-9"
+                    ),
+                    toggleField(
+                        accessibilityId: "SpecialCharactersToggle",
+                        accessibilityLabel: Localizations.specialCharacters,
+                        isDisabled: policyOptions?.special != nil,
+                        keyPath: \.passwordState.containsSpecial,
+                        title: "!@#$%^&*"
+                    ),
+                    stepperField(
+                        accessibilityId: "MinNumberValueLabel",
+                        keyPath: \.passwordState.minimumNumber,
+                        range: 0 ... 5,
+                        title: Localizations.minNumbers
+                    ),
+                    stepperField(
+                        accessibilityId: "MinSpecialValueLabel",
+                        keyPath: \.passwordState.minimumSpecial,
+                        range: 0 ... 5,
+                        title: Localizations.minSpecial
+                    ),
+                    toggleField(
+                        accessibilityId: "AvoidAmbiguousCharsToggle",
+                        keyPath: \.passwordState.avoidAmbiguous,
+                        title: Localizations.avoidAmbiguousCharacters
+                    ),
+                ],
+                id: "PasswordGroup"
             ),
         ]
     }
 
     /// Returns the list of fields for the username generator.
     ///
-    var usernameFormFields: [FormField<Self>] {
-        var optionFields: [FormField<Self>] = [
-            FormField(fieldType: .menuUsernameGeneratorType(FormMenuField(
-                accessibilityIdentifier: "UsernameTypePicker",
-                footer: usernameState.usernameGeneratorType.localizedDescription,
-                keyPath: \.usernameState.usernameGeneratorType,
-                options: UsernameGeneratorType.allCases,
-                selection: usernameState.usernameGeneratorType,
-                title: Localizations.usernameType
-            ))),
-        ]
+    var usernameFormFields: [FormSectionGroup<Self>] {
+        var groups = [FormSectionGroup<Self>]()
+
+        groups.append(
+            FormSectionGroup(
+                fields: [
+                    FormField(fieldType: .menuUsernameGeneratorType(FormMenuField(
+                        accessibilityIdentifier: "UsernameTypePicker",
+                        footer: usernameState.usernameGeneratorType.localizedDescription,
+                        keyPath: \.usernameState.usernameGeneratorType,
+                        options: UsernameGeneratorType.allCases,
+                        selection: usernameState.usernameGeneratorType,
+                        title: Localizations.usernameType
+                    ))),
+                ],
+                id: "UsernameTypeGroup"
+            )
+        )
 
         switch usernameState.usernameGeneratorType {
         case .catchAllEmail:
-            optionFields.append(contentsOf: [
+            var fields = [
                 textField(
                     accessibilityId: "CatchAllEmailDomainEntry",
                     keyboardType: .URL,
@@ -332,28 +353,38 @@ extension GeneratorState {
                     textContentType: .URL,
                     title: Localizations.domainNameRequiredParenthesis
                 ),
-            ])
+            ]
 
             if let emailWebsite = usernameState.emailWebsite {
-                optionFields.append(contentsOf: [
+                fields.append(contentsOf: [
                     emailTypeField(keyPath: \.usernameState.catchAllEmailType),
                     FormField(fieldType: .emailWebsite(emailWebsite)),
                 ])
             }
-        case .forwardedEmail:
-            optionFields.append(FormField(fieldType: .menuUsernameForwardedEmailService(
-                FormMenuField(
-                    accessibilityIdentifier: "ServiceTypePicker",
-                    keyPath: \.usernameState.forwardedEmailService,
-                    options: ForwardedEmailServiceType.allCases,
-                    selection: usernameState.forwardedEmailService,
-                    title: Localizations.service
-                )
-            )))
 
+            groups.append(FormSectionGroup(fields: fields, id: "CatchAllEmailGroup"))
+        case .forwardedEmail:
+            groups.append(
+                FormSectionGroup(
+                    fields: [
+                        FormField(fieldType: .menuUsernameForwardedEmailService(
+                            FormMenuField(
+                                accessibilityIdentifier: "ServiceTypePicker",
+                                keyPath: \.usernameState.forwardedEmailService,
+                                options: ForwardedEmailServiceType.allCases,
+                                selection: usernameState.forwardedEmailService,
+                                title: Localizations.service
+                            )
+                        )),
+                    ],
+                    id: "ServiceTypeGroup"
+                )
+            )
+
+            var fields = [FormField<Self>]()
             switch usernameState.forwardedEmailService {
             case .addyIO:
-                optionFields.append(contentsOf: [
+                fields.append(contentsOf: [
                     textField(
                         accessibilityId: "ForwardedEmailApiSecretEntry",
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
@@ -368,7 +399,7 @@ extension GeneratorState {
                     ),
                 ])
             case .duckDuckGo:
-                optionFields.append(
+                fields.append(
                     textField(
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.duckDuckGoAPIKey,
@@ -376,7 +407,7 @@ extension GeneratorState {
                     )
                 )
             case .fastmail:
-                optionFields.append(
+                fields.append(
                     textField(
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.fastmailAPIKey,
@@ -384,7 +415,7 @@ extension GeneratorState {
                     )
                 )
             case .firefoxRelay:
-                optionFields.append(
+                fields.append(
                     textField(
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.firefoxRelayAPIAccessToken,
@@ -392,7 +423,7 @@ extension GeneratorState {
                     )
                 )
             case .forwardEmail:
-                optionFields.append(contentsOf: [
+                fields.append(contentsOf: [
                     textField(
                         accessibilityId: "ForwardedEmailApiSecretEntry",
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
@@ -407,7 +438,7 @@ extension GeneratorState {
                     ),
                 ])
             case .simpleLogin:
-                optionFields.append(
+                fields.append(
                     textField(
                         isPasswordVisibleKeyPath: \.usernameState.isAPIKeyVisible,
                         keyPath: \.usernameState.simpleLoginAPIKey,
@@ -415,8 +446,10 @@ extension GeneratorState {
                     )
                 )
             }
+
+            groups.append(FormSectionGroup(fields: fields, id: "ForwardedEmailGroup"))
         case .plusAddressedEmail:
-            optionFields.append(contentsOf: [
+            var fields = [
                 textField(
                     accessibilityId: "PlusAddressedEmailEntry",
                     keyboardType: .emailAddress,
@@ -424,31 +457,32 @@ extension GeneratorState {
                     textContentType: .emailAddress,
                     title: Localizations.emailRequiredParenthesis
                 ),
-            ])
+            ]
 
             if let emailWebsite = usernameState.emailWebsite {
-                optionFields.append(contentsOf: [
+                fields.append(contentsOf: [
                     emailTypeField(keyPath: \.usernameState.plusAddressedEmailType),
                     FormField(fieldType: .emailWebsite(emailWebsite)),
                 ])
             }
+
+            groups.append(FormSectionGroup(fields: fields, id: "PlusAddressedEmailGroup"))
         case .randomWord:
-            optionFields.append(
-                contentsOf: [
-                    toggleField(
-                        accessibilityId: "CapitalizeRandomWordUsernameToggle",
-                        keyPath: \.usernameState.capitalize,
-                        title: Localizations.capitalize
-                    ),
-                    toggleField(
-                        accessibilityId: "IncludeNumberRandomWordUsernameToggle",
-                        keyPath: \.usernameState.includeNumber,
-                        title: Localizations.includeNumber
-                    ),
-                ]
-            )
+            let fields = [
+                toggleField(
+                    accessibilityId: "CapitalizeRandomWordUsernameToggle",
+                    keyPath: \.usernameState.capitalize,
+                    title: Localizations.capitalize
+                ),
+                toggleField(
+                    accessibilityId: "IncludeNumberRandomWordUsernameToggle",
+                    keyPath: \.usernameState.includeNumber,
+                    title: Localizations.includeNumber
+                ),
+            ]
+            groups.append(FormSectionGroup(fields: fields, id: "RandomWordGroup"))
         }
 
-        return optionFields
+        return groups
     }
 }

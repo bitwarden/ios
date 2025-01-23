@@ -57,6 +57,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     typealias Services = HasAPIService
         & HasAuthRepository
         & HasCameraService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFido2UserInterfaceHelper
@@ -111,7 +112,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         self.coordinator = coordinator
         self.delegate = delegate
         self.services = services
-
         super.init(state: state)
 
         if !state.configuration.isAdding {
@@ -128,12 +128,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .appeared:
             await showPasswordAutofillAlertIfNeeded()
             await checkIfUserHasMasterPassword()
+            await checkLearnNewLoginActionCardEligibility()
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+        case .dismissNewLoginActionCard:
+            state.isLearnNewLoginActionCardEligible = false
+            await services.stateService.setLearnNewLoginActionCardStatus(.complete)
         case .fetchCipherOptions:
             await fetchCipherOptions()
         case .savePressed:
@@ -142,6 +146,11 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await setupTotp()
         case .deletePressed:
             await showSoftDeleteConfirmation()
+        case .showLearnNewLoginGuidedTour:
+            state.isLearnNewLoginActionCardEligible = false
+            await services.stateService.setLearnNewLoginActionCardStatus(.complete)
+            state.guidedTourViewState.currentIndex = 0
+            state.guidedTourViewState.showGuidedTour = true
         }
     }
 
@@ -174,6 +183,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             } else {
                 presentReplacementAlert(for: .username)
             }
+        case let .guidedTourViewAction(action):
+            state.guidedTourViewState.updateStateForGuidedTourViewAction(action)
         case let .identityFieldChanged(action):
             updateIdentityState(&state, for: action)
         case let .masterPasswordRePromptChanged(newValue):
@@ -467,6 +478,16 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             state.identityState.postalCode = postalCode
         case let .countryChanged(country):
             state.identityState.country = country
+        }
+    }
+
+    /// Checks the eligibility of the Learn New Login action card.
+    ///
+    private func checkLearnNewLoginActionCardEligibility() async {
+        if await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
+           appExtensionDelegate == nil {
+            state.isLearnNewLoginActionCardEligible = await services.stateService
+                .getLearnNewLoginActionCardStatus() == .incomplete
         }
     }
 

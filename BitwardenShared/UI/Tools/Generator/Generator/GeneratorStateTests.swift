@@ -836,7 +836,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func dumpFormSections(_ sections: [GeneratorState.FormSection<GeneratorState>]) -> String {
         sections.reduce(into: "") { result, section in
             result.append("Section: \(section.title ?? "(empty)")\n")
-            result.append(dumpFormItems(section.fields, indent: "  "))
+            result.append(dumpFormItems(section.groups.flatMap(\.fields), indent: "  "))
             if section != sections.last {
                 result.append("\n")
             }

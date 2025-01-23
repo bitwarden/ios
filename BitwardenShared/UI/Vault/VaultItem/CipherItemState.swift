@@ -58,11 +58,23 @@ struct CipherItemState: Equatable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>]
 
+    /// The state for guided tour view.
+    var guidedTourViewState = GuidedTourViewState(
+        guidedTourStepStates: [
+            .loginStep1,
+            .loginStep2,
+            .loginStep3,
+        ]
+    )
+
     /// The state for a identity type item.
     var identityState: IdentityItemState
 
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool
+
+    /// If account is eligible for  Learn New Login Action Card.
+    var isLearnNewLoginActionCardEligible: Bool = false
 
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool
@@ -158,6 +170,11 @@ struct CipherItemState: Equatable {
             organizationId = newValue?.organizationId
             collectionIds = []
         }
+    }
+
+    /// The flag indicating if we should show the learn new login action card.
+    var shouldShowLearnNewLoginActionCard: Bool {
+        isLearnNewLoginActionCardEligible && configuration == .add && type == .login
     }
 
     /// The view state of the item.
