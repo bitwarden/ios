@@ -9,13 +9,14 @@ final class KeyboardResponder: ObservableObject {
     /// Whether the keyboard is shown.
     @Published var isShown: Bool = false
 
-    /// A publisher when the keyboard will show.
-    var keyboardWillShowNotification = NotificationCenter.default.publisher(
-        for: UIResponder.keyboardWillShowNotification
-    )
     /// A publisher when the keyboard will hide.
     var keyboardWillHideNotification = NotificationCenter.default.publisher(
         for: UIResponder.keyboardWillHideNotification
+    )
+
+    /// A publisher when the keyboard will show.
+    var keyboardWillShowNotification = NotificationCenter.default.publisher(
+        for: UIResponder.keyboardWillShowNotification
     )
 
     // MARK: Private properties
@@ -27,14 +28,14 @@ final class KeyboardResponder: ObservableObject {
     
     /// Initializes a `KeyboardResponder`.
     init() {
-        keyboardWillShowNotification.map { notification in
-            true
+        keyboardWillHideNotification.map { _ in
+            false
         }
         .assign(to: \.isShown, on: self)
         .store(in: &cancellableSet)
 
-        keyboardWillHideNotification.map { _ in
-            false
+        keyboardWillShowNotification.map { notification in
+            true
         }
         .assign(to: \.isShown, on: self)
         .store(in: &cancellableSet)
