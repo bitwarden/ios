@@ -71,6 +71,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(subject.buildCiphersToExportSummary(from: []).isEmpty)
     }
 
+    #if SUPPORTS_CXP
+
     /// `exportCredentials(data:presentationAnchor:)` exports the credential data.
     @MainActor
     func test_exportCredentials() async throws {
@@ -100,6 +102,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         }
     }
 
+    #endif
+
     /// `getAllCiphersToExportCXF()` fetches all ciphers filtering the deleted ones out.
     func test_getAllCiphersToExportCXF() async throws {
         cipherService.fetchAllCiphersResult = .success([
@@ -122,6 +126,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             _ = try await subject.getAllCiphersToExportCXF()
         }
     }
+
+    #if SUPPORTS_CXP
 
     /// `getExportVaultDataForCXF()` gets the vault data prepared for export on CXF.
     @MainActor
@@ -235,4 +241,6 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             _ = try await subject.getExportVaultDataForCXF()
         }
     }
+
+    #endif
 }

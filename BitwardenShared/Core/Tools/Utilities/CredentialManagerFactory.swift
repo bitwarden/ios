@@ -44,8 +44,28 @@ protocol CredentialImportManager: AnyObject {
 // This section is needed for compiling the project on Xcode version < 16.2
 // and to ease unit testing.
 
+#if SUPPORTS_CXP
+
 @available(iOS 18.2, *)
 extension ASCredentialExportManager: CredentialExportManager {}
 
 @available(iOS 18.2, *)
 extension ASCredentialImportManager: CredentialImportManager {}
+
+#else
+
+class ASCredentialImportManager: CredentialImportManager {
+    func importCredentials(token: UUID) async throws -> ASExportedCredentialData {
+        ASExportedCredentialData()
+    }
+}
+
+class ASCredentialExportManager: CredentialExportManager {
+    init(presentationAnchor: ASPresentationAnchor) {}
+
+    func exportCredentials(_ credentialData: ASExportedCredentialData) async throws {}
+}
+
+struct ASExportedCredentialData {}
+
+#endif

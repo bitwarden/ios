@@ -73,10 +73,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 appProcessor.handleAppLinks(incomingURL: incomingURL)
             }
 
+            #if SUPPORTS_CXP
+
             if #available(iOS 18.2, *),
                let userActivity = connectionOptions.userActivities.first {
                 await checkAndHandleCredentialExchangeActivity(appProcessor: appProcessor, userActivity: userActivity)
             }
+
+            #endif
         }
     }
 
@@ -93,11 +97,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             appProcessor.handleAppLinks(incomingURL: incomingURL)
         }
 
+        #if SUPPORTS_CXP
+
         if #available(iOS 18.2, *) {
             Task {
                 await checkAndHandleCredentialExchangeActivity(appProcessor: appProcessor, userActivity: userActivity)
             }
         }
+
+        #endif
     }
 
     func scene(_ scene: UIScene, openURLContexts urlContexts: Set<UIOpenURLContext>) {
@@ -174,6 +182,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 // MARK: - SceneDelegate 18.2
 
+#if SUPPORTS_CXP
+
 @available(iOS 18.2, *)
 extension SceneDelegate {
     /// Checks  whether there is an `ASCredentialExchangeActivity` in the `userActivity` and handles it.
@@ -192,3 +202,5 @@ extension SceneDelegate {
         await appProcessor.handleImportCredentials(credentialImportToken: token)
     }
 }
+
+#endif
