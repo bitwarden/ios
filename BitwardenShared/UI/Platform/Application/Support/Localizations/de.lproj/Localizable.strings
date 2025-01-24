@@ -67,6 +67,9 @@
 "Tools" = "Werkzeuge";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Fingerabdruck zum Entsperren nutzen";
+"UseThisButtonToGenerateANewUniquePassword" = "Verwende diesen Button, um ein neues, einzigartiges Passwort zu generieren.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Du musst den Authentifizierungsschlüssel nur für Zugangsdaten einrichten, die eine zwei-Faktor-Authentifizierung mit einem Code erfordern. Der Schlüssel generiert kontinuierlich sechsstellige Codes, mit denen du dich anmelden kannst.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Du musst eine Webseiten-Adresse hinzufügen, um automatisches Ausfüllen für den Zugriff auf dieses Konto benutzen zu können.";
 "Username" = "Nutzername";
 "ValidationFieldRequired" = "Das Feld %1$@ ist ein Pflichtfeld.";
 "ValueHasBeenCopied" = "%1$@ kopiert";
@@ -79,6 +82,7 @@
 "Website" = "Webseite";
 "Yes" = "Ja";
 "Account" = "Benutzerkonto";
+"StepOfStep" = "%1$d VON %2$d";
 "AccountCreated" = "Dein neues Konto wurde erstellt! Du kannst dich jetzt anmelden.";
 "AddAnItem" = "Neuer Eintrag";
 "AppExtension" = "App-Erweiterung";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Möglicherweise passende Einträge";
 "Search" = "Durchsuchen";
 "BitwardenAutofillServiceSearch" = "Du suchst nach einem Eintrag zum automatischen Ausfüllen für \"%1$@\".";
+"LearnAboutNewLogins" = "Erfahre mehr über neue Zugangsdaten";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Wir führen dich durch die wichtigsten Funktionen zum Hinzufügen neuer Zugangsdaten.";
 "LearnOrg" = "Mehr über Organisationen erfahren";
 "CannotOpenApp" = "Die App \"%1$@\" kann nicht geöffnet werden.";
 "AuthenticatorAppTitle" = "Authenticator App";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Alle Sends";
 "Sends" = "Sends";
-"NameInfo" = "Ein eigener Name, um dieses Send zu beschreiben.";
 "Text" = "Text";
 "TypeText" = "Text";
-"TypeTextInfo" = "Der Text, den du senden möchtest.";
 "HideTextByDefault" = "Beim Zugriff auf diesen Send den Text standardmäßig ausblenden";
 "TypeFile" = "Datei";
 "FileTypeIsSelected" = "Dateityp ist ausgewählt.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Etwas ist schiefgelaufen";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Der ausgewählte Eintrag konnte nicht verschoben werden. Bitte versuche es erneut.";
 "Done" = "Fertig";
+"Next" = "Weiter";
 "CopyPublicKey" = "Öffentlichen Schlüssel kopieren";
 "CopyPrivateKey" = "Privaten Schlüssel kopieren";
 "CopyFingerprint" = "Fingerabdruck kopieren";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Fehler beim automatischen Ausfüllen des Eintrags %1$@";
 "ExportingFailed" = "Exportieren fehlgeschlagen";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Möglicherweise musst du Gerätecodes oder Biometrie aktivieren.";
-"StartImportCXPDescriptionLong" = "Importiere Passwörter, Passkeys, Kreditkarten und sämtliche persönlichen Informationen zur Identität von einem anderen Passwort-Manager.\n\nDeine Daten werden von deinem vorherigen Anbieter **nicht** gelöscht.";
+"StartImportCXFDescriptionLong" = "Importiere Passwörter, Passkeys, Kreditkarten und sämtliche persönlichen Informationen zur Identität von einem anderen Passwort-Manager.\n\nDeine Daten werden von deinem vorherigen Anbieter **nicht** gelöscht.";
 "ImportPasswords" = "Passwörter importieren";
 "ImportingEllipsis" = "Wird importiert...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Bist du sicher, dass du den Importvorgang abbrechen möchtest?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Tresor in eine andere App exportieren";
 "ExportItems" = "Einträge exportieren";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Exportiere Passwörter, Passkeys, Kreditkarten und alle persönlichen Identitätsinformationen.";
-"ExportOptions" = "Export-Optionen";
-"ExportAllItems" = "Alle Einträge exportieren (%1$@)";
-"ExportSelectedItems" = "Ausgewählte Einträge exportieren";
-"SelectedItems" = "Ausgewählte Einträge";
 "RetryExport" = "Export wiederholen";
 "ExportFailed" = "Export fehlgeschlagen";
 "ThereHasBeenAnIssueExportingItems" = "Es gab ein Problem beim Exportieren von Einträgen.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Bist du sicher, dass du den Exportvorgang abbrechen möchtest?";
 "PleaseDoNotCloseTheApp" = "Bitte die App nicht schließen.";
+"ThisIsTakingLongerThanExpected" = "Das dauert länger als erwartet";
+"ItemsToExport" = "Zu exportierende Einträge";
+"TextToShare" = "Zu teilender Text";
+"SendDetails" = "Send-Details";
+"SendNameRequired" = "Send-Name (erforderlich)";

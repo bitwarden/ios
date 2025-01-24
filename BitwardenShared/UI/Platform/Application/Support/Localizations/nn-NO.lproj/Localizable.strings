@@ -67,6 +67,9 @@
 "Tools" = "Verktøy";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Lås opp med fingeravtrykk";
+"UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Brukarnamn";
 "ValidationFieldRequired" = "Feltet %1$@ er påkravt.";
 "ValueHasBeenCopied" = "%1$@ er skriven av.";
@@ -79,6 +82,7 @@
 "Website" = "Nettstad";
 "Yes" = "Ja";
 "Account" = "Konto";
+"StepOfStep" = "%1$d OF %2$d";
 "AccountCreated" = "Den nye kontoen din er laga! Du kan no skriva deg inn.";
 "AddAnItem" = "Legg til ei oppføring";
 "AppExtension" = "App-utviding";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Moglege samsvarande oppføringar";
 "Search" = "Leita";
 "BitwardenAutofillServiceSearch" = "Du leitar etter ei sjølvutfyllande oppføring for \"%1$@\".";
+"LearnAboutNewLogins" = "Learn about new logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Lær om samskipnader";
 "CannotOpenApp" = "Kan ikkje opne appen \"%1$@\".";
 "AuthenticatorAppTitle" = "Authenticator app";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Alle Send-ar";
 "Sends" = "Send-ar";
-"NameInfo" = "Eit venleg namn for å skildra denne Send-en.";
 "Text" = "Tekst";
 "TypeText" = "Tekst";
-"TypeTextInfo" = "Teksten du vil senda.";
 "HideTextByDefault" = "Gøym teksten til vanleg ved bruk av denne Send-en";
 "TypeFile" = "Fil";
 "FileTypeIsSelected" = "Filtype er vald.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
+"Next" = "Next";
 "CopyPublicKey" = "Kopier offentleg nøkkel";
 "CopyPrivateKey" = "Kopier privat nøkkel";
 "CopyFingerprint" = "Kopier fingeravtrykk";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
-"StartImportCXPDescriptionLong" = "Importer passord, passnøklar, kredittkort, og all personleg identitetsinformasjon frå ein annan passordbehandlar.\n\nDine data vil **ikkje** bli sletta frå din tidlegare leverandør.";
+"StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Importer passord";
 "ImportingEllipsis" = "Importerer...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Er du sikker på at du vil avbryte importprosessen?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Export vault to another app";
 "ExportItems" = "Export items";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
-"ExportOptions" = "Export options";
-"ExportAllItems" = "Export all items (%1$@)";
-"ExportSelectedItems" = "Export selected items";
-"SelectedItems" = "Selected items";
 "RetryExport" = "Retry export";
 "ExportFailed" = "Export failed";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
 "PleaseDoNotCloseTheApp" = "Please do not close the app.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Items to export";
+"TextToShare" = "Text to share";
+"SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";
