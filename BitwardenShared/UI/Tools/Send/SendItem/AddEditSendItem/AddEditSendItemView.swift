@@ -326,12 +326,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             ))
             .accessibilityIdentifier("SendHideEmailSwitch")
             .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
-
-            BitwardenToggle(Localizations.disableSend, isOn: store.binding(
-                get: \.isDeactivateThisSendOn,
-                send: AddEditSendItemAction.deactivateThisSendChanged
-            ))
-            .accessibilityIdentifier("SendDeactivateSwitch")
         }
     }
 

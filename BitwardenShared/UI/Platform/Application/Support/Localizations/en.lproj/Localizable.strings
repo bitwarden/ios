@@ -575,7 +575,6 @@
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
 "SendPasswordRemoved" = "Password has been removed.";
-"DisableSend" = "Deactivate this Send so that no one can access it";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "Copy link";
 "ShareLink" = "Share link";
