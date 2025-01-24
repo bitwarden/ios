@@ -106,7 +106,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
                             )
                     }
 
-                    Text(selection.localizedName)
+                    Text(selection.localizedName).accessibilityIdentifier("DropdownSelectedValueLabel")
                 }
                 .multilineTextAlignment(.leading)
                 .fixedSize(horizontal: false, vertical: true)
