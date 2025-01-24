@@ -74,7 +74,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
         credentialImportToken: UUID,
         onProgress: @MainActor (Double) -> Void
     ) async throws -> [CXFCredentialsResult] {
-        #if compiler(>=6.0.3)
+        #if SUPPORTS_CXP
 
         let credentialData = try await credentialManagerFactory.createImportManager().importCredentials(
             token: credentialImportToken
@@ -84,7 +84,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
             throw ImportCiphersRepositoryError.noDataFound
         }
 
-        let accountJsonData = try JSONEncoder.cxpEncoder.encode(accountData)
+        let accountJsonData = try JSONEncoder.cxfEncoder.encode(accountData)
         guard let accountJsonString = String(data: accountJsonData, encoding: .utf8) else {
             // this should never happen.
             throw ImportCiphersRepositoryError.dataEncodingFailed

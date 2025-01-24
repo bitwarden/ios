@@ -22,9 +22,10 @@ struct CircularActivityIndicator: View {
                 .trim(from: 0, to: 0.65)
                 .stroke(Asset.Colors.strokeBorder.swiftUIColor, style: strokeStyle)
                 .rotationEffect(Angle(degrees: isSpinning ? 360 : 0))
-                .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: isSpinning)
                 .onAppear {
-                    isSpinning = true
+                    withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
+                        isSpinning = true
+                    }
                 }
         }
         .frame(width: 56, height: 56)

@@ -13,7 +13,7 @@ struct DeleteAccountView: View {
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
+        VStack(alignment: .leading, spacing: 16) {
             if store.state.shouldPreventUserFromDeletingAccount {
                 preventAccountDeletionSection
             } else {
@@ -21,7 +21,7 @@ struct DeleteAccountView: View {
             }
         }
         .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
-        .scrollView()
+        .scrollView(padding: 12)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
@@ -32,20 +32,31 @@ struct DeleteAccountView: View {
         }
     }
 
-    /// The other section.
-    private var deleteAccountSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    /// This section is shown when the account can be deleted.
+    @ViewBuilder var deleteAccountSection: some View {
+        HStack(spacing: 12) {
             Image(asset: Asset.Images.warning24)
                 .foregroundColor(Color(asset: Asset.Colors.error))
 
-            Text(Localizations.deletingYourAccountIsPermanent)
-                .foregroundColor(Color(asset: Asset.Colors.error))
-                .styleGuide(.headline, weight: .semibold)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Localizations.deletingYourAccountIsPermanent)
+                    .foregroundColor(Color(asset: Asset.Colors.error))
+                    .styleGuide(
+                        .headline,
+                        weight: .semibold,
+                        includeLinePadding: false,
+                        includeLineSpacing: false
+                    )
 
-            Text(Localizations.deleteAccountExplanation)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .styleGuide(.subheadline)
+                Text(Localizations.deleteAccountExplanation)
+                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                    .styleGuide(.subheadline)
+            }
+        }
+        .padding(12)
+        .contentBlock()
 
+        VStack(spacing: 12) {
             AsyncButton(Localizations.deleteAccount) {
                 await store.perform(.deleteAccount)
             }
@@ -62,20 +73,31 @@ struct DeleteAccountView: View {
         }
     }
 
-    /// The other section.
-    private var preventAccountDeletionSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    /// This section is shown when the account can't be deleted.
+    @ViewBuilder var preventAccountDeletionSection: some View {
+        HStack(spacing: 12) {
             Image(asset: Asset.Images.circleX16)
                 .foregroundColor(Color(asset: Asset.Colors.error))
 
-            Text(Localizations.cannotDeleteAccount)
-                .foregroundColor(Color(asset: Asset.Colors.error))
-                .styleGuide(.headline, weight: .semibold)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Localizations.cannotDeleteAccount)
+                    .foregroundColor(Color(asset: Asset.Colors.error))
+                    .styleGuide(
+                        .headline,
+                        weight: .semibold,
+                        includeLinePadding: false,
+                        includeLineSpacing: false
+                    )
 
-            Text(Localizations.cannotDeleteAccountDescription)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .styleGuide(.subheadline)
+                Text(Localizations.cannotDeleteAccountDescription)
+                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                    .styleGuide(.subheadline)
+            }
+        }
+        .padding(12)
+        .contentBlock()
 
+        VStack(spacing: 12) {
             Button {
                 store.send(.dismiss)
             } label: {

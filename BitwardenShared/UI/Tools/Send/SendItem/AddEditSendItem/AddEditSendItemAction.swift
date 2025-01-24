@@ -11,9 +11,6 @@ enum AddEditSendItemAction: Equatable {
     /// The clear expiration date button was pressed.
     case clearExpirationDatePressed
 
-    /// The custom deletion date was changed.
-    case customDeletionDateChanged(Date)
-
     /// The custom expiration date was changed.
     case customExpirationDateChanged(Date?)
 

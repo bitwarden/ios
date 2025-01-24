@@ -4,13 +4,14 @@ set -euo pipefail
 
 mint bootstrap
 
-mint run xcodegen xcodegen
+# Handle script being called from repo root or Scripts folder
+script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+repo_root=$(dirname "$script_dir")
+
+mint run xcodegen --spec "$repo_root/project-pm.yml"
 echo "✅ Bootstrapped!"
 
 # Check Xcode version matches .xcode-version
-# handle script being called from repo root or Scripts folder
-script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-repo_root=$(dirname "$script_dir")
 xcode_version_file="$repo_root/.xcode-version"
 
 if [ ! -f "$xcode_version_file" ]; then
@@ -19,7 +20,8 @@ if [ ! -f "$xcode_version_file" ]; then
 fi
 
 required_version=$(cat "$xcode_version_file")
-current_version=$(system_profiler SPDeveloperToolsDataType | grep "Xcode:" | awk '{print $2}')
+xcode_line=$(xcodebuild -version 2>/dev/null || system_profiler SPDeveloperToolsDataType | grep "Xcode:")
+current_version=$(echo "$xcode_line" | head -n 1 | awk '{print $2}')
 if [ -z "$current_version" ]; then
     echo "❌ Could not determine current Xcode version. Is Xcode installed?"
     exit 1

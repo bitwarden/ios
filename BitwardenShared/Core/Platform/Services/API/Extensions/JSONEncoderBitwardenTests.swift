@@ -5,9 +5,9 @@ import XCTest
 class JSONEncoderBitwardenTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `JSONEncoder.cxpEncoder` encodes for Credential Exchange Format.
+    /// `JSONEncoder.cxfEncoder` encodes for Credential Exchange Format.
     func test_cxfpEncoder_encodesISO8601DateWithFractionalSeconds() throws {
-        let subject = JSONEncoder.cxpEncoder
+        let subject = JSONEncoder.cxfEncoder
         subject.outputFormatting = .sortedKeys // added for test consistency so output is ordered.
 
         struct JSONBody: Codable {

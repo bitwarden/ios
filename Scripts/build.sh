@@ -6,7 +6,7 @@
 #
 # Usage:
 #
-#   $ ./build.sh <build_mode>
+#   $ ./Scripts/build.sh <build_mode>
 #
 # Where mode is one of:
 #   - Device: Build for physical iOS devices
@@ -38,7 +38,7 @@ echo "🧱 Export path ${bold}${EXPORT_PATH}${normal}"
 echo ""
 
 echo "🌱 Generating Xcode project"
-mint run xcodegen
+mint run xcodegen --spec "project-pm.yml"
 echo ""
 
 mkdir -p "${BUILD_DIR}"

@@ -29,19 +29,17 @@ struct GeneratorView: View {
 
             Divider()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    if store.state.isPolicyInEffect {
-                        InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
-                            .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
-                    }
-
-                    ForEach(store.state.formSections) { section in
-                        sectionView(section)
-                    }
+            VStack(alignment: .leading, spacing: 24) {
+                if store.state.isPolicyInEffect {
+                    InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
+                        .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
                 }
-                .padding(16)
+
+                ForEach(store.state.formSections) { section in
+                    sectionView(section)
+                }
             }
+            .scrollView(padding: 12)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
@@ -88,52 +86,60 @@ struct GeneratorView: View {
     ///
     @ViewBuilder
     func sectionView(_ section: GeneratorState.FormSection<GeneratorState>) -> some View {
-        if let title = section.title {
-            Text(title.uppercased())
-                .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityAddTraits(.isHeader)
+        VStack(spacing: 8) {
+            ForEach(section.groups) { group in
+                if group.showInContentBlock {
+                    ContentBlock(dividerLeadingPadding: 16) {
+                        groupView(group)
+                    }
+                } else {
+                    groupView(group)
+                }
+            }
         }
+    }
 
-        VStack(spacing: 12) {
-            ForEach(section.fields) { field in
-                switch field.fieldType {
-                case let .emailWebsite(website):
-                    emailWebsiteView(website: website)
-                case let .generatedValue(generatedValueField):
-                    generatedValueView(field: generatedValueField)
-                case let .menuEmailType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.emailTypeChanged(newValue))
-                    }
-                case let .menuUsernameForwardedEmailService(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.usernameForwardedEmailServiceChanged(newValue))
-                    }
-                case let .menuUsernameGeneratorType(menuField):
-                    menuUsernameGeneratorTypeView(field: menuField)
-                case let .slider(sliderField):
-                    SliderFieldView(field: sliderField) { isEditing in
-                        store.send(.sliderEditingChanged(field: sliderField, isEditing: isEditing))
-                    } onValueChanged: { newValue in
-                        store.send(.sliderValueChanged(field: sliderField, value: newValue))
-                    }
-                case let .stepper(stepperField):
-                    StepperFieldView(field: stepperField) { newValue in
-                        store.send(.stepperValueChanged(field: stepperField, value: newValue))
-                    }
-                case let .text(textField):
-                    FormTextFieldView(field: textField) { newValue in
-                        store.send(.textValueChanged(field: textField, value: newValue))
-                    } isPasswordVisibleChangedAction: { newValue in
-                        store.send(.textFieldIsPasswordVisibleChanged(field: textField, value: newValue))
-                    }
-                    .focused($focusedFieldKeyPath, equals: textField.keyPath)
-                case let .toggle(toggleField):
-                    ToggleFieldView(field: toggleField) { isOn in
-                        store.send(.toggleValueChanged(field: toggleField, isOn: isOn))
-                    }
+    /// Returns a view for displaying a group of items within a section of the form.
+    ///
+    /// - Parameter group: The group of items to display.
+    ///
+    func groupView(_ group: GeneratorState.FormSectionGroup<GeneratorState>) -> some View {
+        ForEach(group.fields) { field in
+            switch field.fieldType {
+            case let .emailWebsite(website):
+                emailWebsiteView(website: website)
+            case let .generatedValue(generatedValueField):
+                generatedValueView(field: generatedValueField)
+            case let .menuEmailType(menuField):
+                FormMenuFieldView(field: menuField) { newValue in
+                    store.send(.emailTypeChanged(newValue))
+                }
+            case let .menuUsernameForwardedEmailService(menuField):
+                FormMenuFieldView(field: menuField) { newValue in
+                    store.send(.usernameForwardedEmailServiceChanged(newValue))
+                }
+            case let .menuUsernameGeneratorType(menuField):
+                menuUsernameGeneratorTypeView(field: menuField)
+            case let .slider(sliderField):
+                SliderFieldView(field: sliderField) { isEditing in
+                    store.send(.sliderEditingChanged(field: sliderField, isEditing: isEditing))
+                } onValueChanged: { newValue in
+                    store.send(.sliderValueChanged(field: sliderField, value: newValue))
+                }
+            case let .stepper(stepperField):
+                StepperFieldView(field: stepperField) { newValue in
+                    store.send(.stepperValueChanged(field: stepperField, value: newValue))
+                }
+            case let .text(textField):
+                FormTextFieldView(field: textField) { newValue in
+                    store.send(.textValueChanged(field: textField, value: newValue))
+                } isPasswordVisibleChangedAction: { newValue in
+                    store.send(.textFieldIsPasswordVisibleChanged(field: textField, value: newValue))
+                }
+                .focused($focusedFieldKeyPath, equals: textField.keyPath)
+            case let .toggle(toggleField):
+                ToggleFieldView(field: toggleField) { isOn in
+                    store.send(.toggleValueChanged(field: toggleField, isOn: isOn))
                 }
             }
         }
@@ -163,14 +169,6 @@ struct GeneratorView: View {
                 .accessibilityIdentifier("GeneratedPasswordLabel")
         } accessoryContent: {
             AccessoryButton(
-                asset: Asset.Images.copy24,
-                accessibilityLabel: Localizations.copyPassword,
-                accessibilityIdentifier: "CopyValueButton"
-            ) {
-                store.send(.copyGeneratedValue)
-            }
-
-            AccessoryButton(
                 asset: Asset.Images.generate24,
                 accessibilityLabel: Localizations.generatePassword,
                 accessibilityIdentifier: "RegenerateValueButton"
@@ -178,6 +176,13 @@ struct GeneratorView: View {
                 store.send(.refreshGeneratedValue)
             }
         }
+
+        Button(Localizations.copy) {
+            store.send(.copyGeneratedValue)
+        }
+        .buttonStyle(.primary())
+        .accessibilityIdentifier("CopyValueButton")
+        .accessibilityLabel(Localizations.copyPassword)
     }
 
     /// Returns a view for displaying a menu for selecting the username type

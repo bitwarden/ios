@@ -20,7 +20,7 @@ struct LoadingOverlayView: View {
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor.opacity(0.9).ignoresSafeArea())
     }
 }
 
