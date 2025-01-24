@@ -1,3 +1,4 @@
+#if SUPPORTS_CXP
 import AuthenticationServices
 import XCTest
 
@@ -252,3 +253,4 @@ class ImportCiphersRepositoryTests: BitwardenTestCase {
         return credentialDataJsonString
     }
 }
+#endif

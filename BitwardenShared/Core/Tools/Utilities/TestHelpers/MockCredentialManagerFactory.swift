@@ -1,3 +1,4 @@
+#if SUPPORTS_CXP
 import AuthenticationServices
 import BitwardenSdk
 
@@ -64,3 +65,4 @@ class MockCredentialImportManager: CredentialImportManager {
         )
     }
 }
+#endif

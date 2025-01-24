@@ -88,8 +88,6 @@ class AddEditSendItemProcessor:
             presentFileSelectionAlert()
         case .clearExpirationDatePressed:
             state.customExpirationDate = nil
-        case let .customDeletionDateChanged(newValue):
-            state.customDeletionDate = newValue
         case let .customExpirationDateChanged(newValue):
             state.customExpirationDate = newValue
         case let .deactivateThisSendChanged(newValue):

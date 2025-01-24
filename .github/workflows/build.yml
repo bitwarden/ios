@@ -146,14 +146,16 @@ jobs:
           name: version-info
           path: version-info/version_info.json
 
-      - name: Read default Xcode version
+      - name: Read Xcode version from file if not provided
         run: |
-          echo "_DEFAULT_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+          if [ -z "$_XCODE_VERSION" ]; then
+            echo "_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
+          fi
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
-          xcode-version: ${{ env._XCODE_VERSION || env._DEFAULT_XCODE_VERSION }}
+          xcode-version: ${{ env._XCODE_VERSION }}
 
       - name: Cache Mint packages
         id: mint-cache
@@ -387,7 +389,7 @@ jobs:
       - name: Upload artifacts to GitHub
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env._BUILD_VARIANT }} ${{ env._XCODE_VERSION || env.DEFAULT_XCODE_VERSION }} ${{ env._BUILD_MODE }} ${{ env._COMPILER_FLAGS }}
+          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env._BUILD_VARIANT }} ${{ env._XCODE_VERSION }} ${{ env._BUILD_MODE }} ${{ env._COMPILER_FLAGS }}
           path: export
           if-no-files-found: error
 
@@ -413,8 +415,8 @@ jobs:
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
-          Xcode ${{ env._XCODE_VERSION }}
-          Compiler Flags: ${{ inputs.compiler-flags }}
+          Xcode $_XCODE_VERSION
+          Compiler Flags: $_COMPILER_FLAGS
           $_GITHUB_ACTION_RUN_URL"
 
           fastlane upload_build \

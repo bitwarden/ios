@@ -1,4 +1,6 @@
+#if SUPPORTS_CXP
 import AuthenticationServices
+#endif
 import XCTest
 
 @testable import BitwardenShared
