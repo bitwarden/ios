@@ -5,9 +5,23 @@ import SwiftUI
 /// The style for a borderless button in this application.
 ///
 struct BitwardenBorderlessButtonStyle: ButtonStyle {
+    // MARK: Properties
+
+    /// A value indicating whether the button is currently enabled or disabled.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
+    /// The color of the foreground elements, including text and template images.
+    var foregroundColor: Color {
+        isEnabled
+            ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
+            : Asset.Colors.buttonOutlinedDisabledForeground.swiftUIColor
+    }
+
+    // MARK: ButtonStyle
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundStyle(foregroundColor)
             .padding(.vertical, 14)
             .styleGuide(.subheadlineSemibold)
             .opacity(configuration.isPressed ? 0.5 : 1)
@@ -28,8 +42,11 @@ extension ButtonStyle where Self == BitwardenBorderlessButtonStyle {
 
 #if DEBUG
 #Preview() {
-    Button {} label: {
-        Text("Bitwarden")
+    VStack {
+        Button("Bitwarden") {}
+
+        Button("Bitwarden") {}
+            .disabled(true)
     }
     .buttonStyle(.bitwardenBorderless)
 }
