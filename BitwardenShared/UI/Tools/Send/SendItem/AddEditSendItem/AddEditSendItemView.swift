@@ -307,6 +307,15 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
         .textFieldConfiguration(.password)
 
+        ContentBlock(dividerLeadingPadding: 16) {
+            BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
+                get: \.isHideMyEmailOn,
+                send: AddEditSendItemAction.hideMyEmailChanged
+            ))
+            .accessibilityIdentifier("SendHideEmailSwitch")
+            .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
+        }
+
         BitwardenField(title: Localizations.privateNote) {
             BitwardenUITextView(
                 text: store.binding(
@@ -317,15 +326,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             )
             .frame(minHeight: notesDynamicHeight)
             .accessibilityLabel(Localizations.notes)
-        }
-
-        ContentBlock(dividerLeadingPadding: 16) {
-            BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
-                get: \.isHideMyEmailOn,
-                send: AddEditSendItemAction.hideMyEmailChanged
-            ))
-            .accessibilityIdentifier("SendHideEmailSwitch")
-            .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
         }
     }
 
