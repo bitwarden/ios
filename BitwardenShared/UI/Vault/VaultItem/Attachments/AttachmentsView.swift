@@ -149,7 +149,17 @@ struct AttachmentsView: View {
     }
 }
 
-#Preview("Attachments") {
+#Preview("Attachment Selected") {
+    NavigationView {
+        AttachmentsView(store: Store(processor: StateProcessor(
+            state: AttachmentsState(
+                fileName: "photo.jpg"
+            )
+        )))
+    }
+}
+
+#Preview("Existing Attachments") {
     NavigationView {
         AttachmentsView(
             store: Store(

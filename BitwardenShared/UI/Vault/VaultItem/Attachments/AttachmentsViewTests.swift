@@ -88,6 +88,20 @@ class AttachmentsViewTests: BitwardenTestCase {
         )
     }
 
+    /// The view with a selected attachment renders correctly.
+    @MainActor
+    func test_snapshot_attachments_selected() {
+        processor.state.fileName = "photo.jpg"
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .defaultPortraitAX5,
+            ]
+        )
+    }
+
     /// The view with several attachments renders correctly in dark mode.
     @MainActor
     func test_snapshot_attachments_several() {
