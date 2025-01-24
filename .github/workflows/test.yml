@@ -19,6 +19,9 @@ on:
       simulator-version:
         description: "Simulator iOS version override - e.g. '18.0.1'"
         type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
   workflow_call:
     inputs:
       xcode-version:
@@ -30,6 +33,9 @@ on:
       simulator-version:
         description: "Simulator iOS version override - e.g. '18.0.1'"
         type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
 
 env:
   MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
@@ -39,6 +45,7 @@ env:
   _SIMULATOR_NAME: ${{ inputs.simulator-name }}
   _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
+  _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
 jobs:
@@ -99,6 +106,10 @@ jobs:
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
+
+      - name: Update local config
+        run: |
+          ./Scripts/update_test_local_config.sh "${{ env._COMPILER_FLAGS }}"
 
       - name: Install Mint and xcresultparser
         run: |
