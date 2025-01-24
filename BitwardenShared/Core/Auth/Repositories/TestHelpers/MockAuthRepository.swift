@@ -32,6 +32,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
+    var isUserManagedByOrganizationResult: Result<Bool, Error> = .success(false)
     var pinUnlockAvailabilityResult: Result<[String: Bool], Error> = .success([:])
     var lockVaultUserId: String?
     var logoutCalled = false
@@ -217,6 +218,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         } else {
             try isPinUnlockAvailableResult.get()
         }
+    }
+    
+    func isUserManagedByOrganization() async throws -> Bool {
+        try isUserManagedByOrganizationResult.get()
     }
 
     func passwordStrength(email: String, password: String, isPreAuth: Bool) async -> UInt8 {

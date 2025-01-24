@@ -714,7 +714,8 @@ extension DefaultAuthRepository: AuthRepository {
 
     func isUserManagedByOrganization() async throws -> Bool {
         let orgs = try await organizationService.fetchAllOrganizations()
-        return orgs.contains { $0.userIsManagedByOrganization == true }
+        return await configService.getFeatureFlag(.accountDeprovisioning) &&
+            orgs.contains { $0.userIsManagedByOrganization == true }
     }
 
     func lockVault(userId: String?, isManuallyLocking: Bool) async {

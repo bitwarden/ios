@@ -9,7 +9,6 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
-        & HasConfigService
         & HasErrorReporter
         & HasStateService
 
@@ -132,10 +131,8 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
     /// Load any initial data for the view.
     private func loadData() async {
         do {
-            let isUserManagedByOrganization = try await services.authRepository.isUserManagedByOrganization()
-
             state.shouldPreventUserFromDeletingAccount =
-                await services.configService.getFeatureFlag(.accountDeprovisioning) && isUserManagedByOrganization
+                try await services.authRepository.isUserManagedByOrganization()
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)

@@ -214,4 +214,19 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidVerificationCode))
     }
+
+    /// `perform(_:)` with `.loadData` loads the initial data for the view.
+    @MainActor
+    func test_perform_loadData() async {
+        stateService.activeAccount = .fixture()
+        authRepository.isUserManagedByOrganizationResult = .success(true)
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.shouldPreventUserFromDeletingAccount)
+
+        authRepository.isUserManagedByOrganizationResult = .success(false)
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(subject.state.shouldPreventUserFromDeletingAccount)
+    }
 }
