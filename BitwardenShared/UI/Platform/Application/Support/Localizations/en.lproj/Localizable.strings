@@ -570,7 +570,7 @@
 "MaximumAccessCountReached" = "Max access count reached";
 "CurrentAccessCount" = "Current access count";
 "NewPassword" = "New password";
-"PasswordInfo" = "Optionally require a password for users to access this Send.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Remove password";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
