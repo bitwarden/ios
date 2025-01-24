@@ -307,10 +307,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
         .textFieldConfiguration(.password)
 
-        BitwardenField(
-            title: Localizations.notes,
-            footer: Localizations.notesInfo
-        ) {
+        BitwardenField(title: Localizations.privateNote) {
             BitwardenUITextView(
                 text: store.binding(
                     get: \.notes,

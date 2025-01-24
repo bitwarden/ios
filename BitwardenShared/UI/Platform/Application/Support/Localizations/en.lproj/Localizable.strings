@@ -575,7 +575,6 @@
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
 "SendPasswordRemoved" = "Password has been removed.";
-"NotesInfo" = "Private notes about this Send.";
 "DisableSend" = "Deactivate this Send so that no one can access it";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "Copy link";
@@ -1100,3 +1099,4 @@
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
