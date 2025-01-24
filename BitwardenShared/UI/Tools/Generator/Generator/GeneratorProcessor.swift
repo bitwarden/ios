@@ -157,6 +157,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.forwardedEmailService = forwardedEmailService
         case let .usernameGeneratorTypeChanged(usernameGeneratorType):
             state.usernameState.usernameGeneratorType = usernameGeneratorType
+        case let .guidedTourViewAction(action):
+            state.guidedTourViewState.updateStateForGuidedTourViewAction(action)
         }
 
         if let generateValueBehavior {
