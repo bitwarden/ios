@@ -280,6 +280,19 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `guidedTourViewState` returns the initial state of the guided tour.
+    func test_guidedTourViewState_initialState() {
+        let subject = GeneratorState()
+        XCTAssertEqual(subject.guidedTourViewState.currentIndex, 0)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates.count, 6)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[0], .generatorStep1)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[1], .generatorStep2)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[2], .generatorStep3)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[3], .generatorStep4)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[4], .generatorStep5)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[5], .generatorStep6)
+    }
+
     /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when the
     /// override is enabled and the default type is used.
     func test_isGeneratorTypeDisabled_policy_overrideDefaultType() {
