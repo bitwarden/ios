@@ -48,20 +48,15 @@ struct ToggleFieldView<State>: View {
     let field: ToggleField<State>
 
     var body: some View {
-        VStack(spacing: 0) {
-            Toggle(
-                field.title,
-                isOn: Binding(get: { field.isOn }, set: action)
-            )
-            .accessibilityIdentifier(field.accessibilityId ?? field.id)
-            .accessibilityLabel(field.accessibilityLabel ?? field.title)
-            .disabled(field.isDisabled)
-            .toggleStyle(.bitwarden)
-            .padding(.bottom, 16)
-            .padding(.top, 4)
-
-            Divider()
-        }
+        Toggle(
+            field.title,
+            isOn: Binding(get: { field.isOn }, set: action)
+        )
+        .accessibilityIdentifier(field.accessibilityId ?? field.id)
+        .accessibilityLabel(field.accessibilityLabel ?? field.title)
+        .disabled(field.isDisabled)
+        .toggleStyle(.bitwarden)
+        .padding(16)
     }
 
     // MARK: Initialization

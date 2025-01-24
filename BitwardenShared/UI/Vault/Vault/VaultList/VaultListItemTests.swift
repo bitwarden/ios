@@ -235,6 +235,70 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
+    /// `getter:vaultItemAccessibilityId` gets the appropriate id for each vault item.
+    func test_vaultItemAccessibilityId() { // swiftlint:disable:this function_body_length
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .login))?.vaultItemAccessibilityId,
+            "CipherCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .card))?.vaultItemAccessibilityId,
+            "CipherCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .identity))?.vaultItemAccessibilityId,
+            "CipherCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .secureNote))?.vaultItemAccessibilityId,
+            "CipherCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(cipherView: .fixture(type: .sshKey))?.vaultItemAccessibilityId,
+            "CipherCell"
+        )
+
+        XCTAssertEqual(
+            VaultListItem.fixtureTOTP(totp: .fixture()).vaultItemAccessibilityId,
+            "TOTPCell"
+        )
+
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.collection(id: "", name: "", organizationId: "1"), 1))
+                .vaultItemAccessibilityId,
+            "CollectionCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.folder(id: "", name: ""), 1)).vaultItemAccessibilityId,
+            "FolderCell"
+        )
+
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.login, 1)).vaultItemAccessibilityId,
+            "ItemFilterCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.card, 1)).vaultItemAccessibilityId,
+            "ItemFilterCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.identity, 1)).vaultItemAccessibilityId,
+            "ItemFilterCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.secureNote, 1)).vaultItemAccessibilityId,
+            "ItemFilterCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.sshKey, 1)).vaultItemAccessibilityId,
+            "ItemFilterCell"
+        )
+        XCTAssertEqual(
+            VaultListItem(id: "", itemType: .group(.totp, 1)).vaultItemAccessibilityId,
+            "ItemFilterCell"
+        )
+    }
+
     /// `name` returns the expected value.
     func test_name() {
         XCTAssertEqual(subject.name, "")

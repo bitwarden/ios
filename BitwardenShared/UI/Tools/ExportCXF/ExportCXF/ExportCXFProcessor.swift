@@ -99,7 +99,7 @@ class ExportCXFProcessor: StateProcessor<ExportCXFState, ExportCXFAction, Export
 
     /// Starts the export process.
     private func startExport() async {
-        #if compiler(>=6.0.3)
+        #if SUPPORTS_CXP
 
         guard #available(iOS 18.2, *) else {
             coordinator.showAlert(

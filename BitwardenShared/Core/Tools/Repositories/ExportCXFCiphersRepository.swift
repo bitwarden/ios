@@ -10,7 +10,7 @@ protocol ExportCXFCiphersRepository {
     /// - Returns: An array of `CXFCredentialsResult` that has the summary of the ciphers to export by type.
     func buildCiphersToExportSummary(from ciphers: [Cipher]) -> [CXFCredentialsResult]
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
     /// Export the credentials using the Credential Exchange flow.
     ///
     /// - Parameter data: Data to export.
@@ -23,7 +23,7 @@ protocol ExportCXFCiphersRepository {
     /// - Returns: Ciphers to export.
     func getAllCiphersToExportCXF() async throws -> [Cipher]
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
     /// Exports the vault creating the `ASImportableAccount` to be used in Credential Exchange Protocol.
     ///
     /// - Returns: An `ASImportableAccount`
@@ -90,7 +90,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
         return cxfCredentialsResultBuilder.build(from: ciphers).filter { !$0.isEmpty }
     }
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
 
     @available(iOS 18.2, *)
     func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws {
@@ -105,7 +105,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
             .filter { $0.deletedDate == nil }
     }
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
 
     @available(iOS 18.2, *)
     func getExportVaultDataForCXF() async throws -> ASImportableAccount {

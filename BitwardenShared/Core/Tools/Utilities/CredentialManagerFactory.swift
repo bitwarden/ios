@@ -44,7 +44,7 @@ protocol CredentialImportManager: AnyObject {
 // This section is needed for compiling the project on Xcode version < 16.2
 // and to ease unit testing.
 
-#if compiler(>=6.0.3)
+#if SUPPORTS_CXP
 
 @available(iOS 18.2, *)
 extension ASCredentialExportManager: CredentialExportManager {}

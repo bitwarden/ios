@@ -74,7 +74,7 @@ extension DefaultImportCiphersRepository: ImportCiphersRepository {
         credentialImportToken: UUID,
         onProgress: @MainActor (Double) -> Void
     ) async throws -> [CXFCredentialsResult] {
-        #if compiler(>=6.0.3)
+        #if SUPPORTS_CXP
 
         let credentialData = try await credentialManagerFactory.createImportManager().importCredentials(
             token: credentialImportToken

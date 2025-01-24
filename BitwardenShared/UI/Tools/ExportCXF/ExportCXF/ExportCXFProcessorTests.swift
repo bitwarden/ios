@@ -194,7 +194,7 @@ class ExportCXFProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         try await preparesExportZeroItemsFromStatusTest(status: .failure(message: "failure"), fromAppeared: true)
     }
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
 
     /// `perform(_:)` with `.mainButtonTapped` in `.prepared` status starts export.
     @MainActor

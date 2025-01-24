@@ -1,4 +1,4 @@
-#if compiler(>=6.0.3)
+#if SUPPORTS_CXP
 import AuthenticationServices
 import XCTest
 

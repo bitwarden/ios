@@ -317,7 +317,7 @@ class ImportCXFProcessorTests: BitwardenTestCase {
     /// Checks whether the appropriate compiler is being used to have the code available.
     /// - Returns: `true` if the compiler is correct, `false`otherwise.
     private func checkCompiler() throws -> Bool {
-        #if compiler(>=6.0.3)
+        #if SUPPORTS_CXP
         return true
         #else
         throw XCTSkip("CXP Import works only from 6.0.3 compiler.")

@@ -6,7 +6,7 @@
 #
 # Usage:
 #
-#   $ ./alpha_update_cxp_infoplist.sh
+#   $ ./Scripts/alpha_update_cxp_infoplist.sh
 
 set -euo pipefail
 

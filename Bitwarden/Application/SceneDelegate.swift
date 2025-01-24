@@ -73,7 +73,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 appProcessor.handleAppLinks(incomingURL: incomingURL)
             }
 
-            #if compiler(>=6.0.3)
+            #if SUPPORTS_CXP
 
             if #available(iOS 18.2, *),
                let userActivity = connectionOptions.userActivities.first {
@@ -97,7 +97,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             appProcessor.handleAppLinks(incomingURL: incomingURL)
         }
 
-        #if compiler(>=6.0.3)
+        #if SUPPORTS_CXP
 
         if #available(iOS 18.2, *) {
             Task {
@@ -182,7 +182,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 // MARK: - SceneDelegate 18.2
 
-#if compiler(>=6.0.3)
+#if SUPPORTS_CXP
 
 @available(iOS 18.2, *)
 extension SceneDelegate {
