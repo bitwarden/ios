@@ -19,11 +19,6 @@ final class KeyboardResponder: ObservableObject {
         for: UIResponder.keyboardWillShowNotification
     )
 
-    // MARK: Private properties
-
-    /// A set of cancellable objects.
-    private var cancellableSet: Set<AnyCancellable> = []
-
     // MARK: Initializer
     
     /// Initializes a `KeyboardResponder`.
@@ -31,13 +26,11 @@ final class KeyboardResponder: ObservableObject {
         keyboardWillHideNotification.map { _ in
             false
         }
-        .assign(to: \.isShown, on: self)
-        .store(in: &cancellableSet)
+        .assign(to: &$isShown)
 
         keyboardWillShowNotification.map { notification in
             true
         }
-        .assign(to: \.isShown, on: self)
-        .store(in: &cancellableSet)
+        .assign(to: &$isShown)
     }
 }

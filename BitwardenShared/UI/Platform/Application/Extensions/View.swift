@@ -132,6 +132,31 @@ extension View {
         ))
     }
 
+    //// Configures the content margin for scroll content of a specific view.
+    ///
+    /// Use this modifier to customize the content margins of different
+    /// kinds of views. For example, you can use this modifier to customize
+    /// the scroll content margins of scrollable views like ``ScrollView``. In the
+    /// following example, the scroll view will automatically inset
+    /// its content by the safe area plus an additional 20 points
+    /// on the leading and trailing edge.
+    ///
+    ///     ScrollView(.horizontal) {
+    ///         // ...
+    ///     }
+    ///     .contentMargins(.horizontal, 20.0)
+    ///
+    /// - Parameters:
+    ///   - edges: The edges to add the margins to.
+    ///   - length: The amount of margins to add.
+    func scrollContentMargins(_ edges: Edge.Set = .all, _ length: CGFloat?) -> some View {
+        if #available(iOS 17.0, *) {
+            return contentMargins(edges, length, for: .scrollContent)
+        } else {
+            return self
+        }
+    }
+
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
     /// - Parameter action: The action to perform when the button is tapped.

@@ -102,11 +102,7 @@ struct AddEditItemView: View {
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
-        .apply { view in
-            if #available(iOS 17.0, *) {
-                view.contentMargins(.bottom, keyboard.isShown ? 30.0 : 0.0, for: .scrollContent)
-            }
-        }
+        .scrollContentMargins(Edge.Set.bottom, keyboard.isShown ? 30.0 : 0.0)
     }
 
     @ViewBuilder private var cardItems: some View {
