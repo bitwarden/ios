@@ -273,7 +273,7 @@ struct AccountSecurityView: View {
         case .touchID:
             return Localizations.unlockWith(Localizations.touchID)
         case .unknown:
-            return Localizations.unlockWith(Localizations.unknownBiometrics)
+            return Localizations.unlockWithUnknownBiometrics
         }
     }
 }

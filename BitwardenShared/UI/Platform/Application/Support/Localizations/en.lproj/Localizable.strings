@@ -178,6 +178,7 @@
 "TwoStepLogin" = "Two-step login";
 "UnlockWith" = "Unlock with %1$@";
 "UnlockWithPIN" = "Unlock with PIN code";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Validating";
 "VerificationCode" = "Verification code";
 "ViewItem" = "View item";
@@ -450,6 +451,7 @@
 "ExitConfirmation" = "Are you sure you want to exit Bitwarden?";
 "PINRequireMasterPasswordRestart" = "Do you want to require unlocking with your master password when the application is restarted?";
 "PINRequireBioOrMasterPasswordRestart" = "Do you want to require unlocking with %1$@ or your master password when the application is restarted?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Black";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
@@ -1061,7 +1063,6 @@
 "SSHKeys" = "SSH keys";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Use Optic ID To Unlock";
-"UnknownBiometrics" = "biometrics";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";

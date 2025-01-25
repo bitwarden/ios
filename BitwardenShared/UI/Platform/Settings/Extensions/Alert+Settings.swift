@@ -254,7 +254,7 @@ extension Alert {
         case .touchID:
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID)
         case .unknown:
-            Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.unknownBiometrics)
+            Localizations.pinRequireUnknownBiometricsOrMasterPasswordRestart
         case nil:
             Localizations.pinRequireMasterPasswordRestart
         }
