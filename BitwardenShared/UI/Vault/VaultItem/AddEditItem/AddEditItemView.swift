@@ -48,10 +48,7 @@ struct AddEditItemView: View {
             .navigationTitle(Localizations.addItem)
             .toolbar {
                 cancelToolbarItem {
-//                    store.send(.dismissPressed)
-                    Task {
-                        await store.perform(.showLearnNewLoginGuidedTour)
-                    }
+                    store.send(.dismissPressed)
                 }
 
                 saveToolbarItem {
