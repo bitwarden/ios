@@ -192,7 +192,6 @@ private struct VaultAutofillListSearchableView: View {
             ),
             timeProvider: timeProvider
         )
-        .accessibilityIdentifier("CipherCell")
     }
 
     /// The content displayed in the view.

@@ -1,3 +1,4 @@
+#if SUPPORTS_CXP
 import AuthenticationServices
 import InlineSnapshotTesting
 import XCTest
@@ -71,8 +72,6 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(subject.buildCiphersToExportSummary(from: []).isEmpty)
     }
 
-    #if compiler(>=6.0.3)
-
     /// `exportCredentials(data:presentationAnchor:)` exports the credential data.
     @MainActor
     func test_exportCredentials() async throws {
@@ -102,8 +101,6 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         }
     }
 
-    #endif
-
     /// `getAllCiphersToExportCXF()` fetches all ciphers filtering the deleted ones out.
     func test_getAllCiphersToExportCXF() async throws {
         cipherService.fetchAllCiphersResult = .success([
@@ -126,29 +123,6 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             _ = try await subject.getAllCiphersToExportCXF()
         }
     }
-
-    /// `getCipherCountToExportCXF()` gets the count of all ciphers filtering the deleted ones out.
-    func test_getCipherCountToExportCXF() async throws {
-        cipherService.fetchAllCiphersResult = .success([
-            .fixture(id: "1"),
-            .fixture(deletedDate: .now, id: "del1"),
-            .fixture(deletedDate: .now, id: "del2"),
-            .fixture(id: "2"),
-            .fixture(deletedDate: .now, id: "del3"),
-        ])
-        let result = try await subject.getCipherCountToExportCXF()
-        XCTAssertEqual(result, 2)
-    }
-
-    /// `getCipherCountToExportCXF()` throws when fetching ciphers throws.
-    func test_getCipherCountToExportCXF_throws() async throws {
-        cipherService.fetchAllCiphersResult = .failure(BitwardenTestError.example)
-        await assertAsyncThrows(error: BitwardenTestError.example) {
-            _ = try await subject.getCipherCountToExportCXF()
-        }
-    }
-
-    #if compiler(>=6.0.3)
 
     /// `getExportVaultDataForCXF()` gets the vault data prepared for export on CXF.
     @MainActor
@@ -262,6 +236,6 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             _ = try await subject.getExportVaultDataForCXF()
         }
     }
-
-    #endif
 }
+
+#endif

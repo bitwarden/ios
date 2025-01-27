@@ -39,6 +39,9 @@ protocol AppSettingsStore: AnyObject {
     /// The status of the learn generator action card.
     var learnGeneratorActionCardStatus: AccountSetupProgress { get set }
 
+    /// The status of the learn new login action card.
+    var learnNewLoginActionCardStatus: AccountSetupProgress { get set }
+
     /// The login request information received from a push notification.
     var loginRequest: LoginRequestNotification? { get set }
 
@@ -712,6 +715,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedUserKey(userId: String)
         case events(userId: String)
         case introCarouselShown
+        case learnNewLoginActionCardStatus
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
@@ -787,6 +791,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "events_\(userId)"
             case .introCarouselShown:
                 key = "introCarouselShown"
+            case .learnNewLoginActionCardStatus:
+                key = "learnNewLoginActionCardStatus"
             case let .lastActiveTime(userId):
                 key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
@@ -880,6 +886,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var introCarouselShown: Bool {
         get { fetch(for: .introCarouselShown) }
         set { store(newValue, for: .introCarouselShown) }
+    }
+
+    var learnNewLoginActionCardStatus: AccountSetupProgress {
+        get { fetch(for: .learnNewLoginActionCardStatus) ?? .incomplete }
+        set { store(newValue, for: .learnNewLoginActionCardStatus) }
     }
 
     var lastUserShouldConnectToWatch: Bool {

@@ -5,13 +5,12 @@ import BitwardenSdk
 
 class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
     var buildCiphersToExportSummaryResult: [CXFCredentialsResult] = []
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
     var exportCredentialsData: ImportableAccountProxy?
     var exportCredentialsError: Error?
     #endif
     var getAllCiphersToExportCXFResult: Result<[Cipher], Error> = .failure(BitwardenTestError.example)
-    var getCipherCountToExportCXFResult: Result<Int, Error> = .success(0)
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
     var getExportVaultDataForCXFResult: Result<ImportableAccountProxy, Error> = .failure(BitwardenTestError.example)
     #endif
 
@@ -19,7 +18,7 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
         buildCiphersToExportSummaryResult
     }
 
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
 
     @available(iOS 18.2, *)
     func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws {
@@ -35,11 +34,7 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
         try getAllCiphersToExportCXFResult.get()
     }
 
-    func getCipherCountToExportCXF() async throws -> Int {
-        try getCipherCountToExportCXFResult.get()
-    }
-
-    #if compiler(>=6.0.3)
+    #if SUPPORTS_CXP
 
     @available(iOS 18.2, *)
     func getExportVaultDataForCXF() async throws -> ASImportableAccount {
@@ -54,7 +49,7 @@ class MockExportCXFCiphersRepository: ExportCXFCiphersRepository {
 
 protocol ImportableAccountProxy {}
 
-#if compiler(>=6.0.3)
+#if SUPPORTS_CXP
 @available(iOS 18.2, *)
 extension ASImportableAccount: ImportableAccountProxy {}
 #endif

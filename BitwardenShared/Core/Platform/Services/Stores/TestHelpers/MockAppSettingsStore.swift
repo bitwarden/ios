@@ -18,6 +18,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
     var learnGeneratorActionCardStatus: AccountSetupProgress = .incomplete
+    var learnNewLoginActionCardStatus: AccountSetupProgress = .incomplete
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
     var overrideDebugFeatureFlagCalled = false

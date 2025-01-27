@@ -1,11 +1,11 @@
 import AuthenticationServices
 import BitwardenSdk
 
-// MARK: - ImportCXPProcessor
+// MARK: - ImportCXFProcessor
 
 /// The processor used to manage state and handle actions/effects for the Credential Exchange import screen.
 ///
-class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> {
+class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> {
     // MARK: Types
 
     typealias Services = HasConfigService
@@ -17,14 +17,14 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
     // MARK: Private Properties
 
     /// The coordinator that handles navigation.
-    private let coordinator: AnyCoordinator<ImportCXPRoute, Void>
+    private let coordinator: AnyCoordinator<ImportCXFRoute, Void>
 
     /// The services used by this processor.
     private let services: Services
 
     // MARK: Initialization
 
-    /// Creates a new `ImportCXPProcessor`.
+    /// Creates a new `ImportCXFProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The coordinator that handles navigation.
@@ -32,9 +32,9 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<ImportCXPRoute, Void>,
+        coordinator: AnyCoordinator<ImportCXFRoute, Void>,
         services: Services,
-        state: ImportCXPState
+        state: ImportCXFState
     ) {
         self.coordinator = coordinator
         self.services = services
@@ -43,7 +43,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
 
     // MARK: Methods
 
-    override func perform(_ effect: ImportCXPEffect) async {
+    override func perform(_ effect: ImportCXFEffect) async {
         switch effect {
         case .appeared:
             await checkEnabled()
@@ -63,7 +63,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
 
     // MARK: Private
 
-    /// Checks whether the CXP import feature is enabled.
+    /// Checks whether the CXF import feature is enabled.
     private func checkEnabled() async {
         guard #available(iOS 18.2, *), await services.configService.getFeatureFlag(.cxpImportMobile) else {
             state.status = .failure(message: Localizations.importingFromAnotherProviderIsNotAvailableForThisDevice)
@@ -77,7 +77,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
 
     /// Starts the import process.
     private func startImport() async {
-        #if compiler(>=6.0.3)
+        #if SUPPORTS_CXP
 
         guard #available(iOS 18.2, *), let credentialImportToken = state.credentialImportToken else {
             coordinator.showAlert(
@@ -120,7 +120,7 @@ class ImportCXPProcessor: StateProcessor<ImportCXPState, Void, ImportCXPEffect> 
             return
         }
 
-        coordinator.showAlert(.confirmCancelCXPImport { [weak self] in
+        coordinator.showAlert(.confirmCancelCXFImport { [weak self] in
             guard let self else { return }
             coordinator.navigate(to: .dismiss)
         })

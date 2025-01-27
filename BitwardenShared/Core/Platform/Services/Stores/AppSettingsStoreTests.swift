@@ -463,6 +463,29 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "1"))
     }
 
+    /// `learnNewLoginActionCardStatus` returns `.incomplete` if there isn't a previously stored value.
+    func test_learnNewLoginActionCardStatus_isInitiallyIncomplete() {
+        XCTAssertEqual(subject.learnNewLoginActionCardStatus, .incomplete)
+    }
+
+    /// `learnNewLoginActionCardStatus`  can be used to get and set the persisted value in user defaults.
+    func test_learnNewLoginActionCardStatus_withValues() {
+        subject.learnNewLoginActionCardStatus = .complete
+        XCTAssertEqual(subject.learnNewLoginActionCardStatus, .complete)
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                AccountSetupProgress.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:learnNewLoginActionCardStatus")?
+                        .data(using: .utf8)
+                )
+            ),
+            AccountSetupProgress.complete
+        )
+    }
+
     /// `lastUserShouldConnectToWatch` returns `false` if there isn't a previously stored value.
     func test_lastUserShouldConnectToWatch_isInitiallyFalse() {
         XCTAssertFalse(subject.lastUserShouldConnectToWatch)

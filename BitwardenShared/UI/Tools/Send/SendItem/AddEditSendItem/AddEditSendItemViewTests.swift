@@ -33,6 +33,9 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     var processor: MockProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect>!
     var subject: AddEditSendItemView!
 
+    /// A deletion date to use within the tests.
+    let deletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+
     @MainActor var snapshotView: some View {
         SnapshotView(
             subject: subject,
@@ -112,7 +115,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Updating the name textfield sends the `.nameChanged` action.
     @MainActor
     func test_nameTextField_updated() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.sendNameRequired)
         try textField.inputBinding().wrappedValue = "Name"
         XCTAssertEqual(processor.dispatchedActions.last, .nameChanged("Name"))
     }
@@ -223,7 +226,10 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_snapshot_file_empty() {
         processor.state.type = .file
-        assertSnapshots(of: snapshotView, as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.1)])
+        assertSnapshots(
+            of: snapshotView,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.1)]
+        )
     }
 
     @MainActor
@@ -260,8 +266,8 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
         processor.state.isHideTextByDefaultOn = true
-        processor.state.deletionDate = .custom
-        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.deletionDate = .custom(deletionDate)
+        processor.state.customDeletionDate = deletionDate
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
@@ -281,8 +287,8 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.fileName = "example_file.txt"
         processor.state.fileSize = "420.42 KB"
-        processor.state.deletionDate = .custom
-        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.deletionDate = .custom(deletionDate)
+        processor.state.customDeletionDate = deletionDate
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = nil
         processor.state.maximumAccessCount = 420
@@ -332,8 +338,8 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.text = "Text."
         processor.state.isHideTextByDefaultOn = true
-        processor.state.deletionDate = .custom
-        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.deletionDate = .custom(deletionDate)
+        processor.state.customDeletionDate = deletionDate
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
@@ -352,8 +358,8 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.isOptionsExpanded = true
         processor.state.name = "Name"
         processor.state.text = "Text"
-        processor.state.deletionDate = .custom
-        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.deletionDate = .custom(deletionDate)
+        processor.state.customDeletionDate = deletionDate
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = nil
         processor.state.maximumAccessCount = 420

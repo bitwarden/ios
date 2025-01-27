@@ -693,6 +693,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(hasShownCarousel)
     }
 
+    /// `getLearnNewLoginActionCardStatus()` returns the status of the learn new login action card.
+    func test_getLearnNewLoginActionCardStatus() async {
+        var learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
+        XCTAssertEqual(learnNewLoginActionCardStatus, .incomplete)
+
+        appSettingsStore.learnNewLoginActionCardStatus = .complete
+        learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
+        XCTAssertEqual(learnNewLoginActionCardStatus, .complete)
+    }
+
     /// `getLastActiveTime(userId:)` gets the user's last active time.
     func test_getLastActiveTime() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
@@ -1779,6 +1789,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setLearnGeneratorActionCardStatus(.complete)
         XCTAssertEqual(appSettingsStore.learnGeneratorActionCardStatus, .complete)
+    }
+
+    /// `setLearnNewLoginActionCardStatus(_:)` sets the learn new login action card status.
+    func test_setLearnNewLoginActionCardStatus() async {
+        await subject.setLearnNewLoginActionCardStatus(.incomplete)
+        XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .incomplete)
+
+        await subject.setLearnNewLoginActionCardStatus(.complete)
+        XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .complete)
     }
 
     /// `setLoginRequest()` sets the pending login requests.

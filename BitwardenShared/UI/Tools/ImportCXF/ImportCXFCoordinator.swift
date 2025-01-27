@@ -2,7 +2,7 @@ import Foundation
 
 /// A coordinator that manages navigation for the Credential Exchange import flow.
 ///
-class ImportCXPCoordinator: Coordinator, HasStackNavigator {
+class ImportCXFCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasConfigService
@@ -40,14 +40,14 @@ class ImportCXPCoordinator: Coordinator, HasStackNavigator {
     // MARK: Methods
 
     func navigate(
-        to route: ImportCXPRoute,
+        to route: ImportCXFRoute,
         context: AnyObject?
     ) {
         switch route {
         case .dismiss:
             stackNavigator?.dismiss()
         case let .importCredentials(credentialImportToken):
-            showImportCXP(credentialImportToken: credentialImportToken)
+            showImportCXF(credentialImportToken: credentialImportToken)
         }
     }
 
@@ -56,14 +56,14 @@ class ImportCXPCoordinator: Coordinator, HasStackNavigator {
     // MARK: Private Methods
 
     /// Configures and displays the Credential Exchange import view.
-    private func showImportCXP(credentialImportToken: UUID) {
-        let processor = ImportCXPProcessor(
+    private func showImportCXF(credentialImportToken: UUID) {
+        let processor = ImportCXFProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
-            state: ImportCXPState(credentialImportToken: credentialImportToken)
+            state: ImportCXFState(credentialImportToken: credentialImportToken)
         )
 
-        let view = ImportCXPView(store: Store(processor: processor))
+        let view = ImportCXFView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
 }

@@ -13,7 +13,7 @@ struct ExportVaultView: View {
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
             disabledExportInfo
 
             fileFormatField
@@ -26,7 +26,7 @@ struct ExportVaultView: View {
         }
         .animation(.default, value: store.state.filePasswordStrengthScore)
         .disabled(store.state.disableIndividualVaultExport)
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.exportVault, titleDisplayMode: .inline)
         .task {
             await store.perform(.loadData)
@@ -48,6 +48,7 @@ struct ExportVaultView: View {
     @ViewBuilder private var disabledExportInfo: some View {
         if store.state.disableIndividualVaultExport {
             InfoContainer(Localizations.disablePersonalVaultExportPolicyInEffect)
+                .padding(.bottom, 8)
                 .accessibilityIdentifier("DisablePrivateVaultPolicyLabel")
         }
     }

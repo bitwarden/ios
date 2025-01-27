@@ -4,11 +4,11 @@
 #
 # Usage:
 #
-#   $ ./select_variant.sh <variant - {Production|Beta}> "<compiler_flags>"
+#   $ ./Scripts/select_variant.sh <variant - {Production|Beta}> "<compiler_flags>"
 # Example:
-#  $ ./select_variant.sh Production
-#  $ ./select_variant.sh Beta DEBUG_MENU
-#  $ ./select_variant.sh Beta "FEATURE1 FEATURE2"
+#  $ ./Scripts/select_variant.sh Production
+#  $ ./Scripts/select_variant.sh Beta DEBUG_MENU
+#  $ ./Scripts/select_variant.sh Beta "FEATURE1 FEATURE2"
 
 set -euo pipefail
 
@@ -90,5 +90,5 @@ cat << EOF > ${export_options_file}
 EOF
 
 if [[ $compiler_flags == *"SUPPORTS_CXP"* ]]; then
-  ./alpha_update_cxp_infoplist.sh
+  ./Scripts/alpha_update_cxp_infoplist.sh
 fi

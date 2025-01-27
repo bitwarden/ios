@@ -4,23 +4,23 @@ import XCTest
 
 @testable import BitwardenShared
 
-// MARK: - ImportCXPViewTests
+// MARK: - ImportCXFViewTests
 
-class ImportCXPViewTests: BitwardenTestCase {
+class ImportCXFViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    var processor: MockProcessor<ImportCXPState, Void, ImportCXPEffect>!
-    var subject: ImportCXPView!
+    var processor: MockProcessor<ImportCXFState, Void, ImportCXFEffect>!
+    var subject: ImportCXFView!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
         super.setUp()
 
-        processor = MockProcessor(state: ImportCXPState())
+        processor = MockProcessor(state: ImportCXFState())
         let store = Store(processor: processor)
 
-        subject = ImportCXPView(store: store)
+        subject = ImportCXFView(store: store)
     }
 
     override func tearDown() {
