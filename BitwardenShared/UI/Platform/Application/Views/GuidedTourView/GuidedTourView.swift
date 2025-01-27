@@ -200,7 +200,7 @@ extension GuidedTourView {
 
         // If there is enough space to show the card as center of the arrow,
         // calculate the offset to show the card as center of the arrow.
-        if viewSize.width - arrowOffset + arrowSize.width/2 > cardSize.width / 2,
+        if viewSize.width - arrowOffset + arrowSize.width / 2 > cardSize.width / 2,
            arrowOffset > cardSize.width / 2 {
             return (arrowOffset + arrowSize.width / 2 + cardSize.width / 2)
                 - (cardLeadingPadding + cardSize.width)
