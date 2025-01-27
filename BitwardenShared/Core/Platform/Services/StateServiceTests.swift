@@ -730,7 +730,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `getLearnGeneratorActionCardStatus()` returns the status of the learn generator action card.
-    func test_getLearnNewLoginActionCardStatus() async {
+    func test_getLearnGeneratorActionCardStatus() async {
         var learnGeneratorActionCardStatus = await subject.getLearnGeneratorActionCardStatus()
         XCTAssertEqual(learnGeneratorActionCardStatus, .incomplete)
 
@@ -1783,7 +1783,7 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `setLearnGeneratorActionCardStatus(_:)` sets the learn generator action card status.
-    func test_setLearnNewLoginActionCardStatus() async {
+    func test_setLearnGeneratorActionCardStatus() async {
         await subject.setLearnGeneratorActionCardStatus(.incomplete)
         XCTAssertEqual(appSettingsStore.learnGeneratorActionCardStatus, .incomplete)
 

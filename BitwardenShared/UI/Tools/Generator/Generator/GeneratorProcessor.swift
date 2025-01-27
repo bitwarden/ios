@@ -85,6 +85,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
             state.isLearnGeneratorActionCardEligible = false
         case .showLearnGeneratorGuidedTour:
+            state.generatorType = .password
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
             state.isLearnGeneratorActionCardEligible = false
         }

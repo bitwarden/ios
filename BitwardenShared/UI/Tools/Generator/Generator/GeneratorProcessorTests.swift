@@ -511,9 +511,11 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_showLearnNewLoginGuidedTour() async {
         subject.state.isLearnGeneratorActionCardEligible = true
+        subject.state.generatorType = .username
         await subject.perform(.showLearnGeneratorGuidedTour)
         XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
         XCTAssertEqual(stateService.learnGeneratorActionCardStatus, .complete)
+        XCTAssertEqual(subject.state.generatorType, .password)
     }
 
     /// `receive(_:)` with `.emailTypeChanged` updates the state's catch all email type.
