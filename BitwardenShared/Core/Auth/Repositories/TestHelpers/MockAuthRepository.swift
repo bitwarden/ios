@@ -219,7 +219,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
             try isPinUnlockAvailableResult.get()
         }
     }
-    
+
     func isUserManagedByOrganization() async throws -> Bool {
         try isUserManagedByOrganizationResult.get()
     }

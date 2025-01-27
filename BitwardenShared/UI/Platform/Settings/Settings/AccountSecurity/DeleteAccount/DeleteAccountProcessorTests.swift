@@ -229,4 +229,17 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertFalse(subject.state.shouldPreventUserFromDeletingAccount)
     }
+
+    /// `perform(_:)` with `.loadData` loads the initial data for the view. If an error occurs it's logged
+    ///  and an alert is shown.
+    @MainActor
+    func test_perform_loadData_error() async {
+        stateService.activeAccount = .fixture()
+        authRepository.isUserManagedByOrganizationResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loadData)
+
+        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
 }

@@ -4,7 +4,7 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 enum FeatureFlag: String, CaseIterable, Codable {
-    /// A feature flag to enable/disable .
+    /// A feature flag to enable/disable account deprovisioning.
     case accountDeprovisioning = "pm-10308-account-deprovisioning"
 
     /// A feature flag to enable/disable the app review prompt.

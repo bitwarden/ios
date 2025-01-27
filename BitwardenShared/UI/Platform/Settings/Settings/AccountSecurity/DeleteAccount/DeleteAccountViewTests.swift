@@ -48,4 +48,23 @@ class DeleteAccountViewTests: BitwardenTestCase {
 
         XCTAssertEqual(processor.effects.last, .deleteAccount)
     }
+
+    /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
+    func test_cancelButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.cancel)
+        try button.tap()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
+
+    /// Tapping the close button dispatches the `.dismiss` action.
+    @MainActor
+    func test_closeButton_tap() throws {
+        processor.state.shouldPreventUserFromDeletingAccount = true
+        let button = try subject.inspect().find(button: Localizations.close)
+        try button.tap()
+
+        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
 }

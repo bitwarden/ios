@@ -341,14 +341,6 @@ extension AuthRepository {
         try await isPinUnlockAvailable(userId: nil)
     }
 
-    /// Whether the user is managed by an organization.
-    ///
-    /// - Returns: `true` user is managed by an organization, `false` otherwise.
-    ///
-    func isUserManagedByOrganization() async throws -> Bool {
-        try await isUserManagedByOrganization()
-    }
-
     /// Locks the user's vault and clears decrypted data from memory
     /// - Parameters:
     ///   - userId: The userId of the account to lock. Defaults to active account if nil
