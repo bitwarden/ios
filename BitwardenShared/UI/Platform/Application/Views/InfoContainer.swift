@@ -28,15 +28,13 @@ struct InfoContainer<Content: View>: View {
 
     var body: some View {
         content
-            .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
             .frame(maxWidth: .infinity, alignment: contentAlignment)
             .multilineTextAlignment(textAlignment)
             .styleGuide(.callout)
             .padding(16)
-            .overlay {
-                RoundedRectangle(cornerRadius: 4)
-                    .strokeBorder(Asset.Colors.strokeBorder.swiftUIColor)
-            }
+            .background(Asset.Colors.backgroundTertiary.swiftUIColor)
+            .cornerRadius(8)
     }
 
     // MARK: Initialization
@@ -74,6 +72,7 @@ struct InfoContainer<Content: View>: View {
 
 #Preview {
     InfoContainer("Hello!")
+        .padding()
 }
 
 #Preview {
@@ -83,4 +82,5 @@ struct InfoContainer<Content: View>: View {
             Text("Info")
         }
     }
+    .padding()
 }
