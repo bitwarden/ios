@@ -10,6 +10,12 @@ typealias DeviceType = Int
 enum Constants {
     // MARK: Static Properties
 
+    /// The app review prompt delay in nanoseconds.
+    static let appReviewPromptDelay: UInt64 = 3_000_000_000
+
+    /// The debug toast message for when the user is eligible for an app review prompt.
+    static let appReviewPromptEligibleDebugMessage = "User is eligible for app review prompt."
+
     /// The minimum server version required to have cipher key encryption on.
     static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
 
@@ -65,7 +71,7 @@ enum Constants {
     /// The maximum number of unsuccessful attempts the user can make to unlock
     static let maxUnlockUnsuccessfulAttempts = 5
 
-    /// THe minimum number of minutes before attempting a server config sync again.
+    /// The minimum number of minutes before attempting a server config sync again.
     static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
 
     /// A default value for the minimum number of characters required when creating a password.
@@ -74,11 +80,22 @@ enum Constants {
     /// The minimum number of minutes before allowing the vault to sync again.
     static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes
 
+    /// The minimum number of user actions required to show the app review prompt.
+    static let minimumUserActions = 3
+
     /// The minimum number of cipher items without folder
     static let noFolderListSize = 100
 
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
+
+    /// The minimum number of seconds an account must have existed for before
+    /// we display the two-factor notice.
+    static let twoFactorNoticeMinimumAccountAgeInterval: TimeInterval = 86400 * 7 // Seven days
+
+    /// The minimum number of seconds after a user delays the two-factor notice
+    /// before we display the notice again.
+    static let twoFactorNoticeDelayInterval: TimeInterval = 86400 * 7 // Seven days
 
     /// The default file name when the file name cannot be determined.
     static let unknownFileName = "unknown_file_name"

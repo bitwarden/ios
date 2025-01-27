@@ -89,7 +89,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         switch error {
         case ASWebAuthenticationSessionError.canceledLogin:
             break
-        case let IdentityTokenRequestError.twoFactorRequired(authMethodsData, _, _):
+        case let IdentityTokenRequestError.twoFactorRequired(authMethodsData, _, _, _):
             rememberOrgIdentifierAndNavigate(to: .twoFactor(state.email, nil, authMethodsData, state.identifierText))
         case AuthError.requireSetPassword:
             rememberOrgIdentifierAndNavigate(to: .setMasterPassword(organizationIdentifier: state.identifierText))
@@ -136,19 +136,24 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         coordinator.showLoadingOverlay(title: Localizations.loading)
         defer {
             coordinator.hideLoadingOverlay()
-            state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
         }
 
         // Get the single sign on details for the user.
         do {
-            if let organizationIdentifier = try await services.authRepository.getSingleSignOnOrganizationIdentifier(
-                email: state.email
-            ) {
-                state.identifierText = organizationIdentifier
-                coordinator.hideLoadingOverlay()
-                await handleLoginTapped()
+            guard let organizationIdentifier = try await services.authRepository
+                .getSingleSignOnOrganizationIdentifier(email: state.email)
+            else {
+                // Default back to the last used org identifier if the API doesn't return one.
+                state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
+                return
             }
+
+            state.identifierText = organizationIdentifier
+            coordinator.hideLoadingOverlay()
+            await handleLoginTapped()
         } catch {
+            // Default back to the last used org identifier if the API doesn't return one.
+            state.identifierText = services.stateService.rememberedOrgIdentifier ?? ""
             services.errorReporter.log(error: error)
         }
     }

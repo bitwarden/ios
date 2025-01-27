@@ -8,6 +8,9 @@ protocol Menuable: Equatable, Hashable {
     ///  The custom localizable title value for this default case, defaults to  `Default`.
     static var defaultValueLocalizedName: String { get }
 
+    /// The accessibility identifier for the menu option.
+    var accessibilityId: String { get }
+
     /// A localized name value. This value is displayed in the Menu when the user
     /// is making a selection between multiple options.
     var localizedName: String { get }
@@ -16,6 +19,10 @@ protocol Menuable: Equatable, Hashable {
 extension Menuable {
     static var defaultValueLocalizedName: String {
         Localizations.default
+    }
+
+    var accessibilityId: String {
+        localizedName
     }
 }
 
@@ -34,6 +41,9 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     /// The accessibility identifier for the view.
     let accessibilityIdentifier: String?
 
+    /// Whether the view allows user interaction.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
     /// The options displayed in the menu.
     let options: [T]
 
@@ -49,13 +59,22 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
     // MARK: View
 
     var body: some View {
-        BitwardenField(title: title, footer: footer) {
+        VStack(alignment: .leading, spacing: 0) {
             menu
-        } accessoryContent: {
-            if let trailingContent {
-                trailingContent
+
+            if let footer {
+                Divider()
+
+                Text(footer)
+                    .styleGuide(.footnote, includeLinePadding: false, includeLineSpacing: false)
+                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+                    .padding(.vertical, 12)
             }
         }
+        .padding(.horizontal, 16)
+        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
     // MARK: Private views
@@ -71,11 +90,37 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
                 Text("")
             }
         } label: {
-            HStack {
-                Text(selection.localizedName)
-                Spacer()
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    if let title {
+                        Text(title)
+                            .styleGuide(
+                                .subheadline,
+                                weight: .semibold,
+                                includeLinePadding: false,
+                                includeLineSpacing: false
+                            )
+                            .foregroundColor(isEnabled ?
+                                Asset.Colors.textSecondary.swiftUIColor :
+                                Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                            )
+                    }
+
+                    Text(selection.localizedName)
+                }
+                .multilineTextAlignment(.leading)
+                .fixedSize(horizontal: false, vertical: true)
+
+                Spacer(minLength: 0)
+
+                if let trailingContent {
+                    trailingContent
+                } else {
+                    Asset.Images.chevronDown24.swiftUIImage
+                        .imageStyle(.rowIcon)
+                }
             }
-            .contentShape(Rectangle())
+            .padding(.vertical, 12)
             .transaction { transaction in
                 // Prevents any downstream animations from rendering a fade animation
                 // on this label.
@@ -83,7 +128,11 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
             }
         }
         .styleGuide(.body)
-        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+        .foregroundColor(isEnabled ?
+            Asset.Colors.textPrimary.swiftUIColor :
+            Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+        )
+        .frame(minHeight: 64)
         .accessibilityIdentifier(accessibilityIdentifier ?? "")
     }
 
@@ -162,6 +211,14 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             options: MenuPreviewOptions.allCases,
             selection: .constant(.dog)
         )
+        .padding()
+
+        BitwardenMenuField(
+            title: "Animals",
+            options: MenuPreviewOptions.allCases,
+            selection: .constant(.dog)
+        )
+        .disabled(true)
         .padding()
     }
     .background(Color(.systemGroupedBackground))

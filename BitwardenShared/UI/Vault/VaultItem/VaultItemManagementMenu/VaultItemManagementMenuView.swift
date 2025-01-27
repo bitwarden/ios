@@ -7,11 +7,14 @@ import SwiftUI
 struct VaultItemManagementMenuView: View {
     // MARK: Properties
 
-    /// The flag for showing/hiding clone option
+    /// The flag for showing/hiding clone option.
     let isCloneEnabled: Bool
 
     /// The flag for whether to show the collections options.
     let isCollectionsEnabled: Bool
+
+    /// The flag for whether to show the delete option.
+    let isDeleteEnabled: Bool
 
     /// The flag for whether to show the move to organization options.
     let isMoveToOrganizationEnabled: Bool
@@ -43,8 +46,10 @@ struct VaultItemManagementMenuView: View {
                 }
             }
 
-            AsyncButton(Localizations.delete, role: .destructive) {
-                await store.perform(.deleteItem)
+            if isDeleteEnabled {
+                AsyncButton(Localizations.delete, role: .destructive) {
+                    await store.perform(.deleteItem)
+                }
             }
         } label: {
             Image(asset: Asset.Images.ellipsisVertical24, label: Text(Localizations.options))
@@ -59,6 +64,7 @@ struct VaultItemManagementMenuView: View {
     VaultItemManagementMenuView(
         isCloneEnabled: true,
         isCollectionsEnabled: true,
+        isDeleteEnabled: true,
         isMoveToOrganizationEnabled: true,
         store: Store(
             processor: StateProcessor(

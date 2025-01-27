@@ -8,10 +8,40 @@ import XCTest
 // MARK: - AddEditSendItemViewTests
 
 class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+    // MARK: Types
+
+    /// Wraps the add/edit send view in a navigation controller with the hairline divider removed
+    /// for snapshot tests.
+    struct SnapshotView: UIViewControllerRepresentable {
+        let subject: AddEditSendItemView
+        let removeHairlineDivider: Bool
+
+        func makeUIViewController(context: Context) -> some UIViewController {
+            let viewController = UIHostingController(rootView: subject)
+            let navigationController = UINavigationController(rootViewController: viewController)
+            if removeHairlineDivider {
+                navigationController.removeHairlineDivider()
+            }
+            return navigationController
+        }
+
+        func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
+    }
+
     // MARK: Properties
 
     var processor: MockProcessor<AddEditSendItemState, AddEditSendItemAction, AddEditSendItemEffect>!
     var subject: AddEditSendItemView!
+
+    /// A deletion date to use within the tests.
+    let deletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+
+    @MainActor var snapshotView: some View {
+        SnapshotView(
+            subject: subject,
+            removeHairlineDivider: processor.state.mode == .add
+        ).edgesIgnoringSafeArea(.all)
+    }
 
     // MARK: Setup & Teardown
 
@@ -85,7 +115,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Updating the name textfield sends the `.nameChanged` action.
     @MainActor
     func test_nameTextField_updated() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.sendNameRequired)
         try textField.inputBinding().wrappedValue = "Name"
         XCTAssertEqual(processor.dispatchedActions.last, .nameChanged("Name"))
     }
@@ -125,7 +155,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// Tapping the options button sends the `.optionsPressed` action.
     @MainActor
     func test_optionsButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.options)
+        let button = try subject.inspect().find(button: Localizations.additionalOptions)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .optionsPressed)
     }
@@ -136,6 +166,23 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         let button = try subject.inspect().find(asyncButton: Localizations.save)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .savePressed)
+    }
+
+    /// Tapping the file button in the segmented control sends the `.typeChanged` action.
+    @MainActor
+    func test_segmentedControl_fileTap() throws {
+        let button = try subject.inspect().find(button: Localizations.file)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.typeChanged(.file)])
+    }
+
+    /// Tapping on text button in the segmented control sends the `.typeChanged` action.
+    @MainActor
+    func test_segmentedControl_textTap() throws {
+        processor.state.type = .file
+        let button = try subject.inspect().find(button: Localizations.text)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.typeChanged(.text)])
     }
 
     /// Setting `isSendDisabled` disables the controls within the view.
@@ -174,20 +221,15 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(processor.dispatchedActions.last, .textChanged("Text"))
     }
 
-    /// Updating the type picker sends the `.typeChanged` action.
-    @MainActor
-    func test_typePicker_updated() throws {
-        let picker = try subject.inspect().find(picker: Localizations.type)
-        try picker.select(value: SendType.file)
-        XCTAssertEqual(processor.dispatchedActions.last, .typeChanged(.file))
-    }
-
     // MARK: Snapshots
 
     @MainActor
     func test_snapshot_file_empty() {
         processor.state.type = .file
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshots(
+            of: snapshotView,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5(heightMultiple: 1.1)]
+        )
     }
 
     @MainActor
@@ -196,7 +238,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: snapshotView, as: .defaultPortrait)
     }
 
     @MainActor
@@ -206,14 +248,14 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
         processor.state.mode = .shareExtension(.empty())
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: snapshotView, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_file_withOptions_empty() {
         processor.state.type = .file
         processor.state.isOptionsExpanded = true
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: snapshotView, as: .tallPortrait)
     }
 
     @MainActor
@@ -224,8 +266,8 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.fileName = "example_file.txt"
         processor.state.fileData = Data("example".utf8)
         processor.state.isHideTextByDefaultOn = true
-        processor.state.deletionDate = .custom
-        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.deletionDate = .custom(deletionDate)
+        processor.state.customDeletionDate = deletionDate
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
@@ -234,7 +276,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: snapshotView, as: .tallPortrait)
     }
 
     @MainActor
@@ -245,8 +287,8 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.fileName = "example_file.txt"
         processor.state.fileSize = "420.42 KB"
-        processor.state.deletionDate = .custom
-        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.deletionDate = .custom(deletionDate)
+        processor.state.customDeletionDate = deletionDate
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = nil
         processor.state.maximumAccessCount = 420
@@ -256,24 +298,24 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: snapshotView, as: .tallPortrait)
     }
 
     @MainActor
     func test_snapshot_sendDisabled() {
         processor.state.isSendDisabled = true
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: snapshotView, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_sendHideEmailDisabled() {
         processor.state.isSendHideEmailDisabled = true
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: snapshotView, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_text_empty() {
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshots(of: snapshotView, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     @MainActor
@@ -281,13 +323,13 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.text = "Text"
         processor.state.isHideTextByDefaultOn = true
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: snapshotView, as: .defaultPortrait)
     }
 
     @MainActor
     func test_snapshot_text_withOptions_empty() {
         processor.state.isOptionsExpanded = true
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: snapshotView, as: .tallPortrait)
     }
 
     @MainActor
@@ -296,8 +338,8 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.text = "Text."
         processor.state.isHideTextByDefaultOn = true
-        processor.state.deletionDate = .custom
-        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.deletionDate = .custom(deletionDate)
+        processor.state.customDeletionDate = deletionDate
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         processor.state.maximumAccessCount = 42
@@ -306,7 +348,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.notes = "Notes."
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: snapshotView, as: .tallPortrait)
     }
 
     @MainActor
@@ -316,8 +358,8 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.isOptionsExpanded = true
         processor.state.name = "Name"
         processor.state.text = "Text"
-        processor.state.deletionDate = .custom
-        processor.state.customDeletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        processor.state.deletionDate = .custom(deletionDate)
+        processor.state.customDeletionDate = deletionDate
         processor.state.expirationDate = .custom
         processor.state.customExpirationDate = nil
         processor.state.maximumAccessCount = 420
@@ -327,7 +369,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
         processor.state.isDeactivateThisSendOn = true
-        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+        assertSnapshot(of: snapshotView, as: .tallPortrait)
     }
 
     @MainActor
@@ -337,6 +379,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.name = "Name"
         processor.state.text = "Text"
         processor.state.isHideTextByDefaultOn = true
-        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+        assertSnapshot(of: snapshotView, as: .defaultPortrait)
     }
 }

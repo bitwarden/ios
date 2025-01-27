@@ -15,17 +15,21 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var client: MockHTTPClient!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
     var eventService: MockEventService!
     var rehydrationHelper: MockRehydrationHelper!
+    var reviewPromptService: MockReviewPromptService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
     var vaultRepository: MockVaultRepository!
+
+    let step1Spotlight = CGRect(x: 5, y: 5, width: 25, height: 25)
 
     // MARK: Setup & Teardown
 
@@ -36,6 +40,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         client = MockHTTPClient()
+        configService = MockConfigService()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
@@ -43,6 +48,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         rehydrationHelper = MockRehydrationHelper()
+        reviewPromptService = MockReviewPromptService()
         stateService = MockStateService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
@@ -53,12 +59,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 cameraService: cameraService,
+                configService: configService,
                 errorReporter: errorReporter,
                 eventService: eventService,
                 httpClient: client,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
                 rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
                 stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
@@ -82,11 +90,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         appExtensionDelegate = nil
         cameraService = nil
         client = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         eventService = nil
         pasteboardService = nil
         rehydrationHelper = nil
+        reviewPromptService = nil
         stateService = nil
         subject = nil
         totpService = nil
@@ -474,6 +484,18 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
+    /// `didCompleteGenerator` with a passphrase value updates the state with the new password value
+    /// and navigates to the `.dismiss()` route.
+    @MainActor
+    func test_didCompleteGenerator_withPassphrase() {
+        subject.state.loginState.username = "username123"
+        subject.state.loginState.password = "password123"
+        subject.didCompleteGenerator(for: .passphrase, with: "passphrase")
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(subject.state.loginState.password, "passphrase")
+        XCTAssertEqual(subject.state.loginState.username, "username123")
+    }
+
     /// `didCompleteGenerator` with a password value updates the state with the new password value
     /// and navigates to the `.dismiss()` route.
     @MainActor
@@ -665,6 +687,126 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(stateService.addSitePromptShown)
     }
 
+    /// `perform(:)` with `.appeared` should set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the `learnNewLoginActionCardStatus` is `incomplete`, and feature flag is enabled.
+    @MainActor
+    func test_perform_checkLearnNewLoginActionCardEligibility() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: nil,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                configService: configService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isLearnNewLoginActionCardEligible)
+    }
+
+    /// `perform(:)` with `.appeared` should set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the feature flag `nativeCreateAccountFlow` is `false`.
+    @MainActor
+    func test_perform_checkLearnNewLoginActionCardEligibility_false() async {
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: nil,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                configService: configService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+    }
+
+    /// `perform(:)` with `.appeared` should not set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the feature flag `nativeCreateAccountFlow` is `true` and app is in iOS extension flow.
+    @MainActor
+    func test_perform_checkLearnNewLoginActionCardEligibility_false_iOSExtension() async {
+        stateService.learnNewLoginActionCardStatus = .incomplete
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        subject = AddEditItemProcessor(
+            appExtensionDelegate: appExtensionDelegate,
+            coordinator: coordinator.asAnyCoordinator(),
+            delegate: delegate,
+            services: ServiceContainer.withMocks(
+                authRepository: authRepository,
+                cameraService: cameraService,
+                configService: configService,
+                errorReporter: errorReporter,
+                eventService: eventService,
+                httpClient: client,
+                pasteboardService: pasteboardService,
+                policyService: policyService,
+                rehydrationHelper: rehydrationHelper,
+                reviewPromptService: reviewPromptService,
+                stateService: stateService,
+                totpService: totpService,
+                vaultRepository: vaultRepository
+            ),
+            state: CipherItemState(
+                customFields: [
+                    CustomFieldState(
+                        name: "fieldName1",
+                        type: .hidden,
+                        value: "old"
+                    ),
+                ],
+                hasPremium: true
+            )
+        )
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+    }
+
     /// `perform(_:)` with `.appeared` checks if user has masterpassword.
     @MainActor
     func test_perform_appeared_checkUserHasMasterPassword_true() async {
@@ -794,6 +936,16 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(delegate.itemSoftDeletedCalled)
     }
 
+    /// `perform(_:)` with `.dismissNewLoginActionCard` will set `.showLearnNewLoginActionCard` to false
+    /// and updates `.learnNewLoginActionCardShown` via  stateService.
+    @MainActor
+    func test_perform_dismissNewLoginActionCard() async {
+        subject.state.isLearnNewLoginActionCardEligible = true
+        await subject.perform(.dismissNewLoginActionCard)
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
+    }
+
     /// `perform(_:)` with `.fetchCipherOptions` fetches the ownership options for a cipher from the repository.
     @MainActor
     func test_perform_fetchCipherOptions() async {
@@ -818,7 +970,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             [.default] + folders.map { .custom($0) }
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertNil(eventService.collectCipherId)
         XCTAssertNil(eventService.collectEventType)
@@ -885,7 +1037,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             [.default] + folders.map { .custom($0) }
         )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
         XCTAssertEqual(eventService.collectCipherId, "100")
         XCTAssertEqual(eventService.collectEventType, .cipherClientViewed)
@@ -947,7 +1099,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .organization(id: "123", name: "Test Org 1"),
             .organization(id: "987", name: "Test Org 2"),
         ])
-        try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
         try XCTAssertFalse(XCTUnwrap(vaultRepository.fetchCipherOwnershipOptionsIncludePersonal))
     }
 
@@ -978,6 +1130,34 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.collectionIds, ["1"])
         XCTAssertEqual(subject.state.owner, owner)
+    }
+
+    /// `perform(_:)` with `.fetchCipherOptions` includes read-only collections
+    /// so that the state can properly compute if it's deletable
+    @MainActor
+    func test_perform_fetchCipherOptions_readonly() async {
+        let owner = CipherOwner.organization(id: "123", name: "Test Org")
+        subject.state = CipherItemState(
+            collectionIds: ["1"],
+            hasPremium: false,
+            organizationId: owner.organizationId
+        )
+
+        vaultRepository.fetchCipherOwnershipOptions = [
+            .organization(id: "123", name: "Test Org"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success([
+            .fixture(id: "1", name: "Design", manage: false),
+        ])
+
+        await subject.perform(.fetchCipherOptions)
+
+        try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
+        XCTAssertEqual(subject.state.collections.map(\.id), ["1"])
+        XCTAssertEqual(subject.state.collectionIds, ["1"])
+        XCTAssertEqual(subject.state.owner, owner)
+        XCTAssertFalse(subject.state.canBeDeleted)
+        XCTAssertTrue(subject.state.canAssignToCollection)
     }
 
     /// `perform(_:)` with `.savePressed` displays an alert if name field is invalid.
@@ -1084,26 +1264,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             "secureNote"
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
-    }
-
-    /// `perform(_:)` with `.savePressed` saves the item for SSH Key
-    @MainActor
-    func test_perform_savePressed_sshKey() async {
-        subject.state.type = .sshKey
-        subject.state.name = "sshKey"
-
-        await subject.perform(.savePressed)
-
-        try XCTAssertEqual(
-            XCTUnwrap(vaultRepository.addCipherCiphers.first).type,
-            .sshKey
-        )
-
-        try XCTAssertEqual(
-            XCTUnwrap(vaultRepository.addCipherCiphers.first).name,
-            "sshKey"
-        )
-        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -1149,6 +1310,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 )
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.
@@ -1176,6 +1338,52 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
+    }
+
+    /// `perform(_:)` with `.savePressed` saves the item for `.sshKey`.
+    @MainActor
+    func test_perform_savePressed_sshKey() async throws {
+        subject.state.name = "vault item"
+        subject.state.type = .sshKey
+        let expectedSSHKeyItemState = SSHKeyItemState(
+            canViewPrivateKey: true,
+            isPrivateKeyVisible: false,
+            privateKey: "privateKey",
+            publicKey: "publicKey",
+            keyFingerprint: "fingerprint"
+        )
+        subject.state.sshKeyState = expectedSSHKeyItemState
+        await subject.perform(.savePressed)
+
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).creationDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+        try XCTAssertEqual(
+            XCTUnwrap(vaultRepository.addCipherCiphers.first).revisionDate.timeIntervalSince1970,
+            Date().timeIntervalSince1970,
+            accuracy: 1
+        )
+
+        let added = try XCTUnwrap(vaultRepository.addCipherCiphers.first)
+        XCTAssertNil(added.identity)
+        XCTAssertNil(added.login)
+        XCTAssertNil(added.secureNote)
+        XCTAssertNotNil(added.sshKey)
+        XCTAssertNil(added.card)
+        XCTAssertEqual(added.sshKeyItemState(), expectedSSHKeyItemState)
+        let unwrappedState = try XCTUnwrap(subject.state as? CipherItemState)
+        XCTAssertEqual(
+            added,
+            unwrappedState
+                .newCipherView(
+                    creationDate: vaultRepository.addCipherCiphers[0].creationDate
+                )
+        )
+        XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` in the app extension completes the autofill request if a
@@ -1193,6 +1401,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestPassword, "PASSWORD")
         XCTAssertEqual(appExtensionDelegate.didCompleteAutofillRequestUsername, "user@bitwarden.com")
+        XCTAssertEqual(reviewPromptService.userActions, [.addedNewItem])
     }
 
     /// `perform(_:)` with `.savePressed` in the app extension cancels the autofill extension if no
@@ -1218,6 +1427,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was added and
@@ -1250,6 +1460,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.savePressed)
 
         XCTAssertEqual(errorReporter.errors.first as? EncryptError, EncryptError())
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.savePressed` notifies the delegate that the item was updated and
@@ -1298,6 +1509,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             ]
         )
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+        XCTAssertTrue(reviewPromptService.userActions.isEmpty)
     }
 
     /// `perform(_:)` with `.setupTotpPressed` with camera authorization authorized navigates to the
@@ -1330,6 +1542,26 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
     }
 
+    /// `perform(_:)` with `.setupTotpPressed` when in the app extension navigates to the
+    /// `.setupTotpManual` route.
+    @MainActor
+    func test_perform_setupTotpPressed_extension() async {
+        appExtensionDelegate.isInAppExtension = true
+        await subject.perform(.setupTotpPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .setupTotpManual)
+    }
+
+    /// `perform(_:)` with `.showLearnNewLoginGuidedTour` sets `showLearnNewLoginActionCard` to `false`.
+    @MainActor
+    func test_perform_showLearnNewLoginGuidedTour() async {
+        subject.state.isLearnNewLoginActionCardEligible = true
+        await subject.perform(.showLearnNewLoginGuidedTour)
+        XCTAssertFalse(subject.state.isLearnNewLoginActionCardEligible)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
+        XCTAssertTrue(subject.state.guidedTourViewState.showGuidedTour)
+    }
+
     /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.
     @MainActor
     func test_receive_authKeyVisibilityTapped() {
@@ -1337,6 +1569,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.authKeyVisibilityTapped(true))
 
         XCTAssertTrue(subject.state.loginState.isAuthKeyVisible)
+    }
+
+    /// `receive(_:)` with `.backTapped` updates the guided tour state to the previous step.
+    @MainActor
+    func test_receive_backTapped() {
+        subject.state.guidedTourViewState.currentIndex = 2
+
+        subject.receive(.guidedTourViewAction(.backTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 1)
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState, .loginStep2)
+
+        subject.receive(.guidedTourViewAction(.backTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 0)
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState, .loginStep1)
     }
 
     /// `receive(_:)` with `.clearTOTPKey` clears the authenticator key.
@@ -1377,12 +1623,41 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.collectionIds, ["2"])
     }
 
+    /// `receive(_:)` with `.guidedTourViewAction(.didRenderViewToSpotlight)` updates `.spotlightRegion`.
+    @MainActor
+    func test_receive_didRenderViewToSpotlight() {
+        subject.receive(
+            .guidedTourViewAction(
+                .didRenderViewToSpotlight(frame: step1Spotlight, step: .step1)
+            )
+        )
+
+        XCTAssertEqual(
+            subject.state.guidedTourViewState.guidedTourStepStates[0].spotlightRegion,
+            step1Spotlight
+        )
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.dismissTapped)` dismisses the guided tour.
+    @MainActor
+    func test_receive_dismissTapped() {
+        subject.receive(.guidedTourViewAction(.dismissTapped))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
+    }
+
     /// `receive(_:)` with `.dismiss()` navigates to the `.dismiss()` route.
     @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismissPressed)
 
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.doneTapped)` completes the guided tour.
+    @MainActor
+    func test_receive_doneTapped() {
+        subject.receive(.guidedTourViewAction(.doneTapped))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
     }
 
     /// `receive(_:)` with `.favoriteChanged` with `true` updates the state correctly.
@@ -1622,6 +1897,20 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         // TODO: BIT-901 state assertion for added field
     }
 
+    /// `receive(_:)` with `.guidedTourViewAction(.nextTapped)` updates the guided tour state to the next step.
+    @MainActor
+    func test_receive_nextTapped() {
+        subject.state.guidedTourViewState.currentIndex = 0
+
+        subject.receive(.guidedTourViewAction(.nextTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState, .loginStep2)
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 1)
+
+        subject.receive(.guidedTourViewAction(.nextTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState, .loginStep3)
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 2)
+    }
+
     /// `receive(_:)` with `.notesChanged` with a value updates the state correctly.
     @MainActor
     func test_receive_notesChanged_withValue() {
@@ -1699,6 +1988,19 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.receive(.toastShown(toast))
 
         XCTAssertEqual(subject.state.toast, toast)
+    }
+
+    /// `receive(_:)` with `guidedTourViewAction(.toggleGuidedTourVisibilityChanged)`
+    /// updates the state correctly.
+    @MainActor
+    func test_receive_guidedTourViewAction_toggleGuidedTourVisibilityChanged() {
+        subject.state.guidedTourViewState.showGuidedTour = false
+
+        subject.receive(.guidedTourViewAction(.toggleGuidedTourVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.guidedTourViewState.showGuidedTour)
+
+        subject.receive(.guidedTourViewAction(.toggleGuidedTourVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
     }
 
     /// `receive(_:)` with `.togglePasswordVisibilityChanged` with `true` updates the state correctly.

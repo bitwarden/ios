@@ -203,7 +203,7 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     private func refreshVaultGroup() async {
         do {
-            try await services.vaultRepository.fetchSync(isManualRefresh: true, filter: state.vaultFilterType)
+            try await services.vaultRepository.fetchSync(forceSync: true, filter: state.vaultFilterType)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
@@ -223,7 +223,7 @@ final class VaultGroupProcessor: StateProcessor<
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: state.group,
-                filterType: state.searchVaultFilterType
+                filter: VaultListFilter(filterType: state.searchVaultFilterType)
             )
             for try await ciphers in result {
                 return ciphers
@@ -250,7 +250,7 @@ final class VaultGroupProcessor: StateProcessor<
         do {
             for try await vaultList in try await services.vaultRepository.vaultListPublisher(
                 group: state.group,
-                filter: state.vaultFilterType
+                filter: VaultListFilter(filterType: state.vaultFilterType)
             ) {
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.flatMap(\.items))
                 state.loadingState = .data(vaultList)

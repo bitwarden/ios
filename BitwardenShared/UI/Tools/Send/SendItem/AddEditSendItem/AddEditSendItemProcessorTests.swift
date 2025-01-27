@@ -12,7 +12,11 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
+    var reviewPromptService: MockReviewPromptService!
     var subject: AddEditSendItemProcessor!
+
+    /// A deletion date to use within the tests.
+    let deletionDate = Date(year: 2023, month: 11, day: 5)
 
     // MARK: Setup & Teardown
 
@@ -21,12 +25,14 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         coordinator = MockCoordinator()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        reviewPromptService = MockReviewPromptService()
         sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
             coordinator: coordinator,
             services: ServiceContainer.withMocks(
                 pasteboardService: pasteboardService,
                 policyService: policyService,
+                reviewPromptService: reviewPromptService,
                 sendRepository: sendRepository
             ),
             state: AddEditSendItemState()
@@ -39,6 +45,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         pasteboardService = nil
         policyService = nil
         sendRepository = nil
+        reviewPromptService = nil
         subject = nil
     }
 
@@ -207,8 +214,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.addTextSendResult = .success(sendView)
 
@@ -219,10 +226,11 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
+        XCTAssertEqual(reviewPromptService.userActions, [.createdNewSend])
     }
 
     /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.
@@ -231,8 +239,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
         sendRepository.addTextSendResult = .failure(URLError(.timedOut))
 
         await subject.perform(.savePressed)
@@ -242,7 +250,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
@@ -371,8 +379,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
         let sendView = SendView.fixture(
             id: "SEND_ID",
             name: "Name",
@@ -388,7 +396,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.addTextSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.addTextSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.addTextSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(sendRepository.shareURLSendView, sendView)
@@ -410,8 +418,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.updateSendResult = .success(sendView)
 
@@ -422,7 +430,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.updateSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.updateSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
@@ -436,8 +444,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.name = "Name"
         subject.state.type = .text
         subject.state.text = "Text"
-        subject.state.deletionDate = .custom
-        subject.state.customDeletionDate = Date(year: 2023, month: 11, day: 5)
+        subject.state.deletionDate = .custom(deletionDate)
+        subject.state.customDeletionDate = deletionDate
         sendRepository.updateSendResult = .failure(URLError(.timedOut))
 
         await subject.perform(.savePressed)
@@ -447,7 +455,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         ])
         XCTAssertEqual(sendRepository.updateSendSendView?.name, "Name")
         XCTAssertEqual(sendRepository.updateSendSendView?.text?.text, "Text")
-        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, Date(year: 2023, month: 11, day: 5))
+        XCTAssertEqual(sendRepository.updateSendSendView?.deletionDate, deletionDate)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
@@ -501,15 +509,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.clearExpirationDatePressed)
 
         XCTAssertNil(subject.state.customExpirationDate)
-    }
-
-    /// `receive(_:)` with `.customDeletionDateChanged` updates the custom deletion date.
-    @MainActor
-    func test_receive_customDeletionDateChanged() {
-        subject.state.customDeletionDate = Date(year: 2000, month: 5, day: 5)
-        subject.receive(.customDeletionDateChanged(Date(year: 2023, month: 11, day: 5)))
-
-        XCTAssertEqual(subject.state.customDeletionDate, Date(year: 2023, month: 11, day: 5))
     }
 
     /// `receive(_:)` with `.customExpirationDateChanged` updates the custom expiration date.

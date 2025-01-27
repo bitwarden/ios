@@ -73,6 +73,18 @@ extension ContentBlock {
     }
 }
 
+// MARK: - View + ContentBlock
+
+extension View {
+    /// Wraps the view within a `ContentBlock`.
+    ///
+    func contentBlock() -> some View {
+        ContentBlock {
+            self
+        }
+    }
+}
+
 // MARK: Previews
 
 #if DEBUG

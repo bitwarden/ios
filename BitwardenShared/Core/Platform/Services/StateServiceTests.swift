@@ -1,4 +1,5 @@
 import BitwardenSdk
+import CoreData
 import XCTest
 
 @testable import BitwardenShared
@@ -618,32 +619,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(pinProtectedUserKey, "321")
     }
 
-    /// `getEnvironmentUrls()` returns the environment URLs for the active account.
-    func test_getEnvironmentUrls() async throws {
-        let urls = EnvironmentUrlData(base: .example)
-        let account = Account.fixture(settings: .fixture(environmentUrls: urls))
+    /// `getEnvironmentURLs()` returns the environment URLs for the active account.
+    func test_getEnvironmentURLs() async throws {
+        let urls = EnvironmentURLData(base: .example)
+        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
         appSettingsStore.state = State(
             accounts: [account.profile.userId: account],
             activeUserId: account.profile.userId
         )
-        let accountUrls = try await subject.getEnvironmentUrls()
+        let accountUrls = try await subject.getEnvironmentURLs()
         XCTAssertEqual(accountUrls, urls)
     }
 
-    /// `getEnvironmentUrls()` returns `nil` if the active account doesn't have URLs set.
-    func test_getEnvironmentUrls_notSet() async throws {
-        let account = Account.fixture(settings: .fixture(environmentUrls: nil))
+    /// `getEnvironmentURLs()` returns `nil` if the active account doesn't have URLs set.
+    func test_getEnvironmentURLs_notSet() async throws {
+        let account = Account.fixture(settings: .fixture(environmentURLs: nil))
         appSettingsStore.state = State(
             accounts: [account.profile.userId: account],
             activeUserId: account.profile.userId
         )
-        let urls = try await subject.getEnvironmentUrls()
+        let urls = try await subject.getEnvironmentURLs()
         XCTAssertNil(urls)
     }
 
-    /// `getEnvironmentUrls()` returns `nil` if the user doesn't exist.
-    func test_getEnvironmentUrls_noUser() async throws {
-        let urls = try await subject.getEnvironmentUrls(userId: "-1")
+    /// `getEnvironmentURLs()` returns `nil` if the user doesn't exist.
+    func test_getEnvironmentURLs_noUser() async throws {
+        let urls = try await subject.getEnvironmentURLs(userId: "-1")
         XCTAssertNil(urls)
     }
 
@@ -690,6 +691,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         appSettingsStore.introCarouselShown = true
         hasShownCarousel = await subject.getIntroCarouselShown()
         XCTAssertTrue(hasShownCarousel)
+    }
+
+    /// `getLearnNewLoginActionCardStatus()` returns the status of the learn new login action card.
+    func test_getLearnNewLoginActionCardStatus() async {
+        var learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
+        XCTAssertEqual(learnNewLoginActionCardStatus, .incomplete)
+
+        appSettingsStore.learnNewLoginActionCardStatus = .complete
+        learnNewLoginActionCardStatus = await subject.getLearnNewLoginActionCardStatus()
+        XCTAssertEqual(learnNewLoginActionCardStatus, .complete)
     }
 
     /// `getLastActiveTime(userId:)` gets the user's last active time.
@@ -801,32 +812,32 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNil(fetchedOptionsNoAccount)
     }
 
-    /// `getPreAuthEnvironmentUrls` returns the saved pre-auth URLs.
-    func test_getPreAuthEnvironmentUrls() async {
-        let urls = EnvironmentUrlData(base: .example)
-        appSettingsStore.preAuthEnvironmentUrls = urls
-        let preAuthUrls = await subject.getPreAuthEnvironmentUrls()
+    /// `getPreAuthEnvironmentURLs` returns the saved pre-auth URLs.
+    func test_getPreAuthEnvironmentURLs() async {
+        let urls = EnvironmentURLData(base: .example)
+        appSettingsStore.preAuthEnvironmentURLs = urls
+        let preAuthUrls = await subject.getPreAuthEnvironmentURLs()
         XCTAssertEqual(preAuthUrls, urls)
     }
 
-    /// `getPreAuthEnvironmentUrls` returns `nil` if the URLs haven't been set.
-    func test_getPreAuthEnvironmentUrls_notSet() async {
-        let urls = await subject.getPreAuthEnvironmentUrls()
+    /// `getPreAuthEnvironmentURLs` returns `nil` if the URLs haven't been set.
+    func test_getPreAuthEnvironmentURLs_notSet() async {
+        let urls = await subject.getPreAuthEnvironmentURLs()
         XCTAssertNil(urls)
     }
 
-    /// `getAccountCreationEnvironmentUrls` returns the saved pre-auth URLs for a given email.
-    func test_getAccountCreationEnvironmentUrls() async {
+    /// `getAccountCreationEnvironmentURLs` returns the saved pre-auth URLs for a given email.
+    func test_getAccountCreationEnvironmentURLs() async {
         let email = "example@email.com"
-        let urls = EnvironmentUrlData(base: .example)
-        appSettingsStore.setAccountCreationEnvironmentUrls(environmentUrlData: urls, email: email)
-        let preAuthUrls = await subject.getAccountCreationEnvironmentUrls(email: email)
+        let urls = EnvironmentURLData(base: .example)
+        appSettingsStore.setAccountCreationEnvironmentURLs(environmentURLData: urls, email: email)
+        let preAuthUrls = await subject.getAccountCreationEnvironmentURLs(email: email)
         XCTAssertEqual(preAuthUrls, urls)
     }
 
-    /// `getAccountCreationEnvironmentUrls` returns `nil` if the URLs haven't been set for a given email.
-    func test_getAccountCreationEnvironmentUrls_notSet() async {
-        let urls = await subject.getAccountCreationEnvironmentUrls(email: "example@email.com")
+    /// `getAccountCreationEnvironmentURLs` returns `nil` if the URLs haven't been set for a given email.
+    func test_getAccountCreationEnvironmentURLs_notSet() async {
+        let urls = await subject.getAccountCreationEnvironmentURLs(email: "example@email.com")
         XCTAssertNil(urls)
     }
 
@@ -894,6 +905,24 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let action = try await subject.getTimeoutAction(userId: "1")
         XCTAssertEqual(action, .logout)
+    }
+
+    /// `getTwoFactorNoticeDisplayState(userId:)` gets the display state of the two-factor notice for the user.
+    func test_getTwoFactorNoticeDisplayState() async throws {
+        appSettingsStore.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "person@example.com")
+
+        let value = try await subject.getTwoFactorNoticeDisplayState(userId: "person@example.com")
+        XCTAssertEqual(value, .canAccessEmail)
+    }
+
+    /// `getTwoFactorNoticeDisplayState()` gets the display state of the two-factor notice for the current user
+    /// and throws an error if there is no current user.
+    func test_getTwoFactorNoticeDisplayState_noId() async throws {
+        appSettingsStore.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "1")
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            _ = try await subject.getTwoFactorNoticeDisplayState()
+        }
     }
 
     /// `getTwoFactorToken(email:)` gets the two-factor code associated with the email.
@@ -1265,6 +1294,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             _ = try SendData(context: context, userId: "1", send: .fixture())
         }
 
+        var mergeChangesCount = 0
+        let publisher = NotificationCenter.default
+            .publisher(for: NSManagedObjectContext.didMergeChangesObjectIDsNotification)
+            .sink { _ in mergeChangesCount += 1 }
+        defer { publisher.cancel() }
+
         try await subject.logoutAccount(userInitiated: true)
 
         XCTAssertEqual(appSettingsStore.biometricAuthenticationEnabled, [:])
@@ -1283,6 +1318,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try XCTAssertEqual(context.count(for: PasswordHistoryData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: PolicyData.fetchByUserIdRequest(userId: "1")), 0)
         try XCTAssertEqual(context.count(for: SendData.fetchByUserIdRequest(userId: "1")), 0)
+
+        // All of the data should be deleted within a single merge.
+        XCTAssertEqual(mergeChangesCount, 1)
     }
 
     /// `logoutAccount(_:)` removes the account from the account list and sets the active account to
@@ -1399,6 +1437,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         // Setting the value should update the value in the app settings store.
         subject.rememberedOrgIdentifier = "AndImOk"
         XCTAssertEqual(appSettingsStore.rememberedOrgIdentifier, "AndImOk")
+    }
+
+    /// `.getReviewPromptData()` gets the review prompt data from the app settings store.
+    func test_getReviewPromptData() async throws {
+        let expectedData = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.0",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 3
+                ),
+            ]
+        )
+        appSettingsStore.reviewPromptData = expectedData
+        let data = await subject.getReviewPromptData()
+
+        XCTAssertEqual(expectedData, data)
     }
 
     /// `getShouldTrustDevice` gets the value as expected.
@@ -1717,6 +1772,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// `setLearnNewLoginActionCardStatus(_:)` sets the learn new login action card status.
+    func test_setLearnNewLoginActionCardStatus() async {
+        await subject.setLearnNewLoginActionCardStatus(.incomplete)
+        XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .incomplete)
+
+        await subject.setLearnNewLoginActionCardStatus(.complete)
+        XCTAssertEqual(appSettingsStore.learnNewLoginActionCardStatus, .complete)
+    }
+
     /// `setLoginRequest()` sets the pending login requests.
     func test_setLoginRequest() async {
         let loginRequest = LoginRequestNotification(id: "1", userId: "10")
@@ -1790,19 +1854,19 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.encryptedPinByUserId["1"], "encryptedPin")
     }
 
-    /// `setPreAuthEnvironmentUrls` saves the pre-auth URLs.
-    func test_setPreAuthEnvironmentUrls() async {
-        let urls = EnvironmentUrlData(base: .example)
-        await subject.setPreAuthEnvironmentUrls(urls)
-        XCTAssertEqual(appSettingsStore.preAuthEnvironmentUrls, urls)
+    /// `setPreAuthEnvironmentURLs` saves the pre-auth URLs.
+    func test_setPreAuthEnvironmentURLs() async {
+        let urls = EnvironmentURLData(base: .example)
+        await subject.setPreAuthEnvironmentURLs(urls)
+        XCTAssertEqual(appSettingsStore.preAuthEnvironmentURLs, urls)
     }
 
-    /// `test_setAccountCreationEnvironmentUrls` saves the pre-auth URLs for email for a given email.
-    func test_setAccountCreationEnvironmentUrls() async {
+    /// `test_setAccountCreationEnvironmentURLs` saves the pre-auth URLs for email for a given email.
+    func test_setAccountCreationEnvironmentURLs() async {
         let email = "example@email.com"
-        let urls = EnvironmentUrlData(base: .example)
-        await subject.setAccountCreationEnvironmentUrls(urls: urls, email: email)
-        XCTAssertEqual(appSettingsStore.accountCreationEnvironmentUrls(email: email), urls)
+        let urls = EnvironmentURLData(base: .example)
+        await subject.setAccountCreationEnvironmentURLs(urls: urls, email: email)
+        XCTAssertEqual(appSettingsStore.accountCreationEnvironmentURLs(email: email), urls)
     }
 
     /// `setPreAuthServerConfig(config:)` saves the pre-auth server config.
@@ -1820,6 +1884,22 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         await subject.setPreAuthServerConfig(config: config)
         XCTAssertEqual(appSettingsStore.preAuthServerConfig, config)
+    }
+
+    /// `setReviewPromptData(_:)` sets the review prompt data.
+    func test_setReviewPromptData() async {
+        let data = ReviewPromptData(
+            reviewPromptShownForVersion: "1.2.0",
+            userActions: [
+                UserActionItem(
+                    userAction: .addedNewItem,
+                    count: 2
+                ),
+            ]
+        )
+
+        await subject.setReviewPromptData(data)
+        XCTAssertEqual(appSettingsStore.reviewPromptData, data)
     }
 
     /// `setServerConfig(_:)` sets the config values.
@@ -1931,6 +2011,12 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.settingsBadgePublisher()
         }
+    }
+
+    /// `setTwoFactorNoticeDisplayState(_:userId:)` sets the display state of the two-factor notice for the user.
+    func test_setTwoFactorNoticeDisplayState() async throws {
+        try await subject.setTwoFactorNoticeDisplayState(.hasNotSeen, userId: "person1@example.com")
+        XCTAssertEqual(appSettingsStore.twoFactorNoticeDisplayState(userId: "person1@example.com"), .hasNotSeen)
     }
 
     /// `setTwoFactorToken(_:email:)` sets the two-factor code for the email.
@@ -2100,11 +2186,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .fixture(
                 profile: .fixture(
                     avatarColor: nil,
+                    creationDate: nil,
                     email: "user@bitwarden.com",
                     emailVerified: false,
                     hasPremiumPersonally: false,
                     name: "User",
                     stamp: "stamp",
+                    twoFactorEnabled: false,
                     userId: "1"
                 )
             )
@@ -2113,11 +2201,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.updateProfile(
             from: .fixture(
                 avatarColor: "175DDC",
+                creationDate: Date(year: 2024, month: 12, day: 25),
                 email: "other@bitwarden.com",
                 emailVerified: true,
                 name: "Other",
                 premium: true,
-                securityStamp: "new stamp"
+                securityStamp: "new stamp",
+                twoFactorEnabled: true
             ),
             userId: "1"
         )
@@ -2128,11 +2218,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             .fixture(
                 profile: .fixture(
                     avatarColor: "175DDC",
+                    creationDate: Date(year: 2024, month: 12, day: 25),
                     email: "other@bitwarden.com",
                     emailVerified: true,
                     hasPremiumPersonally: true,
                     name: "Other",
                     stamp: "new stamp",
+                    twoFactorEnabled: true,
                     userId: "1"
                 )
             )

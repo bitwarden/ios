@@ -23,6 +23,7 @@ final class VaultListProcessor: StateProcessor<
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasStateService
         & HasTimeProvider
         & HasVaultRepository
@@ -32,8 +33,14 @@ final class VaultListProcessor: StateProcessor<
     /// The `Coordinator` that handles navigation.
     private let coordinator: AnyCoordinator<VaultRoute, AuthAction>
 
+    /// The task that schedules the app review prompt.
+    private(set) var reviewPromptTask: Task<Void, Never>?
+
     /// The services used by this processor.
     private let services: Services
+
+    /// The helper to handle the two-factor notice.
+    private let twoFactorNoticeHelper: TwoFactorNoticeHelper
 
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
@@ -52,12 +59,18 @@ final class VaultListProcessor: StateProcessor<
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultListState,
+        twoFactorNoticeHelper: TwoFactorNoticeHelper,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
         self.services = services
+        self.twoFactorNoticeHelper = twoFactorNoticeHelper
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
+    }
+
+    deinit {
+        reviewPromptTask?.cancel()
     }
 
     // MARK: Methods
@@ -65,10 +78,17 @@ final class VaultListProcessor: StateProcessor<
     override func perform(_ effect: VaultListEffect) async {
         switch effect {
         case .appeared:
-            await refreshVault(isManualRefresh: false)
+            await refreshVault()
             await handleNotifications()
             await checkPendingLoginRequests()
             await checkPersonalOwnershipPolicy()
+            await twoFactorNoticeHelper.maybeShowTwoFactorNotice()
+        case .checkAppReviewEligibility:
+            if await services.reviewPromptService.isEligibleForReviewPrompt() {
+                await scheduleReviewPrompt()
+            } else {
+                state.isEligibleForAppReview = false
+            }
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
@@ -86,7 +106,7 @@ final class VaultListProcessor: StateProcessor<
         case .refreshAccountProfiles:
             await refreshProfileState()
         case .refreshVault:
-            await refreshVault(isManualRefresh: true)
+            await refreshVault()
         case let .search(text):
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
@@ -107,10 +127,13 @@ final class VaultListProcessor: StateProcessor<
         case .addItemPressed:
             setProfileSwitcher(visible: false)
             coordinator.navigate(to: .addItem())
+            reviewPromptTask?.cancel()
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
             break
+        case .disappeared:
+            reviewPromptTask?.cancel()
         case let .itemPressed(item):
             switch item.itemType {
             case .cipher:
@@ -133,6 +156,12 @@ final class VaultListProcessor: StateProcessor<
             state.searchText = newValue
         case let .searchVaultFilterChanged(newValue):
             state.searchVaultFilterType = newValue
+        case .appReviewPromptShown:
+            state.isEligibleForAppReview = false
+            Task {
+                await services.reviewPromptService.setReviewPromptShownVersion()
+                await services.reviewPromptService.clearUserActions()
+            }
         case .showImportLogins:
             coordinator.navigate(to: .importLogins)
         case let .toastShown(newValue):
@@ -195,12 +224,20 @@ extension VaultListProcessor {
 
     /// Refreshes the vault's contents.
     ///
-    /// - Parameter isManualRefresh: Whether the sync is being performed as a manual refresh.
-    ///
-    private func refreshVault(isManualRefresh: Bool) async {
+    private func refreshVault() async {
         do {
+            let takingTimeTask = Task {
+                try await Task.sleep(forSeconds: 5)
+                // If we already have data, don't show the toast
+                guard case .loading = self.state.loadingState else { return }
+                self.state.toast = Toast(title: Localizations.thisIsTakingLongerThanExpected, mode: .manualDismiss)
+            }
+            defer {
+                state.toast = nil
+                takingTimeTask.cancel()
+            }
             guard let sections = try await services.vaultRepository.fetchSync(
-                isManualRefresh: isManualRefresh,
+                forceSync: false,
                 filter: state.vaultFilterType
             ) else { return }
             state.loadingState = .data(sections)
@@ -256,7 +293,7 @@ extension VaultListProcessor {
         do {
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
-                filterType: state.searchVaultFilterType
+                filter: VaultListFilter(filterType: state.searchVaultFilterType)
             )
             for try await ciphers in result {
                 return ciphers
@@ -291,6 +328,26 @@ extension VaultListProcessor {
         state.profileSwitcherState.isVisible = visible
     }
 
+    /// Triggers the app review prompt after a delay.
+    private func scheduleReviewPrompt() async {
+        reviewPromptTask?.cancel()
+        reviewPromptTask = Task {
+            do {
+                try await Task.sleep(nanoseconds: Constants.appReviewPromptDelay)
+                if await services.configService.getFeatureFlag(.appReviewPrompt) {
+                    state.isEligibleForAppReview = true
+                }
+                if await services.configService.getFeatureFlag(.enableDebugAppReviewPrompt) {
+                    state.toast = Toast(title: Constants.appReviewPromptEligibleDebugMessage)
+                }
+            } catch is CancellationError {
+                // Task was cancelled, no need to handle this error
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+
     /// Streams the user's account setup progress.
     ///
     private func streamAccountSetupProgress() async {
@@ -319,12 +376,15 @@ extension VaultListProcessor {
     private func streamVaultList() async {
         do {
             for try await value in try await services.vaultRepository
-                .vaultListPublisher(filter: state.vaultFilterType) {
+                .vaultListPublisher(filter: VaultListFilter(filterType: state.vaultFilterType)) {
                 // Check if the vault needs a sync.
                 let needsSync = try await services.vaultRepository.needsSync()
 
                 // If the data is empty, check to ensure that a sync is not needed.
                 if !needsSync || !value.isEmpty {
+                    // Dismiss the "this is taking a while" toast now that we have data,
+                    // since this might not happen because of the sync in `refreshVault()`.
+                    state.toast = nil
                     // If the data is not empty or if a sync is not needed, set the data.
                     state.loadingState = .data(value)
                 } else {

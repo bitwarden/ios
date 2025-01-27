@@ -12,6 +12,9 @@ protocol EnvironmentService {
     /// The environment's base URL.
     var baseURL: URL { get }
 
+    /// The URL for changing email address.
+    var changeEmailURL: URL { get }
+
     /// The URL for the events API.
     var eventsURL: URL { get }
 
@@ -36,6 +39,9 @@ protocol EnvironmentService {
     /// The URL for vault settings.
     var settingsURL: URL { get }
 
+    /// The URL for setting up two-factor login.
+    var setUpTwoFactorURL: URL { get }
+
     /// The URL for the web vault.
     var webVaultURL: URL { get }
 
@@ -50,7 +56,7 @@ protocol EnvironmentService {
     ///
     /// - Parameter urls: The URLs to set and use prior to user authentication.
     ///
-    func setPreAuthURLs(urls: EnvironmentUrlData) async
+    func setPreAuthURLs(urls: EnvironmentURLData) async
 }
 
 // MARK: - DefaultEnvironmentService
@@ -69,7 +75,7 @@ class DefaultEnvironmentService: EnvironmentService {
     // MARK: Private Properties
 
     /// The app's current environment URLs.
-    private var environmentUrls: EnvironmentUrls
+    private var environmentURLs: EnvironmentURLs
 
     /// The shared UserDefaults instance (NOTE: this should be the standard one just for the app,
     /// not one in the app group).
@@ -89,41 +95,41 @@ class DefaultEnvironmentService: EnvironmentService {
         self.stateService = stateService
         self.standardUserDefaults = standardUserDefaults
 
-        environmentUrls = EnvironmentUrls(environmentUrlData: .defaultUS)
+        environmentURLs = EnvironmentURLs(environmentURLData: .defaultUS)
     }
 
     // MARK: EnvironmentService
 
     func loadURLsForActiveAccount() async {
-        let urls: EnvironmentUrlData
-        let managedSettingsUrls = managedSettingsUrls()
-        if let environmentUrls = try? await stateService.getEnvironmentUrls() {
-            urls = environmentUrls
-        } else if let managedSettingsUrls {
-            urls = managedSettingsUrls
-        } else if let preAuthUrls = await stateService.getPreAuthEnvironmentUrls() {
-            urls = preAuthUrls
+        let urls: EnvironmentURLData
+        let managedSettingsURLs = managedSettingsURLs()
+        if let environmentURLs = try? await stateService.getEnvironmentURLs() {
+            urls = environmentURLs
+        } else if let managedSettingsURLs {
+            urls = managedSettingsURLs
+        } else if let preAuthURLs = await stateService.getPreAuthEnvironmentURLs() {
+            urls = preAuthURLs
         } else {
             urls = .defaultUS
         }
 
-        await setPreAuthURLs(urls: managedSettingsUrls ?? urls)
-        environmentUrls = EnvironmentUrls(environmentUrlData: urls)
+        await setPreAuthURLs(urls: managedSettingsURLs ?? urls)
+        environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: false)
 
         // swiftformat:disable:next redundantSelf
-        Logger.application.info("Loaded environment URLs: \(String(describing: self.environmentUrls))")
+        Logger.application.info("Loaded environment URLs: \(String(describing: self.environmentURLs))")
     }
 
-    func setPreAuthURLs(urls: EnvironmentUrlData) async {
-        await stateService.setPreAuthEnvironmentUrls(urls)
-        environmentUrls = EnvironmentUrls(environmentUrlData: urls)
+    func setPreAuthURLs(urls: EnvironmentURLData) async {
+        await stateService.setPreAuthEnvironmentURLs(urls)
+        environmentURLs = EnvironmentURLs(environmentURLData: urls)
 
         errorReporter.setRegion(region.errorReporterName, isPreAuth: true)
 
         // swiftformat:disable:next redundantSelf
-        Logger.application.info("Setting pre-auth URLs: \(String(describing: self.environmentUrls))")
+        Logger.application.info("Setting pre-auth URLs: \(String(describing: self.environmentURLs))")
     }
 
     // MARK: Private
@@ -132,50 +138,54 @@ class DefaultEnvironmentService: EnvironmentService {
     ///
     /// - Returns: The environment URLs that are specified as part of a managed app configuration.
     ///
-    private func managedSettingsUrls() -> EnvironmentUrlData? {
+    private func managedSettingsURLs() -> EnvironmentURLData? {
         let managedSettings = standardUserDefaults.dictionary(forKey: "com.apple.configuration.managed")
-        guard let baseUrlString = managedSettings?["baseEnvironmentUrl"] as? String,
-              let baseUrl = URL(string: baseUrlString)
+        guard let baseURLString = managedSettings?["baseEnvironmentUrl"] as? String,
+              let baseURL = URL(string: baseURLString)
         else {
             return nil
         }
-        return EnvironmentUrlData(base: baseUrl)
+        return EnvironmentURLData(base: baseURL)
     }
 }
 
 extension DefaultEnvironmentService {
     var apiURL: URL {
-        environmentUrls.apiURL
+        environmentURLs.apiURL
     }
 
     var baseURL: URL {
-        environmentUrls.baseURL
+        environmentURLs.baseURL
+    }
+
+    var changeEmailURL: URL {
+        environmentURLs.changeEmailURL
     }
 
     var eventsURL: URL {
-        environmentUrls.eventsURL
+        environmentURLs.eventsURL
     }
 
     var iconsURL: URL {
-        environmentUrls.iconsURL
+        environmentURLs.iconsURL
     }
 
     var identityURL: URL {
-        environmentUrls.identityURL
+        environmentURLs.identityURL
     }
 
     var importItemsURL: URL {
-        environmentUrls.importItemsURL
+        environmentURLs.importItemsURL
     }
 
     var recoveryCodeURL: URL {
-        environmentUrls.recoveryCodeURL
+        environmentURLs.recoveryCodeURL
     }
 
     var region: RegionType {
-        if environmentUrls.baseURL == EnvironmentUrlData.defaultUS.base {
+        if environmentURLs.baseURL == EnvironmentURLData.defaultUS.base {
             return .unitedStates
-        } else if environmentUrls.baseURL == EnvironmentUrlData.defaultEU.base {
+        } else if environmentURLs.baseURL == EnvironmentURLData.defaultEU.base {
             return .europe
         } else {
             return .selfHosted
@@ -183,14 +193,18 @@ extension DefaultEnvironmentService {
     }
 
     var sendShareURL: URL {
-        environmentUrls.sendShareURL
+        environmentURLs.sendShareURL
     }
 
     var settingsURL: URL {
-        environmentUrls.settingsURL
+        environmentURLs.settingsURL
+    }
+
+    var setUpTwoFactorURL: URL {
+        environmentURLs.setUpTwoFactorURL
     }
 
     var webVaultURL: URL {
-        environmentUrls.webVaultURL
+        environmentURLs.webVaultURL
     }
 }

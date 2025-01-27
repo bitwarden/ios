@@ -22,6 +22,9 @@ struct AddEditLoginItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
+    /// The closure to call when the fields are rendered for the guided tour.
+    var didRenderFrame: ((GuidedTourStep, CGRect) -> Void)?
+
     // MARK: View
 
     var body: some View {
@@ -32,6 +35,9 @@ struct AddEditLoginItemView: View {
         fidoField
 
         totpView
+            .guidedTourStep(.step2) { frame in
+                didRenderFrame?(.step2, frame)
+            }
 
         uriSection
     }
@@ -50,7 +56,7 @@ struct AddEditLoginItemView: View {
             ) {
                 if store.state.canViewPassword, store.state.editView {
                     AccessoryButton(
-                        asset: Asset.Images.minusCircle16,
+                        asset: Asset.Images.minusCircle24,
                         accessibilityLabel: Localizations.removePasskey
                     ) {
                         store.send(.removePasskeyPressed)
@@ -78,12 +84,15 @@ struct AddEditLoginItemView: View {
             )
         ) {
             if store.state.canViewPassword {
-                AccessoryButton(asset: Asset.Images.checkCircle16, accessibilityLabel: Localizations.checkPassword) {
+                AccessoryButton(asset: Asset.Images.checkCircle24, accessibilityLabel: Localizations.checkPassword) {
                     await store.perform(.checkPasswordPressed)
                 }
                 .accessibilityIdentifier("CheckPasswordButton")
-                AccessoryButton(asset: Asset.Images.generate16, accessibilityLabel: Localizations.generatePassword) {
+                AccessoryButton(asset: Asset.Images.generate24, accessibilityLabel: Localizations.generatePassword) {
                     store.send(.generatePasswordPressed)
+                }
+                .guidedTourStep(.step1) { frame in
+                    didRenderFrame?(.step1, frame)
                 }
                 .accessibilityIdentifier("RegeneratePasswordButton")
             }
@@ -112,11 +121,11 @@ struct AddEditLoginItemView: View {
                     ),
                     trailingContent: {
                         if store.state.canViewPassword {
-                            AccessoryButton(asset: Asset.Images.copy16, accessibilityLabel: Localizations.copyTotp) {
+                            AccessoryButton(asset: Asset.Images.copy24, accessibilityLabel: Localizations.copyTotp) {
                                 await store.perform(.copyTotpPressed)
                             }
                         }
-                        AccessoryButton(asset: Asset.Images.camera16, accessibilityLabel: Localizations.setupTotp) {
+                        AccessoryButton(asset: Asset.Images.camera24, accessibilityLabel: Localizations.setupTotp) {
                             await store.perform(.setupTotpPressed)
                         }
                     }
@@ -148,11 +157,11 @@ struct AddEditLoginItemView: View {
                 } label: {
                     HStack(alignment: .center, spacing: 4) {
                         Asset.Images.camera16.swiftUIImage
-                            .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            .imageStyle(.accessoryIcon16(scaleWithFont: true))
                         Text(Localizations.setupTotp)
                     }
                 }
-                .buttonStyle(.tertiary())
+                .buttonStyle(.secondary())
                 .accessibilityIdentifier("SetupTotpButton")
             }
         }
@@ -187,12 +196,15 @@ struct AddEditLoginItemView: View {
                             }
                         }
                     } label: {
-                        Asset.Images.cog16.swiftUIImage
-                            .imageStyle(.accessoryIcon)
+                        Asset.Images.cog24.swiftUIImage
+                            .imageStyle(.accessoryIcon24)
                     }
                     .accessibilityIdentifier("LoginUriOptionsButton")
                 }
                 .textFieldConfiguration(.url)
+            }
+            .guidedTourStep(.step3) { frame in
+                didRenderFrame?(.step3, frame)
             }
 
             Button(Localizations.newUri) {
@@ -200,7 +212,7 @@ struct AddEditLoginItemView: View {
                     store.send(.newUriPressed)
                 }
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("LoginAddNewUriButton")
         }
     }
@@ -216,7 +228,7 @@ struct AddEditLoginItemView: View {
             accessibilityIdentifier: "LoginUsernameEntry"
         ) {
             AccessoryButton(
-                asset: Asset.Images.generate16,
+                asset: Asset.Images.generate24,
                 accessibilityLabel: Localizations.generateUsername
             ) {
                 store.send(.generateUsernamePressed)

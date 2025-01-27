@@ -13,17 +13,28 @@ struct DeleteAccountView: View {
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            Image(asset: Asset.Images.warning24)
-                .foregroundColor(Color(asset: Asset.Colors.error))
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 12) {
+                Image(asset: Asset.Images.warning24)
+                    .foregroundColor(Color(asset: Asset.Colors.error))
 
-            Text(Localizations.deletingYourAccountIsPermanent)
-                .foregroundColor(Color(asset: Asset.Colors.error))
-                .styleGuide(.headline, weight: .semibold)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(Localizations.deletingYourAccountIsPermanent)
+                        .foregroundColor(Color(asset: Asset.Colors.error))
+                        .styleGuide(
+                            .headline,
+                            weight: .semibold,
+                            includeLinePadding: false,
+                            includeLineSpacing: false
+                        )
 
-            Text(Localizations.deleteAccountExplanation)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                .styleGuide(.subheadline)
+                    Text(Localizations.deleteAccountExplanation)
+                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                        .styleGuide(.subheadline)
+                }
+            }
+            .padding(12)
+            .contentBlock()
 
             VStack(spacing: 12) {
                 AsyncButton(Localizations.deleteAccount) {
@@ -37,12 +48,12 @@ struct DeleteAccountView: View {
                 } label: {
                     Text(Localizations.cancel)
                 }
-                .buttonStyle(.tertiary(isDestructive: true))
+                .buttonStyle(.secondary(isDestructive: true))
                 .accessibilityIdentifier("CANCEL")
             }
         }
         .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
-        .scrollView()
+        .scrollView(padding: 12)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)

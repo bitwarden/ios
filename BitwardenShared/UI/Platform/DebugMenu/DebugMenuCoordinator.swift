@@ -1,5 +1,13 @@
 import Foundation
 
+/// An object that is notified when the debug menu is dismissed.
+///
+protocol DebugMenuCoordinatorDelegate: AnyObject {
+    /// The debug menu has been dismissed.
+    ///
+    func didDismissDebugMenu()
+}
+
 /// A coordinator that manages navigation for the debug menu.
 ///
 final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
@@ -10,6 +18,9 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
         & HasErrorReporter
 
     // MARK: Private Properties
+
+    /// The delegate for this coordinator, which is notified when the debug menu is dismissed.
+    private weak var delegate: DebugMenuCoordinatorDelegate?
 
     /// The services used by this coordinator.
     private let services: Services
@@ -24,13 +35,16 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     /// Creates a new `DebugMenuCoordinator`.
     ///
     /// - Parameters:
+    ///   - delegate: The delegate for this coordinator, which is notified when the debug menu is dismissed.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
+        delegate: DebugMenuCoordinatorDelegate,
         services: Services,
         stackNavigator: StackNavigator
     ) {
+        self.delegate = delegate
         self.services = services
         self.stackNavigator = stackNavigator
     }
@@ -43,7 +57,9 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
     ) {
         switch route {
         case .dismiss:
-            stackNavigator?.dismiss()
+            stackNavigator?.dismiss {
+                self.delegate?.didDismissDebugMenu()
+            }
         }
     }
 

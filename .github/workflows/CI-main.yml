@@ -25,7 +25,7 @@ env:
 jobs:
   resolve-values:
     name: "Resolve values"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       version_name: ${{ steps.version_info.outputs.version_name }}
       version_number: ${{ steps.version_info.outputs.version_number }}
@@ -79,11 +79,13 @@ jobs:
           content=$(cat version-info/version_info.json)
           echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
           echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
       - name: Upload version info artifact
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
           name: version-info
           path: version-info/version_info.json
+
       - name: Set patch version for internal builds
         id: internal_versions
         run: |
@@ -120,4 +122,18 @@ jobs:
       distribute: ${{ fromJSON(needs.resolve-values.outputs.distribute_to_testflight) }}
       upload_version_info: false
       compiler-flags: "DEBUG_MENU"
+    secrets: inherit
+
+  build-simulator:
+    name: Build Simulator App
+    needs: resolve-values
+    uses: bitwarden/ios/.github/workflows/build.yml@main
+    with:
+      build-variant: Production
+      build-mode: Simulator
+      build-version: ${{ needs.resolve-values.outputs.version_name }}
+      build-number: ${{ needs.resolve-values.outputs.version_number }}
+      xcode-version: ${{ needs.resolve-values.outputs.xcode_version }}
+      distribute: false
+      upload_version_info: false
     secrets: inherit

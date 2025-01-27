@@ -2,7 +2,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class SingleSignOnProcessorTests: BitwardenTestCase {
+class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
@@ -57,6 +57,21 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_loadSingleSignOnDetails_error() async throws {
         authRepository.getSSOOrganizationIdentifierByResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loading))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+
+        XCTAssertEqual(subject.state.identifierText, "")
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` records an error if getting the org id throws
+    /// and loads the last used organization identifier.
+    @MainActor
+    func test_perform_loadSingleSignOnDetails_errorRememberedOrgId() async throws {
+        authRepository.getSSOOrganizationIdentifierByResult = .failure(BitwardenTestError.example)
         stateService.rememberedOrgIdentifier = "BestOrganization"
 
         await subject.perform(.loadSingleSignOnDetails)
@@ -83,6 +98,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
         )
+        XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
 
     /// `perform(_:)` with `.loadSingleSignOnDetails` doesn't start the login process
@@ -100,6 +116,50 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
             coordinator.routes.last,
             .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
         )
+        XCTAssertEqual(subject.state.identifierText, "")
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` doesn't start the login process
+    /// if the organization identifier is `nil`, but populates the organization identifier with the
+    /// last used identifier.
+    @MainActor
+    func test_perform_loadSingleSignOnDetails_orgIdNilRememberedOrgId() async throws {
+        authRepository.getSSOOrganizationIdentifierByResult = .success(nil)
+        stateService.rememberedOrgIdentifier = "BestOrganization"
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.first, LoadingOverlayState(title: Localizations.loading))
+        XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+        XCTAssertNotEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
+        XCTAssertNotEqual(
+            coordinator.routes.last,
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+        )
+        XCTAssertEqual(subject.state.identifierText, "BestOrganization")
+    }
+
+    /// `perform(_:)` with `.loadSingleSignOnDetails` loads the SSO organization identifier even if
+    /// there's a remembered org identifier.
+    @MainActor
+    func test_perform_loadSingleSignOnDetails_successWithRememberedOrgId() async throws {
+        authRepository.getSSOOrganizationIdentifierByResult = .success("OrgId")
+        stateService.rememberedOrgIdentifier = "SSO"
+
+        await subject.perform(.loadSingleSignOnDetails)
+
+        XCTAssertEqual(
+            coordinator.loadingOverlaysShown,
+            [
+                LoadingOverlayState(title: Localizations.loading),
+                LoadingOverlayState(title: Localizations.loggingIn),
+            ]
+        )
+        XCTAssertEqual(
+            coordinator.routes.last,
+            .singleSignOn(callbackUrlScheme: "callback", state: "state", url: .example)
+        )
+        XCTAssertEqual(subject.state.identifierText, "OrgId")
     }
 
     /// `perform(_:)` with `.loginPressed` displays an alert if organization identifier field is invalid.
@@ -196,7 +256,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase {
     func test_singleSignOnCompleted_twoFactorError() async throws {
         // Set up the mock data.
         authService.generateSingleSignOnUrlResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil, nil)
         )
         subject.state.identifierText = "BestOrganization"
 

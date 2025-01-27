@@ -138,6 +138,41 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
+    /// `.canBeLocked(userId:)` shoulr reutrn true when user has face ID.
+    func test_canBeLocked_hasFaceId() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue["1"] = "123"
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should true when user has master password.
+    func test_canBeLocked_hasMasterPassword() async {
+        stateService.userHasMasterPassword["1"] = true
+        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should true when user has PIN.
+    func test_canBeLocked_hasPin() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue["1"] = "123"
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertTrue(result)
+    }
+
+    /// `.canBeLocked(userId:)` should return false when user has no master password, no face ID, and no PIN.
+    func test_canBeLocked_hasNothing() async {
+        stateService.userHasMasterPassword["1"] = false
+        stateService.pinProtectedUserKeyValue = [:]
+        biometricsRepository.biometricUnlockStatus = .success(.notAvailable)
+        let result = await subject.canBeLocked(userId: "1")
+        XCTAssertFalse(result)
+    }
+
     /// `.canVerifyMasterPassword()`  true when user has master password.
     func test_canVerifyMasterPassword_hasMasterPassword() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
@@ -259,9 +294,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `existingAccountUserId(email:)` returns the user ID of the existing account with the same
     /// email and base URLs.
     func test_existingAccountUserId() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentUrls["1"] = .defaultUS
+        stateService.environmentURLs["1"] = .defaultUS
         stateService.isAuthenticated["1"] = true
         stateService.userIds = ["1"]
 
@@ -271,10 +306,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `existingAccountUserId(email:)` returns `nil` if getting the environment URLs throws an error.
-    func test_existingAccountUserId_getEnvironmentUrlsError() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+    func test_existingAccountUserId_getEnvironmentURLsError() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentUrlsError = StateServiceError.noAccounts
+        stateService.environmentURLsError = StateServiceError.noAccounts
         stateService.isAuthenticated["1"] = true
         stateService.userIds = ["1"]
 
@@ -285,9 +320,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `existingAccountUserId(email:)` logs an error if determining whether an account is authenticated fails.
     func test_existingAccountUserId_isAuthenticatedError() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentUrls["1"] = .defaultUS
+        stateService.environmentURLs["1"] = .defaultUS
         stateService.isAuthenticatedError = BitwardenTestError.example
         stateService.userIds = ["1"]
 
@@ -299,10 +334,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `existingAccountUserId(email:)` returns `nil` if there's an existing account with the same
     /// email but the base URLs are different.
-    func test_existingAccountUserId_matchingAccountDifferentBaseUrl() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
+    func test_existingAccountUserId_matchingAccountDifferentBaseURL() async throws {
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultEU.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentUrls["1"] = .defaultUS
+        stateService.environmentURLs["1"] = .defaultUS
         stateService.isAuthenticated["1"] = true
         stateService.userIds = ["1"]
 
@@ -315,17 +350,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// there are multiple matches for the user's email.
     func test_existingAccountUserId_multipleMatching() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentUrls["1"] = .defaultUS
-        stateService.environmentUrls["2"] = .defaultEU
+        stateService.environmentURLs["1"] = .defaultUS
+        stateService.environmentURLs["2"] = .defaultEU
         stateService.isAuthenticated["1"] = true
         stateService.isAuthenticated["2"] = true
         stateService.userIds = ["1", "2"]
 
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         var userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
         XCTAssertEqual(userId, "1")
 
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultEU.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultEU.base)
         userId = await subject.existingAccountUserId(email: "user@bitwarden.com")
         XCTAssertEqual(userId, "2")
     }
@@ -333,9 +368,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `existingAccountUserId(email:)` returns `nil` if there's an existing matching account, but
     /// the user isn't authenticated.
     func test_existingAccountUserId_notAuthenticated() async throws {
-        environmentService.baseURL = try XCTUnwrap(EnvironmentUrlData.defaultUS.base)
+        environmentService.baseURL = try XCTUnwrap(EnvironmentURLData.defaultUS.base)
         stateService.activeAccount = .fixture(profile: .fixture(email: "user@bitwarden.com", userId: "1"))
-        stateService.environmentUrls["1"] = .defaultUS
+        stateService.environmentURLs["1"] = .defaultUS
         stateService.isAuthenticated["1"] = false
         stateService.userIds = ["1"]
 
@@ -395,6 +430,76 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         clientService.mockCrypto.getUserEncryptionKeyResult = .failure(BiometricsServiceError.getAuthKeyFailed)
         try await subject.allowBioMetricUnlock(false)
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+    }
+
+    /// `checkSessionTimeout()` locks an account when the session timeout action is lock.
+    func test_checkSessionTimeout_lockAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` logs out an account when the session timeout action is logout.
+    func test_checkSessionTimeout_logoutAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [anneAccount.profile.userId: .logout]
+        vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+        XCTAssertTrue(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
+        XCTAssertTrue(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` takes no action to an active  account when the session timeout if the `handleActiveUser`
+    /// closure is nil.
+    func test_checkSessionTimeout_activeAccount() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+        XCTAssertFalse(vaultTimeoutService.isLocked(userId: anneAccount.profile.userId))
+    }
+
+    /// `checkSessionTimeout()` calls `handleActiveUser` closure when the active account is timed out.
+    /// closure is nil.
+    func test_checkSessionTimeout_timedOut_activeAccount_handleActiveUser() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = true
+        await subject.checkSessionTimeouts { [beeAccount] userId in
+            XCTAssertEqual(userId, beeAccount.profile.userId)
+        }
+    }
+
+    /// `checkSessionTimeout()` takes no action to an active account is not timed out.
+    func test_checkSessionTimeout_activeAccount_handleActiveUser() async {
+        stateService.accounts = [anneAccount, beeAccount]
+        stateService.activeAccount = beeAccount
+        stateService.timeoutAction = [beeAccount.profile.userId: .lock]
+        vaultTimeoutService.shouldSessionTimeout[beeAccount.profile.userId] = false
+        await subject.checkSessionTimeouts { _ in
+            XCTFail(
+                "shouldn't be calling `handleActiveUser` closure if the active account is not timed out"
+            )
+        }
+    }
+
+    /// `checkSessionTimeout(handleActiveUser:)` logs an error if one occurs when checking timeouts.
+    func test_checkSessionTimeout_error() async {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.accounts = [account]
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        await subject.checkSessionTimeouts(handleActiveUser: nil)
+
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `getProfilesState()` throws an error when the accounts are nil.
@@ -492,6 +597,90 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 email: shortName.profile.email,
                 userId: shortName.profile.userId,
                 userInitials: "AJ"
+            )
+        )
+    }
+
+    /// `getProfilesState()` can return `canBeLocked` accounts correctly.
+    func test_getProfilesState_canBeLocked() async { // swiftlint:disable:this function_body_length
+        stateService.accounts = [
+            anneAccount, // This account does not have a MasterPassword, Face ID, or PIN configured.
+            beeAccount, // This account does not have a MasterPassword, Face ID configured, but has a PIN.
+        ]
+
+        stateService.isAuthenticated = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+        ]
+        vaultTimeoutService.isClientLocked = [
+            anneAccount.profile.userId: true,
+            beeAccount.profile.userId: true,
+        ]
+
+        stateService.userHasMasterPassword = [
+            anneAccount.profile.userId: false,
+            beeAccount.profile.userId: false,
+        ]
+        stateService.pinProtectedUserKeyValue = [
+            beeAccount.profile.userId: "123",
+        ]
+        let accounts = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false
+        ).accounts
+
+        XCTAssertEqual(
+            accounts.first,
+            ProfileSwitcherItem.fixture(
+                canBeLocked: false,
+                color: Color(hex: anneAccount.profile.avatarColor ?? ""),
+                email: anneAccount.profile.email,
+                userId: anneAccount.profile.userId,
+                userInitials: "AA"
+            )
+        )
+        XCTAssertEqual(
+            accounts[1],
+            ProfileSwitcherItem.fixture(
+                color: Color(hex: beeAccount.profile.avatarColor ?? ""),
+                email: beeAccount.profile.email,
+                userId: beeAccount.profile.userId,
+                userInitials: "BA"
+            )
+        )
+
+        // Test case for an account with no MasterPassword and PIN, but with Face ID enabled.
+        stateService.accounts = [
+            claimedAccount,
+        ]
+
+        stateService.isAuthenticated = [
+            claimedAccount.profile.userId: true,
+        ]
+        vaultTimeoutService.isClientLocked = [
+            claimedAccount.profile.userId: true,
+        ]
+        stateService.userHasMasterPassword = [
+            claimedAccount.profile.userId: false,
+        ]
+
+        biometricsRepository.biometricUnlockStatus = .success(.available(.faceID, enabled: true))
+        let accounts2 = await subject.getProfilesState(
+            allowLockAndLogout: true,
+            isVisible: true,
+            shouldAlwaysHideAddAccount: false,
+            showPlaceholderToolbarIcon: false
+        ).accounts
+        XCTAssertEqual(
+            accounts2.first,
+            ProfileSwitcherItem.fixture(
+                canBeLocked: true,
+                color: Color(hex: claimedAccount.profile.avatarColor ?? ""),
+                email: claimedAccount.profile.email,
+                userId: claimedAccount.profile.userId,
+                userInitials: "CL"
             )
         )
     }
@@ -867,7 +1056,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `isLocked` returns the lock state of an active user.
     func test_isLocked_noHistory() async throws {
-        let account: Account = .fixture()
+        let account: BitwardenShared.Account = .fixture()
         stateService.activeAccount = account
         vaultTimeoutService.isClientLocked[account.profile.userId] = true
         let isLocked = try await subject.isLocked()
@@ -1383,9 +1572,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `setActiveAccount(userId: )` loads the environment URLs for the active account.
-    func test_setActiveAccount_loadsEnvironmentUrls() async throws {
-        let urls = EnvironmentUrlData(base: .example)
-        let account = Account.fixture(settings: .fixture(environmentUrls: urls))
+    func test_setActiveAccount_loadsEnvironmentURLs() async throws {
+        let urls = EnvironmentURLData(base: .example)
+        let account = Account.fixture(settings: .fixture(environmentURLs: urls))
         stateService.accounts = [account]
         _ = try await subject.setActiveAccount(userId: account.profile.userId)
         XCTAssertTrue(environmentService.didLoadURLsForActiveAccount)
@@ -1771,6 +1960,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
         XCTAssertFalse(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
     }
 
     /// `logout` successfully logs out a user.
@@ -1791,6 +1981,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
         XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.

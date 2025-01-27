@@ -31,7 +31,8 @@ struct ManualEntryView: View {
                 ManualEntryAction.addPressed(code: store.state.authenticatorKey)
             )
         }
-        .buttonStyle(.tertiary())
+        .buttonStyle(.secondary())
+        .accessibilityIdentifier("AddTOTPManuallyButton")
     }
 
     /// The main content of the view.
@@ -45,7 +46,8 @@ struct ManualEntryView: View {
                 text: store.binding(
                     get: \.authenticatorKey,
                     send: ManualEntryAction.authenticatorKeyChanged
-                )
+                ),
+                accessibilityIdentifier: "AddTOTPManuallyField"
             )
             addButton
             footer

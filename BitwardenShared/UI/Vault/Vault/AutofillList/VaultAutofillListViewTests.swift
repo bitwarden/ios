@@ -32,20 +32,12 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     // MARK: Tests
 
-    /// Tapping the add an item button dispatches the `.addTapped` action.
-    @MainActor
-    func test_addItemButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: true))
-    }
-
-    /// Tapping the add item floating acrtion button dispatches the `.addItemPressed` action.`
+    /// Tapping the add item floating action button dispatches the `.addItemPressed` action.`
     @MainActor
     func test_addItemFloatingActionButton_tap() throws {
         let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
         try fab.button().tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: false))
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromFAB: true))
     }
 
     /// Tapping the add an item button dispatches the `.addTapped` action.
@@ -56,7 +48,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
         let button = try subject.inspect().find(button: Localizations.savePasskeyAsNewLogin)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromToolbar: false))
+        XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromFAB: false))
     }
 
     /// Tapping the cancel button dispatches the `.cancelTapped` action.
@@ -294,6 +286,107 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         )
     }
 
+    /// The populated view renders correctly when autofilling text to insert.
+    @MainActor
+    func test_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsert() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.isAutofillingTextToInsertList = true
+        processor.state.vaultListSections = [
+            VaultListSection(
+                id: "",
+                items: [
+                    .fixture(cipherView: .fixture(
+                        login: .fixture(username: "email@example.com"),
+                        name: "Example"
+                    )),
+                    .fixture(cipherView: .fixture(id: "12", name: "Example", type: .secureNote)),
+                    .fixture(cipherView: .loginFixture(
+                        attachments: [.fixture()],
+                        id: "13",
+                        login: .fixture(username: "user@bitwarden.com"),
+                        name: "Bitwarden",
+                        organizationId: "1"
+                    )),
+                ],
+                name: "Favorites"
+            ),
+            VaultListSection(
+                id: "2",
+                items: [
+                    VaultListItem(
+                        id: "21",
+                        itemType: .group(.login, 123)
+                    ),
+                    VaultListItem(
+                        id: "22",
+                        itemType: .group(.card, 25)
+                    ),
+                    VaultListItem(
+                        id: "23",
+                        itemType: .group(.identity, 1)
+                    ),
+                    VaultListItem(
+                        id: "24",
+                        itemType: .group(.secureNote, 0)
+                    ),
+                ],
+                name: "Types"
+            ),
+        ]
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
+    /// The populated view renders correctly when autofilling text to insert when filtering by group.
+    @MainActor
+    func test_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsertWithGroup() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.isAutofillingTextToInsertList = true
+        processor.state.group = .login
+        processor.state.vaultListSections = [
+            VaultListSection(
+                id: "Items",
+                items: [
+                    .fixture(
+                        cipherView: .fixture(
+                            id: "1",
+                            login: .fixture(username: "email@example.com"),
+                            name: "Example"
+                        )
+                    ),
+                    .fixture(cipherView: .fixture(
+                        id: "2",
+                        login: .fixture(
+                            username: "An equally long subtitle that should also take up more than one line"
+                        ),
+                        name: "An extra long name that should take up more than one line"
+                    )),
+                    .fixture(cipherView: .fixture(
+                        id: "3",
+                        login: .fixture(username: "email@example.com"),
+                        name: "Example"
+                    )),
+                    .fixture(cipherView: .fixture(
+                        id: "4",
+                        login: .fixture(username: "email@example.com"),
+                        name: "Example"
+                    )),
+                ],
+                name: Localizations.items
+            ),
+        ]
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
     /// The view renders correctly when searching a term with populated results.
     @MainActor
     func test_snapshot_vaultAutofillList_searching_populated() {
@@ -331,4 +424,4 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }
-}
+} // swiftlint:disable:this file_length

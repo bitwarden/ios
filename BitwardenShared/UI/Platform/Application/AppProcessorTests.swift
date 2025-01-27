@@ -176,55 +176,17 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         vaultTimeoutService.shouldSessionTimeout["1"] = true
         notificationCenterService.willEnterForegroundSubject.send()
+        // Wait for the checkSessionTimeouts method to be called
+        waitFor(authRepository.checkSessionTimeoutCalled)
 
+        // Simulate calling the handleActiveUser closure
+        if let handleActiveUserClosure = authRepository.handleActiveUserClosure {
+            Task {
+                await handleActiveUserClosure("1")
+            }
+        }
         waitFor(!coordinator.events.isEmpty)
         XCTAssertEqual(coordinator.events, [.didTimeout(userId: "1")])
-    }
-
-    /// `init()` subscribes to will enter foreground events and logs an error if one occurs when
-    /// checking timeouts.
-    func test_init_appForeground_error() {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-        stateService.accounts = [account]
-        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
-
-        notificationCenterService.willEnterForegroundSubject.send()
-
-        waitFor(!errorReporter.errors.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// `init()` subscribes to will enter foreground events and handles an inactive user timeout.
-    func test_init_appForeground_inactiveUserTimeout() {
-        let account1 = Account.fixture(profile: .fixture(userId: "1"))
-        let account2 = Account.fixture(profile: .fixture(userId: "2"))
-        stateService.activeAccount = account1
-        stateService.accounts = [account1, account2]
-
-        vaultTimeoutService.shouldSessionTimeout["2"] = true
-        notificationCenterService.willEnterForegroundSubject.send()
-
-        waitFor(vaultTimeoutService.isClientLocked["2"] == true)
-        XCTAssertEqual(vaultTimeoutService.isClientLocked, ["2": true])
-    }
-
-    /// `init()` subscribes to will enter foreground events and handles an inactive user timeout
-    /// with an logout action.
-    func test_init_appForeground_inactiveUserTimeoutLogout() {
-        let account1 = Account.fixture(profile: .fixture(userId: "1"))
-        let account2 = Account.fixture(profile: .fixture(userId: "2"))
-        stateService.activeAccount = account1
-        stateService.accounts = [account1, account2]
-        authRepository.sessionTimeoutAction["2"] = .logout
-
-        vaultTimeoutService.shouldSessionTimeout["2"] = true
-        notificationCenterService.willEnterForegroundSubject.send()
-
-        waitFor(authRepository.logoutCalled)
-        XCTAssertTrue(authRepository.logoutCalled)
-        XCTAssertEqual(authRepository.logoutUserId, "2")
-        XCTAssertFalse(authRepository.logoutUserInitiated)
     }
 
     /// `init()` subscribes to will enter foreground events ands completes the user's autofill setup
@@ -245,6 +207,35 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 2 }
 
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `init()` subscribes to will enter foreground events and handles accountBecameActive if the
+    /// never timeout account is unlocked in extension.
+    @MainActor
+    func test_init_appForeground_checkAccountBecomeActive() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        let account: Account = .fixture(profile: .fixture(userId: "2"))
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+        authRepository.vaultTimeout = [userId: .never]
+        authRepository.isLockedResult = .success(true)
+        stateService.manuallyLockedAccounts = [userId: false]
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(
+            coordinator.events.last,
+            AppEvent.accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
     }
 
     /// `init()` subscribes to will enter foreground events and logs an error if one occurs while
@@ -718,6 +709,26 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `provideOTPCredential(for:repromptPasswordValidated:)` returns the credential with the specified identifier.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential() async throws {
+        let credential = ASOneTimeCodeCredential(code: "123")
+        autofillCredentialService.provideOTPCredentialResult = .success(credential)
+
+        let providedCredential = try await subject.provideOTPCredential(for: "1")
+        XCTAssertEqual(providedCredential.code, "123")
+    }
+
+    /// `provideOTPCredential(for:repromptPasswordValidated:)` throws an error if one occurs.
+    @available(iOS 18.0, *)
+    func test_provideOTPCredential_error() async throws {
+        autofillCredentialService.provideOTPCredentialResult = .failure(ASExtensionError(.userInteractionRequired))
+
+        await assertAsyncThrows(error: ASExtensionError(.userInteractionRequired)) {
+            _ = try await subject.provideOTPCredential(for: "1")
+        }
+    }
+
     /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
     /// master password screen.
     @MainActor
@@ -1033,6 +1044,39 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
 
         XCTAssertEqual(stateService.accountSetupAutofill, ["1": .complete])
+    }
+
+    /// `switchAccountsForLoginRequest(to:showAlert:)` has the coordinator switch to the specified
+    /// account without showing a confirmation alert.
+    @MainActor
+    func test_switchAccountsForLoginRequest() async {
+        await subject.switchAccountsForLoginRequest(to: .fixture(), showAlert: false)
+
+        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: "1", isAutomatic: false)])
+    }
+
+    /// `switchAccountsForLoginRequest(to:showAlert:)` shows an alert to confirm the user wants to
+    /// switch to the specified account and then has the coordinator switch accounts.
+    @MainActor
+    func test_switchAccountsForLoginRequest_showAlert() async throws {
+        let account = Account.fixture()
+        await subject.switchAccountsForLoginRequest(to: account, showAlert: true)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(
+            alert,
+            .confirmation(
+                title: Localizations.logInRequested,
+                message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email),
+                confirmationHandler: {}
+            )
+        )
+
+        try await alert.tapAction(title: Localizations.cancel)
+        XCTAssertTrue(coordinator.events.isEmpty)
+
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(coordinator.events, [.switchAccounts(userId: account.profile.userId, isAutomatic: false)])
     }
 
     /// `unlockVaultWithNeverlockKey()` unlocks it calling the auth repository.

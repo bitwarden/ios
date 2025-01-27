@@ -15,6 +15,7 @@ class AddEditSendItemProcessor:
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasSendRepository
 
     // MARK: Private Properties
@@ -87,8 +88,6 @@ class AddEditSendItemProcessor:
             presentFileSelectionAlert()
         case .clearExpirationDatePressed:
             state.customExpirationDate = nil
-        case let .customDeletionDateChanged(newValue):
-            state.customDeletionDate = newValue
         case let .customExpirationDateChanged(newValue):
             state.customExpirationDate = newValue
         case let .deactivateThisSendChanged(newValue):
@@ -258,6 +257,7 @@ class AddEditSendItemProcessor:
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
                 }
+                await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }

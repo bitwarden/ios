@@ -15,8 +15,21 @@ struct GeneratorView: View {
     @ObservedObject var store: Store<GeneratorState, GeneratorAction, GeneratorEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
+        VStack(spacing: 0) {
+            if store.state.availableGeneratorTypes.count > 1 {
+                BitwardenSegmentedControl(
+                    isSelectionDisabled: { store.state.isGeneratorTypeDisabled($0) },
+                    selection: store.binding(get: \.generatorType, send: GeneratorAction.generatorTypeChanged),
+                    selections: store.state.availableGeneratorTypes
+                )
+                .padding(.horizontal, 12)
+                .padding(.bottom, 12)
+                .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 24) {
                 if store.state.isPolicyInEffect {
                     InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
                         .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
@@ -26,7 +39,7 @@ struct GeneratorView: View {
                     sectionView(section)
                 }
             }
-            .padding(16)
+            .scrollView(padding: 12)
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
@@ -73,61 +86,60 @@ struct GeneratorView: View {
     ///
     @ViewBuilder
     func sectionView(_ section: GeneratorState.FormSection<GeneratorState>) -> some View {
-        // swiftlint:disable:previous function_body_length
-        if let title = section.title {
-            Text(title.uppercased())
-                .styleGuide(.footnote)
-                .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .accessibilityAddTraits(.isHeader)
+        VStack(spacing: 8) {
+            ForEach(section.groups) { group in
+                if group.showInContentBlock {
+                    ContentBlock(dividerLeadingPadding: 16) {
+                        groupView(group)
+                    }
+                } else {
+                    groupView(group)
+                }
+            }
         }
+    }
 
-        VStack(spacing: 12) {
-            ForEach(section.fields) { field in
-                switch field.fieldType {
-                case let .emailWebsite(website):
-                    emailWebsiteView(website: website)
-                case let .generatedValue(generatedValueField):
-                    generatedValueView(field: generatedValueField)
-                case let .menuEmailType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.emailTypeChanged(newValue))
-                    }
-                case let .menuGeneratorType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.generatorTypeChanged(newValue))
-                    }
-                case let .menuPasswordGeneratorType(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.passwordGeneratorTypeChanged(newValue))
-                    }.disabled(store.state.policyOptions?.overridePasswordType ?? false)
-                case let .menuUsernameForwardedEmailService(menuField):
-                    FormMenuFieldView(field: menuField) { newValue in
-                        store.send(.usernameForwardedEmailServiceChanged(newValue))
-                    }
-                case let .menuUsernameGeneratorType(menuField):
-                    menuUsernameGeneratorTypeView(field: menuField)
-                case let .slider(sliderField):
-                    SliderFieldView(field: sliderField) { isEditing in
-                        store.send(.sliderEditingChanged(field: sliderField, isEditing: isEditing))
-                    } onValueChanged: { newValue in
-                        store.send(.sliderValueChanged(field: sliderField, value: newValue))
-                    }
-                case let .stepper(stepperField):
-                    StepperFieldView(field: stepperField) { newValue in
-                        store.send(.stepperValueChanged(field: stepperField, value: newValue))
-                    }
-                case let .text(textField):
-                    FormTextFieldView(field: textField) { newValue in
-                        store.send(.textValueChanged(field: textField, value: newValue))
-                    } isPasswordVisibleChangedAction: { newValue in
-                        store.send(.textFieldIsPasswordVisibleChanged(field: textField, value: newValue))
-                    }
-                    .focused($focusedFieldKeyPath, equals: textField.keyPath)
-                case let .toggle(toggleField):
-                    ToggleFieldView(field: toggleField) { isOn in
-                        store.send(.toggleValueChanged(field: toggleField, isOn: isOn))
-                    }
+    /// Returns a view for displaying a group of items within a section of the form.
+    ///
+    /// - Parameter group: The group of items to display.
+    ///
+    func groupView(_ group: GeneratorState.FormSectionGroup<GeneratorState>) -> some View {
+        ForEach(group.fields) { field in
+            switch field.fieldType {
+            case let .emailWebsite(website):
+                emailWebsiteView(website: website)
+            case let .generatedValue(generatedValueField):
+                generatedValueView(field: generatedValueField)
+            case let .menuEmailType(menuField):
+                FormMenuFieldView(field: menuField) { newValue in
+                    store.send(.emailTypeChanged(newValue))
+                }
+            case let .menuUsernameForwardedEmailService(menuField):
+                FormMenuFieldView(field: menuField) { newValue in
+                    store.send(.usernameForwardedEmailServiceChanged(newValue))
+                }
+            case let .menuUsernameGeneratorType(menuField):
+                menuUsernameGeneratorTypeView(field: menuField)
+            case let .slider(sliderField):
+                SliderFieldView(field: sliderField) { isEditing in
+                    store.send(.sliderEditingChanged(field: sliderField, isEditing: isEditing))
+                } onValueChanged: { newValue in
+                    store.send(.sliderValueChanged(field: sliderField, value: newValue))
+                }
+            case let .stepper(stepperField):
+                StepperFieldView(field: stepperField) { newValue in
+                    store.send(.stepperValueChanged(field: stepperField, value: newValue))
+                }
+            case let .text(textField):
+                FormTextFieldView(field: textField) { newValue in
+                    store.send(.textValueChanged(field: textField, value: newValue))
+                } isPasswordVisibleChangedAction: { newValue in
+                    store.send(.textFieldIsPasswordVisibleChanged(field: textField, value: newValue))
+                }
+                .focused($focusedFieldKeyPath, equals: textField.keyPath)
+            case let .toggle(toggleField):
+                ToggleFieldView(field: toggleField) { isOn in
+                    store.send(.toggleValueChanged(field: toggleField, isOn: isOn))
                 }
             }
         }
@@ -156,26 +168,21 @@ struct GeneratorView: View {
             PasswordText(password: field.value, isPasswordVisible: true)
                 .accessibilityIdentifier("GeneratedPasswordLabel")
         } accessoryContent: {
-            Button {
-                store.send(.copyGeneratedValue)
-            } label: {
-                Asset.Images.copy16.swiftUIImage
-                    .imageStyle(.accessoryIcon)
-            }
-            .buttonStyle(.accessory)
-            .accessibilityIdentifier("CopyValueButton")
-            .accessibilityLabel(Localizations.copyPassword)
-
-            Button {
+            AccessoryButton(
+                asset: Asset.Images.generate24,
+                accessibilityLabel: Localizations.generatePassword,
+                accessibilityIdentifier: "RegenerateValueButton"
+            ) {
                 store.send(.refreshGeneratedValue)
-            } label: {
-                Asset.Images.generate16.swiftUIImage
-                    .imageStyle(.accessoryIcon)
             }
-            .buttonStyle(.accessory)
-            .accessibilityIdentifier("RegenerateValueButton")
-            .accessibilityLabel(Localizations.generatePassword)
         }
+
+        Button(Localizations.copy) {
+            store.send(.copyGeneratedValue)
+        }
+        .buttonStyle(.primary())
+        .accessibilityIdentifier("CopyValueButton")
+        .accessibilityLabel(Localizations.copyPassword)
     }
 
     /// Returns a view for displaying a menu for selecting the username type

@@ -5,26 +5,16 @@ import SwiftUI
 extension View {
     // MARK: Buttons
 
-    /// Returns a toolbar button configured for adding an item.
+    /// Returns a toolbar button configured for cancelling an operation in a view.
     ///
     /// - Parameters:
     ///   - hidden: Whether to hide the toolbar item.
     ///   - action: The action to perform when the button is tapped.
-    /// - Returns: A `Button` configured for adding an item.
-    ///
-    func addToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
-        toolbarButton(asset: Asset.Images.plus24, label: Localizations.add, action: action)
-            .hidden(hidden)
-            .accessibilityIdentifier("AddItemButton")
-    }
-
-    /// Returns a toolbar button configured for cancelling an operation in a view.
-    ///
-    /// - Parameter action: The action to perform when the button is tapped.
     /// - Returns: A `Button` configured for cancelling an operation in a view.
     ///
-    func cancelToolbarButton(action: @escaping () -> Void) -> some View {
+    func cancelToolbarButton(hidden: Bool = false, action: @escaping () -> Void) -> some View {
         toolbarButton(Localizations.cancel, action: action)
+            .hidden(hidden)
             .accessibilityIdentifier("CancelButton")
     }
 
@@ -71,6 +61,7 @@ extension View {
             Image(asset: asset, label: Text(label))
                 .imageStyle(.toolbarIcon)
         }
+        .buttonStyle(.toolbar)
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
         // padding to be applied equally on both sides of the image. This results in extra padding
         // along the margin though.
@@ -86,8 +77,7 @@ extension View {
     ///
     func toolbarButton(_ label: String, action: @escaping () -> Void) -> some View {
         Button(label, action: action)
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
-            .styleGuide(.body)
+            .buttonStyle(.toolbar)
             // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
             // padding to be applied equally on both sides of the image. This results in extra padding
             // along the margin though.
@@ -103,8 +93,7 @@ extension View {
     ///
     func toolbarButton(_ label: String, action: @escaping () async -> Void) -> some View {
         AsyncButton(label, action: action)
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
-            .styleGuide(.body)
+            .buttonStyle(.toolbar)
             // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
             // padding to be applied equally on both sides of the image. This results in extra padding
             // along the margin though.
@@ -134,27 +123,18 @@ extension View {
 
     // MARK: Toolbar Items
 
-    /// A `ToolbarItem` for views with an add button.
+    /// A `ToolbarItem` for views with a cancel text button.
     ///
     /// - Parameters:
     ///   - hidden: Whether to hide the toolbar item.
-    ///   - action: The action to perform when the add button is tapped.
-    /// - Returns: A `ToolbarItem` with an add button.
-    ///
-    func addToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            addToolbarButton(hidden: hidden, action: action)
-        }
-    }
-
-    /// A `ToolbarItem` for views with a cancel text button.
-    ///
-    /// - Parameter action: The action to perform when the cancel button is tapped.
+    ///   - action: The action to perform when the cancel button is tapped.
     /// - Returns: A `ToolbarItem` with a dismiss button.
     ///
-    func cancelToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
+    func cancelToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            cancelToolbarButton(action: action)
+            if !hidden {
+                cancelToolbarButton(hidden: hidden, action: action)
+            }
         }
     }
 

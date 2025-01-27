@@ -120,6 +120,18 @@ struct AddEditSendItemState: Equatable, Sendable {
 
     /// The type of this item.
     var type: SendType = .text
+
+    // MARK: Computed Properties
+
+    /// The deletion date options available in the menu.
+    var availableDeletionDateTypes: [SendDeletionDateType] {
+        switch mode {
+        case .add, .shareExtension:
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
+        case .edit:
+            [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(customDeletionDate)]
+        }
+    }
 }
 
 extension AddEditSendItemState {
@@ -135,7 +147,7 @@ extension AddEditSendItemState {
             currentAccessCount: Int(sendView.accessCount),
             customDeletionDate: sendView.deletionDate,
             customExpirationDate: sendView.expirationDate,
-            deletionDate: .custom,
+            deletionDate: .custom(sendView.deletionDate),
             expirationDate: .custom,
             fileData: nil,
             fileName: sendView.file?.fileName,
@@ -178,7 +190,7 @@ extension AddEditSendItemState {
             disabled: isDeactivateThisSendOn,
             hideEmail: isHideMyEmailOn,
             revisionDate: Date(),
-            deletionDate: deletionDate.calculateDate(customValue: customDeletionDate) ?? Date(),
+            deletionDate: deletionDate.calculateDate() ?? Date(),
             expirationDate: expirationDate.calculateDate(customValue: customExpirationDate)
         )
     }

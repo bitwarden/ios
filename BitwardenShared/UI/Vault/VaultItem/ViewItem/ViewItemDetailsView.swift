@@ -62,7 +62,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                 ? Asset.Images.checkSquare16.swiftUIImage
                                 : Asset.Images.square16.swiftUIImage
                             image
-                                .imageStyle(.accessoryIcon(color: Asset.Colors.textSecondary.swiftUIColor))
+                                .imageStyle(.accessoryIcon16(color: Asset.Colors.textSecondary.swiftUIColor))
 
                             Text(customField.name ?? "")
                                 .styleGuide(.body)
@@ -92,7 +92,9 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                 if let linkedIdType = customField.linkedIdType {
                                     HStack(spacing: 8) {
                                         Asset.Images.link16.swiftUIImage
-                                            .imageStyle(.accessoryIcon(color: Asset.Colors.textSecondary.swiftUIColor))
+                                            .imageStyle(
+                                                .accessoryIcon16(color: Asset.Colors.textSecondary.swiftUIColor)
+                                            )
                                         Text(linkedIdType.localizedName)
                                     }
                                 }
@@ -110,16 +112,16 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customHiddenField))
                                     } label: {
-                                        Asset.Images.copy16.swiftUIImage
-                                            .imageStyle(.accessoryIcon)
+                                        Asset.Images.copy24.swiftUIImage
+                                            .imageStyle(.accessoryIcon24)
                                     }
                                     .accessibilityIdentifier("HiddenCustomFieldCopyValueButton")
                                 case .text:
                                     Button {
                                         store.send(.copyPressed(value: value, field: .customTextField))
                                     } label: {
-                                        Asset.Images.copy16.swiftUIImage
-                                            .imageStyle(.accessoryIcon)
+                                        Asset.Images.copy24.swiftUIImage
+                                            .imageStyle(.accessoryIcon24)
                                     }
                                     .accessibilityIdentifier("TextCustomFieldCopyValueButton")
                                 case .boolean, .linked:
@@ -138,7 +140,6 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         SectionView(Localizations.itemInformation, contentSpacing: 12) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
                 .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
 
             // check for type
             switch store.state.type {
@@ -244,8 +245,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                             Button {
                                 openURL(url)
                             } label: {
-                                Asset.Images.externalLink16.swiftUIImage
-                                    .imageStyle(.accessoryIcon)
+                                Asset.Images.externalLink24.swiftUIImage
+                                    .imageStyle(.accessoryIcon24)
                             }
                             .accessibilityLabel(Localizations.launch)
                         }
@@ -253,8 +254,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                         Button {
                             store.send(.copyPressed(value: uri.uri, field: .uri))
                         } label: {
-                            Asset.Images.copy16.swiftUIImage
-                                .imageStyle(.accessoryIcon)
+                            Asset.Images.copy24.swiftUIImage
+                                .imageStyle(.accessoryIcon24)
                         }
                         .accessibilityLabel(Localizations.copy)
                         .accessibilityIdentifier("CopyValueButton")

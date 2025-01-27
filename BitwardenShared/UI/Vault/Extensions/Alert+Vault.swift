@@ -4,6 +4,34 @@ import UIKit
 // MARK: - Alert+Vault
 
 extension Alert {
+    /// Returns an alert confirming cancelling the Credential Exchange export process.
+    /// - Parameter action: The action to perform if the user confirms.
+    /// - Returns: An alert confirming cancelling the Credential Exchange export process.
+    static func confirmCancelCXFExport(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.cancel,
+            message: Localizations.areYouSureYouWantToCancelTheExportProcessQuestionMark,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
+    /// Returns an alert confirming cancelling the Credential Exchange import process.
+    /// - Parameter action: The action to perform if the user confirms.
+    /// - Returns: An alert confirming cancelling the Credential Exchange import process.
+    static func confirmCancelCXFImport(action: @escaping () async -> Void) -> Alert {
+        Alert(
+            title: Localizations.cancel,
+            message: Localizations.areYouSureYouWantToCancelTheImportProcessQuestionMark,
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _, _ in await action() },
+                AlertAction(title: Localizations.no, style: .cancel),
+            ]
+        )
+    }
+
     /// Returns an alert confirming whether to clone an item without the FIDO2 credential.
     ///
     /// - Parameter action: The action to perform if the user confirms.
@@ -161,7 +189,7 @@ extension Alert {
     ///
     /// - Returns: An alert presenting the user with options to select an attachment type.
     @MainActor
-    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count cyclomatic_complexity line_length
+    static func moreOptions( // swiftlint:disable:this function_body_length function_parameter_count
         canCopyTotp: Bool,
         cipherView: CipherView,
         hasMasterPassword: Bool,

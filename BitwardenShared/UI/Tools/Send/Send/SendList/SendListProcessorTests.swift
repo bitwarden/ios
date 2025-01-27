@@ -16,6 +16,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
     var subject: SendListProcessor!
+    var vaultRepository: MockVaultRepository!
 
     override func setUp() {
         super.setUp()
@@ -25,6 +26,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         sendRepository = MockSendRepository()
+        vaultRepository = MockVaultRepository()
 
         subject = SendListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
@@ -32,7 +34,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
-                sendRepository: sendRepository
+                sendRepository: sendRepository,
+                vaultRepository: vaultRepository
             ),
             state: SendListState()
         )
@@ -46,6 +49,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         policyService = nil
         sendRepository = nil
         subject = nil
+        vaultRepository = nil
     }
 
     // MARK: Tests
@@ -61,11 +65,12 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(subject.state.isSendDisabled)
     }
 
-    /// `perform(_:)` with `refresh` calls the refresh method.
+    /// `perform(_:)` with `refresh` requests a fetch sync update, but does not force a sync.
     func test_perform_refresh() async {
         await subject.perform(.refresh)
 
         XCTAssertTrue(sendRepository.fetchSyncCalled)
+        XCTAssertEqual(sendRepository.fetchSyncForceSync, false)
     }
 
     /// `perform(_:)` with `search(_:)` and an empty search query returns early.
@@ -275,7 +280,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.
     @MainActor
-    func test_perform_streamSendList_nilType() {
+    func test_perform_streamSendList_nilType() throws {
         let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
         sendRepository.sendListSubject.send([
             SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
@@ -285,11 +290,12 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             await subject.perform(.streamSendList)
         }
 
-        waitFor(!subject.state.sections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
-        XCTAssertEqual(subject.state.sections.count, 1)
-        XCTAssertEqual(subject.state.sections[0].items, [sendListItem])
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[0].items, [sendListItem])
     }
 
     /// `perform(_:)` with `.streamSendList` records any errors.
@@ -306,9 +312,65 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes,
+    /// syncing first if a sync is needed and the vault is empty.
+    @MainActor
+    func test_perform_streamSendList_nilType_needsSync() throws {
+        let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
+        sendRepository.fetchSyncHandler = { [weak self] in
+            guard let self else { return }
+            // Update `sendListSubject` after `fetchSync` is called to simulate an initially empty
+            // vault, syncing, and then sends in the list.
+            sendRepository.sendListSubject.send([
+                SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
+            ])
+        }
+        vaultRepository.needsSyncResult = .success(true)
+
+        let task = Task {
+            await subject.perform(.streamSendList)
+        }
+
+        waitFor(subject.state.loadingState.data?.count == 1)
+        task.cancel()
+
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[0].items, [sendListItem])
+        XCTAssertTrue(vaultRepository.needsSyncCalled)
+    }
+
+    /// `perform(_:)` with `.streamSendList` logs an error if sync is needed but it fails, but still
+    /// receives any updates from the publisher if the send list changes.
+    @MainActor
+    func test_perform_streamSendList_nilType_needsSync_error() throws {
+        sendRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+
+        let task = Task {
+            await subject.perform(.streamSendList)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+
+        let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
+        sendRepository.sendListSubject.send([
+            SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
+        ])
+
+        waitFor(subject.state.loadingState.data?.count == 1)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[0].items, [sendListItem])
+        XCTAssertTrue(vaultRepository.needsSyncCalled)
+    }
+
     /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.
     @MainActor
-    func test_perform_streamSendList_textType() {
+    func test_perform_streamSendList_textType() throws {
         let sendListItem = SendListItem.fixture()
         sendRepository.sendTypeListSubject.send([
             sendListItem,
@@ -320,12 +382,29 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             await subject.perform(.streamSendList)
         }
 
-        waitFor(!subject.state.sections.isEmpty)
+        waitFor(subject.state.loadingState.data != nil)
         task.cancel()
 
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
         XCTAssertEqual(sendRepository.sendTypeListPublisherType, .text)
-        XCTAssertEqual(subject.state.sections.count, 1)
-        XCTAssertEqual(subject.state.sections[0].items, [sendListItem])
+        XCTAssertEqual(sections.count, 1)
+        XCTAssertEqual(sections[0].items, [sendListItem])
+    }
+
+    /// `perform(_:)` with `.streamSendList` updates the state's send list whenever it changes.
+    @MainActor
+    func test_perform_streamSendList_textType_empty() throws {
+        subject.state.type = .text
+
+        let task = Task {
+            await subject.perform(.streamSendList)
+        }
+
+        waitFor(subject.state.loadingState.data != nil)
+        task.cancel()
+
+        let sections = try XCTUnwrap(subject.state.loadingState.data)
+        XCTAssertTrue(sections.isEmpty)
     }
 
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.

@@ -18,6 +18,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
+        & HasVaultRepository
 
     // MARK: - Private Properties
 
@@ -131,6 +132,9 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showItem(route: SendItemRoute, delegate: SendItemDelegate) {
         let navigationController = UINavigationController()
+        if case .add = route {
+            navigationController.removeHairlineDivider()
+        }
         let coordinator = module.makeSendItemCoordinator(
             delegate: delegate,
             stackNavigator: navigationController

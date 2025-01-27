@@ -37,7 +37,7 @@ struct VaultListItemRowView: View {
 
                                 if cipherItem.organizationId != nil {
                                     Asset.Images.collections16.swiftUIImage
-                                        .imageStyle(.accessoryIcon(
+                                        .imageStyle(.accessoryIcon16(
                                             color: Asset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true
                                         ))
@@ -47,7 +47,7 @@ struct VaultListItemRowView: View {
 
                                 if cipherItem.attachments?.isEmpty == false {
                                     Asset.Images.paperclip16.swiftUIImage
-                                        .imageStyle(.accessoryIcon(
+                                        .imageStyle(.accessoryIcon16(
                                             color: Asset.Colors.textSecondary.swiftUIColor,
                                             scaleWithFont: true
                                         ))
@@ -92,10 +92,12 @@ struct VaultListItemRowView: View {
                         Text(group.name)
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                            .accessibilityIdentifier("GroupNameLabel")
                         Spacer()
                         Text("\(count)")
                             .styleGuide(.body)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                            .accessibilityIdentifier("GroupCountLabel")
 
                     case let .totp(name, model):
                         totpCodeRow(name, model)
@@ -111,6 +113,8 @@ struct VaultListItemRowView: View {
                     .padding(.leading, 22 + 16 + 16)
             }
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier(store.state.item.vaultItemAccessibilityId)
     }
 
     // MARK: - Private Views

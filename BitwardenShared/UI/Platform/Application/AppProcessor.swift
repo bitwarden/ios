@@ -83,7 +83,12 @@ public class AppProcessor {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
                 await checkIfExtensionSwitchedAccounts()
-                await checkAccountsForTimeout()
+                await services.authRepository.checkSessionTimeouts { [weak self] activeUserId in
+                    // Allow the AuthCoordinator to handle the timeout for the active user
+                    // so any necessary routing can occur.
+                    await self?.coordinator?.handleEvent(.didTimeout(userId: activeUserId))
+                }
+                await handleNeverTimeOutAccountBecameActive()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
                 debugWillEnterForeground?()
@@ -121,14 +126,7 @@ public class AppProcessor {
             route = await getOtpAuthUrlRoute(url: url)
         }
         guard let route else { return }
-
-        if let userId = try? await services.stateService.getActiveAccountId(),
-           !services.vaultTimeoutService.isLocked(userId: userId),
-           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
-            coordinator?.navigate(to: route)
-        } else {
-            await coordinator?.handleEvent(.setAuthCompletionRoute(route))
-        }
+        await checkIfLockedAndPerformNavigation(route: route)
     }
 
     /// Starts the application flow by navigating the user to the first flow.
@@ -211,6 +209,16 @@ public class AppProcessor {
             )))
     }
 
+    /// Handles importing credentials using Credential Exchange Protocol.
+    /// - Parameter credentialImportToken: The credentials import token to user with the `ASCredentialImportManager`.
+    @available(iOSApplicationExtension 18.2, *)
+    public func handleImportCredentials(credentialImportToken: UUID) async {
+        let route = AppRoute.tab(.vault(.importCXF(
+            .importCredentials(credentialImportToken: credentialImportToken)
+        )))
+        await checkIfLockedAndPerformNavigation(route: route)
+    }
+
     // MARK: Autofill Methods
 
     /// Returns a `ASPasswordCredential` that matches the user-requested credential which can be
@@ -228,6 +236,25 @@ public class AppProcessor {
         repromptPasswordValidated: Bool = false
     ) async throws -> ASPasswordCredential {
         try await services.autofillCredentialService.provideCredential(
+            for: id,
+            autofillCredentialServiceDelegate: self,
+            repromptPasswordValidated: repromptPasswordValidated
+        )
+    }
+
+    /// Provides an OTP credential for the identity
+    /// - Parameters:
+    ///   - id: The identifier of the user-requested credential to return
+    ///   - repromptPasswordValidated: true` if master password reprompt was required for the
+    ///     cipher and the user's master password was validated.
+    /// - Returns: An `ASOneTimeCodeCredential` that matches the user-requested credential which can be
+    ///     used for autofill..
+    @available(iOSApplicationExtension 18.0, *)
+    public func provideOTPCredential(
+        for id: String,
+        repromptPasswordValidated: Bool = false
+    ) async throws -> ASOneTimeCodeCredential {
+        try await services.autofillCredentialService.provideOTPCredential(
             for: id,
             autofillCredentialServiceDelegate: self,
             repromptPasswordValidated: repromptPasswordValidated
@@ -322,36 +349,25 @@ public class AppProcessor {
 extension AppProcessor {
     // MARK: Private Methods
 
-    /// Checks if any accounts have timed out.
+    /// Handles unlocking the vault for a manually locked account that uses never lock
+    /// and was previously unlocked in an extension.
     ///
-    private func checkAccountsForTimeout() async {
-        do {
-            let accounts = try await services.stateService.getAccounts()
-            let activeUserId = try await services.stateService.getActiveAccountId()
-            for account in accounts {
-                let userId = account.profile.userId
-                let shouldTimeout = try await services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)
-                if shouldTimeout {
-                    if userId == activeUserId {
-                        // Allow the AuthCoordinator to handle the timeout for the active user
-                        // so any necessary routing can occur.
-                        await coordinator?.handleEvent(.didTimeout(userId: activeUserId))
-                    } else {
-                        let timeoutAction = try? await services.authRepository.sessionTimeoutAction(userId: userId)
-                        switch timeoutAction {
-                        case .lock:
-                            await services.vaultTimeoutService.lockVault(userId: userId)
-                        case .logout, .none:
-                            try await services.authRepository.logout(userId: userId, userInitiated: false)
-                        }
-                    }
-                }
-            }
-        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
-            // No-op: nothing to do if there's no accounts or an active account.
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+    private func handleNeverTimeOutAccountBecameActive() async {
+        guard
+            appExtensionDelegate?.isInAppExtension != true,
+            await (try? services.authRepository.isLocked()) == true,
+            await (try? services.authRepository.sessionTimeoutValue()) == .never,
+            await (try? services.stateService.getManuallyLockedAccount(userId: nil)) == false,
+            let account = try? await services.stateService.getActiveAccount()
+        else { return }
+
+        await coordinator?.handleEvent(
+            .accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
     }
 
     /// Checks if the active account was switched while in the extension. If this occurs, the app
@@ -367,6 +383,19 @@ extension AppProcessor {
             await coordinator?.handleEvent(.didStart)
         } catch {
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Checks if the vault is locked and performs the navigation to the `AppRoute`
+    /// or sets it as the auth completion route.
+    /// - Parameter route: The `AppRoute` to go to.
+    private func checkIfLockedAndPerformNavigation(route: AppRoute) async {
+        if let userId = try? await services.stateService.getActiveAccountId(),
+           !services.vaultTimeoutService.isLocked(userId: userId),
+           await (try? services.vaultTimeoutService.hasPassedSessionTimeout(userId: userId)) == false {
+            coordinator?.navigate(to: route)
+        } else {
+            await coordinator?.handleEvent(.setAuthCompletionRoute(route))
         }
     }
 
@@ -501,33 +530,29 @@ extension AppProcessor: NotificationServiceDelegate {
     ///
     /// - Parameters:
     ///   - account: The account associated with the login request.
-    ///   - loginRequest: The login request to show.
     ///   - showAlert: Whether to show the alert or simply switch the account.
     ///
-    func switchAccounts(to account: Account, for loginRequest: LoginRequest, showAlert: Bool) {
-        DispatchQueue.main.async {
-            if showAlert {
-                self.coordinator?.showAlert(.confirmation(
-                    title: Localizations.logInRequested,
-                    message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email)
-                ) {
-                    self.switchAccounts(to: account.profile.userId, for: loginRequest)
-                })
-            } else {
-                self.switchAccounts(to: account.profile.userId, for: loginRequest)
-            }
+    func switchAccountsForLoginRequest(to account: Account, showAlert: Bool) async {
+        if showAlert {
+            coordinator?.showAlert(.confirmation(
+                title: Localizations.logInRequested,
+                message: Localizations.loginAttemptFromXDoYouWantToSwitchToThisAccount(account.profile.email)
+            ) {
+                await self.switchAccountsForLoginRequest(to: account.profile.userId)
+            })
+        } else {
+            await switchAccountsForLoginRequest(to: account.profile.userId)
         }
     }
 
-    /// Switch to the specified account and show the login request.
+    /// Switch to the specified account so they can see the login request.
     ///
-    /// - Parameters:
-    ///   - userId: The userId of the account to switch to.
-    ///   - loginRequest: The login request to show.
+    /// - Parameter userId: The user ID of the account to switch to.
     ///
-    private func switchAccounts(to userId: String, for loginRequest: LoginRequest) {
-        (coordinator as? VaultCoordinatorDelegate)?.didTapAccount(userId: userId)
-        coordinator?.navigate(to: .loginRequest(loginRequest))
+    private func switchAccountsForLoginRequest(to userId: String) async {
+        // Switch to the account, the login request will be shown when their vault loads (either
+        // immediately or after vault unlock).
+        await coordinator?.handleEvent(.switchAccounts(userId: userId, isAutomatic: false))
     }
 }
 

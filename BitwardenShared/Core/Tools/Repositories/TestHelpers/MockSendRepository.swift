@@ -14,7 +14,8 @@ class MockSendRepository: SendRepository {
     var doesActiveAccountHaveVerifiedEmailResult: Result<Bool, Error> = .success(true)
 
     var fetchSyncCalled = false
-    var fetchSyncIsManualRefresh: Bool?
+    var fetchSyncForceSync: Bool?
+    var fetchSyncHandler: (() -> Void)?
     var fetchSyncResult: Result<Void, Error> = .success(())
 
     var searchSendSearchText: String?
@@ -81,9 +82,10 @@ class MockSendRepository: SendRepository {
         try doesActiveAccountHaveVerifiedEmailResult.get()
     }
 
-    func fetchSync(isManualRefresh: Bool) async throws {
+    func fetchSync(forceSync: Bool) async throws {
         fetchSyncCalled = true
-        fetchSyncIsManualRefresh = isManualRefresh
+        fetchSyncForceSync = forceSync
+        fetchSyncHandler?()
         try fetchSyncResult.get()
     }
 

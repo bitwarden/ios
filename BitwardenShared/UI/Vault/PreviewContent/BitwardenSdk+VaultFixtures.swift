@@ -421,6 +421,50 @@ extension BitwardenSdk.FieldView {
     }
 }
 
+extension BitwardenSdk.IdentityView {
+    static func fixture(
+        title: String? = nil,
+        firstName: String? = nil,
+        middleName: String? = nil,
+        lastName: String? = nil,
+        address1: String? = nil,
+        address2: String? = nil,
+        address3: String? = nil,
+        city: String? = nil,
+        state: String? = nil,
+        postalCode: String? = nil,
+        country: String? = nil,
+        company: String? = nil,
+        email: String? = nil,
+        phone: String? = nil,
+        ssn: String? = nil,
+        username: String? = nil,
+        passportNumber: String? = nil,
+        licenseNumber: String? = nil
+    ) -> BitwardenSdk.IdentityView {
+        BitwardenSdk.IdentityView(
+            title: title,
+            firstName: firstName,
+            middleName: middleName,
+            lastName: lastName,
+            address1: address1,
+            address2: address2,
+            address3: address3,
+            city: city,
+            state: state,
+            postalCode: postalCode,
+            country: country,
+            company: company,
+            email: email,
+            phone: phone,
+            ssn: ssn,
+            username: username,
+            passportNumber: passportNumber,
+            licenseNumber: licenseNumber
+        )
+    }
+}
+
 extension BitwardenSdk.Login {
     static func fixture(
         autofillOnPageLoad: Bool? = nil,

@@ -113,7 +113,7 @@ struct ProfileSwitcherRow: View {
             .accessibilityLabel(Localizations.account)
         case .addAccount:
             Asset.Images.plus16.swiftUIImage
-                .imageStyle(.accessoryIcon(color: Asset.Colors.iconSecondary.swiftUIColor))
+                .imageStyle(.accessoryIcon16(color: Asset.Colors.iconSecondary.swiftUIColor))
                 .padding(4)
         }
     }
@@ -227,16 +227,23 @@ struct ProfileSwitcherRow: View {
             await store.perform(.accessibility(.select(profileSwitcherItem)))
         }
         .conditionalAccessibilityAsyncAction(
-            if: store.state.allowLockAndLogout,
+            if: store.state.allowLockAndLogout && profileSwitcherItem.canBeLocked
+                && profileSwitcherItem.isUnlocked,
             named: Localizations.lock
         ) {
             await store.perform(.accessibility(.lock(profileSwitcherItem)))
         }
         .conditionalAccessibilityAction(
-            if: store.state.allowLockAndLogout,
+            if: store.state.allowLockAndLogout && !profileSwitcherItem.isLoggedOut,
             named: Localizations.logOut
         ) {
             store.send(.accessibility(.logout(profileSwitcherItem)))
+        }
+        .conditionalAccessibilityAction(
+            if: store.state.allowLockAndLogout && profileSwitcherItem.isLoggedOut,
+            named: Localizations.remove
+        ) {
+            store.send(.accessibility(.remove(profileSwitcherItem)))
         }
         .accessibility(
             if: isSelected,
