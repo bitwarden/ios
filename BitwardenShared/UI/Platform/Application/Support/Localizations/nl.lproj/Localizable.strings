@@ -67,6 +67,9 @@
 "Tools" = "Hulpmiddelen";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Vingerafdruk gebruiken om te ontgrendelen";
+"UseThisButtonToGenerateANewUniquePassword" = "Gebruik deze knop voor het aanmaken van een nieuw uniek wachtwoord.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Je hoeft de authenticatiesleutel alleen in te stellen voor logins die tweestapsnaanmelding met een code vereisen. De sleutel genereert continu zescijferige codes waarmee je kunt inloggen.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Je moet een webadres toevoegen om automatisch invullen te gebruiken om toegang te krijgen tot dit account.";
 "Username" = "Gebruikersnaam";
 "ValidationFieldRequired" = "Vul het veld %1$@ in.";
 "ValueHasBeenCopied" = "%1$@ is gekopieerd";
@@ -79,6 +82,7 @@
 "Website" = "Website";
 "Yes" = "Ja";
 "Account" = "Account";
+"StepOfStep" = "%1$d VAN %2$d";
 "AccountCreated" = "Je account is aangemaakt! Je kunt nu inloggen.";
 "AddAnItem" = "Item toevoegen";
 "AppExtension" = "App-extensie";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Mogelijke overeenkomstige items";
 "Search" = "Zoeken";
 "BitwardenAutofillServiceSearch" = "Je zoekt automatisch aanvullen voor \"%1$@\".";
+"LearnAboutNewLogins" = "Meer informatie over nieuwe logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We doorlopen de functies voor het toevoegen van nieuwe inloggegevens.";
 "LearnOrg" = "Meer over organisaties";
 "CannotOpenApp" = "Kan de app \"%1$@\" niet openen.";
 "AuthenticatorAppTitle" = "Authenticatie-app";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Alle Sends";
 "Sends" = "Sends";
-"NameInfo" = "Een vriendelijke naam om deze Send te beschrijven.";
 "Text" = "Tekst";
 "TypeText" = "Tekst";
-"TypeTextInfo" = "De tekst die je wilt versturen.";
 "HideTextByDefault" = "Verberg de tekst standaard bij het gebruiken van de Send";
 "TypeFile" = "Bestand";
 "FileTypeIsSelected" = "Bestandstype geselecteerd.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Er is iets fout gegaan";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Kan het geselecteerde item niet verplaatsen. Probeer het opnieuw.";
 "Done" = "Klaar";
+"Next" = "Volgende";
 "CopyPublicKey" = "Publieke sleutel kopiëren";
 "CopyPrivateKey" = "Privésleutel kopiëren";
 "CopyFingerprint" = "Vingerafdruk kopiëren";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Automatisch invullen van item %1$@ mislukt";
 "ExportingFailed" = "Exporteren mislukt";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Je moet mogelijk apparaattoegangscode of biometrie inschakelen.";
-"StartImportCXPDescriptionLong" = "Wachtwoorden, passkeys, creditcards en persoonlijke identiteitsgegevens van een andere wachtwoordmanager importeren.\n\nJe gegevens worden **niet** verwijderd bij je vorige provider.";
+"StartImportCXFDescriptionLong" = "Wachtwoorden, passkeys, creditcards en persoonlijke identiteitsgegevens van een andere wachtwoordmanager importeren.\n\nJe gegevens worden **niet** verwijderd bij je vorige provider.";
 "ImportPasswords" = "Wachtwoorden importeren";
 "ImportingEllipsis" = "Importeren...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Weet u zeker dat je het importproces wilt annuleren?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Kluis exporteren naar een andere app";
 "ExportItems" = "Items exporteren";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Wachtwoorden, passkeys, creditcards en alle persoonlijke identiteitsgegevens exporteren.";
-"ExportOptions" = "Exportopties";
-"ExportAllItems" = "Alle items exporteren (%1$@)";
-"ExportSelectedItems" = "Geselecteerde items exporteren";
-"SelectedItems" = "Geselecteerde items";
 "RetryExport" = "Export opnieuw proberen";
 "ExportFailed" = "Exporteren mislukt";
 "ThereHasBeenAnIssueExportingItems" = "Er ging iets mis met het exporteren van items.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Weet je zeker dat je het exportproces wilt annuleren?";
 "PleaseDoNotCloseTheApp" = "App niet afsluiten a.u.b.";
+"ThisIsTakingLongerThanExpected" = "Dit duurt langer dan verwacht";
+"ItemsToExport" = "Te exporteren items";
+"TextToShare" = "Te delen tekst";
+"SendDetails" = "Send-details";
+"SendNameRequired" = "Send-naam (verplicht)";

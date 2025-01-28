@@ -67,6 +67,9 @@
 "Tools" = "Rīki";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Izmantot pirkstu nospiedumu, lai atslēgtu";
+"UseThisButtonToGenerateANewUniquePassword" = "Šī poga ir izmantojama, lai izveidotu jaunu, neatkārtojamu paroli.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Būs nepieciešams tikai uzstādīt autentificētāja atslēgu pieteikšanās vienumiem, kuriem ir nepieciešama divpakāpju pieteikšanāš ar kodu. Atslēga nepārtraukti izveidots sešciparu kodus, kurus izmantot, lai pieteiktos.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Jāpievieno tīmekļa adrese, lai izmantotu automātisko aizpildi, lai piekļūtu šim kontam.";
 "Username" = "Lietotājvārds";
 "ValidationFieldRequired" = "Lauks \"%1$@\" ir nepieciešams.";
 "ValueHasBeenCopied" = "%1$@ ir starpliktuvē";
@@ -79,6 +82,7 @@
 "Website" = "Tīmekļvietne";
 "Yes" = "Jā";
 "Account" = "Konts";
+"StepOfStep" = "%1$d. NO %2$d";
 "AccountCreated" = "Jaunais konts ir izveidots. Tagad vari pieteikties.";
 "AddAnItem" = "Pievienot vienumu";
 "AppExtension" = "Lietotņu paplašinājums";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Iespējamie atbilstošie vienumi";
 "Search" = "Meklēt";
 "BitwardenAutofillServiceSearch" = "Tiek meklēts automātiskās aizpildes vienums \"%1$@\".";
+"LearnAboutNewLogins" = "Uzzināt par jauniem pieteikšanās vienumiem";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Mēs izrādīsim galvenās jaunu pieteikšanās vienumu pievienošanas iespējas.";
 "LearnOrg" = "Uzzināt par apvienībām";
 "CannotOpenApp" = "Nevar atvērt lietotni \"%1$@\".";
 "AuthenticatorAppTitle" = "Autentificētāja lietotne";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Visi Send";
 "Sends" = "Send vienumi";
-"NameInfo" = "Lasāms nosaukums, kas apraksta šo Send.";
 "Text" = "Teksts";
 "TypeText" = "Teksts";
-"TypeTextInfo" = "Teksts, kuru ir vēlme nosūtīt.";
 "HideTextByDefault" = "Piekļūstot Sūtījumam, pēc noklusējuma paslēpiet tekstu";
 "TypeFile" = "Datne";
 "FileTypeIsSelected" = "Datnes veids ir atlasīts.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Kaut kas nogājis greizi";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Nebija iespējams pārvietot atlasīto vienumu. Lūgumus mēģināt vēlreiz.";
 "Done" = "Darīts";
+"Next" = "Turpināt";
 "CopyPublicKey" = "Ievietot starpliktuvē publisko atslēgu";
 "CopyPrivateKey" = "Ievietot starpliktuvē privāto atslēgu";
 "CopyFingerprint" = "Ievietot starpliktuvē pirkstu nospiedumu";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Neizdevās automātiski aizpildīt vienumu %1$@";
 "ExportingFailed" = "Izgūšana neizdevās";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Var būt nepieciešams iespējot ierīces piekļuves kodu vai biometriju.";
-"StartImportCXPDescriptionLong" = "Paroļu, piekļuves atslēgu, kredītkaršu un jebkādas personīgās identitātes informācijas ievietošana no cita paroļu pārvaldnieka.\n\nIepriekšējā nodrošinātāja dati **netiks** izdzēsti.";
+"StartImportCXFDescriptionLong" = "Paroļu, piekļuves atslēgu, kredītkaršu un jebkādas personīgās identitātes informācijas ievietošana no cita paroļu pārvaldnieka.\n\nIepriekšējā nodrošinātāja dati **netiks** izdzēsti.";
 "ImportPasswords" = "Ievietot paroles";
 "ImportingEllipsis" = "Ievieto...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Vai tiešām atcelt ievietošanu?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Izgūt glabātavas saturu citā lietotnē";
 "ExportItems" = "Izgūt vienumus";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Izgūt paroles, piekļuves atslēgas, maksājumu kartes un jebkādu personīgo identitātes informāciju.";
-"ExportOptions" = "Izgūšanas iespējas";
-"ExportAllItems" = "Izgūt visus vienumus (%1$@)";
-"ExportSelectedItems" = "Izgūt atlasītos vienumus";
-"SelectedItems" = "Atlasītie vienumi";
 "RetryExport" = "Atkārtot izgūšanu";
 "ExportFailed" = "Izgūšana neizdevās";
 "ThereHasBeenAnIssueExportingItems" = "Vienumu izgušanā bija sarežģījums.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Vai tiešām atcelt izgūšanu?";
 "PleaseDoNotCloseTheApp" = "Lūgums neaizvērt lietotni.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Izgūstamie vienumi";
+"TextToShare" = "Kopīgojamais teksts";
+"SendDetails" = "Informācija par Send";
+"SendNameRequired" = "Send nosaukums (nepieciešams)";
