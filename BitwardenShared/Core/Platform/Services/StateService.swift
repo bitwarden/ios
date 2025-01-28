@@ -530,6 +530,7 @@ protocol StateService: AnyObject {
     /// - Parameter status: The status of Learn generator Action Card.
     ///
     func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async
+
     /// Sets the status of Learn New Login Action Card.
     ///
     /// - Parameter status: The status of Learn New Login Action Card.
