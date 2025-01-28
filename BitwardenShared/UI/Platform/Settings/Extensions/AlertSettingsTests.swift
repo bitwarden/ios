@@ -208,7 +208,7 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
-        XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.unknownBiometrics))
+        XCTAssertEqual(subject.message, Localizations.pinRequireUnknownBiometricsOrMasterPasswordRestart)
     }
 
     /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
