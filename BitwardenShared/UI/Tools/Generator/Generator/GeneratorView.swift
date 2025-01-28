@@ -121,24 +121,24 @@ struct GeneratorView: View {
                     }
                     .onFrameChanged(
                         id: GuidedTourStep.step4.id,
-                        perform: { id, origin, size in
-                            if id == GuidedTourStep.step4.id {
-                                let globalFrame = CGRect(origin: origin, size: size)
-                                var visibleFrame = globalFrame
-                                let generatorViewFrame = geometryProxy.frame(in: .global)
-                                if globalFrame.size.height + globalFrame.origin.y > generatorViewFrame.height
-                                    + generatorViewFrame.origin.y {
-                                    visibleFrame.size.height = generatorViewFrame.height
-                                        + generatorViewFrame.origin.y
-                                        - globalFrame.origin.y
-                                }
-                                store.send(
-                                    .guidedTourViewAction(.didRenderViewToSpotlight(
-                                        frame: visibleFrame,
-                                        step: .step4
-                                    ))
-                                )
+                        perform: { origin, size in
+                            // The spotlight region for step 4 is quite large and may not fit on the
+                            // screen even in portrait mode, potentially leaving some parts hidden.
+                            // This calculation helps identify the visible portion of
+                            // the spotlight region.
+                            let globalFrame = CGRect(origin: origin, size: size)
+                            var visibleFrame = globalFrame
+                            let generatorViewFrame = geometryProxy.frame(in: .global)
+                            if globalFrame.maxY > generatorViewFrame.maxY {
+                                visibleFrame.size.height = generatorViewFrame.maxY
+                                    - globalFrame.origin.y  
                             }
+                            store.send(
+                                .guidedTourViewAction(.didRenderViewToSpotlight(
+                                    frame: visibleFrame,
+                                    step: .step4
+                                ))
+                            )
                         }
                     )
                 } else {
@@ -184,7 +184,7 @@ struct GeneratorView: View {
                     store.send(.sliderEditingChanged(field: sliderField, isEditing: isEditing))
                 } onValueChanged: { newValue in
                     store.send(.sliderValueChanged(field: sliderField, value: newValue))
-                }.id("\(GuidedTourStep.step4.rawValue)")
+                }.id(GuidedTourStep.step4.id)
             case let .stepper(stepperField):
                 StepperFieldView(field: stepperField) { newValue in
                     store.send(.stepperValueChanged(field: stepperField, value: newValue))

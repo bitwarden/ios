@@ -10,11 +10,8 @@ extension View {
     /// - Returns: A copy of the view with the guided tour step modifier applied.
     ///
     func guidedTourStep(_ step: GuidedTourStep, perform: @escaping (CGRect) -> Void) -> some View {
-        let identifier = step.id
-        return onFrameChanged(id: identifier) { id, origin, size in
-            if identifier == "\(id)" {
-                perform(CGRect(origin: origin, size: size))
-            }
+        onFrameChanged(id: step.id) { origin, size in
+            perform(CGRect(origin: origin, size: size))
         }
         .id(step)
     }

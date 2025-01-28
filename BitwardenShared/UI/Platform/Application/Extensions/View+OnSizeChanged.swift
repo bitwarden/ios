@@ -23,7 +23,7 @@ extension View {
     ///   - perform: A closure called when the size or origin of the view changes.
     /// - Returns: A copy of the view with the sizing and origin modifier applied.
     ///
-    func onFrameChanged(id: String, perform: @escaping (String, CGPoint, CGSize) -> Void) -> some View {
+    func onFrameChanged(id: String, perform: @escaping (CGPoint, CGSize) -> Void) -> some View {
         background(
             GeometryReader { geometry in
                 Color.clear
@@ -40,7 +40,7 @@ extension View {
         )
         .onPreferenceChange(ViewFrameKey.self) { value in
             if let frame = value[id] {
-                perform(id, frame.origin, frame.size)
+                perform(frame.origin, frame.size)
             }
         }
     }
@@ -57,6 +57,10 @@ private struct ViewSizeKey: PreferenceKey {
 }
 
 /// A `PreferenceKey` used to calculate the size and origin of a view.
+/// 
+/// The `ViewFrameKey` stores a dictionary that maps a view's identifier (as a `String`)
+/// to the last received frame (`CGRect`) for that view. This allows tracking the size
+/// and position of views within a SwiftUI hierarchy.
 ///
 struct ViewFrameKey: PreferenceKey {
     static var defaultValue: [String: CGRect] = [:]
