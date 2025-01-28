@@ -391,4 +391,4 @@ struct SendListView: View {
         )
     }
 }
-#endif // swiftlint:disable:this file_length
+#endif
