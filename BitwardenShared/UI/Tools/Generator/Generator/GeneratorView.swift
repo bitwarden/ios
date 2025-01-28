@@ -131,7 +131,7 @@ struct GeneratorView: View {
                             let generatorViewFrame = geometryProxy.frame(in: .global)
                             if globalFrame.maxY > generatorViewFrame.maxY {
                                 visibleFrame.size.height = generatorViewFrame.maxY
-                                    - globalFrame.origin.y  
+                                    - globalFrame.origin.y
                             }
                             store.send(
                                 .guidedTourViewAction(.didRenderViewToSpotlight(
