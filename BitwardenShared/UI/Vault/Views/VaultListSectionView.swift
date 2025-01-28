@@ -18,14 +18,11 @@ struct VaultListSectionView<Content: View>: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 7) {
-            HStack(alignment: .firstTextBaseline) {
+            if showCount {
+                SectionHeaderView("\(section.name) (\(section.items.count))")
+            } else {
                 SectionHeaderView(section.name)
-                Spacer()
-                if showCount {
-                    SectionHeaderView(String(section.items.count))
-                }
             }
-            .accessibilityElement(children: .combine)
 
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(section.items) { item in
