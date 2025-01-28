@@ -74,7 +74,7 @@ struct AccountSecurityView: View {
 
     /// The other section.
     private var otherSection: some View {
-        SectionView(Localizations.other, titleDesignVersion: .v2) {
+        SectionView(Localizations.other) {
             ContentBlock(dividerLeadingPadding: 16) {
                 SettingsListItem(
                     Localizations.accountFingerprintPhrase,
@@ -130,7 +130,7 @@ struct AccountSecurityView: View {
 
     /// The pending login requests section.
     private var pendingLoginRequests: some View {
-        SectionView(Localizations.approveLoginRequests, titleDesignVersion: .v2) {
+        SectionView(Localizations.approveLoginRequests) {
             SettingsListItem(
                 Localizations.pendingLogInRequests,
                 hasDivider: false,
@@ -147,7 +147,7 @@ struct AccountSecurityView: View {
 
     /// The session timeout section.
     private var sessionTimeoutSection: some View {
-        SectionView(Localizations.sessionTimeout, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.sessionTimeout, contentSpacing: 8) {
             VStack(spacing: 16) {
                 if let policyTimeoutMessage = store.state.policyTimeoutMessage {
                     InfoContainer(policyTimeoutMessage)
@@ -194,7 +194,7 @@ struct AccountSecurityView: View {
 
     /// The unlock options section.
     private var unlockOptionsSection: some View {
-        SectionView(Localizations.unlockOptions, titleDesignVersion: .v2) {
+        SectionView(Localizations.unlockOptions) {
             ContentBlock(dividerLeadingPadding: 16) {
                 biometricsSetting
 
@@ -213,7 +213,7 @@ struct AccountSecurityView: View {
     /// The authenticator sync section.
     @ViewBuilder private var authenticatorSyncSection: some View {
         if store.state.shouldShowAuthenticatorSyncSection {
-            SectionView(Localizations.authenticatorSync, titleDesignVersion: .v2) {
+            SectionView(Localizations.authenticatorSync) {
                 BitwardenToggle(
                     Localizations.allowAuthenticatorSyncing,
                     isOn: store.bindingAsync(

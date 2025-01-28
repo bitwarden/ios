@@ -155,7 +155,7 @@ struct AddEditItemView: View {
     }
 
     private var informationSection: some View {
-        SectionView(Localizations.itemInformation, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.itemInformation, contentSpacing: 8) {
             if case .add = store.state.configuration, store.state.allowTypeSelection {
                 BitwardenMenuField(
                     title: Localizations.type,
@@ -241,7 +241,7 @@ struct AddEditItemView: View {
 
 private extension AddEditItemView {
     var miscellaneousSection: some View {
-        SectionView(Localizations.miscellaneous, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.miscellaneous, contentSpacing: 8) {
             BitwardenMenuField(
                 title: Localizations.folder,
                 options: store.state.folders,
@@ -288,7 +288,7 @@ private extension AddEditItemView {
     }
 
     var notesSection: some View {
-        SectionView(Localizations.notes, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.notes, contentSpacing: 8) {
             BitwardenField {
                 BitwardenUITextView(
                     text: store.binding(
@@ -305,7 +305,7 @@ private extension AddEditItemView {
 
     @ViewBuilder var ownershipSection: some View {
         if store.state.configuration.isAdding, let owner = store.state.owner {
-            SectionView(Localizations.ownership, titleDesignVersion: .v2, contentSpacing: 8) {
+            SectionView(Localizations.ownership, contentSpacing: 8) {
                 BitwardenMenuField(
                     title: Localizations.whoOwnsThisItem,
                     accessibilityIdentifier: "ItemOwnershipPicker",
@@ -318,7 +318,7 @@ private extension AddEditItemView {
             }
 
             if !owner.isPersonal {
-                SectionView(Localizations.collections, titleDesignVersion: .v2, contentSpacing: 8) {
+                SectionView(Localizations.collections, contentSpacing: 8) {
                     if store.state.collectionsForOwner.isEmpty {
                         Text(Localizations.noCollectionsToList)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)

@@ -224,7 +224,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a file type send.
     @ViewBuilder private var fileSendAttributes: some View {
-        SectionView(Localizations.file, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.file, contentSpacing: 8) {
             switch store.state.mode {
             case .add, .shareExtension:
                 if let fileName = store.state.fileName {
@@ -373,7 +373,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// Additional details for the send.
     @ViewBuilder private var sendDetails: some View {
-        SectionView(Localizations.sendDetails, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.sendDetails, contentSpacing: 8) {
             nameField
 
             if store.state.type == .text {
