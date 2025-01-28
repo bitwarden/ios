@@ -70,7 +70,7 @@ struct GuidedTourView: View {
                     VStack(alignment: .leading) {
                         cardContent()
                             .frame(maxWidth: cardMaxWidth)
-                            .onFrameChanged(id: "card") { _, _, size in
+                            .onFrameChanged(id: "card") { _, size in
                                 cardSize = size
                             }
                     }
