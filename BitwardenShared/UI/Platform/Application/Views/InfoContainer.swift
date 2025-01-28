@@ -8,29 +8,13 @@ struct InfoContainer<Content: View>: View {
     /// The content to display in the container.
     let content: Content
 
-    /// Returns an `Alignment` for the content's frame alignment based on the environment's
-    /// multiline text alignment.
-    var contentAlignment: Alignment {
-        switch textAlignment {
-        case .center:
-            Alignment.center
-        case .leading:
-            Alignment.leading
-        case .trailing:
-            Alignment.trailing
-        }
-    }
-
-    /// The text alignment to apply to the view.
-    let textAlignment: TextAlignment
-
     // MARK: View
 
     var body: some View {
         content
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .frame(maxWidth: .infinity, alignment: contentAlignment)
-            .multilineTextAlignment(textAlignment)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .multilineTextAlignment(.leading)
             .styleGuide(.callout)
             .padding(16)
             .background(Asset.Colors.backgroundTertiary.swiftUIColor)
@@ -41,30 +25,18 @@ struct InfoContainer<Content: View>: View {
 
     /// Initialize a new info container.
     ///
-    /// - Parameters:
-    ///   - textAlignment: The text alignment to apply to the view.
-    ///   - content: The content to display in the container.
+    /// - Parameter content: The content to display in the container.
     ///
-    init(
-        textAlignment: TextAlignment = .center,
-        @ViewBuilder content: () -> Content
-    ) {
+    init(@ViewBuilder content: () -> Content) {
         self.content = content()
-        self.textAlignment = textAlignment
     }
 
     /// Initialize a new info container that displays text content.
     ///
-    /// - Parameters:
-    ///   - text: The text message to display in the container.
-    ///   - textAlignment: The text alignment to apply to the view.
+    /// - Parameter text: The text message to display in the container.
     ///
-    init(
-        _ text: String,
-        textAlignment: TextAlignment = .center
-    ) where Content == Text {
+    init(_ text: String) where Content == Text {
         content = Text(text)
-        self.textAlignment = textAlignment
     }
 }
 

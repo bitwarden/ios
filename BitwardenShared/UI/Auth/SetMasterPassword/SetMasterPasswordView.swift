@@ -19,13 +19,13 @@ struct SetMasterPasswordView: View {
                     .multilineTextAlignment(.leading)
 
                 if store.state.resetPasswordAutoEnroll {
-                    InfoContainer(Localizations.resetPasswordAutoEnrollInviteWarning, textAlignment: .leading)
+                    InfoContainer(Localizations.resetPasswordAutoEnrollInviteWarning)
                 }
 
                 if let policy = store.state.masterPasswordPolicy,
                    policy.isInEffect,
                    let policySummary = policy.policySummary {
-                    InfoContainer(policySummary, textAlignment: .leading)
+                    InfoContainer(policySummary)
                 }
 
                 BitwardenTextField(
