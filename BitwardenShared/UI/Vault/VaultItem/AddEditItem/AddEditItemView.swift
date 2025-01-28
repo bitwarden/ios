@@ -65,7 +65,7 @@ struct AddEditItemView: View {
                 mapEffect: nil
             )
         ) {
-            VStack(spacing: 20) {
+            VStack(spacing: 16) {
                 if isPolicyEnabled {
                     InfoContainer(Localizations.personalOwnershipPolicyInEffect)
                         .accessibilityIdentifier("PersonalOwnershipPolicyLabel")
@@ -90,7 +90,7 @@ struct AddEditItemView: View {
                 customSection
                 ownershipSection
             }
-            .padding(16)
+            .padding(12)
         }
         .animation(.default, value: store.state.collectionsForOwner)
         .dismissKeyboardImmediately()
@@ -155,7 +155,7 @@ struct AddEditItemView: View {
     }
 
     private var informationSection: some View {
-        SectionView(Localizations.itemInformation) {
+        SectionView(Localizations.itemInformation, titleDesignVersion: .v2, contentSpacing: 8) {
             if case .add = store.state.configuration, store.state.allowTypeSelection {
                 BitwardenMenuField(
                     title: Localizations.type,
@@ -241,7 +241,7 @@ struct AddEditItemView: View {
 
 private extension AddEditItemView {
     var miscellaneousSection: some View {
-        SectionView(Localizations.miscellaneous) {
+        SectionView(Localizations.miscellaneous, titleDesignVersion: .v2, contentSpacing: 8) {
             BitwardenMenuField(
                 title: Localizations.folder,
                 options: store.state.folders,
@@ -252,36 +252,43 @@ private extension AddEditItemView {
             )
             .accessibilityIdentifier("FolderPicker")
 
-            Toggle(Localizations.favorite, isOn: store.binding(
-                get: \.isFavoriteOn,
-                send: AddEditItemAction.favoriteChanged
-            ))
-            .toggleStyle(.bitwarden)
-            .accessibilityIdentifier("ItemFavoriteToggle")
+            BitwardenToggle(
+                Localizations.favorite,
+                isOn: store.binding(
+                    get: \.isFavoriteOn,
+                    send: AddEditItemAction.favoriteChanged
+                ),
+                accessibilityIdentifier: "ItemFavoriteToggle"
+            )
+            .contentBlock()
+
             if store.state.showMasterPasswordReprompt {
-                Toggle(isOn: store.binding(
+                BitwardenToggle(isOn: store.binding(
                     get: \.isMasterPasswordRePromptOn,
                     send: AddEditItemAction.masterPasswordRePromptChanged
                 )) {
-                    HStack(alignment: .center, spacing: 4) {
+                    HStack(alignment: .center, spacing: 8) {
                         Text(Localizations.passwordPrompt)
+
                         Button {
                             openURL(ExternalLinksConstants.protectIndividualItems)
                         } label: {
                             Asset.Images.questionCircle16.swiftUIImage
                         }
-                        .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                         .accessibilityLabel(Localizations.masterPasswordRePromptHelp)
+                        .buttonStyle(.fieldLabelIcon)
                     }
                 }
                 .toggleStyle(.bitwarden)
                 .accessibilityIdentifier("MasterPasswordRepromptToggle")
+                .accessibilityLabel(Localizations.passwordPrompt)
+                .contentBlock()
             }
         }
     }
 
     var notesSection: some View {
-        SectionView(Localizations.notes) {
+        SectionView(Localizations.notes, titleDesignVersion: .v2, contentSpacing: 8) {
             BitwardenField {
                 BitwardenUITextView(
                     text: store.binding(
@@ -298,7 +305,7 @@ private extension AddEditItemView {
 
     @ViewBuilder var ownershipSection: some View {
         if store.state.configuration.isAdding, let owner = store.state.owner {
-            SectionView(Localizations.ownership) {
+            SectionView(Localizations.ownership, titleDesignVersion: .v2, contentSpacing: 8) {
                 BitwardenMenuField(
                     title: Localizations.whoOwnsThisItem,
                     accessibilityIdentifier: "ItemOwnershipPicker",
@@ -311,7 +318,7 @@ private extension AddEditItemView {
             }
 
             if !owner.isPersonal {
-                SectionView(Localizations.collections) {
+                SectionView(Localizations.collections, titleDesignVersion: .v2, contentSpacing: 8) {
                     if store.state.collectionsForOwner.isEmpty {
                         Text(Localizations.noCollectionsToList)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
@@ -320,16 +327,17 @@ private extension AddEditItemView {
                     } else {
                         ForEach(store.state.collectionsForOwner, id: \.id) { collection in
                             if let collectionId = collection.id {
-                                Toggle(isOn: store.binding(
-                                    get: { _ in store.state.collectionIds.contains(collectionId) },
-                                    send: { .collectionToggleChanged($0, collectionId: collectionId) }
-                                )) {
-                                    Text(collection.name)
-                                }
-                                .toggleStyle(.bitwarden)
+                                BitwardenToggle(
+                                    collection.name,
+                                    isOn: store.binding(
+                                        get: { _ in store.state.collectionIds.contains(collectionId) },
+                                        send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                                    )
+                                )
                                 .accessibilityIdentifier("CollectionItemSwitch")
                             }
                         }
+                        .contentBlock()
                     }
                 }
             }

@@ -52,13 +52,12 @@ struct PrimaryButtonStyle: ButtonStyle {
 
     /// The background color of this button.
     var backgroundColor: Color {
-        if isDestructive {
-            Asset.Colors.error.swiftUIColor
-        } else {
-            isEnabled
-                ? Asset.Colors.buttonFilledBackground.swiftUIColor
-                : Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
+        guard isEnabled else {
+            return Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
         }
+        return isDestructive
+            ? Asset.Colors.error.swiftUIColor
+            : Asset.Colors.buttonFilledBackground.swiftUIColor
     }
 
     /// The color of the foreground elements in this button, including text and template
