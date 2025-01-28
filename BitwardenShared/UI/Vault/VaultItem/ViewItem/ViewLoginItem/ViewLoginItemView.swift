@@ -20,16 +20,18 @@ struct ViewLoginItemView: View {
     // MARK: View
 
     var body: some View {
-        if !store.state.username.isEmpty {
-            usernameRow
-        }
+        ContentBlock {
+            if !store.state.username.isEmpty {
+                usernameRow
+            }
 
-        if !store.state.password.isEmpty {
-            passwordRow
-        }
+            if !store.state.password.isEmpty {
+                passwordRow
+            }
 
-        if let fido2Credential = store.state.fido2Credentials.first {
-            passkeyRow(fido2Credential)
+            if let fido2Credential = store.state.fido2Credentials.first {
+                passkeyRow(fido2Credential)
+            }
         }
 
         if let totpModel = store.state.totpCode {
@@ -58,15 +60,6 @@ struct ViewLoginItemView: View {
                     store.send(.passwordVisibilityPressed)
                 }
 
-                AsyncButton {
-                    await store.perform(.checkPasswordPressed)
-                } label: {
-                    Asset.Images.checkCircle24.swiftUIImage
-                        .imageStyle(.accessoryIcon24)
-                }
-                .accessibilityLabel(Localizations.checkPassword)
-                .accessibilityIdentifier("CheckPasswordButton")
-
                 Button {
                     store.send(.copyPressed(value: password, field: .password))
                 } label: {
@@ -75,6 +68,15 @@ struct ViewLoginItemView: View {
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("LoginCopyPasswordButton")
+            }
+        } footerContent: {
+            if store.state.canViewPassword {
+                AsyncButton(Localizations.checkPassword) {
+                    await store.perform(.checkPasswordPressed)
+                }
+                .buttonStyle(.bitwardenBorderless)
+                .accessibilityLabel(Localizations.checkPassword)
+                .accessibilityIdentifier("CheckPasswordButton")
             }
         }
         .accessibilityElement(children: .contain)

@@ -41,9 +41,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         let date = Date(year: 2023, month: 11, day: 5)
         let subject = AddEditSendItemState(
             customDeletionDate: date,
-            customExpirationDate: date,
             deletionDate: .custom(date),
-            expirationDate: .never,
             isDeactivateThisSendOn: true,
             isHideMyEmailOn: false,
             isHideTextByDefaultOn: true,
@@ -120,7 +118,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11)
         )
         XCTAssertEqual(
-            subject.customExpirationDate,
+            subject.expirationDate,
             Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
         )
     }
@@ -168,7 +166,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11)
         )
         XCTAssertEqual(
-            subject.customExpirationDate,
+            subject.expirationDate,
             Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
         )
     }

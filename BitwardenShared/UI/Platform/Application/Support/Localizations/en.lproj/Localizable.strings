@@ -563,9 +563,7 @@
 "DeletionTime" = "Deletion time";
 "DeletionDateInfo" = "The Send will be permanently deleted on the specified date and time.";
 "PendingDelete" = "Pending deletion";
-"ExpirationDate" = "Expiration date";
 "ExpirationTime" = "Expiration time";
-"ExpirationDateInfo" = "If set, access to this Send will expire on the specified date and time.";
 "Expired" = "Expired";
 "MaximumAccessCount" = "Maximum access count";
 "MaximumAccessCountInfo" = "If set, users will no longer be able to access this Send once the maximum access count is reached.";
@@ -680,7 +678,7 @@
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
 "SetupTotp" = "Set up TOTP";
-"OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered,\nselect Add TOTP to store the key safely";
+"OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered, select Save to store the key safely.";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
 "GenericErrorMessage" = "We were unable to process your request. Please try again or contact us.";
@@ -1101,3 +1099,4 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";

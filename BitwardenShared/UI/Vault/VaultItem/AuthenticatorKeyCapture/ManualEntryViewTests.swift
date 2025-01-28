@@ -31,23 +31,6 @@ class ManualEntryViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the add button dispatches the `.addPressed(:)` action.
-    @MainActor
-    func test_addButton_tap_empty() throws {
-        let button = try subject.inspect().find(button: Localizations.addTotp)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addPressed(code: ""))
-    }
-
-    /// Tapping the add button dispatches the `.addPressed(:)` action.
-    @MainActor
-    func test_addButton_tap_new() throws {
-        processor.state.authenticatorKey = "pasta-batman"
-        let button = try subject.inspect().find(button: Localizations.addTotp)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addPressed(code: "pasta-batman"))
-    }
-
     /// Tapping the cancel button dispatches the `.dismiss` action.
     @MainActor
     func test_closeButton_tap() throws {
@@ -64,6 +47,23 @@ class ManualEntryViewTests: BitwardenTestCase {
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .scanCodePressed)
+    }
+
+    /// Tapping the save button dispatches the `.addPressed(:)` action.
+    @MainActor
+    func test_saveButton_tap_empty() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addPressed(code: ""))
+    }
+
+    /// Tapping the save button dispatches the `.addPressed(:)` action.
+    @MainActor
+    func test_saveButton_tap_new() async throws {
+        processor.state.authenticatorKey = "pasta-batman"
+        let button = try subject.inspect().find(asyncButton: Localizations.save)
+        try await button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addPressed(code: "pasta-batman"))
     }
 
     // MARK: Snapshots
