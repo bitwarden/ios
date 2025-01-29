@@ -118,6 +118,20 @@ class VaultUnlockViewTests: BitwardenTestCase {
         )
         expectedString = Localizations.useFingerprintToUnlock
         button = try subject.inspect().find(button: expectedString)
+
+        processor.state.biometricUnlockStatus = .available(
+            .opticID,
+            enabled: true
+        )
+        expectedString = Localizations.useOpticIDToUnlock
+        button = try subject.inspect().find(button: expectedString)
+
+        processor.state.biometricUnlockStatus = .available(
+            .unknown,
+            enabled: true
+        )
+        expectedString = Localizations.useBiometricsToUnlock
+        button = try subject.inspect().find(button: expectedString)
         try button.tap()
         waitFor(!processor.effects.isEmpty)
         XCTAssertEqual(processor.effects.last, .unlockVaultWithBiometrics)
