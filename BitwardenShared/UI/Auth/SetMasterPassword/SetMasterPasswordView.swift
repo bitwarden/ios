@@ -12,24 +12,12 @@ struct SetMasterPasswordView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Image(asset: Asset.Images.Illustrations.lock)
-                    .resizable()
-                    .frame(width: 100, height: 100)
-                    .frame(maxWidth: .infinity, alignment: .center)
-
-                VStack(spacing: 12) {
-                    Text(Localizations.chooseYourMasterPassword)
-                        .styleGuide(.title2, weight: .semibold)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-
-                    Text(store.state.explanationText)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                        .styleGuide(.body)
-                        .multilineTextAlignment(.center)
-                }
+            VStack(spacing: 24) {
+                PageHeaderView(
+                    image: Asset.Images.Illustrations.lock,
+                    title: Localizations.chooseYourMasterPassword,
+                    message: store.state.explanationText
+                )
 
                 if store.state.resetPasswordAutoEnroll {
                     InfoContainer(Localizations.resetPasswordAutoEnrollInviteWarning)
