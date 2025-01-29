@@ -10,26 +10,6 @@ extension View {
         block(self)
     }
 
-    /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
-    ///
-    func dismissKeyboardImmediately() -> some View {
-        if #available(iOSApplicationExtension 16, *) {
-            return self.scrollDismissesKeyboard(.immediately)
-        } else {
-            return self
-        }
-    }
-
-    /// On iOS 16+, configures the scroll view to dismiss the keyboard interactively.
-    ///
-    func dismissKeyboardInteractively() -> some View {
-        if #available(iOSApplicationExtension 16, *) {
-            return self.scrollDismissesKeyboard(.interactively)
-        } else {
-            return self
-        }
-    }
-
     /// Focuses next field in sequence, from the given `FocusState`.
     /// Requires a currently active focus state and a next field available in the sequence.
     /// (https://stackoverflow.com/a/71531523)
@@ -130,31 +110,6 @@ extension View {
             padding: padding,
             showsIndicators: showsIndicators
         ))
-    }
-
-    //// Configures the content margin for scroll content of a specific view.
-    ///
-    /// Use this modifier to customize the content margins of different
-    /// kinds of views. For example, you can use this modifier to customize
-    /// the scroll content margins of scrollable views like ``ScrollView``. In the
-    /// following example, the scroll view will automatically inset
-    /// its content by the safe area plus an additional 20 points
-    /// on the leading and trailing edge.
-    ///
-    ///     ScrollView(.horizontal) {
-    ///         // ...
-    ///     }
-    ///     .contentMargins(.horizontal, 20.0)
-    ///
-    /// - Parameters:
-    ///   - edges: The edges to add the margins to.
-    ///   - length: The amount of margins to add.
-    func scrollContentMargins(_ edges: Edge.Set = .all, _ length: CGFloat?) -> some View {
-        if #available(iOS 17.0, *) {
-            return contentMargins(edges, length, for: .scrollContent)
-        } else {
-            return self
-        }
     }
 
     /// Returns a floating action button positioned at the bottom-right corner of the screen.

@@ -20,7 +20,7 @@ final class KeyboardResponder: ObservableObject {
     )
 
     // MARK: Initializer
-    
+
     /// Initializes a `KeyboardResponder`.
     init() {
         keyboardWillHideNotification.map { _ in
@@ -28,7 +28,7 @@ final class KeyboardResponder: ObservableObject {
         }
         .assign(to: &$isShown)
 
-        keyboardWillShowNotification.map { notification in
+        keyboardWillShowNotification.map { _ in
             true
         }
         .assign(to: &$isShown)

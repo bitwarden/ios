@@ -96,13 +96,13 @@ struct AddEditItemView: View {
             .padding(12)
         }
         .animation(.default, value: store.state.collectionsForOwner)
-        .dismissKeyboardImmediately()
+        .backport.dismissKeyboardImmediately()
         .background(
             Asset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
-        .scrollContentMargins(Edge.Set.bottom, keyboard.isShown ? 30.0 : 0.0)
+        .backport.scrollContentMargins(Edge.Set.bottom, keyboard.isShown ? 30.0 : 0.0)
     }
 
     @ViewBuilder private var cardItems: some View {
