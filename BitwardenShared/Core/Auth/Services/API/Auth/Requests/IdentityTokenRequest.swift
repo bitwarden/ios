@@ -100,7 +100,7 @@ struct IdentityTokenRequest: Request {
                 // Throw the captcha error if the captcha site key can be found.
                 throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
             } else if let error = errorModel.error,
-                      errorModel.error == IdentityTokenError.deviceError {
+                      error == IdentityTokenError.deviceError {
                 throw IdentityTokenRequestError.newDeviceNotVerified
             }
         default:
