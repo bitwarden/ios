@@ -14,6 +14,7 @@ struct IdentityTokenErrorModel: Codable {
         case siteCode = "hcaptchaSitekey"
         case ssoToken = "ssoEmail2faSessionToken"
         case twoFactorProvidersData = "twoFactorProviders2"
+        case error
     }
 
     static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
@@ -22,6 +23,9 @@ struct IdentityTokenErrorModel: Codable {
 
     /// The captcha bypass token to use on subsequent requests to bypass captcha.
     let captchaBypassToken: String?
+
+    /// The error type.
+    let error: String?
 
     /// The master password policies that the org has enabled.
     let masterPasswordPolicy: MasterPasswordPolicyResponseModel?
