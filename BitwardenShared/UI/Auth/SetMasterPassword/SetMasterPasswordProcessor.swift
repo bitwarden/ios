@@ -62,6 +62,8 @@ class SetMasterPasswordProcessor: StateProcessor<
 
     override func receive(_ action: SetMasterPasswordAction) {
         switch action {
+        case .preventAccountLockTapped:
+            coordinator.navigate(to: .preventAccountLock)
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
         case let .masterPasswordHintChanged(newValue):

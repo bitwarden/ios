@@ -230,6 +230,13 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.events, [.didCompleteAuth])
     }
 
+    /// `receive(_:)` with `.preventAccountLockTapped` navigates to the right route.
+    @MainActor
+    func test_receive_preventAccountLock() {
+        subject.receive(.preventAccountLockTapped)
+        XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
+    }
+
     /// `receive(_:)` with `.masterPasswordChanged` updates the state to reflect the changes.
     @MainActor
     func test_receive_masterPasswordChanged() {
