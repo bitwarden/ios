@@ -5,7 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class GeneratorViewTests: BitwardenTestCase {
+class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// Wraps the generator view in a navigation controller with the hairline divider removed for
@@ -171,7 +171,10 @@ class GeneratorViewTests: BitwardenTestCase {
             title: Localizations.minNumbers,
             value: 1
         )
-        let stepper = try subject.inspect().find(ViewType.Stepper.self)
+        let stepper = try subject.inspect().find(
+            BitwardenStepperType.self,
+            containing: Localizations.minNumbers
+        )
         try stepper.increment()
         XCTAssertEqual(
             processor.dispatchedActions.last,

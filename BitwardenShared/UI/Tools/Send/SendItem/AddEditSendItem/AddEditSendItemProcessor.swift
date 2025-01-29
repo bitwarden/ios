@@ -105,9 +105,6 @@ class AddEditSendItemProcessor:
         case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
-        case let .maximumAccessCountTextFieldChanged(newValue):
-            state.maximumAccessCount = Int(newValue) ?? 0
-            state.maximumAccessCountText = newValue.isEmpty ? "" : "\(state.maximumAccessCount)"
         case let .nameChanged(newValue):
             state.name = newValue
         case let .notesChanged(newValue):

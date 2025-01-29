@@ -1,8 +1,15 @@
 import Foundation
 
-// MARK: - TimeInterval
+// MARK: - Int
 
 extension Int {
+    // MARK: Properties
+
+    /// Returns the number of digits within the value.
+    var numberOfDigits: Int {
+        abs(self).description.count
+    }
+
     // MARK: Methods
 
     /// Creates a string in the format of `HH:mm` from a number of seconds.
