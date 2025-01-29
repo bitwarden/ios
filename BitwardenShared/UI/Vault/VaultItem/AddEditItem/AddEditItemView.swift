@@ -83,7 +83,6 @@ struct AddEditItemView: View {
 
                 informationSection
                 miscellaneousSection
-                notesSection
                 customSection
                 ownershipSection
             }
@@ -281,16 +280,14 @@ private extension AddEditItemView {
                 .accessibilityLabel(Localizations.passwordPrompt)
                 .contentBlock()
             }
-        }
-    }
 
-    var notesSection: some View {
-        SectionView(Localizations.notes, titleDesignVersion: .v2, contentSpacing: 8) {
-            BitwardenTextView(text: store.binding(
-                get: \.notes,
-                send: AddEditItemAction.notesChanged
-            ))
-            .accessibilityLabel(Localizations.notes)
+            BitwardenTextView(
+                title: Localizations.notes,
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditItemAction.notesChanged
+                )
+            )
         }
     }
 
