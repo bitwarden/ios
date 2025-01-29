@@ -67,6 +67,9 @@
 "Tools" = "Offer";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Use fingerprint to unlock";
+"UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Enw defnyddiwr";
 "ValidationFieldRequired" = "Mae'r maes %1$@ yn ofynnol.";
 "ValueHasBeenCopied" = "%1$@ wedi'i gopïo";
@@ -79,6 +82,7 @@
 "Website" = "Gwefan";
 "Yes" = "Ydw";
 "Account" = "Cyfrif";
+"StepOfStep" = "%1$d OF %2$d";
 "AccountCreated" = "Mae eich cyfrif newydd wedi cael ei greu! Gallwch bellach fewngofnodi.";
 "AddAnItem" = "Ychwanegu eitem";
 "AppExtension" = "App extension";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Possible matching items";
 "Search" = "Chwilio";
 "BitwardenAutofillServiceSearch" = "You are searching for an autofill item for \"%1$@\".";
+"LearnAboutNewLogins" = "Learn about new logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Dysgu am sefydliadau";
 "CannotOpenApp" = "Methu agor yr ap \"%1$@\".";
 "AuthenticatorAppTitle" = "Ap dilysu";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Pob Send";
 "Sends" = "Sends";
-"NameInfo" = "Enw cyfeillgar i ddisgrifio'r Send hwn.";
 "Text" = "Testun";
 "TypeText" = "Testun";
-"TypeTextInfo" = "Y testun yr hoffech ei anfon.";
 "HideTextByDefault" = "When accessing the Send, hide the text by default";
 "TypeFile" = "Ffeil";
 "FileTypeIsSelected" = "File type is selected.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
+"Next" = "Next";
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
-"StartImportCXPDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
+"StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
 "ImportingEllipsis" = "Importing...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Export vault to another app";
 "ExportItems" = "Export items";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
-"ExportOptions" = "Export options";
-"ExportAllItems" = "Export all items (%1$@)";
-"ExportSelectedItems" = "Export selected items";
-"SelectedItems" = "Selected items";
 "RetryExport" = "Retry export";
 "ExportFailed" = "Export failed";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
 "PleaseDoNotCloseTheApp" = "Please do not close the app.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Items to export";
+"TextToShare" = "Text to share";
+"SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";

@@ -67,6 +67,9 @@
 "Tools" = "Ferramentas";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Utilizar a impressão digital para desbloquear";
+"UseThisButtonToGenerateANewUniquePassword" = "Utilize este botão para gerar uma nova palavra-passe única.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Só precisa de configurar a chave do autenticador para os inícios de sessão que requerem verificação de dois passos com um código. A chave gerará continuamente códigos de seis dígitos que pode utilizar para iniciar sessão.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "É necessário adicionar um endereço Web para utilizar o preenchimento automático para aceder a esta conta.";
 "Username" = "Nome de utilizador";
 "ValidationFieldRequired" = "O campo %1$@ é obrigatório.";
 "ValueHasBeenCopied" = "%1$@ copiado(a)";
@@ -79,6 +82,7 @@
 "Website" = "Site";
 "Yes" = "Sim";
 "Account" = "Conta";
+"StepOfStep" = "%1$d DE %2$d";
 "AccountCreated" = "A sua nova conta foi criada! Pode agora iniciar sessão.";
 "AddAnItem" = "Adicionar um item";
 "AppExtension" = "Extensão da app";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Possíveis itens correspondentes";
 "Search" = "Procurar";
 "BitwardenAutofillServiceSearch" = "Está à procura de um item de preenchimento automático para \"%1$@\".";
+"LearnAboutNewLogins" = "Saiba mais sobre as novas credenciais";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Iremos explicar-lhe as principais características para adicionar uma nova credencial.";
 "LearnOrg" = "Saiba mais sobre as organizações";
 "CannotOpenApp" = "Não é possível abrir a aplicação \"%1$@\".";
 "AuthenticatorAppTitle" = "Aplicação de autenticação";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Todos os Sends";
 "Sends" = "Sends";
-"NameInfo" = "Um nome simpático para descrever este Send.";
 "Text" = "Texto";
 "TypeText" = "Texto";
-"TypeTextInfo" = "O texto que pretende enviar.";
 "HideTextByDefault" = "Ao aceder ao Send, ocultar o texto por defeito";
 "TypeFile" = "Ficheiro";
 "FileTypeIsSelected" = "O tipo de ficheiro está selecionado.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Alguma coisa correu mal";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Não foi possível mover o item selecionado. Por favor, tente novamente.";
 "Done" = "Concluído";
+"Next" = "Seguinte";
 "CopyPublicKey" = "Copiar chave pública";
 "CopyPrivateKey" = "Copiar chave privada";
 "CopyFingerprint" = "Copiar impressão digital";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Falha no preenchimento automático do item %1$@";
 "ExportingFailed" = "Falha na exportação";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Poderá ter de ativar o código de acesso ou a biometria do dispositivo.";
-"StartImportCXPDescriptionLong" = "Importar palavras-passe, chaves de acesso, cartões de crédito e quaisquer informações de identidade pessoal de outro gestor de palavras-passe.\n\nOs seus dados **não** serão eliminados do seu fornecedor anterior.";
+"StartImportCXFDescriptionLong" = "Importar palavras-passe, chaves de acesso, cartões de crédito e quaisquer informações de identidade pessoal de outro gestor de palavras-passe.\n\nOs seus dados **não** serão eliminados do seu fornecedor anterior.";
 "ImportPasswords" = "Importar palavras-passe";
 "ImportingEllipsis" = "A importar...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Tem a certeza de que pretende cancelar o processo de importação?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Exportar o cofre para outra app";
 "ExportItems" = "Exportar itens";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Exportar palavras-passe, chaves de acesso, cartões de crédito e quaisquer informações de identificação pessoal.";
-"ExportOptions" = "Opções de exportação";
-"ExportAllItems" = "Exportar todos os itens (%1$@)";
-"ExportSelectedItems" = "Exportar itens selecionados";
-"SelectedItems" = "Itens selecionados";
 "RetryExport" = "Tentar a exportação novamente";
 "ExportFailed" = "Falha na exportação";
 "ThereHasBeenAnIssueExportingItems" = "Ocorreu um problema com a exportação de itens.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Tem a certeza de que pretende cancelar o processo de exportação?";
 "PleaseDoNotCloseTheApp" = "Por favor, não feche a app.";
+"ThisIsTakingLongerThanExpected" = "Isto está a demorar mais do que o previsto";
+"ItemsToExport" = "Itens a exportar";
+"TextToShare" = "Texto a partilhar";
+"SendDetails" = "Detalhes do Send";
+"SendNameRequired" = "Nome do Send (obrigatório)";

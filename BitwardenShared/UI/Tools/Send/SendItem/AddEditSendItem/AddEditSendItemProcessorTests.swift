@@ -502,15 +502,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
     }
 
-    /// `receive(_:)` with `.deactivateThisSendChanged` updates the deactivate this send toggle.
-    @MainActor
-    func test_receive_deactivateThisSendChanged() {
-        subject.state.isDeactivateThisSendOn = false
-        subject.receive(.deactivateThisSendChanged(true))
-
-        XCTAssertTrue(subject.state.isDeactivateThisSendOn)
-    }
-
     /// `receive(_:)` with `.deletionDateChanged` updates the deletion date.
     @MainActor
     func test_receive_deletionDateChanged() {

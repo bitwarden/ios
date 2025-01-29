@@ -86,8 +86,6 @@ class AddEditSendItemProcessor:
         switch action {
         case .chooseFilePressed:
             presentFileSelectionAlert()
-        case let .deactivateThisSendChanged(newValue):
-            state.isDeactivateThisSendOn = newValue
         case let .deletionDateChanged(newValue):
             state.deletionDate = newValue
         case .dismissPressed:

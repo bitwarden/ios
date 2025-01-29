@@ -67,6 +67,9 @@
 "Tools" = "கருவிகள்";
 "URI" = "உரலி";
 "UseFingerprintToUnlock" = "கைரேகை பயன்படுத்தி பூட்டவிழ்";
+"UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "பயனர்பெயர்";
 "ValidationFieldRequired" = "%1$@ புலம் தேவை.";
 "ValueHasBeenCopied" = "%1$@ நகலெடுக்கப்பட்டது";
@@ -79,6 +82,7 @@
 "Website" = "வலைத்தளம்";
 "Yes" = "ஆம்";
 "Account" = "கணக்கு";
+"StepOfStep" = "%1$d OF %2$d";
 "AccountCreated" = "உங்கள் புது கணக்கு உருவாக்கப்பட்டது, நீங்கள் இப்போது உள்நுழையலாம்.";
 "AddAnItem" = "ஓர் உருப்படியைச் சேர்";
 "AppExtension" = "செயலி நீட்டிப்பு";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "பொருந்தக்கூடிய பொருள்கள்";
 "Search" = "தேடுக";
 "BitwardenAutofillServiceSearch" = "\"%1$@\"க்கான தண்னிரப்ப உருப்படியை தேடிக்கொண்டிருக்கிறீர்கள்.";
+"LearnAboutNewLogins" = "Learn about new logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "நிறுவனங்கள் பற்றி அறிக";
 "CannotOpenApp" = "\"%1$@\" செயலியைத் திறக்க இயலவில்லை.";
 "AuthenticatorAppTitle" = "அங்கீகரிப்பான் செயலி";
@@ -546,10 +552,8 @@
 "Send" = "Send";
 "AllSends" = "எல்லா Sends";
 "Sends" = "Sends";
-"NameInfo" = "இந்த Send ஐ விளக்க ஒரு நட்பார்ந்த பெயர்.";
 "Text" = "சொற்சரம்";
 "TypeText" = "சொற்சரம்";
-"TypeTextInfo" = "நீங்கள் அனுப்ப விரும்பும் சொற்சரம்.";
 "HideTextByDefault" = "Send ஐ அணுகும்போது, இயல்புநிலையில் சொற்சரத்தை மறை";
 "TypeFile" = "கோப்பு";
 "FileTypeIsSelected" = "கோப்பு வகை தேர்ந்தெடுக்கப்பட்டது.";
@@ -1055,6 +1059,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
+"Next" = "Next";
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
@@ -1072,7 +1077,7 @@
 "FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
-"StartImportCXPDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
+"StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
 "ImportingEllipsis" = "Importing...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
@@ -1087,12 +1092,13 @@
 "ExportVaultToAnotherApp" = "Export vault to another app";
 "ExportItems" = "Export items";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
-"ExportOptions" = "Export options";
-"ExportAllItems" = "Export all items (%1$@)";
-"ExportSelectedItems" = "Export selected items";
-"SelectedItems" = "Selected items";
 "RetryExport" = "Retry export";
 "ExportFailed" = "Export failed";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
 "PleaseDoNotCloseTheApp" = "Please do not close the app.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Items to export";
+"TextToShare" = "Text to share";
+"SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";

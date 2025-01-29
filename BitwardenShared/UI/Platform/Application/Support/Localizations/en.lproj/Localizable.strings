@@ -570,13 +570,11 @@
 "MaximumAccessCountReached" = "Max access count reached";
 "CurrentAccessCount" = "Current access count";
 "NewPassword" = "New password";
-"PasswordInfo" = "Optionally require a password for users to access this Send.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Remove password";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
 "SendPasswordRemoved" = "Password has been removed.";
-"NotesInfo" = "Private notes about this Send.";
-"DisableSend" = "Deactivate this Send so that no one can access it";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "Copy link";
 "ShareLink" = "Share link";
@@ -1100,3 +1098,4 @@
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
