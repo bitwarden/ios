@@ -19,8 +19,11 @@ extension View {
     /// A view modifier that calculates the origin and size of the containing view.
     ///
     /// - Parameters:
-    ///   - id: A unique identifier for the view.
-    ///   - perform: A closure called when the size or origin of the view changes.
+    ///   - id: A unique identifier for the view. This is necessary to distinguish between multiple
+    ///         views that might be using the same modifier, ensuring that the correct view's changes
+    ///         are tracked and handled.
+    ///   - perform: A closure called when the size or origin of the view changes. The closure receives
+    ///              the new size and origin of the view as parameters.
     /// - Returns: A copy of the view with the sizing and origin modifier applied.
     ///
     func onFrameChanged(id: String, perform: @escaping (CGPoint, CGSize) -> Void) -> some View {
