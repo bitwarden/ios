@@ -317,7 +317,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 send: AddEditSendItemAction.notesChanged
             )
         )
-        .accessibilityLabel(Localizations.privateNote)
     }
 
     /// The options button.
@@ -390,7 +389,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 send: AddEditSendItemAction.textChanged
             )
         )
-        .accessibilityLabel(Localizations.text)
         .accessibilityIdentifier("SendTextContentEntry")
     }
 

@@ -63,6 +63,7 @@ struct BitwardenTextView: View {
             // The placeholder and title text which is vertically centered in the view when the
             // text field doesn't have focus and is empty and otherwise displays above the text field.
             titleText(showPlaceholder: showPlaceholder)
+                .accessibilityHidden(true)
 
             // Since the title changes font size based on if it's the placeholder, this hidden
             // view preserves space to show the title in it's placeholder form. This prevents
@@ -95,6 +96,7 @@ struct BitwardenTextView: View {
             isFocused: $isFocused
         )
         .frame(minHeight: textViewHeight)
+        .accessibilityLabel(title ?? "")
     }
 
     /// The title/placeholder text for the field.
