@@ -22,7 +22,6 @@ struct BitwardenBorderlessButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundStyle(foregroundColor)
-            .padding(.vertical, 14)
             .styleGuide(.subheadlineSemibold)
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
@@ -49,5 +48,6 @@ extension ButtonStyle where Self == BitwardenBorderlessButtonStyle {
             .disabled(true)
     }
     .buttonStyle(.bitwardenBorderless)
+    .padding(.vertical, 14)
 }
 #endif

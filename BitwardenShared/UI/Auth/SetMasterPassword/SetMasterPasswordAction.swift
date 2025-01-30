@@ -3,9 +3,6 @@
 /// Actions that can be processed by a `SetMasterPasswordProcessor`.
 ///
 enum SetMasterPasswordAction: Equatable {
-    /// The user tapped on prevent account lock.
-    case preventAccountLockTapped
-
     /// The value for the new master password was changed.
     case masterPasswordChanged(String)
 
@@ -14,6 +11,9 @@ enum SetMasterPasswordAction: Equatable {
 
     /// The value for the new master password retype was changed.
     case masterPasswordRetypeChanged(String)
+
+    /// The user tapped on prevent account lock.
+    case preventAccountLockTapped
 
     /// The reveal master password field button was pressed.
     case revealMasterPasswordFieldPressed(Bool)
