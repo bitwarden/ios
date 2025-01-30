@@ -60,7 +60,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
             profileSwitcher
         }
-        .dismissKeyboardInteractively()
+        .backport.dismissKeyboardInteractively()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
             title: store.state.mode.navigationTitle,
