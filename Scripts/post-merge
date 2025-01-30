@@ -1,4 +1,4 @@
 #!/bin/bash
 
 PATH=/usr/local/bin:$PATH
-./Scripts/bootstrap.sh 
+./Scripts-bwa/bootstrap.sh 

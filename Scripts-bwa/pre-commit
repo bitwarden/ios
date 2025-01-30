@@ -1,4 +1,4 @@
 #!/bin/bash
 
 PATH=/usr/local/bin:$PATH
-./Scripts-bwa/bootstrap.sh 
+mint run swiftformat .

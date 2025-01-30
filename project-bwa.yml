@@ -1,6 +1,6 @@
 name: Authenticator
 fileGroups:
-  - Configs
+  - Configs-bwa
 configs:
   Debug: debug
   Release: release
@@ -75,8 +75,8 @@ targets:
     type: application
     platform: iOS
     configFiles:
-      Debug: Configs/Authenticator-Debug.xcconfig
-      Release: Configs/Authenticator-Release.xcconfig
+      Debug: Configs-bwa/Authenticator-Debug.xcconfig
+      Release: Configs-bwa/Authenticator-Release.xcconfig
     settings:
       base:
         INFOPLIST_FILE: Authenticator/Application/Support/Info.plist
@@ -85,7 +85,7 @@ targets:
         excludes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
-          - "**/swiftgen.yml"
+          - "**/swiftgen-bwa.yml"
           - "**/GoogleService-Info.*.plist"
           - "**/__Snapshots__/*"
       - path: Authenticator
@@ -93,16 +93,16 @@ targets:
           - "**/__Snapshots__/*"
           - "**/GoogleService-Info.*.plist"
         buildPhase: none
-      - path: README.md
+      - path: README-bwa.md
         buildPhase: none
-      - path: swiftgen.yml
+      - path: swiftgen-bwa.yml
         buildPhase: none
     dependencies:
       - target: AuthenticatorShared
       - package: Firebase
         product: FirebaseCrashlytics
     preBuildScripts:
-      - path: Scripts/update_acknowledgements.sh
+      - path: Scripts-bwa/update_acknowledgements.sh
         name: "Settings.bundle: Update Acknowledgements"
         outputFiles:
           - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements.plist
@@ -124,7 +124,7 @@ targets:
         name: SwiftFormat Lint
         basedOnDependencyAnalysis: false
     postBuildScripts:
-      - path: Scripts/update_settings_version_number.sh
+      - path: Scripts-bwa/update_settings_version_number.sh
         name: "Settings.bundle: Update Version Number"
         basedOnDependencyAnalysis: false
   AuthenticatorTests:
@@ -138,7 +138,7 @@ targets:
         includes:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
-      - path: GlobalTestHelpers
+      - path: GlobalTestHelpers-bwa
     dependencies:
       - target: Authenticator
       - package: BitwardenShared
@@ -151,8 +151,8 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs/AuthenticatorShared-Debug.xcconfig
-      Release: Configs/AuthenticatorShared-Release.xcconfig
+      Debug: Configs-bwa/AuthenticatorShared-Debug.xcconfig
+      Release: Configs-bwa/AuthenticatorShared-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
@@ -186,7 +186,7 @@ targets:
           if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
             PATH="/opt/homebrew/bin:$PATH"
           fi
-          mint run swiftgen config run --config "swiftgen.yml"
+          mint run swiftgen config run --config "swiftgen-bwa.yml"
         basedOnDependencyAnalysis: false
         outputFiles:
           - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
@@ -215,7 +215,7 @@ targets:
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/Fixtures/*"
-      - path: GlobalTestHelpers
+      - path: GlobalTestHelpers-bwa
     dependencies:
       - target: Authenticator
       - target: AuthenticatorShared

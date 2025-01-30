@@ -72,7 +72,7 @@ jobs:
       - name: Install Mint, protobuf, xcbeautify, and xcresultparser
         run: |
           brew install mint swift-protobuf xcbeautify a7ex/homebrew-formulae/xcresultparser
-          ./Scripts/bootstrap.sh
+          ./Scripts-bwa/bootstrap.sh
 
       - name: Build and test
         run: |

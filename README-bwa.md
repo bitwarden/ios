@@ -46,17 +46,17 @@ Bitwarden Authenticator allows you easily store and generate two-factor authenti
 3. Bootstrap the project:
 
     ```sh
-    $ Scripts/bootstrap.sh
+    $ Scripts-bwa/bootstrap.sh
     ```
 
     > **Note**
-    > Because `Scripts/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
+    > Because `Scripts-bwa/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
 
     Alternatively, you can create git hooks to automatically execute the `bootstrap.sh` script every time a git hook occurs. To use the git hook scripts already defined in the `Scripts` directory, copy the scripts to the `.git/hooks` directory.
 
     ```sh
-    $ cp Scripts/post-merge .git/hooks/
-    $ cp Scripts/post-checkout .git/hooks/
+    $ cp Scripts-bwa/post-merge .git/hooks/
+    $ cp Scripts-bwa/post-checkout .git/hooks/
     ```
 
 ### Run the App
@@ -79,7 +79,7 @@ This project is linted using both SwiftLint and SwiftFormat. Both tools run in l
 Additionally, if you would like SwiftFormat to autocorrect any issues before every commit, you can use a git hook script. To use the git hook script already defined in the `Scripts` directory, copy the script to the `.git/hooks` directory.
 
 ```sh
-$ cp Scripts/pre-commit .git/hooks/
+$ cp Scripts-bwa/pre-commit .git/hooks/
 ```
 
 ## Project Structure
@@ -90,7 +90,7 @@ This project's structure is split into separate sections to support sharing as m
 
 ### GlobalTestHelpers
 
-`GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project.yml` file.
+`GlobalTestHelpers` is a directory that contains helper files used in all test targets. This directory is included in each target that is defined in the `project-bwa.yml` file.
 
 ## Contribute
 
