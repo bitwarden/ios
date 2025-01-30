@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - IdentityTokenErrors
 
-/// An error enumeration for `IdentityTokenRequest`.
+/// Constants for the `error` type returned in `IdentityTokenErrorModel`.
 ///
 enum IdentityTokenError {
     static let deviceError = "device_error"
