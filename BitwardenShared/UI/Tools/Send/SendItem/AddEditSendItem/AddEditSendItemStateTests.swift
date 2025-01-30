@@ -75,7 +75,22 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(sendView.expirationDate, nil)
     }
 
+    /// `newSendView()` sets the expiration date to the deletion date if the expiration date isn't
+    /// `nil` to allow editing an expired send.
+    func test_newSendView_text_expired() {
+        let deletionDate = Date(year: 2024, month: 1, day: 2)
+        let subject = AddEditSendItemState(
+            customDeletionDate: deletionDate,
+            deletionDate: .custom(deletionDate),
+            expirationDate: .distantPast
+        )
+        let sendView = subject.newSendView()
+        XCTAssertEqual(sendView.deletionDate, deletionDate)
+        XCTAssertEqual(sendView.expirationDate, deletionDate)
+    }
+
     func init_sendView_text() {
+        let deletionDate = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11)
         let sendView = SendView.fixture(
             id: "ID",
             accessId: "ACCESS_ID",
@@ -92,7 +107,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             disabled: false,
             hideEmail: false,
             revisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 0),
-            deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11),
+            deletionDate: deletionDate,
             expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
         )
         let subject = AddEditSendItemState(sendView: sendView, hasPremium: true)
@@ -113,14 +128,8 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.currentAccessCount, 42)
         XCTAssertEqual(subject.isDeactivateThisSendOn, false)
         XCTAssertEqual(subject.isHideMyEmailOn, false)
-        XCTAssertEqual(
-            subject.customDeletionDate,
-            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11)
-        )
-        XCTAssertEqual(
-            subject.expirationDate,
-            Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
-        )
+        XCTAssertEqual(subject.customDeletionDate, deletionDate)
+        XCTAssertEqual(subject.expirationDate, deletionDate)
     }
 
     func init_sendView_file() {
