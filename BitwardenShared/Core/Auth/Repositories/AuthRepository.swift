@@ -90,7 +90,7 @@ protocol AuthRepository: AnyObject {
     /// Checks the locked status of a user vault by user id.
     ///
     ///  - Parameter userId: The userId of the account.
-    ///  - Returns: A bool, true if locked, false if unlocked.
+    ///  - Returns: Returns: `True` if locked, `false` otherwise.
     ///
     func isLocked(userId: String?) async throws -> Bool
 
@@ -705,9 +705,12 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func isUserManagedByOrganization() async throws -> Bool {
+        guard await configService.getFeatureFlag(.accountDeprovisioning) else {
+            return false
+        }
+
         let orgs = try await organizationService.fetchAllOrganizations()
-        return await configService.getFeatureFlag(.accountDeprovisioning) &&
-            orgs.contains { $0.userIsManagedByOrganization == true }
+        return orgs.contains { $0.userIsManagedByOrganization }
     }
 
     func lockVault(userId: String?, isManuallyLocking: Bool) async {

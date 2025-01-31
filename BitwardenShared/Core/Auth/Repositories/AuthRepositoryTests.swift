@@ -1120,7 +1120,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(value)
     }
 
-    /// `isUserManagedByOrganization` returns true if the user is managed by an organization.
+    /// `isUserManagedByOrganization` returns false when the user isn't managed by an organization.
     @MainActor
     func test_isUserManagedByOrganization_false_featureFlagON() async throws {
         configService.featureFlagsBool[.accountDeprovisioning] = true
@@ -1132,7 +1132,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(value)
     }
 
-    /// `isUserManagedByOrganization` returns true if the user is managed by an organization.
+    /// `isUserManagedByOrganization` returns false when the user doesn't belong to an organization.
     @MainActor
     func test_isUserManagedByOrganization_noOrgs_featureFlagON() async throws {
         configService.featureFlagsBool[.accountDeprovisioning] = true
@@ -1152,6 +1152,22 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult =
             .success([.fixture(id: "One", userIsManagedByOrganization: true)])
+
+        let value = try await subject.isUserManagedByOrganization()
+        XCTAssertTrue(value)
+    }
+
+    /// `isUserManagedByOrganization` returns true if the user is managed by at least one organization.
+    @MainActor
+    func test_isUserManagedByOrganization_true_multipleOrgs_featureON() async throws {
+        configService.featureFlagsBool[.accountDeprovisioning] = true
+        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
+        try await stateService.setActiveAccount(userId: "1")
+        organizationService.fetchAllOrganizationsResult =
+            .success([
+                .fixture(id: "One", userIsManagedByOrganization: true),
+                .fixture(id: "Two"),
+            ])
 
         let value = try await subject.isUserManagedByOrganization()
         XCTAssertTrue(value)

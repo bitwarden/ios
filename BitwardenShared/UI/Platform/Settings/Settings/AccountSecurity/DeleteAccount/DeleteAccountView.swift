@@ -89,7 +89,7 @@ struct DeleteAccountView: View {
                         includeLineSpacing: false
                     )
 
-                Text(Localizations.cannotDeleteAccountDescription)
+                Text(Localizations.cannotDeleteAccountDescriptionLong)
                     .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                     .styleGuide(.subheadline)
             }

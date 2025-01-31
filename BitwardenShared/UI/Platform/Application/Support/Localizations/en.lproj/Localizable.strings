@@ -1100,4 +1100,4 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "CannotDeleteAccount" = "Cannot delete account";
-"CannotDeleteAccountDescription" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
