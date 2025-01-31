@@ -14,81 +14,54 @@ struct GuidedTourView: View {
     /// The actual size of the coach-mark card.
     @SwiftUI.State private var cardSize: CGSize = .zero
 
-    /// The opacity of the guided tour view.
-    @SwiftUI.State private var opacity: Double = 0.0
+    /// A flag to control the initial visibility and position of the arrow.
+    @SwiftUI.State private var isArrowVisible = false
+
+    /// A flag to control the initial visibility and position of the card.
+    @SwiftUI.State private var isCardVisible = false
 
     /// The size of the view.
     @SwiftUI.State private var viewSize: CGSize = .zero
 
+    /// The animation duration for the coach-mark view.
+    private let animationDuration = UI.duration(0.3)
+
     /// The size of the coach-mark arrow icon.
-    let arrowSize = CGSize(width: 47, height: 13)
-
-    /// The maximum dynamic type size for the view
-    ///     Default is `.xxLarge`
-    let maxDynamicTypeSize: DynamicTypeSize = .xxxLarge
-
-    /// The margin between the spotlight and the coach-mark.
-    let spotLightAndCoachMarkMargin: CGFloat = 3
+    private let arrowSize = CGSize(width: 47, height: 13)
 
     /// The padding of the coach-mark card from the leading edge.
-    var cardLeadingPadding: CGFloat {
+    private var cardLeadingPadding: CGFloat {
         store.state.currentStepState.cardLeadingPadding
     }
 
     /// The padding of the coach-mark card from the trailing edge.
-    var cardTrailingPadding: CGFloat {
+    private var cardTrailingPadding: CGFloat {
         store.state.currentStepState.cardTrailingPadding
     }
 
     /// The max width of the coach-mark card.
-    var cardMaxWidth: CGFloat {
-        if verticalSizeClass == .compact {
-            480
-        } else {
-            320
-        }
+    private var cardMaxWidth: CGFloat {
+        verticalSizeClass == .compact ? 480 : 320
     }
+
+    /// The maximum dynamic type size for the view Default is `.xxLarge`
+    private let maxDynamicTypeSize: DynamicTypeSize = .xxxLarge
+
+    /// The margin between the spotlight and the coach-mark.
+    private let spotLightAndCoachMarkMargin: CGFloat = 3
 
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .top) {
-                Color.black.opacity(0.4).edgesIgnoringSafeArea(.all)
-                    .mask(
-                        Spotlight(
-                            spotlight: store.state.currentStepState.spotlightRegion,
-                            spotlightShape: store.state.currentStepState.spotlightShape
-                        )
-                        .fill(style: FillStyle(eoFill: true))
-                    )
+                dimmedBackground
+                    .mask(spotlightMask)
 
-                VStack(alignment: .leading, spacing: 0) {
-                    let coachMarkVerticalPosition = calculateCoachMarkPosition()
-                    if coachMarkVerticalPosition == .bottom {
-                        Image(asset: Asset.Images.arrowUp)
-                            .offset(x: calculateArrowHorizontalOffset())
-                    }
-                    VStack(alignment: .leading) {
-                        cardContent()
-                            .frame(maxWidth: cardMaxWidth)
-                            .onFrameChanged(id: "card") { _, size in
-                                cardSize = size
-                            }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .offset(x: calculateCoachMarkCardHorizontalOffset())
-                    .padding(.leading, cardLeadingPadding)
-                    .padding(.trailing, cardTrailingPadding)
+                arrowView
 
-                    if coachMarkVerticalPosition == .top {
-                        Image(asset: Asset.Images.arrowDown)
-                            .offset(x: calculateArrowHorizontalOffset())
-                    }
-                }
-                .padding(0)
-                .frame(maxWidth: .infinity)
-                .offset(y: calculateCoachMarkOffsetY())
+                cardView(geometry: geometry)
             }
-            .opacity(opacity)
+            .padding(0)
+            .opacity(isCardVisible ? 1 : 0)
             .ignoresSafeArea(.all)
             .background(FullScreenCoverBackgroundRemovalView())
             .transition(.opacity)
@@ -96,18 +69,47 @@ struct GuidedTourView: View {
                 viewSize = geometry.size
             }
             .onAppear {
-                withAnimation(.easeInOut(duration: UI.duration(0.3))) {
-                    opacity = 1
+                withAnimation(.easeInOut(duration: animationDuration)) {
+                    isCardVisible = true
                 }
                 viewSize = geometry.size
-            }
-            .onChange(of: store.state.currentStepState) { _ in
-                opacity = 0
-                withAnimation(.easeInOut(duration: UI.duration(0.7))) {
-                    opacity = 1
+
+                withAnimation(.easeInOut(duration: animationDuration).delay(animationDuration)) {
+                    isArrowVisible = true
                 }
             }
         }
+    }
+
+    /// The arrow view of the coach-mark.
+    @ViewBuilder private var arrowView: some View {
+        let coachMarkVerticalPosition = calculateCoachMarkPosition()
+        let shouldRotateArrow = coachMarkVerticalPosition == .top
+        Image(asset: Asset.Images.arrowUp)
+            .opacity(isArrowVisible ? 1 : 0)
+            .rotationEffect(.degrees(shouldRotateArrow ? 180 : 0))
+            .animation(.smooth(duration: animationDuration), value: shouldRotateArrow)
+            .position(
+                x: calculateArrowAbsoluteXPosition(),
+                y: isArrowVisible ? calculateArrowAbsoluteYPosition() :
+                    (shouldRotateArrow ? calculateArrowAbsoluteYPosition() - arrowSize.height
+                        : calculateArrowAbsoluteYPosition() + arrowSize.height)
+            )
+            .smoothTransition(animation: .smooth(duration: animationDuration), value: store.state.currentIndex)
+    }
+
+    /// The dimmed background of the coach-mark view.
+    private var dimmedBackground: some View {
+        Color.black.opacity(0.4).edgesIgnoringSafeArea(.all)
+    }
+
+    /// The spotlight mask of the coach-mark view.
+    private var spotlightMask: some View {
+        Spotlight(
+            spotlight: store.state.currentStepState.spotlightRegion,
+            spotlightShape: store.state.currentStepState.spotlightShape
+        )
+        .fill(style: FillStyle(eoFill: true))
     }
 
     // MARK: - Private Methods
@@ -121,6 +123,10 @@ struct GuidedTourView: View {
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     .styleGuide(.caption1, weight: .bold)
                     .dynamicTypeSize(...maxDynamicTypeSize)
+                    .smoothTransition(
+                        animation: .smooth(duration: animationDuration),
+                        value: store.state.currentStepState
+                    )
 
                 Spacer()
 
@@ -136,6 +142,10 @@ struct GuidedTourView: View {
                 .dynamicTypeSize(...maxDynamicTypeSize)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 .styleGuide(.body)
+                .smoothTransition(
+                    animation: .smooth(duration: animationDuration),
+                    value: store.state.currentStepState
+                )
 
             cardNavigationButtons()
         }
@@ -158,6 +168,10 @@ struct GuidedTourView: View {
                         .multilineTextAlignment(.leading)
                         .dynamicTypeSize(...maxDynamicTypeSize)
                 }
+                .smoothTransition(
+                    animation: .smooth(duration: animationDuration),
+                    value: store.state.currentStepState
+                )
             }
 
             Spacer()
@@ -178,13 +192,83 @@ struct GuidedTourView: View {
                 .multilineTextAlignment(.leading)
                 .dynamicTypeSize(...maxDynamicTypeSize)
             }
+            .smoothTransition(
+                animation: .smooth(duration: animationDuration),
+                value: store.state.currentStepState
+            )
         }
         .padding(0)
         .frame(maxWidth: .infinity)
     }
+
+    /// The card view of the coach-mark.
+    @ViewBuilder
+    private func cardView(geometry: GeometryProxy) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            if calculateCoachMarkPosition() == .bottom {
+                Spacer().frame(height: arrowSize.height)
+            }
+
+            VStack(alignment: .leading) {
+                cardContent()
+                    .frame(maxWidth: cardMaxWidth)
+                    .onFrameChanged(id: "card") { _, size in
+                        withAnimation(.smooth(duration: animationDuration)) {
+                            cardSize = size
+                        }
+                    }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .offset(x: isCardVisible ? calculateCoachMarkCardHorizontalOffset() : 25)
+            .padding(.leading, cardLeadingPadding)
+            .padding(.trailing, cardTrailingPadding)
+            .smoothTransition(
+                animation: .smooth(duration: animationDuration),
+                value: store.state.currentStepState
+            )
+
+            if calculateCoachMarkPosition() == .top {
+                Spacer().frame(height: arrowSize.height)
+            }
+        }
+        .padding(0)
+        .frame(maxWidth: .infinity)
+        .offset(y: isCardVisible ? calculateCoachMarkOffsetY() : geometry.size.height)
+        .opacity(isCardVisible ? 1 : 0)
+        .smoothTransition(
+            animation: .smooth(duration: animationDuration),
+            value: store.state.currentStepState
+        )
+    }
 }
 
 extension GuidedTourView {
+    /// Calculates the absolute X position of the coach-mark arrow.
+    ///
+    /// - Returns: The absolute X position of the coach-mark arrow.
+    ///
+    private func calculateArrowAbsoluteXPosition() -> CGFloat {
+        calculateArrowHorizontalOffset() + cardLeadingPadding
+    }
+
+    /// Calculates the absolute Y position of the coach-mark arrow.
+    ///
+    /// - Returns: The absolute Y position of the coach-mark arrow.
+    ///
+    private func calculateArrowAbsoluteYPosition() -> CGFloat {
+        let coachMarkVerticalPosition = calculateCoachMarkPosition()
+        if coachMarkVerticalPosition == .bottom {
+            return store.state.currentStepState.spotlightRegion.origin.y
+                + spotLightAndCoachMarkMargin
+                + store.state.currentStepState.spotlightRegion.size.height
+                + arrowSize.height / 2
+        } else {
+            return store.state.currentStepState.spotlightRegion.origin.y
+                - spotLightAndCoachMarkMargin
+                - arrowSize.height / 2
+        }
+    }
+
     /// Calculates the X offset of the coach-mark card.
     ///
     /// - Returns: The X offset value.
@@ -262,12 +346,12 @@ extension GuidedTourView {
     ///
     private func calculateCoachMarkOffsetY() -> CGFloat {
         if calculateCoachMarkPosition() == .top {
-            return store.state.currentStepState.spotlightRegion.origin.y
+            store.state.currentStepState.spotlightRegion.origin.y
                 - spotLightAndCoachMarkMargin
                 - cardSize.height
                 - arrowSize.height
         } else {
-            return store.state.currentStepState.spotlightRegion.origin.y
+            store.state.currentStepState.spotlightRegion.origin.y
                 + store.state.currentStepState.spotlightRegion.size.height
                 + spotLightAndCoachMarkMargin
         }
@@ -381,4 +465,4 @@ struct GuidedTourView_Previews: PreviewProvider {
         .previewDisplayName("Rectangle")
     }
 }
-#endif
+#endif // swiftlint:disable:this file_length

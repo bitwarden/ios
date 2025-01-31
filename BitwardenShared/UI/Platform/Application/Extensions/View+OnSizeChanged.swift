@@ -60,7 +60,7 @@ private struct ViewSizeKey: PreferenceKey {
 }
 
 /// A `PreferenceKey` used to calculate the size and origin of a view.
-/// 
+///
 /// The `ViewFrameKey` stores a dictionary that maps a view's identifier (as a `String`)
 /// to the last received frame (`CGRect`) for that view. This allows tracking the size
 /// and position of views within a SwiftUI hierarchy.
