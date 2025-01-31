@@ -86,34 +86,9 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
 
     /// The main content for the view, containing the title label and text field.
     @ViewBuilder private var contentView: some View {
-        HStack(spacing: 8) {
-            ZStack(alignment: showPlaceholder ? .leading : .topLeading) {
-                // The placeholder and title text which is vertically centered in the view when the
-                // text field doesn't have focus and is empty and otherwise displays above the text field.
-                titleText(showPlaceholder: showPlaceholder)
-
-                // Since the title changes font size based on if it's the placeholder, this hidden
-                // view preserves space to show the title in it's placeholder form. This prevents
-                // the field from changing size when the placeholder's visibility changes.
-                titleText(showPlaceholder: true)
-                    .hidden()
-
-                VStack(alignment: .leading, spacing: 2) {
-                    // This preserves space for the title to lay out above the text field when
-                    // it transitions from the centered to top position. But it's always hidden and
-                    // the text above is the one that moves during the transition.
-                    titleText(showPlaceholder: false)
-                        .hidden()
-
-                    textField
-                }
-            }
-            .accessibilityRepresentation {
-                TextField("", text: $text)
-                    .accessibilityLabel(title ?? "")
-                    .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
-            }
-
+        BitwardenFloatingTextLabel(title: title, showPlaceholder: showPlaceholder) {
+            textField
+        } trailingContent: {
             HStack(spacing: 16) {
                 if let isPasswordVisible, canViewPassword {
                     AccessoryButton(
@@ -132,10 +107,6 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                 trailingContent
             }
         }
-        .animation(.linear(duration: 0.1), value: isFocused)
-        .padding(.trailing, 16)
-        .padding(.vertical, 12)
-        .frame(minHeight: 64)
     }
 
     /// The view to display at a footer below the text field.
@@ -180,11 +151,15 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                     .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
                     }
+                    .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
+                    .accessibilityLabel(title ?? "")
                 if isPassword, !isPasswordVisible {
                     SecureField("", text: $text)
                         .focused($isSecureFieldFocused)
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                         .id(title)
+                        .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
+                        .accessibilityLabel(title ?? "")
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 28)
@@ -267,23 +242,6 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         _text = text
         self.title = title
         self.trailingContent = trailingContent()
-    }
-
-    // MARK: Private
-
-    /// The title/placeholder text for the field.
-    @ViewBuilder
-    private func titleText(showPlaceholder: Bool) -> some View {
-        if let title {
-            Text(title)
-                .styleGuide(
-                    showPlaceholder ? .body : .subheadline,
-                    weight: showPlaceholder ? .regular : .semibold,
-                    includeLinePadding: false,
-                    includeLineSpacing: false
-                )
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-        }
     }
 }
 

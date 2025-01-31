@@ -19,9 +19,6 @@ struct AddEditItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
 
-    /// The height of the notes field
-    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
-
     /// Whether to show that a policy is in effect.
     var isPolicyEnabled: Bool {
         store.state.isPersonalOwnershipDisabled && store.state.configuration == .add
@@ -89,7 +86,6 @@ struct AddEditItemView: View {
 
                 informationSection
                 miscellaneousSection
-                notesSection
                 customSection
                 ownershipSection
             }
@@ -288,22 +284,14 @@ private extension AddEditItemView {
                 .accessibilityLabel(Localizations.passwordPrompt)
                 .contentBlock()
             }
-        }
-    }
 
-    var notesSection: some View {
-        SectionView(Localizations.notes, titleDesignVersion: .v2, contentSpacing: 8) {
-            BitwardenField {
-                BitwardenUITextView(
-                    text: store.binding(
-                        get: \.notes,
-                        send: AddEditItemAction.notesChanged
-                    ),
-                    calculatedHeight: $notesDynamicHeight
+            BitwardenTextView(
+                title: Localizations.notes,
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditItemAction.notesChanged
                 )
-                .frame(minHeight: notesDynamicHeight)
-                .accessibilityLabel(Localizations.notes)
-            }
+            )
         }
     }
 
