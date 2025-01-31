@@ -3,7 +3,10 @@ import SwiftUI
 /// A custom view modifier to apply smooth transition effects and animations.
 ///
 struct SmoothTransitionModifier<V: Equatable>: ViewModifier {
+    /// The animation to apply to the view.
     let animation: Animation
+
+    /// The value that triggers the animation.
     let value: V
 
     func body(content: Content) -> some View {

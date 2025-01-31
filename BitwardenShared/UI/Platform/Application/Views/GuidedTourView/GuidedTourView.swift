@@ -48,7 +48,7 @@ struct GuidedTourView: View {
     private let maxDynamicTypeSize: DynamicTypeSize = .xxxLarge
 
     /// The margin between the spotlight and the coach-mark.
-    private let spotLightAndCoachMarkMargin: CGFloat = 3
+    private let spotlightAndCoachMarkMargin: CGFloat = 3
 
     var body: some View {
         GeometryReader { geometry in
@@ -259,12 +259,12 @@ extension GuidedTourView {
         let coachMarkVerticalPosition = calculateCoachMarkPosition()
         if coachMarkVerticalPosition == .bottom {
             return store.state.currentStepState.spotlightRegion.origin.y
-                + spotLightAndCoachMarkMargin
+                + spotlightAndCoachMarkMargin
                 + store.state.currentStepState.spotlightRegion.size.height
                 + arrowSize.height / 2
         } else {
             return store.state.currentStepState.spotlightRegion.origin.y
-                - spotLightAndCoachMarkMargin
+                - spotlightAndCoachMarkMargin
                 - arrowSize.height / 2
         }
     }
@@ -347,13 +347,13 @@ extension GuidedTourView {
     private func calculateCoachMarkOffsetY() -> CGFloat {
         if calculateCoachMarkPosition() == .top {
             store.state.currentStepState.spotlightRegion.origin.y
-                - spotLightAndCoachMarkMargin
+                - spotlightAndCoachMarkMargin
                 - cardSize.height
                 - arrowSize.height
         } else {
             store.state.currentStepState.spotlightRegion.origin.y
                 + store.state.currentStepState.spotlightRegion.size.height
-                + spotLightAndCoachMarkMargin
+                + spotlightAndCoachMarkMargin
         }
     }
 
