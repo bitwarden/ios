@@ -9,7 +9,7 @@ struct ViewCardItemView: View {
     @ObservedObject var store: Store<any ViewCardItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
-        LazyVStack(spacing: 16.0) {
+        ContentBlock {
             cardholderNameItem
 
             cardNumberItem

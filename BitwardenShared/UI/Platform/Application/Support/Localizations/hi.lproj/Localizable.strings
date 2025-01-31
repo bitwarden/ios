@@ -67,6 +67,9 @@
 "Tools" = "टूल्स";
 "URI" = "यूआरआई";
 "UseFingerprintToUnlock" = "फिंगरप्रिंट से खोलें";
+"UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "यूज़रनेम";
 "ValidationFieldRequired" = "%1$@ चाहिए।";
 "ValueHasBeenCopied" = "%1$@ कॉपी किया";
@@ -79,6 +82,7 @@
 "Website" = "वेबसाइट";
 "Yes" = "हां";
 "Account" = "अकाउंट";
+"StepOfStep" = "%1$d OF %2$d";
 "AccountCreated" = "आपका नया अकाउंट बनाया गया! अब लॉगइन कर सकते हैं।";
 "AddAnItem" = "आइटम बनाएं";
 "AppExtension" = "ऐप एक्सटेंशन";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "आइटम जो मैच कर सकते है";
 "Search" = "सर्च करें";
 "BitwardenAutofillServiceSearch" = "आप \"%1$@\" के लिए ऑटो-फिल आइटम खोज रहे है।";
+"LearnAboutNewLogins" = "Learn about new logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "ऑर्गनाइज़ेशन के बारे में जानें";
 "CannotOpenApp" = "\"%1$@\" ऐप नहीं खोल पा रहे।";
 "AuthenticatorAppTitle" = "ऑथेंटिकेटर ऐप";
@@ -545,10 +551,8 @@
 "Send" = "सेंड";
 "AllSends" = "सारे सेंड";
 "Sends" = "सेंड";
-"NameInfo" = "A friendly name to describe this Send.";
 "Text" = "टेक्सट";
 "TypeText" = "टेक्सट";
-"TypeTextInfo" = "The text you want to send.";
 "HideTextByDefault" = "When accessing the Send, hide the text by default";
 "TypeFile" = "फाइल";
 "FileTypeIsSelected" = "File type is selected.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
+"Next" = "Next";
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
-"StartImportCXPDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
+"StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
 "ImportingEllipsis" = "Importing...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Export vault to another app";
 "ExportItems" = "Export items";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
-"ExportOptions" = "Export options";
-"ExportAllItems" = "Export all items (%1$@)";
-"ExportSelectedItems" = "Export selected items";
-"SelectedItems" = "Selected items";
 "RetryExport" = "Retry export";
 "ExportFailed" = "Export failed";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
 "PleaseDoNotCloseTheApp" = "Please do not close the app.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Items to export";
+"TextToShare" = "Text to share";
+"SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";

@@ -67,6 +67,9 @@
 "Tools" = "Công cụ";
 "URI" = "Đường dẫn";
 "UseFingerprintToUnlock" = "Dùng vân tay để mở khóa";
+"UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Tên người dùng";
 "ValidationFieldRequired" = "Vui lòng nhập %1$@.";
 "ValueHasBeenCopied" = "Đã sao chép %1$@";
@@ -79,6 +82,7 @@
 "Website" = "Trang web";
 "Yes" = "Có";
 "Account" = "Tài khoản";
+"StepOfStep" = "%1$d OF %2$d";
 "AccountCreated" = "Đã tạo tài khoản. Bạn có thể đăng nhập bây giờ.";
 "AddAnItem" = "Thêm một mục";
 "AppExtension" = "Tiện ích mở rộng";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Những mục có thể khớp";
 "Search" = "Tìm kiếm";
 "BitwardenAutofillServiceSearch" = "Bạn đang tìm kiếm một tự động đăng nhập cho '%1$@'.";
+"LearnAboutNewLogins" = "Learn about new logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Tìm hiểu về tổ chức";
 "CannotOpenApp" = "Không thể mở ứng dụng \"%1$@\".";
 "AuthenticatorAppTitle" = "Ứng dụng Authenticator";
@@ -545,10 +551,8 @@
 "Send" = "Gửi";
 "AllSends" = "Tất cả mục Gửi";
 "Sends" = "Gửi";
-"NameInfo" = "Một tên gợi nhớ để mô tả mục Gửi này.";
 "Text" = "Văn bản";
 "TypeText" = "Văn bản";
-"TypeTextInfo" = "Văn bản bạn muốn gửi.";
 "HideTextByDefault" = "Khi truy cập vào phần Gửi, văn bản sẽ được ẩn theo mặc định";
 "TypeFile" = "Tập tin";
 "FileTypeIsSelected" = "Loại tập tin được chọn.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Đã xảy ra lỗi";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Không thể chuyển. Thử lại sau.";
 "Done" = "Xong";
+"Next" = "Next";
 "CopyPublicKey" = "Chép khóa công khai";
 "CopyPrivateKey" = "Chép khóa riêng tư";
 "CopyFingerprint" = "Chép vân tay";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Điền tự động %1$@ thất bại";
 "ExportingFailed" = "Xuất thất bại";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Bạn cần bật mật mã hoặc sinh trắc học.";
-"StartImportCXPDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
+"StartImportCXFDescriptionLong" = "Nhập mật khẩu, mã khóa, thẻ tín dụng và bất kỳ thông tin nhận dạng cá nhân nào từ trình quản lý mật khẩu khác.\n\nDữ liệu của bạn sẽ **không** bị xóa từ nhà cung cấp trước.";
 "ImportPasswords" = "Nhập mật khẩu";
 "ImportingEllipsis" = "Đang nhập...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Export vault to another app";
 "ExportItems" = "Xuất mục";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Xuất mật khẩu, mã khóa, thẻ tín dụng và mọi thông tin nhận dạng cá nhân.";
-"ExportOptions" = "Tùy chọn xuất";
-"ExportAllItems" = "Xuất tất cả (%1$@)";
-"ExportSelectedItems" = "Xuất những mục đã chọn";
-"SelectedItems" = "Những mục đã chọn";
 "RetryExport" = "Thử xuất lại";
 "ExportFailed" = "Xuất thất bại";
 "ThereHasBeenAnIssueExportingItems" = "Xảy ra lỗi khi xuất các mục.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Bạn có chắc muốn hủy bỏ quá trình xuất?";
 "PleaseDoNotCloseTheApp" = "Vui lòng không đóng ứng dụng.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Những mục sẽ xuất";
+"TextToShare" = "Nội dung chia sẻ";
+"SendDetails" = "Gửi chi tiết";
+"SendNameRequired" = "Gửi tên (bắt buộc)";

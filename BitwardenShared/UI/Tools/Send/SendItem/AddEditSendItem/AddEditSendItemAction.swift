@@ -8,23 +8,11 @@ enum AddEditSendItemAction: Equatable {
     /// The choose file button was pressed.
     case chooseFilePressed
 
-    /// The clear expiration date button was pressed.
-    case clearExpirationDatePressed
-
-    /// The custom expiration date was changed.
-    case customExpirationDateChanged(Date?)
-
-    /// The deactivate this send toggle was changed.
-    case deactivateThisSendChanged(Bool)
-
     /// The deletion date was changed.
     case deletionDateChanged(SendDeletionDateType)
 
     /// The dismiss button was pressed.
     case dismissPressed
-
-    /// The expiration date was changed.
-    case expirationDateChanged(SendExpirationDateType)
 
     /// The hide my email toggle was changed.
     case hideMyEmailChanged(Bool)

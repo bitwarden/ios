@@ -67,6 +67,9 @@
 "Tools" = "Eszközök";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Ujjlenyomat használata feloldáshoz";
+"UseThisButtonToGenerateANewUniquePassword" = "Ezzel a gombbal új egyedi jelszót generálhatunk.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Csak azokhoz a bejelentkezésekhez kell beállítani a Hitelesítő kulcsot, amelyek kétlépcsős hitelesítést igényelnek kóddal. A kulcs folyamatosan hatjegyű kódokat generál, amelyek segítségével bejelentkezhetümk.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Meg kell adnia egy webcímet, hogy automatikus kitöltést használjunk a fiók eléréséhez.";
 "Username" = "Felhasználónév";
 "ValidationFieldRequired" = "A(z) %1$@ mező megadása kötelező.";
 "ValueHasBeenCopied" = "%1$@ a vágólapra került.";
@@ -79,6 +82,7 @@
 "Website" = "Weboldal";
 "Yes" = "Igen";
 "Account" = "Fiók";
+"StepOfStep" = "%1$d / %2$d";
 "AccountCreated" = "Fiókodat létrehoztuk. Most már be tudsz jelentkezni.";
 "AddAnItem" = "Elem hozzáadása";
 "AppExtension" = "App kiterjesztés";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Lehetséges megfelelő elemek";
 "Search" = "Keresés";
 "BitwardenAutofillServiceSearch" = "Automatikus kitöltési elem keresése folyik: \"%1$@\".";
+"LearnAboutNewLogins" = "További információ az új bejelentkezésekről";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Végigmegyünk az új bejelentkezés hozzáadásához szükséges legfontosabb funkciókon.";
 "LearnOrg" = "Információ szervezetekről";
 "CannotOpenApp" = "Nem lehet megnyitni a(z) \"%1$@\" alkalmazást.";
 "AuthenticatorAppTitle" = "Hitelesítő alkalmazás";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Összes Send";
 "Sends" = "Küldések";
-"NameInfo" = "Barátságos név a Send elem leírására.";
 "Text" = "Szöveg";
 "TypeText" = "Szöveg";
-"TypeTextInfo" = "A küldendő szöveg.";
 "HideTextByDefault" = "A Send elérésekor alapértelmezés szerint a szöveg elrejtése";
 "TypeFile" = "Fájl";
 "FileTypeIsSelected" = "A fájltípus kiválasztásra került.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Kész";
+"Next" = "Következő";
 "CopyPublicKey" = "Nyilvános kulcs másolása";
 "CopyPrivateKey" = "Személyes kulcs másolása";
 "CopyFingerprint" = "Ujjlenyomat másolása";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "%1$@ elemet nem sikerült automatikusan kitölteni.";
 "ExportingFailed" = "Az exportálás sikertelen volt.";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Lehetséges, hogy engedélyezni kell az eszköz jelkódot vagy a biometrikus adatokat.";
-"StartImportCXPDescriptionLong" = "Importáljunk jelszavakat, belépőkulcsokat, hitelkártyákat és bármilyen személyes azonosító információt egy másik jelszókezelőből.\n\nAz adatok **nem** kerülnek törlésre a korábbi szolgáltatónál.";
+"StartImportCXFDescriptionLong" = "Importáljunk jelszavakat, belépőkulcsokat, hitelkártyákat és bármilyen személyes azonosító információt egy másik jelszókezelőből.\n\nAz adatok **nem** kerülnek törlésre a korábbi szolgáltatónál.";
 "ImportPasswords" = "Jelszavak importálása";
 "ImportingEllipsis" = "Importálás...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Biztosan megszakításra kerüljön az importálási folyamat?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Széf exportálása másik alkalmazásba";
 "ExportItems" = "Elemek exportálása";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Jelszavak, jelszavak, hitelkártyák és bármilyen személyes azonosító információ exportálása.";
-"ExportOptions" = "Exportálási opciók";
-"ExportAllItems" = "Összes elem exportálása (%1$@)";
-"ExportSelectedItems" = "Kiválasztott elemek exportálása";
-"SelectedItems" = "Kiválasztott elemek";
 "RetryExport" = "Exportálás újra próbálása";
 "ExportFailed" = "Az exportálás sikertelen volt.";
 "ThereHasBeenAnIssueExportingItems" = "Hiba történt az elemek exportálásakor.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Biztosan megszakításra kerüljön az importálási folyamat?";
 "PleaseDoNotCloseTheApp" = "Ne zárjuk be az alkalmazást.";
+"ThisIsTakingLongerThanExpected" = "Ez a vártnál hosszabb ideig tart.";
+"ItemsToExport" = "Exportlandó elemek";
+"TextToShare" = "Megosztandó szöveg";
+"SendDetails" = "Send részletek";
+"SendNameRequired" = "Send név (kötelező)";

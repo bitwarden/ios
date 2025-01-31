@@ -67,6 +67,9 @@
 "Tools" = "Ferramentas";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Engade unha pegada dactilar para desbloquear";
+"UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Nome de usuario";
 "ValidationFieldRequired" = "O campo %1$@ é obrigatorio.";
 "ValueHasBeenCopied" = "%1$@ copiado";
@@ -79,6 +82,7 @@
 "Website" = "Sitio web";
 "Yes" = "Si";
 "Account" = "Conta";
+"StepOfStep" = "%1$d OF %2$d";
 "AccountCreated" = "A túa nova conta foi creada! Podes iniciar sesión agora.";
 "AddAnItem" = "Engadir un elemento";
 "AppExtension" = "Extensión da app";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Posibles entradas coincidentes";
 "Search" = "Busca";
 "BitwardenAutofillServiceSearch" = "Estás a buscar unha entrada para autoencher \"%1$@\".";
+"LearnAboutNewLogins" = "Learn about new logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Aprende sobre as organizacións";
 "CannotOpenApp" = "Non se pode abrir a app \"%1$@\".";
 "AuthenticatorAppTitle" = "Aplicación de autenticación";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Todos os Sends";
 "Sends" = "Sends";
-"NameInfo" = "Un título simpático que describa este Send.";
 "Text" = "Texto";
 "TypeText" = "Texto";
-"TypeTextInfo" = "O texto que queres enviar.";
 "HideTextByDefault" = "Cando se acceda ó Send, amosar o texto agochado";
 "TypeFile" = "Arquivo";
 "FileTypeIsSelected" = "O tipo de arquivo está seleccionado.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Algo fallou";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Non se puido mover o elemento seleccionado. Por favor, volve intentalo.";
 "Done" = "Feito";
+"Next" = "Next";
 "CopyPublicKey" = "Copiar clave pública";
 "CopyPrivateKey" = "Copiar clave privada";
 "CopyFingerprint" = "Copiar pegada dixital";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Non ser puido autoencher %1$@";
 "ExportingFailed" = "Exportación fallida";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Pode que precises activar un método de bloqueo no dispositivo.";
-"StartImportCXPDescriptionLong" = "Importar contrasinais, Claves de acceso, tarxetas e calquera información persoal dende outro xestor de contrasinais.\n\nOs teus datos **non** se borrarán do teu provedor previo.";
+"StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Importar contrasinais";
 "ImportingEllipsis" = "Importando...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Seguro que queres cancelar o proceso de importado?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Exportar caixa forte a outra app";
 "ExportItems" = "Exportar elementos";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Exportar contrasinais, Claves de acceso, tarxetas e outra información persoal.";
-"ExportOptions" = "Opcións de exportado";
-"ExportAllItems" = "Exportar todas as entradas (%1$@)";
-"ExportSelectedItems" = "Exportar entradas seleccionadas";
-"SelectedItems" = "Entradas seleccionadas";
 "RetryExport" = "Volver intentar o exportado";
 "ExportFailed" = "Exportado falido";
 "ThereHasBeenAnIssueExportingItems" = "Houbo un erro ó exportar os elementos.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Seguro que queres cancelar o proceso de exportado?";
 "PleaseDoNotCloseTheApp" = "Please do not close the app.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Items to export";
+"TextToShare" = "Text to share";
+"SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";

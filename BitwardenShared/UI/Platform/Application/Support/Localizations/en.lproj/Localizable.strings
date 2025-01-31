@@ -182,6 +182,7 @@
 "TwoStepLogin" = "Two-step login";
 "UnlockWith" = "Unlock with %1$@";
 "UnlockWithPIN" = "Unlock with PIN code";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Validating";
 "VerificationCode" = "Verification code";
 "ViewItem" = "View item";
@@ -456,6 +457,7 @@
 "ExitConfirmation" = "Are you sure you want to exit Bitwarden?";
 "PINRequireMasterPasswordRestart" = "Do you want to require unlocking with your master password when the application is restarted?";
 "PINRequireBioOrMasterPasswordRestart" = "Do you want to require unlocking with %1$@ or your master password when the application is restarted?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Black";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
@@ -563,22 +565,18 @@
 "DeletionTime" = "Deletion time";
 "DeletionDateInfo" = "The Send will be permanently deleted on the specified date and time.";
 "PendingDelete" = "Pending deletion";
-"ExpirationDate" = "Expiration date";
 "ExpirationTime" = "Expiration time";
-"ExpirationDateInfo" = "If set, access to this Send will expire on the specified date and time.";
 "Expired" = "Expired";
 "MaximumAccessCount" = "Maximum access count";
 "MaximumAccessCountInfo" = "If set, users will no longer be able to access this Send once the maximum access count is reached.";
 "MaximumAccessCountReached" = "Max access count reached";
 "CurrentAccessCount" = "Current access count";
 "NewPassword" = "New password";
-"PasswordInfo" = "Optionally require a password for users to access this Send.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Remove password";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
 "SendPasswordRemoved" = "Password has been removed.";
-"NotesInfo" = "Private notes about this Send.";
-"DisableSend" = "Deactivate this Send so that no one can access it";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "Copy link";
 "ShareLink" = "Share link";
@@ -680,7 +678,7 @@
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
 "SetupTotp" = "Set up TOTP";
-"OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered,\nselect Add TOTP to store the key safely";
+"OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered, select Save to store the key safely.";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
 "GenericErrorMessage" = "We were unable to process your request. Please try again or contact us.";
@@ -1065,6 +1063,8 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
@@ -1103,3 +1103,5 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
