@@ -400,6 +400,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
         } footerContent: {
             Button("Footer button") {}
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
         }
         .padding()
     }

@@ -137,8 +137,8 @@
 "LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Manage";
 "MasterPasswordConfirmationValMessage" = "Password confirmation is not correct.";
-"MasterPasswordDescription" = "The master password is the password you use to access your vault. It is very important that you do not forget your master password. There is no way to recover the password in the event that you forget it.";
-"MasterPasswordHint" = "Master password hint (optional)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "A master password hint can help you remember your password if you forget it.";
 "MasterPasswordLengthValMessageX" = "Master password must be at least %1$@ characters long.";
 "MinNumbers" = "Minimum numbers";

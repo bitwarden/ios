@@ -174,6 +174,7 @@ struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
         BitwardenToggle("Toggle", isOn: .constant(false)) {
             Button("Custom footer content") {}
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
         }
         .contentBlock()
     }
