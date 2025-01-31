@@ -161,6 +161,9 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 )
             case .twoFactorProvidersNotConfigured:
                 await handleErrorResponse(error)
+            case .newDeviceNotVerified:
+                // TODO: PM-8222: handle new response and do proper navigation
+                services.errorReporter.log(error: error)
             }
         } catch {
             await handleErrorResponse(error)

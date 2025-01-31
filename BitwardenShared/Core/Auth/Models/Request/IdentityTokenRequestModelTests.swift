@@ -117,6 +117,23 @@ class IdentityTokenRequestModelTests: BitwardenTestCase {
         XCTAssertEqual(valuesByKey["twoFactorRemember"], "1")
     }
 
+    /// `values` contains the new device verification information if it's provided.
+    func test_values_withNewDeviceVerificationInformation() {
+        let subject = IdentityTokenRequestModel(
+            authenticationMethod: .password(
+                username: "user@example.com",
+                password: "password"
+            ),
+            captchaToken: nil,
+            deviceInfo: .fixture(),
+            loginRequestId: nil,
+            newDeviceOtp: "onetimepass"
+        )
+        let valuesByKey = valuesByKey(subject.values)
+
+        XCTAssertEqual(valuesByKey["newdeviceotp"], "onetimepass")
+    }
+
     // MARK: Private
 
     /// Converts the list of `URLQueryItem`s to a dictionary keyed by the item's name.
