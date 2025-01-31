@@ -67,6 +67,9 @@
 "Tools" = "Инструменты";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Использовать отпечаток пальца для разблокировки";
+"UseThisButtonToGenerateANewUniquePassword" = "Используйте эту кнопку для генерации нового уникального пароля.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам нужно настроить ключ аутентификатора только для логинов, которые требуют двухфакторной аутентификации с помощью кода. Ключ будет постоянно генерировать шестизначные коды, которые можно использовать для авторизации.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Вы должны добавить веб-адрес, чтобы использовать автозаполнение для доступа к этому аккаунту.";
 "Username" = "Имя пользователя";
 "ValidationFieldRequired" = "Поле %1$@ обязательно.";
 "ValueHasBeenCopied" = "Скопировано: %1$@.";
@@ -79,6 +82,7 @@
 "Website" = "Сайт";
 "Yes" = "Да";
 "Account" = "Аккаунт";
+"StepOfStep" = "%1$d ИЗ %2$d";
 "AccountCreated" = "Ваш аккаунт создан! Теперь вы можете войти в систему.";
 "AddAnItem" = "Добавить элемент";
 "AppExtension" = "Расширение";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Возможные элементы";
 "Search" = "Поиск";
 "BitwardenAutofillServiceSearch" = "Вы ищете элемент автозаполнения для \"%1$@\".";
+"LearnAboutNewLogins" = "Узнайте о новых логинах";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Мы расскажем вам о ключевых функциях добавления нового логина.";
 "LearnOrg" = "Узнать об организациях";
 "CannotOpenApp" = "Не удается открыть приложение \"%1$@\".";
 "AuthenticatorAppTitle" = "Приложение-аутентификатор";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Все Send’ы";
 "Sends" = "Send’ы";
-"NameInfo" = "Понятное имя для описания этой Send.";
 "Text" = "Текст";
 "TypeText" = "Текст";
-"TypeTextInfo" = "Текст, который вы хотите отправить.";
 "HideTextByDefault" = "При доступе к Send скрывать текст по умолчанию";
 "TypeFile" = "Файл";
 "FileTypeIsSelected" = "Тип файла выбран.";
@@ -1056,6 +1060,7 @@
 "SomethingWentWrong" = "Что-то пошло не так";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Невозможно переместить выбранный элемент. Пожалуйста, попробуйте еще раз.";
 "Done" = "Готово";
+"Next" = "Далее";
 "CopyPublicKey" = "Скопировать публичный ключ";
 "CopyPrivateKey" = "Скопировать приватный ключ";
 "CopyFingerprint" = "Скопировать отпечаток";
@@ -1073,7 +1078,7 @@
 "FailedToAutofillItem" = "Не удалось выполнить автозаполнение элемента %1$@";
 "ExportingFailed" = "Не удалось экспортировать";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Возможно, вам потребуется включить код доступа к устройству или биометрию.";
-"StartImportCXPDescriptionLong" = "Импортируйте пароли, ключи доступа, кредитные карты и любую личную информацию из другого менеджера паролей.\n\nВаши данные **не** будут удалены у предыдущего провайдера.";
+"StartImportCXFDescriptionLong" = "Импортируйте пароли, ключи доступа, кредитные карты и любую личную информацию из другого менеджера паролей.\n\nВаши данные **не** будут удалены у предыдущего провайдера.";
 "ImportPasswords" = "Импорт паролей";
 "ImportingEllipsis" = "Импорт...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Вы уверены, что хотите отменить импорт?";
@@ -1088,12 +1093,13 @@
 "ExportVaultToAnotherApp" = "Экспорт хранилища в другое приложение";
 "ExportItems" = "Экспорт элементов";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Экспортируйте пароли, passkeys, кредитные карты и любую личную информацию.";
-"ExportOptions" = "Опции экспорта";
-"ExportAllItems" = "Экспорт всех элементов (%1$@)";
-"ExportSelectedItems" = "Экспорт выбранных элементов";
-"SelectedItems" = "Выбранные элементы";
 "RetryExport" = "Повторить экспорт";
 "ExportFailed" = "Не удалось экспортировать";
 "ThereHasBeenAnIssueExportingItems" = "Произошла ошибка при экспорте элементов.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Вы уверены, что хотите отменить эксперт?";
 "PleaseDoNotCloseTheApp" = "Пожалуйста, не закрывайте приложение.";
+"ThisIsTakingLongerThanExpected" = "Это занимает больше времени, чем ожидалось";
+"ItemsToExport" = "Элементы для экспорта";
+"TextToShare" = "Текст для отправки";
+"SendDetails" = "Информация о Send";
+"SendNameRequired" = "Название Send (требуется)";

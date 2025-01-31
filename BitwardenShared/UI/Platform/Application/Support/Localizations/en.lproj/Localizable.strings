@@ -570,13 +570,11 @@
 "MaximumAccessCountReached" = "Max access count reached";
 "CurrentAccessCount" = "Current access count";
 "NewPassword" = "New password";
-"PasswordInfo" = "Optionally require a password for users to access this Send.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Remove password";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
 "SendPasswordRemoved" = "Password has been removed.";
-"NotesInfo" = "Private notes about this Send.";
-"DisableSend" = "Deactivate this Send so that no one can access it";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "Copy link";
 "ShareLink" = "Share link";
@@ -678,7 +676,7 @@
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
 "SetupTotp" = "Set up TOTP";
-"OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered,\nselect Add TOTP to store the key safely";
+"OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered, select Save to store the key safely.";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
 "GenericErrorMessage" = "We were unable to process your request. Please try again or contact us.";
@@ -1099,5 +1097,7 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescription" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
