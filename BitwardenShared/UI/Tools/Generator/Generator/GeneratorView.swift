@@ -30,6 +30,19 @@ struct GeneratorView: View {
             Divider()
 
             VStack(alignment: .leading, spacing: 24) {
+                if store.state.isLearnGeneratorActionCardEligible {
+                    ActionCard(
+                        title: Localizations.exploreTheGenerator,
+                        message: Localizations.learnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour,
+                        actionButtonState: ActionCard.ButtonState(title: Localizations.getStarted) {
+                            await store.perform(.showLearnGeneratorGuidedTour)
+                        },
+                        dismissButtonState: ActionCard.ButtonState(title: Localizations.dismiss) {
+                            await store.perform(.dismissLearnGeneratorActionCard)
+                        }
+                    )
+                }
+
                 if store.state.isPolicyInEffect {
                     InfoContainer(Localizations.passwordGeneratorPolicyInEffect)
                         .accessibilityIdentifier("PasswordGeneratorPolicyInEffectLabel")
