@@ -20,27 +20,30 @@ struct ManualEntryView: View {
                 cancelToolbarItem {
                     store.send(.dismissPressed)
                 }
-            }
-    }
 
-    /// A button to trigger an `.addPressed(:)` action.
-    ///
-    private var addButton: some View {
-        Button(Localizations.addTotp) {
-            store.send(
-                ManualEntryAction.addPressed(code: store.state.authenticatorKey)
-            )
-        }
-        .buttonStyle(.secondary())
-        .accessibilityIdentifier("AddTOTPManuallyButton")
+                saveToolbarItem {
+                    store.send(
+                        ManualEntryAction.addPressed(code: store.state.authenticatorKey)
+                    )
+                }
+            }
     }
 
     /// The main content of the view.
     ///
     private var content: some View {
-        VStack(alignment: .leading, spacing: 16.0) {
-            Text(Localizations.enterKeyManually)
-                .styleGuide(.title2, weight: .bold)
+        VStack(alignment: .center, spacing: 24) {
+            VStack(alignment: .center, spacing: 12) {
+                Text(Localizations.enterKeyManually)
+                    .styleGuide(.title2, weight: .semibold)
+
+                Text(Localizations.onceTheKeyIsSuccessfullyEntered)
+                    .styleGuide(.body)
+            }
+            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 12)
+
             BitwardenTextField(
                 title: Localizations.authenticatorKeyScanner,
                 text: store.binding(
@@ -49,33 +52,26 @@ struct ManualEntryView: View {
                 ),
                 accessibilityIdentifier: "AddTOTPManuallyField"
             )
-            addButton
-            footer
+
+            footerButtonContainer
         }
         .background(
             Asset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
-        .scrollView()
-    }
-
-    /// Explanation text for the view and a button to launch the scan code view.
-    ///
-    private var footer: some View {
-        Group {
-            Text(Localizations.onceTheKeyIsSuccessfullyEntered)
-                .styleGuide(.callout)
-            footerButtonContainer
-        }
+        .padding(.top, 12)
+        .scrollView(padding: 12)
     }
 
     /// A view to wrap the button for triggering `.scanCodePressed`.
     ///
     @ViewBuilder private var footerButtonContainer: some View {
         if store.state.deviceSupportsCamera {
-            VStack(alignment: .leading, spacing: 0.0, content: {
+            VStack(alignment: .center, spacing: 0.0, content: {
                 Text(Localizations.cannotAddAuthenticatorKey)
-                    .styleGuide(.callout)
+                    .styleGuide(.subheadline)
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+
                 AsyncButton {
                     await store.perform(.scanCodePressed)
                 } label: {

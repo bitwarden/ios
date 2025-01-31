@@ -86,18 +86,8 @@ class AddEditSendItemProcessor:
         switch action {
         case .chooseFilePressed:
             presentFileSelectionAlert()
-        case .clearExpirationDatePressed:
-            state.customExpirationDate = nil
-        case let .customDeletionDateChanged(newValue):
-            state.customDeletionDate = newValue
-        case let .customExpirationDateChanged(newValue):
-            state.customExpirationDate = newValue
-        case let .deactivateThisSendChanged(newValue):
-            state.isDeactivateThisSendOn = newValue
         case let .deletionDateChanged(newValue):
             state.deletionDate = newValue
-        case let .expirationDateChanged(newValue):
-            state.expirationDate = newValue
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
         case let .hideMyEmailChanged(newValue):

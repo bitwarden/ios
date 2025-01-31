@@ -201,6 +201,17 @@ class AlertSettingsTests: BitwardenTestCase {
     }
 
     /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `biometrics`.
+    func test_unlockWithPINAlert_biometrics() {
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: .unknown) { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireUnknownBiometricsOrMasterPasswordRestart)
+    }
+
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
     /// when `biometricType` is `faceID`.
     func test_unlockWithPINAlert_faceID() {
         let subject = Alert.unlockWithPINCodeAlert(biometricType: .faceID) { _ in }
@@ -209,6 +220,17 @@ class AlertSettingsTests: BitwardenTestCase {
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
         XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID))
+    }
+
+    /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons
+    /// when `biometricType` is `opticID`.
+    func test_unlockWithPINAlert_opticID() {
+        let subject = Alert.unlockWithPINCodeAlert(biometricType: .opticID) { _ in }
+
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.title, Localizations.unlockWithPIN)
+        XCTAssertEqual(subject.message, Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.opticID))
     }
 
     /// `unlockWithPINCodeAlert(action)` constructs an `Alert` with the correct title, message, Yes and No buttons

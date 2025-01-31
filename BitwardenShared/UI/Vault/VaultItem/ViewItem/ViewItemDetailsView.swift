@@ -38,13 +38,12 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The attachments section.
     @ViewBuilder private var attachmentsSection: some View {
         if let attachments = store.state.attachments, !attachments.isEmpty {
-            SectionView(Localizations.attachments) {
-                VStack(spacing: 0) {
+            SectionView(Localizations.attachments, titleDesignVersion: .v2, contentSpacing: 8) {
+                ContentBlock {
                     ForEach(attachments) { attachment in
                         attachmentRow(attachment, hasDivider: attachment != attachments.last)
                     }
                 }
-                .cornerRadius(10)
             }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("AttachmentsList")
@@ -54,7 +53,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The custom fields section.
     @ViewBuilder private var customFieldsSection: some View {
         if !store.state.customFieldsState.customFields.isEmpty {
-            SectionView(Localizations.customFields) {
+            SectionView(Localizations.customFields, titleDesignVersion: .v2, contentSpacing: 8) {
                 ForEach(store.state.customFieldsState.customFields, id: \.self) { customField in
                     if customField.type == .boolean {
                         HStack(spacing: 16) {
@@ -83,11 +82,16 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                         password: value,
                                         isPasswordVisible: customField.isPasswordVisible
                                     )
+                                } else {
+                                    Text(" ") // Placeholder so the field's title is positioned correctly.
                                 }
                             case .text:
-                                if let value = customField.value {
-                                    Text(value).textSelection(.enabled)
-                                }
+                                // An empty string is a placeholder when the value is nil so the
+                                // field's title is positioned correctly.
+                                Text(customField.value ?? "")
+                                    .textSelection(.enabled)
+                                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                    .styleGuide(.body)
                             case .linked:
                                 if let linkedIdType = customField.linkedIdType {
                                     HStack(spacing: 8) {
@@ -96,6 +100,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                                                 .accessoryIcon16(color: Asset.Colors.textSecondary.swiftUIColor)
                                             )
                                         Text(linkedIdType.localizedName)
+                                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                            .styleGuide(.body)
                                     }
                                 }
                             }
@@ -137,10 +143,9 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
 
     /// The item information section.
     private var itemInformationSection: some View {
-        SectionView(Localizations.itemInformation, contentSpacing: 12) {
+        SectionView(Localizations.itemInformation, titleDesignVersion: .v2, contentSpacing: 8) {
             BitwardenTextValueField(title: Localizations.name, value: store.state.name)
                 .accessibilityElement(children: .contain)
-                .accessibilityIdentifier("ItemRow")
 
             // check for type
             switch store.state.type {
@@ -230,39 +235,42 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         .styleGuide(.subheadline)
         .multilineTextAlignment(.leading)
         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+        .padding(.leading, 12)
     }
 
     /// The URIs section (login only).
     @ViewBuilder private var uriSection: some View {
         if store.state.type == .login, !store.state.loginState.uris.isEmpty {
-            SectionView(Localizations.urIs) {
-                ForEach(store.state.loginState.uris, id: \.self) { uri in
-                    BitwardenTextValueField(
-                        title: Localizations.uri,
-                        value: URL(string: uri.uri)?.host ?? uri.uri,
-                        valueAccessibilityIdentifier: "LoginUriEntry"
-                    ) {
-                        if let url = URL(string: uri.uri)?.sanitized, url.hasValidURLComponents {
+            SectionView(Localizations.urIs, titleDesignVersion: .v2, contentSpacing: 8) {
+                ContentBlock {
+                    ForEach(store.state.loginState.uris, id: \.self) { uri in
+                        BitwardenTextValueField(
+                            title: Localizations.uri,
+                            value: URL(string: uri.uri)?.host ?? uri.uri,
+                            valueAccessibilityIdentifier: "LoginUriEntry"
+                        ) {
+                            if let url = URL(string: uri.uri)?.sanitized, url.hasValidURLComponents {
+                                Button {
+                                    openURL(url)
+                                } label: {
+                                    Asset.Images.externalLink24.swiftUIImage
+                                        .imageStyle(.accessoryIcon24)
+                                }
+                                .accessibilityLabel(Localizations.launch)
+                            }
+
                             Button {
-                                openURL(url)
+                                store.send(.copyPressed(value: uri.uri, field: .uri))
                             } label: {
-                                Asset.Images.externalLink24.swiftUIImage
+                                Asset.Images.copy24.swiftUIImage
                                     .imageStyle(.accessoryIcon24)
                             }
-                            .accessibilityLabel(Localizations.launch)
+                            .accessibilityLabel(Localizations.copy)
+                            .accessibilityIdentifier("CopyValueButton")
                         }
-
-                        Button {
-                            store.send(.copyPressed(value: uri.uri, field: .uri))
-                        } label: {
-                            Asset.Images.copy24.swiftUIImage
-                                .imageStyle(.accessoryIcon24)
-                        }
-                        .accessibilityLabel(Localizations.copy)
-                        .accessibilityIdentifier("CopyValueButton")
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("UriRow")
                     }
-                    .accessibilityElement(children: .contain)
-                    .accessibilityIdentifier("UriRow")
                 }
             }
         }
@@ -275,7 +283,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     ///   - hasDivider: Whether the row should display a divider.
     ///
     private func attachmentRow(_ attachment: AttachmentView, hasDivider: Bool) -> some View {
-        VStack(spacing: 0) {
+        BitwardenField {
             HStack {
                 Text(attachment.fileName ?? "")
                     .styleGuide(.body)
@@ -299,14 +307,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 }
                 .accessibilityLabel(Localizations.download)
             }
-            .padding(16)
-
-            if hasDivider {
-                Divider()
-                    .padding(.leading, 16)
-            }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("CipherAttachment")
     }

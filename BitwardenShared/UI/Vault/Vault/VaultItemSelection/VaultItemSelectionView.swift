@@ -177,7 +177,7 @@ private struct VaultItemSelectionSearchableView: View {
     @ViewBuilder
     private func matchingItemsView() -> some View {
         VStack(spacing: 16) {
-            InfoContainer(Localizations.addTheKeyToAnExistingOrNewItem, textAlignment: .leading)
+            InfoContainer(Localizations.addTheKeyToAnExistingOrNewItem)
 
             ForEach(store.state.vaultListSections) { section in
                 VaultListSectionView(section: section) { item in
@@ -238,7 +238,6 @@ private struct VaultItemSelectionSearchableView: View {
                 ),
                 timeProvider: CurrentTime()
             )
-            .accessibilityIdentifier("CipherCell")
         }
     }
 }

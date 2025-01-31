@@ -67,6 +67,9 @@
 "Tools" = "工具";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "使用指纹解锁";
+"UseThisButtonToGenerateANewUniquePassword" = "使用此按钮生成新的唯一密码。";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "您只需为需要使用代码进行双重身份验证的登录设置验证器密钥。该密钥将持续不断地生成可用于登录的六位数代码。";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "您必须添加一个网址才能使用自动填充来访问此账户。";
 "Username" = "用户名";
 "ValidationFieldRequired" = "必须填写 %1$@ 字段。";
 "ValueHasBeenCopied" = "%1$@ 已复制";
@@ -79,6 +82,7 @@
 "Website" = "网站";
 "Yes" = "是";
 "Account" = "账户";
+"StepOfStep" = "%1$d / %2$d";
 "AccountCreated" = "您的新账户已创建！您现在可以登录了。";
 "AddAnItem" = "添加项目";
 "AppExtension" = "App 扩展";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "可能匹配的项目";
 "Search" = "搜索";
 "BitwardenAutofillServiceSearch" = "你正在搜索用于「%1$@」的自动填充项目。";
+"LearnAboutNewLogins" = "了解新的登录";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "我们将通过主要功能带您了解如何添加新的登录。";
 "LearnOrg" = "了解组织";
 "CannotOpenApp" = "无法打开 App「%1$@」。";
 "AuthenticatorAppTitle" = "验证器 App";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "所有的 Send";
 "Sends" = "Send";
-"NameInfo" = "用于描述此 Send 的友好名称。";
 "Text" = "文本";
 "TypeText" = "文本";
-"TypeTextInfo" = "您想要发送的文本。";
 "HideTextByDefault" = "访问此 Send 时，默认隐藏文本内容";
 "TypeFile" = "文件";
 "FileTypeIsSelected" = "已选择文件类型。";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "出错了";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "无法移动所选项目。请重试。";
 "Done" = "完成";
+"Next" = "下一步";
 "CopyPublicKey" = "复制公钥";
 "CopyPrivateKey" = "复制私钥";
 "CopyFingerprint" = "复制指纹";
@@ -1071,9 +1076,9 @@
 "FailedToAutofillItem" = "自动填充项目 %1$@ 失败";
 "ExportingFailed" = "导出失败";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "您可能需要启用设备通行代码或生物识别。";
-"StartImportCXPDescriptionLong" = "从其他密码管理器导入密码、通行密钥、信用卡以及任何个人身份信息。\n\n您的数据 **不会** 从之前的提供程序中删除。";
+"StartImportCXFDescriptionLong" = "从其他密码管理器导入密码、通行密钥、信用卡以及任何个人身份信息。\n\n您的数据 **不会** 从之前的提供程序中删除。";
 "ImportPasswords" = "导入密码";
-"ImportingEllipsis" = "导入中...";
+"ImportingEllipsis" = "正在导入...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
 "ItemsSuccessfullyImported" = "%1$@ 个项目成功导入";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "导出密码库到其他 App";
 "ExportItems" = "导出项目";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "导出密码、通行密钥、信用卡以及任何个人身份信息。";
-"ExportOptions" = "导出选项";
-"ExportAllItems" = "导出所有项目 (%1$@)";
-"ExportSelectedItems" = "导出选中的项目";
-"SelectedItems" = "选中的项目";
 "RetryExport" = "重试导出";
 "ExportFailed" = "导出失败";
 "ThereHasBeenAnIssueExportingItems" = "导出项目时出现问题。";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "您确定要取消导出过程吗？";
 "PleaseDoNotCloseTheApp" = "请不要关闭此 App。";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "要导出的项目";
+"TextToShare" = "要分享的文本";
+"SendDetails" = "Send 详细信息";
+"SendNameRequired" = "Send 名称（必填）";

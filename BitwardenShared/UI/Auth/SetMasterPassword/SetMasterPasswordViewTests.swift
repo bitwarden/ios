@@ -58,7 +58,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     /// Editing the text in the master password text field dispatches the `.masterPasswordChanged` action.
     @MainActor
     func test_masterPassword_change() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.masterPassword)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.masterPasswordRequired)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordChanged("text"))
     }
@@ -74,7 +74,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
     /// Editing the text in the re-type master password text field dispatches the `.masterPasswordRetypeChanged` action.
     @MainActor
     func test_masterPasswordRetype_change() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.retypeMasterPassword)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.retypeMasterPasswordRequired)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRetypeChanged("text"))
     }

@@ -16,7 +16,7 @@ struct EditCollectionsView: View {
     var body: some View {
         content
             .navigationBar(title: Localizations.collections, titleDisplayMode: .inline)
-            .scrollView()
+            .scrollView(padding: 12)
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
                 cancelToolbarItem {
@@ -41,17 +41,17 @@ struct EditCollectionsView: View {
                 .padding(16)
                 .frame(maxWidth: .infinity)
         } else {
-            VStack(spacing: 16) {
+            ContentBlock(dividerLeadingPadding: 16) {
                 ForEach(store.state.collections, id: \.id) { collection in
                     if let collectionId = collection.id {
-                        Toggle(isOn: store.binding(
-                            get: { _ in store.state.collectionIds.contains(collectionId) },
-                            send: { .collectionToggleChanged($0, collectionId: collectionId) }
-                        )) {
-                            Text(collection.name)
-                        }
-                        .toggleStyle(.bitwarden)
-                        .accessibilityIdentifier("CollectionItemSwitch")
+                        BitwardenToggle(
+                            collection.name,
+                            isOn: store.binding(
+                                get: { _ in store.state.collectionIds.contains(collectionId) },
+                                send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                            ),
+                            accessibilityIdentifier: "CollectionItemSwitch"
+                        )
                     }
                 }
             }

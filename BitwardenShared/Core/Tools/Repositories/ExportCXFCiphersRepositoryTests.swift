@@ -1,3 +1,4 @@
+#if SUPPORTS_CXP
 import AuthenticationServices
 import InlineSnapshotTesting
 import XCTest
@@ -236,3 +237,5 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
         }
     }
 }
+
+#endif

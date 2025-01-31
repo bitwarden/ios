@@ -145,7 +145,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .adminForcePasswordReset
         assertSnapshots(
             of: subject,
-            as: [.portrait(heightMultiple: 1.25)]
+            as: [.portraitDark(heightMultiple: 1.25)]
         )
     }
 
@@ -175,7 +175,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         processor.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         assertSnapshots(
             of: subject,
-            as: [.portrait(heightMultiple: 1.25)]
+            as: [.portraitDark(heightMultiple: 1.25)]
         )
     }
 

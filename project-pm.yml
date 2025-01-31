@@ -418,6 +418,9 @@ targets:
   BitwardenSharedTests:
     type: bundle.unit-test
     platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenSharedTests-Debug.xcconfig
+      Release: Configs/BitwardenSharedTests-Release.xcconfig
     settings:
       base:
         BUNDLE_LOADER: "$(TEST_HOST)"

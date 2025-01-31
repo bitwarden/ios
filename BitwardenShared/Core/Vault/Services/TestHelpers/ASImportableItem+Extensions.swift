@@ -1,3 +1,4 @@
+#if SUPPORTS_CXP
 import AuthenticationServices
 
 @available(iOS 18.2, *)
@@ -25,3 +26,4 @@ extension ASImportableItem {
         )
     }
 }
+#endif

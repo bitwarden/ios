@@ -17,18 +17,28 @@ struct BitwardenUITextView: UIViewRepresentable {
         /// The calculated height of the text view.
         var calculatedHeight: Binding<CGFloat>
 
+        /// A binding for whether the text view has focus.
+        @Binding var isFocused: Bool
+
         /// Initializes a new `Coordinator` for the `BitwardenUITextView`.
         ///
         /// - Parameters:
-        ///    -  parent: The parent view that owns this coordinator.
+        ///    - parent: The parent view that owns this coordinator.
         ///    - calculatedHeight: The height of the text view.
+        ///    - isFocused: A binding for whether the text view has focus.
         ///
         init(
             _ parent: BitwardenUITextView,
-            calculatedHeight: Binding<CGFloat>
+            calculatedHeight: Binding<CGFloat>,
+            isFocused: Binding<Bool>
         ) {
             self.parent = parent
             self.calculatedHeight = calculatedHeight
+            _isFocused = isFocused
+        }
+
+        func textViewDidBeginEditing(_ textView: UITextView) {
+            isFocused = true
         }
 
         func textViewDidChange(_ uiView: UITextView) {
@@ -37,6 +47,10 @@ struct BitwardenUITextView: UIViewRepresentable {
                 view: uiView,
                 result: calculatedHeight
             )
+        }
+
+        func textViewDidEndEditing(_ textView: UITextView) {
+            isFocused = false
         }
     }
 
@@ -53,12 +67,15 @@ struct BitwardenUITextView: UIViewRepresentable {
     /// text. If `false`, the text view is read-only.
     var isEditable: Bool = true
 
+    /// A binding for whether the text view has focus.
+    @Binding var isFocused: Bool
+
     /// Creates and returns the coordinator for the `UITextView`.
     ///
     /// - Returns: A `Coordinator` instance to manage the `UITextView`'s events.
     ///
     func makeCoordinator() -> Coordinator {
-        Coordinator(self, calculatedHeight: $calculatedHeight)
+        Coordinator(self, calculatedHeight: $calculatedHeight, isFocused: $isFocused)
     }
 
     // MARK: - UIViewRepresentable Methods
@@ -100,6 +117,18 @@ struct BitwardenUITextView: UIViewRepresentable {
     ) {
         if uiView.text != text {
             uiView.text = text
+        }
+
+        if isFocused, !uiView.isFirstResponder {
+            // Dispatch here to prevent modifying state during a view update.
+            DispatchQueue.main.async {
+                uiView.becomeFirstResponder()
+            }
+        } else if !isFocused, uiView.isFirstResponder {
+            // Dispatch here to prevent modifying state during a view update.
+            DispatchQueue.main.async {
+                uiView.endEditing(true)
+            }
         }
 
         recalculateHeight(

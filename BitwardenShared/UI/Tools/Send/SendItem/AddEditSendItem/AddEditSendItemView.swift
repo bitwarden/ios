@@ -14,12 +14,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
-    /// The height of the notes textfield
-    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
-
-    /// The height of the text send attributes textfield
-    @SwiftUI.State private var textSendDynamicHeight: CGFloat = 28
-
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -60,7 +54,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
             profileSwitcher
         }
-        .dismissKeyboardInteractively()
+        .backport.dismissKeyboardInteractively()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
             title: store.state.mode.navigationTitle,
@@ -127,8 +121,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             send: AddEditSendItemAction.toastShown
         ))
         .animation(.easeInOut(duration: 0.2), value: store.state.type)
-        .animation(.easeInOut(duration: 0.2), value: store.state.deletionDate)
-        .animation(.easeInOut(duration: 0.2), value: store.state.expirationDate)
         .animation(.default, value: store.state.isOptionsExpanded)
         .task {
             await store.perform(.loadData)
@@ -206,137 +198,21 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The deletion date field.
     @ViewBuilder private var deletionDate: some View {
         ContentBlock(dividerLeadingPadding: 16) {
-            VStack(alignment: .leading, spacing: 0) {
-                switch store.state.mode {
-                case .add,
-                     .shareExtension:
-                    BitwardenMenuField(
-                        title: Localizations.deletionDate,
-                        accessibilityIdentifier: "SendDeletionOptionsPicker",
-                        options: SendDeletionDateType.allCases,
-                        selection: store.binding(
-                            get: \.deletionDate,
-                            send: AddEditSendItemAction.deletionDateChanged
-                        )
-                    )
-
-                    if store.state.expirationDate == .custom {
-                        Divider()
-                            .padding(.leading, 16)
-                    }
-                case .edit:
-                    Text(Localizations.deletionDate)
-                        .styleGuide(.subheadline, weight: .semibold)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .padding(.top, 12)
-                        .padding(.horizontal, 16)
-                }
-
-                if store.state.deletionDate == .custom {
-                    AccessibleHStack(alignment: .leading, spacing: 8) {
-                        BitwardenDatePicker(
-                            selection: store.binding(
-                                get: \.customDeletionDate,
-                                send: AddEditSendItemAction.customDeletionDateChanged
-                            ),
-                            displayComponents: .date,
-                            accessibilityIdentifier: "SendCustomDeletionDatePicker"
-                        )
-
-                        BitwardenDatePicker(
-                            selection: store.binding(
-                                get: \.customDeletionDate,
-                                send: AddEditSendItemAction.customDeletionDateChanged
-                            ),
-                            displayComponents: .hourAndMinute,
-                            accessibilityIdentifier: "SendCustomDeletionTimePicker"
-                        )
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                }
-            }
+            BitwardenMenuField(
+                title: Localizations.deletionDate,
+                accessibilityIdentifier: "SendDeletionOptionsPicker",
+                options: store.state.availableDeletionDateTypes,
+                selection: store.binding(
+                    get: \.deletionDate,
+                    send: AddEditSendItemAction.deletionDateChanged
+                )
+            )
 
             Text(Localizations.deletionDateInfo)
                 .styleGuide(.footnote)
                 .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
-        }
-    }
-
-    /// The expiration date field.
-    @ViewBuilder private var expirationDate: some View {
-        ContentBlock(dividerLeadingPadding: 16) {
-            VStack(alignment: .leading, spacing: 0) {
-                switch store.state.mode {
-                case .add,
-                     .shareExtension:
-                    BitwardenMenuField(
-                        title: Localizations.expirationDate,
-                        accessibilityIdentifier: "SendExpirationOptionsPicker",
-                        options: SendExpirationDateType.allCases,
-                        selection: store.binding(
-                            get: \.expirationDate,
-                            send: AddEditSendItemAction.expirationDateChanged
-                        )
-                    )
-
-                    if store.state.expirationDate == .custom {
-                        Divider()
-                            .padding(.leading, 16)
-                    }
-                case .edit:
-                    Text(Localizations.expirationDate)
-                        .styleGuide(.subheadline, weight: .semibold)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                        .padding(.top, 12)
-                        .padding(.horizontal, 16)
-                }
-
-                if store.state.expirationDate == .custom {
-                    AccessibleHStack(alignment: .leading, spacing: 8) {
-                        BitwardenDatePicker(
-                            selection: store.binding(
-                                get: \.customExpirationDate,
-                                send: AddEditSendItemAction.customExpirationDateChanged
-                            ),
-                            displayComponents: .date,
-                            accessibilityIdentifier: "SendCustomExpirationDatePicker"
-                        )
-
-                        BitwardenDatePicker(
-                            selection: store.binding(
-                                get: \.customExpirationDate,
-                                send: AddEditSendItemAction.customExpirationDateChanged
-                            ),
-                            displayComponents: .hourAndMinute,
-                            accessibilityIdentifier: "SendCustomDeletionTimePicker"
-                        )
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                }
-            }
-
-            HStack(spacing: 8) {
-                Text(Localizations.expirationDateInfo)
-                    .styleGuide(.footnote)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-                if store.state.mode == .edit {
-                    Spacer()
-
-                    Button(Localizations.clear) {
-                        store.send(.clearExpirationDatePressed)
-                    }
-                    .styleGuide(.body)
-                    .tint(Asset.Colors.textInteraction.swiftUIColor)
-                    .accessibilityIdentifier("SendClearExpirationDateButton")
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
         }
     }
 
@@ -408,8 +284,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// Additional options.
     @ViewBuilder private var options: some View {
-        expirationDate
-
         accessCount
 
         BitwardenTextField(
@@ -427,21 +301,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         )
         .textFieldConfiguration(.password)
 
-        BitwardenField(
-            title: Localizations.notes,
-            footer: Localizations.notesInfo
-        ) {
-            BitwardenUITextView(
-                text: store.binding(
-                    get: \.notes,
-                    send: AddEditSendItemAction.notesChanged
-                ),
-                calculatedHeight: $notesDynamicHeight
-            )
-            .frame(minHeight: notesDynamicHeight)
-            .accessibilityLabel(Localizations.notes)
-        }
-
         ContentBlock(dividerLeadingPadding: 16) {
             BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
                 get: \.isHideMyEmailOn,
@@ -449,13 +308,15 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             ))
             .accessibilityIdentifier("SendHideEmailSwitch")
             .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
-
-            BitwardenToggle(Localizations.disableSend, isOn: store.binding(
-                get: \.isDeactivateThisSendOn,
-                send: AddEditSendItemAction.deactivateThisSendChanged
-            ))
-            .accessibilityIdentifier("SendDeactivateSwitch")
         }
+
+        BitwardenTextView(
+            title: Localizations.privateNote,
+            text: store.binding(
+                get: \.notes,
+                send: AddEditSendItemAction.notesChanged
+            )
+        )
     }
 
     /// The options button.
@@ -521,18 +382,14 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
-        BitwardenField(title: Localizations.textToShare) {
-            BitwardenUITextView(
-                text: store.binding(
-                    get: \.text,
-                    send: AddEditSendItemAction.textChanged
-                ),
-                calculatedHeight: $textSendDynamicHeight
+        BitwardenTextView(
+            title: Localizations.textToShare,
+            text: store.binding(
+                get: \.text,
+                send: AddEditSendItemAction.textChanged
             )
-            .frame(minHeight: textSendDynamicHeight)
-            .accessibilityLabel(Localizations.text)
-            .accessibilityIdentifier("SendTextContentEntry")
-        }
+        )
+        .accessibilityIdentifier("SendTextContentEntry")
     }
 
     /// The type field.
@@ -610,22 +467,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     }
 }
 
-#Preview("Options - Custom Dates") {
-    NavigationView {
-        AddEditSendItemView(
-            store: Store(
-                processor: StateProcessor(
-                    state: AddEditSendItemState(
-                        deletionDate: .custom,
-                        expirationDate: .custom,
-                        isOptionsExpanded: true
-                    )
-                )
-            )
-        )
-    }
-}
-
 #Preview("Text - Edit") {
     NavigationView {
         AddEditSendItemView(
@@ -634,9 +475,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     state: AddEditSendItemState(
                         currentAccessCount: 42,
                         customDeletionDate: Date(),
-                        customExpirationDate: nil,
-                        deletionDate: .custom,
-                        expirationDate: .custom,
+                        deletionDate: .custom(.now),
                         isHideTextByDefaultOn: true,
                         isOptionsExpanded: true,
                         mode: .edit,
@@ -658,9 +497,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     state: AddEditSendItemState(
                         currentAccessCount: 42,
                         customDeletionDate: Date(),
-                        customExpirationDate: nil,
-                        deletionDate: .custom,
-                        expirationDate: .custom,
+                        deletionDate: .custom(.now),
                         fileName: "example.txt",
                         fileSize: "420.42 KB",
                         isHideTextByDefaultOn: true,
@@ -683,9 +520,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     state: AddEditSendItemState(
                         currentAccessCount: 42,
                         customDeletionDate: Date(),
-                        customExpirationDate: nil,
-                        deletionDate: .custom,
-                        expirationDate: .custom,
+                        deletionDate: .custom(.now),
                         isHideTextByDefaultOn: true,
                         isOptionsExpanded: true,
                         mode: .shareExtension(.singleAccount),

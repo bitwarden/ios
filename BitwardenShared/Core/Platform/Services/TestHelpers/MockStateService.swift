@@ -43,6 +43,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var lastActiveTime = [String: Date]()
+    var learnGeneratorActionCardStatus: AccountSetupProgress?
     var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
@@ -263,6 +264,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getLastSyncTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
         return lastSyncTimeByUserId[userId]
+    }
+
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress? {
+        learnGeneratorActionCardStatus
     }
 
     func getLoginRequest() async -> LoginRequestNotification? {
@@ -526,6 +531,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getLastUserShouldConnectToWatch() async -> Bool {
         lastUserShouldConnectToWatch
+    }
+
+    func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async {
+        learnGeneratorActionCardStatus = status
     }
 
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {

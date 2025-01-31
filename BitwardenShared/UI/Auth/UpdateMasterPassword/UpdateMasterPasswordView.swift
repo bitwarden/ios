@@ -19,7 +19,7 @@ struct UpdateMasterPasswordView: View {
                     if let policy = store.state.masterPasswordPolicy,
                        policy.isInEffect,
                        let policySummary = policy.policySummary {
-                        InfoContainer(policySummary, textAlignment: .leading)
+                        InfoContainer(policySummary)
                     }
                 }
 
