@@ -72,7 +72,7 @@
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
-"UseTheseOptionsToAdjustYourPasswordToYourAccountsRequirements" = "Use these options to adjust your password to your account’s requirements.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
 "AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Username";

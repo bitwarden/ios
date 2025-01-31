@@ -526,7 +526,7 @@ extension GuidedTourStepState {
     static let generatorStep4 = GuidedTourStepState(
         arrowHorizontalPosition: .center,
         spotlightShape: .rectangle(cornerRadius: 8),
-        title: Localizations.useTheseOptionsToAdjustYourPasswordToYourAccountsRequirements
+        title: Localizations.useTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements
     )
 
     /// The fifth step of the learn generator guided tour.
