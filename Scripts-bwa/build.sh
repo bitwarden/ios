@@ -20,7 +20,7 @@ echo "🧱 Building in $(pwd)"
 echo ""
 
 echo "🌱 Generating xcode project"
-mint run xcodegen
+mint run xcodegen --spec "project-bwa.yml"
 
 mkdir -p "${BUILD_DIR}"
 
