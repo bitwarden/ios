@@ -233,13 +233,17 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadData` loads the initial data for the view. If an error occurs it's logged
     ///  and an alert is shown.
     @MainActor
-    func test_perform_loadData_error() async {
+    func test_perform_loadData_error() async throws {
         stateService.activeAccount = .fixture()
         authRepository.isUserManagedByOrganizationResult = .failure(BitwardenTestError.example)
 
         await subject.perform(.loadData)
-
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 1)
+
+        try await alert.tapAction(title: Localizations.ok)
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 }
