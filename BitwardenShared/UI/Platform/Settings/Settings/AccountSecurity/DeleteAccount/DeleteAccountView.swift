@@ -14,11 +14,7 @@ struct DeleteAccountView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if store.state.shouldPreventUserFromDeletingAccount {
-                preventAccountDeletionSection
-            } else {
-                deleteAccountSection
-            }
+            viewContent
         }
         .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
         .scrollView(padding: 12)
@@ -32,14 +28,14 @@ struct DeleteAccountView: View {
         }
     }
 
-    /// This section is shown when the account can be deleted.
-    @ViewBuilder var deleteAccountSection: some View {
+    /// The content is presented to the user depending on their state.
+    @ViewBuilder var viewContent: some View {
         HStack(spacing: 12) {
-            Image(asset: Asset.Images.warning24)
+            Image(decorative: store.state.mainIcon)
                 .foregroundColor(Color(asset: Asset.Colors.error))
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(Localizations.deletingYourAccountIsPermanent)
+                Text(store.state.description)
                     .foregroundColor(Color(asset: Asset.Colors.error))
                     .styleGuide(
                         .headline,
@@ -48,7 +44,7 @@ struct DeleteAccountView: View {
                         includeLineSpacing: false
                     )
 
-                Text(Localizations.deleteAccountExplanation)
+                Text(store.state.longDescription)
                     .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                     .styleGuide(.subheadline)
             }
@@ -56,55 +52,22 @@ struct DeleteAccountView: View {
         .padding(12)
         .contentBlock()
 
-        VStack(spacing: 12) {
-            AsyncButton(Localizations.deleteAccount) {
-                await store.perform(.deleteAccount)
+        if store.state.showDeleteAccountButtons {
+            VStack(spacing: 12) {
+                AsyncButton(Localizations.deleteAccount) {
+                    await store.perform(.deleteAccount)
+                }
+                .buttonStyle(.primary(isDestructive: true))
+                .accessibilityIdentifier("DELETE ACCOUNT")
+
+                Button {
+                    store.send(.dismiss)
+                } label: {
+                    Text(Localizations.cancel)
+                }
+                .buttonStyle(.secondary(isDestructive: true))
+                .accessibilityIdentifier("CANCEL")
             }
-            .buttonStyle(.primary(isDestructive: true))
-            .accessibilityIdentifier("DELETE ACCOUNT")
-
-            Button {
-                store.send(.dismiss)
-            } label: {
-                Text(Localizations.cancel)
-            }
-            .buttonStyle(.secondary(isDestructive: true))
-            .accessibilityIdentifier("CANCEL")
-        }
-    }
-
-    /// This section is shown when the account can't be deleted.
-    @ViewBuilder var preventAccountDeletionSection: some View {
-        HStack(spacing: 12) {
-            Image(asset: Asset.Images.circleX16)
-                .foregroundColor(Color(asset: Asset.Colors.error))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(Localizations.cannotDeleteAccount)
-                    .foregroundColor(Color(asset: Asset.Colors.error))
-                    .styleGuide(
-                        .headline,
-                        weight: .semibold,
-                        includeLinePadding: false,
-                        includeLineSpacing: false
-                    )
-
-                Text(Localizations.cannotDeleteAccountDescriptionLong)
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                    .styleGuide(.subheadline)
-            }
-        }
-        .padding(12)
-        .contentBlock()
-
-        VStack(spacing: 12) {
-            Button {
-                store.send(.dismiss)
-            } label: {
-                Text(Localizations.close)
-            }
-            .buttonStyle(.secondary(isDestructive: true))
-            .accessibilityIdentifier("CLOSE")
         }
     }
 }
