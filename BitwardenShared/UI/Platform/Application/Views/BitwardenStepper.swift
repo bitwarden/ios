@@ -140,7 +140,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
             } label: {
                 Asset.Images.minus16.swiftUIImage
             }
-            .buttonStyle(StepperButtonStyle())
+            .buttonStyle(CircleButtonStyle(diameter: 30))
             .disabled(value <= range.lowerBound)
             .id("decrement") // Used for ViewInspector.
 
@@ -160,7 +160,7 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
             } label: {
                 Asset.Images.plus16.swiftUIImage
             }
-            .buttonStyle(StepperButtonStyle())
+            .buttonStyle(CircleButtonStyle(diameter: 30))
             .disabled(value >= range.upperBound)
             .id("increment") // Used for ViewInspector.
         }
@@ -217,42 +217,6 @@ struct BitwardenStepper<Label: View, Footer: View>: View {
                 }
             }
         }
-    }
-}
-
-// MARK: - StepperButtonStyle
-
-/// A `ButtonStyle` for styling an increment or decrement button in a `BitwardenStepper`.
-///
-struct StepperButtonStyle: ButtonStyle {
-    // MARK: Properties
-
-    @Environment(\.isEnabled) var isEnabled: Bool
-
-    /// The background color of this button.
-    var backgroundColor: Color {
-        isEnabled
-            ? Asset.Colors.buttonFilledBackground.swiftUIColor
-            : Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
-    }
-
-    /// The color of the foreground elements, including text and template images.
-    var foregroundColor: Color {
-        isEnabled
-            ? Asset.Colors.buttonFilledForeground.swiftUIColor
-            : Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
-    }
-
-    // MARK: ButtonStyle
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .foregroundColor(foregroundColor)
-            .styleGuide(.bodyBold)
-            .frame(width: 30, height: 30)
-            .background(backgroundColor)
-            .clipShape(Circle())
-            .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }
 
