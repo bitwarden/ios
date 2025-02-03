@@ -169,7 +169,7 @@ struct AddEditItemView: View {
             }
 
             BitwardenTextField(
-                title: Localizations.name,
+                title: Localizations.itemNameRequired,
                 text: store.binding(
                     get: \.name,
                     send: AddEditItemAction.nameChanged

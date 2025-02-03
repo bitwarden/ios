@@ -1111,3 +1111,4 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"ItemNameRequired" = "Item name (required)";

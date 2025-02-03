@@ -176,7 +176,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Updating the name text field dispatches the `.nameChanged()` action.
     @MainActor
     func test_nameTextField_updateValue() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.itemNameRequired)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .nameChanged("text"))
     }
