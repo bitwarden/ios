@@ -267,6 +267,7 @@ extension BitwardenField where AccessoryContent == EmptyView, FooterContent == T
         } footer: {
             Button("Button footer") {}
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
         }
     }
     .padding()

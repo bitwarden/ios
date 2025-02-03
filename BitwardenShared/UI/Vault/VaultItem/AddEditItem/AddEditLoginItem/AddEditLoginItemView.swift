@@ -101,6 +101,7 @@ struct AddEditLoginItemView: View {
                 }
                 .accessibilityIdentifier("CheckPasswordButton")
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
             }
         }
         .disabled(!store.state.canViewPassword)
@@ -220,6 +221,7 @@ struct AddEditLoginItemView: View {
                 }
                 .accessibilityIdentifier("LoginAddNewUriButton")
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
                 .padding(.horizontal, 16)
             }
             .guidedTourStep(.step3) { frame in

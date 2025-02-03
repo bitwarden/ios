@@ -50,6 +50,7 @@ final class ButtonStylesTests: BitwardenTestCase {
                         .disabled(true)
                 }
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
 
                 VStack {
                     titleView("Field Label Icon")

@@ -8,6 +8,9 @@ import SwiftUI
 struct AddEditItemView: View {
     // MARK: Private Properties
 
+    /// A responder to keyboard visibility events.
+    @ObservedObject private var keyboard = KeyboardResponder()
+
     /// An object used to open urls in this view.
     @Environment(\.openURL) private var openURL
 
@@ -15,9 +18,6 @@ struct AddEditItemView: View {
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<AddEditItemState, AddEditItemAction, AddEditItemEffect>
-
-    /// The height of the notes field
-    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
 
     /// Whether to show that a policy is in effect.
     var isPolicyEnabled: Bool {
@@ -86,19 +86,19 @@ struct AddEditItemView: View {
 
                 informationSection
                 miscellaneousSection
-                notesSection
                 customSection
                 ownershipSection
             }
             .padding(12)
         }
         .animation(.default, value: store.state.collectionsForOwner)
-        .dismissKeyboardImmediately()
+        .backport.dismissKeyboardImmediately()
         .background(
             Asset.Colors.backgroundPrimary.swiftUIColor
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
+        .backport.scrollContentMargins(Edge.Set.bottom, keyboard.isShown ? 30.0 : 0.0)
     }
 
     @ViewBuilder private var cardItems: some View {
@@ -284,22 +284,14 @@ private extension AddEditItemView {
                 .accessibilityLabel(Localizations.passwordPrompt)
                 .contentBlock()
             }
-        }
-    }
 
-    var notesSection: some View {
-        SectionView(Localizations.notes, titleDesignVersion: .v2, contentSpacing: 8) {
-            BitwardenField {
-                BitwardenUITextView(
-                    text: store.binding(
-                        get: \.notes,
-                        send: AddEditItemAction.notesChanged
-                    ),
-                    calculatedHeight: $notesDynamicHeight
+            BitwardenTextView(
+                title: Localizations.notes,
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditItemAction.notesChanged
                 )
-                .frame(minHeight: notesDynamicHeight)
-                .accessibilityLabel(Localizations.notes)
-            }
+            )
         }
     }
 

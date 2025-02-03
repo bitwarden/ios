@@ -218,6 +218,12 @@ protocol StateService: AnyObject {
     ///
     func getLastUserShouldConnectToWatch() async -> Bool
 
+    /// Gets the status of Learn Generator Action Card.
+    ///
+    /// - Returns: The status of Learn generator Action Card.
+    ///
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress?
+
     /// Get any pending login request data.
     ///
     /// - Returns: The pending login request data from a push notification.
@@ -518,6 +524,12 @@ protocol StateService: AnyObject {
     /// - Parameter shown: Whether the intro carousel screen has been shown.
     ///
     func setIntroCarouselShown(_ shown: Bool) async
+
+    /// Sets the status of Learn generator Action Card.
+    ///
+    /// - Parameter status: The status of Learn generator Action Card.
+    ///
+    func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async
 
     /// Sets the status of Learn New Login Action Card.
     ///
@@ -1555,6 +1567,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.accountCreationEnvironmentURLs(email: email)
     }
 
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress? {
+        appSettingsStore.learnGeneratorActionCardStatus
+    }
+
     func getPreAuthServerConfig() async -> ServerConfig? {
         appSettingsStore.preAuthServerConfig
     }
@@ -1798,6 +1814,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastSyncTime(date, userId: userId)
         lastSyncTimeByUserIdSubject.value[userId] = date
+    }
+
+    func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async {
+        appSettingsStore.learnGeneratorActionCardStatus = status
     }
 
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {

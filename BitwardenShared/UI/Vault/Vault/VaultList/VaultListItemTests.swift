@@ -441,4 +441,4 @@ private extension BitwardenSdk.LoginView {
     static func usernameFixture() -> BitwardenSdk.LoginView {
         .fixture(username: FakeData.email1)
     }
-}
+} // swiftlint:disable:this file_length

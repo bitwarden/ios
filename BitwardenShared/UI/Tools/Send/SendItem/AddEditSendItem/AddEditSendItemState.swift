@@ -170,7 +170,8 @@ extension AddEditSendItemState {
     /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
     ///
     func newSendView() -> SendView {
-        SendView(
+        let deletionDate = deletionDate.calculateDate() ?? Date()
+        return SendView(
             id: id,
             accessId: accessId,
             name: name,
@@ -186,8 +187,10 @@ extension AddEditSendItemState {
             disabled: isDeactivateThisSendOn,
             hideEmail: isHideMyEmailOn,
             revisionDate: Date(),
-            deletionDate: deletionDate.calculateDate() ?? Date(),
-            expirationDate: expirationDate
+            deletionDate: deletionDate,
+            // If the send has an expiration date, reset it to the deletion date to prevent a server
+            // error which disallows editing a send after it has expired.
+            expirationDate: expirationDate != nil ? deletionDate : nil
         )
     }
 

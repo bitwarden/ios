@@ -8,12 +8,14 @@ import XCTest
 class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<GeneratorRoute, Void>!
     var errorReporter: MockErrorReporter!
     var generatorRepository: MockGeneratorRepository!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var reviewPromptService: MockReviewPromptService!
+    var stateService: MockStateService!
     var subject: GeneratorProcessor!
 
     // MARK: Setup & Teardown
@@ -21,12 +23,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         generatorRepository = MockGeneratorRepository()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         reviewPromptService = MockReviewPromptService()
+        stateService = MockStateService()
 
         setUpSubject()
     }
@@ -34,12 +38,14 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         errorReporter = nil
         generatorRepository = nil
         pasteboardService = nil
         policyService = nil
         reviewPromptService = nil
+        stateService = nil
         subject = nil
     }
 
@@ -48,11 +54,13 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject = GeneratorProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 generatorRepository: generatorRepository,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
-                reviewPromptService: reviewPromptService
+                reviewPromptService: reviewPromptService,
+                stateService: stateService
             ),
             state: GeneratorState()
         )
@@ -406,6 +414,36 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.length, 50)
     }
 
+    /// `perform(:)` with `.appeared` should set the `isLearnGeneratorActionCardEligible` to `true`
+    /// if the `learnGeneratorActionCardStatus` is `incomplete`, and feature flag is enabled.
+    @MainActor
+    func test_perform_checkLearnNewLoginActionCardEligibility() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.learnGeneratorActionCardStatus = .incomplete
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.isLearnGeneratorActionCardEligible)
+    }
+
+    /// `perform(:)` with `.appeared` should not set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the feature flag `nativeCreateAccountFlow` is `false`.
+    @MainActor
+    func test_perform_checkLearnNewLoginActionCardEligibility_false() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        stateService.learnGeneratorActionCardStatus = .incomplete
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
+    }
+
+    /// `perform(:)` with `.appeared` should not set the `isLearnNewLoginActionCardEligible` to `true`
+    /// if the `learnGeneratorActionCardStatus` is `complete`.
+    @MainActor
+    func test_perform_checkLearnNewLoginActionCardEligibility_false_complete() async {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.learnGeneratorActionCardStatus = .complete
+        await subject.perform(.appeared)
+        XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
+    }
+
     /// `receive(_:)` with `.copyGeneratedValØue` copies the generated password to the system
     /// pasteboard and shows a toast.
     @MainActor
@@ -456,6 +494,28 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .cancel)
+    }
+
+    /// `perform(_:)` with `.dismissNewLoginActionCard` will set `.isLearnGeneratorActionCardEligible` to
+    /// false  and updates `.learnGeneratorActionCardStatus` via  stateService.
+    @MainActor
+    func test_perform_dismissLearnGeneratorActionCard() async {
+        subject.state.isLearnGeneratorActionCardEligible = true
+        await subject.perform(.dismissLearnGeneratorActionCard)
+        XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
+        XCTAssertEqual(stateService.learnGeneratorActionCardStatus, .complete)
+    }
+
+    /// `perform(_:)` with `.showLearnGeneratorGuidedTour` sets `isLearnGeneratorActionCardEligible`
+    /// to `false`.
+    @MainActor
+    func test_perform_showLearnNewLoginGuidedTour() async {
+        subject.state.isLearnGeneratorActionCardEligible = true
+        subject.state.generatorType = .username
+        await subject.perform(.showLearnGeneratorGuidedTour)
+        XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
+        XCTAssertEqual(stateService.learnGeneratorActionCardStatus, .complete)
+        XCTAssertEqual(subject.state.generatorType, .password)
     }
 
     /// `receive(_:)` with `.emailTypeChanged` updates the state's catch all email type.
