@@ -77,4 +77,9 @@ enum GuidedTourStep: Int, Equatable {
 
     /// The sixth step of the guided tour.
     case step6
+
+    /// The identifier of the step.
+    var id: String {
+        "\(rawValue)"
+    }
 }
