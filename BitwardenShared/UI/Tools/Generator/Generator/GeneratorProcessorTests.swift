@@ -552,6 +552,61 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.generatorType, .username)
     }
 
+    /// `receive(_:)` with `.guidedTourViewAction(.backTapped)` updates the guided tour state to the previous step.
+    @MainActor
+    func test_receive_guidedTourViewAction_backTapped() {
+        subject.state.guidedTourViewState.currentIndex = 1
+
+        subject.receive(.guidedTourViewAction(.backTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 0)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.nextTapped)` updates the guided tour state to the next step.
+    @MainActor
+    func test_receive_guidedTourViewAction_nextTapped() {
+        subject.state.guidedTourViewState.currentIndex = 0
+
+        subject.receive(.guidedTourViewAction(.nextTapped))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentIndex, 1)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.doneTapped)` completes the guided tour.
+    @MainActor
+    func test_receive_doneTapped() {
+        subject.receive(.guidedTourViewAction(.doneTapped))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.dismissTapped)` dismisses the guided tour.
+    @MainActor
+    func test_receive_guidedTourViewAction_dismissTapped() {
+        subject.receive(.guidedTourViewAction(.dismissTapped))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.didRenderViewToSpotlight)` updates the spotlight region.
+    @MainActor
+    func test_receive_guidedTourViewAction_didRenderViewToSpotlight() {
+        let frame = CGRect(x: 10, y: 10, width: 100, height: 100)
+        subject.state.guidedTourViewState.currentIndex = 0
+
+        subject.receive(.guidedTourViewAction(.didRenderViewToSpotlight(frame: frame, step: .step1)))
+        XCTAssertEqual(subject.state.guidedTourViewState.currentStepState.spotlightRegion, frame)
+    }
+
+    /// `receive(_:)` with `.guidedTourViewAction(.toggleGuidedTourVisibilityChanged)`
+    /// updates the visibility of the guided tour.
+    @MainActor
+    func test_receive_guidedTourViewAction_toggleGuidedTourVisibilityChanged() {
+        subject.state.guidedTourViewState.showGuidedTour = false
+
+        subject.receive(.guidedTourViewAction(.toggleGuidedTourVisibilityChanged(true)))
+        XCTAssertTrue(subject.state.guidedTourViewState.showGuidedTour)
+
+        subject.receive(.guidedTourViewAction(.toggleGuidedTourVisibilityChanged(false)))
+        XCTAssertFalse(subject.state.guidedTourViewState.showGuidedTour)
+    }
+
     /// `receive(_:)` with `.refreshGeneratedValue` generates a new passphrase.
     @MainActor
     func test_receive_refreshGeneratedValue_passphrase() throws {

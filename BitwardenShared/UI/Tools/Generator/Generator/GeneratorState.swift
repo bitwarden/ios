@@ -81,6 +81,17 @@ struct GeneratorState: Equatable {
     /// The generated value (password, passphrase or username).
     var generatedValue: String = ""
 
+    /// The state of the guided tour view.
+    var guidedTourViewState = GuidedTourViewState(
+        guidedTourStepStates: [
+            .generatorStep1,
+            .generatorStep2,
+            .generatorStep3,
+            .generatorStep4,
+            .generatorStep5,
+            .generatorStep6,
+        ]
+    )
     /// If account is eligible for learn generator action card.
     var isLearnGeneratorActionCardEligible: Bool = false
 
@@ -488,4 +499,49 @@ extension GeneratorState {
 
         return groups
     }
+}
+
+/// extension for `GuidedTourStepState` to provide states for learn generator guided tour.
+extension GuidedTourStepState {
+    /// The first step of the learn generator guided tour.
+    static let generatorStep1 = GuidedTourStepState(
+        arrowHorizontalPosition: .left,
+        spotlightShape: .rectangle(cornerRadius: 25),
+        title: Localizations.useTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames
+    )
+
+    /// The second step of the learn generator guided tour.
+    static let generatorStep2 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 25),
+        title: Localizations.passphrasesAreOftenEasierToRememberDescriptionLong
+    )
+
+    /// The third step of the learn generator guided tour.
+    static let generatorStep3 = GuidedTourStepState(
+        arrowHorizontalPosition: .right,
+        spotlightShape: .rectangle(cornerRadius: 25),
+        title: Localizations.uniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts
+    )
+
+    /// The fourth step of the learn generator guided tour.
+    static let generatorStep4 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.useTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements
+    )
+
+    /// The fifth step of the learn generator guided tour.
+    static let generatorStep5 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .circle,
+        title: Localizations.useThisButtonToGenerateANewUniquePassword
+    )
+
+    /// The sixth step of the learn generator guided tour.
+    static let generatorStep6 = GuidedTourStepState(
+        arrowHorizontalPosition: .center,
+        spotlightShape: .rectangle(cornerRadius: 8),
+        title: Localizations.afterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite
+    )
 }
