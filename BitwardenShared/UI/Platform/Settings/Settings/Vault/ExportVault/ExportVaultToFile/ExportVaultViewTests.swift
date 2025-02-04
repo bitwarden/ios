@@ -42,7 +42,7 @@ class ExportVaultViewTests: BitwardenTestCase {
     func test_disableIndividualVaultExport() throws {
         processor.state.disableIndividualVaultExport = true
 
-        let button = try subject.inspect().find(button: Localizations.exportVault)
+        let button = try subject.inspect().find(button: Localizations.export)
         XCTAssertTrue(button.isDisabled())
 
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.fileFormat)
@@ -55,7 +55,7 @@ class ExportVaultViewTests: BitwardenTestCase {
     /// Tapping the export vault button sends the `.exportVault` action.
     @MainActor
     func test_exportVaultButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.exportVault)
+        let button = try subject.inspect().find(button: Localizations.export)
         try button.tap()
 
         XCTAssertEqual(processor.dispatchedActions.last, .exportVaultTapped)
@@ -137,7 +137,7 @@ class ExportVaultViewTests: BitwardenTestCase {
     /// The empty view renders correctly.
     @MainActor
     func test_snapshot_empty() {
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The populated view renders correctly.
@@ -151,7 +151,7 @@ class ExportVaultViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_vaultExportDisabled() {
         processor.state.disableIndividualVaultExport = true
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The JSON encrypted view renders correctly.
