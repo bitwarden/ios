@@ -24,7 +24,7 @@
 "Version" = "Versiya";
 "Yes" = "Bəli";
 "Close" = "Bağla";
-"Continue" = "Davam";
+"Continue" = "Davam et";
 "EditItem" = "Elementə düzəliş et";
 "Favorite" = "Sevimli";
 "ImportItems" = "Elementləri daxilə köçür";
@@ -56,7 +56,7 @@
 "TwoMinutes" = "2 dəqiqə";
 "Theme" = "Tema";
 "ThemeDescription" = "Tətbiqin rəng temasını dəyişdir.";
-"UseBiometricsToUnlock" = "Kilidi biometriklə aç";
+"UseBiometricsToUnlock" = "Kilidi açmaq üçün biometrik istifadə et";
 "FileFormat" = "Fayl formatı";
 "Warning" = "Xəbərdarlıq";
 "PrivacyPolicy" = "Gizlilik Siyasəti";
@@ -94,11 +94,11 @@
 "NumberOfDigits" = "Rəqəm sayı";
 "BitwardenAuthenticator" = "Bitwarden Authenticator";
 "Skip" = "Ötür";
-"SecureYourAssetsWithBitwardenAuthenticator" = "Hesablarınızı Bitwarden Bitwarden ilə qoruyun";
+"SecureYourAssetsWithBitwardenAuthenticator" = "Hesablarınızı Bitwarden Authenticator ilə qoruyun";
 "GetVerificationCodesForAllYourAccounts" = "2 addımlı doğrulamanı istifadə edərək bütün hesablarınızı üçün doğrulama kodu alın.";
 "UseYourDeviceCameraToScanCodes" = "Kodları skan etmək üçün cihazınızın kamerasını istifadə edin";
 "ScanTheQRCodeInYourSettings" = "İstənilən hesab üçün 2 addımlı doğrulama ayarlarınızdakı QR kodu skan edin.";
-"SignInUsingUniqueCodes" = "Unikal kodları istifadə edərək daxil ol";
+"SignInUsingUniqueCodes" = "Unikal kodları istifadə edərək hesabınıza daxil olun";
 "WhenUsingTwoStepVerification" = "2 addımlı doğrulamanı istifadə edərkən istifadəçi adınızı, parolunuzu və bu tətbiqdə yaradılan kodu daxil edəcəksiniz.";
 "GetStarted" = "Başlayaq";
 "LaunchTutorial" = "Təlimi başlat";

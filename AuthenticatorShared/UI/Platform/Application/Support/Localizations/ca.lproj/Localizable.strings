@@ -109,7 +109,7 @@
 "Export" = "Exporta";
 "Key" = "Clau";
 "KeyReadError" = "No es pot llegir la clau.";
-"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
+"CannotAddAuthenticatorKey" = "No es pot afegir la clau d'autenticació?";
 "Import" = "Importa";
 "Steam" = "Steam";
 "OtpType" = "Tipus OTP";
@@ -140,7 +140,7 @@
 "NoAskMe" = "No, ask me";
 "DefaultSaveOption" = "Default save option";
 "SaveToBitwarden" = "Save to Bitwarden";
-"None" = "None";
+"None" = "Cap";
 "UnableToSyncCodesFromTheBitwardenApp" = "Unable to sync codes from the Bitwarden app. Make sure both apps are up-to-date. You can still access your existing codes in the Bitwarden app.";
 "FifteenMinutes" = "15 minutes";
 "OneHour" = "1 hour";
