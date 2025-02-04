@@ -323,13 +323,25 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// Tests the snapshot with the add state with the learn generator action card.
+    /// Tests the snapshot with the learn generator action card.
     @MainActor
     func test_snapshot_generatorView_learnGeneratorActionCard() throws {
         processor.state.isLearnGeneratorActionCardEligible = true
         assertSnapshots(
             of: subject,
             as: [.defaultPortrait, .defaultPortraitDark]
+        )
+    }
+
+    /// Tests the snapshot that the generator action card is not present when `.presentationMode` is `.inPlace`.
+    @MainActor
+    func test_snapshot_generatorView_learnGeneratorActionCard_false() throws {
+        isRecording = true
+        processor.state.presentationMode = .inPlace
+        processor.state.isLearnGeneratorActionCardEligible = true
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait]
         )
     }
 }

@@ -49,7 +49,8 @@ struct GeneratorView: View {
                     )
                 ) {
                     VStack(alignment: .leading, spacing: 24) {
-                        if store.state.isLearnGeneratorActionCardEligible {
+                        if store.state.isLearnGeneratorActionCardEligible,
+                           store.state.presentationMode == .tab {
                             ActionCard(
                                 title: Localizations.exploreTheGenerator,
                                 message: Localizations.learnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour,
