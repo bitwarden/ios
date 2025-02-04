@@ -1072,6 +1072,49 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertTrue(requirePasswordChange)
     }
+    
+    /// `resendNewDeviceOtp()` throws an error if there is no cached request model to use.
+    func test_resendNewDeviceOtp_noCache() async throws {
+        await assertAsyncThrows(error: AuthError.unableToResendNewDeviceOtp) {
+            try await subject.resendNewDeviceOtp()
+        }
+    }
+
+    /// `resendNewDeviceOtp()` runs successfully.
+    func test_resendNewDeviceOtp_success() async throws {
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenNewDeviceError.data
+            ),
+            .httpSuccess(testData: .emptyResponse),
+        ]
+        appSettingsStore.appId = "App id"
+        await stateService.setTwoFactorToken("some token", email: "email@example.com")
+        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // First login with the master password so that the resend email request will be saved.
+        let authMethodsData = AuthMethodsData.fixture()
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.newDeviceNotVerified
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil,
+                isNewAccount: false
+            )
+        }
+
+        // Ensure the resend email request runs successfully.
+        try await subject.resendNewDeviceOtp()
+    }
+
 
     /// `resendVerificationCodeEmail()` throws an error if there is no cached request model to use.
     func test_resendVerificationCodeEmail_noCache() async throws {

@@ -61,6 +61,8 @@ class MockAuthService: AuthService {
     var requirePasswordChangeResult: Result<Bool, Error> = .success(false)
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
     var sentVerificationEmail = false
+    var resendNewDeviceOtpResult: Result<Void, Error> = .success(())
+    var sentNewDeviceOtp = false
 
     var setPendingAdminLoginRequest: PendingAdminLoginRequest?
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
@@ -168,9 +170,14 @@ class MockAuthService: AuthService {
         try requirePasswordChangeResult.get()
     }
 
-    func resendVerificationCodeEmail() async throws {
+    func resendNewDeviceOtp() async throws {
         sentVerificationEmail = true
         try resendVerificationCodeEmailResult.get()
+    }
+
+    func resendVerificationCodeEmail() async throws {
+        sentNewDeviceOtp = true
+        try resendNewDeviceOtpResult.get()
     }
 
     func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws {
