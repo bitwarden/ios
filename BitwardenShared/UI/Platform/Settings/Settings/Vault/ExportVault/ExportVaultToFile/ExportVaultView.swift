@@ -21,8 +21,6 @@ struct ExportVaultView: View {
             filePasswordFields
 
             masterPasswordField
-
-            exportVaultButton
         }
         .animation(.default, value: store.state.filePasswordStrengthScore)
         .disabled(store.state.disableIndividualVaultExport)
@@ -39,6 +37,14 @@ struct ExportVaultView: View {
             cancelToolbarItem {
                 store.send(.dismiss)
             }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                primaryActionToolbarButton(Localizations.export) {
+                    store.send(.exportVaultTapped)
+                }
+                .accessibilityIdentifier("ExportVaultButton")
+                .disabled(store.state.disableIndividualVaultExport)
+            }
         }
     }
 
@@ -51,15 +57,6 @@ struct ExportVaultView: View {
                 .padding(.bottom, 8)
                 .accessibilityIdentifier("DisablePrivateVaultPolicyLabel")
         }
-    }
-
-    /// The button to export the vault.
-    private var exportVaultButton: some View {
-        Button(Localizations.exportVault) {
-            store.send(.exportVaultTapped)
-        }
-        .buttonStyle(.secondary())
-        .accessibilityIdentifier("ExportVaultButton")
     }
 
     /// The selector to choose the export file format.
