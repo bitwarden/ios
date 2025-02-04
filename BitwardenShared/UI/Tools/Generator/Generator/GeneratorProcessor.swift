@@ -88,6 +88,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.generatorType = .password
             await services.stateService.setLearnGeneratorActionCardStatus(.complete)
             state.isLearnGeneratorActionCardEligible = false
+            state.guidedTourViewState.showGuidedTour = true
         }
     }
 
