@@ -144,7 +144,7 @@ class ExportVaultViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_populated() {
         processor.state.masterPasswordOrOtpText = "password"
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The vault export disabled view renders correctly.
@@ -158,13 +158,13 @@ class ExportVaultViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_jsonEncrypted() {
         processor.state.fileFormat = .jsonEncrypted
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
     /// The view for exporting the vault without a master password renders correctly.
     @MainActor
     func test_snapshot_noMasterPassword() {
         processor.state.hasMasterPassword = false
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

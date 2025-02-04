@@ -72,20 +72,20 @@ extension View {
     ///
     /// - Parameters:
     ///   - label: The label associated with the image, used as an accessibility label.
-    ///   - weight: The font weight to use for the label.
+    ///   - isPrimary: A Boolean value that indicates whether the label should highlight the primary action.
     ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `Button` for displaying an image in a toolbar.
     ///
     func toolbarButton(
         _ label: String,
-        weight: SwiftUI.Font.Weight = .regular,
+        isPrimary: Bool = false,
         action: @escaping () -> Void
     ) -> some View {
         Button {
             action()
         } label: {
             Text(label)
-                .styleGuide(.body, weight: weight)
+                .styleGuide(.body, weight: isPrimary ? .semibold : .regular)
         }
         .buttonStyle(.toolbar)
         // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
