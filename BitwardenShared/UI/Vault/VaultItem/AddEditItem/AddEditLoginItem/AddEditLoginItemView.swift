@@ -29,7 +29,7 @@ struct AddEditLoginItemView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            VStack(spacing: 8) {
+            SectionView(Localizations.loginCredentials, contentSpacing: 8) {
                 ContentBlock {
                     usernameField
 

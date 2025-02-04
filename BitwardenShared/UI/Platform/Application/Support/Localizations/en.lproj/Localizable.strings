@@ -176,7 +176,6 @@
 "Select" = "Select";
 "SetPIN" = "Set PIN";
 "SetPINDirection" = "Enter a 4 digit PIN code to unlock the app with.";
-"ItemInformation" = "Item information";
 "ItemUpdated" = "Item saved";
 "Submitting" = "Submitting...";
 "Syncing" = "Syncing...";
@@ -410,8 +409,6 @@
 "MoveDown" = "Move down";
 "MoveUp" = "Move Up";
 "Miscellaneous" = "Miscellaneous";
-"Ownership" = "Ownership";
-"WhoOwnsThisItem" = "Who owns this item?";
 "NoCollectionsToList" = "There are no collections to list.";
 "MovedItemToOrg" = "%1$@ moved to %2$@.";
 "ItemShared" = "Item has been shared.";
@@ -1138,3 +1135,5 @@
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"Owner" = "Owner";
