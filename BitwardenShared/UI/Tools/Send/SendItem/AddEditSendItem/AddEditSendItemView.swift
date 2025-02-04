@@ -130,48 +130,19 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The access count stepper.
     @ViewBuilder private var accessCount: some View {
         ContentBlock(dividerLeadingPadding: 16) {
-            Group {
-                Stepper(
-                    value: store.binding(
-                        get: \.maximumAccessCount,
-                        send: AddEditSendItemAction.maximumAccessCountStepperChanged
-                    ),
-                    in: 0 ... Int.max
-                ) {
-                    HStack(spacing: 8) {
-                        Text(Localizations.maximumAccessCount)
-                            .styleGuide(.body)
-                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                            .layoutPriority(1)
-
-                        Spacer()
-
-                        TextField(
-                            "",
-                            text: store.binding(
-                                get: \.maximumAccessCountText,
-                                send: AddEditSendItemAction.maximumAccessCountTextFieldChanged
-                            )
-                        )
-                        .focused($isMaxAccessCountFocused)
-                        .keyboardType(.numberPad)
-                        .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                        .multilineTextAlignment(.trailing)
-                        .textFieldStyle(.plain)
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                Button(Localizations.save) {
-                                    isMaxAccessCountFocused = false
-                                }
-                            }
-                        }
-                        .accessibilityIdentifier("MaxAccessCountTextField")
-                    }
-                }
-                .accessibilityIdentifier("SendMaxAccessCountEntry")
-
+            BitwardenStepper(
+                value: store.binding(
+                    get: \.maximumAccessCount,
+                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
+                ),
+                in: 0 ... Int.max,
+                allowTextFieldInput: true,
+                textFieldAccessibilityIdentifier: "MaxAccessCountTextField"
+            ) {
+                Text(Localizations.maximumAccessCount)
+                    .styleGuide(.body)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            } footer: {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(Localizations.maximumAccessCountInfo)
                         .styleGuide(.footnote)
@@ -190,8 +161,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .accessibilityIdentifier("SendMaxAccessCountEntry")
         }
     }
 

@@ -111,6 +111,9 @@ extension StyleGuideFont {
     /// The font for the monospaced body style.
     static let bodyMonospaced = StyleGuideFont(font: .system(.body, design: .monospaced), lineHeight: 22, size: 17)
 
+    /// The font for the bold semibody style.
+    static let bodySemibold = body.with(font: FontFamily.DMSans.semiBold)
+
     /// The font for the callout style.
     static let callout = StyleGuideFont.dmSans(lineHeight: 18, size: 13, textStyle: .callout)
 

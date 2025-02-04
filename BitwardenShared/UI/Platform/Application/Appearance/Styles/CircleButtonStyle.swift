@@ -17,6 +17,9 @@ struct CircleButtonStyle: ButtonStyle {
             : Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
     }
 
+    /// The diameter of the circle in the button.
+    let diameter: CGFloat
+
     /// The color of the foreground elements, including text and template images.
     var foregroundColor: Color {
         isEnabled
@@ -27,7 +30,7 @@ struct CircleButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
-            .frame(width: 50, height: 50)
+            .frame(width: diameter, height: diameter)
             .background(backgroundColor)
             .clipShape(Circle())
             .opacity(configuration.isPressed ? 0.5 : 1)
@@ -50,7 +53,7 @@ struct CircleButtonStyle: ButtonStyle {
                     )
                 )
         }
-        .buttonStyle(CircleButtonStyle())
+        .buttonStyle(CircleButtonStyle(diameter: 50))
     }
     .padding()
 }
