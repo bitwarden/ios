@@ -126,7 +126,12 @@ final class VaultListProcessor: StateProcessor<
         switch action {
         case .addItemPressed:
             setProfileSwitcher(visible: false)
-            coordinator.navigate(to: .addItem())
+            switch state.vaultFilterType {
+            case let .organization(organization):
+                coordinator.navigate(to: .addItem(selectedOrganizationId: organization.id))
+            default:
+                coordinator.navigate(to: .addItem())
+            }
             reviewPromptTask?.cancel()
         case .clearURL:
             state.url = nil

@@ -14,11 +14,13 @@ public enum VaultRoute: Equatable, Hashable {
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
+    ///   - selectedOrganizationId: The organization id in case an organization was selected in the vault filter.
     ///
     case addItem(
         allowTypeSelection: Bool = true,
         group: VaultListGroup? = nil,
-        newCipherOptions: NewCipherOptions? = nil
+        newCipherOptions: NewCipherOptions? = nil,
+        selectedOrganizationId: String? = nil
     )
 
     /// A route to the autofill list screen.
