@@ -38,7 +38,7 @@ extension View {
             .accessibilityIdentifier("EditItemButton")
     }
 
-     /// Returns a `Button` that displays a text label for use in a toolbar, highlighting the primary action.
+    /// Returns a `Button` that displays a text label for use in a toolbar, highlighting the primary action.
     ///
     /// - Parameters:
     ///   - label: The label associated with the image, used as an accessibility label.
