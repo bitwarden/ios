@@ -1,0 +1,14 @@
+{
+  "data": [
+    {
+      "OrganizationName": "TestName",
+      "OrganizationIdentifier": "TestID",
+      "DomainName": "domain"
+    },
+    {
+      "OrganizationName": "Org2",
+      "OrganizationIdentifier": "TestOrg2",
+      "DomainName": "domain"
+    }
+  ]
+}

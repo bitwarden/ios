@@ -15,6 +15,7 @@ class AddEditSendItemProcessor:
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
         & HasSendRepository
 
     // MARK: Private Properties
@@ -85,18 +86,8 @@ class AddEditSendItemProcessor:
         switch action {
         case .chooseFilePressed:
             presentFileSelectionAlert()
-        case .clearExpirationDatePressed:
-            state.customExpirationDate = nil
-        case let .customDeletionDateChanged(newValue):
-            state.customDeletionDate = newValue
-        case let .customExpirationDateChanged(newValue):
-            state.customExpirationDate = newValue
-        case let .deactivateThisSendChanged(newValue):
-            state.isDeactivateThisSendOn = newValue
         case let .deletionDateChanged(newValue):
             state.deletionDate = newValue
-        case let .expirationDateChanged(newValue):
-            state.expirationDate = newValue
         case .dismissPressed:
             coordinator.navigate(to: .cancel)
         case let .hideMyEmailChanged(newValue):
@@ -114,9 +105,6 @@ class AddEditSendItemProcessor:
         case let .maximumAccessCountStepperChanged(newValue):
             state.maximumAccessCount = newValue
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
-        case let .maximumAccessCountTextFieldChanged(newValue):
-            state.maximumAccessCount = Int(newValue) ?? 0
-            state.maximumAccessCountText = newValue.isEmpty ? "" : "\(state.maximumAccessCount)"
         case let .nameChanged(newValue):
             state.name = newValue
         case let .notesChanged(newValue):
@@ -258,6 +246,7 @@ class AddEditSendItemProcessor:
                 case .text:
                     newSendView = try await services.sendRepository.addTextSend(sendView)
                 }
+                await services.reviewPromptService.trackUserAction(.createdNewSend)
             case .edit:
                 newSendView = try await services.sendRepository.updateSend(sendView)
             }

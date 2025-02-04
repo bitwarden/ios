@@ -70,4 +70,10 @@ extension IntroCarouselProcessor: StartRegistrationDelegate {
     func didChangeRegion() async {
         // No-op: the carousel doesn't show the region so there's nothing to do here.
     }
+
+    func switchToLegacyCreateAccountFlow() {
+        coordinator.navigate(to: .dismissWithAction(DismissAction {
+            self.coordinator.navigate(to: .createAccount)
+        }))
+    }
 }

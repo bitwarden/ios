@@ -14,7 +14,7 @@ struct ViewSSHKeyItemView: View {
     @ObservedObject var store: Store<SSHKeyItemState, ViewSSHKeyItemAction, Void>
 
     var body: some View {
-        LazyVStack(spacing: 16.0) {
+        ContentBlock {
             privateKeyField
 
             publicKeyField
@@ -44,8 +44,8 @@ struct ViewSSHKeyItemView: View {
                     Button {
                         store.send(.copyPressed(value: privateKey, field: .sshPrivateKey))
                     } label: {
-                        Asset.Images.copy16.swiftUIImage
-                            .imageStyle(.accessoryIcon)
+                        Asset.Images.copy24.swiftUIImage
+                            .imageStyle(.accessoryIcon24)
                     }
                     .accessibilityLabel(Localizations.copy)
                     .accessibilityIdentifier("SSHKeyCopyPrivateKeyButton")
@@ -68,8 +68,8 @@ struct ViewSSHKeyItemView: View {
                 Button {
                     store.send(.copyPressed(value: publicKey, field: .sshPublicKey))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("SSHKeyCopyPublicKeyButton")
@@ -91,8 +91,8 @@ struct ViewSSHKeyItemView: View {
                 Button {
                     store.send(.copyPressed(value: keyFingerprint, field: .sshKeyFingerprint))
                 } label: {
-                    Asset.Images.copy16.swiftUIImage
-                        .imageStyle(.accessoryIcon)
+                    Asset.Images.copy24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
                 }
                 .accessibilityLabel(Localizations.copy)
                 .accessibilityIdentifier("SSHKeyCopyFingerprintButton")

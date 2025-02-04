@@ -2,6 +2,8 @@ import Foundation
 import SwiftUI
 import ViewInspector
 
+// swiftlint:disable file_length
+
 /// A generic type wrapper around `ActionCard` to allow `ViewInspector` to find instances of
 /// `ActionCard` without needing to know the details of it's implementation.
 ///
@@ -21,6 +23,28 @@ struct AsyncButtonType: BaseViewType {
 
     static var namespacedPrefixes: [String] = [
         "BitwardenShared.AsyncButton",
+    ]
+}
+
+/// A generic type wrapper around `BitwardenSlider` to allow `ViewInspector` to find instances of `BitwardenSlider`
+/// without needing to know the details of it's implementation.
+///
+struct BitwardenSliderType: BaseViewType {
+    static var typePrefix: String = "BitwardenSlider"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenSlider",
+    ]
+}
+
+/// A generic type wrapper around `BitwardenStepper` to allow `ViewInspector` to find instances of
+/// `BitwardenStepper` without needing to know the details of it's implementation.
+///
+struct BitwardenStepperType: BaseViewType {
+    static var typePrefix: String = "BitwardenStepper"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenStepper",
     ]
 }
 
@@ -250,8 +274,8 @@ extension InspectableView {
     func find(
         sliderWithAccessibilityLabel accessibilityLabel: String,
         locale: Locale = .testsDefault
-    ) throws -> InspectableView<ViewType.Slider> {
-        try find(ViewType.Slider.self) { view in
+    ) throws -> InspectableView<BitwardenSliderType> {
+        try find(BitwardenSliderType.self) { view in
             try view.accessibilityLabel().string(locale: locale) == accessibilityLabel
         }
     }
@@ -358,6 +382,28 @@ extension InspectableView where View == BitwardenTextFieldType {
     }
 }
 
+extension InspectableView where View == BitwardenSliderType {
+    /// Simulates a drag gesture on the slider to set a new value.
+    ///
+    func setValue(_ value: Double) throws {
+        let mirror = Mirror(reflecting: self)
+        if let valueBinding = mirror.descendant("content", "view", "_value") as? Binding<Double>,
+           let range = mirror.descendant("content", "view", "range") as? ClosedRange<Double>,
+           let step = mirror.descendant("content", "view", "step") as? Double {
+            // Calculate the new value based on the fraction
+            let newValue = (range.upperBound - range.lowerBound + step) * value + range.lowerBound
+
+            // Set the new value
+            valueBinding.wrappedValue = newValue
+        } else {
+            throw InspectionError.attributeNotFound(
+                label: "_value",
+                type: String(describing: BitwardenSliderType.self)
+            )
+        }
+    }
+}
+
 extension InspectableView where View == BitwardenUITextViewType {
     /// Locates the raw binding on this textfield's text value. Can be used to simulate updating the text field.
     ///
@@ -389,5 +435,21 @@ extension InspectableView where View == SettingsMenuFieldType {
     func select(newValue: any Hashable) throws {
         let picker = try find(ViewType.Picker.self)
         try picker.select(value: newValue)
+    }
+}
+
+extension InspectableView where View == BitwardenStepperType {
+    /// Decrements the stepper.
+    ///
+    func decrement() throws {
+        let button = try find(buttonWithId: "decrement")
+        try button.tap()
+    }
+
+    /// Increments the stepper.
+    ///
+    func increment() throws {
+        let button = try find(buttonWithId: "increment")
+        try button.tap()
     }
 }

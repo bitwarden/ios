@@ -19,9 +19,11 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var reviewPromptService: MockReviewPromptService!
     var stateService: MockStateService!
     var subject: VaultListProcessor!
     var timeProvider: MockTimeProvider!
+    var twoFactorNoticeHelper: MockTwoFactorNoticeHelper!
     var vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper!
     var vaultRepository: MockVaultRepository!
 
@@ -43,8 +45,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
+        reviewPromptService = MockReviewPromptService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
+        twoFactorNoticeHelper = MockTwoFactorNoticeHelper()
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
@@ -56,6 +60,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             notificationService: notificationService,
             pasteboardService: pasteboardService,
             policyService: policyService,
+            reviewPromptService: reviewPromptService,
             stateService: stateService,
             timeProvider: timeProvider,
             vaultRepository: vaultRepository
@@ -65,6 +70,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
             state: VaultListState(),
+            twoFactorNoticeHelper: twoFactorNoticeHelper,
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
         )
     }
@@ -79,6 +85,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         errorReporter = nil
         pasteboardService = nil
         policyService = nil
+        reviewPromptService = nil
         stateService = nil
         subject = nil
         vaultItemMoreOptionsHelper = nil
@@ -86,6 +93,65 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     // MARK: Tests
+
+    /// `.appReviewPromptShown` sets the state's `isEligibleForAppReview` to `false`.
+    @MainActor
+    func test_appReviewPromptShown() {
+        subject.state.isEligibleForAppReview = true
+
+        subject.receive(.appReviewPromptShown)
+        waitFor(reviewPromptService.setReviewPromptShownVersionCalled)
+
+        XCTAssertFalse(subject.state.isEligibleForAppReview)
+        XCTAssertEqual(reviewPromptService.userActions, [])
+    }
+
+    /// `perform(_:)` with `.checkAppReviewEligibility` schedules a review prompt if the user is eligible
+    /// and the feature flags are enabled.
+    @MainActor
+    func test_perform_checkAppReviewEligibility_eligible() async {
+        reviewPromptService.isEligibleForReviewPromptResult = true
+        configService.featureFlagsBool = [
+            FeatureFlag.appReviewPrompt: true,
+            FeatureFlag.enableDebugAppReviewPrompt: true,
+        ]
+
+        await subject.perform(.checkAppReviewEligibility)
+        await subject.reviewPromptTask?.value
+        XCTAssertTrue(subject.state.isEligibleForAppReview)
+        XCTAssertEqual(subject.state.toast?.title, Constants.appReviewPromptEligibleDebugMessage)
+    }
+
+    /// `perform(_:)` with `.checkAppReviewEligibility` does not schedule a review prompt if the user is eligible
+    /// but the feature flags are disabled.
+    @MainActor
+    func test_perform_checkAppReviewEligibility_eligible_disabledFeatureFlags() async {
+        reviewPromptService.isEligibleForReviewPromptResult = true
+        configService.featureFlagsBool = [
+            FeatureFlag.appReviewPrompt: false,
+            FeatureFlag.enableDebugAppReviewPrompt: false,
+        ]
+
+        await subject.perform(.checkAppReviewEligibility)
+        await subject.reviewPromptTask?.value
+        XCTAssertFalse(subject.state.isEligibleForAppReview)
+        XCTAssertNil(subject.state.toast?.title)
+    }
+
+    /// `perform(_:)` with `.checkAppReviewEligibility` does not schedule a review prompt if the user is not eligible.
+    @MainActor
+    func test_perform_checkAppReviewEligibility_notEligible() async {
+        reviewPromptService.isEligibleForReviewPromptResult = false
+        configService.featureFlagsBool = [
+            FeatureFlag.appReviewPrompt: true,
+            FeatureFlag.enableDebugAppReviewPrompt: true,
+        ]
+
+        await subject.perform(.checkAppReviewEligibility)
+        await subject.reviewPromptTask?.value
+        XCTAssertFalse(subject.state.isEligibleForAppReview)
+        XCTAssertNil(subject.state.toast?.title)
+    }
 
     /// `itemDeleted()` delegate method shows the expected toast.
     @MainActor
@@ -381,6 +447,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
+    /// `perform(_:)` with `.appeared` calls the two-factor notice helper
+    @MainActor
+    func test_perform_appeared_twoFactorHelper() async throws {
+        await subject.perform(.appeared)
+
+        XCTAssertTrue(twoFactorNoticeHelper.maybeShowTwoFactorNoticeCalled)
+    }
+
     /// `perform(_:)` with `.dismissImportLoginsActionCard` sets the user's import logins setup
     /// progress to complete.
     @MainActor
@@ -421,12 +495,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.url, url)
     }
 
-    /// `perform(_:)` with `.refreshed` requests a fetch sync update with the vault repository.
+    /// `perform(_:)` with `.refreshed` requests a fetch sync update, but does not force a sync.
     @MainActor
     func test_perform_refresh() async {
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
     /// `perform(_:)` with `.refreshed` records an error if applicable.
@@ -529,6 +604,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         // Ensure that the profile switcher state is updated
         waitFor(subject.state.profileSwitcherState == authRepository.profileSwitcherState)
         XCTAssertTrue(subject.state.profileSwitcherState.isVisible)
+        XCTAssertTrue(authRepository.checkSessionTimeoutCalled)
     }
 
     /// `perform(.profileSwitcher(.rowAppeared))` should not update the state for add Account
@@ -864,7 +940,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await lockAction.handler?(lockAction, [])
 
         // Verify the results.
-        XCTAssertEqual(coordinator.events.last, .lockVault(userId: activeProfile.userId))
+        XCTAssertEqual(coordinator.events.last, .lockVault(userId: activeProfile.userId, isManuallyLocking: true))
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
@@ -894,7 +970,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await lockAction.handler?(lockAction, [])
 
         // Verify the results.
-        XCTAssertEqual(coordinator.events.last, .lockVault(userId: otherProfile.userId))
+        XCTAssertEqual(coordinator.events.last, .lockVault(userId: otherProfile.userId, isManuallyLocking: true))
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.accountLockedSuccessfully))
     }
 
@@ -1051,6 +1127,16 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
 
+    /// `receive(.addItemPressed)` cancels the review prompt task.
+    @MainActor
+    func test_receive_addItemPressed_cancelsReviewPromptTask() async {
+        reviewPromptService.isEligibleForReviewPromptResult = true
+        await subject.perform(.checkAppReviewEligibility)
+        waitFor(subject.reviewPromptTask != nil)
+        subject.receive(.addItemPressed)
+        XCTAssertTrue(subject.reviewPromptTask!.isCancelled)
+    }
+
     /// `receive(_:)` with `.clearURL` clears the url in the state.
     @MainActor
     func test_receive_clearURL() {
@@ -1065,6 +1151,16 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.copyTOTPCode("123456"))
         XCTAssertNil(pasteboardService.copiedString)
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// `receive(.disappeared)` cancels the review prompt task.
+    @MainActor
+    func test_receive_disappeared() async {
+        reviewPromptService.isEligibleForReviewPromptResult = true
+        await subject.perform(.checkAppReviewEligibility)
+        waitFor(subject.reviewPromptTask != nil)
+        subject.receive(.disappeared)
+        XCTAssertTrue(subject.reviewPromptTask!.isCancelled)
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.

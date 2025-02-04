@@ -118,6 +118,20 @@ class VaultUnlockViewTests: BitwardenTestCase {
         )
         expectedString = Localizations.useFingerprintToUnlock
         button = try subject.inspect().find(button: expectedString)
+
+        processor.state.biometricUnlockStatus = .available(
+            .opticID,
+            enabled: true
+        )
+        expectedString = Localizations.useOpticIDToUnlock
+        button = try subject.inspect().find(button: expectedString)
+
+        processor.state.biometricUnlockStatus = .available(
+            .unknown,
+            enabled: true
+        )
+        expectedString = Localizations.useBiometricsToUnlock
+        button = try subject.inspect().find(button: expectedString)
         try button.tap()
         waitFor(!processor.effects.isEmpty)
         XCTAssertEqual(processor.effects.last, .unlockVaultWithBiometrics)
@@ -154,6 +168,36 @@ class VaultUnlockViewTests: BitwardenTestCase {
             .touchID,
             enabled: true
         )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the view with no master password or pin but with touch id.
+    @MainActor
+    func test_snapshot_shouldShowPasswordOrPinFields_false_touchId() {
+        processor.state.shouldShowPasswordOrPinFields = false
+        processor.state.biometricUnlockStatus = .available(
+            .touchID,
+            enabled: true
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the view with no master password or pin but with face id.
+    @MainActor
+    func test_snapshot_shouldShowPasswordOrPinFields_false_faceId() {
+        processor.state.shouldShowPasswordOrPinFields = false
+        processor.state.biometricUnlockStatus = .available(
+            .faceID,
+            enabled: true
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// Test a snapshot of the view with no master password but with pin.
+    @MainActor
+    func test_snapshot_shouldShowPasswordOrPinFields_true_pin() {
+        processor.state.shouldShowPasswordOrPinFields = true
+        processor.state.unlockMethod = .pin
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 

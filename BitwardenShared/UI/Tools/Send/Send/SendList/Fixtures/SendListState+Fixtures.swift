@@ -4,16 +4,19 @@ import Foundation
 
 extension SendListState {
     static var empty: SendListState {
+        SendListState(loadingState: .data([]))
+    }
+
+    static var loading: SendListState {
         SendListState()
     }
 
     static var content: SendListState {
         let date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         return SendListState(
-            sections: [
+            loadingState: .data([
                 SendListSection(
                     id: "1",
-                    isCountDisplayed: false,
                     items: [
                         SendListItem(
                             id: "11",
@@ -28,7 +31,6 @@ extension SendListState {
                 ),
                 SendListSection(
                     id: "2",
-                    isCountDisplayed: true,
                     items: [
                         SendListItem(
                             sendView: .init(
@@ -96,17 +98,16 @@ extension SendListState {
                     ],
                     name: "All sends"
                 ),
-            ]
+            ])
         )
     }
 
     static var contentTextType: SendListState {
         let date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
         return SendListState(
-            sections: [
+            loadingState: .data([
                 SendListSection(
                     id: "text",
-                    isCountDisplayed: false,
                     items: [
                         SendListItem(
                             sendView: .init(
@@ -174,7 +175,7 @@ extension SendListState {
                     ],
                     name: nil
                 ),
-            ],
+            ]),
             type: .text
         )
     }

@@ -8,7 +8,7 @@ final class VaultGroupProcessor: StateProcessor<
     VaultGroupState,
     VaultGroupAction,
     VaultGroupEffect
-> {
+>, HasTOTPCodesSections {
     // MARK: Types
 
     typealias Services = HasAuthRepository
@@ -39,6 +39,10 @@ final class VaultGroupProcessor: StateProcessor<
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
+    var vaultRepository: VaultRepository {
+        services.vaultRepository
+    }
+
     // MARK: Initialization
 
     /// Creates a new `VaultGroupProcessor`.
@@ -60,7 +64,7 @@ final class VaultGroupProcessor: StateProcessor<
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
         super.init(state: state)
-        groupTotpExpirationManager = .init(
+        groupTotpExpirationManager = DefaultTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredItems in
                 guard let self else { return }
@@ -69,7 +73,7 @@ final class VaultGroupProcessor: StateProcessor<
                 }
             }
         )
-        searchTotpExpirationManager = .init(
+        searchTotpExpirationManager = DefaultTOTPExpirationManager(
             timeProvider: services.timeProvider,
             onExpiration: { [weak self] expiredSearchItems in
                 guard let self else { return }
@@ -166,10 +170,11 @@ final class VaultGroupProcessor: StateProcessor<
     private func refreshTOTPCodes(for items: [VaultListItem]) async {
         guard case let .data(currentSections) = state.loadingState else { return }
         do {
-            let refreshedItems = try await services.vaultRepository.refreshTOTPCodes(for: items)
-            let updatedSections = currentSections.updated(with: refreshedItems)
-            let allItems = updatedSections.flatMap(\.items)
-            groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: allItems)
+            let updatedSections = try await refreshTOTPCodes(
+                for: items,
+                in: currentSections,
+                using: groupTotpExpirationManager
+            )
             state.loadingState = .data(updatedSections)
         } catch {
             services.errorReporter.log(error: error)
@@ -181,10 +186,14 @@ final class VaultGroupProcessor: StateProcessor<
     private func refreshTOTPCodes(searchItems: [VaultListItem]) async {
         let currentSearchResults = state.searchResults
         do {
-            let refreshedSearchResults = try await services.vaultRepository.refreshTOTPCodes(for: searchItems)
-            let allSearchResults = currentSearchResults.updated(with: refreshedSearchResults)
-            searchTotpExpirationManager?.configureTOTPRefreshScheduling(for: allSearchResults)
-            state.searchResults = allSearchResults
+            let updatedSections = try await refreshTOTPCodes(
+                for: searchItems,
+                in: [
+                    VaultListSection(id: "", items: currentSearchResults, name: ""),
+                ],
+                using: searchTotpExpirationManager
+            )
+            state.searchResults = updatedSections[0].items
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -194,7 +203,7 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     private func refreshVaultGroup() async {
         do {
-            try await services.vaultRepository.fetchSync(isManualRefresh: true, filter: state.vaultFilterType)
+            try await services.vaultRepository.fetchSync(forceSync: true, filter: state.vaultFilterType)
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
@@ -214,7 +223,7 @@ final class VaultGroupProcessor: StateProcessor<
             let result = try await services.vaultRepository.searchVaultListPublisher(
                 searchText: searchText,
                 group: state.group,
-                filterType: state.searchVaultFilterType
+                filter: VaultListFilter(filterType: state.searchVaultFilterType)
             )
             for try await ciphers in result {
                 return ciphers
@@ -241,7 +250,7 @@ final class VaultGroupProcessor: StateProcessor<
         do {
             for try await vaultList in try await services.vaultRepository.vaultListPublisher(
                 group: state.group,
-                filter: state.vaultFilterType
+                filter: VaultListFilter(filterType: state.vaultFilterType)
             ) {
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.flatMap(\.items))
                 state.loadingState = .data(vaultList)
@@ -274,94 +283,5 @@ extension VaultGroupProcessor: CipherItemOperationDelegate {
         Task {
             await perform(.refresh)
         }
-    }
-}
-
-/// A class to manage TOTP code expirations for the VaultGroupProcessor and batch refresh calls.
-///
-private class TOTPExpirationManager {
-    // MARK: Properties
-
-    /// A closure to call on expiration
-    ///
-    var onExpiration: (([VaultListItem]) -> Void)?
-
-    // MARK: Private Properties
-
-    /// All items managed by the object, grouped by TOTP period.
-    ///
-    private(set) var itemsByInterval = [UInt32: [VaultListItem]]()
-
-    /// A model to provide time to calculate the countdown.
-    ///
-    private var timeProvider: any TimeProvider
-
-    /// A timer that triggers `checkForExpirations` to manage code expirations.
-    ///
-    private var updateTimer: Timer?
-
-    /// Initializes a new countdown timer
-    ///
-    /// - Parameters
-    ///   - timeProvider: A protocol providing the present time as a `Date`.
-    ///         Used to calculate time remaining for a present TOTP code.
-    ///   - onExpiration: A closure to call on code expiration for a list of vault items.
-    ///
-    init(
-        timeProvider: any TimeProvider,
-        onExpiration: (([VaultListItem]) -> Void)?
-    ) {
-        self.timeProvider = timeProvider
-        self.onExpiration = onExpiration
-        updateTimer = Timer.scheduledTimer(
-            withTimeInterval: 0.25,
-            repeats: true,
-            block: { _ in
-                self.checkForExpirations()
-            }
-        )
-    }
-
-    /// Clear out any timers tracking TOTP code expiration
-    deinit {
-        cleanup()
-    }
-
-    // MARK: Methods
-
-    /// Configures TOTP code refresh scheduling
-    ///
-    /// - Parameter items: The vault list items that may require code expiration tracking.
-    ///
-    func configureTOTPRefreshScheduling(for items: [VaultListItem]) {
-        var newItemsByInterval = [UInt32: [VaultListItem]]()
-        items.forEach { item in
-            guard case let .totp(_, model) = item.itemType else { return }
-            newItemsByInterval[model.totpCode.period, default: []].append(item)
-        }
-        itemsByInterval = newItemsByInterval
-    }
-
-    /// A function to remove any outstanding timers
-    ///
-    func cleanup() {
-        updateTimer?.invalidate()
-        updateTimer = nil
-    }
-
-    private func checkForExpirations() {
-        var expired = [VaultListItem]()
-        var notExpired = [UInt32: [VaultListItem]]()
-        itemsByInterval.forEach { period, items in
-            let sortedItems: [Bool: [VaultListItem]] = TOTPExpirationCalculator.listItemsByExpiration(
-                items,
-                timeProvider: timeProvider
-            )
-            expired.append(contentsOf: sortedItems[true] ?? [])
-            notExpired[period] = sortedItems[false]
-        }
-        itemsByInterval = notExpired
-        guard !expired.isEmpty else { return }
-        onExpiration?(expired)
     }
 }

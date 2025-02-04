@@ -52,10 +52,12 @@ private struct MainSendListView: View {
 
     /// The view shown when not searching. Contains sends content or an empty state.
     @ViewBuilder private var content: some View {
-        if store.state.sections.isEmpty {
-            empty
-        } else {
-            list
+        LoadingView(state: store.state.loadingState) { sections in
+            if sections.isEmpty {
+                empty
+            } else {
+                list(sections: sections)
+            }
         }
     }
 
@@ -66,6 +68,7 @@ private struct MainSendListView: View {
                 VStack(spacing: 24) {
                     if store.state.isSendDisabled {
                         InfoContainer(Localizations.sendDisabledWarning)
+                            .accessibilityIdentifier("SendPolicyLabel")
                     }
 
                     Spacer()
@@ -99,27 +102,6 @@ private struct MainSendListView: View {
         }
     }
 
-    /// The list for this view, displayed when there is content to display.
-    @ViewBuilder private var list: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 20) {
-                if store.state.isSendDisabled {
-                    InfoContainer(Localizations.sendDisabledWarning)
-                }
-
-                ForEach(store.state.sections) { section in
-                    sendItemSectionView(
-                        sectionName: section.name,
-                        isCountDisplayed: section.isCountDisplayed,
-                        items: section.items
-                    )
-                }
-            }
-            .padding(16)
-            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        }
-    }
-
     /// A view that displays the search interface, including search results, an empty search
     /// interface, and a message indicating that no results were found.
     @ViewBuilder private var search: some View {
@@ -129,7 +111,6 @@ private struct MainSendListView: View {
                     if !store.state.searchResults.isEmpty {
                         sendItemSectionView(
                             sectionName: nil,
-                            isCountDisplayed: false,
                             items: store.state.searchResults
                         )
                     }
@@ -141,31 +122,43 @@ private struct MainSendListView: View {
         }
     }
 
+    /// The list for this view, displayed when there is content to display.
+    @ViewBuilder
+    private func list(sections: [SendListSection]) -> some View {
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 20) {
+                if store.state.isSendDisabled {
+                    InfoContainer(Localizations.sendDisabledWarning)
+                }
+
+                ForEach(sections) { section in
+                    sendItemSectionView(
+                        sectionName: section.name,
+                        items: section.items
+                    )
+                }
+            }
+            .padding(16)
+            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        }
+    }
+
     /// Creates a section that appears in the sends list.
     ///
     /// - Parameters:
     ///   - sectionName: The title of the section.
-    ///   - isCountDisplayed: A flag indicating if the count should be displayed
     ///     in this section's title.
     ///   - items: The `SendListItem`s in this section.
     ///
     @ViewBuilder
     private func sendItemSectionView(
         sectionName: String?,
-        isCountDisplayed: Bool,
         items: [SendListItem]
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
-            if sectionName != nil || isCountDisplayed {
-                HStack(alignment: .firstTextBaseline) {
-                    if let sectionName {
-                        SectionHeaderView(sectionName)
-                    }
-                    Spacer()
-                    if isCountDisplayed {
-                        SectionHeaderView("\(items.count)")
-                    }
-                }
+            if let sectionName {
+                SectionHeaderView("\(sectionName) (\(items.count))")
+                    .accessibilityLabel("\(sectionName), \(Localizations.xItems(items.count))")
             }
 
             LazyVStack(alignment: .leading, spacing: 0) {
@@ -239,10 +232,6 @@ struct SendListView: View {
                         .frame(minHeight: 44)
                     }
                 }
-
-                addToolbarItem {
-                    store.send(.addItemPressed)
-                }
             }
             .toast(
                 store.binding(
@@ -267,12 +256,24 @@ struct SendListView: View {
 // MARK: Previews
 
 #if DEBUG
-#Preview("Empty") {
+#Preview("Loading") {
     NavigationView {
         SendListView(
             store: Store(
                 processor: StateProcessor(
                     state: SendListState()
+                )
+            )
+        )
+    }
+}
+
+#Preview("Empty") {
+    NavigationView {
+        SendListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: SendListState(loadingState: .data([]))
                 )
             )
         )
@@ -285,10 +286,9 @@ struct SendListView: View {
             store: Store(
                 processor: StateProcessor(
                     state: SendListState(
-                        sections: [
+                        loadingState: .data([
                             SendListSection(
                                 id: "1",
-                                isCountDisplayed: false,
                                 items: [
                                     SendListItem(
                                         id: "11",
@@ -308,7 +308,6 @@ struct SendListView: View {
                             ),
                             SendListSection(
                                 id: "2",
-                                isCountDisplayed: true,
                                 items: [
                                     SendListItem(sendView: .fixture(
                                         id: "21",
@@ -338,7 +337,7 @@ struct SendListView: View {
                                 ],
                                 name: "All sends"
                             ),
-                        ]
+                        ])
                     )
                 )
             )

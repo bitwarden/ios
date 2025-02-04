@@ -312,7 +312,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.lockVault)
 
         XCTAssertEqual(authRepository.lockVaultUserId, nil)
-        XCTAssertEqual(coordinator.events.last, .authAction(.lockVault(userId: nil)))
+        XCTAssertEqual(coordinator.events.last, .authAction(.lockVault(userId: nil, isManuallyLocking: true)))
     }
 
     /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.

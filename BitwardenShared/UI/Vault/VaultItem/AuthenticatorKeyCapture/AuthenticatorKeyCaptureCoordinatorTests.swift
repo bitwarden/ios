@@ -7,6 +7,7 @@ import XCTest
 class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var appExtensionDelegate: MockAppExtensionDelegate!
     var cameraService: MockCameraService!
     var delegate: MockAuthenticatorKeyCaptureDelegate!
     var errorReporter: MockErrorReporter!
@@ -18,12 +19,14 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        appExtensionDelegate = MockAppExtensionDelegate()
         cameraService = MockCameraService()
         delegate = MockAuthenticatorKeyCaptureDelegate()
         errorReporter = MockErrorReporter()
         stackNavigator = MockStackNavigator()
 
         subject = AuthenticatorKeyCaptureCoordinator(
+            appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
             services: ServiceContainer.withMocks(
                 cameraService: cameraService,
@@ -38,6 +41,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        appExtensionDelegate = nil
         cameraService = nil
         errorReporter = nil
         stackNavigator = nil
@@ -92,8 +96,21 @@ class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
-        let view = action.view as? (any View)
-        XCTAssertNotNil(try? view?.inspect().find(ManualEntryView.self))
+        let view = try XCTUnwrap(action.view as? ManualEntryView)
+        XCTAssertTrue(view.store.state.deviceSupportsCamera)
+    }
+
+    /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view in the extension.
+    @MainActor
+    func test_navigateTo_setupTotpManual_extension() throws {
+        appExtensionDelegate.isInAppExtension = true
+        cameraService.deviceHasCamera = true
+        subject.navigate(to: .manualKeyEntry)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? ManualEntryView)
+        XCTAssertFalse(view.store.state.deviceSupportsCamera)
     }
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view.

@@ -86,16 +86,19 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     // MARK: Private properties
 
     /// The service that handles common client functionality such as encryption and decryption.
-    private var clientService: ClientService
+    private let clientService: ClientService
+
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
 
     /// The state service used by this Default Service.
-    private var stateService: StateService
+    private let stateService: StateService
 
     /// Provides the current time.
-    private var timeProvider: TimeProvider
+    private let timeProvider: TimeProvider
 
     /// A subject containing the user's vault locked status mapped to their user ID.
-    private var vaultLockStatusSubject = CurrentValueSubject<[String: Bool], Never>([:])
+    private let vaultLockStatusSubject = CurrentValueSubject<[String: Bool], Never>([:])
 
     // MARK: Initialization
 
@@ -103,15 +106,18 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///
     /// - Parameters:
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
+    ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
     ///
     init(
         clientService: ClientService,
+        errorReporter: ErrorReporter,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
         self.clientService = clientService
+        self.errorReporter = errorReporter
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
@@ -142,17 +148,25 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func lockVault(userId: String?) async {
-        guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        try? await clientService.removeClient(for: id)
-        vaultLockStatusSubject.value[id] = true
-        try? await stateService.setAccountHasBeenUnlockedInteractively(userId: id, value: false)
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            vaultLockStatusSubject.value[userId] = true
+            try await clientService.removeClient(for: userId)
+            try await stateService.setAccountHasBeenUnlockedInteractively(userId: userId, value: false)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func remove(userId: String?) async {
-        guard let id = try? await stateService.getAccountIdOrActiveId(userId: userId) else { return }
-        try? await clientService.removeClient(for: id)
-        vaultLockStatusSubject.value.removeValue(forKey: id)
-        try? await stateService.setAccountHasBeenUnlockedInteractively(userId: id, value: false)
+        do {
+            let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
+            vaultLockStatusSubject.value.removeValue(forKey: userId)
+            try await clientService.removeClient(for: userId)
+            try await stateService.setAccountHasBeenUnlockedInteractively(userId: userId, value: false)
+        } catch {
+            errorReporter.log(error: error)
+        }
     }
 
     func setLastActiveTime(userId: String) async throws {

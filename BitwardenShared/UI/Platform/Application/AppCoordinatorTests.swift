@@ -155,14 +155,31 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_didLockVault() {
         let account: Account = .fixtureAccountLogin()
 
-        subject.lockVault(userId: account.profile.userId)
+        subject.lockVault(userId: account.profile.userId, isManuallyLocking: false)
 
         waitFor(module.authCoordinator.isStarted)
         waitFor(!router.events.isEmpty)
         XCTAssertEqual(
             router.events,
             [
-                .action(.lockVault(userId: account.profile.userId)),
+                .action(.lockVault(userId: account.profile.userId, isManuallyLocking: false)),
+            ]
+        )
+    }
+
+    /// `lockVault(_:)` passes the lock event to the router with manual locking.
+    @MainActor
+    func test_didLockVault_onManualLocking() {
+        let account: Account = .fixtureAccountLogin()
+
+        subject.lockVault(userId: account.profile.userId, isManuallyLocking: true)
+
+        waitFor(module.authCoordinator.isStarted)
+        waitFor(!router.events.isEmpty)
+        XCTAssertEqual(
+            router.events,
+            [
+                .action(.lockVault(userId: account.profile.userId, isManuallyLocking: true)),
             ]
         )
     }
@@ -246,6 +263,26 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
+    /// `handleEvent(_:)` with `.accountBecameActive` has the router handle account activation.
+    @MainActor
+    func test_handleEvent_accountBecameActive() async {
+        let account = Account.fixtureAccountLogin()
+        await subject.handleEvent(
+            .accountBecameActive(account, attemptAutomaticBiometricUnlock: true, didSwitchAccountAutomatically: true)
+        )
+        XCTAssertEqual(
+            router.events,
+            [
+                .accountBecameActive(
+                    account,
+                    animated: true,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: true
+                ),
+            ]
+        )
+    }
+
     /// `navigate(to:)` with `.onboarding` starts the auth coordinator and navigates to the proper auth route.
     @MainActor
     func test_navigateTo_auth() throws {
@@ -271,6 +308,32 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.navigate(to: .debugMenu)
 
         waitFor(module.debugMenuCoordinator.isStarted)
+        XCTAssertTrue(subject.isShowingDebugMenu)
+        XCTAssertTrue(module.debugMenuCoordinatorDelegate === subject)
+    }
+
+    /// `navigate(to:)` with `.debugMenu` doesn't navigate to the debug menu if it is already showing.
+    @MainActor
+    func test_navigateTo_debugMenu_alreadyShowing() throws {
+        subject.navigate(to: .debugMenu)
+
+        XCTAssertTrue(subject.isShowingDebugMenu)
+        XCTAssertTrue(module.debugMenuCoordinatorDelegate === subject)
+
+        let newDebugMenuCoordinator = MockCoordinator<DebugMenuRoute, Void>()
+        module.debugMenuCoordinator = newDebugMenuCoordinator
+
+        // Since the original debug menu is still showing, navigating to it again shouldn't start
+        // the new coordinator.
+        subject.navigate(to: .debugMenu)
+        XCTAssertFalse(newDebugMenuCoordinator.isStarted)
+
+        // Once the original is dismissed, navigating to the debug menu should start the new coordinator.
+        module.debugMenuCoordinatorDelegate?.didDismissDebugMenu()
+        XCTAssertFalse(subject.isShowingDebugMenu)
+
+        subject.navigate(to: .debugMenu)
+        XCTAssertTrue(newDebugMenuCoordinator.isStarted)
     }
 
     /// `navigate(to:)` with `.extensionSetup(.extensionActivation))` starts the extension setup

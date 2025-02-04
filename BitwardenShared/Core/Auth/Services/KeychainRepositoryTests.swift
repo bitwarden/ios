@@ -104,7 +104,6 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             subject.keychainQueryValues(for: .authenticatorVaultKey(userId: "1")),
             subject.keychainQueryValues(for: .biometrics(userId: "1")),
             subject.keychainQueryValues(for: .neverLock(userId: "1")),
-            subject.keychainQueryValues(for: .pendingAdminLoginRequest(userId: "1")),
             subject.keychainQueryValues(for: .refreshToken(userId: "1")),
         ]
 
@@ -339,6 +338,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
             "ACCESS_TOKEN"
         )
+        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
+        XCTAssertEqual(protection, String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
     }
 
     /// `setAccessToken(userId:)` throws an error if one occurs.
@@ -355,7 +356,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         keychainService.accessControlResult = .success(
             SecAccessControlCreateWithFlags(
                 nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                 [],
                 nil
             )!
@@ -368,6 +369,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
             "AUTHENTICATOR_VAULT_KEY"
         )
+        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
+        XCTAssertEqual(protection, String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
     }
 
     /// `setAuthenticatorVaultKey(userId:)` throws an error if one occurs.
@@ -384,7 +387,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
         keychainService.accessControlResult = .success(
             SecAccessControlCreateWithFlags(
                 nil,
-                kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+                kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                 [],
                 nil
             )!
@@ -397,6 +400,8 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             String(data: XCTUnwrap(attributes[kSecValueData] as? Data), encoding: .utf8),
             "REFRESH_TOKEN"
         )
+        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
+        XCTAssertEqual(protection, String(kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly))
     }
 
     /// `setRefreshToken(userId:)` throws an error if one occurs.
@@ -431,7 +436,7 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             SecAccessControlCreateWithFlags(
                 nil,
                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                item.protection ?? [],
+                item.accessControlFlags ?? [],
                 nil
             )!
         )
@@ -450,13 +455,15 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             SecAccessControlCreateWithFlags(
                 nil,
                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                item.protection ?? [],
+                item.accessControlFlags ?? [],
                 nil
             )!
         )
         keychainService.addResult = .success(())
         try await subject.setUserAuthKey(for: item, value: newKey)
         XCTAssertEqual(keychainService.accessControlFlags, .biometryCurrentSet)
+        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
+        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
     }
 
     /// `setUserAuthKey(_:)` succeeds quietly.
@@ -468,12 +475,14 @@ final class KeychainRepositoryTests: BitwardenTestCase { // swiftlint:disable:th
             SecAccessControlCreateWithFlags(
                 nil,
                 kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
-                item.protection ?? [],
+                item.accessControlFlags ?? [],
                 nil
             )!
         )
         keychainService.addResult = .success(())
         try await subject.setUserAuthKey(for: item, value: newKey)
         XCTAssertEqual(keychainService.accessControlFlags, [])
+        let protection = try XCTUnwrap(keychainService.accessControlProtection as? String)
+        XCTAssertEqual(protection, String(kSecAttrAccessibleWhenUnlockedThisDeviceOnly))
     }
 }

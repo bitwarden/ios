@@ -61,23 +61,27 @@ extension AuthRouter {
     /// - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
     ///
     func deleteAccountRedirect() async -> AuthRoute {
-        // Ensure that the active account id is nil, otherwise, handle a failed account deletion by directing
-        // The user to the unlock flow.
-        let oldActiveId = try? await services.stateService.getActiveAccountId()
-        // Try to set the next available account.
-        guard let activeAccount = try? await configureActiveAccount(shouldSwitchAutomatically: true) else {
-            // If no other accounts are available, go to landing.
+        do {
+            // After an account is deleted, the next account is already active in `StateService`.
+            // Make it active in the repository and switch to it.
+            let userId = try await services.stateService.getActiveAccountId()
+            let activeAccount = try await services.authRepository.setActiveAccount(userId: userId)
+
+            // Setup the unlock route for the newly active account.
+            let event = AuthEvent.accountBecameActive(
+                activeAccount,
+                animated: false,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: true
+            )
+            // Handle any vault unlock redirects for this active account.
+            return await handleAndRoute(event)
+        } catch StateServiceError.noActiveAccount {
+            return .landing
+        } catch {
+            services.errorReporter.log(error: error)
             return .landing
         }
-        // Setup the unlock route for the newly active account.
-        let event = AuthEvent.accountBecameActive(
-            activeAccount,
-            animated: false,
-            attemptAutomaticBiometricUnlock: true,
-            didSwitchAccountAutomatically: oldActiveId != activeAccount.profile.userId
-        )
-        // Handle any vault unlock redirects for this active account.
-        return await handleAndRoute(event)
     }
 
     /// Handles the `.didLogout()`route and redirects the user to the correct screen
@@ -112,7 +116,7 @@ extension AuthRouter {
     ///   - Parameter userId: The id of the user that should be locked.
     ///   - Returns: A redirect to either `.landing` or `prepareAndRedirect(.vaultUnlock)`.
     ///
-    func lockVaultRedirect(userId: String?) async -> AuthRoute {
+    func lockVaultRedirect(userId: String?, isManuallyLocking: Bool = false) async -> AuthRoute {
         let activeAccount = try? await services.authRepository.getAccount(for: nil)
         guard let accountToLock = try? await services.authRepository.getAccount(for: userId) else {
             if let activeAccount {
@@ -128,7 +132,7 @@ extension AuthRouter {
                 return .landing
             }
         }
-        await services.authRepository.lockVault(userId: userId)
+        await services.authRepository.lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
         guard let activeAccount else { return .landing }
         guard activeAccount.profile.userId == accountToLock.profile.userId else {
             return await handleAndRoute(
@@ -319,6 +323,14 @@ extension AuthRouter {
     ///
     func switchAccountRedirect(isAutomatic: Bool, userId: String) async -> AuthRoute {
         do {
+            // Set the last active time for the current account before switching.
+            if let currentActiveAccount = try? await services.authRepository.getAccount(),
+               currentActiveAccount.profile.userId != userId {
+                try await services.vaultTimeoutService.setLastActiveTime(
+                    userId: currentActiveAccount.profile.userId
+                )
+            }
+
             let activeAccount = try await services.authRepository.setActiveAccount(userId: userId)
             // Setup the unlock route for the active account.
             let event = AuthEvent.accountBecameActive(
@@ -353,15 +365,16 @@ extension AuthRouter {
         let userId = activeAccount.profile.userId
         do {
             let isLocked = try? await services.authRepository.isLocked(userId: userId)
+            let isManuallyLocked = try? await services.stateService.getManuallyLockedAccount(userId: userId) == true
             let vaultTimeout = try? await services.vaultTimeoutService.sessionTimeoutValue(userId: userId)
 
-            switch (vaultTimeout, isLocked) {
-            case (.never, true):
+            switch (vaultTimeout, isLocked, isManuallyLocked) {
+            case (.never, true, false):
                 // If the user has enabled Never Lock, but the vault is locked,
                 // unlock the vault and return `.complete`.
                 try await services.authRepository.unlockVaultWithNeverlockKey()
                 return .completeWithNeverUnlockKey
-            case (_, false):
+            case (_, false, _):
                 return .complete
             default:
                 guard try await services.stateService.isAuthenticated(userId: userId) else {

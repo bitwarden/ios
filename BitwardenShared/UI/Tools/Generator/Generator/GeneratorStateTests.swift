@@ -9,44 +9,41 @@ import XCTest
 class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
-    /// `formSections` returns the sections and fields for generating a passphrase.
-    func test_formSections_passphrase() {
+    /// `availableGeneratorTypes` returns the list of available generator types shown in the
+    /// segmented control when the generator is presented in place.
+    func test_availableGeneratorTypes_inPlace() {
         var subject = GeneratorState()
-        subject.passwordState.passwordGeneratorType = .passphrase
+        subject.presentationMode = .inPlace
 
-        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
-            """
-            Section: (empty)
-              Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Password
-                Options: Password, Username
-            Section: Options
-              Menu: Password type
-                Selection: Passphrase
-                Options: Password, Passphrase
-              Stepper: Number of words Value: 3 Range: 3...20
-              Text: Word separator Value: -
-              Toggle: Capitalize Value: false
-              Toggle: Include number Value: false
-            """
-        }
+        subject.generatorType = .passphrase
+        XCTAssertEqual(subject.availableGeneratorTypes, [.password, .passphrase])
+
+        subject.generatorType = .password
+        XCTAssertEqual(subject.availableGeneratorTypes, [.password, .passphrase])
+
+        subject.generatorType = .username
+        XCTAssertEqual(subject.availableGeneratorTypes, [])
+    }
+
+    /// `availableGeneratorTypes` returns the list of available generator types shown in the
+    /// segmented control when the generator is presented in a tab.
+    func test_availableGeneratorTypes_tab() {
+        var subject = GeneratorState()
+        subject.presentationMode = .tab
+
+        XCTAssertEqual(subject.availableGeneratorTypes, [.password, .passphrase, .username])
     }
 
     /// `formSections` returns the sections and fields for generating a passphrase.
-    func test_formSections_passphrase_withoutTypeField() {
+    func test_formSections_passphrase() {
         var subject = GeneratorState()
-        subject.passwordState.passwordGeneratorType = .passphrase
-        subject.presentationMode = .inPlace
+        subject.generatorType = .passphrase
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
             Section: (empty)
               Generated: (empty)
             Section: Options
-              Menu: Password type
-                Selection: Passphrase
-                Options: Password, Passphrase
               Stepper: Number of words Value: 3 Range: 3...20
               Text: Word separator Value: -
               Toggle: Capitalize Value: false
@@ -58,45 +55,13 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// `formSections` returns the sections and fields for generating a password.
     func test_formSections_password() {
         var subject = GeneratorState()
-        subject.passwordState.passwordGeneratorType = .password
-
-        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
-            """
-            Section: (empty)
-              Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Password
-                Options: Password, Username
-            Section: Options
-              Menu: Password type
-                Selection: Password
-                Options: Password, Passphrase
-              Slider: Length Value: 14.0 Range: 5.0...128.0 Step: 1.0
-              Toggle: A-Z Value: true
-              Toggle: a-z Value: true
-              Toggle: 0-9 Value: true
-              Toggle: !@#$%^&* Value: false
-              Stepper: Minimum numbers Value: 1 Range: 0...5
-              Stepper: Minimum special Value: 1 Range: 0...5
-              Toggle: Avoid ambiguous characters Value: false
-            """
-        }
-    }
-
-    /// `formSections` returns the sections and fields for generating a password.
-    func test_formSections_password_withoutTypeField() {
-        var subject = GeneratorState()
-        subject.passwordState.passwordGeneratorType = .password
-        subject.presentationMode = .inPlace
+        subject.generatorType = .password
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
             Section: (empty)
               Generated: (empty)
             Section: Options
-              Menu: Password type
-                Selection: Password
-                Options: Password, Passphrase
               Slider: Length Value: 14.0 Range: 5.0...128.0 Step: 1.0
               Toggle: A-Z Value: true
               Toggle: a-z Value: true
@@ -119,62 +84,12 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Catch-all email
                 Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
                 Footer: Use your domain's configured catch-all inbox.
               Text: Domain name (required) Value: (empty)
-            """
-        }
-    }
-
-    /// `formSections` returns the sections and fields for generating a catch-all email username.
-    func test_formSections_username_catchAllEmail_withoutTypeField() {
-        var subject = GeneratorState()
-        subject.generatorType = .username
-        subject.usernameState.usernameGeneratorType = .catchAllEmail
-        subject.presentationMode = .inPlace
-
-        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
-            """
-            Section: (empty)
-              Generated: (empty)
-            Section: Options
-              Menu: Username type
-                Selection: Catch-all email
-                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
-                Footer: Use your domain's configured catch-all inbox.
-              Text: Domain name (required) Value: (empty)
-            """
-        }
-    }
-
-    /// `formSections` returns the sections and fields for generating a catch-all email username.
-    func test_formSections_username_catchAllEmail_withoutTypeField_withEmailWebsite() {
-        var subject = GeneratorState()
-        subject.generatorType = .username
-        subject.presentationMode = .inPlace
-        subject.usernameState.emailWebsite = "bitwarden.com"
-        subject.usernameState.usernameGeneratorType = .catchAllEmail
-
-        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
-            """
-            Section: (empty)
-              Generated: (empty)
-            Section: Options
-              Menu: Username type
-                Selection: Catch-all email
-                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
-                Footer: Use your domain's configured catch-all inbox.
-              Text: Domain name (required) Value: (empty)
-              Menu: Email Type
-                Selection: Random
-                Options: Random, Website
-              Email Website: bitwarden.com
             """
         }
     }
@@ -190,9 +105,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -218,9 +130,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -245,9 +154,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -272,9 +178,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -299,9 +202,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -327,9 +227,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Forwarded email alias
@@ -353,62 +250,12 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Plus addressed email
                 Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
                 Footer: Use your email provider's subaddress capabilities
               Text: Email (required) Value: (empty)
-            """
-        }
-    }
-
-    /// `formSections` returns the sections and fields for generating a plus-address email username.
-    func test_formSections_username_plusAddressedEmail_withoutTypeField() {
-        var subject = GeneratorState()
-        subject.generatorType = .username
-        subject.usernameState.usernameGeneratorType = .plusAddressedEmail
-        subject.presentationMode = .inPlace
-
-        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
-            """
-            Section: (empty)
-              Generated: (empty)
-            Section: Options
-              Menu: Username type
-                Selection: Plus addressed email
-                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
-                Footer: Use your email provider's subaddress capabilities
-              Text: Email (required) Value: (empty)
-            """
-        }
-    }
-
-    /// `formSections` returns the sections and fields for generating a plus-address email username.
-    func test_formSections_username_plusAddressedEmail_withoutTypeField_withEmailWebsite() {
-        var subject = GeneratorState()
-        subject.generatorType = .username
-        subject.presentationMode = .inPlace
-        subject.usernameState.emailWebsite = "bitwarden.com"
-        subject.usernameState.usernameGeneratorType = .plusAddressedEmail
-
-        assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
-            """
-            Section: (empty)
-              Generated: (empty)
-            Section: Options
-              Menu: Username type
-                Selection: Plus addressed email
-                Options: Plus addressed email, Catch-all email, Forwarded email alias, Random word
-                Footer: Use your email provider's subaddress capabilities
-              Text: Email (required) Value: (empty)
-              Menu: Email Type
-                Selection: Random
-                Options: Random, Website
-              Email Website: bitwarden.com
             """
         }
     }
@@ -423,9 +270,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             """
             Section: (empty)
               Generated: (empty)
-              Menu: What would you like to generate?
-                Selection: Username
-                Options: Password, Username
             Section: Options
               Menu: Username type
                 Selection: Random word
@@ -434,6 +278,58 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
               Toggle: Include number Value: false
             """
         }
+    }
+
+    /// `guidedTourViewState` returns the initial state of the guided tour.
+    func test_guidedTourViewState_initialState() {
+        let subject = GeneratorState()
+        XCTAssertEqual(subject.guidedTourViewState.currentIndex, 0)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates.count, 6)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[0], .generatorStep1)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[1], .generatorStep2)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[2], .generatorStep3)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[3], .generatorStep4)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[4], .generatorStep5)
+        XCTAssertEqual(subject.guidedTourViewState.guidedTourStepStates[5], .generatorStep6)
+    }
+
+    /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when the
+    /// override is enabled and the default type is used.
+    func test_isGeneratorTypeDisabled_policy_overrideDefaultType() {
+        var subject = GeneratorState()
+        subject.policyOptions = PasswordGenerationOptions(overridePasswordType: true)
+        XCTAssertTrue(subject.isGeneratorTypeDisabled(.passphrase))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.password))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.username))
+    }
+
+    /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when the
+    /// passphrase override is applied.
+    func test_isGeneratorTypeDisabled_policy_passphrase() {
+        var subject = GeneratorState()
+        subject.policyOptions = PasswordGenerationOptions(type: .password, overridePasswordType: true)
+        XCTAssertTrue(subject.isGeneratorTypeDisabled(.passphrase))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.password))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.username))
+    }
+
+    /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when the password
+    /// override is applied.
+    func test_isGeneratorTypeDisabled_policy_password() {
+        var subject = GeneratorState()
+        subject.policyOptions = PasswordGenerationOptions(type: .passphrase, overridePasswordType: true)
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.passphrase))
+        XCTAssertTrue(subject.isGeneratorTypeDisabled(.password))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.username))
+    }
+
+    /// `isGeneratorTypeDisabled(_:)` returns whether a generator type is disabled when there's no
+    /// policy applied.
+    func test_isGeneratorTypeDisabled_noPolicy() {
+        let subject = GeneratorState()
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.passphrase))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.password))
+        XCTAssertFalse(subject.isGeneratorTypeDisabled(.username))
     }
 
     /// `passwordState.minimumLength` correctly calculates the minimum length allowed
@@ -819,6 +715,42 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         try XCTAssertEqual(subject.usernameGeneratorRequest(), .word(capitalize: true, includeNumber: true))
     }
 
+    /// `setGeneratorType(passwordGeneratorType:)` sets the generator type to `password` if there's
+    /// no stored password generator type.
+    func test_setGeneratorType_nil() {
+        var subject = GeneratorState()
+        subject.setGeneratorType(passwordGeneratorType: nil)
+        XCTAssertEqual(subject.generatorType, .password)
+    }
+
+    /// `setGeneratorType(passwordGeneratorType:)` doesn't change the generator type if it's
+    /// already set to username.
+    func test_setGeneratorType_username() {
+        var subject = GeneratorState()
+        subject.generatorType = .username
+
+        subject.setGeneratorType(passwordGeneratorType: nil)
+        XCTAssertEqual(subject.generatorType, .username)
+
+        subject.setGeneratorType(passwordGeneratorType: .passphrase)
+        XCTAssertEqual(subject.generatorType, .username)
+
+        subject.setGeneratorType(passwordGeneratorType: .password)
+        XCTAssertEqual(subject.generatorType, .username)
+    }
+
+    /// `setGeneratorType(passwordGeneratorType:)` sets the generator type based on the password
+    /// generator type.
+    func test_setGeneratorType_withValue() {
+        var subject = GeneratorState()
+
+        subject.setGeneratorType(passwordGeneratorType: .passphrase)
+        XCTAssertEqual(subject.generatorType, .passphrase)
+
+        subject.setGeneratorType(passwordGeneratorType: .password)
+        XCTAssertEqual(subject.generatorType, .password)
+    }
+
     /// `shouldGenerateNewValueOnTextValueChanged(_:keyPath:)` returns whether a new value should be
     /// generated when the key path's slider value changes.
     func test_shouldGenerateNewValueOnSliderValueChanged() {
@@ -890,10 +822,6 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 result.append("Generated: \(generatedValue.value.isEmpty ? "(empty)" : generatedValue.value)")
             case let .menuEmailType(menu):
                 result.append(menu.dumpField(indent: indent))
-            case let .menuGeneratorType(menu):
-                result.append(menu.dumpField(indent: indent))
-            case let .menuPasswordGeneratorType(menu):
-                result.append(menu.dumpField(indent: indent))
             case let .menuUsernameForwardedEmailService(menu):
                 result.append(menu.dumpField(indent: indent))
             case let .menuUsernameGeneratorType(menu):
@@ -921,7 +849,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func dumpFormSections(_ sections: [GeneratorState.FormSection<GeneratorState>]) -> String {
         sections.reduce(into: "") { result, section in
             result.append("Section: \(section.title ?? "(empty)")\n")
-            result.append(dumpFormItems(section.fields, indent: "  "))
+            result.append(dumpFormItems(section.groups.flatMap(\.fields), indent: "  "))
             if section != sections.last {
                 result.append("\n")
             }

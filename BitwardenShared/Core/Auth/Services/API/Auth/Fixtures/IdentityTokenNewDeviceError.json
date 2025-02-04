@@ -1,0 +1,8 @@
+{
+  "error": "device_error",
+  "error_description": "New device verification required",
+  "ErrorModel": {
+    "Message": "new device verification required",
+    "Object": "error"
+  }
+}

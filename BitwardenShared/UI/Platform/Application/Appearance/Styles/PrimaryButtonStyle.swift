@@ -12,11 +12,27 @@ struct PrimaryButtonStyle: ButtonStyle {
         case medium
         case large
 
+        /// The font style of the button label for this size.
+        var fontStyle: StyleGuideFont {
+            switch self {
+            case .medium: .calloutBold
+            case .large: .bodyBold
+            }
+        }
+
+        /// The minimum height of the button for this size.
+        var minimumHeight: CGFloat {
+            switch self {
+            case .medium: 36
+            case .large: 44
+            }
+        }
+
         /// The amount of vertical padding to apply to the button content for this size.
         var verticalPadding: CGFloat {
             switch self {
             case .medium: 8
-            case .large: 14
+            case .large: 12
             }
         }
     }
@@ -36,13 +52,12 @@ struct PrimaryButtonStyle: ButtonStyle {
 
     /// The background color of this button.
     var backgroundColor: Color {
-        if isDestructive {
-            Asset.Colors.error.swiftUIColor
-        } else {
-            isEnabled
-                ? Asset.Colors.buttonFilledBackground.swiftUIColor
-                : Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
+        guard isEnabled else {
+            return Asset.Colors.buttonFilledDisabledBackground.swiftUIColor
         }
+        return isDestructive
+            ? Asset.Colors.error.swiftUIColor
+            : Asset.Colors.buttonFilledBackground.swiftUIColor
     }
 
     /// The color of the foreground elements in this button, including text and template
@@ -56,12 +71,13 @@ struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
-            .styleGuide(.bodyBold)
+            .multilineTextAlignment(.center)
+            .styleGuide(size.fontStyle, includeLinePadding: false, includeLineSpacing: false)
             .padding(.vertical, size.verticalPadding)
             .padding(.horizontal, 20)
-            .frame(maxWidth: shouldFillWidth ? .infinity : nil)
+            .frame(maxWidth: shouldFillWidth ? .infinity : nil, minHeight: size.minimumHeight)
             .background(backgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(Capsule())
             .opacity(configuration.isPressed ? 0.5 : 1)
     }
 }

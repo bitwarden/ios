@@ -29,15 +29,7 @@ class SendListViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the add an item button dispatches the `.addItemPressed` action.
-    @MainActor
-    func test_addItemButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
-    }
-
-    /// Tapping the add item floating acrtion button dispatches the `.addItemPressed` action.`
+    /// Tapping the add item floating action button dispatches the `.addItemPressed` action.`
     @MainActor
     func test_additemFloatingActionButton_tap() throws {
         let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
@@ -48,6 +40,7 @@ class SendListViewTests: BitwardenTestCase {
     /// Tapping the add a send button dispatches the `.addItemPressed` action.
     @MainActor
     func test_addSendButton_tap() throws {
+        processor.state = .empty
         let button = try subject.inspect().find(button: Localizations.newSend)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
@@ -74,6 +67,19 @@ class SendListViewTests: BitwardenTestCase {
                 .defaultPortraitDark,
                 .defaultLandscape,
                 .defaultPortraitAX5,
+            ]
+        )
+    }
+
+    /// The view renders correctly when it's loading.
+    @MainActor
+    func test_snapshot_loading() {
+        processor.state = .loading
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
             ]
         )
     }

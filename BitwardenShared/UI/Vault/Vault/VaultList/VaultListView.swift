@@ -141,7 +141,6 @@ private struct SearchableVaultListView: View {
                             )
                             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
                         }
-                        .accessibilityIdentifier("CipherCell")
                     }
                 }
             }
@@ -188,7 +187,6 @@ private struct SearchableVaultListView: View {
     private var vaultFilterRow: some View {
         SearchVaultFilterRowView(
             hasDivider: false,
-            accessibilityID: "ActiveFilterRow",
             store: store.child(
                 state: \.vaultFilterState,
                 mapAction: { action in
@@ -244,10 +242,10 @@ private struct SearchableVaultListView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        isFromExtension: false,
                         item: item,
                         hasDivider: !isLastInSection,
-                        showWebIcons: state.showWebIcons,
-                        isFromExtension: false
+                        showWebIcons: state.showWebIcons
                     )
                 },
                 mapAction: { action in
@@ -265,7 +263,6 @@ private struct SearchableVaultListView: View {
             ),
             timeProvider: timeProvider
         )
-        .accessibilityIdentifier("CipherCell")
     }
 }
 
@@ -281,6 +278,9 @@ struct VaultListView: View {
 
     /// The `TimeProvider` used to calculate TOTP expiration.
     var timeProvider: any TimeProvider
+
+    /// The window scene for requesting a review.
+    var windowScene: UIWindowScene?
 
     var body: some View {
         ZStack {
@@ -326,9 +326,6 @@ struct VaultListView: View {
                     )
                 )
             }
-            addToolbarItem {
-                store.send(.addItemPressed)
-            }
         }
         .task {
             await store.perform(.refreshAccountProfiles)
@@ -347,6 +344,17 @@ struct VaultListView: View {
         }
         .task(id: store.state.vaultFilterType) {
             await store.perform(.streamVaultList)
+        }
+        .onAppear {
+            Task {
+                await store.perform(.checkAppReviewEligibility)
+            }
+        }
+        .onDisappear {
+            store.send(.disappeared)
+        }
+        .requestReview(windowScene: windowScene, isEligible: store.state.isEligibleForAppReview) {
+            store.send(.appReviewPromptShown)
         }
     }
 

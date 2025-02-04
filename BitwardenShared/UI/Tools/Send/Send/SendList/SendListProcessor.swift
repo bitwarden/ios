@@ -12,6 +12,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
+        & HasVaultRepository
 
     // MARK: Private properties
 
@@ -114,7 +115,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func refresh() async {
         do {
-            try await services.sendRepository.fetchSync(isManualRefresh: true)
+            try await services.sendRepository.fetchSync(forceSync: false)
         } catch {
             let alert = Alert.networkResponseError(error) { [weak self] in
                 await self?.refresh()
@@ -174,21 +175,33 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             if let type = state.type {
                 for try await sends in try await services.sendRepository.sendTypeListPublisher(type: type) {
                     if sends.isEmpty {
-                        state.sections = []
+                        state.loadingState = .data([])
                     } else {
-                        state.sections = [
+                        state.loadingState = .data([
                             SendListSection(
                                 id: type.localizedName,
-                                isCountDisplayed: false,
                                 items: sends,
-                                name: nil
+                                name: Localizations.sends
                             ),
-                        ]
+                        ])
                     }
                 }
             } else {
                 for try await sections in try await services.sendRepository.sendListPublisher() {
-                    state.sections = sections
+                    let needsSync = try await services.vaultRepository.needsSync()
+
+                    if needsSync, sections.isEmpty {
+                        // If a sync is needed and there are no sends in the user's vault, it could
+                        // mean the initial sync hasn't completed so sync first.
+                        do {
+                            try await services.sendRepository.fetchSync(forceSync: false)
+                            state.loadingState = .data(sections)
+                        } catch {
+                            services.errorReporter.log(error: error)
+                        }
+                    } else {
+                        state.loadingState = .data(sections)
+                    }
                 }
             }
         } catch {

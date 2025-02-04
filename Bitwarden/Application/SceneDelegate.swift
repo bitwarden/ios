@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenShared
 import SwiftUI
 import UIKit
@@ -49,7 +50,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window = appWindow
 
         #if DEBUG_MENU
-        addTripleTapGestureRecognizer(to: appWindow)
+        addTapGestureRecognizer(to: appWindow)
         #endif
 
         // Splash window. This is initially visible until the app's processor has finished starting.
@@ -71,6 +72,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                let incomingURL = userActivity.webpageURL {
                 appProcessor.handleAppLinks(incomingURL: incomingURL)
             }
+
+            #if SUPPORTS_CXP
+
+            if #available(iOS 18.2, *),
+               let userActivity = connectionOptions.userActivities.first {
+                await checkAndHandleCredentialExchangeActivity(appProcessor: appProcessor, userActivity: userActivity)
+            }
+
+            #endif
         }
     }
 
@@ -78,13 +88,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         _ scene: UIScene,
         continue userActivity: NSUserActivity
     ) {
-        guard
-            let appProcessor,
-            userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-            let incomingURL = userActivity.webpageURL
-        else { return }
+        guard let appProcessor else {
+            return
+        }
 
-        appProcessor.handleAppLinks(incomingURL: incomingURL)
+        if userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+           let incomingURL = userActivity.webpageURL {
+            appProcessor.handleAppLinks(incomingURL: incomingURL)
+        }
+
+        #if SUPPORTS_CXP
+
+        if #available(iOS 18.2, *) {
+            Task {
+                await checkAndHandleCredentialExchangeActivity(appProcessor: appProcessor, userActivity: userActivity)
+            }
+        }
+
+        #endif
     }
 
     func scene(_ scene: UIScene, openURLContexts urlContexts: Set<UIOpenURLContext>) {
@@ -138,23 +159,48 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     #if DEBUG_MENU
-    /// Handle the triple-tap gesture and launch the debug menu.
+    /// Handle the tap gesture and launch the debug menu.
     @objc
-    private func handleTripleTapGesture() {
+    private func handleTapGesture() {
         appProcessor?.showDebugMenu()
     }
     #endif
 
     #if DEBUG_MENU
-    /// Add the triple-tap gesture recognizer to the window.
-    private func addTripleTapGestureRecognizer(to window: UIWindow) {
+    /// Add the tap gesture recognizer to the window.
+    private func addTapGestureRecognizer(to window: UIWindow) {
         let tapGesture = UITapGestureRecognizer(
             target: self,
-            action: #selector(handleTripleTapGesture)
+            action: #selector(handleTapGesture)
         )
         tapGesture.numberOfTapsRequired = 3
-        tapGesture.numberOfTouchesRequired = 3
+        tapGesture.numberOfTouchesRequired = 1
         window.addGestureRecognizer(tapGesture)
     }
     #endif
 }
+
+// MARK: - SceneDelegate 18.2
+
+#if SUPPORTS_CXP
+
+@available(iOS 18.2, *)
+extension SceneDelegate {
+    /// Checks  whether there is an `ASCredentialExchangeActivity` in the `userActivity` and handles it.
+    /// - Parameters:
+    ///   - appProcessor: The `AppProcessor` to handle the logic.
+    ///   - userActivity: The activity to handle.
+    private func checkAndHandleCredentialExchangeActivity(
+        appProcessor: AppProcessor,
+        userActivity: NSUserActivity
+    ) async {
+        guard userActivity.activityType == ASCredentialExchangeActivity,
+              let token = userActivity.userInfo?[ASCredentialImportToken] as? UUID else {
+            return
+        }
+
+        await appProcessor.handleImportCredentials(credentialImportToken: token)
+    }
+}
+
+#endif

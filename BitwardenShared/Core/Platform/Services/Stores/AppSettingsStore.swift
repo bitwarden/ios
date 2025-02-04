@@ -36,6 +36,12 @@ protocol AppSettingsStore: AnyObject {
     /// sending the status to the watch if the user is logged out.
     var lastUserShouldConnectToWatch: Bool { get set }
 
+    /// The status of the learn generator action card.
+    var learnGeneratorActionCardStatus: AccountSetupProgress { get set }
+
+    /// The status of the learn new login action card.
+    var learnNewLoginActionCardStatus: AccountSetupProgress { get set }
+
     /// The login request information received from a push notification.
     var loginRequest: LoginRequestNotification? { get set }
 
@@ -43,7 +49,7 @@ protocol AppSettingsStore: AnyObject {
     var migrationVersion: Int { get set }
 
     /// The environment URLs used prior to user authentication.
-    var preAuthEnvironmentUrls: EnvironmentUrlData? { get set }
+    var preAuthEnvironmentURLs: EnvironmentURLData? { get set }
 
     /// The server config used prior to user authentication.
     var preAuthServerConfig: ServerConfig? { get set }
@@ -53,6 +59,9 @@ protocol AppSettingsStore: AnyObject {
 
     /// The organization identifier being remembered on the single-sign on screen.
     var rememberedOrgIdentifier: String? { get set }
+
+    /// The review prompt data.
+    var reviewPromptData: ReviewPromptData? { get set }
 
     /// The app's account state.
     var state: State? { get set }
@@ -183,6 +192,11 @@ protocol AppSettingsStore: AnyObject {
     ///
     func lastSyncTime(userId: String) -> Date?
 
+    /// Gets whether the account belonging to the user Id has been manually locked.
+    /// - Parameter userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func manuallyLockedAccount(userId: String) -> Bool
+
     /// Gets the master password hash for the user ID.
     ///
     /// - Parameter userId: The user ID associated with the master password hash.
@@ -230,7 +244,7 @@ protocol AppSettingsStore: AnyObject {
     ///  - email: The email used to start the account creation.
     /// - Returns: The environment URLs used prior to start the account creation.
     ///
-    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData?
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData?
 
     /// The server configuration.
     ///
@@ -368,6 +382,12 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setLastSyncTime(_ date: Date?, userId: String)
 
+    /// Sets whether the account belonging to the user Id has been manually locked.
+    /// - Parameters
+    ///   - isLocked: Whether the account has been locked manually.
+    ///   - userId: The user ID associated with the account.
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String)
+
     /// Sets the master password hash for a user ID.
     ///
     /// - Parameters:
@@ -404,9 +424,9 @@ protocol AppSettingsStore: AnyObject {
     ///
     /// - Parameters:
     ///  - email: The user's email address.
-    ///  - environmentUrlData: The environment data to be saved.
+    ///  - environmentURLData: The environment data to be saved.
     ///
-    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String)
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String)
 
     /// Sets the server config.
     ///
@@ -438,6 +458,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTimeoutAction(key: SessionTimeoutAction, userId: String)
 
+    /// Sets the display state for the two-factor notice.
+    ///
+    /// - Parameters:
+    ///   - state: The display state.
+    ///   - userId: The userID associated with the state.
+    ///
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String)
+
     /// Sets the two-factor token.
     ///
     /// - Parameters:
@@ -449,7 +477,7 @@ protocol AppSettingsStore: AnyObject {
     /// Sets the number of unsuccessful attempts to unlock the vault for a user ID.
     ///
     /// - Parameters:
-    ///  -  attempts: The number of unsuccessful unlock attempts..
+    ///  -  attempts: The number of unsuccessful unlock attempts.
     ///  -  userId: The user ID associated with the unsuccessful unlock attempts.
     ///
     func setUnsuccessfulUnlockAttempts(_ attempts: Int, userId: String)
@@ -498,6 +526,14 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The  user's session timeout action.
     ///
     func timeoutAction(userId: String) -> Int?
+
+    /// Get the display state of the no-two-factor notice for a user ID.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID associated with the state.
+    /// - Returns: The state for the user ID.
+    ///
+    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState
 
     /// Get the two-factor token associated with a user's email.
     ///
@@ -679,24 +715,29 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedUserKey(userId: String)
         case events(userId: String)
         case introCarouselShown
+        case learnNewLoginActionCardStatus
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
+        case learnGeneratorActionCardStatus
         case loginRequest
+        case manuallyLockedAccount(userId: String)
         case masterPasswordHash(userId: String)
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
         case pinProtectedUserKey(userId: String)
-        case preAuthEnvironmentUrls
-        case accountCreationEnvironmentUrls(email: String)
+        case preAuthEnvironmentURLs
+        case accountCreationEnvironmentURLs(email: String)
         case preAuthServerConfig
         case rememberedEmail
         case rememberedOrgIdentifier
+        case reviewPromptData
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
         case syncToAuthenticator(userId: String)
         case state
+        case twoFactorNoticeDisplayState(userId: String)
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
@@ -750,14 +791,20 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "events_\(userId)"
             case .introCarouselShown:
                 key = "introCarouselShown"
+            case .learnNewLoginActionCardStatus:
+                key = "learnNewLoginActionCardStatus"
             case let .lastActiveTime(userId):
                 key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
+            case .learnGeneratorActionCardStatus:
+                key = "learnGeneratorActionCardStatus"
             case .lastUserShouldConnectToWatch:
                 key = "lastUserShouldConnectToWatch"
             case .loginRequest:
                 key = "passwordlessLoginNotificationKey"
+            case let .manuallyLockedAccount(userId):
+                key = "manuallyLockedAccount_\(userId)"
             case let .masterPasswordHash(userId):
                 key = "keyHash_\(userId)"
             case .migrationVersion:
@@ -768,9 +815,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "passwordGenerationOptions_\(userId)"
             case let .pinProtectedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
-            case .preAuthEnvironmentUrls:
+            case .preAuthEnvironmentURLs:
                 key = "preAuthEnvironmentUrls"
-            case let .accountCreationEnvironmentUrls(email):
+            case let .accountCreationEnvironmentURLs(email):
                 key = "accountCreationEnvironmentUrls_\(email)"
             case .preAuthServerConfig:
                 key = "preAuthServerConfig"
@@ -778,6 +825,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "rememberedEmail"
             case .rememberedOrgIdentifier:
                 key = "rememberedOrgIdentifier"
+            case .reviewPromptData:
+                key = "reviewPromptData"
             case let .serverConfig(userId):
                 key = "serverConfig_\(userId)"
             case let .shouldTrustDevice(userId):
@@ -786,6 +835,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "state"
             case let .syncToAuthenticator(userId):
                 key = "shouldSyncToAuthenticator_\(userId)"
+            case let .twoFactorNoticeDisplayState(userId):
+                key = "twoFactorNoticeDisplayState_\(userId)"
             case let .twoFactorToken(email):
                 key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
@@ -837,9 +888,19 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .introCarouselShown) }
     }
 
+    var learnNewLoginActionCardStatus: AccountSetupProgress {
+        get { fetch(for: .learnNewLoginActionCardStatus) ?? .incomplete }
+        set { store(newValue, for: .learnNewLoginActionCardStatus) }
+    }
+
     var lastUserShouldConnectToWatch: Bool {
         get { fetch(for: .lastUserShouldConnectToWatch) }
         set { store(newValue, for: .lastUserShouldConnectToWatch) }
+    }
+
+    var learnGeneratorActionCardStatus: AccountSetupProgress {
+        get { fetch(for: .learnGeneratorActionCardStatus) ?? .incomplete }
+        set { store(newValue, for: .learnGeneratorActionCardStatus) }
     }
 
     var loginRequest: LoginRequestNotification? {
@@ -852,9 +913,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         set { store(newValue, for: .migrationVersion) }
     }
 
-    var preAuthEnvironmentUrls: EnvironmentUrlData? {
-        get { fetch(for: .preAuthEnvironmentUrls) }
-        set { store(newValue, for: .preAuthEnvironmentUrls) }
+    var preAuthEnvironmentURLs: EnvironmentURLData? {
+        get { fetch(for: .preAuthEnvironmentURLs) }
+        set { store(newValue, for: .preAuthEnvironmentURLs) }
     }
 
     var preAuthServerConfig: ServerConfig? {
@@ -870,6 +931,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var rememberedOrgIdentifier: String? {
         get { fetch(for: .rememberedOrgIdentifier) }
         set { store(newValue, for: .rememberedOrgIdentifier) }
+    }
+
+    var reviewPromptData: ReviewPromptData? {
+        get { fetch(for: .reviewPromptData) }
+        set { store(newValue, for: .reviewPromptData) }
     }
 
     var state: State? {
@@ -952,6 +1018,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .lastSync(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
 
+    func manuallyLockedAccount(userId: String) -> Bool {
+        fetch(for: .manuallyLockedAccount(userId: userId))
+    }
+
     func masterPasswordHash(userId: String) -> String? {
         fetch(for: .masterPasswordHash(userId: userId))
     }
@@ -972,9 +1042,9 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .pinProtectedUserKey(userId: userId))
     }
 
-    func accountCreationEnvironmentUrls(email: String) -> EnvironmentUrlData? {
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         fetch(
-            for: .accountCreationEnvironmentUrls(email: email)
+            for: .accountCreationEnvironmentURLs(email: email)
         )
     }
 
@@ -1046,6 +1116,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(date?.timeIntervalSince1970, for: .lastSync(userId: userId))
     }
 
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
+        store(isLocked, for: .manuallyLockedAccount(userId: userId))
+    }
+
     func setMasterPasswordHash(_ hash: String?, userId: String) {
         store(hash, for: .masterPasswordHash(userId: userId))
     }
@@ -1062,8 +1136,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .pinProtectedUserKey(userId: userId))
     }
 
-    func setAccountCreationEnvironmentUrls(environmentUrlData: EnvironmentUrlData, email: String) {
-        store(environmentUrlData, for: .accountCreationEnvironmentUrls(email: email))
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
+        store(environmentURLData, for: .accountCreationEnvironmentURLs(email: email))
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
@@ -1080,6 +1154,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         store(key, for: .vaultTimeoutAction(userId: userId))
+    }
+
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String) {
+        store(state, for: .twoFactorNoticeDisplayState(userId: userId))
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {
@@ -1104,6 +1182,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func timeoutAction(userId: String) -> Int? {
         fetch(for: .vaultTimeoutAction(userId: userId))
+    }
+
+    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState {
+        fetch(for: .twoFactorNoticeDisplayState(userId: userId)) ?? .hasNotSeen
     }
 
     func twoFactorToken(email: String) -> String? {

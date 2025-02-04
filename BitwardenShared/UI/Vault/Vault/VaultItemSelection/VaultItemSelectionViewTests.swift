@@ -17,7 +17,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
-            otpAuthModel: .fixtureExample
+            totpKeyModel: .fixtureExample
         ))
         let store = Store(processor: processor)
 
@@ -33,15 +33,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the add an item button dispatches the `.addTapped` action.
-    @MainActor
-    func test_addItemButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.add)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
-    }
-
-    /// Tapping the add item floating acrtion button dispatches the `.addTapped` action.`
+    /// Tapping the add item floating action button dispatches the `.addTapped` action.`
     @MainActor
     func test_addFloatingActionButton_tap() throws {
         let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
@@ -84,7 +76,7 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     func test_snapshot_cipherSelection_emptyNoAccountOrIssuer() {
         processor = MockProcessor(state: VaultItemSelectionState(
             iconBaseURL: nil,
-            otpAuthModel: .fixtureMinimum
+            totpKeyModel: .fixtureMinimum
         ))
         subject = VaultItemSelectionView(store: Store(processor: processor))
 

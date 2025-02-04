@@ -58,11 +58,23 @@ struct CipherItemState: Equatable {
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>]
 
+    /// The state for guided tour view.
+    var guidedTourViewState = GuidedTourViewState(
+        guidedTourStepStates: [
+            .loginStep1,
+            .loginStep2,
+            .loginStep3,
+        ]
+    )
+
     /// The state for a identity type item.
     var identityState: IdentityItemState
 
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool
+
+    /// If account is eligible for  Learn New Login Action Card.
+    var isLearnNewLoginActionCardEligible: Bool = false
 
     /// A flag indicating if master password re-prompt is required.
     var isMasterPasswordRePromptOn: Bool
@@ -107,10 +119,32 @@ struct CipherItemState: Equatable {
         self
     }
 
+    /// Whether or not this item can be assigned to collections.
+    var canAssignToCollection: Bool {
+        guard !collectionIds.isEmpty else { return true }
+
+        return collections.contains { collection in
+            guard let id = collection.id else { return false }
+            guard collection.manage || (!collection.readOnly && !collection.hidePasswords) else { return false }
+
+            return collectionIds.contains(id)
+        }
+    }
+
+    /// Whether or not this item can be deleted by the user.
+    var canBeDeleted: Bool {
+        guard !collectionIds.isEmpty else { return true }
+        return collections.contains { collection in
+            guard let id = collection.id else { return false }
+            return collection.manage && collectionIds.contains(id)
+        }
+    }
+
     /// The list of collections that can be selected from for the current owner.
+    /// These are collections that the user can add items to, so they are non-read-only collections.
     var collectionsForOwner: [CollectionView] {
         guard let owner, !owner.isPersonal else { return [] }
-        return collections.filter { $0.organizationId == owner.organizationId }
+        return collections.filter { $0.organizationId == owner.organizationId && !$0.readOnly }
     }
 
     /// The folder this item should be added to.
@@ -136,6 +170,11 @@ struct CipherItemState: Equatable {
             organizationId = newValue?.organizationId
             collectionIds = []
         }
+    }
+
+    /// The flag indicating if we should show the learn new login action card.
+    var shouldShowLearnNewLoginActionCard: Bool {
+        isLearnNewLoginActionCardEligible && configuration == .add && type == .login
     }
 
     /// The view state of the item.
@@ -357,7 +396,7 @@ extension CipherItemState {
             identity: type == .identity ? identityState.identityView : nil,
             card: type == .card ? cardItemState.cardView : nil,
             secureNote: type == .secureNote ? .init(type: .generic) : nil,
-            sshKey: nil, // SSH keys cannot be created in mobile yet.
+            sshKey: type == .sshKey ? sshKeyState.sshKeyView : nil,
             favorite: isFavoriteOn,
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
@@ -379,4 +418,4 @@ extension CipherItemState {
             revisionDate: creationDate
         )
     }
-}
+} // swiftlint:disable:this file_length

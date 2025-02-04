@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - VaultCoordinatorTests
 
-class VaultCoordinatorTests: BitwardenTestCase {
+class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var delegate: MockVaultCoordinatorDelegate!
@@ -29,7 +29,10 @@ class VaultCoordinatorTests: BitwardenTestCase {
             appExtensionDelegate: MockAppExtensionDelegate(),
             delegate: delegate,
             module: module,
-            services: ServiceContainer.withMocks(errorReporter: errorReporter, vaultRepository: vaultRepository),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                vaultRepository: vaultRepository
+            ),
             stackNavigator: stackNavigator
         )
     }
@@ -165,6 +168,19 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
+    /// onto the stack navigator filtered by a group.
+    @MainActor
+    func test_navigateTo_autofillListForGroup() throws {
+        subject.navigate(to: .autofillListForGroup(.identity))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .pushed)
+
+        let view = try XCTUnwrap((action.view as? UIHostingController<VaultAutofillListView>)?.rootView)
+        XCTAssertEqual(view.store.state.group, .identity)
+    }
+
     /// `navigate(to:)` with `.group` pushes the vault group view onto the stack navigator.
     @MainActor
     func test_navigateTo_group() throws {
@@ -190,6 +206,33 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.vault))
     }
 
+    /// `navigate(to:)` with `.importCXF` presents the import view for Credential Exchange onto the stack navigator.
+    @MainActor
+    func test_navigateTo_importCXF() throws {
+        subject.navigate(
+            to: .importCXF(
+                .importCredentials(
+                    credentialImportToken: UUID(
+                        uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                    )!
+                )
+            )
+        )
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertTrue(module.importCXFCoordinator.isStarted)
+        XCTAssertEqual(
+            module.importCXFCoordinator.routes.last,
+            .importCredentials(
+                credentialImportToken: UUID(
+                    uuidString: "e8f3b381-aac2-4379-87fe-14fac61079ec"
+                )!
+            )
+        )
+    }
+
     /// `navigate(to:)` with `.list` pushes the vault list view onto the stack navigator.
     @MainActor
     func test_navigateTo_list_withoutPresented() throws {
@@ -199,6 +242,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is VaultListView)
+        XCTAssertEqual(errorReporter.errors.last as? WindowSceneError, WindowSceneError.nullWindowScene)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
@@ -209,6 +253,18 @@ class VaultCoordinatorTests: BitwardenTestCase {
         }
         waitFor(delegate.lockVaultId == "123")
         task.cancel()
+        XCTAssertFalse(delegate.hasManuallyLocked)
+    }
+
+    /// `navigate(to:)` with `.lockVault` calls the delegate to handle locking the vault manually.
+    @MainActor
+    func test_navigateTo_lockVaultManually() throws {
+        let task = Task {
+            await subject.handleEvent(.lockVault(userId: "123", isManuallyLocking: true))
+        }
+        waitFor(delegate.lockVaultId == "123")
+        task.cancel()
+        XCTAssertTrue(delegate.hasManuallyLocked)
     }
 
     /// `navigate(to:)` with `.loginRequest` calls the delegate method.
@@ -252,11 +308,24 @@ class VaultCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.accountTapped, ["123"])
     }
 
+    /// `navigate(to:)` with `.twoFactorNotice` presents the two-factor notice screen.
+    @MainActor
+    func test_navigateTo_twoFactorNotice() throws {
+        subject.navigate(to: .twoFactorNotice(allowDelay: true, emailAddress: "person@example.com"))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(module.twoFactorNoticeCoordinator.isStarted)
+        XCTAssertEqual(
+            module.twoFactorNoticeCoordinator.routes.last,
+            .emailAccess(allowDelay: true, emailAddress: "person@example.com")
+        )
+    }
+
     /// `.navigate(to:)` with `.vaultItemSelection` presents the vault item selection screen.
     @MainActor
     func test_navigateTo_vaultItemSelection() throws {
-        let otpAuthModel = try XCTUnwrap(OTPAuthModel(otpAuthKey: .otpAuthUriKeyComplete))
-        subject.navigate(to: .vaultItemSelection(otpAuthModel))
+        subject.navigate(to: .vaultItemSelection(.fixtureExample))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
@@ -303,6 +372,7 @@ class VaultCoordinatorTests: BitwardenTestCase {
 class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var addAccountTapped = false
     var accountTapped = [String]()
+    var hasManuallyLocked = false
     var lockVaultId: String?
     var logoutTapped = false
     var logoutUserId: String?
@@ -313,8 +383,9 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var switchedAccounts = false
     var userInitiated: Bool?
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         lockVaultId = userId
+        hasManuallyLocked = isManuallyLocking
     }
 
     func logout(userId: String?, userInitiated: Bool) {
@@ -341,4 +412,4 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
         switchAccountUserId = userId
         switchedAccounts = true
     }
-}
+} // swiftlint:disable:this file_length

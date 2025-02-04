@@ -34,8 +34,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var doesActiveAccountHavePremiumCalled = false
     var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
     var encryptedPinByUserId = [String: String]()
-    var environmentUrls = [String: EnvironmentUrlData]()
-    var environmentUrlsError: Error?
+    var environmentURLs = [String: EnvironmentURLData]()
+    var environmentURLsError: Error?
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
@@ -43,6 +43,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
     var lastActiveTime = [String: Date]()
+    var learnGeneratorActionCardStatus: AccountSetupProgress?
+    var learnNewLoginActionCardStatus: AccountSetupProgress?
     var loginRequest: LoginRequestNotification?
     var logoutAccountUserInitiated = false
     var getAccountEncryptionKeysError: Error?
@@ -52,15 +54,17 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var lastSyncTimeByUserId = [String: Date]()
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var lastUserShouldConnectToWatch = false
+    var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKeyValue = [String: String]()
-    var preAuthEnvironmentUrls: EnvironmentUrlData?
-    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
+    var preAuthEnvironmentURLs: EnvironmentURLData?
+    var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
+    var reviewPromptData: ReviewPromptData?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
@@ -72,11 +76,14 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setAppRehydrationStateError: Error?
     var setBiometricAuthenticationEnabledResult: Result<Void, Error> = .success(())
     var setBiometricIntegrityStateError: Error?
+    var setTwoFactorNoticeDisplayStateError: Error?
     var settingsBadgeSubject = CurrentValueSubject<SettingsBadgeState, Never>(.fixture())
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
     var syncToAuthenticatorSubject = CurrentValueSubject<(String?, Bool), Never>((nil, false))
+    var twoFactorNoticeDisplayState = [String: TwoFactorNoticeDisplayState]()
+    var twoFactorNoticeDisplayStateError: Error?
     var twoFactorTokens = [String: String]()
     var unsuccessfulUnlockAttempts = [String: Int]()
     var updateProfileResponse: ProfileResponseModel?
@@ -227,12 +234,12 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return encryptedPinByUserId[userId] ?? nil
     }
 
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
-        if let environmentUrlsError {
-            throw environmentUrlsError
+    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
+        if let environmentURLsError {
+            throw environmentURLsError
         }
         let userId = try unwrapUserId(userId)
-        return environmentUrls[userId]
+        return environmentURLs[userId]
     }
 
     func getEvents(userId: String?) async throws -> [EventData] {
@@ -245,6 +252,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         introCarouselShown
     }
 
+    func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
+        learnNewLoginActionCardStatus
+    }
+
     func getLastActiveTime(userId: String?) async throws -> Date? {
         let userId = try unwrapUserId(userId)
         return lastActiveTime[userId]
@@ -255,8 +266,17 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return lastSyncTimeByUserId[userId]
     }
 
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress? {
+        learnGeneratorActionCardStatus
+    }
+
     func getLoginRequest() async -> LoginRequestNotification? {
         loginRequest
+    }
+
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return manuallyLockedAccounts[userId] ?? false
     }
 
     func getMasterPasswordHash(userId: String?) async throws -> String? {
@@ -277,16 +297,20 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return passwordGenerationOptions[userId]
     }
 
-    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
-        preAuthEnvironmentUrls
+    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
+        preAuthEnvironmentURLs
     }
 
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
-        accountCreationEnvironmentUrls[email]
+    func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData? {
+        accountCreationEnvironmentURLs[email]
     }
 
     func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
         preAuthServerConfig
+    }
+
+    func getReviewPromptData() async -> BitwardenShared.ReviewPromptData? {
+        reviewPromptData
     }
 
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
@@ -311,6 +335,14 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
         let userId = try unwrapUserId(userId)
         return timeoutAction[userId] ?? .lock
+    }
+
+    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState {
+        if let error = twoFactorNoticeDisplayStateError {
+            throw error
+        }
+        let userId = try unwrapUserId(userId)
+        return twoFactorNoticeDisplayState[userId] ?? .hasNotSeen
     }
 
     func getTwoFactorToken(email: String) async -> String? {
@@ -458,9 +490,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountVolatileData[userId, default: AccountVolatileData()].pinProtectedUserKey = pin
     }
 
-    func setEnvironmentUrls(_ environmentUrls: EnvironmentUrlData, userId: String?) async throws {
+    func setEnvironmentURLs(_ environmentURLs: EnvironmentURLData, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
-        self.environmentUrls[userId] = environmentUrls
+        self.environmentURLs[userId] = environmentURLs
     }
 
     func setEvents(_ events: [EventData], userId: String?) async throws {
@@ -483,6 +515,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         isAuthenticated[account.profile.userId] = true
     }
 
+    func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
+        learnNewLoginActionCardStatus = status
+    }
+
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         lastActiveTime[userId] = timeProvider.presentTime
@@ -497,8 +533,17 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         lastUserShouldConnectToWatch
     }
 
+    func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async {
+        learnGeneratorActionCardStatus = status
+    }
+
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
         self.loginRequest = loginRequest
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        manuallyLockedAccounts[userId] = isLocked
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
@@ -541,16 +586,20 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         ].pinProtectedUserKey = pin
     }
 
-    func setPreAuthEnvironmentUrls(_ urls: BitwardenShared.EnvironmentUrlData) async {
-        preAuthEnvironmentUrls = urls
+    func setPreAuthEnvironmentURLs(_ urls: BitwardenShared.EnvironmentURLData) async {
+        preAuthEnvironmentURLs = urls
     }
 
-    func setAccountCreationEnvironmentUrls(urls: BitwardenShared.EnvironmentUrlData, email: String) async {
-        accountCreationEnvironmentUrls[email] = urls
+    func setAccountCreationEnvironmentURLs(urls: BitwardenShared.EnvironmentURLData, email: String) async {
+        accountCreationEnvironmentURLs[email] = urls
     }
 
     func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {
         preAuthServerConfig = config
+    }
+
+    func setReviewPromptData(_ data: BitwardenShared.ReviewPromptData) async {
+        reviewPromptData = data
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
@@ -579,6 +628,14 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setTokens(accessToken: String, refreshToken: String, userId _: String?) async throws {
         accountTokens = Account.AccountTokens(accessToken: accessToken, refreshToken: refreshToken)
+    }
+
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws {
+        if let error = setTwoFactorNoticeDisplayStateError {
+            throw error
+        }
+        let userId = try unwrapUserId(userId)
+        twoFactorNoticeDisplayState[userId] = state
     }
 
     func setTwoFactorToken(_ token: String?, email: String) async {

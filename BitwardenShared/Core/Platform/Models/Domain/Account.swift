@@ -1,3 +1,5 @@
+import Foundation
+
 /// Domain model for a user account.
 ///
 public struct Account: Codable, Equatable, Hashable, Sendable {
@@ -45,11 +47,11 @@ extension Account {
     ///
     /// - Parameters:
     ///   - identityTokenResponseModel: The response model from the identity token request.
-    ///   - environmentUrls: The environment URLs for an account.
+    ///   - environmentURLs: The environment URLs for an account.
     ///
     init(
         identityTokenResponseModel: IdentityTokenResponseModel,
-        environmentUrls: EnvironmentUrlData?
+        environmentURLs: EnvironmentURLData?
     ) throws {
         let tokenPayload = try TokenParser.parseToken(identityTokenResponseModel.accessToken)
         self.init(
@@ -71,7 +73,7 @@ extension Account {
                 userId: tokenPayload.userId
             ),
             settings: AccountSettings(
-                environmentUrls: environmentUrls
+                environmentUrls: environmentURLs
             ),
             _tokens: nil // Tokens have been moved out of `State` to the keychain.
         )
@@ -86,6 +88,9 @@ extension Account {
 
         /// The account's avatar color.
         var avatarColor: String?
+
+        /// The account's creation date.
+        var creationDate: Date?
 
         /// The account's email.
         var email: String
@@ -120,6 +125,9 @@ extension Account {
         /// The account's security stamp.
         var stamp: String?
 
+        /// Whether the account has two-factor enabled.
+        var twoFactorEnabled: Bool?
+
         /// User decryption options for the account.
         var userDecryptionOptions: UserDecryptionOptions?
 
@@ -132,7 +140,8 @@ extension Account {
         // MARK: Properties
 
         /// The environment URLs for an account.
-        var environmentUrls: EnvironmentUrlData?
+        /// The "URL" acronym in the variable name needs to remain lowercase for backwards compatibility.
+        var environmentUrls: EnvironmentURLData?
     }
 
     /// Domain model for an account's API tokens.

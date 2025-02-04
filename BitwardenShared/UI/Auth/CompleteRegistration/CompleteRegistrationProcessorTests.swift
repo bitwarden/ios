@@ -74,9 +74,9 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         let email = "email@example.com"
         subject.state.userEmail = email
         subject.state.fromEmail = true
-        await stateService.setAccountCreationEnvironmentUrls(urls: .defaultEU, email: email)
+        await stateService.setAccountCreationEnvironmentURLs(urls: .defaultEU, email: email)
         await subject.perform(.appeared)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultEU)
     }
 
     /// `perform(.appeared)` fromEmail false  returns.
@@ -85,10 +85,10 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         let email = "email@example.com"
         subject.state.userEmail = email
         subject.state.fromEmail = false
-        await stateService.setAccountCreationEnvironmentUrls(urls: .defaultEU, email: email)
+        await stateService.setAccountCreationEnvironmentURLs(urls: .defaultEU, email: email)
         await subject.perform(.appeared)
         XCTAssertNil(coordinator.alertShown.last)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, nil)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, nil)
     }
 
     /// `perform(.appeared)` fromEmail true and no saved region for given email shows alert.
@@ -97,7 +97,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         let email = "email@example.com"
         subject.state.userEmail = email
         subject.state.fromEmail = true
-        await stateService.setAccountCreationEnvironmentUrls(urls: .defaultEU, email: "another_email@example.com")
+        await stateService.setAccountCreationEnvironmentURLs(urls: .defaultEU, email: "another_email@example.com")
         await subject.perform(.appeared)
         XCTAssertEqual(
             coordinator.alertShown[0],
@@ -106,7 +106,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
                 message: Localizations.theRegionForTheGivenEmailCouldNotBeLoaded
             )
         )
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, nil)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, nil)
     }
 
     /// `perform(.appeared)` verify user email show toast on success.
@@ -193,7 +193,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
     @MainActor
     func test_perform_appeared_loadFeatureFlag_true() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = true
         subject.state.nativeCreateAccountFeatureFlag = false
 
         await subject.perform(.appeared)

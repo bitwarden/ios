@@ -119,6 +119,19 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         XCTAssertNoThrow(try subjectAuthorizationCode.validate(response))
     }
 
+    /// `validate(_:)` with a `400` status code and device error in the response body throws a `.newDeviceNotVerified`
+    /// error.
+    func test_validate_with400NewDeviceError() {
+        let response = HTTPResponse.failure(
+            statusCode: 400,
+            body: APITestData.identityTokenNewDeviceError.data
+        )
+
+        XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
+            XCTAssertEqual(error as? IdentityTokenRequestError, .newDeviceNotVerified)
+        }
+    }
+
     /// `validate(_:)` with a `400` status code and two-factor error in the response body throws a `.twoFactorRequired`
     /// error.
     func test_validate_with400TwoFactorError() {
@@ -132,8 +145,9 @@ class IdentityTokenRequestTests: BitwardenTestCase {
                 error as? IdentityTokenRequestError,
                 .twoFactorRequired(
                     AuthMethodsData.fixture(),
-                    "exampleToken",
-                    "BWCaptchaBypass_ABCXYZ"
+                    "BWCaptchaBypass_ABCXYZ",
+                    nil,
+                    "exampleToken"
                 )
             )
         }

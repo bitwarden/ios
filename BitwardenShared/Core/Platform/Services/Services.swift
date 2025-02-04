@@ -19,11 +19,13 @@ typealias Services = HasAPIService
     & HasEnvironmentService
     & HasErrorReporter
     & HasEventService
+    & HasExportCXFCiphersRepository
     & HasExportVaultService
     & HasFido2CredentialStore
     & HasFido2UserInterfaceHelper
     & HasFileAPIService
     & HasGeneratorRepository
+    & HasImportCiphersRepository
     & HasLocalAuthService
     & HasNFCReaderService
     & HasNotificationCenterService
@@ -32,14 +34,19 @@ typealias Services = HasAPIService
     & HasPasteboardService
     & HasPolicyService
     & HasRehydrationHelper
+    & HasReviewPromptService
     & HasSendRepository
     & HasSettingsRepository
     & HasStateService
+    & HasSyncService
     & HasSystemDevice
+    & HasTOTPExpirationManagerFactory
     & HasTOTPService
+    & HasTextAutofillHelperFactory
     & HasTimeProvider
     & HasTrustDeviceService
     & HasTwoStepLoginService
+    & HasUserVerificationHelperFactory
     & HasVaultRepository
     & HasVaultTimeoutService
     & HasWatchService
@@ -170,6 +177,13 @@ protocol HasEventService {
     var eventService: EventService { get }
 }
 
+/// Protocol for an object that provides an `ExportCXFCiphersRepository`.
+///
+protocol HasExportCXFCiphersRepository {
+    /// The repository to handle exporting ciphers in Credential Exchange Format.
+    var exportCXFCiphersRepository: ExportCXFCiphersRepository { get }
+}
+
 /// Protocol for an object that provides a `ExportVaultService`.
 ///
 protocol HasExportVaultService {
@@ -204,6 +218,13 @@ protocol HasFileAPIService {
 protocol HasGeneratorRepository {
     /// The repository used by the application to manage generator data for the UI layer.
     var generatorRepository: GeneratorRepository { get }
+}
+
+/// Protocol for an object that provides a `ImportCiphersRepository`.
+///
+protocol HasImportCiphersRepository {
+    /// The repository used by the application to manage importing credential in Credential Exhange flow.
+    var importCiphersRepository: ImportCiphersRepository { get }
 }
 
 /// Protocol for an object that provides a `LocalAuthService`.
@@ -261,6 +282,12 @@ protocol HasRehydrationHelper {
     var rehydrationHelper: RehydrationHelper { get }
 }
 
+/// Protocol for an object that provides a `ReviewPromptService`.
+protocol HasReviewPromptService {
+    /// The service used by the application to determine if a user is eligible for a review prompt.
+    var reviewPromptService: ReviewPromptService { get }
+}
+
 /// Protocol for an object that provides a `SendRepository`.
 ///
 public protocol HasSendRepository {
@@ -282,6 +309,13 @@ protocol HasStateService {
     var stateService: StateService { get }
 }
 
+/// Protocol for an object that has a `SyncService`.
+///
+protocol HasSyncService {
+    /// The service used by the application to sync account data.
+    var syncService: SyncService { get }
+}
+
 /// Protocol for an object that provides a `SystemDevice`.
 ///
 protocol HasSystemDevice {
@@ -289,11 +323,25 @@ protocol HasSystemDevice {
     var systemDevice: SystemDevice { get }
 }
 
+/// Protocol for an object that provides a `TextAutofillHelperFactory`.
+///
+protocol HasTextAutofillHelperFactory {
+    /// Helper to create `TextAutofillHelper`s`.
+    var textAutofillHelperFactory: TextAutofillHelperFactory { get }
+}
+
 /// Protocol for an object that provides a `TimeProvider`.
 ///
 protocol HasTimeProvider {
     /// Provides the present time for TOTP Code Calculation.
     var timeProvider: TimeProvider { get }
+}
+
+/// Protocol for an object that provides a `TOTPExpirationManagerFactory`.
+///
+protocol HasTOTPExpirationManagerFactory {
+    /// Factory to create TOTP expiration managers.
+    var totpExpirationManagerFactory: TOTPExpirationManagerFactory { get }
 }
 
 /// Protocol for an object that provides a `TOTPService`.
@@ -315,6 +363,13 @@ protocol HasTrustDeviceService {
 protocol HasTwoStepLoginService {
     /// The service used by the application to generate a two step login URL.
     var twoStepLoginService: TwoStepLoginService { get }
+}
+
+/// Protocol for an object that provides a `UserVerificationHelperFactory`.
+///
+protocol HasUserVerificationHelperFactory {
+    /// A factory protocol to create `UserVerificationHelper`s.
+    var userVerificationHelperFactory: UserVerificationHelperFactory { get }
 }
 
 /// Protocol for an object that provides a `VaultRepository`.

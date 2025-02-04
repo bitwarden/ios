@@ -12,6 +12,11 @@ protocol StartRegistrationDelegate: AnyObject {
     /// Called when the user changes regions.
     ///
     func didChangeRegion() async
+
+    /// If the user changes environments and the environment doesn't support email verification,
+    /// the UI should switch to using the legacy create account flow.
+    ///
+    func switchToLegacyCreateAccountFlow()
 }
 
 // MARK: - StartRegistrationError
@@ -69,6 +74,9 @@ class StartRegistrationProcessor: StateProcessor<
         stateService: services.stateService
     )
 
+    /// Whether the start registration view is visible in the view hierarchy.
+    private var viewIsVisible = false
+
     // MARK: Initialization
 
     /// Creates a new `StartRegistrationProcessor`.
@@ -95,6 +103,7 @@ class StartRegistrationProcessor: StateProcessor<
     override func perform(_ effect: StartRegistrationEffect) async {
         switch effect {
         case .appeared:
+            viewIsVisible = true
             await regionHelper.loadRegion()
             state.isReceiveMarketingToggleOn = state.region == .unitedStates
             await loadFeatureFlags()
@@ -112,6 +121,8 @@ class StartRegistrationProcessor: StateProcessor<
         switch action {
         case let .emailTextChanged(text):
             state.emailText = text
+        case .disappeared:
+            viewIsVisible = false
         case .dismiss:
             coordinator.navigate(to: .dismiss)
         case let .nameTextChanged(text):
@@ -142,7 +153,7 @@ class StartRegistrationProcessor: StateProcessor<
 
         do {
             let email = state.emailText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-            let name = state.nameText.trimmingCharacters(in: .whitespacesAndNewlines)
+            let name = state.nameText.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
             guard !email.isEmpty else {
                 throw StartRegistrationError.emailEmpty
             }
@@ -168,11 +179,11 @@ class StartRegistrationProcessor: StateProcessor<
                     userEmail: email
                 ))
             } else {
-                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentUrls() else {
+                guard let preAuthUrls = await services.stateService.getPreAuthEnvironmentURLs() else {
                     throw StartRegistrationError.preAuthUrlsEmpty
                 }
 
-                await services.stateService.setAccountCreationEnvironmentUrls(urls: preAuthUrls, email: email)
+                await services.stateService.setAccountCreationEnvironmentURLs(urls: preAuthUrls, email: email)
                 coordinator.navigate(to: .checkEmail(email: email))
             }
         } catch let error as StartRegistrationError {
@@ -208,7 +219,7 @@ class StartRegistrationProcessor: StateProcessor<
 // MARK: - SelfHostedProcessorDelegate
 
 extension StartRegistrationProcessor: SelfHostedProcessorDelegate {
-    func didSaveEnvironment(urls: EnvironmentUrlData) async {
+    func didSaveEnvironment(urls: EnvironmentURLData) async {
         await setRegion(.selfHosted, urls)
         state.toast = Toast(title: Localizations.environmentSaved)
     }
@@ -223,11 +234,22 @@ extension StartRegistrationProcessor: RegionDelegate {
     ///   - region: The region to use.
     ///   - urls: The URLs that the app should use for the region.
     ///
-    func setRegion(_ region: RegionType, _ urls: EnvironmentUrlData) async {
+    func setRegion(_ region: RegionType, _ urls: EnvironmentURLData) async {
         guard !urls.isEmpty else { return }
         await services.environmentService.setPreAuthURLs(urls: urls)
         state.region = region
         state.showReceiveMarketingToggle = state.region != .selfHosted
         await delegate?.didChangeRegion()
+
+        if await !services.configService.getFeatureFlag(
+            .emailVerification,
+            defaultValue: false,
+            forceRefresh: true,
+            isPreAuth: true
+        ), viewIsVisible {
+            // If email verification isn't enabled in the selected environment, switch to the
+            // legacy create account flow.
+            delegate?.switchToLegacyCreateAccountFlow()
+        }
     }
 }

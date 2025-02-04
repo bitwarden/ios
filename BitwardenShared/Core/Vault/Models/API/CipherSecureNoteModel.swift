@@ -4,5 +4,5 @@ struct CipherSecureNoteModel: Codable, Equatable {
     // MARK: Properties
 
     /// The type of secure note.
-    let type: SecureNoteType
+    @DefaultValue var type: SecureNoteType
 }

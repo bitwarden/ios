@@ -17,11 +17,20 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// The text to be displayed in the button of the empty view.
     var emptyViewButtonText: String = Localizations.newItem
 
+    /// The group filter.
+    var group: VaultListGroup?
+
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
     /// Whether the extension mode is preparing for autofill from Fido2 list.
     var isAutofillingFido2List: Bool = false
+
+    /// Whether the extension mode is preparing for autofill for text to insert.
+    var isAutofillingTextToInsertList: Bool = false
+
+    /// Whether the extension mode is preparing for autofill from Totp items.
+    var isAutofillingTotpList: Bool = false
 
     /// Whether the extension mode is creating a Fido2 credential.
     var isCreatingFido2Credential: Bool = false
@@ -43,4 +52,9 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// The list of sections to display for matching vault items.
     var vaultListSections = [VaultListSection]()
+
+    /// Whether to show the add item button.
+    var showAddItemButton: Bool {
+        !isAutofillingTotpList && !isAutofillingTextToInsertList
+    }
 }

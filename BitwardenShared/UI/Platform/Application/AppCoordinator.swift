@@ -33,6 +33,9 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// The coordinator currently being displayed.
     private var childCoordinator: AnyObject?
 
+    /// Whether the debug menu is currently being shown.
+    private(set) var isShowingDebugMenu = false
+
     // MARK: Properties
 
     /// The module to use for creating child coordinators.
@@ -73,6 +76,19 @@ class AppCoordinator: Coordinator, HasRootNavigator {
 
     func handleEvent(_ event: AppEvent, context: AnyObject?) async {
         switch event {
+        case let .accountBecameActive(
+            account,
+            attemptAutomaticBiometricUnlock,
+            didSwitchAccountAutomatically
+        ):
+            await handleAuthEvent(
+                .accountBecameActive(
+                    account,
+                    animated: true,
+                    attemptAutomaticBiometricUnlock: attemptAutomaticBiometricUnlock,
+                    didSwitchAccountAutomatically: didSwitchAccountAutomatically
+                )
+            )
         case let .didLogout(userId, userInitiated):
             await handleAuthEvent(.didLogout(userId: userId, userInitiated: userInitiated))
         case .didStart:
@@ -137,8 +153,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         // To fix this we show a transparent navigation controller which makes the
         // biometric prompt work again.
         if route == .completeWithNeverUnlockKey,
-           let fido2AppExtensionDelegate = appExtensionDelegate as? Fido2AppExtensionDelegate,
-           case .autofillFido2Credential = fido2AppExtensionDelegate.extensionMode {
+           let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
+           case .autofillFido2Credential = autofillAppExtensionDelegate.extensionMode {
             showTransparentController()
             didCompleteAuth(rehydratableTarget: nil)
             return
@@ -295,20 +311,22 @@ class AppCoordinator: Coordinator, HasRootNavigator {
     /// Presents the navigation controller and triggers haptic feedback upon completion.
     ///
     private func showDebugMenu() {
+        guard !isShowingDebugMenu else { return }
+
         let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
         feedbackGenerator.prepare()
         let stackNavigator = UINavigationController()
         stackNavigator.navigationBar.prefersLargeTitles = true
         stackNavigator.modalPresentationStyle = .fullScreen
-        let debugMenuCoordinator = module.makeDebugMenuCoordinator(stackNavigator: stackNavigator)
+        let debugMenuCoordinator = module.makeDebugMenuCoordinator(delegate: self, stackNavigator: stackNavigator)
         debugMenuCoordinator.start()
-        childCoordinator = debugMenuCoordinator
 
         rootNavigator?.rootViewController?.topmostViewController().present(
             stackNavigator,
             animated: true,
             completion: { feedbackGenerator.impactOccurred() }
         )
+        isShowingDebugMenu = true
     }
 }
 
@@ -347,6 +365,14 @@ extension AppCoordinator: AuthCoordinatorDelegate {
                 self.authCompletionRoute = nil
             }
         }
+    }
+}
+
+// MARK: - DebugMenuCoordinatorDelegate
+
+extension AppCoordinator: DebugMenuCoordinatorDelegate {
+    func didDismissDebugMenu() {
+        isShowingDebugMenu = false
     }
 }
 
@@ -402,11 +428,11 @@ extension AppCoordinator: SettingsCoordinatorDelegate {
         }
     }
 
-    func lockVault(userId: String?) {
+    func lockVault(userId: String?, isManuallyLocking: Bool) {
         Task {
             await handleAuthEvent(
                 .action(
-                    .lockVault(userId: userId)
+                    .lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
                 )
             )
         }

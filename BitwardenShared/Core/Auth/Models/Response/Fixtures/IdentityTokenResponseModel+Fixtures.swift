@@ -2,20 +2,16 @@
 
 extension AuthMethodsData {
     static func fixture() -> AuthMethodsData {
-        var methodsData = AuthMethodsData(
+        let methodsData = AuthMethodsData(
+            authenticator: true,
             email: Email(email: "sh***@example.com"),
             yubikey: Yubikey(nfc: true)
         )
-        methodsData.providersAvailable = [
-            String(TwoFactorAuthMethod.email.rawValue),
-            String(TwoFactorAuthMethod.yubiKey.rawValue),
-            String(TwoFactorAuthMethod.authenticatorApp.rawValue),
-        ]
         return methodsData
     }
 
     static func fixtureWebAuthn() -> AuthMethodsData {
-        var methodsData = AuthMethodsData(
+        let methodsData = AuthMethodsData(
             email: Email(email: "sh***@example.com"),
             yubikey: Yubikey(nfc: true),
             webAuthn: WebAuthn(
@@ -33,7 +29,6 @@ extension AuthMethodsData {
                 userVerification: "discouraged"
             )
         )
-        methodsData.providersAvailable = [String(TwoFactorAuthMethod.webAuthn.rawValue)]
         return methodsData
     }
 }

@@ -45,10 +45,6 @@ struct VaultItemSelectionView: View {
                     )
                 )
             }
-
-            addToolbarItem {
-                store.send(.addTapped)
-            }
         }
     }
 
@@ -165,7 +161,7 @@ private struct VaultItemSelectionSearchableView: View {
                         Text(Localizations.newItem)
                     } icon: {
                         Asset.Images.plus16.swiftUIImage
-                            .imageStyle(.accessoryIcon(
+                            .imageStyle(.accessoryIcon16(
                                 color: Asset.Colors.buttonFilledForeground.swiftUIColor,
                                 scaleWithFont: true
                             ))
@@ -181,7 +177,7 @@ private struct VaultItemSelectionSearchableView: View {
     @ViewBuilder
     private func matchingItemsView() -> some View {
         VStack(spacing: 16) {
-            InfoContainer(Localizations.addTheKeyToAnExistingOrNewItem, textAlignment: .leading)
+            InfoContainer(Localizations.addTheKeyToAnExistingOrNewItem)
 
             ForEach(store.state.vaultListSections) { section in
                 VaultListSectionView(section: section) { item in
@@ -242,7 +238,6 @@ private struct VaultItemSelectionSearchableView: View {
                 ),
                 timeProvider: CurrentTime()
             )
-            .accessibilityIdentifier("CipherCell")
         }
     }
 }
@@ -253,7 +248,7 @@ private struct VaultItemSelectionSearchableView: View {
 #Preview("Empty") {
     NavigationView {
         VaultItemSelectionView(store: Store(processor: StateProcessor(
-            state: VaultItemSelectionState(iconBaseURL: nil, otpAuthModel: .fixtureExample)
+            state: VaultItemSelectionState(iconBaseURL: nil, totpKeyModel: .fixtureExample)
         )))
     }
 }
@@ -265,9 +260,9 @@ private struct VaultItemSelectionSearchableView: View {
                 processor: StateProcessor(
                     state: VaultItemSelectionState(
                         iconBaseURL: nil,
-                        otpAuthModel: .fixtureExample,
                         searchResults: [.init(id: "1", itemType: .cipher(.fixture()))],
-                        searchText: "Search"
+                        searchText: "Search",
+                        totpKeyModel: .fixtureExample
                     )
                 )
             )
@@ -326,7 +321,7 @@ private struct VaultItemSelectionSearchableView: View {
                 processor: StateProcessor(
                     state: VaultItemSelectionState(
                         iconBaseURL: nil,
-                        otpAuthModel: .fixtureExample,
+                        totpKeyModel: .fixtureExample,
                         vaultListSections: [
                             VaultListSection(
                                 id: Localizations.matchingItems,

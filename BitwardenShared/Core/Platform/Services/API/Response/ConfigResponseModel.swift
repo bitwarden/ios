@@ -15,7 +15,7 @@ struct ConfigResponseModel: Equatable, JSONResponse {
     let featureStates: [String: AnyCodable]?
 
     /// The git hash of the server.
-    let gitHash: String
+    let gitHash: String?
 
     /// Third party server information.
     let server: ThirdPartyConfigResponseModel?

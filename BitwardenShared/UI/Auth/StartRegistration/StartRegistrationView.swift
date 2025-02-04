@@ -21,6 +21,9 @@ struct StartRegistrationView: View {
                 title: Localizations.createAccount,
                 titleDisplayMode: .inline
             )
+            .onDisappear {
+                store.send(.disappeared)
+            }
             .task {
                 await store.perform(.appeared)
             }
@@ -99,7 +102,7 @@ struct StartRegistrationView: View {
                 get: \.nameText,
                 send: StartRegistrationAction.nameTextChanged
             ),
-            accessibilityIdentifier: "nameEntry"
+            accessibilityIdentifier: "NameEntry"
         )
         .textFieldConfiguration(.username)
     }
@@ -134,7 +137,7 @@ struct StartRegistrationView: View {
 
                 RegionSelector(
                     selectorLabel: Localizations.creatingOn,
-                    regionName: store.state.region.baseUrlDescription
+                    regionName: store.state.region.baseURLDescription
                 ) {
                     await store.perform(.regionTapped)
                 }

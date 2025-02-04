@@ -22,16 +22,24 @@ struct AddEditLoginItemView: View {
     /// The `Store` for this view.
     @ObservedObject var store: Store<LoginItemState, AddEditItemAction, AddEditItemEffect>
 
+    /// The closure to call when the fields are rendered for the guided tour.
+    var didRenderFrame: ((GuidedTourStep, CGRect) -> Void)?
+
     // MARK: View
 
     var body: some View {
-        usernameField
+        ContentBlock {
+            usernameField
 
-        passwordField
+            passwordField
 
-        fidoField
+            fidoField
+        }
 
         totpView
+            .guidedTourStep(.step2) { frame in
+                didRenderFrame?(.step2, frame)
+            }
 
         uriSection
     }
@@ -50,7 +58,7 @@ struct AddEditLoginItemView: View {
             ) {
                 if store.state.canViewPassword, store.state.editView {
                     AccessoryButton(
-                        asset: Asset.Images.minusCircle16,
+                        asset: Asset.Images.minusCircle24,
                         accessibilityLabel: Localizations.removePasskey
                     ) {
                         store.send(.removePasskeyPressed)
@@ -78,14 +86,22 @@ struct AddEditLoginItemView: View {
             )
         ) {
             if store.state.canViewPassword {
-                AccessoryButton(asset: Asset.Images.checkCircle16, accessibilityLabel: Localizations.checkPassword) {
+                AccessoryButton(asset: Asset.Images.generate24, accessibilityLabel: Localizations.generatePassword) {
+                    store.send(.generatePasswordPressed)
+                }
+                .guidedTourStep(.step1) { frame in
+                    didRenderFrame?(.step1, frame)
+                }
+                .accessibilityIdentifier("RegeneratePasswordButton")
+            }
+        } footerContent: {
+            if store.state.canViewPassword {
+                AsyncButton(Localizations.checkPasswordForDataBreaches) {
                     await store.perform(.checkPasswordPressed)
                 }
                 .accessibilityIdentifier("CheckPasswordButton")
-                AccessoryButton(asset: Asset.Images.generate16, accessibilityLabel: Localizations.generatePassword) {
-                    store.send(.generatePasswordPressed)
-                }
-                .accessibilityIdentifier("RegeneratePasswordButton")
+                .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
             }
         }
         .disabled(!store.state.canViewPassword)
@@ -94,7 +110,7 @@ struct AddEditLoginItemView: View {
         .onSubmit { focusNextField($focusedField) }
     }
 
-    /// The view for TOTP authenticator key..
+    /// The view for TOTP authenticator key.
     @ViewBuilder private var totpView: some View {
         if let key = store.state.authenticatorKey, !key.isEmpty {
             if store.state.canViewPassword {
@@ -112,11 +128,11 @@ struct AddEditLoginItemView: View {
                     ),
                     trailingContent: {
                         if store.state.canViewPassword {
-                            AccessoryButton(asset: Asset.Images.copy16, accessibilityLabel: Localizations.copyTotp) {
+                            AccessoryButton(asset: Asset.Images.copy24, accessibilityLabel: Localizations.copyTotp) {
                                 await store.perform(.copyTotpPressed)
                             }
                         }
-                        AccessoryButton(asset: Asset.Images.camera16, accessibilityLabel: Localizations.setupTotp) {
+                        AccessoryButton(asset: Asset.Images.camera24, accessibilityLabel: Localizations.setupTotp) {
                             await store.perform(.setupTotpPressed)
                         }
                     }
@@ -148,11 +164,11 @@ struct AddEditLoginItemView: View {
                 } label: {
                     HStack(alignment: .center, spacing: 4) {
                         Asset.Images.camera16.swiftUIImage
-                            .imageStyle(.accessoryIcon(scaleWithFont: true))
+                            .imageStyle(.accessoryIcon16(scaleWithFont: true))
                         Text(Localizations.setupTotp)
                     }
                 }
-                .buttonStyle(.tertiary())
+                .buttonStyle(.secondary())
                 .accessibilityIdentifier("SetupTotpButton")
             }
         }
@@ -160,48 +176,57 @@ struct AddEditLoginItemView: View {
 
     /// The section for uris.
     @ViewBuilder private var uriSection: some View {
-        SectionView(Localizations.urIs) {
-            ForEachIndexed(store.state.uris) { index, uriState in
-                BitwardenTextField(
-                    title: Localizations.uri,
-                    text: store.binding(
-                        get: { _ in uriState.uri },
-                        send: { AddEditItemAction.uriChanged($0, index: index) }
-                    ),
-                    accessibilityIdentifier: "LoginUriEntry"
-                ) {
-                    Menu {
-                        Menu(Localizations.matchDetection) {
-                            Picker(Localizations.matchDetection, selection: store.binding(
-                                get: { _ in uriState.matchType },
-                                send: { .uriTypeChanged($0, index: index) }
-                            )) {
-                                ForEach(DefaultableType<UriMatchType>.allCases, id: \.hashValue) { option in
-                                    Text(option.localizedName).tag(option)
+        SectionView(Localizations.urIs, contentSpacing: 8) {
+            ContentBlock {
+                ForEachIndexed(store.state.uris) { index, uriState in
+                    BitwardenTextField(
+                        title: Localizations.uri,
+                        text: store.binding(
+                            get: { _ in uriState.uri },
+                            send: { AddEditItemAction.uriChanged($0, index: index) }
+                        ),
+                        accessibilityIdentifier: "LoginUriEntry"
+                    ) {
+                        Menu {
+                            Menu(Localizations.matchDetection) {
+                                Picker(Localizations.matchDetection, selection: store.binding(
+                                    get: { _ in uriState.matchType },
+                                    send: { .uriTypeChanged($0, index: index) }
+                                )) {
+                                    ForEach(DefaultableType<UriMatchType>.allCases, id: \.hashValue) { option in
+                                        Text(option.localizedName).tag(option)
+                                    }
                                 }
                             }
-                        }
-                        Button(Localizations.remove, role: .destructive) {
-                            withAnimation {
-                                store.send(.removeUriPressed(index: index))
+                            Button(Localizations.remove, role: .destructive) {
+                                withAnimation {
+                                    store.send(.removeUriPressed(index: index))
+                                }
                             }
+                        } label: {
+                            Asset.Images.cog24.swiftUIImage
+                                .imageStyle(.accessoryIcon24)
                         }
-                    } label: {
-                        Asset.Images.cog16.swiftUIImage
-                            .imageStyle(.accessoryIcon)
+                        .accessibilityIdentifier("LoginUriOptionsButton")
                     }
-                    .accessibilityIdentifier("LoginUriOptionsButton")
+                    .textFieldConfiguration(.url)
                 }
-                .textFieldConfiguration(.url)
-            }
 
-            Button(Localizations.newUri) {
-                withAnimation {
-                    store.send(.newUriPressed)
+                Button {
+                    withAnimation {
+                        store.send(.newUriPressed)
+                    }
+                } label: {
+                    Label(Localizations.newUri, image: Asset.Images.plus16.swiftUIImage)
                 }
+                .accessibilityIdentifier("LoginAddNewUriButton")
+                .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
+                .padding(.horizontal, 16)
             }
-            .buttonStyle(.tertiary())
-            .accessibilityIdentifier("LoginAddNewUriButton")
+            .guidedTourStep(.step3) { frame in
+                didRenderFrame?(.step3, frame)
+            }
         }
     }
 
@@ -216,7 +241,7 @@ struct AddEditLoginItemView: View {
             accessibilityIdentifier: "LoginUsernameEntry"
         ) {
             AccessoryButton(
-                asset: Asset.Images.generate16,
+                asset: Asset.Images.generate24,
                 accessibilityLabel: Localizations.generateUsername
             ) {
                 store.send(.generateUsernamePressed)

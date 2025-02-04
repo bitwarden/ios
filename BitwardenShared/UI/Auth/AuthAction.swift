@@ -5,9 +5,11 @@
 public enum AuthAction: Equatable {
     /// When the app should lock an account.
     ///
-    /// - Parameter userId: The user Id of the account.
+    /// - Parameters:
+    ///   - userId: The user Id of the selected account. Defaults to the active user id if nil.
+    ///   - isManuallyLocking: Whether the user is manually locking the account.
     ///
-    case lockVault(userId: String?)
+    case lockVault(userId: String?, isManuallyLocking: Bool = false)
 
     /// When the app should logout an account vault.
     ///

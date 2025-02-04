@@ -17,13 +17,16 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var disableWebIcons = false
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
+    var learnGeneratorActionCardStatus: AccountSetupProgress = .incomplete
+    var learnNewLoginActionCardStatus: AccountSetupProgress = .incomplete
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
     var overrideDebugFeatureFlagCalled = false
-    var preAuthEnvironmentUrls: EnvironmentUrlData?
+    var preAuthEnvironmentURLs: EnvironmentURLData?
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
+    var reviewPromptData: BitwardenShared.ReviewPromptData?
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
@@ -37,15 +40,17 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var featureFlags = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
+    var manuallyLockedAccounts = [String: Bool]()
     var masterPasswordHashes = [String: String]()
     var notificationsLastRegistrationDates = [String: Date]()
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pinProtectedUserKey = [String: String]()
-    var accountCreationEnvironmentUrls = [String: EnvironmentUrlData]()
+    var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
+    var twoFactorNoticeDisplayState = [String: TwoFactorNoticeDisplayState]()
     var twoFactorTokens = [String: String]()
     var usesKeyConnector = [String: Bool]()
     var vaultTimeout = [String: Int]()
@@ -124,6 +129,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         lastSyncTimeByUserId[userId]
     }
 
+    func manuallyLockedAccount(userId: String) -> Bool {
+        manuallyLockedAccounts[userId] ?? false
+    }
+
     func masterPasswordHash(userId: String) -> String? {
         masterPasswordHashes[userId]
     }
@@ -145,8 +154,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId]
     }
 
-    func accountCreationEnvironmentUrls(email: String) -> BitwardenShared.EnvironmentUrlData? {
-        accountCreationEnvironmentUrls[email]
+    func accountCreationEnvironmentURLs(email: String) -> BitwardenShared.EnvironmentURLData? {
+        accountCreationEnvironmentURLs[email]
     }
 
     func twoFactorToken(email: String) -> String? {
@@ -229,6 +238,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         lastSyncTimeByUserId[userId] = date
     }
 
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String) {
+        manuallyLockedAccounts[userId] = isLocked
+    }
+
     func setMasterPasswordHash(_ hash: String?, userId: String) {
         masterPasswordHashes[userId] = hash
     }
@@ -249,8 +262,8 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId] = key
     }
 
-    func setAccountCreationEnvironmentUrls(environmentUrlData: BitwardenShared.EnvironmentUrlData, email: String) {
-        accountCreationEnvironmentUrls[email] = environmentUrlData
+    func setAccountCreationEnvironmentURLs(environmentURLData: BitwardenShared.EnvironmentURLData, email: String) {
+        accountCreationEnvironmentURLs[email] = environmentURLData
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String) {
@@ -267,6 +280,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         timeoutAction[userId] = key.rawValue
+    }
+
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String) {
+        twoFactorNoticeDisplayState[userId] = state
+    }
+
+    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState {
+        twoFactorNoticeDisplayState[userId] ?? .hasNotSeen
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {

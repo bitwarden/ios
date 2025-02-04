@@ -31,7 +31,8 @@ struct FloatingActionButton: View {
                     )
                 )
         }
-        .buttonStyle(CircleButtonStyle())
+        .buttonStyle(CircleButtonStyle(diameter: 50))
+        .accessibilitySortPriority(1)
     }
 }
 

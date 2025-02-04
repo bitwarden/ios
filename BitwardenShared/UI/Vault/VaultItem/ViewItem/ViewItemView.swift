@@ -14,8 +14,13 @@ struct ViewItemView: View {
 
     /// Whether to show the collections option in the toolbar menu.
     var isCollectionsEnabled: Bool {
-        guard let cipher = store.state.loadingState.data?.cipher else { return false }
-        return cipher.organizationId != nil
+        guard let data = store.state.loadingState.data else { return false }
+        return data.canAssignToCollection
+    }
+
+    /// Whether to show the delete option in the toolbar menu.
+    var isDeleteEnabled: Bool {
+        store.state.loadingState.data?.canBeDeleted ?? false
     }
 
     /// Whether to show the move to organization option in the toolbar menu.
@@ -72,6 +77,7 @@ struct ViewItemView: View {
                 VaultItemManagementMenuView(
                     isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
+                    isDeleteEnabled: isDeleteEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
                     store: store.child(
                         state: { _ in },
@@ -103,20 +109,18 @@ struct ViewItemView: View {
     /// added to all of them at once.
     @ViewBuilder
     private func details(for state: ViewVaultItemState) -> some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 16) {
-                ViewItemDetailsView(
-                    store: store.child(
-                        state: { _ in state },
-                        mapAction: { $0 },
-                        mapEffect: { $0 }
-                    ),
-                    timeProvider: timeProvider
-                )
-            }
-            .padding(16)
-            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        LazyVStack(alignment: .leading, spacing: 16) {
+            ViewItemDetailsView(
+                store: store.child(
+                    state: { _ in state },
+                    mapAction: { $0 },
+                    mapEffect: { $0 }
+                ),
+                timeProvider: timeProvider
+            )
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView(padding: 12)
     }
 }
 

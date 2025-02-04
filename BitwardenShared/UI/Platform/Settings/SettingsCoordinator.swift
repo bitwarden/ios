@@ -1,3 +1,4 @@
+import AuthenticationServices
 import BitwardenSdk
 import SwiftUI
 
@@ -18,10 +19,11 @@ public protocol SettingsCoordinatorDelegate: AnyObject {
     func didDeleteAccount()
 
     /// Called when the user has requested an account vault be locked.
+    /// - Parameters:
+    ///   - userId: The user Id of the selected account. Defaults to the active user id if nil.
+    ///   - isManuallyLocking: Whether the user is manually locking the account.
     ///
-    /// - Parameter userId: The id of the user to lock.
-    ///
-    func lockVault(userId: String?)
+    func lockVault(userId: String?, isManuallyLocking: Bool)
 
     /// Called when the user has requested an account be logged out.
     ///
@@ -49,6 +51,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = AuthModule
+        & ExportCXFModule
         & ImportLoginsModule
         & LoginRequestModule
         & PasswordAutoFillModule
@@ -61,6 +64,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasExportCXFCiphersRepository
         & HasExportVaultService
         & HasNotificationCenterService
         & HasPasteboardService
@@ -117,8 +121,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         switch event {
         case let .authAction(action):
             switch action {
-            case let .lockVault(userId):
-                delegate?.lockVault(userId: userId)
+            case let .lockVault(userId, isManuallyLocking):
+                delegate?.lockVault(userId: userId, isManuallyLocking: isManuallyLocking)
             case let .logout(userId, userInitiated):
                 delegate?.logout(userId: userId, userInitiated: userInitiated)
             case let .switchAccount(isAutomatic, userId, _):
@@ -152,7 +156,13 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         case .dismiss:
             stackNavigator?.dismiss()
         case .exportVault:
-            showExportVault()
+            Task {
+                await showExportVault()
+            }
+        case .exportVaultToApp:
+            showExportVaultToApp()
+        case .exportVaultToFile:
+            showExportVaultToFile()
         case .folders:
             showFolders()
         case .importLogins:
@@ -334,7 +344,29 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the export vault screen.
     ///
-    private func showExportVault() {
+    @MainActor
+    private func showExportVault() async {
+        #if SUPPORTS_CXP
+        let cxpEnabled = true
+        #else
+        let cxpEnabled = false
+        #endif
+
+        guard cxpEnabled, await services.configService.getFeatureFlag(.cxpExportMobile) else {
+            navigate(to: .exportVaultToFile)
+            return
+        }
+
+        let processor = ExportSettingsProcessor(coordinator: asAnyCoordinator())
+        let view = ExportSettingsView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        viewController.navigationItem.largeTitleDisplayMode = .never
+        stackNavigator?.push(viewController, navigationTitle: Localizations.exportVault)
+    }
+
+    /// Shows the export vault to file screen.
+    ///
+    private func showExportVaultToFile() {
         let processor = ExportVaultProcessor(
             coordinator: asAnyCoordinator(),
             services: services
@@ -342,6 +374,17 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let view = ExportVaultView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Shows the export vault to another app screen (Credential Exchange flow).
+    ///
+    private func showExportVaultToApp() {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeExportCXFCoordinator(
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the folders screen.

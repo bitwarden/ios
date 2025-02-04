@@ -14,7 +14,7 @@ jobs:
       _CROWDIN_PROJECT_ID: "269690"
     steps:
       - name: Check out repo
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Log in to Azure
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
@@ -23,17 +23,17 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@2bd1450c2cdb2a8ac886232b8589696f22794229 # v0.2.0
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
 
       - name: Upload sources
-        uses: crowdin/github-action@95d6e895e871c3c7acf0cfb962f296baa41e63c6 # v2.2.0
+        uses: crowdin/github-action@8dfaf9c206381653e3767e3cb5ea5f08b45f02bf # v2.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
         with:
-          config: crowdin.yml
+          config: crowdin-pm.yml
           upload_sources: true
           upload_translations: false

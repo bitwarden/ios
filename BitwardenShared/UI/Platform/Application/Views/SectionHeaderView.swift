@@ -14,10 +14,11 @@ struct SectionHeaderView: View {
 
     var body: some View {
         Text(title)
-            .styleGuide(.footnote)
+            .styleGuide(.caption1, weight: .bold)
             .accessibilityAddTraits(.isHeader)
             .foregroundColor(Color(asset: Asset.Colors.textSecondary))
             .textCase(.uppercase)
+            .padding(.leading, 12)
     }
 
     // MARK: Initialization

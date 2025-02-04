@@ -29,10 +29,13 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
     typealias Module = PasswordHistoryModule
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
         & HasPolicyService
+        & HasReviewPromptService
+        & HasStateService
 
     // MARK: Private Properties
 

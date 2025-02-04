@@ -180,7 +180,7 @@ protocol StateService: AnyObject {
     /// - Parameter userId: The user ID associated with the environment URLs.
     /// - Returns: The user's environment URLs.
     ///
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData?
+    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData?
 
     /// Gets the events stored to disk to be uploaded in the future.
     ///
@@ -218,11 +218,22 @@ protocol StateService: AnyObject {
     ///
     func getLastUserShouldConnectToWatch() async -> Bool
 
+    /// Gets the status of Learn Generator Action Card.
+    ///
+    /// - Returns: The status of Learn generator Action Card.
+    ///
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress?
+
     /// Get any pending login request data.
     ///
     /// - Returns: The pending login request data from a push notification.
     ///
     func getLoginRequest() async -> LoginRequestNotification?
+
+    /// Gets whether the account belonging to the user Id has been manually locked.
+    /// - Parameter userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool
 
     /// Gets the master password hash for a user ID.
     ///
@@ -249,18 +260,24 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: The environment URLs used prior to user authentication.
     ///
-    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData?
+    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData?
 
     /// Gets the environment URLs for a given email during account creation.
     ///
     /// - Parameter email: The email used to start the account creation.
     /// - Returns: The environment URLs used prior to start the account creation.
     ///
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData?
+    func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData?
 
     /// Gets the server config used by the app prior to the user authenticating.
     /// - Returns: The server config used prior to user authentication.
     func getPreAuthServerConfig() async -> ServerConfig?
+
+    /// Gets the App Review Prompt data.
+    ///
+    /// - Returns: The App Review Prompt data.
+    ///
+    func getReviewPromptData() async -> ReviewPromptData?
 
     /// Gets the server config for a user ID, as set by the server.
     ///
@@ -274,6 +291,12 @@ protocol StateService: AnyObject {
     /// - Returns: Whether to trust the device.
     ///
     func getShouldTrustDevice(userId: String) async -> Bool?
+
+    /// Gets the status of Learn New Login Action Card.
+    ///
+    /// - Returns: The status of Learn New Login Action Card.
+    ///
+    func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress?
 
     /// Get whether to show the website icons.
     ///
@@ -295,6 +318,14 @@ protocol StateService: AnyObject {
     /// - Returns: The action to perform when a session timeout occurs.
     ///
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction
+
+    /// Gets the display state of the no-two-factor notice for a user ID.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID for the account; defaults to current active user if `nil`.
+    /// - Returns: The display state.
+    ///
+    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState
 
     /// Get the two-factor token (non-nil if the user selected the "remember me" option).
     ///
@@ -494,6 +525,18 @@ protocol StateService: AnyObject {
     ///
     func setIntroCarouselShown(_ shown: Bool) async
 
+    /// Sets the status of Learn generator Action Card.
+    ///
+    /// - Parameter status: The status of Learn generator Action Card.
+    ///
+    func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async
+
+    /// Sets the status of Learn New Login Action Card.
+    ///
+    /// - Parameter status: The status of Learn New Login Action Card.
+    ///
+    func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async
+
     /// Sets the last active time within the app.
     ///
     /// - Parameters:
@@ -515,6 +558,13 @@ protocol StateService: AnyObject {
     /// - Parameter loginRequest: The pending login request data.
     ///
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async
+
+    /// Sets whether the account belonging to the user Id has been manually locked.
+    /// - Parameters
+    ///   - isLocked: Whether the account has been locked manually.
+    ///   - userId: The user ID associated with the account.
+    /// - Returns: `true` if manually locked, `false` otherwise.
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws
 
     /// Sets the master password hash for a user ID.
     ///
@@ -563,14 +613,14 @@ protocol StateService: AnyObject {
     ///
     /// - Parameter urls: The environment URLs used prior to user authentication.
     ///
-    func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async
+    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async
 
     /// Sets the environment URLs for a given email during account creation.
     /// - Parameters:
     ///   - urls: The environment urls used to start the account creation.
     ///   - email: The email used to start the account creation.
     ///
-    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async
 
     /// Sets the server config used prior to user authentication
     /// - Parameter config: The server config to use prior to user authentication.
@@ -581,6 +631,12 @@ protocol StateService: AnyObject {
     ///   - rehydrationState: The app rehydration state.
     ///   - userId: The user ID of the rehydration state.
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws
+
+    /// Sets the App Review Prompt data.
+    ///
+    /// - Parameter data: The App Review Prompt data.
+    ///
+    func setReviewPromptData(_ data: ReviewPromptData) async
 
     /// Sets the server configuration as provided by a server for a user ID.
     ///
@@ -617,6 +673,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the timeout action.
     ///
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws
+
+    /// Sets the user's no-two-factor notice display state for a userID.
+    ///
+    /// - Parameters:
+    ///   - state: The display state to set.
+    ///   - userId: The user ID associated with the state
+    ///
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws
 
     /// Sets the user's two-factor token.
     ///
@@ -843,8 +907,8 @@ extension StateService {
     ///
     /// - Returns: The environment URLs for the active account.
     ///
-    func getEnvironmentUrls() async throws -> EnvironmentUrlData? {
-        try await getEnvironmentUrls(userId: nil)
+    func getEnvironmentURLs() async throws -> EnvironmentURLData? {
+        try await getEnvironmentURLs(userId: nil)
     }
 
     /// Gets the user's last active time within the app.
@@ -911,6 +975,14 @@ extension StateService {
     ///
     func getTimeoutAction() async throws -> SessionTimeoutAction {
         try await getTimeoutAction(userId: nil)
+    }
+
+    /// Gets the display state of the no-two-factor notice for the current user.
+    ///
+    /// - Returns: The display state.
+    ///
+    func getTwoFactorNoticeDisplayState() async throws -> TwoFactorNoticeDisplayState {
+        try await getTwoFactorNoticeDisplayState(userId: nil)
     }
 
     /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
@@ -1129,6 +1201,15 @@ extension StateService {
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
         try await setSyncToAuthenticator(syncToAuthenticator, userId: nil)
+    }
+
+    /// Sets the display state for the no-two-factor notice
+    ///
+    /// - Parameters:
+    ///   - state: The state to set.
+    ///
+    func setTwoFactorNoticeDisplayState(state: TwoFactorNoticeDisplayState) async throws {
+        try await setTwoFactorNoticeDisplayState(state, userId: nil)
     }
 
     /// Sets the session timeout action.
@@ -1426,7 +1507,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.encryptedPin(userId: userId)
     }
 
-    func getEnvironmentUrls(userId: String?) async throws -> EnvironmentUrlData? {
+    func getEnvironmentURLs(userId: String?) async throws -> EnvironmentURLData? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.state?.accounts[userId]?.settings.environmentUrls
     }
@@ -1458,6 +1539,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.loginRequest
     }
 
+    func getManuallyLockedAccount(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.manuallyLockedAccount(userId: userId)
+    }
+
     func getMasterPasswordHash(userId: String?) async throws -> String? {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.masterPasswordHash(userId: userId)
@@ -1473,16 +1559,24 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.passwordGenerationOptions(userId: userId)
     }
 
-    func getPreAuthEnvironmentUrls() async -> EnvironmentUrlData? {
-        appSettingsStore.preAuthEnvironmentUrls
+    func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
+        appSettingsStore.preAuthEnvironmentURLs
     }
 
-    func getAccountCreationEnvironmentUrls(email: String) async -> EnvironmentUrlData? {
-        appSettingsStore.accountCreationEnvironmentUrls(email: email)
+    func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData? {
+        appSettingsStore.accountCreationEnvironmentURLs(email: email)
+    }
+
+    func getLearnGeneratorActionCardStatus() async -> AccountSetupProgress? {
+        appSettingsStore.learnGeneratorActionCardStatus
     }
 
     func getPreAuthServerConfig() async -> ServerConfig? {
         appSettingsStore.preAuthServerConfig
+    }
+
+    func getReviewPromptData() async -> ReviewPromptData? {
+        appSettingsStore.reviewPromptData
     }
 
     func getServerConfig(userId: String?) async throws -> ServerConfig? {
@@ -1492,6 +1586,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
 
     func getShouldTrustDevice(userId: String) async -> Bool? {
         appSettingsStore.shouldTrustDevice(userId: userId)
+    }
+
+    func getLearnNewLoginActionCardStatus() async -> AccountSetupProgress? {
+        appSettingsStore.learnNewLoginActionCardStatus
     }
 
     func getShowWebIcons() async -> Bool {
@@ -1510,6 +1608,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             return .lock
         }
         return timeoutAction
+    }
+
+    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.twoFactorNoticeDisplayState(userId: userId)
     }
 
     func getTwoFactorToken(email: String) async -> String? {
@@ -1698,6 +1801,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.introCarouselShown = shown
     }
 
+    func setLearnNewLoginActionCardStatus(_ status: AccountSetupProgress) async {
+        appSettingsStore.learnNewLoginActionCardStatus = status
+    }
+
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setLastActiveTime(date, userId: userId)
@@ -1709,8 +1816,17 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         lastSyncTimeByUserIdSubject.value[userId] = date
     }
 
+    func setLearnGeneratorActionCardStatus(_ status: AccountSetupProgress) async {
+        appSettingsStore.learnGeneratorActionCardStatus = status
+    }
+
     func setLoginRequest(_ loginRequest: LoginRequestNotification?) async {
         appSettingsStore.loginRequest = loginRequest
+    }
+
+    func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setManuallyLockedAccount(isLocked, userId: userId)
     }
 
     func setMasterPasswordHash(_ hash: String?, userId: String?) async throws {
@@ -1748,13 +1864,13 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         ].pinProtectedUserKey = pinProtectedUserKey
     }
 
-    func setPreAuthEnvironmentUrls(_ urls: EnvironmentUrlData) async {
-        appSettingsStore.preAuthEnvironmentUrls = urls
+    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async {
+        appSettingsStore.preAuthEnvironmentURLs = urls
     }
 
-    func setAccountCreationEnvironmentUrls(urls: EnvironmentUrlData, email: String) async {
-        appSettingsStore.setAccountCreationEnvironmentUrls(
-            environmentUrlData: urls,
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
+        appSettingsStore.setAccountCreationEnvironmentURLs(
+            environmentURLData: urls,
             email: email
         )
     }
@@ -1766,6 +1882,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAppRehydrationState(rehydrationState, userId: userId)
+    }
+
+    func setReviewPromptData(_ data: ReviewPromptData) async {
+        appSettingsStore.reviewPromptData = data
     }
 
     func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
@@ -1791,6 +1911,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setTimeoutAction(key: action, userId: userId)
+    }
+
+    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setTwoFactorNoticeDisplayState(state, userId: userId)
     }
 
     func setTwoFactorToken(_ token: String?, email: String) async {
@@ -1835,10 +1960,12 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         guard var profile = state.accounts[userId]?.profile else { return }
         profile.hasPremiumPersonally = response.premium
         profile.avatarColor = response.avatarColor
+        profile.creationDate = response.creationDate
         profile.email = response.email ?? profile.email
         profile.emailVerified = response.emailVerified
         profile.name = response.name
         profile.stamp = response.securityStamp
+        profile.twoFactorEnabled = response.twoFactorEnabled
 
         state.accounts[userId]?.profile = profile
     }

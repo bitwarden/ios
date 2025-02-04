@@ -26,6 +26,12 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
         switch extensionMode {
         case .autofillCredential:
             return nil
+        case .autofillOTP:
+            return AppRoute.vault(.autofillList)
+        case .autofillOTPCredential:
+            return nil
+        case .autofillText:
+            return AppRoute.vault(.autofillList)
         case .autofillVaultList:
             return AppRoute.vault(.autofillList)
         case .autofillFido2Credential:
@@ -56,6 +62,8 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
             return userInteraction
         case let .autofillFido2Credential(_, userInteraction):
             return userInteraction
+        case let .autofillOTPCredential(_, userInteraction):
+            return userInteraction
         default:
             return true
         }
@@ -69,14 +77,16 @@ public struct DefaultCredentialProviderContext: CredentialProviderContext {
     }
 
     public var serviceIdentifiers: [ASCredentialServiceIdentifier] {
-        if case let .autofillVaultList(serviceIdentifiers) = extensionMode {
-            return serviceIdentifiers
+        return switch extensionMode {
+        case let .autofillOTP(serviceIdentifiers):
+            serviceIdentifiers
+        case let .autofillVaultList(serviceIdentifiers):
+            serviceIdentifiers
+        case let .autofillFido2VaultList(serviceIdentifiers, _):
+            serviceIdentifiers
+        default:
+            []
         }
-
-        if case let .autofillFido2VaultList(serviceIdentifiers, _) = extensionMode {
-            return serviceIdentifiers
-        }
-        return []
     }
 
     /// Initializes the context.

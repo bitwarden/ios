@@ -1,15 +1,14 @@
+import AuthenticationServices
 import Foundation
+import XCTest
 
 @testable import BitwardenShared
 
 class MockExportVaultService: ExportVaultService {
     var didClearFiles = false
-
     var exportVaultContentsFormat: ExportFileType?
     var exportVaultContentResult: Result<String, Error> = .failure(BitwardenTestError.example)
-
     var mockFileName: String = "mockExport.json"
-
     var writeToFileResult: Result<URL, Error> = .failure(BitwardenTestError.example)
 
     func clearTemporaryFiles() {

@@ -14,18 +14,20 @@ struct AttachmentsView: View {
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .center, spacing: 20) {
+        VStack(alignment: .center, spacing: 16) {
             currentAttachments
 
             addAttachmentView
-
-            saveButton
         }
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.attachments, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismissPressed)
+            }
+
+            saveToolbarItem {
+                await store.perform(.save)
             }
         }
         .task {
@@ -41,8 +43,8 @@ struct AttachmentsView: View {
 
     /// The add attachment view.
     private var addAttachmentView: some View {
-        SectionView(Localizations.addNewAttachment) {
-            VStack(spacing: 16) {
+        SectionView(Localizations.addNewAttachment, contentSpacing: 8) {
+            VStack(spacing: 12) {
                 chosenFile
 
                 chooseFileButton
@@ -52,62 +54,54 @@ struct AttachmentsView: View {
 
     /// The choose file button and the maximum size text beneath it.
     private var chooseFileButton: some View {
-        VStack(alignment: .leading, spacing: 7) {
+        VStack(alignment: .leading, spacing: 8) {
             Button(Localizations.chooseFile) {
                 store.send(.chooseFilePressed)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
 
             Text(Localizations.maxFileSize)
                 .styleGuide(.subheadline)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .padding(.leading, 12)
         }
     }
 
     /// The currently chosen file to add.
     @ViewBuilder private var chosenFile: some View {
-        if store.state.fileName != nil || (store.state.cipher?.attachments?.isEmpty ?? true) {
-            Text(store.state.fileName ?? Localizations.noFileChosen)
-                .styleGuide(.body)
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
+        if let fileName = store.state.fileName {
+            BitwardenField {
+                Text(fileName)
+                    .styleGuide(.body)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            }
+            .contentBlock()
         }
     }
 
     /// The view of current attachments.
     @ViewBuilder private var currentAttachments: some View {
-        if let attachments = store.state.cipher?.attachments, !attachments.isEmpty {
-            VStack(spacing: 0) {
-                ForEach(attachments) { attachment in
-                    attachmentRow(attachment, hasDivider: attachment != attachments.last)
+        SectionView(Localizations.attachments, contentSpacing: 8) {
+            ContentBlock {
+                if let attachments = store.state.cipher?.attachments, !attachments.isEmpty {
+                    ForEach(attachments) { attachment in
+                        attachmentRow(attachment, hasDivider: attachment != attachments.last)
+                    }
+                } else {
+                    noAttachmentsView
                 }
             }
-            .cornerRadius(10)
-            .padding(.bottom, 20)
-        } else {
-            noAttachementsView
         }
     }
 
     /// The empty state for the currentAttachments view.
-    private var noAttachementsView: some View {
-        Text(Localizations.noAttachments)
-            .accessibilityIdentifier("NoAttachmentsLabel")
-            .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 20)
-    }
-
-    /// The save button.
-    private var saveButton: some View {
-        AsyncButton(Localizations.save) {
-            await store.perform(.save)
+    private var noAttachmentsView: some View {
+        BitwardenField {
+            Text(Localizations.noAttachments)
+                .accessibilityIdentifier("NoAttachmentsLabel")
+                .styleGuide(.body)
+                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
-        .accessibilityIdentifier("SaveButton")
-        .buttonStyle(.primary())
     }
 
     /// A row to display an existing attachment.
@@ -117,7 +111,7 @@ struct AttachmentsView: View {
     ///   - hasDivider: Whether the row should display a divider.
     ///
     private func attachmentRow(_ attachment: AttachmentView, hasDivider: Bool) -> some View {
-        VStack(spacing: 0) {
+        BitwardenField {
             HStack {
                 Text(attachment.fileName ?? "")
                     .styleGuide(.body)
@@ -141,14 +135,7 @@ struct AttachmentsView: View {
                 }
                 .accessibilityLabel(Localizations.delete)
             }
-            .padding(16)
-
-            if hasDivider {
-                Divider()
-                    .padding(.leading, 16)
-            }
         }
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         .accessibilityIdentifier("AttachmentRow")
     }
 }
@@ -162,7 +149,17 @@ struct AttachmentsView: View {
     }
 }
 
-#Preview("Attachments") {
+#Preview("Attachment Selected") {
+    NavigationView {
+        AttachmentsView(store: Store(processor: StateProcessor(
+            state: AttachmentsState(
+                fileName: "photo.jpg"
+            )
+        )))
+    }
+}
+
+#Preview("Existing Attachments") {
     NavigationView {
         AttachmentsView(
             store: Store(

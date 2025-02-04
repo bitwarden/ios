@@ -24,6 +24,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the autofill list screen.
     case autofillList
 
+    /// A route to the autofill list screen with a specified group.
+    case autofillListForGroup(_ group: VaultListGroup)
+
     /// A route to edit an item.
     ///
     /// - Parameter cipher: The `CipherView` to edit.
@@ -42,6 +45,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the vault item list screen for the specified group.
     case group(_ group: VaultListGroup, filter: VaultFilterType)
 
+    /// A route to the Credential Exchange import flow with the CXF specific route as a parameter.
+    case importCXF(ImportCXFRoute)
+
     /// A route to the import logins screen.
     case importLogins
 
@@ -54,6 +60,13 @@ public enum VaultRoute: Equatable, Hashable {
     ///
     case loginRequest(_ loginRequest: LoginRequest)
 
+    /// A route to the two-factor notice screen.
+    ///
+    /// - Parameters:
+    ///   - allowDelay: Whether the user has a button to delay setting up two-factor authentication.
+    ///   - emailAddress: The email address of the user.
+    case twoFactorNotice(allowDelay: Bool, emailAddress: String)
+
     /// A route to switch accounts.
     ///
     /// - Parameter userId: The user id of the selected account.
@@ -61,7 +74,7 @@ public enum VaultRoute: Equatable, Hashable {
     case switchAccount(userId: String)
 
     /// A route to the vault item selection screen.
-    case vaultItemSelection(OTPAuthModel)
+    case vaultItemSelection(TOTPKeyModel)
 
     /// A route to the view item screen.
     ///

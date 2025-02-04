@@ -8,18 +8,24 @@ import SwiftUI
 struct VaultAutofillListView: View {
     // MARK: Properties
 
+    /// The GroupSearchDelegate used to bridge UIKit to SwiftUI
+    var searchHandler: VaultAutofillSearchHandler?
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>
+
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
 
     // MARK: View
 
     var body: some View {
         ZStack {
-            VaultAutofillListSearchableView(store: store)
+            VaultAutofillListSearchableView(store: store, timeProvider: timeProvider)
 
             profileSwitcher
         }
-        .navigationBar(title: Localizations.items, titleDisplayMode: .inline)
+        .navigationBar(title: store.state.group?.navigationTitle ?? Localizations.items, titleDisplayMode: .inline)
         .searchable(
             text: store.binding(
                 get: \.searchText,
@@ -29,7 +35,7 @@ struct VaultAutofillListView: View {
             prompt: Localizations.search
         )
         .toolbar {
-            cancelToolbarItem {
+            cancelToolbarItem(hidden: store.state.group != nil) {
                 store.send(.cancelTapped)
             }
 
@@ -41,10 +47,6 @@ struct VaultAutofillListView: View {
                         mapEffect: VaultAutofillListEffect.profileSwitcher
                     )
                 )
-            }
-
-            addToolbarItem {
-                store.send(.addTapped(fromToolbar: true))
             }
         }
     }
@@ -77,6 +79,9 @@ private struct VaultAutofillListSearchableView: View {
 
     /// The `Store` for this view.
     @ObservedObject var store: Store<VaultAutofillListState, VaultAutofillListAction, VaultAutofillListEffect>
+
+    /// The `TimeProvider` used to calculate TOTP expiration.
+    var timeProvider: any TimeProvider
 
     // MARK: View
 
@@ -115,7 +120,8 @@ private struct VaultAutofillListSearchableView: View {
     @ViewBuilder
     private func cipherListView(_ sections: [VaultListSection]) -> some View {
         Group {
-            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential {
+            if store.state.isAutofillingFido2List || store.state.isCreatingFido2Credential ||
+                store.state.isAutofillingTextToInsertList {
                 cipherCombinedListView(sections)
             } else {
                 let items = sections.first?.items ?? []
@@ -174,18 +180,18 @@ private struct VaultAutofillListSearchableView: View {
                 state: { state in
                     VaultListItemRowState(
                         iconBaseURL: state.iconBaseURL,
+                        isFromExtension: true,
                         item: item,
                         hasDivider: !isLastInSection,
-                        showWebIcons: state.showWebIcons,
-                        isFromExtension: true
+                        showTotpCopyButton: false,
+                        showWebIcons: state.showWebIcons
                     )
                 },
                 mapAction: nil,
                 mapEffect: nil
             ),
-            timeProvider: nil
+            timeProvider: timeProvider
         )
-        .accessibilityIdentifier("CipherCell")
     }
 
     /// The content displayed in the view.
@@ -202,17 +208,22 @@ private struct VaultAutofillListSearchableView: View {
                         image: Asset.Images.Illustrations.items.swiftUIImage,
                         text: store.state.emptyViewMessage
                     ) {
-                        Button {
-                            store.send(.addTapped(fromToolbar: false))
-                        } label: {
-                            Label {
-                                Text(store.state.emptyViewButtonText)
-                            } icon: {
-                                Asset.Images.plus16.swiftUIImage
-                                    .imageStyle(.accessoryIcon(
-                                        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
-                                        scaleWithFont: true
-                                    ))
+                        if store.state.isAutofillingTotpList
+                            || store.state.isAutofillingTextToInsertList {
+                            EmptyView()
+                        } else {
+                            Button {
+                                store.send(.addTapped(fromFAB: false))
+                            } label: {
+                                Label {
+                                    Text(store.state.emptyViewButtonText)
+                                } icon: {
+                                    Asset.Images.plus16.swiftUIImage
+                                        .imageStyle(.accessoryIcon16(
+                                            color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+                                            scaleWithFont: true
+                                        ))
+                                }
                             }
                         }
                     }
@@ -221,8 +232,8 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
             .overlay(alignment: .bottomTrailing) {
-                addItemFloatingActionButton {
-                    store.send(.addTapped(fromToolbar: false))
+                addItemFloatingActionButton(hidden: store.state.isAutofillingTextToInsertList) {
+                    store.send(.addTapped(fromFAB: true))
                 }
             }
             .hidden(isSearching)
@@ -248,7 +259,14 @@ private struct VaultAutofillListSearchableView: View {
 #if DEBUG
 #Preview("Empty") {
     NavigationView {
-        VaultAutofillListView(store: Store(processor: StateProcessor(state: VaultAutofillListState())))
+        VaultAutofillListView(
+            store: Store(
+                processor: StateProcessor(
+                    state: VaultAutofillListState()
+                )
+            ),
+            timeProvider: PreviewTimeProvider()
+        )
     }
 }
 
@@ -276,7 +294,8 @@ private struct VaultAutofillListSearchableView: View {
                         searchText: "Test"
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
@@ -304,7 +323,8 @@ private struct VaultAutofillListSearchableView: View {
                         ]
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
@@ -388,8 +408,9 @@ private struct VaultAutofillListSearchableView: View {
                         ]
                     )
                 )
-            )
+            ),
+            timeProvider: PreviewTimeProvider()
         )
     }
 }
-#endif
+#endif // swiftlint:disable:this file_length

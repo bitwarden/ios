@@ -92,6 +92,26 @@ class AuthAPIServiceTests: BitwardenTestCase {
         }
     }
 
+    /// `getIdentityToken()` throws a `.newDeviceNotVerified` error when a `400` http response with the correct data
+    /// is returned.
+    func test_getIdentityToken_newDeviceNotVerified() async throws {
+        client.result = .httpFailure(
+            statusCode: 400,
+            data: APITestData.identityTokenNewDeviceError.data
+        )
+
+        await assertAsyncThrows(error: IdentityTokenRequestError.newDeviceNotVerified) {
+            _ = try await subject.getIdentityToken(
+                IdentityTokenRequestModel(
+                    authenticationMethod: .password(username: "username", password: "password"),
+                    captchaToken: nil,
+                    deviceInfo: .fixture(),
+                    loginRequestId: nil
+                )
+            )
+        }
+    }
+
     /// `getPendingLoginRequest(withId:)` successfully decodes the pending login request response.
     func test_getPendingLoginRequest() async throws {
         client.result = .httpSuccess(testData: .authRequestSuccess)

@@ -11,7 +11,7 @@ struct AddEditCustomFieldsView: View {
     @ObservedObject var store: Store<AddEditCustomFieldsState, AddEditCustomFieldsAction, Void>
 
     var body: some View {
-        SectionView(Localizations.customFields) {
+        SectionView(Localizations.customFields, contentSpacing: 8) {
             ForEachIndexed(store.state.customFields) { index, field in
                 switch field.type {
                 case .text:
@@ -34,7 +34,7 @@ struct AddEditCustomFieldsView: View {
                         passwordVisibilityAccessibilityId: "HiddenCustomFieldShowValueButton",
                         canViewPassword: true,
                         isPasswordVisible: store.binding(
-                            get: \.customFields[index].isPasswordVisible,
+                            get: { _ in field.isPasswordVisible },
                             send: { flag in
                                 AddEditCustomFieldsAction.togglePasswordVisibilityChanged(flag, index)
                             }
@@ -44,26 +44,27 @@ struct AddEditCustomFieldsView: View {
                     }
                     .textFieldConfiguration(.password)
                 case .boolean:
-                    HStack(spacing: 16) {
-                        Toggle(field.name ?? "", isOn: store.binding(
-                            get: \.customFields[index].booleanValue,
-                            send: { flag in
-                                AddEditCustomFieldsAction.booleanFieldChanged(flag, index)
-                            }
-                        ))
-                        .toggleStyle(.bitwarden)
+                    BitwardenToggle(isOn: store.binding(
+                        get: { _ in field.booleanValue },
+                        send: { flag in
+                            AddEditCustomFieldsAction.booleanFieldChanged(flag, index)
+                        }
+                    )) {
+                        HStack(spacing: 8) {
+                            Text(field.name ?? "")
 
-                        menuOptions(index: index)
-                            .buttonStyle(.accessory)
+                            menuOptions(index: index, isInFieldLabel: true)
+                                .buttonStyle(.fieldLabelIcon)
+                        }
                     }
-                    .frame(minHeight: 60)
+                    .contentBlock()
                 case .linked:
                     BitwardenField(title: field.name ?? "") {
                         Menu {
                             Picker(selection:
                                 store.binding(
                                     get: { state in
-                                        if let idType = state.customFields[index].linkedIdType ??
+                                        if let idType = field.linkedIdType ??
                                             LinkedIdType.getLinkedIdType(for: state.cipherType).first {
                                             return idType
                                         } else {
@@ -99,12 +100,12 @@ struct AddEditCustomFieldsView: View {
             Button(Localizations.newCustomField) {
                 store.send(.newCustomFieldPressed)
             }
-            .buttonStyle(.tertiary())
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("NewCustomFieldButton")
         }
     }
 
-    func menuOptions(index: Int) -> some View {
+    func menuOptions(index: Int, isInFieldLabel: Bool = false) -> some View {
         Menu {
             Button(Localizations.edit) {
                 store.send(.editCustomFieldNamePressed(index: index))
@@ -122,9 +123,16 @@ struct AddEditCustomFieldsView: View {
                 store.send(.removeCustomFieldPressed(index: index))
             }
         } label: {
-            Asset.Images.cog16.swiftUIImage
-                .imageStyle(.accessoryIcon)
-                .accessibilityLabel(Localizations.options)
+            Group {
+                if isInFieldLabel {
+                    Asset.Images.cog16.swiftUIImage
+                        .imageStyle(.accessoryIcon16(color: Asset.Colors.textInteraction.swiftUIColor))
+                } else {
+                    Asset.Images.cog24.swiftUIImage
+                        .imageStyle(.accessoryIcon24)
+                }
+            }
+            .accessibilityLabel(Localizations.options)
         }
     }
 }

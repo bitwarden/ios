@@ -81,6 +81,8 @@ extension ProfileSwitcherHandler {
             switch accessibilityAction {
             case let .logout(account):
                 confirmLogout(account)
+            case let .remove(account):
+                confirmRemoveAccount(account)
             }
         case .backgroundPressed:
             profileSwitcherState.isVisible = false
@@ -105,6 +107,7 @@ extension ProfileSwitcherHandler {
             showAddAccount()
         case let .requestedProfileSwitcher(isVisible):
             if isVisible {
+                await profileServices.authRepository.checkSessionTimeouts(handleActiveUser: nil)
                 await refreshProfileState()
             }
             profileSwitcherState.isVisible = isVisible
@@ -138,23 +141,36 @@ private extension ProfileSwitcherHandler {
         )
     }
 
+    /// Confirms that the user would like to log out of an account by presenting an alert.
+    ///
+    /// - Parameter profile: The profile switcher item for the account to be logged out.
+    ///
+    func confirmRemoveAccount(_ profile: ProfileSwitcherItem) {
+        showAlert(
+            .removeAccountConfirmation(profile) { [weak self] in
+                guard let self else { return }
+                await removeAccount(profile)
+            }
+        )
+    }
+
     /// Handles a long press of an account in the profile switcher.
     ///
     /// - Parameter account: The `ProfileSwitcherItem` long pressed by the user.
     ///
     func didLongPressProfileSwitcherItem(_ account: ProfileSwitcherItem) async {
         profileSwitcherState.isVisible = false
-        let sessionTimeout = try? await profileServices.authRepository.sessionTimeoutValue(userId: account.userId)
-        let hasNeverLock = sessionTimeout == .never
         showAlert(
             .accountOptions(
                 account,
-                hasNeverLock: hasNeverLock,
                 lockAction: {
                     await self.lock(account)
                 },
                 logoutAction: {
                     self.confirmLogout(account)
+                },
+                removeAccountAction: {
+                    self.confirmRemoveAccount(account)
                 }
             )
         )
@@ -168,7 +184,7 @@ private extension ProfileSwitcherHandler {
         do {
             // Lock the vault of the selected account.
             let activeAccountId = try await profileServices.authRepository.getUserId()
-            await handleAuthEvent(.action(.lockVault(userId: account.userId)))
+            await handleAuthEvent(.action(.lockVault(userId: account.userId, isManuallyLocking: true)))
 
             // No navigation is necessary, since the user is already on the unlock
             // vault view, but if it was the non-active account, display a success toast
@@ -196,6 +212,34 @@ private extension ProfileSwitcherHandler {
             // show a toast that the account was logged out successfully.
             if account.userId != activeAccountId {
                 toast = Toast(title: Localizations.accountLoggedOutSuccessfully)
+
+                // Update the profile switcher view.
+                await refreshProfileState()
+            }
+        } catch {
+            profileServices.errorReporter.log(error: error)
+        }
+    }
+
+    /// Remove an account.
+    ///
+    /// - Parameter account: The profile switcher item for the account to be removed.
+    ///
+    func removeAccount(_ account: ProfileSwitcherItem) async {
+        do {
+            let activeAccountId = try await profileServices.authRepository.getUserId()
+
+            if account.userId == activeAccountId {
+                // If the active account is being removed, forward it to the router to handle
+                // removing the account and any navigation associated with it (e.g. switch to next
+                // active account).
+                // A user-initiated logout functions the same as removing the account.
+                await handleAuthEvent(.action(.logout(userId: account.userId, userInitiated: true)))
+            } else {
+                // Otherwise, if it's an inactive account, it can be removed directly.
+                // A user-initiated logout functions the same as removing the account.
+                try await profileServices.authRepository.logout(userId: account.userId, userInitiated: true)
+                toast = Toast(title: Localizations.accountRemovedSuccessfully)
 
                 // Update the profile switcher view.
                 await refreshProfileState()

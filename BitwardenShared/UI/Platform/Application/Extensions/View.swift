@@ -10,26 +10,6 @@ extension View {
         block(self)
     }
 
-    /// On iOS 16+, configures the scroll view to dismiss the keyboard immediately.
-    ///
-    func dismissKeyboardImmediately() -> some View {
-        if #available(iOSApplicationExtension 16, *) {
-            return self.scrollDismissesKeyboard(.immediately)
-        } else {
-            return self
-        }
-    }
-
-    /// On iOS 16+, configures the scroll view to dismiss the keyboard interactively.
-    ///
-    func dismissKeyboardInteractively() -> some View {
-        if #available(iOSApplicationExtension 16, *) {
-            return self.scrollDismissesKeyboard(.interactively)
-        } else {
-            return self
-        }
-    }
-
     /// Focuses next field in sequence, from the given `FocusState`.
     /// Requires a currently active focus state and a next field available in the sequence.
     /// (https://stackoverflow.com/a/71531523)
@@ -113,6 +93,7 @@ extension View {
     /// - Parameters:
     ///   - addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
     ///   - backgroundColor: The background color to apply to the scroll view. Defaults to `backgroundPrimary`.
+    ///   - padding: The amount of padding to apply around the content.
     ///   - showsIndicators: Whether or not the scroll indicators are shown.
     ///
     /// - Returns: A view within a `ScrollView`.
@@ -120,11 +101,13 @@ extension View {
     func scrollView(
         addVerticalPadding: Bool = true,
         backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
+        padding: CGFloat = 16,
         showsIndicators: Bool = true
     ) -> some View {
         modifier(ScrollViewModifier(
             addVerticalPadding: addVerticalPadding,
             backgroundColor: backgroundColor,
+            padding: padding,
             showsIndicators: showsIndicators
         ))
     }

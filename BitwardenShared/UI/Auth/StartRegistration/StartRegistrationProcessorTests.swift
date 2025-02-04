@@ -15,9 +15,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var clientAuth: MockClientAuth!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
+    var delegate: MockStartRegistrationDelegate!
     var errorReporter: MockErrorReporter!
     var subject: StartRegistrationProcessor!
-    var delegate: MockStartRegistrationDelegate!
     var stateService: MockStateService!
     var environmentService: MockEnvironmentService!
 
@@ -31,6 +31,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         clientAuth = MockClientAuth()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
+        delegate = MockStartRegistrationDelegate()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
         stateService = MockStateService()
@@ -100,7 +101,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_startRegistration_setPreAuthUrls_checkEmail() async throws {
         subject.state = .fixture()
         client.result = .httpSuccess(testData: .nilResponse)
-        stateService.preAuthEnvironmentUrls = .defaultEU
+        stateService.preAuthEnvironmentURLs = .defaultEU
 
         await subject.perform(.startRegistration)
 
@@ -120,7 +121,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 LoadingOverlayState(title: Localizations.creatingAccount),
             ]
         )
-        XCTAssertEqual(stateService.accountCreationEnvironmentUrls["example@email.com"], .defaultEU)
+        XCTAssertEqual(stateService.accountCreationEnvironmentURLs["example@email.com"], .defaultEU)
     }
 
     /// `perform(_:)` with `.startRegistration` sets preAuthUrls for the given email and navigates to check email.
@@ -128,7 +129,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_startRegistration_setPreAuthUrls_checkEmail_emailWithSpaceAndCapitals() async throws {
         subject.state = .fixture(emailText: "  example@EMAIL.com   ")
         client.result = .httpSuccess(testData: .nilResponse)
-        stateService.preAuthEnvironmentUrls = .defaultEU
+        stateService.preAuthEnvironmentURLs = .defaultEU
 
         await subject.perform(.startRegistration)
 
@@ -148,7 +149,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
                 LoadingOverlayState(title: Localizations.creatingAccount),
             ]
         )
-        XCTAssertEqual(stateService.accountCreationEnvironmentUrls["example@email.com"], .defaultEU)
+        XCTAssertEqual(stateService.accountCreationEnvironmentURLs["example@email.com"], .defaultEU)
     }
 
     /// `perform(_:)` with `.startRegistration` fails if preAuthUrls cannot be loaded.
@@ -156,7 +157,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_startRegistration_setPreAuthUrls_checkEmail_noUrls() async throws {
         subject.state = .fixture()
         client.result = .httpSuccess(testData: .nilResponse)
-        stateService.preAuthEnvironmentUrls = nil
+        stateService.preAuthEnvironmentURLs = nil
 
         await subject.perform(.startRegistration)
 
@@ -265,6 +266,26 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(client.requests.count, 0)
         XCTAssertEqual(coordinator.alertShown.last, .validationFieldRequired(fieldName: "Email"))
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
+    }
+
+    /// `perform(_:)` with `.startRegistration` should not send name field in request body if the name is empty.
+    @MainActor
+    func test_perform_startRegistration_emptyName() async throws {
+        subject.state = .fixture(nameText: "")
+
+        client.result = .httpSuccess(testData: .startRegistrationSuccess)
+
+        await subject.perform(.startRegistration)
+
+        let requestBody = try XCTUnwrap(client.requests.first?.body)
+        let requestBodyStr = try XCTUnwrap(String(data: requestBody, encoding: .utf8))
+        XCTAssertFalse(
+            requestBodyStr.contains("name"),
+            "Request body should not contain 'name' field when it is empty."
+        )
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertNil(coordinator.alertShown.last)
+        XCTAssertFalse(coordinator.loadingOverlaysShown.isEmpty)
     }
 
     /// `perform(_:)` with `.startRegistration` presents an alert when the email is in an invalid format.
@@ -515,12 +536,12 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_didSaveEnvironment() async {
         subject.state.region = .unitedStates
-        await subject.didSaveEnvironment(urls: EnvironmentUrlData(base: .example))
+        await subject.didSaveEnvironment(urls: EnvironmentURLData(base: .example))
         XCTAssertEqual(subject.state.region, .selfHosted)
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.environmentSaved))
         XCTAssertEqual(
-            environmentService.setPreAuthEnvironmentUrlsData,
-            EnvironmentUrlData(base: .example)
+            environmentService.setPreAuthEnvironmentURLsData,
+            EnvironmentURLData(base: .example)
         )
     }
 
@@ -528,9 +549,9 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     @MainActor
     func test_didSaveEnvironment_empty() async {
         subject.state.region = .unitedStates
-        await subject.didSaveEnvironment(urls: EnvironmentUrlData())
+        await subject.didSaveEnvironment(urls: EnvironmentURLData())
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertNil(environmentService.setPreAuthEnvironmentUrlsData)
+        XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
     }
 
     /// `perform(.appeared)` loads the feature flags needed by the processor.
@@ -538,11 +559,11 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_appeared_loadFeatureFlags() async {
         XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
 
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = true
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.isCreateAccountFeatureFlagEnabled)
 
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
+        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = false
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
     }
@@ -552,38 +573,38 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_appeared_loadsRegion_noPreAuthUrls() async {
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultUS)
     }
 
     /// `perform(.appeared)` with EU pre-auth URLs sets the state to the EU region and sets the
     /// environment URLs.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_europe() async {
-        stateService.preAuthEnvironmentUrls = .defaultEU
+        stateService.preAuthEnvironmentURLs = .defaultEU
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .europe)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultEU)
     }
 
     /// `perform(.appeared)` with self-hosted pre-auth URLs sets the state to the self-hosted region
     /// and sets the URLs to the environment.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_selfHosted() async {
-        let urls = EnvironmentUrlData(base: .example)
-        stateService.preAuthEnvironmentUrls = urls
+        let urls = EnvironmentURLData(base: .example)
+        stateService.preAuthEnvironmentURLs = urls
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .selfHosted)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, urls)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, urls)
     }
 
     /// `perform(.appeared)` with US pre-auth URLs sets the state to the US region and sets the
     /// environment URLs.
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates() async {
-        stateService.preAuthEnvironmentUrls = .defaultUS
+        stateService.preAuthEnvironmentURLs = .defaultUS
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultUS)
     }
 
     /// `perform(.appeared)` with US pre-auth URLs sets the state to the US region and sets the
@@ -591,10 +612,10 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// Test if isReceiveMarketingToggle is On
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_unitedStates_isReceiveMarketingToggle_on() async {
-        stateService.preAuthEnvironmentUrls = .defaultUS
+        stateService.preAuthEnvironmentURLs = .defaultUS
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .unitedStates)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultUS)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultUS)
         XCTAssertTrue(subject.state.isReceiveMarketingToggleOn)
     }
 
@@ -603,18 +624,60 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// Test if isReceiveMarketingToggle is Off
     @MainActor
     func test_perform_appeared_loadsRegion_withPreAuthUrls_europe_isReceiveMarketingToggle_off() async {
-        stateService.preAuthEnvironmentUrls = .defaultEU
+        stateService.preAuthEnvironmentURLs = .defaultEU
         await subject.perform(.appeared)
         XCTAssertEqual(subject.state.region, .europe)
-        XCTAssertEqual(environmentService.setPreAuthEnvironmentUrlsData, .defaultEU)
+        XCTAssertEqual(environmentService.setPreAuthEnvironmentURLsData, .defaultEU)
         XCTAssertFalse(subject.state.isReceiveMarketingToggleOn)
+    }
+
+    /// `setRegion(_:_:)` doesn't notify the delegate to switch to the legacy create account flow
+    /// if the selected region supports email verification.
+    @MainActor
+    func test_setRegion_emailVerificationEnabled() async {
+        configService.featureFlagsBoolPreAuth[.emailVerification] = true
+
+        await subject.setRegion(.unitedStates, .defaultUS)
+
+        XCTAssertFalse(delegate.switchToLegacyCreateAccountFlowCalled)
+    }
+
+    /// `setRegion(_:_:)` notifies the delegate to switch to the legacy create account flow if the
+    /// selected region doesn't support email verification.
+    @MainActor
+    func test_setRegion_emailVerificationDisabled() async {
+        await subject.perform(.appeared)
+
+        configService.featureFlagsBoolPreAuth[.emailVerification] = false
+        await subject.setRegion(.unitedStates, .defaultUS)
+
+        XCTAssertTrue(delegate.switchToLegacyCreateAccountFlowCalled)
+    }
+
+    /// `setRegion(_:_:)` doesn't notify the delete if the selected region doesn't support email
+    /// verification but the view is no longer visible.
+    @MainActor
+    func test_setRegion_emailVerificationDisabled_viewNotVisible() async {
+        configService.featureFlagsBoolPreAuth[.emailVerification] = true
+        await subject.perform(.appeared)
+        subject.receive(.disappeared)
+
+        configService.featureFlagsBoolPreAuth[.emailVerification] = false
+        await subject.setRegion(.unitedStates, .defaultUS)
+
+        XCTAssertFalse(delegate.switchToLegacyCreateAccountFlowCalled)
     }
 }
 
 class MockStartRegistrationDelegate: StartRegistrationDelegate {
     var didChangeRegionCalled: Bool = false
+    var switchToLegacyCreateAccountFlowCalled = false
 
     func didChangeRegion() async {
         didChangeRegionCalled = true
+    }
+
+    func switchToLegacyCreateAccountFlow() {
+        switchToLegacyCreateAccountFlowCalled = true
     }
 } // swiftlint:disable:this file_length

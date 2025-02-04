@@ -180,7 +180,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
         authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
         authService.loginWithDeviceResult = .failure(
-            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil)
+            IdentityTokenRequestError.twoFactorRequired(AuthMethodsData(), nil, nil, nil)
         )
 
         let task = Task {
@@ -245,5 +245,25 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
         subject.receive(.dismiss)
 
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
+    /// `checkForResponse()` records an error when result fails with newDeviceNotVerified error
+    @MainActor
+    func test_checkForResponse_errorNewDeviceNotVerified() throws {
+        let approvedLoginRequest = LoginRequest.fixture(requestApproved: true, responseDate: .now)
+        authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
+        authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
+        authService.loginWithDeviceResult = .failure(
+            IdentityTokenRequestError.newDeviceNotVerified
+        )
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors as? [IdentityTokenRequestError], [.newDeviceNotVerified])
     }
 }
