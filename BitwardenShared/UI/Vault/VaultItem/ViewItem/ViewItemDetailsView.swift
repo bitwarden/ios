@@ -241,11 +241,11 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The URIs section (login only).
     @ViewBuilder private var uriSection: some View {
         if store.state.type == .login, !store.state.loginState.uris.isEmpty {
-            SectionView(Localizations.urIs, contentSpacing: 8) {
+            SectionView(Localizations.autofillOptions, contentSpacing: 8) {
                 ContentBlock {
                     ForEach(store.state.loginState.uris, id: \.self) { uri in
                         BitwardenTextValueField(
-                            title: Localizations.uri,
+                            title: Localizations.websiteURI,
                             value: URL(string: uri.uri)?.host ?? uri.uri,
                             valueAccessibilityIdentifier: "LoginUriEntry"
                         ) {

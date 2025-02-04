@@ -36,6 +36,14 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Tests
 
+    /// Tapping the add website button dispatches the `.newUriPressed` action.
+    @MainActor
+    func test_addWebsiteButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.addWebsite)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .newUriPressed)
+    }
+
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
@@ -189,14 +197,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .customField(.newCustomFieldPressed))
     }
 
-    /// Tapping the new uri button dispatches the `.newUriPressed` action.
-    @MainActor
-    func test_newUriButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.newUri)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .newUriPressed)
-    }
-
     /// Updating the notes text field dispatches the `.notesChanged()` action.
     @MainActor
     func test_notesTextField_updateValue() throws {
@@ -341,7 +341,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.uri)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.websiteURI)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .uriChanged("text", index: 0))
     }
