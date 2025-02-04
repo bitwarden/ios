@@ -5,7 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class GeneratorViewTests: BitwardenTestCase {
+class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// Wraps the generator view in a navigation controller with the hairline divider removed for
@@ -78,6 +78,30 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .refreshGeneratedValue)
     }
 
+    /// Tapping the dismiss button in the learn generator action card sends the
+    /// `.dismissLearnGeneratorActionCard` effect.
+    @MainActor
+    func test_learnGeneratorActionCard_visible_tapDismiss() async throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.exploreTheGenerator)
+
+        let button = try actionCard.find(asyncButton: Localizations.dismiss)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.dismissLearnGeneratorActionCard])
+    }
+
+    /// Tapping the 'Get started' button in the learn generator action card sends the
+    /// `.showLearnNewLoginGuidedTour` effect.
+    @MainActor
+    func test_learnGeneratorActionCard_visible_tapGetStarted() async throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        let actionCard = try subject.inspect().find(actionCard: Localizations.exploreTheGenerator)
+
+        let button = try actionCard.find(asyncButton: Localizations.getStarted)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.showLearnGeneratorGuidedTour])
+    }
+
     /// Updating the email type dispatches the `.emailTypeChanged` action.
     @MainActor
     func test_menuEmailTypeChanged() throws {
@@ -147,7 +171,10 @@ class GeneratorViewTests: BitwardenTestCase {
             title: Localizations.minNumbers,
             value: 1
         )
-        let stepper = try subject.inspect().find(ViewType.Stepper.self)
+        let stepper = try subject.inspect().find(
+            BitwardenStepperType.self,
+            containing: Localizations.minNumbers
+        )
         try stepper.increment()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -293,6 +320,16 @@ class GeneratorViewTests: BitwardenTestCase {
         assertSnapshot(
             of: snapshotView,
             as: .defaultPortrait
+        )
+    }
+
+    /// Tests the snapshot with the add state with the learn generator action card.
+    @MainActor
+    func test_snapshot_generatorView_learnGeneratorActionCard() throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark]
         )
     }
 }

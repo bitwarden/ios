@@ -11,6 +11,9 @@ enum IdentityTokenRequestError: Error, Equatable {
     ///
     case captchaRequired(hCaptchaSiteCode: String)
 
+    /// The new device is not verified.
+    case newDeviceNotVerified
+
     /// Two-factor authentication is required for this login attempt.
     ///
     /// - Parameters:
@@ -96,6 +99,9 @@ struct IdentityTokenRequest: Request {
             } else if let siteCode = errorModel.siteCode {
                 // Throw the captcha error if the captcha site key can be found.
                 throw IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode: siteCode)
+            } else if let error = errorModel.error,
+                      error == IdentityTokenError.deviceError {
+                throw IdentityTokenRequestError.newDeviceNotVerified
             }
         default:
             return

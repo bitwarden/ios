@@ -37,6 +37,17 @@ struct BitwardenSliderType: BaseViewType {
     ]
 }
 
+/// A generic type wrapper around `BitwardenStepper` to allow `ViewInspector` to find instances of
+/// `BitwardenStepper` without needing to know the details of it's implementation.
+///
+struct BitwardenStepperType: BaseViewType {
+    static var typePrefix: String = "BitwardenStepper"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.BitwardenStepper",
+    ]
+}
+
 /// A generic type wrapper around `BitwardenTextField` to allow `ViewInspector` to find instances of
 /// `BitwardenTextField` without needing to know the details of it's implementation.
 ///
@@ -424,5 +435,21 @@ extension InspectableView where View == SettingsMenuFieldType {
     func select(newValue: any Hashable) throws {
         let picker = try find(ViewType.Picker.self)
         try picker.select(value: newValue)
+    }
+}
+
+extension InspectableView where View == BitwardenStepperType {
+    /// Decrements the stepper.
+    ///
+    func decrement() throws {
+        let button = try find(buttonWithId: "decrement")
+        try button.tap()
+    }
+
+    /// Increments the stepper.
+    ///
+    func increment() throws {
+        let button = try find(buttonWithId: "increment")
+        try button.tap()
     }
 }

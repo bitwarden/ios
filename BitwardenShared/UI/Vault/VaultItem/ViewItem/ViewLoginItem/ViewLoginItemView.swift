@@ -75,6 +75,7 @@ struct ViewLoginItemView: View {
                     await store.perform(.checkPasswordPressed)
                 }
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
                 .accessibilityLabel(Localizations.checkPassword)
                 .accessibilityIdentifier("CheckPasswordButton")
             }

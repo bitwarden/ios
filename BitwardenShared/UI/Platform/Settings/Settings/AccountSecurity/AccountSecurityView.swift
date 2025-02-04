@@ -258,8 +258,12 @@ struct AccountSecurityView: View {
         switch biometryType {
         case .faceID:
             return Localizations.unlockWith(Localizations.faceID)
+        case .opticID:
+            return Localizations.unlockWith(Localizations.opticID)
         case .touchID:
             return Localizations.unlockWith(Localizations.touchID)
+        case .unknown:
+            return Localizations.unlockWithUnknownBiometrics
         }
     }
 }

@@ -49,7 +49,7 @@ extension TextFieldConfiguration {
     /// A `TextFieldConfiguration` for applying common properties to username text fields.
     static let username = TextFieldConfiguration(
         isAutocorrectionDisabled: true,
-        keyboardType: .default,
+        keyboardType: .emailAddress,
         textContentType: .username,
         textInputAutocapitalization: .never
     )

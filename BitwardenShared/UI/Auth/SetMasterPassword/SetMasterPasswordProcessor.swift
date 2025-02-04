@@ -68,6 +68,8 @@ class SetMasterPasswordProcessor: StateProcessor<
             state.masterPasswordHint = newValue
         case let .masterPasswordRetypeChanged(newValue):
             state.masterPasswordRetype = newValue
+        case .preventAccountLockTapped:
+            coordinator.navigate(to: .preventAccountLock)
         case let .revealMasterPasswordFieldPressed(isOn):
             state.isMasterPasswordRevealed = isOn
         }

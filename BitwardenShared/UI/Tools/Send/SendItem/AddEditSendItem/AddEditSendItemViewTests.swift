@@ -84,7 +84,10 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_maximumAccessCountStepper_updated() throws {
         processor.state.isOptionsExpanded = true
         processor.state.maximumAccessCount = 42
-        let stepper = try subject.inspect().find(ViewType.Stepper.self, containing: Localizations.maximumAccessCount)
+        let stepper = try subject.inspect().find(
+            BitwardenStepperType.self,
+            containing: Localizations.maximumAccessCount
+        )
 
         try stepper.increment()
         XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountStepperChanged(43))
@@ -116,7 +119,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.isOptionsExpanded = true
         let textField = try subject.inspect().find(
             type: BitwardenUITextViewType.self,
-            accessibilityLabel: Localizations.notes
+            accessibilityLabel: Localizations.privateNote
         )
         try textField.inputBinding().wrappedValue = "Notes"
         XCTAssertEqual(processor.dispatchedActions.last, .notesChanged("Notes"))
@@ -130,7 +133,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             .find(viewWithAccessibilityIdentifier: "MaxAccessCountTextField")
             .textField()
         try textField.setInput("42")
-        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountTextFieldChanged("42"))
+        XCTAssertEqual(processor.dispatchedActions.last, .maximumAccessCountStepperChanged(42))
     }
 
     /// Tapping the options button sends the `.optionsPressed` action.
@@ -196,7 +199,7 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_textTextField_updated() throws {
         let textField = try subject.inspect().find(
             type: BitwardenUITextViewType.self,
-            accessibilityLabel: Localizations.text
+            accessibilityLabel: Localizations.textToShare
         )
         try textField.inputBinding().wrappedValue = "Text"
         XCTAssertEqual(processor.dispatchedActions.last, .textChanged("Text"))

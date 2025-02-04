@@ -14,12 +14,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// A state variable to track whether the TextField is focused
     @FocusState private var isMaxAccessCountFocused: Bool
 
-    /// The height of the notes textfield
-    @SwiftUI.State private var notesDynamicHeight: CGFloat = 28
-
-    /// The height of the text send attributes textfield
-    @SwiftUI.State private var textSendDynamicHeight: CGFloat = 28
-
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -60,7 +54,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
             profileSwitcher
         }
-        .dismissKeyboardInteractively()
+        .backport.dismissKeyboardInteractively()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
             title: store.state.mode.navigationTitle,
@@ -136,48 +130,19 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     /// The access count stepper.
     @ViewBuilder private var accessCount: some View {
         ContentBlock(dividerLeadingPadding: 16) {
-            Group {
-                Stepper(
-                    value: store.binding(
-                        get: \.maximumAccessCount,
-                        send: AddEditSendItemAction.maximumAccessCountStepperChanged
-                    ),
-                    in: 0 ... Int.max
-                ) {
-                    HStack(spacing: 8) {
-                        Text(Localizations.maximumAccessCount)
-                            .styleGuide(.body)
-                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                            .layoutPriority(1)
-
-                        Spacer()
-
-                        TextField(
-                            "",
-                            text: store.binding(
-                                get: \.maximumAccessCountText,
-                                send: AddEditSendItemAction.maximumAccessCountTextFieldChanged
-                            )
-                        )
-                        .focused($isMaxAccessCountFocused)
-                        .keyboardType(.numberPad)
-                        .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                        .multilineTextAlignment(.trailing)
-                        .textFieldStyle(.plain)
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                Button(Localizations.save) {
-                                    isMaxAccessCountFocused = false
-                                }
-                            }
-                        }
-                        .accessibilityIdentifier("MaxAccessCountTextField")
-                    }
-                }
-                .accessibilityIdentifier("SendMaxAccessCountEntry")
-
+            BitwardenStepper(
+                value: store.binding(
+                    get: \.maximumAccessCount,
+                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
+                ),
+                in: 0 ... Int.max,
+                allowTextFieldInput: true,
+                textFieldAccessibilityIdentifier: "MaxAccessCountTextField"
+            ) {
+                Text(Localizations.maximumAccessCount)
+                    .styleGuide(.body)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            } footer: {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(Localizations.maximumAccessCountInfo)
                         .styleGuide(.footnote)
@@ -196,8 +161,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .accessibilityIdentifier("SendMaxAccessCountEntry")
         }
     }
 
@@ -316,17 +280,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
         }
 
-        BitwardenField(title: Localizations.privateNote) {
-            BitwardenUITextView(
-                text: store.binding(
-                    get: \.notes,
-                    send: AddEditSendItemAction.notesChanged
-                ),
-                calculatedHeight: $notesDynamicHeight
+        BitwardenTextView(
+            title: Localizations.privateNote,
+            text: store.binding(
+                get: \.notes,
+                send: AddEditSendItemAction.notesChanged
             )
-            .frame(minHeight: notesDynamicHeight)
-            .accessibilityLabel(Localizations.notes)
-        }
+        )
     }
 
     /// The options button.
@@ -392,18 +352,14 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a text type send.
     @ViewBuilder private var textSendAttributes: some View {
-        BitwardenField(title: Localizations.textToShare) {
-            BitwardenUITextView(
-                text: store.binding(
-                    get: \.text,
-                    send: AddEditSendItemAction.textChanged
-                ),
-                calculatedHeight: $textSendDynamicHeight
+        BitwardenTextView(
+            title: Localizations.textToShare,
+            text: store.binding(
+                get: \.text,
+                send: AddEditSendItemAction.textChanged
             )
-            .frame(minHeight: textSendDynamicHeight)
-            .accessibilityLabel(Localizations.text)
-            .accessibilityIdentifier("SendTextContentEntry")
-        }
+        )
+        .accessibilityIdentifier("SendTextContentEntry")
     }
 
     /// The type field.
