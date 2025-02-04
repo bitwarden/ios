@@ -8,7 +8,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     // MARK: Types
 
     typealias Services = HasErrorReporter
-        & HasSettingsRepository
+    & HasSettingsRepository & HasSystemDevice
 
     // MARK: Properties
 
@@ -72,6 +72,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             state.clearClipboardValue = services.settingsRepository.clearClipboardValue
             state.isAllowSyncOnRefreshToggleOn = try await services.settingsRepository.getAllowSyncOnRefresh()
             state.isConnectToWatchToggleOn = try await services.settingsRepository.getConnectToWatch()
+            state.shouldShowConnectToWatchToggle = services.systemDevice.isIPhone
         } catch {
             services.errorReporter.log(error: error)
         }

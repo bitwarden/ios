@@ -22,10 +22,6 @@ struct OtherSettingsState {
     /// A toast message to show in the view.
     var toast: Toast?
 
-    // MARK: Computed Properties
-
     /// Whether the connect to watch toggle should be shown.
-    var shouldShowConnectToWatchToggle: Bool {
-        UIDevice.current.model == "iPhone"
-    }
+    var shouldShowConnectToWatchToggle: Bool = false
 }
