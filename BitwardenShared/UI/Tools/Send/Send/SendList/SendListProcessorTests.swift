@@ -283,7 +283,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_streamSendList_nilType() throws {
         let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
         sendRepository.sendListSubject.send([
-            SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
+            SendListSection(id: "1", items: [sendListItem], name: "Name"),
         ])
 
         let task = Task {
@@ -322,7 +322,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             // Update `sendListSubject` after `fetchSync` is called to simulate an initially empty
             // vault, syncing, and then sends in the list.
             sendRepository.sendListSubject.send([
-                SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
+                SendListSection(id: "1", items: [sendListItem], name: "Name"),
             ])
         }
         vaultRepository.needsSyncResult = .success(true)
@@ -355,7 +355,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let sendListItem = SendListItem(id: "1", itemType: .group(.file, 42))
         sendRepository.sendListSubject.send([
-            SendListSection(id: "1", isCountDisplayed: true, items: [sendListItem], name: "Name"),
+            SendListSection(id: "1", items: [sendListItem], name: "Name"),
         ])
 
         waitFor(subject.state.loadingState.data?.count == 1)

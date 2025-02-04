@@ -1110,3 +1110,4 @@
 "SendNameRequired" = "Send name (required)";
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
+"XItems" = "%1$@ items";

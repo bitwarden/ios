@@ -321,13 +321,11 @@ class DefaultSendRepository: SendRepository {
         return [
             SendListSection(
                 id: "Types",
-                isCountDisplayed: false,
                 items: types,
                 name: Localizations.types
             ),
             SendListSection(
                 id: "AllSends",
-                isCountDisplayed: true,
                 items: allItems,
                 name: Localizations.allSends
             ),
