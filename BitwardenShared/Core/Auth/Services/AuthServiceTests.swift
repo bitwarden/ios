@@ -1072,7 +1072,7 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         )
         XCTAssertTrue(requirePasswordChange)
     }
-    
+
     /// `resendNewDeviceOtp()` throws an error if there is no cached request model to use.
     func test_resendNewDeviceOtp_noCache() async throws {
         await assertAsyncThrows(error: AuthError.unableToResendNewDeviceOtp) {
@@ -1114,7 +1114,6 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         // Ensure the resend email request runs successfully.
         try await subject.resendNewDeviceOtp()
     }
-
 
     /// `resendVerificationCodeEmail()` throws an error if there is no cached request model to use.
     func test_resendVerificationCodeEmail_noCache() async throws {
