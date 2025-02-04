@@ -101,6 +101,7 @@ struct AddEditLoginItemView: View {
                 }
                 .accessibilityIdentifier("CheckPasswordButton")
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
             }
         }
         .disabled(!store.state.canViewPassword)
@@ -175,7 +176,7 @@ struct AddEditLoginItemView: View {
 
     /// The section for uris.
     @ViewBuilder private var uriSection: some View {
-        SectionView(Localizations.urIs, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.urIs, contentSpacing: 8) {
             ContentBlock {
                 ForEachIndexed(store.state.uris) { index, uriState in
                     BitwardenTextField(
@@ -220,6 +221,7 @@ struct AddEditLoginItemView: View {
                 }
                 .accessibilityIdentifier("LoginAddNewUriButton")
                 .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
                 .padding(.horizontal, 16)
             }
             .guidedTourStep(.step3) { frame in

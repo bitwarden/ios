@@ -729,6 +729,16 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(lastSyncTime, date)
     }
 
+    /// `getLearnGeneratorActionCardStatus()` returns the status of the learn generator action card.
+    func test_getLearnGeneratorActionCardStatus() async {
+        var learnGeneratorActionCardStatus = await subject.getLearnGeneratorActionCardStatus()
+        XCTAssertEqual(learnGeneratorActionCardStatus, .incomplete)
+
+        appSettingsStore.learnGeneratorActionCardStatus = .complete
+        learnGeneratorActionCardStatus = await subject.getLearnGeneratorActionCardStatus()
+        XCTAssertEqual(learnGeneratorActionCardStatus, .complete)
+    }
+
     /// `getLoginRequest()` gets any pending login requests.
     func test_getLoginRequest() async {
         let loginRequest = LoginRequestNotification(id: "1", userId: "10")
@@ -1770,6 +1780,15 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
             Date().timeIntervalSince1970,
             accuracy: 1.0
         )
+    }
+
+    /// `setLearnGeneratorActionCardStatus(_:)` sets the learn generator action card status.
+    func test_setLearnGeneratorActionCardStatus() async {
+        await subject.setLearnGeneratorActionCardStatus(.incomplete)
+        XCTAssertEqual(appSettingsStore.learnGeneratorActionCardStatus, .incomplete)
+
+        await subject.setLearnGeneratorActionCardStatus(.complete)
+        XCTAssertEqual(appSettingsStore.learnGeneratorActionCardStatus, .complete)
     }
 
     /// `setLearnNewLoginActionCardStatus(_:)` sets the learn new login action card status.

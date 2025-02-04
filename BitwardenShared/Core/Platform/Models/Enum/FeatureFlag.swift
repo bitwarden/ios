@@ -24,7 +24,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
     case enableDebugAppReviewPrompt = "enable-debug-app-review-prompt"
 
     /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
-    case enableAuthenticatorSync = "enable-authenticator-sync-ios"
+    case enableAuthenticatorSync = "enable-pm-bwa-sync"
 
     /// An SDK flag that enables individual cipher encryption.
     case enableCipherKeyEncryption
@@ -113,9 +113,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
         case .enableCipherKeyEncryption,
              .enableDebugAppReviewPrompt,
              .ignore2FANoticeEnvironmentCheck,
-             .importLoginsFlow,
-             .nativeCarouselFlow,
-             .nativeCreateAccountFlow,
              .newDeviceVerificationPermanentDismiss,
              .newDeviceVerificationTemporaryDismiss,
              .testLocalFeatureFlag,
@@ -129,6 +126,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .cxpImportMobile,
              .emailVerification,
              .enableAuthenticatorSync,
+             .importLoginsFlow,
+             .nativeCarouselFlow,
+             .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
              .sshKeyVaultItem,
              .testRemoteFeatureFlag,

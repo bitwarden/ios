@@ -11,7 +11,7 @@ struct AddEditCustomFieldsView: View {
     @ObservedObject var store: Store<AddEditCustomFieldsState, AddEditCustomFieldsAction, Void>
 
     var body: some View {
-        SectionView(Localizations.customFields, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.customFields, contentSpacing: 8) {
             ForEachIndexed(store.state.customFields) { index, field in
                 switch field.type {
                 case .text:

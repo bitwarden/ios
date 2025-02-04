@@ -180,9 +180,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                         state.loadingState = .data([
                             SendListSection(
                                 id: type.localizedName,
-                                isCountDisplayed: false,
                                 items: sends,
-                                name: nil
+                                name: Localizations.sends
                             ),
                         ])
                     }
