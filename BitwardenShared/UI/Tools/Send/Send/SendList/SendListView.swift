@@ -158,6 +158,7 @@ private struct MainSendListView: View {
         VStack(alignment: .leading, spacing: 7) {
             if let sectionName {
                 SectionHeaderView("\(sectionName) (\(items.count))")
+                    .accessibilityLabel("\(sectionName), \(Localizations.xItems(items.count))")
             }
 
             LazyVStack(alignment: .leading, spacing: 0) {

@@ -20,6 +20,7 @@ struct VaultListSectionView<Content: View>: View {
         VStack(alignment: .leading, spacing: 7) {
             if showCount {
                 SectionHeaderView("\(section.name) (\(section.items.count))")
+                    .accessibilityLabel("\(section.name), \(Localizations.xItems(section.items.count))")
             } else {
                 SectionHeaderView(section.name)
             }
