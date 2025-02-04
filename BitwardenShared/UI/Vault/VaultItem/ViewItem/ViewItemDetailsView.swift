@@ -144,8 +144,16 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The item information section.
     private var itemInformationSection: some View {
         SectionView(Localizations.itemInformation, contentSpacing: 8) {
-            BitwardenTextValueField(title: Localizations.itemNameRequired, value: store.state.name)
-                .accessibilityElement(children: .contain)
+            BitwardenTextValueField(title: Localizations.itemNameRequired, value: store.state.name) {
+                let image = store.state.isFavoriteOn
+                    ? Asset.Images.starFilled24.swiftUIImage
+                    : Asset.Images.star24.swiftUIImage
+                image
+                    .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
+                    .accessibilityLabel(Localizations.favorite)
+                    .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
+            }
+            .accessibilityElement(children: .contain)
 
             // check for type
             switch store.state.type {

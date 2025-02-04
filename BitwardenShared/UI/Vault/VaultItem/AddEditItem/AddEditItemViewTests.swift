@@ -128,16 +128,18 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
-    /// Tapping the favorite toggle dispatches the `.favoriteChanged(_:)` action.
+    /// Tapping the favorite button dispatches the `.favoriteChanged(_:)` action.
     @MainActor
-    func test_favoriteToggle_tap() throws {
-        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
-            throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
-        }
+    func test_favoriteButton_tap() throws {
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.favorite)
+
         processor.state.isFavoriteOn = false
-        let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.favorite)
-        try toggle.tap()
+        try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .favoriteChanged(true))
+
+        processor.state.isFavoriteOn = true
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .favoriteChanged(false))
     }
 
     /// Updating the folder text field dispatches the `.folderChanged()` action.
