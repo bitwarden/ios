@@ -15,6 +15,10 @@ class MockCameraService: CameraService {
 
     // MARK: CameraService
 
+    func checkStatus() -> CameraAuthorizationStatus {
+        cameraAuthorizationStatus
+    }
+
     func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {
         cameraAuthorizationStatus
     }

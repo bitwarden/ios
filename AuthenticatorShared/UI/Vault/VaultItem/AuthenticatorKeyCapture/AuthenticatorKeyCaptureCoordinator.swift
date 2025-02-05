@@ -200,6 +200,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
             services: services,
             state: DefaultEntryState(
                 deviceSupportsCamera: services.cameraService.deviceSupportsCamera()
+                    && services.cameraService.checkStatus() == .authorized
             )
         )
         let view = ManualEntryView(

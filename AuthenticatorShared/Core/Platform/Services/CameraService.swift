@@ -7,6 +7,15 @@ import Foundation
 /// A service that is used to manage camera access and use for the user.
 ///
 protocol CameraService: AnyObject {
+    /// Checks the current camera authorization status without requesting authorization.
+    ///
+    /// This method provides a synchronous alternative to `checkStatusOrRequestCameraAuthorization()` for
+    /// when we only need to determine the current status without requesting authorization.
+    ///
+    /// - Returns: The current `CameraAuthorizationStatus` of the app.
+    ///
+    func checkStatus() -> CameraAuthorizationStatus
+
     /// Checks the current camera authorization status and requests authorization if necessary.
     ///
     /// This method first checks the current camera authorization status granted to the app.
@@ -90,10 +99,14 @@ class DefaultCameraService: NSObject {
 // MARK: - DefaultCamerAuthorizationService
 
 extension DefaultCameraService: CameraService {
-    func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {
-        let status = CameraAuthorizationStatus(
+    func checkStatus() -> CameraAuthorizationStatus {
+        CameraAuthorizationStatus(
             avAuthorizationStatus: AVCaptureDevice.authorizationStatus(for: .video)
         )
+    }
+
+    func checkStatusOrRequestCameraAuthorization() async -> CameraAuthorizationStatus {
+        let status = checkStatus()
 
         if status == .notDetermined {
             return await requestCameraAuthorization()
