@@ -171,13 +171,13 @@ class MockAuthService: AuthService {
     }
 
     func resendNewDeviceOtp() async throws {
-        sentVerificationEmail = true
-        try resendVerificationCodeEmailResult.get()
+        sentNewDeviceOtp = true
+        try resendNewDeviceOtpResult.get()
     }
 
     func resendVerificationCodeEmail() async throws {
-        sentNewDeviceOtp = true
-        try resendNewDeviceOtpResult.get()
+        sentVerificationEmail = true
+        try resendVerificationCodeEmailResult.get()
     }
 
     func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws {
