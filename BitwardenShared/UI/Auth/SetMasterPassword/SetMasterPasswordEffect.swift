@@ -9,6 +9,6 @@ enum SetMasterPasswordEffect: Equatable {
     /// The cancel button was pressed.
     case cancelPressed
 
-    /// The submit button was pressed.
-    case submitPressed
+    /// The save button was tapped.
+    case saveTapped
 }

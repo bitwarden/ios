@@ -46,9 +46,7 @@ extension View {
     /// - Returns: A `Button` for displaying an image in a toolbar.
     ///
     func primaryActionToolbarButton(_ label: String, action: @escaping () -> Void) -> some View {
-        Button {
-            action()
-        } label: {
+        Button(action: action) {
             Text(label)
                 .styleGuide(.body, weight: .semibold)
         }
