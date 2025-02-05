@@ -72,14 +72,33 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         do {
             try await services.authRepository.deleteAccount(otp: otp, passwordText: passwordText)
             navigatePostDeletion()
-        } catch ServerError.error {
-            coordinator.showAlert(
-                .defaultAlert(
-                    title: otp != nil
-                        ? Localizations.invalidVerificationCode
-                        : Localizations.invalidMasterPassword
+        } catch let ServerError.error(errorModel) {
+            // The only way we know what the actual error was is by looking at the validation errors.
+            // We have to compare by string for lack of any other way of identifying the errors.
+            // This allows us to localize the error message from the server as appropriately as we can.
+            switch errorModel.singleMessage() {
+            case "User verification failed.":
+                coordinator.showAlert(
+                    .defaultAlert(
+                        title: otp != nil
+                            ? Localizations.invalidVerificationCode
+                            : Localizations.invalidMasterPassword
+                    )
                 )
-            )
+            // swiftlint:disable:next line_length
+            case "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.":
+                coordinator.showAlert(
+                    .defaultAlert(
+                        title: Localizations.cannotDeleteThisUserBecauseItIsTheSoleOwnerOfAtLeastOneOrganization
+                    )
+                )
+            default:
+                coordinator.showAlert(
+                    .defaultAlert(
+                        title: errorModel.singleMessage()
+                    )
+                )
+            }
         } catch {
             services.errorReporter.log(error: error)
             coordinator.showAlert(.networkResponseError(error) {
