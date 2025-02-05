@@ -81,12 +81,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
         case let .addItem(
-			allowTypeSelection,
-			group,
-			hasPremium,
-			newCipherOptions,
+            allowTypeSelection,
+            group,
+            hasPremium,
+            newCipherOptions,
             selectedOrganizationId
-		):
+        ):
             showAddItem(
                 for: group,
                 allowTypeSelection: allowTypeSelection,
@@ -154,7 +154,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - hasPremium: Whether the user has premium,
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
-    ///   - selectedOrganizationId: The organization id in case an organization was selected in the vault filter.   
+    ///   - selectedOrganizationId: The organization id in case an organization was selected in the vault filter.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
