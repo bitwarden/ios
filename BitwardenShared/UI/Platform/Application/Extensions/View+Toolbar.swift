@@ -38,6 +38,27 @@ extension View {
             .accessibilityIdentifier("EditItemButton")
     }
 
+    /// Returns a `Button` that displays a text label for use in a toolbar, highlighting the primary action.
+    ///
+    /// - Parameters:
+    ///   - label: The label associated with the image, used as an accessibility label.
+    ///   - action: The action to perform when the button is tapped.
+    /// - Returns: A `Button` for displaying an image in a toolbar.
+    ///
+    func primaryActionToolbarButton(_ label: String, action: @escaping () -> Void) -> some View {
+        Button {
+            action()
+        } label: {
+            Text(label)
+                .styleGuide(.body, weight: .semibold)
+        }
+        .buttonStyle(.toolbar)
+        // Ideally we would set both `minHeight` and `minWidth` to 44. Setting `minWidth` causes
+        // padding to be applied equally on both sides of the image. This results in extra padding
+        // along the margin though.
+        .frame(minHeight: 44)
+    }
+
     /// Returns a toolbar button configured for saving an item.
     ///
     /// - Parameter action: The action to perform when the save button is tapped.
@@ -68,7 +89,7 @@ extension View {
         .frame(minHeight: 44)
     }
 
-    /// Returns a `Button` that displays an image for use in a toolbar.
+    /// Returns a `Button` that displays a text label for use in a toolbar.
     ///
     /// - Parameters:
     ///   - label: The label associated with the image, used as an accessibility label.

@@ -102,6 +102,15 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.effects, [.showLearnGeneratorGuidedTour])
     }
 
+    /// Tests that the generator action card is not present when `.presentationMode` is `.inPlace`.
+    @MainActor
+    func test_learnGeneratorActionCard_inVisible() throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        processor.state.presentationMode = .inPlace
+        let actionCard = try? subject.inspect().find(actionCard: Localizations.exploreTheGenerator)
+        XCTAssertNil(actionCard)
+    }
+
     /// Updating the email type dispatches the `.emailTypeChanged` action.
     @MainActor
     func test_menuEmailTypeChanged() throws {
@@ -323,7 +332,7 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
     }
 
-    /// Tests the snapshot with the add state with the learn generator action card.
+    /// Tests the snapshot with the learn generator action card.
     @MainActor
     func test_snapshot_generatorView_learnGeneratorActionCard() throws {
         processor.state.isLearnGeneratorActionCardEligible = true
