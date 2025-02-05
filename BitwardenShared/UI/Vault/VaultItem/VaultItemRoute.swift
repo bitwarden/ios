@@ -5,6 +5,9 @@ import SwiftUI
 
 /// A route to a screen for a specific vault item.
 enum VaultItemRoute: Equatable, Hashable {
+    /// A route to the add folder screen.
+    case addFolder
+
     /// A route to the add item screen.
     ///
     /// - Parameters:

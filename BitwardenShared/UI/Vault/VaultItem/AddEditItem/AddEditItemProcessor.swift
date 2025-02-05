@@ -65,6 +65,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPolicyService
         & HasRehydrationHelper
         & HasReviewPromptService
+        & HasSettingsRepository
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
@@ -151,11 +152,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
             state.guidedTourViewState.currentIndex = 0
             state.guidedTourViewState.showGuidedTour = true
+        case .streamFolders:
+            await streamFolders()
         }
     }
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case .addFolder:
+            coordinator.navigate(to: .addFolder, context: self)
         case let .authKeyVisibilityTapped(newValue):
             state.loginState.isAuthKeyVisible = newValue
         case let .cardFieldChanged(cardFieldAction):
@@ -289,10 +294,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 // new item from a collection group view.
                 state.owner = ownershipOptions.first
             }
-
-            let folders = try await services.vaultRepository.fetchFolders()
-                .map { DefaultableType<FolderView>.custom($0) }
-            state.folders = [.default] + folders
 
             if !state.configuration.isAdding {
                 await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
@@ -695,6 +696,18 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         await services.stateService.setAddSitePromptShown(true)
     }
 
+    /// Stream the list of folders.
+    ///
+    private func streamFolders() async {
+        do {
+            for try await folders in try await services.settingsRepository.foldersListPublisher() {
+                state.folders = [.default] + folders.map { DefaultableType.custom($0) }
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Check if the user has a master password and set showMasterPasswordReprompt accordingly
     ///
     private func checkIfUserHasMasterPassword() async {
@@ -758,6 +771,22 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
             state.loginState.username = value
         }
         coordinator.navigate(to: .dismiss())
+    }
+}
+
+// MARK: - AddEditFolderDelegate
+
+extension AddEditItemProcessor: AddEditFolderDelegate {
+    func folderAdded(_ folderView: FolderView) {
+        state.folder = .custom(folderView)
+    }
+
+    func folderDeleted() {
+        // No-op: deleting a folder isn't supported from the add folder flow.
+    }
+
+    func folderEdited() {
+        // No-op: editing a folder isn't supported from the add folder flow.
     }
 }
 

@@ -9,8 +9,9 @@ protocol FolderService {
     /// Add a new folder for the current user, both in the backend and in local storage.
     ///
     /// - Parameter name: The name of the new folder.
+    /// - Returns: The added folder.
     ///
-    func addFolderWithServer(name: String) async throws
+    func addFolderWithServer(name: String) async throws -> Folder
 
     /// Delete a folder for the current user, both in the backend and in local storage.
     ///
@@ -106,14 +107,16 @@ class DefaultFolderService: FolderService {
 }
 
 extension DefaultFolderService {
-    func addFolderWithServer(name: String) async throws {
+    func addFolderWithServer(name: String) async throws -> Folder {
         let userID = try await stateService.getActiveAccountId()
 
         // Add the folder to the backend.
         let response = try await folderAPIService.addFolder(name: name)
 
         // Add the folder to the local data store.
-        try await folderDataStore.upsertFolder(Folder(folderResponseModel: response), userId: userID)
+        let folder = Folder(folderResponseModel: response)
+        try await folderDataStore.upsertFolder(folder, userId: userID)
+        return folder
     }
 
     func deleteFolderWithServer(id: String) async throws {

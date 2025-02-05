@@ -37,6 +37,7 @@ struct AddEditItemView: View {
         }
         .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }
+        .task { await store.perform(.streamFolders) }
         .toast(store.binding(
             get: \.toast,
             send: AddEditItemAction.toastShown
@@ -248,7 +249,12 @@ private extension AddEditItemView {
                 selection: store.binding(
                     get: \.folder,
                     send: AddEditItemAction.folderChanged
-                )
+                ),
+                additionalMenu: {
+                    Button(Localizations.newFolder) {
+                        store.send(.addFolder)
+                    }
+                }
             )
             .accessibilityIdentifier("FolderPicker")
 

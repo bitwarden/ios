@@ -10,7 +10,8 @@ import SwiftUI
 class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
-    typealias Module = FileSelectionModule
+    typealias Module = AddEditFolderModule
+        & FileSelectionModule
         & GeneratorModule
         & PasswordHistoryModule
         & VaultItemModule
@@ -23,6 +24,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         & HasEventService
         & HasFido2UserInterfaceHelper
         & HasRehydrationHelper
+        & HasSettingsRepository
         & HasStateService
         & HasTOTPService
         & HasTimeProvider
@@ -80,6 +82,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
+        case .addFolder:
+            showAddFolder(delegate: context as? AddEditFolderDelegate)
         case let .addItem(
             allowTypeSelection,
             group,
@@ -142,6 +146,20 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: route, context: context)
         coordinator.start()
+        stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the add folder screen.
+    ///
+    /// - Parameter delegate: A `AddEditFolderDelegate` that is notified when the user makes a
+    ///     change to folders.
+    ///
+    private func showAddFolder(delegate: AddEditFolderDelegate?) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .addEditFolder(folder: nil), context: delegate)
+
         stackNavigator?.present(navigationController)
     }
 
