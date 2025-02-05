@@ -8,7 +8,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
     // MARK: Feature Flags
 
     /// A feature flag that determines whether or not the password manager sync capability is enabled.
-    case enablePasswordManagerSync = "enable-password-manager-sync-ios"
+    case enablePasswordManagerSync = "enable-pm-bwa-sync"
 
     // MARK: Test Flags
 
