@@ -38,10 +38,11 @@ struct SettingsListItem<Content: View>: View {
             action()
         } label: {
             VStack(spacing: 0) {
-                HStack(spacing: 12) {
+                HStack(spacing: 4) {
                     if let icon {
                         Image(asset: icon)
                             .imageStyle(.rowIcon)
+                            .padding(.trailing, 8)
                     }
 
                     Text(name)
@@ -127,6 +128,10 @@ struct SettingsListItem<Content: View>: View {
             SettingsListItem("Account Security") {}
 
             SettingsListItem("Account Security with Badge!", badgeValue: "3") {}
+
+            SettingsListItem("Account Security with Badge!", badgeValue: "4") {} trailingContent: {
+                Image(asset: Asset.Images.externalLink24)
+            }
         }
     }
 }
