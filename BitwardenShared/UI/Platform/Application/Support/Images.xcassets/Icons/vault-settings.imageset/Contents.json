@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "arrow-down.pdf",
+      "filename" : "vault-settings.pdf",
       "idiom" : "universal"
     },
     {
@@ -11,12 +11,16 @@
           "value" : "dark"
         }
       ],
-      "filename" : "arrow-darkmode-down.pdf",
+      "filename" : "vault-settings-dark.pdf",
       "idiom" : "universal"
     }
   ],
   "info" : {
     "author" : "xcode",
     "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true,
+    "template-rendering-intent" : "template"
   }
 }
