@@ -631,6 +631,19 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.verificationEmailSent))
     }
 
+    /// `perform(_:)` with `.resendEmailTapped` with device verification needed sends the email and displays the toast.
+    @MainActor
+    func test_perform_resendEmailTapped_deviceVerification_success() async {
+        subject.state.authMethod = .email
+        subject.state.deviceVerificationRequired = true
+
+        await subject.perform(.resendEmailTapped)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.submitting))
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.verificationEmailSent))
+    }
+
     /// `perform(_:)` with `.tryAgainTapped` starts reading NFC tags.
     @MainActor
     func test_perform_tryAgainTapped() async {
