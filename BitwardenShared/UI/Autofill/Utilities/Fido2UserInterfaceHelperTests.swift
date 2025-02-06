@@ -32,16 +32,22 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     // MARK: Tests
 
-    /// `checkUser(options:hint:)` with hint `informExcludedCredentialFound` is not possible in iOS so far
-    /// as the OS doesn't send excluded credentials.
+    /// `checkUser(options:hint:)` with hint `informExcludedCredentialFound` informs the delegate
+    /// of the situation and returns that user has not been verified.
+    @MainActor
     func test_checkUser_informExcludedCredentialFoundHint() async throws {
-        _ = try await subject.checkUser(
+        subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
+        let cipher = CipherView.fixture()
+        let result = try await subject.checkUser(
             options: CheckUserOptions(requirePresence: true, requireVerification: .discouraged),
-            hint: .informExcludedCredentialFound(.fixture())
+            hint: .informExcludedCredentialFound(cipher)
         )
-        throw XCTSkip(
-            "informExcludedCredentialFound should never be invoked given iOS doesn't send excluded credentials"
+        XCTAssertEqual(
+            fido2UserInterfaceHelperDelegate.informExcludedCredentialFoundCalledWith?.id,
+            cipher.id
         )
+        XCTAssertTrue(result.userPresent)
+        XCTAssertFalse(result.userVerified)
     }
 
     /// `checkUser(options:hint:)` with hint `informNoCredentialsFound` is not possible in iOS so far

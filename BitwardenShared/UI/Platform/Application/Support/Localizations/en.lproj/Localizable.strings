@@ -1112,3 +1112,5 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";

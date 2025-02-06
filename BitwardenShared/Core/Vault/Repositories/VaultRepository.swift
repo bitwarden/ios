@@ -38,6 +38,11 @@ public protocol VaultRepository: AnyObject {
     /// Removes any temporarily downloaded attachments.
     func clearTemporaryDownloads()
 
+    /// Creates a `VaultListSection` for excluded credentials.
+    /// - Parameter cipher: The cipher found in excluded credentials.
+    /// - Returns: A `VaultListSection` with the excluded cipher found.
+    func createAutofillListExcludedCredentialSection(from cipher: CipherView) async throws -> VaultListSection
+
     /// Delete an attachment from a cipher.
     ///
     /// - Parameters:
@@ -985,6 +990,16 @@ extension DefaultVaultRepository: VaultRepository {
         }
     }
 
+    func createAutofillListExcludedCredentialSection(from cipher: CipherView) async throws -> VaultListSection {
+        let vaultListItem = try await createFido2VaultListItem(from: cipher)
+
+        return VaultListSection(
+            id: Localizations.aPasskeyAlreadyExistsForThisApplication,
+            items: [vaultListItem].compactMap { $0 },
+            name: Localizations.aPasskeyAlreadyExistsForThisApplication
+        )
+    }
+
     func fetchCipher(withId id: String) async throws -> CipherView? {
         guard let cipher = try await cipherService.fetchCipher(withId: id) else { return nil }
         return try? await clientService.vault().ciphers().decrypt(cipher: cipher)
@@ -1510,7 +1525,7 @@ extension DefaultVaultRepository: VaultRepository {
     /// Creates a `VaultListItem` from a `CipherView` with Fido2 credentials.
     /// - Parameter cipher: Cipher from which create the item.
     /// - Returns: The `VaultListItem` with the cipher and Fido2 credentials.
-    func createFido2VaultListItem(from cipher: CipherView) async throws -> VaultListItem? {
+    private func createFido2VaultListItem(from cipher: CipherView) async throws -> VaultListItem? {
         let decryptedFido2Credentials = try await clientService
             .platform()
             .fido2()

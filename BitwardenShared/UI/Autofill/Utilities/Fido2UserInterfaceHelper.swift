@@ -9,9 +9,18 @@ import Combine
 ///
 @MainActor
 protocol Fido2UserInterfaceHelperDelegate: Fido2UserVerificationMediatorDelegate {
+    // MARK: Properties
+
     /// Whether the Fido2 flow for autofill is from credential list or not.
     var isAutofillingFromList: Bool { get }
+
+    // MARK: Methods
+
+    /// Informs that an excluded credential has been found in the Fido2 registration flow.
+    func informExcludedCredentialFound(cipherView: CipherView) async
 }
+
+// MARK: - Fido2UserInterfaceHelper
 
 /// A helper to extend `Fido2UserInterface` protocol capabilities for Fido2 flows
 /// depending on user interaction.
@@ -63,6 +72,8 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     func setupCurrentUserVerificationPreference(userVerificationPreference: Uv)
 }
 
+// MARK: - DefaultFido2UserInterfaceHelper
+
 /// Default implemenation of `Fido2UserInterfaceHelper`.
 class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     /// Mediator which manages user verification on Fido2 flows.
@@ -108,6 +119,11 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
                 credential: cipherView,
                 shouldThrowEnforcingRequiredVerification: false
             )
+        }
+
+        if case let .informExcludedCredentialFound(cipherView) = hint {
+            await fido2UserInterfaceHelperDelegate?.informExcludedCredentialFound(cipherView: cipherView)
+            return BitwardenSdk.CheckUserResult(userPresent: true, userVerified: false)
         }
 
         return BitwardenSdk.CheckUserResult(userPresent: true, userVerified: true)
