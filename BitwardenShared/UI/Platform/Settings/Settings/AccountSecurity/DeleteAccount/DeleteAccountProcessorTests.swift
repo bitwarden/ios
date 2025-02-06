@@ -170,17 +170,17 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
 
     /// Perform with `.deleteAccount` presents the master password prompt alert.
     /// If the error is unknown
-    /// Then display the server error
+    /// Then log the error and display a generic error
     @MainActor
     func test_perform_deleteAccount_serverError_unknown() async throws {
-        authRepository.deleteAccountResult = .failure(
-            ServerError.error(
-                errorResponse: ErrorResponseModel(
-                    validationErrors: ["": ["Example error"]],
-                    message: "Example message"
-                )
+        let error = ServerError.error(
+            errorResponse: ErrorResponseModel(
+                validationErrors: ["": ["Example error"]],
+                message: "Example message"
             )
         )
+
+        authRepository.deleteAccountResult = .failure(error)
 
         await subject.perform(.deleteAccount)
 
@@ -191,7 +191,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         XCTAssertTrue(authRepository.deleteAccountCalled)
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .defaultAlert(title: "Example error"))
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors.last as? ServerError, error)
     }
 
     /// Perform with `.deleteAccount` presents the master password prompt alert.

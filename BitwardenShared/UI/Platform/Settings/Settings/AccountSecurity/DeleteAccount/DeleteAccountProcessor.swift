@@ -93,9 +93,10 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
                     )
                 )
             default:
+                services.errorReporter.log(error: ServerError.error(errorResponse: errorModel))
                 coordinator.showAlert(
                     .defaultAlert(
-                        title: errorModel.singleMessage()
+                        title: Localizations.anErrorHasOccurred
                     )
                 )
             }
