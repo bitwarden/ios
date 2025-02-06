@@ -24,14 +24,14 @@ struct PasswordHintView: View {
         }
         .scrollView(padding: 12)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-        .navigationTitle(Localizations.passwordHint)
+        .navigationBar(title: Localizations.passwordHint, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismissPressed)
             }
 
             ToolbarItem(placement: .topBarTrailing) {
-                toolbarButton(Localizations.submit) {
+                primaryActionToolbarButton(Localizations.submit) {
                     await store.perform(.submitPressed)
                 }
                 .accessibilityIdentifier("SubmitButton")
