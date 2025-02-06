@@ -1137,6 +1137,17 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertTrue(subject.reviewPromptTask!.isCancelled)
     }
 
+    /// `receive(_:)` with `.addItemPressed` when an organization was selected in the filter navigates
+    /// to the `.addItem` route with the corresponding organization id.
+    @MainActor
+    func test_receive_addItemPressed_organizationSelected() {
+        subject.state.vaultFilterType = .organization(Organization.fixture())
+
+        subject.receive(.addItemPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(selectedOrganizationId: "organization-1"))
+    }
+
     /// `receive(_:)` with `.clearURL` clears the url in the state.
     @MainActor
     func test_receive_clearURL() {
