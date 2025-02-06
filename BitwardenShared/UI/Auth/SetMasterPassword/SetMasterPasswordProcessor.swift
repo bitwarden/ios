@@ -55,7 +55,7 @@ class SetMasterPasswordProcessor: StateProcessor<
             await loadData()
         case .cancelPressed:
             coordinator.navigate(to: .dismiss)
-        case .submitPressed:
+        case .saveTapped:
             await setPassword()
         }
     }
@@ -68,6 +68,8 @@ class SetMasterPasswordProcessor: StateProcessor<
             state.masterPasswordHint = newValue
         case let .masterPasswordRetypeChanged(newValue):
             state.masterPasswordRetype = newValue
+        case .preventAccountLockTapped:
+            coordinator.navigate(to: .preventAccountLock)
         case let .revealMasterPasswordFieldPressed(isOn):
             state.isMasterPasswordRevealed = isOn
         }

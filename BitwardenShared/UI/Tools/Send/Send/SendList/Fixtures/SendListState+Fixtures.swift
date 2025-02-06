@@ -17,7 +17,6 @@ extension SendListState {
             loadingState: .data([
                 SendListSection(
                     id: "1",
-                    isCountDisplayed: false,
                     items: [
                         SendListItem(
                             id: "11",
@@ -32,7 +31,6 @@ extension SendListState {
                 ),
                 SendListSection(
                     id: "2",
-                    isCountDisplayed: true,
                     items: [
                         SendListItem(
                             sendView: .init(
@@ -110,7 +108,6 @@ extension SendListState {
             loadingState: .data([
                 SendListSection(
                     id: "text",
-                    isCountDisplayed: false,
                     items: [
                         SendListItem(
                             sendView: .init(

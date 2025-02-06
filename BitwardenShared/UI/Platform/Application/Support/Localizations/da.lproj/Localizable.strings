@@ -67,6 +67,9 @@
 "Tools" = "Værktøjer";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Brug fingeraftryk til at låse op";
+"UseThisButtonToGenerateANewUniquePassword" = "Brug denne knap til at generere en ny unik adgangskode.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Man behøver kun opsætte Godkendelsesnøgle for logins, som kræver tofaktorgodkendelse med en kode. Nøglen vil løbende generere sekscifrede koder, man kan bruge til indlogning.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Man skal tilføje en webadresse for at bruge autofyldning for at tilgå denne konto.";
 "Username" = "Brugernavn";
 "ValidationFieldRequired" = "Feltet %1$@ er obligatorisk.";
 "ValueHasBeenCopied" = "%1$@ kopieret";
@@ -79,6 +82,7 @@
 "Website" = "Hjemmeside";
 "Yes" = "Ja";
 "Account" = "Konto";
+"StepOfStep" = "%1$d AF %2$d";
 "AccountCreated" = "Din nye konto er oprettet! Du kan nu logge ind.";
 "AddAnItem" = "Tilføj et element";
 "AppExtension" = "App-udvidelse";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Mulige matchende elementer";
 "Search" = "Søg";
 "BitwardenAutofillServiceSearch" = "Søger efter et autoudfyldningsemne til \"%1$@\".";
+"LearnAboutNewLogins" = "Læs om nye logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Vi vil gennemgå de vigtigste funktioner for at tilføje et nyt login.";
 "LearnOrg" = "Få mere at vide om organisationer";
 "CannotOpenApp" = "Kan ikke åbne appen \"%1$@\".";
 "AuthenticatorAppTitle" = "Autentificerings-app";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Alle Sends";
 "Sends" = "Sends";
-"NameInfo" = "Et venligt navn til at beskrive denne Send.";
 "Text" = "Tekst";
 "TypeText" = "Tekst";
-"TypeTextInfo" = "Den tekst, du vil sende.";
 "HideTextByDefault" = "Når Send tilgås, skjul som standard teksten";
 "TypeFile" = "Fil";
 "FileTypeIsSelected" = "Filtype er valgt.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Noget gik galt";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Det valgte element kan ikke flyttes. Forsøg igen.";
 "Done" = "Færdig";
+"Next" = "Næste";
 "CopyPublicKey" = "Kopiér offentlig nøgle";
 "CopyPrivateKey" = "Kopiér privat nøgle";
 "CopyFingerprint" = "Kopiér fingeraftryk";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Kunne ikke autoudfylde emnet %1$@";
 "ExportingFailed" = "Eksport mislykkedes";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Enhedens adgangskode eller biometri skal muligvis aktiveres.";
-"StartImportCXPDescriptionLong" = "Importér adgangskoder, adgangsnøgler, betalingskort og alle personlige identitetsoplysninger fra en anden adgangskodehåndtering.\n\nData slettes ** ikke** fra/hos den tidligere udbyder.";
+"StartImportCXFDescriptionLong" = "Importér adgangskoder, adgangsnøgler, betalingskort og alle personlige identitetsoplysninger fra en anden adgangskodehåndtering.\n\nData slettes ** ikke** fra/hos den tidligere udbyder.";
 "ImportPasswords" = "Importér adgangskoder";
 "ImportingEllipsis" = "Importerer...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Sikker på, at importprocessen skal afbrydes?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Eksportér boks til en anden app";
 "ExportItems" = "Eksportér emner";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Eksportér adgangskoder, adgangsnøgler, betalingskort og alle personlige identitetsoplysninger.";
-"ExportOptions" = "Eksportindstillinger";
-"ExportAllItems" = "Eksportér alle emner (%1$@)";
-"ExportSelectedItems" = "Eksportér valgte emner";
-"SelectedItems" = "Valgte emner";
 "RetryExport" = "Forsøg at eksportere igen";
 "ExportFailed" = "Eksport mislykkedes";
 "ThereHasBeenAnIssueExportingItems" = "Et problem opstod under forsøget på at eksportere emner.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Sikker på, at eksportprocessen skal afbrydes?";
 "PleaseDoNotCloseTheApp" = "Luk venligst ikke appen.";
+"ThisIsTakingLongerThanExpected" = "Dette tager længere tid end forventet";
+"ItemsToExport" = "Emner til eksport";
+"TextToShare" = "Text to share";
+"SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";

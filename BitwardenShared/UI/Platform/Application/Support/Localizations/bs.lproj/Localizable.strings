@@ -67,6 +67,9 @@
 "Tools" = "Alati";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Otključajte pomoću otiska prsta";
+"UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Korisničko ime";
 "ValidationFieldRequired" = "Polje %1$@ je obavezno.";
 "ValueHasBeenCopied" = "%1$@ kopirano.";
@@ -79,6 +82,7 @@
 "Website" = "Web stranica";
 "Yes" = "Da";
 "Account" = "Račun";
+"StepOfStep" = "%1$d OF %2$d";
 "AccountCreated" = "Tvoj novi račun je kreiran! Sada se možeš prijaviti.";
 "AddAnItem" = "Dodaj stavku";
 "AppExtension" = "Proširenje aplikacije";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Moguće podudarne stavke";
 "Search" = "Pretraga";
 "BitwardenAutofillServiceSearch" = "Tražite stavku sa automatskim popunjavanjem za „%1$@“.";
+"LearnAboutNewLogins" = "Learn about new logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Naučite o Organizacijama";
 "CannotOpenApp" = "Nemogućnost otvoranja aplikacije „%1$@“.";
 "AuthenticatorAppTitle" = "Aplikacije za potvrdu autentičnosti";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Svi Send-ovi";
 "Sends" = "Send-ovi";
-"NameInfo" = "Nadimak za ovaj Send";
 "Text" = "Tekst";
 "TypeText" = "Tekst";
-"TypeTextInfo" = "Tekst kojeg želiš poslati.";
 "HideTextByDefault" = "Zadano sakrij tekst pri pristupanju Send-u";
 "TypeFile" = "Datoteka";
 "FileTypeIsSelected" = "Odabrana je vrsta datoteke.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Something went wrong";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Unable to move the selected item. Please try again.";
 "Done" = "Done";
+"Next" = "Next";
 "CopyPublicKey" = "Copy public key";
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Failed to autofill item %1$@";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
-"StartImportCXPDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
+"StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Import passwords";
 "ImportingEllipsis" = "Importing...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Are you sure you want to cancel the import process?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Export vault to another app";
 "ExportItems" = "Export items";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
-"ExportOptions" = "Export options";
-"ExportAllItems" = "Export all items (%1$@)";
-"ExportSelectedItems" = "Export selected items";
-"SelectedItems" = "Selected items";
 "RetryExport" = "Retry export";
 "ExportFailed" = "Export failed";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
 "PleaseDoNotCloseTheApp" = "Please do not close the app.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Items to export";
+"TextToShare" = "Text to share";
+"SendDetails" = "Send details";
+"SendNameRequired" = "Send name (required)";

@@ -67,6 +67,9 @@
 "Tools" = "Инструменти";
 "URI" = "Адрес";
 "UseFingerprintToUnlock" = "Отключване с пръстов отпечатък";
+"UseThisButtonToGenerateANewUniquePassword" = "Използвайте този бутон, за да генерирате нова уникална парола.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Ще трябва да настроите удостоверителен ключ само за само за елементите, които изискват двустепенно удостоверяване с код. Ключът непрекъснато ще генерира шест-цифрени кодове, чрез които можете да се впишете.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Трябва да добавите уеб адрес, за да може да използвате автоматичното попълване за вписване в този акаунт.";
 "Username" = "Потребителско име";
 "ValidationFieldRequired" = "Полето %1$@ е задължително.";
 "ValueHasBeenCopied" = "%1$@ беше копирано.";
@@ -79,6 +82,7 @@
 "Website" = "Сайт";
 "Yes" = "Да";
 "Account" = "Регистрация";
+"StepOfStep" = "%1$d ОТ %2$d";
 "AccountCreated" = "Абонаментът ви бе създаден. Вече можете да се впишете.";
 "AddAnItem" = "Добавяне на елемент";
 "AppExtension" = "Разширение";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Възможно съвпадащи записи";
 "Search" = "Търсене";
 "BitwardenAutofillServiceSearch" = "Търсене на запис за автоматично дописване на „%1$@“.";
+"LearnAboutNewLogins" = "Научете за новите данни за вписване";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Ще Ви покажем най-важните моменти при добавянето на нови данни за вписване.";
 "LearnOrg" = "Разберете повече за организациите";
 "CannotOpenApp" = "Програмата „%1$@“ не може да се отвори.";
 "AuthenticatorAppTitle" = "Приложение за удостоверяване";
@@ -545,10 +551,8 @@
 "Send" = "Изпращане";
 "AllSends" = "Всички изпращания";
 "Sends" = "Изпращания";
-"NameInfo" = "Описателно име за това изпращане.";
 "Text" = "Текст";
 "TypeText" = "Текст";
-"TypeTextInfo" = "Текст за изпращане.";
 "HideTextByDefault" = "При достъп до изпращането стандартно текстът да се скрива";
 "TypeFile" = "Файл";
 "FileTypeIsSelected" = "Избран е файлов тип.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Нещо се обърка";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Избраният елемент не може да бъде преместен. Моля, опитайте отново.";
 "Done" = "Готово";
+"Next" = "Следващо";
 "CopyPublicKey" = "Копиране на публичния ключ";
 "CopyPrivateKey" = "Копиране на частния ключ";
 "CopyFingerprint" = "Копиране на отпечатъка";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "Елементът не успя да бъде попълнен автоматично %1$@";
 "ExportingFailed" = "Изнасянето беше неуспешно";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Може да трябва да настроите парола за устройството или достъп чрез биометрични данни.";
-"StartImportCXPDescriptionLong" = "Внесете своите пароли, секретни ключове, карти и други лични данни от друг управител на пароли.\n\nДанните Ви **няма** да бъдат изтрити от предишната система.";
+"StartImportCXFDescriptionLong" = "Внесете своите пароли, секретни ключове, карти и други лични данни от друг управител на пароли.\n\nДанните Ви **няма** да бъдат изтрити от предишната система.";
 "ImportPasswords" = "Внасяне на паролите";
 "ImportingEllipsis" = "Внасяне…";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Наистина ли искате да прекъснете процеса на внасяне?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Изнасяне на трезора към друго приложение";
 "ExportItems" = "Изнасяне на елементи";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Изнасяне на пароли, секретни ключове, разплащателни карти и всякакви лични данни.";
-"ExportOptions" = "Настройки за изнасянето";
-"ExportAllItems" = "Изнасяне на всички елементи (%1$@)";
-"ExportSelectedItems" = "Изнасяне на избраните елементи";
-"SelectedItems" = "Избрани елементи";
 "RetryExport" = "Опит за повторно изнасяне";
 "ExportFailed" = "Изнасянето не беше успешно";
 "ThereHasBeenAnIssueExportingItems" = "Имаше грешка при изнасянето на елементите.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Наистина ли искате да прекъснете процеса на изнасяне?";
 "PleaseDoNotCloseTheApp" = "Не затваряйте приложението.";
+"ThisIsTakingLongerThanExpected" = "This is taking longer than expected";
+"ItemsToExport" = "Елементи за изнасяне";
+"TextToShare" = "Текст за споделяне";
+"SendDetails" = "Подробности за Изпращането";
+"SendNameRequired" = "Име на Изпращането (задължително)";

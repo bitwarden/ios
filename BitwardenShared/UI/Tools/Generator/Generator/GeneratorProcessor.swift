@@ -6,11 +6,13 @@ import OSLog
 final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, GeneratorEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
         & HasPolicyService
         & HasReviewPromptService
+        & HasStateService
 
     /// The behavior that should be taken after receiving a new action for generating a new value
     /// and persisting it.
@@ -78,6 +80,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         switch effect {
         case .appeared:
             await generateValue(shouldSavePassword: true)
+            await checkLearnGeneratorActionCardEligibility()
+        case .dismissLearnGeneratorActionCard:
+            await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+            state.isLearnGeneratorActionCardEligible = false
+        case .showLearnGeneratorGuidedTour:
+            state.generatorType = .password
+            await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+            state.isLearnGeneratorActionCardEligible = false
+            state.guidedTourViewState.showGuidedTour = true
         }
     }
 
@@ -157,6 +168,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
             state.usernameState.forwardedEmailService = forwardedEmailService
         case let .usernameGeneratorTypeChanged(usernameGeneratorType):
             state.usernameState.usernameGeneratorType = usernameGeneratorType
+        case let .guidedTourViewAction(action):
+            state.guidedTourViewState.updateStateForGuidedTourViewAction(action)
         }
 
         if let generateValueBehavior {
@@ -174,6 +187,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     }
 
     // MARK: Private
+
+    /// Checks the eligibility of the generator Login action card.
+    ///
+    private func checkLearnGeneratorActionCardEligibility() async {
+        if await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+            state.isLearnGeneratorActionCardEligible = await services.stateService
+                .getLearnGeneratorActionCardStatus() == .incomplete
+        }
+    }
 
     /// Generate a new passphrase.
     ///

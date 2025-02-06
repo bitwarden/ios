@@ -67,6 +67,9 @@
 "Tools" = "Alətlər";
 "URI" = "URI";
 "UseFingerprintToUnlock" = "Kilidi açmaq üçün barmaq izi istifadə et";
+"UseThisButtonToGenerateANewUniquePassword" = "Yeni və unikal bir parol yaratmaq üçün bu düyməni istifadə edin.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Yalnız iki faktorlu kimlik doğrulamanı kod ilə tələb edən girişlər üçün Kimlik doğrulayıcı Açarı qurmağınız lazımdır. Açar, giriş edə bilməyiniz üçün altı rəqəmli kodları davamlı yaradacaq.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Avto-doldurmanı istifadə edərək bu hesaba müraciət etmək üçün bir veb ünvan əlavə etməlisiniz.";
 "Username" = "İstifadəçi adı";
 "ValidationFieldRequired" = "%1$@ xanası lazımlıdır.";
 "ValueHasBeenCopied" = "%1$@ kopyalandı.";
@@ -79,6 +82,7 @@
 "Website" = "Veb sayt";
 "Yes" = "Bəli";
 "Account" = "Hesab";
+"StepOfStep" = "%1$d/%2$d";
 "AccountCreated" = "Yeni hesabınız yaradıldı! İndi giriş edə bilərsiniz.";
 "AddAnItem" = "Element əlavə et";
 "AppExtension" = "Tətbiq uzantısı";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Uyuşması mümkün olan elementlər";
 "Search" = "Axtar";
 "BitwardenAutofillServiceSearch" = "\"%1$@\" üçün avto-doldurma elementi axtarırsınız.";
+"LearnAboutNewLogins" = "Yeni girişləri öyrənin";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "Yeni bir giriş əlavə etmək üçün mühüm özəllikləri sizə izah edəcəyik.";
 "LearnOrg" = "Təşkilatlar barədə daha ətraflı";
 "CannotOpenApp" = "\"%1$@\" tətbiqi açıla bilmir.";
 "AuthenticatorAppTitle" = "Kimlik doğrulayıcı tətbiqi";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Bütün \"Send\"lər";
 "Sends" = "\"Send\"lər";
-"NameInfo" = "Bu \"Send\"i açıqlayan bir ad.";
 "Text" = "Mətn";
 "TypeText" = "Mətn";
-"TypeTextInfo" = "Göndərmək istədiyiniz mətn";
 "HideTextByDefault" = "\"Send\"ə müraciət edəndə ilkin olaraq mətni gizlədin";
 "TypeFile" = "Fayl";
 "FileTypeIsSelected" = "Fayl növü seçildi.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Nəsə səhv getdi";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Seçilmiş element daşına bilmir. Lütfən yenidən sınayın.";
 "Done" = "Bitdi";
+"Next" = "Növbəti";
 "CopyPublicKey" = "Public açarı kopyala";
 "CopyPrivateKey" = "Private açarı kopyala";
 "CopyFingerprint" = "Barmaq izini kopyala";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "%1$@ elementini avto-doldurmaq uğursuz oldu";
 "ExportingFailed" = "Xaricə köçürmə uğursuzdur";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Cihaz parolunu və ya biometriklərini fəallaşdırmaq lazım gələ bilər.";
-"StartImportCXPDescriptionLong" = "Digər parol menecerindən parolları, keçid açarlarını, kredit kartları və digər fərdi kimlik məlumatlarını daxilə köçürün.\n\nƏvvəlki provayderinizdəki datalarınız **silinməyəcək**.";
+"StartImportCXFDescriptionLong" = "Digər parol menecerindən parolları, keçid açarlarını, kredit kartları və digər fərdi kimlik məlumatlarını daxilə köçürün.\n\nƏvvəlki provayderinizdəki datalarınız **silinməyəcək**.";
 "ImportPasswords" = "Parolları daxilə köçür";
 "ImportingEllipsis" = "Daxilə köçürülür...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "Daxilə köçürmə prosesini ləğv etmək istədiyinizə əminsiniz?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Seyfi başqa bir tətbiqə köçür";
 "ExportItems" = "Elementləri xaricə köçür";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Parolları, keçid açarlarını, kredit kartlarını və digər fərdi kimlik məlumatlarını xaricə köçür.";
-"ExportOptions" = "Xaricə köçürmə seçimləri";
-"ExportAllItems" = "Bütün elementləri xaricə köçür (%1$@)";
-"ExportSelectedItems" = "Seçilmiş elementləri xaricə köçür";
-"SelectedItems" = "Seçilmiş elementlər";
 "RetryExport" = "Yenidən xaricə köçürməyə çalış";
 "ExportFailed" = "Xaricə köçürmə uğursuz oldu";
 "ThereHasBeenAnIssueExportingItems" = "Elementləri xaricə köçürmə zamanı bir problem baş verdi.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Xaricə köçürmə prosesini ləğv etmək istədiyinizə əminsiniz?";
 "PleaseDoNotCloseTheApp" = "Lütfən tətbiqi bağlamayın.";
+"ThisIsTakingLongerThanExpected" = "Bu gözləniləndən uzun çəkir";
+"ItemsToExport" = "Xaricə köçürüləcək elementlər";
+"TextToShare" = "Paylaşılacaq mətn";
+"SendDetails" = "Send detalları";
+"SendNameRequired" = "Send adı (tələb olunur)";

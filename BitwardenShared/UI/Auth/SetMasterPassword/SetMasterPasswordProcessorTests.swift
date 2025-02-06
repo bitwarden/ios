@@ -137,9 +137,9 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if an error occurs.
+    /// `perform()` with `.saveTapped` shows an alert if an error occurs.
     @MainActor
-    func test_perform_submitPressed_error() async throws {
+    func test_perform_saveTapped_error() async throws {
         authRepository.setMasterPasswordResult = .failure(BitwardenTestError.example)
 
         subject.state.masterPassword = "PASSWORD1234"
@@ -147,16 +147,16 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
         subject.state.masterPasswordHint = "PASSWORD_HINT"
         subject.state.resetPasswordAutoEnroll = true
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if the master password field is empty.
+    /// `perform()` with `.saveTapped` shows an alert if the master password field is empty.
     @MainActor
-    func test_perform_submitPressed_emptyPassword() async throws {
-        await subject.perform(.submitPressed)
+    func test_perform_saveTapped_emptyPassword() async throws {
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(
             coordinator.alertShown.last,
@@ -166,20 +166,20 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if the passwords don't match.
+    /// `perform()` with `.saveTapped` shows an alert if the passwords don't match.
     @MainActor
-    func test_perform_submitPressed_passwordMismatch() async throws {
+    func test_perform_saveTapped_passwordMismatch() async throws {
         subject.state.masterPassword = "NEW_PASSWORD"
         subject.state.masterPasswordRetype = "OTHER"
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .passwordsDontMatch)
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if the password doesn't satisfy the policy.
+    /// `perform()` with `.saveTapped` shows an alert if the password doesn't satisfy the policy.
     @MainActor
-    func test_perform_submitPressed_policyWeakPassword() async throws {
+    func test_perform_saveTapped_policyWeakPassword() async throws {
         authService.requirePasswordChangeResult = .success(true)
         authRepository.activeAccount = .fixture()
         subject.state.masterPasswordPolicy = MasterPasswordPolicyOptions(
@@ -195,31 +195,31 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
         subject.state.masterPassword = "INVALID"
         subject.state.masterPasswordRetype = "INVALID"
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .masterPasswordInvalid())
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if the password is too short.
+    /// `perform()` with `.saveTapped` shows an alert if the password is too short.
     @MainActor
-    func test_perform_submitPressed_passwordTooShort() async throws {
+    func test_perform_saveTapped_passwordTooShort() async throws {
         subject.state.masterPassword = "ABC"
         subject.state.masterPasswordRetype = "ABC"
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .passwordIsTooShort)
     }
 
-    /// `perform()` with `.submitPressed` submits the request for setting the master password.
+    /// `perform()` with `.saveTapped` submits the request for setting the master password.
     @MainActor
-    func test_perform_submitPressed_success() async throws {
+    func test_perform_saveTapped_success() async throws {
         subject.state.masterPassword = "PASSWORD1234"
         subject.state.masterPasswordRetype = "PASSWORD1234"
         subject.state.masterPasswordHint = "PASSWORD_HINT"
         subject.state.resetPasswordAutoEnroll = true
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(authRepository.setMasterPasswordHint, "PASSWORD_HINT")
         XCTAssertEqual(authRepository.setMasterPasswordPassword, "PASSWORD1234")
@@ -256,6 +256,13 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
 
         subject.receive(.masterPasswordRetypeChanged("password"))
         XCTAssertEqual(subject.state.masterPasswordRetype, "password")
+    }
+
+    /// `receive(_:)` with `.preventAccountLockTapped` navigates to the right route.
+    @MainActor
+    func test_receive_preventAccountLock() {
+        subject.receive(.preventAccountLockTapped)
+        XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
     }
 
     /// `receive(_:)` with `.revealMasterPasswordFieldPressed` updates the state to reflect the changes.

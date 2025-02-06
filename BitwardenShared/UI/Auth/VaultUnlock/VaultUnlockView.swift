@@ -193,8 +193,12 @@ struct VaultUnlockView: View {
         switch biometryType {
         case .faceID:
             Text(Localizations.useFaceIDToUnlock)
+        case .opticID:
+            Text(Localizations.useOpticIDToUnlock)
         case .touchID:
             Text(Localizations.useFingerprintToUnlock)
+        case .unknown:
+            Text(Localizations.useBiometricsToUnlock)
         }
     }
 }

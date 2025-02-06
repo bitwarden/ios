@@ -67,6 +67,9 @@
 "Tools" = "Araçlar";
 "URI" = "URl";
 "UseFingerprintToUnlock" = "Kilidi parmak iziyle aç";
+"UseThisButtonToGenerateANewUniquePassword" = "Yeni ve benzersiz bir parola üretmek için bu düğmeyi kullanın.";
+"YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Kullanıcı adı";
 "ValidationFieldRequired" = "%1$@ alanı gereklidir.";
 "ValueHasBeenCopied" = "%1$@ kopyalandı";
@@ -79,6 +82,7 @@
 "Website" = "Web sitesi";
 "Yes" = "Evet";
 "Account" = "Hesap";
+"StepOfStep" = "%1$d/%2$d";
 "AccountCreated" = "Yeni hesabınız oluşturuldu! Şimdi giriş yapabilirsiniz.";
 "AddAnItem" = "Kayıt ekle";
 "AppExtension" = "Uygulama uzantısı";
@@ -207,6 +211,8 @@
 "PossibleMatchingItems" = "Eşleşmesi olası hesaplar";
 "Search" = "Ara";
 "BitwardenAutofillServiceSearch" = "\"%1$@\" için otomatik doldurma kaydı arıyorsunuz.";
+"LearnAboutNewLogins" = "Learn about new logins";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "We’ll walk you through the key features to add a new login.";
 "LearnOrg" = "Kuruluşlar hakkında bilgi al";
 "CannotOpenApp" = "\"%1$@\" uygulaması açılamıyor.";
 "AuthenticatorAppTitle" = "Kimlik doğrulama uygulaması";
@@ -545,10 +551,8 @@
 "Send" = "Send";
 "AllSends" = "Tüm Send'ler";
 "Sends" = "Send'ler";
-"NameInfo" = "Bu Send'i açıklayan anlaşılır bir ad";
 "Text" = "Metin";
 "TypeText" = "Metin";
-"TypeTextInfo" = "Göndermek istediğiniz metin.";
 "HideTextByDefault" = "Send'e erişirken varsayılan olarak metni gizle";
 "TypeFile" = "Dosya";
 "FileTypeIsSelected" = "Dosya türü seçildi.";
@@ -1054,6 +1058,7 @@
 "SomethingWentWrong" = "Bir sorun oluştu";
 "UnableToMoveTheSelectedItemPleaseTryAgain" = "Seçilen kayıt taşınamadı. Lütfen yeniden deneyin.";
 "Done" = "Tamam";
+"Next" = "İleri";
 "CopyPublicKey" = "Ortak anahtarı kopyala";
 "CopyPrivateKey" = "Özel anahtarı kopyala";
 "CopyFingerprint" = "Parmak izini kopyala";
@@ -1071,7 +1076,7 @@
 "FailedToAutofillItem" = "%1$@ kaydı otomatik doldurulamadı";
 "ExportingFailed" = "Exporting failed";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "You may need to enable device passcode or biometrics.";
-"StartImportCXPDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
+"StartImportCXFDescriptionLong" = "Import passwords, passkeys, credit cards, and any personal identity information from another password manager.\n\nYour data will **not** be deleted from your previous provider.";
 "ImportPasswords" = "Parolaları içe aktar";
 "ImportingEllipsis" = "İçe aktarılıyor...";
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "İçe aktarma işlemini iptal etmek istediğinize emin misiniz?";
@@ -1086,12 +1091,13 @@
 "ExportVaultToAnotherApp" = "Export vault to another app";
 "ExportItems" = "Kayıtları dışa aktar";
 "ExportPasswordsPasskeysCreditCardsAndAnyPersonalIdentityInformation" = "Export passwords, passkeys, credit cards, and any personal identity information.";
-"ExportOptions" = "Dışa aktarma seçenekleri";
-"ExportAllItems" = "Export all items (%1$@)";
-"ExportSelectedItems" = "Export selected items";
-"SelectedItems" = "Selected items";
 "RetryExport" = "Retry export";
 "ExportFailed" = "Dışa aktarma başarısız oldu";
 "ThereHasBeenAnIssueExportingItems" = "There has been an issue exporting items.";
 "AreYouSureYouWantToCancelTheExportProcessQuestionMark" = "Are you sure you want to cancel the export process?";
 "PleaseDoNotCloseTheApp" = "Lütfen uygulamayı kapatmayın.";
+"ThisIsTakingLongerThanExpected" = "Bu işlem beklenenden uzun zaman alıyor";
+"ItemsToExport" = "Dışa aktarılacak kayıtlar";
+"TextToShare" = "Paylaşılacak metin";
+"SendDetails" = "Send ayrıntıları";
+"SendNameRequired" = "Send adı (gerekli)";

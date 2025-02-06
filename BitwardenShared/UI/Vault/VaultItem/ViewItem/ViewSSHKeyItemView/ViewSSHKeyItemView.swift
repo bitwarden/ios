@@ -14,7 +14,7 @@ struct ViewSSHKeyItemView: View {
     @ObservedObject var store: Store<SSHKeyItemState, ViewSSHKeyItemAction, Void>
 
     var body: some View {
-        LazyVStack(spacing: 16.0) {
+        ContentBlock {
             privateKeyField
 
             publicKeyField

@@ -26,7 +26,7 @@ struct AddEditCardItemView: View {
     @ObservedObject var store: Store<any AddEditCardItemState, AddEditCardItemAction, AddEditItemEffect>
 
     var body: some View {
-        VStack(spacing: 16.0) {
+        ContentBlock {
             BitwardenTextField(
                 title: Localizations.cardholderName,
                 text: store.binding(
