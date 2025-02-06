@@ -55,12 +55,14 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         settingsRepository.allowSyncOnRefresh = true
         settingsRepository.clearClipboardValue = .thirtySeconds
         settingsRepository.connectToWatch = true
+        settingsRepository.shouldShowConnectToWatchToggle = true
 
         await subject.perform(.loadInitialValues)
 
         XCTAssertEqual(subject.state.clearClipboardValue, .thirtySeconds)
         XCTAssertTrue(subject.state.isAllowSyncOnRefreshToggleOn)
         XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
+        XCTAssertTrue(subject.state.shouldShowConnectToWatchToggle)
     }
 
     /// `perform(_:)` with `.streamLastSyncTime` updates the state's last sync time whenever it changes.
