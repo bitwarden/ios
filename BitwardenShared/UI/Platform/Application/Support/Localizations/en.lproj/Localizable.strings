@@ -1112,4 +1112,4 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
-"CannotDeleteThisUserBecauseItIsTheSoleOwnerOfAtLeastOneOrganization." = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"CannotDeleteUserSoleOwnerLongDescription" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
