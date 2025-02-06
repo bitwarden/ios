@@ -48,10 +48,9 @@ struct SettingsListItem<Content: View>: View {
                         .styleGuide(.body)
                         .accessibilityIdentifier(nameAccessibilityID ?? "")
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .padding(.vertical, 19)
-
-                    Spacer()
 
                     if let badgeValue {
                         BitwardenBadge(badgeValue: badgeValue)
