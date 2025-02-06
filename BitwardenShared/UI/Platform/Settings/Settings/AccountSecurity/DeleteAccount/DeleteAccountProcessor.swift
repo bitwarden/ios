@@ -89,7 +89,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
             case "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.":
                 coordinator.showAlert(
                     .defaultAlert(
-                        title: Localizations.cannotDeleteUserSoleOwnerLongDescription
+                        title: Localizations.cannotDeleteUserSoleOwnerDescriptionLong
                     )
                 )
             default:

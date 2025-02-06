@@ -165,7 +165,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         XCTAssertTrue(authRepository.deleteAccountCalled)
 
         alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .defaultAlert(title: Localizations.cannotDeleteUserSoleOwnerLongDescription))
+        XCTAssertEqual(alert, .defaultAlert(title: Localizations.cannotDeleteUserSoleOwnerDescriptionLong))
     }
 
     /// Perform with `.deleteAccount` presents the master password prompt alert.
