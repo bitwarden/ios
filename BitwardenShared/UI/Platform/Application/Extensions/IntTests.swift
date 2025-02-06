@@ -6,6 +6,17 @@ import XCTest
 class IntTests: BitwardenTestCase {
     // MARK: Tests
 
+    /// `numberOfDigits()` returns the number of digits within the value.
+    func test_numberOfDigits() {
+        XCTAssertEqual((-12345).numberOfDigits, 5)
+        XCTAssertEqual((-1).numberOfDigits, 1)
+        XCTAssertEqual(0.numberOfDigits, 1)
+        XCTAssertEqual(1.numberOfDigits, 1)
+        XCTAssertEqual(10.numberOfDigits, 2)
+        XCTAssertEqual(999.numberOfDigits, 3)
+        XCTAssertEqual(12345.numberOfDigits, 5)
+    }
+
     /// `.timeInHoursMinutes()` formats the time interval correctly.
     func test_hours() {
         let string = 3600.timeInHoursMinutes()

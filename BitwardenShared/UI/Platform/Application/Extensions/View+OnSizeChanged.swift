@@ -55,6 +55,7 @@ private struct ViewSizeKey: PreferenceKey {
     static var defaultValue = CGSize.zero
 
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        guard nextValue() != defaultValue else { return }
         value = nextValue()
     }
 }

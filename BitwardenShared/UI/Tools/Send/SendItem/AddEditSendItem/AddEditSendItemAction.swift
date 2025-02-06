@@ -26,9 +26,6 @@ enum AddEditSendItemAction: Equatable {
     /// maximum access count was changed via the stepper.
     case maximumAccessCountStepperChanged(Int)
 
-    /// maximum access count was changed via the TextField.
-    case maximumAccessCountTextFieldChanged(String)
-
     /// The name text field was changed.
     case nameChanged(String)
 

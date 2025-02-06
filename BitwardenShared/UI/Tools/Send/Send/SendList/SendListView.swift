@@ -111,7 +111,6 @@ private struct MainSendListView: View {
                     if !store.state.searchResults.isEmpty {
                         sendItemSectionView(
                             sectionName: nil,
-                            isCountDisplayed: false,
                             items: store.state.searchResults
                         )
                     }
@@ -135,7 +134,6 @@ private struct MainSendListView: View {
                 ForEach(sections) { section in
                     sendItemSectionView(
                         sectionName: section.name,
-                        isCountDisplayed: section.isCountDisplayed,
                         items: section.items
                     )
                 }
@@ -149,27 +147,18 @@ private struct MainSendListView: View {
     ///
     /// - Parameters:
     ///   - sectionName: The title of the section.
-    ///   - isCountDisplayed: A flag indicating if the count should be displayed
     ///     in this section's title.
     ///   - items: The `SendListItem`s in this section.
     ///
     @ViewBuilder
     private func sendItemSectionView(
         sectionName: String?,
-        isCountDisplayed: Bool,
         items: [SendListItem]
     ) -> some View {
         VStack(alignment: .leading, spacing: 7) {
-            if sectionName != nil || isCountDisplayed {
-                HStack(alignment: .firstTextBaseline) {
-                    if let sectionName {
-                        SectionHeaderView(sectionName)
-                    }
-                    Spacer()
-                    if isCountDisplayed {
-                        SectionHeaderView("\(items.count)")
-                    }
-                }
+            if let sectionName {
+                SectionHeaderView("\(sectionName) (\(items.count))")
+                    .accessibilityLabel("\(sectionName), \(Localizations.xItems(items.count))")
             }
 
             LazyVStack(alignment: .leading, spacing: 0) {
@@ -300,7 +289,6 @@ struct SendListView: View {
                         loadingState: .data([
                             SendListSection(
                                 id: "1",
-                                isCountDisplayed: false,
                                 items: [
                                     SendListItem(
                                         id: "11",
@@ -320,7 +308,6 @@ struct SendListView: View {
                             ),
                             SendListSection(
                                 id: "2",
-                                isCountDisplayed: true,
                                 items: [
                                     SendListItem(sendView: .fixture(
                                         id: "21",
@@ -405,4 +392,4 @@ struct SendListView: View {
         )
     }
 }
-#endif // swiftlint:disable:this file_length
+#endif

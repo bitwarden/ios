@@ -52,7 +52,7 @@ struct AutoFillView: View {
 
     /// The additional options section.
     private var additionalOptionsSection: some View {
-        SectionView(Localizations.additionalOptions, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.additionalOptions, contentSpacing: 8) {
             BitwardenToggle(
                 Localizations.copyTotpAutomatically,
                 footer: Localizations.copyTotpAutomaticallyDescription,
@@ -79,7 +79,7 @@ struct AutoFillView: View {
 
     /// The auto-fill section.
     private var autoFillSection: some View {
-        SectionView(Localizations.autofill, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.autofill, contentSpacing: 8) {
             ContentBlock(dividerLeadingPadding: 16) {
                 SettingsListItem(Localizations.passwordAutofill, hasDivider: false) {
                     store.send(.passwordAutoFillTapped)

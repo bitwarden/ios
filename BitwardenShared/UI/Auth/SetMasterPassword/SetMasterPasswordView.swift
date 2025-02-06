@@ -84,11 +84,6 @@ struct SetMasterPasswordView: View {
                     }
                 )
             }
-            AsyncButton(Localizations.submit) {
-                await store.perform(.submitPressed)
-            }
-            .accessibilityIdentifier("SubmitButton")
-            .buttonStyle(.primary())
         }
         .scrollView(padding: 16)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
@@ -103,6 +98,15 @@ struct SetMasterPasswordView: View {
                         }
                     }
                 }
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                primaryActionToolbarButton(Localizations.save) {
+                    Task {
+                        await store.perform(.saveTapped)
+                    }
+                }
+                .accessibilityIdentifier("SubmitButton")
             }
         }
         .task {

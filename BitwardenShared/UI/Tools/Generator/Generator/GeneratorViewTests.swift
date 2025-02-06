@@ -5,7 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class GeneratorViewTests: BitwardenTestCase {
+class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// Wraps the generator view in a navigation controller with the hairline divider removed for
@@ -102,6 +102,15 @@ class GeneratorViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects, [.showLearnGeneratorGuidedTour])
     }
 
+    /// Tests that the generator action card is not present when `.presentationMode` is `.inPlace`.
+    @MainActor
+    func test_learnGeneratorActionCard_inVisible() throws {
+        processor.state.isLearnGeneratorActionCardEligible = true
+        processor.state.presentationMode = .inPlace
+        let actionCard = try? subject.inspect().find(actionCard: Localizations.exploreTheGenerator)
+        XCTAssertNil(actionCard)
+    }
+
     /// Updating the email type dispatches the `.emailTypeChanged` action.
     @MainActor
     func test_menuEmailTypeChanged() throws {
@@ -171,7 +180,10 @@ class GeneratorViewTests: BitwardenTestCase {
             title: Localizations.minNumbers,
             value: 1
         )
-        let stepper = try subject.inspect().find(ViewType.Stepper.self)
+        let stepper = try subject.inspect().find(
+            BitwardenStepperType.self,
+            containing: Localizations.minNumbers
+        )
         try stepper.increment()
         XCTAssertEqual(
             processor.dispatchedActions.last,
@@ -320,7 +332,7 @@ class GeneratorViewTests: BitwardenTestCase {
         )
     }
 
-    /// Tests the snapshot with the add state with the learn generator action card.
+    /// Tests the snapshot with the learn generator action card.
     @MainActor
     func test_snapshot_generatorView_learnGeneratorActionCard() throws {
         processor.state.isLearnGeneratorActionCardEligible = true

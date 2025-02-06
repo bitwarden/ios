@@ -431,6 +431,7 @@
 "FingerprintPhrase" = "Fingerprint phrase";
 "YourAccountsFingerprint" = "Your account's fingerprint phrase";
 "LearnOrgConfirmation" = "Bitwarden allows you to share your vault items with others by using an organization account. Would you like to visit the bitwarden.com website to learn more?";
+"Export" = "Export";
 "ExportVault" = "Export vault";
 "LockNow" = "Lock now";
 "PIN" = "PIN";
@@ -1110,5 +1111,6 @@
 "SendNameRequired" = "Send name (required)";
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
+"XItems" = "%1$@ items";
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
