@@ -5,17 +5,8 @@
 struct DeleteAccountState: Equatable {
     // MARK: Properties
 
-    /// A short description of the view.
-    var description: String {
-        return if shouldPreventUserFromDeletingAccount {
-            Localizations.cannotDeleteAccount
-        } else {
-            Localizations.deletingYourAccountIsPermanent
-        }
-    }
-
     /// A detailed description of the view.
-    var longDescription: String {
+    var description: String {
         return if shouldPreventUserFromDeletingAccount {
             Localizations.cannotDeleteAccountDescriptionLong
         } else {
@@ -32,11 +23,20 @@ struct DeleteAccountState: Equatable {
         }
     }
 
-    /// Whether the form to delete the account is showed.
+    /// Whether the user should be blocked from deleting their account.
     var shouldPreventUserFromDeletingAccount = false
 
     /// Whether to show the delete account view buttons.
     var showDeleteAccountButtons: Bool {
         !shouldPreventUserFromDeletingAccount
+    }
+    
+    /// A short description of the view.
+    var title: String {
+        return if shouldPreventUserFromDeletingAccount {
+            Localizations.cannotDeleteAccount
+        } else {
+            Localizations.deletingYourAccountIsPermanent
+        }
     }
 }

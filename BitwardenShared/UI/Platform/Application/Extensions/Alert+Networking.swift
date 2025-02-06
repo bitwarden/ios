@@ -37,21 +37,18 @@ extension Alert {
     static func networkResponseError(
         _ error: Error,
         isOfficialBitwardenServer: Bool = true,
-        _ tryAgain: (() async -> Void)? = nil,
-        customActions: [AlertAction]? = nil
+        _ tryAgain: (() async -> Void)? = nil
     ) -> Alert {
         switch error {
         case let serverError as ServerError:
             return defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: serverError.message,
-                alertActions: customActions
+                message: serverError.message
             )
         case let BitwardenSdk.BitwardenError.E(message):
             return defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: message,
-                alertActions: customActions
+                message: message
             )
         case let error as URLError where error.code == .notConnectedToInternet || error.code == .networkConnectionLost:
             return internetConnectionError(tryAgain)
@@ -71,8 +68,7 @@ extension Alert {
         default:
             return defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: isOfficialBitwardenServer ? nil : Localizations.thisIsNotARecognizedServerDescriptionLong,
-                alertActions: customActions
+                message: isOfficialBitwardenServer ? nil : Localizations.thisIsNotARecognizedServerDescriptionLong
             )
         }
     }

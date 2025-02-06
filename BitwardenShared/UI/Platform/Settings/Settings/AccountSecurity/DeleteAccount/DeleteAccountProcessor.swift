@@ -134,10 +134,10 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
             state.shouldPreventUserFromDeletingAccount =
                 try await services.authRepository.isUserManagedByOrganization()
         } catch {
-            let okAction = AlertAction(title: Localizations.ok, style: .default) { _, _ in
-                self.coordinator.navigate(to: .dismiss)
+            coordinator.showAlert(.networkResponseError(error)) { [weak self] in
+                guard let self else { return }
+                coordinator.navigate(to: .dismiss)
             }
-            coordinator.showAlert(.networkResponseError(error, customActions: [okAction]))
             services.errorReporter.log(error: error)
         }
     }

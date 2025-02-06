@@ -35,7 +35,7 @@ struct DeleteAccountView: View {
                 .foregroundColor(Color(asset: Asset.Colors.error))
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(store.state.description)
+                Text(store.state.title)
                     .foregroundColor(Color(asset: Asset.Colors.error))
                     .styleGuide(
                         .headline,
@@ -44,7 +44,7 @@ struct DeleteAccountView: View {
                         includeLineSpacing: false
                     )
 
-                Text(store.state.longDescription)
+                Text(store.state.description)
                     .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                     .styleGuide(.subheadline)
             }
@@ -66,7 +66,7 @@ struct DeleteAccountView: View {
                     Text(Localizations.cancel)
                 }
                 .buttonStyle(.secondary(isDestructive: true))
-                .accessibilityIdentifier("CANCEL")
+                .accessibilityIdentifier("CancelDeletionButton")
             }
         }
     }
