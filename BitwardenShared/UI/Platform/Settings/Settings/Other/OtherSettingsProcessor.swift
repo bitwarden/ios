@@ -8,7 +8,8 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     // MARK: Types
 
     typealias Services = HasErrorReporter
-    & HasSettingsRepository & HasSystemDevice
+        & HasSettingsRepository
+        & HasSystemDevice
 
     // MARK: Properties
 
