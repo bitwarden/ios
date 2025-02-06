@@ -13,7 +13,7 @@ struct SetMasterPasswordState: Equatable, Sendable {
     /// A flag indicating if the new master password should be revealed or not.
     var isMasterPasswordRevealed: Bool = false
 
-    /// Indicates if the reason to set password was privelege elevation.
+    /// Indicates if the reason to set password was privilege elevation.
     var isPrivilegeElevation: Bool = false
 
     /// The new master password provided by the user.
