@@ -244,6 +244,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert.alertActions.count, 1)
 
         try await alert.tapAction(title: Localizations.ok)
+        coordinator.alertOnDismissed?()
+
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 }
