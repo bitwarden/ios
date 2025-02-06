@@ -90,12 +90,13 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .revealMasterPasswordFieldPressed(true))
     }
 
-    /// Tapping on the submit button performs the `.submitPressed` effect.
+    /// Tapping on the save button performs the `.saveTapped` effect.
     @MainActor
-    func test_submitButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.submit)
-        try await button.tap()
-        XCTAssertEqual(processor.effects.last, .submitPressed)
+    func test_saveButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.save)
+        try button.tap()
+        waitFor(!processor.effects.isEmpty)
+        XCTAssertEqual(processor.effects.last, .saveTapped)
     }
 
     // MARK: Snapshots
@@ -108,7 +109,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
         processor.state.masterPasswordHint = "hint hint"
         processor.state.resetPasswordAutoEnroll = true
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [
                 "portrait": .portrait(),
                 "portraitDark": .portraitDark(),
@@ -126,7 +127,7 @@ class SetMasterPasswordViewTests: BitwardenTestCase {
         processor.state.masterPasswordHint = "hint hint"
         processor.state.resetPasswordAutoEnroll = true
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [
                 "portrait": .portrait(),
                 "portraitDark": .portraitDark(),

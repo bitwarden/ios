@@ -55,7 +55,7 @@ class SetMasterPasswordProcessor: StateProcessor<
             await loadData()
         case .cancelPressed:
             coordinator.navigate(to: .dismiss)
-        case .submitPressed:
+        case .saveTapped:
             await setPassword()
         }
     }
