@@ -147,6 +147,22 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 
+    /// The default view renders correctly for the email method and device needs verification.
+    @MainActor
+    func test_snapshot_default_email_deviceVerificationRequired() {
+        processor.state.deviceVerificationRequired = true
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// The default view renders correctly for the email method when filled and device needs verification.
+    @MainActor
+    func test_snapshot_default_email_filled_deviceVerificationRequired() {
+        processor.state.deviceVerificationRequired = true
+        processor.state.verificationCode = "123456"
+        processor.state.continueEnabled = true
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
     /// The default view renders correctly for the YubiKey method.
     @MainActor
     func test_snapshot_default_yubikey() {
