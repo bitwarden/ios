@@ -80,7 +80,7 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
     /// Tapping the resend email button performs the `.resendEmailTapped` effect.
     @MainActor
     func test_resendEmailButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.sendVerificationCodeAgain)
+        let button = try subject.inspect().find(asyncButton: Localizations.resendCode)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .resendEmailTapped)
     }

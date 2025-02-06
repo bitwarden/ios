@@ -49,7 +49,9 @@ struct TwoFactorAuthView: View {
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    authMethodsMenu
+                    if !store.state.deviceVerificationRequired {
+                        authMethodsMenu
+                    }
                 }
             }
     }
@@ -192,7 +194,7 @@ struct TwoFactorAuthView: View {
     /// The resend email button for the email authentication option.
     @ViewBuilder private var resendEmailButton: some View {
         if store.state.authMethod == .email {
-            AsyncButton(Localizations.sendVerificationCodeAgain) {
+            AsyncButton(Localizations.resendCode) {
                 await store.perform(.resendEmailTapped)
             }
             .buttonStyle(.secondary())
