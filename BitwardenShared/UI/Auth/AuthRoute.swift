@@ -156,12 +156,14 @@ public enum AuthRoute: Equatable {
     ///   - unlockMethod: The method used to unlock the vault after two-factor completes successfully.
     ///   - authMethodsData: The data on the available auth methods.
     ///   - orgIdentifier: The identifier for the organization used in the SSO flow
+    ///   - deviceVerificationRequired: whether the flow is to verify the device or not
     ///
     case twoFactor(
         _ email: String,
         _ unlockMethod: TwoFactorUnlockMethod?,
         _ authMethodsData: AuthMethodsData,
-        _ orgIdentifier: String?
+        _ orgIdentifier: String?,
+        _ deviceVerificationRequired: Bool? = nil
     )
 
     /// A route to the update master password screen.
