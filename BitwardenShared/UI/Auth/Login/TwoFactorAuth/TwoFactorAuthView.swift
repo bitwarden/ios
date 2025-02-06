@@ -94,17 +94,30 @@ struct TwoFactorAuthView: View {
     /// The body content for most 2FA methods.
     private var defaultContent: some View {
         VStack(spacing: 16) {
+            if store.state.authMethod == .email {
+                emailImage
+            }
+
             detailText
 
             verificationCodeTextField
 
-            rememberMeToggle
+            if !store.state.deviceVerificationRequired {
+                rememberMeToggle
+            }
 
             continueButton
 
             resendEmailButton
         }
         .scrollView()
+    }
+
+    /// The image representing the email method
+    private var emailImage: some View {
+        Image(decorative: Asset.Images.Illustrations.emailOtp)
+            .resizable()
+            .frame(width: 124, height: 124)
     }
 
     /// The detailed instructions for the method.
@@ -207,5 +220,5 @@ struct TwoFactorAuthView: View {
 // MARK: - Previews
 
 #Preview {
-    TwoFactorAuthView(store: Store(processor: StateProcessor(state: TwoFactorAuthState())))
+    TwoFactorAuthView(store: Store(processor: StateProcessor(state: TwoFactorAuthState(authMethod: TwoFactorAuthMethod.authenticatorApp))))
 }
