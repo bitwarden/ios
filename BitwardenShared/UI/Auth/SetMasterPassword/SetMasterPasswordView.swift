@@ -17,6 +17,7 @@ struct SetMasterPasswordView: View {
                 title: Localizations.chooseYourMasterPassword,
                 message: store.state.explanationText
             )
+            .padding(.top, 12)
 
             if store.state.resetPasswordAutoEnroll {
                 InfoContainer(Localizations.resetPasswordAutoEnrollInviteWarning)
