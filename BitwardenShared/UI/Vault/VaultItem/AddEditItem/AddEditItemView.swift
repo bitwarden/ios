@@ -207,13 +207,9 @@ private extension AddEditItemView {
                 send: AddEditItemAction.toggleAdditionalOptionsExpanded
             )
         ) {
-            BitwardenTextView(
-                title: Localizations.notes,
-                text: store.binding(
-                    get: \.notes,
-                    send: AddEditItemAction.notesChanged
-                )
-            )
+            if store.state.type != .secureNote {
+                notesField
+            }
 
             if store.state.showMasterPasswordReprompt {
                 BitwardenToggle(isOn: store.binding(
@@ -252,6 +248,17 @@ private extension AddEditItemView {
             )
         )
         .animation(.easeInOut(duration: 0.2), value: store.state.customFieldsState)
+    }
+
+    /// The notes fields.
+    private var notesField: some View {
+        BitwardenTextView(
+            title: Localizations.notes,
+            text: store.binding(
+                get: \.notes,
+                send: AddEditItemAction.notesChanged
+            )
+        )
     }
 }
 
@@ -294,7 +301,7 @@ private extension AddEditItemView {
         case .login:
             loginItems
         case .secureNote:
-            EmptyView()
+            notesField
         case .identity:
             identityItems
         case .sshKey:
