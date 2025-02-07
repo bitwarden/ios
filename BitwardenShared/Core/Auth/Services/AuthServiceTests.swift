@@ -1113,6 +1113,12 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
 
         // Ensure the resend email request runs successfully.
         try await subject.resendNewDeviceOtp()
+
+        XCTAssertEqual(client.requests[2].url, URL(
+            string: "https://example.com/api/accounts/resend-new-device-otp"
+        ))
+        let storedToken = await stateService.getTwoFactorToken(email: "email@example.com")
+        XCTAssertNil(storedToken)
     }
 
     /// `resendVerificationCodeEmail()` throws an error if there is no cached request model to use.
