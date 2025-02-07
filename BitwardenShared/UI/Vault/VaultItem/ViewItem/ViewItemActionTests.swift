@@ -37,7 +37,7 @@ class ViewItemActionTests: BitwardenTestCase {
         XCTAssertEqual(CopyableField.sshPrivateKey.localizedName, Localizations.privateKey)
         XCTAssertEqual(CopyableField.sshPublicKey.localizedName, Localizations.publicKey)
         XCTAssertEqual(CopyableField.totp.localizedName, Localizations.totp)
-        XCTAssertEqual(CopyableField.uri.localizedName, Localizations.uri)
+        XCTAssertEqual(CopyableField.uri.localizedName, Localizations.websiteURI)
         XCTAssertEqual(CopyableField.username.localizedName, Localizations.username)
         XCTAssertEqual(CopyableField.identityName.localizedName, Localizations.identityName)
         XCTAssertEqual(CopyableField.company.localizedName, Localizations.company)
