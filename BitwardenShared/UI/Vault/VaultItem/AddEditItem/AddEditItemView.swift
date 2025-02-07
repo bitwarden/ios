@@ -170,13 +170,25 @@ struct AddEditItemView: View {
             }
 
             BitwardenTextField(
-                title: Localizations.name,
+                title: Localizations.itemNameRequired,
                 text: store.binding(
                     get: \.name,
                     send: AddEditItemAction.nameChanged
                 ),
                 accessibilityIdentifier: "ItemNameEntry"
-            )
+            ) {
+                Button {
+                    store.send(.favoriteChanged(!store.state.isFavoriteOn))
+                } label: {
+                    store.state.isFavoriteOn
+                        ? Asset.Images.starFilled24.swiftUIImage
+                        : Asset.Images.star24.swiftUIImage
+                }
+                .buttonStyle(.accessory)
+                .accessibilityIdentifier("ItemFavoriteButton")
+                .accessibilityLabel(Localizations.favorite)
+                .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
+            }
 
             switch store.state.type {
             case .card:
@@ -257,16 +269,6 @@ private extension AddEditItemView {
                 }
             )
             .accessibilityIdentifier("FolderPicker")
-
-            BitwardenToggle(
-                Localizations.favorite,
-                isOn: store.binding(
-                    get: \.isFavoriteOn,
-                    send: AddEditItemAction.favoriteChanged
-                ),
-                accessibilityIdentifier: "ItemFavoriteToggle"
-            )
-            .contentBlock()
 
             if store.state.showMasterPasswordReprompt {
                 BitwardenToggle(isOn: store.binding(

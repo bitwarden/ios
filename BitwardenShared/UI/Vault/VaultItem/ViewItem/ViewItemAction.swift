@@ -195,7 +195,7 @@ enum CopyableField {
         case .totp:
             Localizations.totp
         case .uri:
-            Localizations.uri
+            Localizations.websiteURI
         case .username:
             Localizations.username
         case .identityName:

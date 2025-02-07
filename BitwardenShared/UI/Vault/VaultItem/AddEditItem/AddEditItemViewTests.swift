@@ -36,6 +36,14 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     // MARK: Tests
 
+    /// Tapping the add website button dispatches the `.newUriPressed` action.
+    @MainActor
+    func test_addWebsiteButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.addWebsite)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .newUriPressed)
+    }
+
     /// Tapping the cancel button dispatches the `.dismissPressed` action.
     @MainActor
     func test_cancelButton_tap() throws {
@@ -120,16 +128,18 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .dismissPressed)
     }
 
-    /// Tapping the favorite toggle dispatches the `.favoriteChanged(_:)` action.
+    /// Tapping the favorite button dispatches the `.favoriteChanged(_:)` action.
     @MainActor
-    func test_favoriteToggle_tap() throws {
-        if #available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *) {
-            throw XCTSkip("Unable to run test in iOS 16, keep an eye on ViewInspector to see if it gets updated.")
-        }
+    func test_favoriteButton_tap() throws {
+        let button = try subject.inspect().find(buttonWithAccessibilityLabel: Localizations.favorite)
+
         processor.state.isFavoriteOn = false
-        let toggle = try subject.inspect().find(ViewType.Toggle.self, containing: Localizations.favorite)
-        try toggle.tap()
+        try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .favoriteChanged(true))
+
+        processor.state.isFavoriteOn = true
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .favoriteChanged(false))
     }
 
     /// Updating the folder text field dispatches the `.folderChanged()` action.
@@ -176,7 +186,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Updating the name text field dispatches the `.nameChanged()` action.
     @MainActor
     func test_nameTextField_updateValue() throws {
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.name)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.itemNameRequired)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .nameChanged("text"))
     }
@@ -187,14 +197,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let button = try subject.inspect().find(button: Localizations.newCustomField)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .customField(.newCustomFieldPressed))
-    }
-
-    /// Tapping the new uri button dispatches the `.newUriPressed` action.
-    @MainActor
-    func test_newUriButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.newUri)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .newUriPressed)
     }
 
     /// Tapping the new folder button dispatches the `.addFolder` action.
@@ -349,7 +351,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
 
-        let textField = try subject.inspect().find(bitwardenTextField: Localizations.uri)
+        let textField = try subject.inspect().find(bitwardenTextField: Localizations.websiteURI)
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .uriChanged("text", index: 0))
     }
