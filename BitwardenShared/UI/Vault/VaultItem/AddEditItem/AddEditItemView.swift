@@ -84,8 +84,7 @@ struct AddEditItemView: View {
 
                 itemDetailsSection
                 itemTypeSection
-                miscellaneousSection
-                customSection
+                additionalOptions
             }
             .padding(12)
         }
@@ -97,17 +96,6 @@ struct AddEditItemView: View {
         )
         .navigationBarTitleDisplayMode(.inline)
         .backport.scrollContentMargins(Edge.Set.bottom, 30.0)
-    }
-
-    private var customSection: some View {
-        AddEditCustomFieldsView(
-            store: store.child(
-                state: { $0.customFieldsState },
-                mapAction: { .customField($0) },
-                mapEffect: nil
-            )
-        )
-        .animation(.easeInOut(duration: 0.2), value: store.state.customFieldsState)
     }
 
     private var existing: some View {
@@ -210,8 +198,23 @@ struct AddEditItemView: View {
 }
 
 private extension AddEditItemView {
-    var miscellaneousSection: some View {
-        SectionView(Localizations.miscellaneous, contentSpacing: 8) {
+    /// The expandable additional options section.
+    @ViewBuilder var additionalOptions: some View {
+        ExpandableContent(
+            title: Localizations.additionalOptions,
+            isExpanded: store.binding(
+                get: \.isAdditionalOptionsExpanded,
+                send: AddEditItemAction.toggleAdditionalOptionsExpanded
+            )
+        ) {
+            BitwardenTextView(
+                title: Localizations.notes,
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditItemAction.notesChanged
+                )
+            )
+
             if store.state.showMasterPasswordReprompt {
                 BitwardenToggle(isOn: store.binding(
                     get: \.isMasterPasswordRePromptOn,
@@ -235,14 +238,20 @@ private extension AddEditItemView {
                 .contentBlock()
             }
 
-            BitwardenTextView(
-                title: Localizations.notes,
-                text: store.binding(
-                    get: \.notes,
-                    send: AddEditItemAction.notesChanged
-                )
-            )
+            customSection
         }
+    }
+
+    /// The section containing custom fields.
+    private var customSection: some View {
+        AddEditCustomFieldsView(
+            store: store.child(
+                state: { $0.customFieldsState },
+                mapAction: { .customField($0) },
+                mapEffect: nil
+            )
+        )
+        .animation(.easeInOut(duration: 0.2), value: store.state.customFieldsState)
     }
 }
 
