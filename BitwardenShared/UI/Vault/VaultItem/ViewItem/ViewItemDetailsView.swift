@@ -38,7 +38,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The attachments section.
     @ViewBuilder private var attachmentsSection: some View {
         if let attachments = store.state.attachments, !attachments.isEmpty {
-            SectionView(Localizations.attachments, titleDesignVersion: .v2, contentSpacing: 8) {
+            SectionView(Localizations.attachments, contentSpacing: 8) {
                 ContentBlock {
                     ForEach(attachments) { attachment in
                         attachmentRow(attachment, hasDivider: attachment != attachments.last)
@@ -53,7 +53,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The custom fields section.
     @ViewBuilder private var customFieldsSection: some View {
         if !store.state.customFieldsState.customFields.isEmpty {
-            SectionView(Localizations.customFields, titleDesignVersion: .v2, contentSpacing: 8) {
+            SectionView(Localizations.customFields, contentSpacing: 8) {
                 ForEach(store.state.customFieldsState.customFields, id: \.self) { customField in
                     if customField.type == .boolean {
                         HStack(spacing: 16) {
@@ -143,9 +143,17 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
 
     /// The item information section.
     private var itemInformationSection: some View {
-        SectionView(Localizations.itemInformation, titleDesignVersion: .v2, contentSpacing: 8) {
-            BitwardenTextValueField(title: Localizations.name, value: store.state.name)
-                .accessibilityElement(children: .contain)
+        SectionView(Localizations.itemInformation, contentSpacing: 8) {
+            BitwardenTextValueField(title: Localizations.itemNameRequired, value: store.state.name) {
+                let image = store.state.isFavoriteOn
+                    ? Asset.Images.starFilled24.swiftUIImage
+                    : Asset.Images.star24.swiftUIImage
+                image
+                    .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
+                    .accessibilityLabel(Localizations.favorite)
+                    .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
+            }
+            .accessibilityElement(children: .contain)
 
             // check for type
             switch store.state.type {
@@ -241,11 +249,11 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     /// The URIs section (login only).
     @ViewBuilder private var uriSection: some View {
         if store.state.type == .login, !store.state.loginState.uris.isEmpty {
-            SectionView(Localizations.urIs, titleDesignVersion: .v2, contentSpacing: 8) {
+            SectionView(Localizations.autofillOptions, contentSpacing: 8) {
                 ContentBlock {
                     ForEach(store.state.loginState.uris, id: \.self) { uri in
                         BitwardenTextValueField(
-                            title: Localizations.uri,
+                            title: Localizations.websiteURI,
                             value: URL(string: uri.uri)?.host ?? uri.uri,
                             valueAccessibilityIdentifier: "LoginUriEntry"
                         ) {

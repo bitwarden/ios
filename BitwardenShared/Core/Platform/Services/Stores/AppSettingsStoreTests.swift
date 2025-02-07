@@ -547,6 +547,29 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(userDefaults.double(forKey: "bwPreferencesStorage:lastSync_2"), 1_685_664_000.0)
     }
 
+    /// `learnGeneratorActionCardStatus` returns `.incomplete` if there isn't a previously stored value.
+    func test_learnGeneratorActionCardStatus_isInitiallyIncomplete() {
+        XCTAssertEqual(subject.learnGeneratorActionCardStatus, .incomplete)
+    }
+
+    /// `learnGeneratorActionCardStatus`  can be used to get and set the persisted value in user defaults.
+    func test_learnGeneratorActionCardStatus_withValues() {
+        subject.learnGeneratorActionCardStatus = .complete
+        XCTAssertEqual(subject.learnGeneratorActionCardStatus, .complete)
+
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                AccountSetupProgress.self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:learnGeneratorActionCardStatus")?
+                        .data(using: .utf8)
+                )
+            ),
+            AccountSetupProgress.complete
+        )
+    }
+
     /// `loginRequest` returns `nil` if there isn't a previously stored value.
     func test_loginRequest_isInitiallyNil() {
         XCTAssertNil(subject.loginRequest)

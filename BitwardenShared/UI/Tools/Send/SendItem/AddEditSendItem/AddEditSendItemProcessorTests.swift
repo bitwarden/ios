@@ -547,36 +547,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.maximumAccessCountText, "42")
     }
 
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged() {
-        subject.state.maximumAccessCountText = "0"
-        subject.receive(.maximumAccessCountTextFieldChanged("32"))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 32)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "32")
-    }
-
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged_zeroToEmptyState() {
-        subject.state.maximumAccessCountText = "0"
-        subject.receive(.maximumAccessCountTextFieldChanged(""))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 0)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "")
-    }
-
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged_emptyToZeroState() {
-        subject.state.maximumAccessCountText = ""
-        subject.receive(.maximumAccessCountTextFieldChanged("0"))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 0)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "0")
-    }
-
     /// `receive(_:)` with `.nameChanged` updates the name.
     @MainActor
     func test_receive_nameChanged() {

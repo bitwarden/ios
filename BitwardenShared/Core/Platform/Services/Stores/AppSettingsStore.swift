@@ -36,6 +36,9 @@ protocol AppSettingsStore: AnyObject {
     /// sending the status to the watch if the user is logged out.
     var lastUserShouldConnectToWatch: Bool { get set }
 
+    /// The status of the learn generator action card.
+    var learnGeneratorActionCardStatus: AccountSetupProgress { get set }
+
     /// The status of the learn new login action card.
     var learnNewLoginActionCardStatus: AccountSetupProgress { get set }
 
@@ -716,6 +719,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case lastActiveTime(userId: String)
         case lastSync(userId: String)
         case lastUserShouldConnectToWatch
+        case learnGeneratorActionCardStatus
         case loginRequest
         case manuallyLockedAccount(userId: String)
         case masterPasswordHash(userId: String)
@@ -793,6 +797,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "lastActiveTime_\(userId)"
             case let .lastSync(userId):
                 key = "lastSync_\(userId)"
+            case .learnGeneratorActionCardStatus:
+                key = "learnGeneratorActionCardStatus"
             case .lastUserShouldConnectToWatch:
                 key = "lastUserShouldConnectToWatch"
             case .loginRequest:
@@ -890,6 +896,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var lastUserShouldConnectToWatch: Bool {
         get { fetch(for: .lastUserShouldConnectToWatch) }
         set { store(newValue, for: .lastUserShouldConnectToWatch) }
+    }
+
+    var learnGeneratorActionCardStatus: AccountSetupProgress {
+        get { fetch(for: .learnGeneratorActionCardStatus) ?? .incomplete }
+        set { store(newValue, for: .learnGeneratorActionCardStatus) }
     }
 
     var loginRequest: LoginRequestNotification? {

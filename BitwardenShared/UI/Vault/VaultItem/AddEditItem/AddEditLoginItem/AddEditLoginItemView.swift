@@ -176,11 +176,11 @@ struct AddEditLoginItemView: View {
 
     /// The section for uris.
     @ViewBuilder private var uriSection: some View {
-        SectionView(Localizations.urIs, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.autofillOptions, contentSpacing: 8) {
             ContentBlock {
                 ForEachIndexed(store.state.uris) { index, uriState in
                     BitwardenTextField(
-                        title: Localizations.uri,
+                        title: Localizations.websiteURI,
                         text: store.binding(
                             get: { _ in uriState.uri },
                             send: { AddEditItemAction.uriChanged($0, index: index) }
@@ -217,7 +217,7 @@ struct AddEditLoginItemView: View {
                         store.send(.newUriPressed)
                     }
                 } label: {
-                    Label(Localizations.newUri, image: Asset.Images.plus16.swiftUIImage)
+                    Label(Localizations.addWebsite, image: Asset.Images.plus16.swiftUIImage)
                 }
                 .accessibilityIdentifier("LoginAddNewUriButton")
                 .buttonStyle(.bitwardenBorderless)
