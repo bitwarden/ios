@@ -14,7 +14,7 @@ extension ASPasskeyCredentialRequest {
             return nil
         }
 
-        return excludedCredentials.map { $0.toPublicKeyCredentialDescriptor() }
+        return excludedCredentials.map { PublicKeyCredentialDescriptor(from: $0) }
     }
 
     /// Gets an array of the `PublicKeyCredentialParameters` based on this request.

@@ -143,7 +143,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
 
         guard let onDismissed = coordinator.alertOnDismissed else {
-            XCTFail("Alert does nothign on dismiss when it should.")
+            XCTFail("Alert does nothing on dismiss when it should.")
             return
         }
         onDismissed()
@@ -183,7 +183,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         )
 
         guard let onDismissed = coordinator.alertOnDismissed else {
-            XCTFail("Alert does nothign on dismiss when it should.")
+            XCTFail("Alert does nothing on dismiss when it should.")
             return
         }
         onDismissed()

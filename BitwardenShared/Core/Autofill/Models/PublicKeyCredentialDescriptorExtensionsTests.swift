@@ -9,15 +9,15 @@ import XCTest
 // MARK: - ASAuthorizationPublicKeyCredentialDescriptorExtensionTests
 
 // swiftlint:disable:next type_name
-class ASAuthorizationPublicKeyCredentialDescriptorExtensionTests: BitwardenTestCase {
+class PublicKeyCredentialDescriptorExtensionsTests: BitwardenTestCase {
     // MARK: Tests
 
-    /// `toPublicKeyCredentialDescriptor()` converts a `ASAuthorizationPublicKeyCredentialDescriptor`
-    /// into a `PublicKeyCredentialDescriptor`.
-    func test_toPublicKeyCredentialDescriptor() {
+    /// `init(from:)` initializes a `PublicKeyCredentialDescriptor`
+    /// from a `ASAuthorizationPublicKeyCredentialDescriptor`.
+    func test_init_from() {
         let data = Data(capacity: 16)
         let asDescriptor = MockASAuthorizationPublicKeyCredentialDescriptor(credentialId: data)
-        let descriptor = asDescriptor.toPublicKeyCredentialDescriptor()
+        let descriptor = PublicKeyCredentialDescriptor(from: asDescriptor)
         XCTAssertEqual(asDescriptor.credentialID, descriptor.id)
         XCTAssertEqual(descriptor.ty, "public-key")
         XCTAssertNil(descriptor.transports)
