@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "使用指紋解鎖";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "使用者名稱";
 "ValidationFieldRequired" = "必須填入 %1$@ 欄位。";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "登入 Bitwarden";
 "Manage" = "管理";
 "MasterPasswordConfirmationValMessage" = "兩次填寫的主密碼不一致。";
-"MasterPasswordDescription" = "主密碼是用於存取密碼庫的密碼。它非常重要，請您不要忘記它。若您忘記了主密碼，沒有任何方法能將其復原。";
-"MasterPasswordHint" = "主密碼提示（可省略）";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "主密碼提示可以在您忘記主密碼時幫助您回憶主密碼。";
 "MasterPasswordLengthValMessageX" = "主密碼需要至少 %1$@ 個字元。";
 "MinNumbers" = "最少數字位數";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "兩步驟登入";
 "UnlockWith" = "使用 %1$@ 解鎖";
 "UnlockWithPIN" = "使用 PIN 碼解鎖";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "正在驗證";
 "VerificationCode" = "驗證碼";
 "ViewItem" = "檢視項目";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "指紋短語";
 "YourAccountsFingerprint" = "您帳戶的指紋短語";
 "LearnOrgConfirmation" = "Bitwarden 允許您使用組織帳戶與他人共用您的密碼庫項目。您想造訪 bitwarden.com 網站以了解更多內容嗎？";
+"Export" = "Export";
 "ExportVault" = "匯出密碼庫";
 "LockNow" = "立即鎖定";
 "PIN" = "PIN 碼";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "您確定要結束 Bitwarden 嗎？";
 "PINRequireMasterPasswordRestart" = "當應用程式重新啟動時，是否要求使用主密碼解鎖？";
 "PINRequireBioOrMasterPasswordRestart" = "當應用程式重新啟動時，是否要求使用 %1$@ 主密碼解鎖？";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "黑色";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark 主題";
@@ -563,22 +571,18 @@
 "DeletionTime" = "刪除時間";
 "DeletionDateInfo" = "此 Send 將在指定的日期和時間後被永久刪除。";
 "PendingDelete" = "等待刪除";
-"ExpirationDate" = "逾期日期";
 "ExpirationTime" = "逾期時間";
-"ExpirationDateInfo" = "如果設定此選項，對此 Send 的存取將在指定的日期和時間後逾期。";
 "Expired" = "已逾期";
 "MaximumAccessCount" = "最大存取次數";
 "MaximumAccessCountInfo" = "如果設定此選項，當達到最大存取次數時，使用者將無法再次存取此 Send。";
 "MaximumAccessCountReached" = "已達最大存取次數";
 "CurrentAccessCount" = "目前存取次數";
 "NewPassword" = "新密碼";
-"PasswordInfo" = "選用。使用者需提供密碼才能存取此 Send。";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "移除密碼";
 "AreYouSureRemoveSendPassword" = "您確定要移除此密碼嗎？";
 "RemovingSendPassword" = "正在移除密碼";
 "SendPasswordRemoved" = "已移除密碼。";
-"NotesInfo" = "關於此 Send 的私人備註。";
-"DisableSend" = "停用此 Send 以阻止任何人存取";
 "NoSends" = "您的帳戶中沒有 Send。";
 "CopyLink" = "複製連結";
 "ShareLink" = "共用連結";
@@ -934,6 +938,8 @@
 "UnknownAccount" = "未知的帳號";
 "UserVerificationForPasskey" = "密碼金鑰的使用者驗證";
 "NewItem" = "新項目";
+"ExploreTheGenerator" = "Explore the generator";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "此檔案匯出將受密碼保護，需要檔案密碼才能解密。";
 "IntroCarouselPage1Title" = "安全，第一優先";
 "IntroCarouselPage1Message" = "儲存登入資訊、信用卡和數位身分到您的安全密碼庫。Bitwarden 使用零知識、端對端的加密來保護您的重要資訊。";
@@ -1063,6 +1069,8 @@
 "CopyPrivateKey" = "複製私密金鑰";
 "CopyFingerprint" = "複製指紋";
 "SSHKeys" = "SSH 金鑰";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "重要通知";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "從 2025 年 2 月開始，Bitwarden 會傳送代碼到您的帳號電子郵件中來驗證新裝置的登入。";
 "DoYouHaveReliableAccessToYourEmail" = "您可以存取您的電子郵件位址 **%1$@** 嗎？";
@@ -1101,3 +1109,6 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
+"XItems" = "%1$@ items";

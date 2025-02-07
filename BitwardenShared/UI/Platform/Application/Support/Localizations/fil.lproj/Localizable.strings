@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Gumamit ng fingerprint sa pag-unlock";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Username";
 "ValidationFieldRequired" = "Kailangan ang field ng %1$@.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Pamahalaan";
 "MasterPasswordConfirmationValMessage" = "Mali ang kumpirmasyon sa password.";
-"MasterPasswordDescription" = "Ang master password ang password na gagamitin mo para ma-access ang vault. Napakamahalagang hindi mo kailanman makalimutan ang master password—kung gaano kahalagang makalimutan mo ang iyong ex, ganyan kahalagang maalala mo ang master password mo. Hindi kayang mabalik ang master password kung nakalimutan mo ito.";
-"MasterPasswordHint" = "Palatandaan ng master password (opsyonal)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "Makakatulong ang palatandaan ng master password na maalala mo ang password mo kung nakalimutan mo ito.";
 "MasterPasswordLengthValMessageX" = "Hindi dapat bumaba sa %1$@ karakter ang master password.";
 "MinNumbers" = "Pinakamababang dami ng mga numero";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Dalawang-hakbang na pag-log in";
 "UnlockWith" = "Buksan gamit ang %1$@";
 "UnlockWithPIN" = "Buksan gamit ang PIN code";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Bineberipika";
 "VerificationCode" = "Code pamberipika";
 "ViewItem" = "Tingnan ang item";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Parirala ng fingerprint";
 "YourAccountsFingerprint" = "Parirala ng fingerprint ng account mo";
 "LearnOrgConfirmation" = "Maaari mong ibahagi sa iba ang mga item sa vault mo gamit ang isang pang-organisasyong account. Gusto mo bang bumisita sa website na bitwarden.com para sa higit pang impormasyon?";
+"Export" = "Export";
 "ExportVault" = "I-export ang vault";
 "LockNow" = "I-lock ngayon";
 "PIN" = "PIN";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "Sigurado ka bang gusto mong umalis sa Bitwarden?";
 "PINRequireMasterPasswordRestart" = "Gusto mo bang kailanganing gamitin ang master password pang-unlock kapag na-restart ang aplikasyon?";
 "PINRequireBioOrMasterPasswordRestart" = "Do you want to require unlocking with %1$@ or your master password when the application is restarted?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Itim";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Oras kung kailan buburahin";
 "DeletionDateInfo" = "Permanenteng mabubura ang Send sa napiling petsa at oras.";
 "PendingDelete" = "Nakabinbin ang pagbura";
-"ExpirationDate" = "Petsa kung kailan ma-e-expire";
 "ExpirationTime" = "Oras kung kailan ma-e-expire";
-"ExpirationDateInfo" = "Kung naitakda, mag-e-expire ang access sa Send na ito sa napiling petsa at oras.";
 "Expired" = "Na-expire na";
 "MaximumAccessCount" = "Pinakamataas na beses ng pag-access";
 "MaximumAccessCountInfo" = "Kung naitakda, hindi na maa-access ng mga user ang Send na ito kapag naabot ang pinakamataas na beses ng pag-access.";
 "MaximumAccessCountReached" = "Naabot na ang pinakamataas na beses ng pag-access";
 "CurrentAccessCount" = "Kasalukuyang beses ng pag-access";
 "NewPassword" = "Bagong password";
-"PasswordInfo" = "Ipayo na mag-require ng password para ma-access ng mga user ang Send na ito.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Tanggalin ang password";
 "AreYouSureRemoveSendPassword" = "Sigurado ka bang gusto mong tanggalin ang password?";
 "RemovingSendPassword" = "Tinatanggal ang password";
 "SendPasswordRemoved" = "Natanggal ang password.";
-"NotesInfo" = "Mga pribadong tala tungkol sa Send na ito.";
-"DisableSend" = "I-deactivate ang Send na ito para walang sinumang maka-access nito";
 "NoSends" = "Walang mga Send sa account mo.";
 "CopyLink" = "Kopyahin ang link";
 "ShareLink" = "Ibahagi ang link";
@@ -934,6 +938,8 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExploreTheGenerator" = "Explore the generator";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
 "IntroCarouselPage1Title" = "Security, prioritized";
 "IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
@@ -1063,6 +1069,8 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
@@ -1101,3 +1109,6 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
+"XItems" = "%1$@ items";

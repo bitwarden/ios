@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Kasuta lahtilukustamiseks sõrmejälge";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Kasutajanimi";
 "ValidationFieldRequired" = "Väli %1$@ on kohustuslik.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Halda";
 "MasterPasswordConfirmationValMessage" = "Parooli kinnitus ei ole õige.";
-"MasterPasswordDescription" = "Ülemparool on parool, millega pääsed oma kontole ligi. On äärmiselt tähtis, et ülemparool ei ununeks. Selle parooli taastamine ei ole mingil moel võimalik.";
-"MasterPasswordHint" = "Ülemparooli vihje (ei ole kohustuslik)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "Vihje võib abiks olla olukorras, kui oled ülemparooli unustanud.";
 "MasterPasswordLengthValMessageX" = "Ülemparool peab olema vähemalt %1$@ tähemärgi pikkune.";
 "MinNumbers" = "Vähim arv numbreid";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Kaheastmeline kinnitamine";
 "UnlockWith" = "Lukusta lahti %1$@";
 "UnlockWithPIN" = "Lukusta lahti PIN koodiga";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Valideerimine";
 "VerificationCode" = "Kinnituskood";
 "ViewItem" = "Kirje vaatamine";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Unikaalne sõnajada";
 "YourAccountsFingerprint" = "Konto unikaalne sõnajada";
 "LearnOrgConfirmation" = "Bitwardeniga saad oma hoidla sisu teistega jagada, kasutades selleks organisatsiooni kontot. Kas soovid selle kohta lisateavet ja avada bitwarden.com veebilehe?";
+"Export" = "Export";
 "ExportVault" = "Ekspordi hoidla";
 "LockNow" = "Lukusta paroolihoidla";
 "PIN" = "PIN";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "Soovid tõesti Bitwardeni sulgeda?";
 "PINRequireMasterPasswordRestart" = "You you want to require unlocking with your master password when the application is restarted?";
 "PINRequireBioOrMasterPasswordRestart" = "Kas soovid nõuda avamist \"%1$@\" meetodiga või ülemparooliga kui rakendus taaskäivitatakse?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Must";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized tume";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Kustutamise aeg";
 "DeletionDateInfo" = "Send kustutatakse määratud kuupäeval ja kellaajal jäädavalt.";
 "PendingDelete" = "Kustutamise ootel";
-"ExpirationDate" = "Aegumiskuupäev";
 "ExpirationTime" = "Aegumise kellaaeg";
-"ExpirationDateInfo" = "Selle valimisel ei pääse sellele Sendile enam pärast määratud kuupäeva ligi.";
 "Expired" = "Aegunud";
 "MaximumAccessCount" = "Maksimaalne ligipääsude arv";
 "MaximumAccessCountInfo" = "Selle valimisel ei saa kasutajad pärast maksimaalse ligipääsude arvu saavutamist sellele Sendile enam ligi.";
 "MaximumAccessCountReached" = "Maksimaalne ligipääsude arv on saavutatud";
 "CurrentAccessCount" = "Hetkeline ligipääsude arv";
 "NewPassword" = "Uus Parool";
-"PasswordInfo" = "Soovi korral nõua parooli, millega Sendile ligi pääseb.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Eemalda parool";
 "AreYouSureRemoveSendPassword" = "Soovid kindlasti selle parooli eemaldada?";
 "RemovingSendPassword" = "Parooli eemaldamine";
 "SendPasswordRemoved" = "Parool on eemaldatud";
-"NotesInfo" = "Privaatne märkus selle Sendi kohta.";
-"DisableSend" = "Keela see Send, et keegi ei pääseks sellele ligi.";
 "NoSends" = "Kontol pole ühtegi Sendi.";
 "CopyLink" = "Kopeeri link";
 "ShareLink" = "Jaga linki";
@@ -934,6 +938,8 @@
 "UnknownAccount" = "Tundmatu konto";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExploreTheGenerator" = "Explore the generator";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
 "IntroCarouselPage1Title" = "Security, prioritized";
 "IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
@@ -1063,6 +1069,8 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
@@ -1101,3 +1109,6 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
+"XItems" = "%1$@ items";
