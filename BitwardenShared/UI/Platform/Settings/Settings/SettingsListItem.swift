@@ -19,6 +19,9 @@ struct SettingsListItem<Content: View>: View {
     /// Whether or not the list item should have a divider on the bottom.
     let hasDivider: Bool
 
+    /// The optional icon to display on the leading edge of the list item.
+    let icon: ImageAsset?
+
     /// The name of the list item.
     let name: String
 
@@ -35,15 +38,20 @@ struct SettingsListItem<Content: View>: View {
             action()
         } label: {
             VStack(spacing: 0) {
-                HStack {
+                HStack(spacing: 4) {
+                    if let icon {
+                        Image(asset: icon)
+                            .imageStyle(.rowIcon)
+                            .padding(.trailing, 8)
+                    }
+
                     Text(name)
                         .styleGuide(.body)
                         .accessibilityIdentifier(nameAccessibilityID ?? "")
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .multilineTextAlignment(.leading)
                         .padding(.vertical, 19)
-
-                    Spacer()
 
                     if let badgeValue {
                         BitwardenBadge(badgeValue: badgeValue)
@@ -54,11 +62,11 @@ struct SettingsListItem<Content: View>: View {
                         .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                         .multilineTextAlignment(.trailing)
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, icon == nil ? 16 : 12)
 
                 if hasDivider {
                     Divider()
-                        .padding(.leading, 16)
+                        .padding(.leading, icon == nil ? 16 : 48)
                 }
             }
         }
@@ -75,6 +83,7 @@ struct SettingsListItem<Content: View>: View {
     ///  - hasDivider: Whether or not the list item should have a divider on the bottom.
     ///  - accessibilityIdentifier: The accessibility ID for the list item.
     ///  - badgeValue: An optional string to display as the badge next to the trailing content.
+    ///  - icon: The optional icon to display on the leading edge of the list item.
     ///  - nameAccessibilityID: The accessibility ID for the list item name.
     ///  - action: The action to perform when the list item is tapped.
     ///  - trailingContent: Content that appears on the trailing edge of the list item.
@@ -86,6 +95,7 @@ struct SettingsListItem<Content: View>: View {
         hasDivider: Bool = true,
         accessibilityIdentifier: String? = nil,
         badgeValue: String? = nil,
+        icon: ImageAsset? = nil,
         nameAccessibilityID: String? = nil,
         action: @escaping () -> Void,
         @ViewBuilder trailingContent: @escaping () -> Content? = { EmptyView() }
@@ -94,6 +104,7 @@ struct SettingsListItem<Content: View>: View {
         self.badgeValue = badgeValue
         self.name = name
         self.hasDivider = hasDivider
+        self.icon = icon
         self.nameAccessibilityID = nameAccessibilityID
         self.trailingContent = trailingContent
         self.action = action
@@ -106,7 +117,7 @@ struct SettingsListItem<Content: View>: View {
 #Preview {
     ScrollView {
         VStack(spacing: 0) {
-            SettingsListItem("Account Security") {} trailingContent: {
+            SettingsListItem("Account Security", icon: Asset.Images.locked24) {} trailingContent: {
                 Text("Trailing content")
             }
 
@@ -117,6 +128,10 @@ struct SettingsListItem<Content: View>: View {
             SettingsListItem("Account Security") {}
 
             SettingsListItem("Account Security with Badge!", badgeValue: "3") {}
+
+            SettingsListItem("Account Security with Badge!", badgeValue: "4") {} trailingContent: {
+                Image(asset: Asset.Images.externalLink24)
+            }
         }
     }
 }

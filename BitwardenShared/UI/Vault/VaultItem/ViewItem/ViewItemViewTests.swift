@@ -341,6 +341,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     func loginState( // swiftlint:disable:this function_body_length
         canViewPassword: Bool = true,
+        isFavorite: Bool = false,
         isPasswordVisible: Bool = true,
         isTOTPCodeVisible: Bool = true,
         hasPremium: Bool = true,
@@ -348,6 +349,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     ) -> CipherItemState {
         var cipherState = CipherItemState(
             existing: .fixture(
+                favorite: isFavorite,
                 id: "fake-id"
             ),
             hasPremium: hasPremium
@@ -468,7 +470,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     @MainActor
     func test_snapshot_login_withAllValues() {
-        processor.state.loadingState = .data(loginState())
+        processor.state.loadingState = .data(loginState(isFavorite: true))
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 

@@ -16,6 +16,8 @@ struct RemoveMasterPasswordView: View {
         VStack(spacing: 24) {
             Text(Localizations.removeMasterPasswordMessage(store.state.organizationName))
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 12)
                 .styleGuide(.body)
 
             BitwardenTextField(
@@ -47,7 +49,8 @@ struct RemoveMasterPasswordView: View {
             .buttonStyle(.primary())
         }
         .navigationBar(title: Localizations.removeMasterPassword, titleDisplayMode: .inline)
-        .scrollView()
+        .padding(.top, 12)
+        .scrollView(padding: 12)
     }
 }
 
@@ -65,5 +68,6 @@ struct RemoveMasterPasswordView: View {
             )
         )
     )
+    .navStackWrapped
 }
 #endif

@@ -65,7 +65,6 @@
 "Sync" = "Sync";
 "ThankYou" = "Thank you";
 "Tools" = "Tools";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Use fingerprint to unlock";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -354,7 +353,6 @@
 "NewCustomField" = "New custom field";
 "SelectTypeField" = "What type of custom field do you want to add?";
 "Remove" = "Remove";
-"NewUri" = "New URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Base domain";
 "Default" = "Default";
@@ -392,7 +390,6 @@
 "Logins" = "Logins";
 "SecureNotes" = "Secure notes";
 "AllItems" = "All items";
-"URIs" = "URIs";
 "CheckingPassword" = "Checking password...";
 "CheckPassword" = "Check if password has been exposed.";
 "PasswordExposed" = "This password has been exposed %1$@ time(s) in data breaches. You should change it.";
@@ -1113,3 +1110,7 @@
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
 "WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";

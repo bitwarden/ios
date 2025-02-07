@@ -95,24 +95,29 @@ struct TwoFactorAuthView: View {
 
     /// The body content for most 2FA methods.
     private var defaultContent: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             if store.state.authMethod == .email {
                 emailImage
             }
 
             detailText
 
-            verificationCodeTextField
+            VStack(spacing: 8) {
+                verificationCodeTextField
 
-            if !store.state.deviceVerificationRequired {
-                rememberMeToggle
+                if !store.state.deviceVerificationRequired {
+                    rememberMeToggle
+                }
             }
 
-            continueButton
+            VStack(spacing: 12) {
+                continueButton
 
-            resendEmailButton
+                resendEmailButton
+            }
         }
-        .scrollView()
+        .padding(.top, 12)
+        .scrollView(padding: 12)
     }
 
     /// The image representing the email method
@@ -148,14 +153,15 @@ struct TwoFactorAuthView: View {
 
     /// A view for DUO 2FA type.
     @ViewBuilder private var duo2FAView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             detailText
 
             rememberMeToggle
 
             duoButton
         }
-        .scrollView()
+        .padding(.top, 12)
+        .scrollView(padding: 12)
     }
 
     /// The launch webAuthn button.
@@ -168,27 +174,27 @@ struct TwoFactorAuthView: View {
 
     /// A view for WebAuthn 2FA type.
     @ViewBuilder private var webAuthn2FAView: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 24) {
             detailText
 
             rememberMeToggle
 
             webAuthnButton
         }
-        .scrollView()
+        .padding(.top, 12)
+        .scrollView(padding: 12)
     }
 
     /// The remember me toggle.
     private var rememberMeToggle: some View {
-        Toggle(
+        BitwardenToggle(
             Localizations.rememberMe,
             isOn: store.binding(
                 get: { $0.isRememberMeOn },
                 send: { .rememberMeToggleChanged($0) }
             )
         )
-        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-        .toggleStyle(.bitwarden)
+        .contentBlock()
     }
 
     /// The resend email button for the email authentication option.
@@ -222,5 +228,19 @@ struct TwoFactorAuthView: View {
 // MARK: - Previews
 
 #Preview {
-    TwoFactorAuthView(store: Store(processor: StateProcessor(state: TwoFactorAuthState(authMethod: TwoFactorAuthMethod.authenticatorApp))))
+    TwoFactorAuthView(store: Store(processor: StateProcessor(
+        state: TwoFactorAuthState()
+    ))).navStackWrapped
+}
+
+#Preview("Duo") {
+    TwoFactorAuthView(store: Store(processor: StateProcessor(
+        state: TwoFactorAuthState(authMethod: .duo)
+    ))).navStackWrapped
+}
+
+#Preview("WebAuthn") {
+    TwoFactorAuthView(store: Store(processor: StateProcessor(
+        state: TwoFactorAuthState(authMethod: .webAuthn)
+    ))).navStackWrapped
 }
