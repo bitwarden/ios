@@ -14,7 +14,8 @@ class ResendNewDeviceOtpRequestTests: BitwardenTestCase {
         super.setUp()
 
         subject = ResendNewDeviceOtpRequest(model: .init(
-            email: "email"
+            email: "email",
+            masterPasswordHash: ""
         ))
     }
 
