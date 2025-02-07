@@ -24,7 +24,7 @@ struct MasterPasswordGeneratorView: View {
 
             instructionsPreventAccountLockView
         }
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(
             title: Localizations.generateMasterPassword,
             titleDisplayMode: .inline
@@ -70,11 +70,11 @@ struct MasterPasswordGeneratorView: View {
 
     /// The password instructions and prevent account lockout button.
     private var instructionsPreventAccountLockView: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
             Text(Localizations.writeThisPasswordDownAndKeepItSomewhereSafe)
                 .styleGuide(.footnote)
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .multilineTextAlignment(.center)
 
             Button {
                 store.send(.preventAccountLock)
@@ -83,7 +83,6 @@ struct MasterPasswordGeneratorView: View {
                     .styleGuide(.footnote, weight: .semibold)
                     .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
                     .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }

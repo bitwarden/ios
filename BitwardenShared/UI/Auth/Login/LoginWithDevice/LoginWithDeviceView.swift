@@ -14,17 +14,23 @@ struct LoginWithDeviceView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 24) {
-            titleText
+            VStack(alignment: .center, spacing: 12) {
+                titleText
 
-            explanationText
+                explanationText
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .multilineTextAlignment(.center)
 
             fingerprintView
 
             resendNotificationButton
 
             allLoginOptionsView
+                .frame(maxWidth: .infinity, alignment: .center)
         }
-        .scrollView()
+        .padding(.top, 12)
+        .scrollView(padding: 12)
         .navigationBar(title: store.state.navBarText, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {
@@ -48,7 +54,7 @@ struct LoginWithDeviceView: View {
             Button(Localizations.viewAllLoginOptions) {
                 store.send(.dismiss)
             }
-            .styleGuide(.subheadline)
+            .styleGuide(.subheadlineSemibold)
             .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
             .accessibilityIdentifier("ViewAllLoginOptionsButton")
         }
@@ -59,22 +65,25 @@ struct LoginWithDeviceView: View {
         Text(store.state.explanationText)
             .styleGuide(.body)
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .multilineTextAlignment(.leading)
     }
 
     /// The fingerprint phrase title and display.
     private var fingerprintView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(Localizations.fingerprintPhrase)
-                .styleGuide(.body, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                .accessibilityIdentifier("FingerprintValueLabel")
+        ContentBlock {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Localizations.fingerprintPhrase)
+                    .styleGuide(.body, weight: .semibold)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("FingerprintValueLabel")
 
-            Text(store.state.fingerprintPhrase ?? "")
-                .styleGuide(.bodyMonospaced)
-                .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
-                .multilineTextAlignment(.leading)
-                .accessibilityIdentifier("FingerprintPhraseValue")
+                Text(store.state.fingerprintPhrase ?? "")
+                    .styleGuide(.bodyMonospaced)
+                    .foregroundStyle(Asset.Colors.textCodePink.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+                    .accessibilityIdentifier("FingerprintPhraseValue")
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
     }
 
@@ -84,8 +93,7 @@ struct LoginWithDeviceView: View {
             AsyncButton(Localizations.resendNotification) {
                 await store.perform(.resendNotification)
             }
-            .styleGuide(.body)
-            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+            .buttonStyle(.secondary())
             .accessibilityIdentifier("ResendNotificationButton")
         }
     }
@@ -93,9 +101,8 @@ struct LoginWithDeviceView: View {
     /// The title text.
     private var titleText: some View {
         Text(store.state.titleText)
-            .styleGuide(.title, weight: .bold)
+            .styleGuide(.title2, weight: .semibold)
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
