@@ -147,15 +147,17 @@ class MockClientCollections: ClientCollectionsProtocol {
 // MARK: - MockClientFolders
 
 class MockClientFolders: ClientFoldersProtocol {
-    var decryptedFolder: FolderView?
+    var decryptedFolder: Folder?
+    var decryptFolderResult: Result<FolderView?, Error> = .success(nil)
+
     var decryptedFolders = [Folder]()
+
     var encryptError: Error?
     var encryptedFolders = [FolderView]()
 
     func decrypt(folder: Folder) throws -> FolderView {
-        let folderView = FolderView(folder: folder)
-        decryptedFolder = folderView
-        return folderView
+        decryptedFolder = folder
+        return try decryptFolderResult.get() ?? FolderView(folder: folder)
     }
 
     func decryptList(folders: [Folder]) throws -> [FolderView] {

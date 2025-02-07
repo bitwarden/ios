@@ -5,7 +5,7 @@ import Combine
 
 class MockFolderService: FolderService {
     var addedFolderName: String?
-    var addFolderWithServerFolder = Folder.fixture()
+    var addFolderWithServerResult: Result<Folder, Error> = .success(Folder.fixture())
 
     var deletedFolderId: String?
 
@@ -29,7 +29,7 @@ class MockFolderService: FolderService {
 
     func addFolderWithServer(name: String) async throws -> Folder {
         addedFolderName = name
-        return addFolderWithServerFolder
+        return try addFolderWithServerResult.get()
     }
 
     func deleteFolderWithServer(id: String) async throws {
