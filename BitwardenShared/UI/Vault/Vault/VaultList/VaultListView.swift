@@ -169,7 +169,9 @@ private struct SearchableVaultListView: View {
 
     /// A view that displays either the my vault or empty vault interface.
     @ViewBuilder private var vault: some View {
-        LoadingView(state: store.state.loadingState) { sections in
+        LoadingView(state: store.state.loadingState) { errorMessage in
+            errorViewWithRetry(errorMessage: errorMessage)
+        } contents: { sections in
             if sections.isEmpty {
                 emptyVault
             } else {
@@ -202,6 +204,37 @@ private struct SearchableVaultListView: View {
     }
 
     // MARK: Private Methods
+
+    /// A view that displays an error message and a retry button.
+    ///
+    /// - Parameter errorMessage: The error message to display.
+    ///
+    @ViewBuilder
+    private func errorViewWithRetry(errorMessage: String) -> some View {
+        GeometryReader { reader in
+            VStack(spacing: 24) {
+                Text(errorMessage)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .styleGuide(.body)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 12)
+
+                AsyncButton {
+                    await store.perform(.tryAgainTapped)
+                    await store.perform(.appeared)
+                } label: {
+                    Text(Localizations.tryAgain)
+                }
+                .buttonStyle(
+                    .primary(
+                        shouldFillWidth: false
+                    )
+                )
+            }
+            .padding(12)
+            .frame(minHeight: reader.size.height)
+        }
+    }
 
     /// A view that displays the main vault interface, including sections for groups and
     /// vault items.

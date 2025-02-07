@@ -119,6 +119,8 @@ final class VaultListProcessor: StateProcessor<
             }
         case .streamVaultList:
             await streamVaultList()
+        case .tryAgainTapped:
+            state.loadingState = .loading(nil)
         }
     }
 
@@ -244,7 +246,12 @@ extension VaultListProcessor {
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            let needsSync = try? await services.vaultRepository.needsSync()
+            if needsSync == true {
+                state.loadingState = .error(
+                    errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+                )
+            }
             services.errorReporter.log(error: error)
         }
     }

@@ -12,7 +12,7 @@ struct ViewItemState: Equatable, Sendable {
         switch loadingState {
         case let .data(state):
             state.cipher.organizationId == nil
-        case .loading:
+        case .loading, .error:
             false
         }
     }
@@ -36,7 +36,7 @@ struct ViewItemState: Equatable, Sendable {
         return switch loadingState {
         case let .data(state):
             state.isMasterPasswordRePromptOn && hasMasterPassword
-        case .loading:
+        case .loading, .error:
             false
         }
     }

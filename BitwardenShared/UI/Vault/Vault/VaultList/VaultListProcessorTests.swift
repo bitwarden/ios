@@ -512,8 +512,27 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertNil(coordinator.alertShown.last)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(subject.state.loadingState, .loading(nil))
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error and change the loading state if needs sync.
+    @MainActor
+    func test_perform_refreshed_error_needsSync() async {
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertNil(coordinator.alertShown.last)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .error(
+                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+            )
+        )
     }
 
     /// `perform(.refreshAccountProfiles)` without profiles for the profile switcher.
@@ -911,6 +930,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let sections = try XCTUnwrap(subject.state.loadingState.data)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[0].items, [vaultListItem])
+    }
+
+    /// `perform(_:)` with `.tryAgainTapped` will reset the loading state to `.loading[nil]`.
+    @MainActor
+    func test_perform_tryAgain() async throws {
+        subject.state.loadingState = .error(errorMessage: "error")
+
+        let task = Task {
+            await subject.perform(.tryAgainTapped)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { self.subject.state.loadingState == .loading(nil) }
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
