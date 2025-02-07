@@ -23,7 +23,7 @@ class MockSettingsRepository: SettingsRepository {
     var lastSyncTimeError: Error?
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
     var shouldShowConnectToWatchToggle = false
-    var shouldShowConnectToWatchToggleResult = Result<Void, Error> = .success(())
+    var shouldShowConnectToWatchToggleResult: Result<Void, Error> = .success(())
     var syncToAuthenticator = false
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
     var updateDefaultUriMatchTypeValue: BitwardenShared.UriMatchType?
