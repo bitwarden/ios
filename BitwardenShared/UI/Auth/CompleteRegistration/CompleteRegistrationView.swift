@@ -17,47 +17,37 @@ struct CompleteRegistrationView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: store.state.nativeCreateAccountFeatureFlag ? 24 : 16) {
             if store.state.nativeCreateAccountFeatureFlag {
                 PageHeaderView(
                     image: Asset.Images.Illustrations.lock,
                     title: Localizations.chooseYourMasterPassword,
                     message: Localizations.chooseAUniqueAndStrongPasswordToKeepYourInformationSafe
                 )
-                .padding(.top, 40)
+                .padding(.top, 12)
 
                 learnMoreSection
-                    .padding(.vertical, 16)
-
-                passwordField
-
-                passwordStrengthIndicator
             } else {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(LocalizedStringKey(store.state.headelineTextBoldEmail))
-                        .tint(Asset.Colors.textPrimary.swiftUIColor)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        .multilineTextAlignment(.leading)
-                        .styleGuide(.callout)
-                        .padding(.bottom, 16)
+                Text(LocalizedStringKey(store.state.headelineTextBoldEmail))
+                    .tint(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .multilineTextAlignment(.leading)
+                    .styleGuide(.callout)
+            }
 
+            VStack(spacing: 8) {
+                ContentBlock {
                     passwordField
-                        .padding(.bottom, 8)
 
-                    passwordStrengthIndicator
+                    retypePassword
+
+                    passwordHint
                 }
-            }
 
-            retypePassword
-
-            passwordHint
-
-            VStack(spacing: 24) {
                 checkBreachesToggle
-                    .padding(.top, 8)
-
-                createAccountButton
             }
+
+            createAccountButton
         }
         .animation(.default, value: store.state.passwordStrengthScore)
         .navigationBar(
@@ -66,7 +56,7 @@ struct CompleteRegistrationView: View {
                 Localizations.setPassword,
             titleDisplayMode: .inline
         )
-        .scrollView()
+        .scrollView(padding: 12)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
@@ -85,7 +75,7 @@ struct CompleteRegistrationView: View {
 
     /// A toggle to check the user's password for security breaches.
     private var checkBreachesToggle: some View {
-        Toggle(isOn: store.binding(
+        BitwardenToggle(isOn: store.binding(
             get: \.isCheckDataBreachesToggleOn,
             send: CompleteRegistrationAction.toggleCheckDataBreaches
         )) {
@@ -93,8 +83,8 @@ struct CompleteRegistrationView: View {
                 .styleGuide(.footnote)
         }
         .accessibilityIdentifier("CheckExposedMasterPasswordToggle")
-        .toggleStyle(.bitwarden)
         .id(ViewIdentifier.CompleteRegistration.checkBreaches)
+        .contentBlock()
     }
 
     /// The section where the user can learn more about passwords.
@@ -139,44 +129,50 @@ struct CompleteRegistrationView: View {
             isPasswordVisible: store.binding(
                 get: \.arePasswordsVisible,
                 send: CompleteRegistrationAction.togglePasswordVisibility
-            )
+            ),
+            footerContent: {
+                passwordStrengthIndicator
+                    .padding(.vertical, 12)
+                    .padding(.trailing, 12)
+            }
         )
         .textFieldConfiguration(.password)
     }
 
     /// The master password hint.
     private var passwordHint: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            BitwardenTextField(
-                title: Localizations.masterPasswordHint,
-                text: store.binding(
-                    get: \.passwordHintText,
-                    send: CompleteRegistrationAction.passwordHintTextChanged
-                ),
-                accessibilityIdentifier: "MasterPasswordHintLabel"
-            )
+        BitwardenTextField(
+            title: Localizations.masterPasswordHint,
+            text: store.binding(
+                get: \.passwordHintText,
+                send: CompleteRegistrationAction.passwordHintTextChanged
+            ),
+            accessibilityIdentifier: "MasterPasswordHintLabel",
+            footerContent: {
+                if store.state.nativeCreateAccountFeatureFlag {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
+                            .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                            .styleGuide(.footnote)
 
-            if store.state.nativeCreateAccountFeatureFlag {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
+                        Button {
+                            store.send(.preventAccountLockTapped)
+                        } label: {
+                            Text(Localizations.learnAboutWaysToPreventAccountLockout)
+                                .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
+                                .styleGuide(.footnote, weight: .bold)
+                                .multilineTextAlignment(.leading)
+                        }
+                    }
+                    .padding(.vertical, 12)
+                } else {
+                    Text(Localizations.masterPasswordHintDescription)
                         .foregroundColor(Color(asset: Asset.Colors.textSecondary))
                         .styleGuide(.footnote)
-
-                    Button {
-                        store.send(.preventAccountLockTapped)
-                    } label: {
-                        Text(Localizations.learnAboutWaysToPreventAccountLockout)
-                            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
-                            .styleGuide(.footnote, weight: .bold)
-                            .multilineTextAlignment(.leading)
-                    }
+                        .padding(.vertical, 12)
                 }
-            } else {
-                Text(Localizations.masterPasswordHintDescription)
-                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                    .styleGuide(.footnote)
             }
-        }
+        )
     }
 
     /// The password strength indicator.

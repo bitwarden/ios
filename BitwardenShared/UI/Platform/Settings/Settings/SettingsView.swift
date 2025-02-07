@@ -29,42 +29,60 @@ struct SettingsView: View {
     /// The settings items.
     private var settingsItems: some View {
         VStack(spacing: 0) {
-            SettingsListItem(Localizations.accountSecurity, badgeValue: store.state.accountSecurityBadgeValue) {
+            SettingsListItem(
+                Localizations.accountSecurity,
+                badgeValue: store.state.accountSecurityBadgeValue,
+                icon: Asset.Images.locked24
+            ) {
                 store.send(.accountSecurityPressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("AccountSecuritySettingsButton")
 
-            SettingsListItem(Localizations.autofill, badgeValue: store.state.autofillBadgeValue) {
+            SettingsListItem(
+                Localizations.autofill,
+                badgeValue: store.state.autofillBadgeValue,
+                icon: Asset.Images.checkCircle24
+            ) {
                 store.send(.autoFillPressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("AutofillSettingsButton")
 
-            SettingsListItem(Localizations.vault, badgeValue: store.state.vaultBadgeValue) {
+            SettingsListItem(
+                Localizations.vault,
+                badgeValue: store.state.vaultBadgeValue,
+                icon: Asset.Images.vaultSettings
+            ) {
                 store.send(.vaultPressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("VaultSettingsButton")
 
-            SettingsListItem(Localizations.appearance) {
+            SettingsListItem(
+                Localizations.appearance, icon: Asset.Images.paintBrush
+            ) {
                 store.send(.appearancePressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("AppearanceSettingsButton")
 
-            SettingsListItem(Localizations.other) {
+            SettingsListItem(Localizations.other, icon: Asset.Images.other) {
                 store.send(.otherPressed)
             } trailingContent: {
                 chevron
             }
             .accessibilityIdentifier("OtherSettingsButton")
 
-            SettingsListItem(Localizations.about, hasDivider: false) {
+            SettingsListItem(
+                Localizations.about,
+                hasDivider: false,
+                icon: Asset.Images.informationCircle24
+            ) {
                 store.send(.aboutPressed)
             } trailingContent: {
                 chevron
