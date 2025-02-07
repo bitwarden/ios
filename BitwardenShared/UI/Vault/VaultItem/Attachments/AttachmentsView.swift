@@ -43,7 +43,7 @@ struct AttachmentsView: View {
 
     /// The add attachment view.
     private var addAttachmentView: some View {
-        SectionView(Localizations.addNewAttachment, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.addNewAttachment, contentSpacing: 8) {
             VStack(spacing: 12) {
                 chosenFile
 
@@ -81,7 +81,7 @@ struct AttachmentsView: View {
 
     /// The view of current attachments.
     @ViewBuilder private var currentAttachments: some View {
-        SectionView(Localizations.attachments, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.attachments, contentSpacing: 8) {
             ContentBlock {
                 if let attachments = store.state.cipher?.attachments, !attachments.isEmpty {
                     ForEach(attachments) { attachment in

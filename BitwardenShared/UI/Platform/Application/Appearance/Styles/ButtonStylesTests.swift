@@ -76,7 +76,7 @@ final class ButtonStylesTests: BitwardenTestCase {
                     }
                     .disabled(true)
                 }
-                .buttonStyle(CircleButtonStyle())
+                .buttonStyle(CircleButtonStyle(diameter: 50))
             }
             .padding()
             .frame(maxHeight: .infinity, alignment: .top)

@@ -12,18 +12,24 @@ struct SingleSignOnView: View {
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(spacing: 24) {
             instructionsText
 
             identifierTextField
-
-            loginButton
         }
-        .scrollView()
+        .padding(.top, 12)
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.bitwarden, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                toolbarButton(Localizations.logIn) {
+                    await store.perform(.loginTapped)
+                }
+                .accessibilityIdentifier("SSOLoginButton")
             }
         }
         .task {
@@ -50,20 +56,14 @@ struct SingleSignOnView: View {
         Text(Localizations.logInSsoSummary)
             .styleGuide(.body)
             .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-    }
-
-    /// The login button.
-    private var loginButton: some View {
-        AsyncButton(Localizations.logIn) {
-            await store.perform(.loginTapped)
-        }
-        .buttonStyle(.primary())
-        .accessibilityIdentifier("SSOLoginButton")
+            .multilineTextAlignment(.center)
     }
 }
 
 // MARK: Previews
 
 #Preview {
-    SingleSignOnView(store: Store(processor: StateProcessor(state: SingleSignOnState())))
+    SingleSignOnView(store: Store(processor: StateProcessor(
+        state: SingleSignOnState()
+    ))).navStackWrapped
 }

@@ -155,7 +155,7 @@ struct AddEditItemView: View {
     }
 
     private var informationSection: some View {
-        SectionView(Localizations.itemInformation, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.itemInformation, contentSpacing: 8) {
             if case .add = store.state.configuration, store.state.allowTypeSelection {
                 BitwardenMenuField(
                     title: Localizations.type,
@@ -169,13 +169,25 @@ struct AddEditItemView: View {
             }
 
             BitwardenTextField(
-                title: Localizations.name,
+                title: Localizations.itemNameRequired,
                 text: store.binding(
                     get: \.name,
                     send: AddEditItemAction.nameChanged
                 ),
                 accessibilityIdentifier: "ItemNameEntry"
-            )
+            ) {
+                Button {
+                    store.send(.favoriteChanged(!store.state.isFavoriteOn))
+                } label: {
+                    store.state.isFavoriteOn
+                        ? Asset.Images.starFilled24.swiftUIImage
+                        : Asset.Images.star24.swiftUIImage
+                }
+                .buttonStyle(.accessory)
+                .accessibilityIdentifier("ItemFavoriteButton")
+                .accessibilityLabel(Localizations.favorite)
+                .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
+            }
 
             switch store.state.type {
             case .card:
@@ -241,7 +253,7 @@ struct AddEditItemView: View {
 
 private extension AddEditItemView {
     var miscellaneousSection: some View {
-        SectionView(Localizations.miscellaneous, titleDesignVersion: .v2, contentSpacing: 8) {
+        SectionView(Localizations.miscellaneous, contentSpacing: 8) {
             BitwardenMenuField(
                 title: Localizations.folder,
                 options: store.state.folders,
@@ -251,16 +263,6 @@ private extension AddEditItemView {
                 )
             )
             .accessibilityIdentifier("FolderPicker")
-
-            BitwardenToggle(
-                Localizations.favorite,
-                isOn: store.binding(
-                    get: \.isFavoriteOn,
-                    send: AddEditItemAction.favoriteChanged
-                ),
-                accessibilityIdentifier: "ItemFavoriteToggle"
-            )
-            .contentBlock()
 
             if store.state.showMasterPasswordReprompt {
                 BitwardenToggle(isOn: store.binding(
@@ -297,7 +299,7 @@ private extension AddEditItemView {
 
     @ViewBuilder var ownershipSection: some View {
         if store.state.configuration.isAdding, let owner = store.state.owner {
-            SectionView(Localizations.ownership, titleDesignVersion: .v2, contentSpacing: 8) {
+            SectionView(Localizations.ownership, contentSpacing: 8) {
                 BitwardenMenuField(
                     title: Localizations.whoOwnsThisItem,
                     accessibilityIdentifier: "ItemOwnershipPicker",
@@ -310,7 +312,7 @@ private extension AddEditItemView {
             }
 
             if !owner.isPersonal {
-                SectionView(Localizations.collections, titleDesignVersion: .v2, contentSpacing: 8) {
+                SectionView(Localizations.collections, contentSpacing: 8) {
                     if store.state.collectionsForOwner.isEmpty {
                         Text(Localizations.noCollectionsToList)
                             .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
