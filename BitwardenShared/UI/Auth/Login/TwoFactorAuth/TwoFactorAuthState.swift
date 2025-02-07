@@ -24,7 +24,7 @@ struct TwoFactorAuthState: Equatable, Sendable {
     /// The text to display in the detailed instructions.
     var detailsText: String {
         if deviceVerificationRequired {
-            return Localizations.weDontRecognizeThisDeviceEnterVerificationCodeEmail(displayEmail)
+            return Localizations.weDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong(displayEmail)
         }
         return authMethod.details(displayEmail)
     }
