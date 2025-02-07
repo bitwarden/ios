@@ -14,4 +14,7 @@ struct ResendNewDeviceOtpRequestModel: JSONRequestBody {
 
     /// The email to send the verification code to.
     let email: String
+
+    /// The master password hash, if available.
+    let masterPasswordHash: String?
 }
