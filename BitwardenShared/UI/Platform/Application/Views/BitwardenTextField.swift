@@ -137,12 +137,13 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     }
 
     /// The text field.
+    /// After some investigation, we found that .id(..) needs to be the final modifier
+    /// to avoid breaking accessibilityIds used on our mobile automation test suite
     private var textField: some View {
         HStack(spacing: 8) {
             ZStack {
                 let isPassword = isPasswordVisible != nil || canViewPassword == false
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
-
                 TextField("", text: $text)
                     .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
