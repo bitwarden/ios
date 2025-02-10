@@ -374,6 +374,10 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 rpID: autofillAppExtensionDelegate?.rpID,
                 uri: uri
             ) {
+                guard !state.excludedCredentialFound else {
+                    break
+                }
+
                 if autofillListMode == .totp, !sections.isEmpty {
                     vaultItemsTotpExpirationManager?.configureTOTPRefreshScheduling(for: sections.flatMap(\.items))
                 }
@@ -382,6 +386,42 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Updates the vault list sections with the section including the excluded credential found.
+    /// This is necessary in case the user edits the item so we get the new value from the publisher.
+    ///
+    /// - Parameter cipherView: The `CipherView` to found as excluded credential.
+    @MainActor
+    private func updateExcludedCredentialSection(from cipherView: CipherView) async {
+        do {
+            guard let cipherId = cipherView.id else {
+                return
+            }
+
+            for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
+                guard state.excludedCredentialFound else {
+                    break
+                }
+                guard let cipher else { continue }
+
+                let vaultListSection = try await services.vaultRepository.createAutofillListExcludedCredentialSection(
+                    from: cipher
+                )
+                state.vaultListSections = [vaultListSection]
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(
+                .defaultAlert(
+                    title: Localizations.anErrorHasOccurred,
+                    message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt
+                )
+            ) { [weak self] in
+                guard let self else { return }
+                autofillAppExtensionDelegate?.didCancel()
+            }
         }
     }
 }
@@ -436,8 +476,17 @@ extension VaultAutofillListProcessor: ProfileSwitcherHandler {
 // MARK: - Fido2UserInterfaceHelperDelegate
 
 extension VaultAutofillListProcessor: Fido2UserInterfaceHelperDelegate {
+    // MARK: Properties
+
     var isAutofillingFromList: Bool {
         autofillAppExtensionDelegate?.isAutofillingFido2CredentialFromList == true
+    }
+
+    // MARK: Methods
+
+    func informExcludedCredentialFound(cipherView: CipherView) async {
+        state.excludedCredentialFound = true
+        await updateExcludedCredentialSection(from: cipherView)
     }
 
     func onNeedsUserInteraction() async throws {
@@ -536,7 +585,7 @@ extension VaultAutofillListProcessor {
                     name: credentialIdentity.userName
                 ),
                 pubKeyCredParams: request.getPublicKeyCredentialParams(),
-                excludeList: nil,
+                excludeList: request.excludedCredentialsList(),
                 options: Options(
                     rk: true,
                     uv: userVerificationPreference
@@ -562,6 +611,10 @@ extension VaultAutofillListProcessor {
                 )
             )
         } catch {
+            guard !state.excludedCredentialFound else {
+                return
+            }
+
             services.fido2UserInterfaceHelper.pickedCredentialForCreation(result: .failure(error))
             services.errorReporter.log(error: error)
         }
@@ -575,6 +628,15 @@ extension VaultAutofillListProcessor {
         }
 
         if autofillAppExtensionDelegate.isCreatingFido2Credential {
+            guard !state.excludedCredentialFound else {
+                guard let cipherId = state.vaultListSections.first?.items.first?.id else {
+                    coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                    return
+                }
+                coordinator.navigate(to: .viewItem(id: cipherId), context: self)
+                return
+            }
+
             guard let fido2CreationOptions = services.fido2UserInterfaceHelper.fido2CreationOptions else {
                 coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                 return
@@ -645,6 +707,20 @@ extension VaultAutofillListProcessor {
         } catch {
             coordinator.showAlert(.networkResponseError(error))
             services.errorReporter.log(error: error)
+        }
+    }
+}
+
+// MARK: - CipherItemOperationDelegate
+
+extension VaultAutofillListProcessor: CipherItemOperationDelegate {
+    func itemSoftDeleted() {
+        // If an excluded credential was found and we get here
+        // then such item was deleted so we can safely say
+        // there are no excluded credential found now.
+        if state.excludedCredentialFound {
+            state.toast = Toast(title: Localizations.itemSoftDeleted)
+            state.excludedCredentialFound = false
         }
     }
 }

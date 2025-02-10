@@ -611,12 +611,20 @@ extension AppProcessor: AutofillCredentialServiceDelegate {
 // MARK: - Fido2UserVerificationMediatorDelegate
 
 extension AppProcessor: Fido2UserInterfaceHelperDelegate {
+    // MARK: Properties
+
     var isAutofillingFromList: Bool {
         guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
               autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList else {
             return false
         }
         return true
+    }
+
+    // MARK: Methods
+
+    func informExcludedCredentialFound(cipherView: BitwardenSdk.CipherView) async {
+        // No-op
     }
 
     func onNeedsUserInteraction() async throws {
