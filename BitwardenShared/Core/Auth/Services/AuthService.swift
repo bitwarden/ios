@@ -49,6 +49,9 @@ enum AuthError: Error {
 
     /// There was a problem generating the request to resend the email.
     case unableToResendEmail
+
+    /// There was a problem generating the request to resend the email with new device otp.
+    case unableToResendNewDeviceOtp
 }
 
 // MARK: - LoginUnlockMethod
@@ -215,6 +218,9 @@ protocol AuthService {
     /// Resend the email with the user's verification code.
     func resendVerificationCodeEmail() async throws
 
+    /// Resend the email with the user's device verification code.
+    func resendNewDeviceOtp() async throws
+
     /// Sets the pending admin login request for a user ID.
     ///
     /// - Parameters:
@@ -289,6 +295,9 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
 
     /// The request model to resend the email with the two-factor verification code.
     private var resendEmailModel: ResendEmailCodeRequestModel?
+
+    /// The request model to resend the email with the new device verification code.
+    private var resendNewDeviceOtpModel: ResendNewDeviceOtpRequestModel?
 
     /// The single sign on callback url for this application.
     private var singleSignOnCallbackUrl: String { "\(callbackUrlScheme)://sso-callback" }
@@ -705,11 +714,15 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         captchaToken: String? = nil
     ) async throws -> LoginUnlockMethod {
         guard var twoFactorRequest else { throw AuthError.missingTwoFactorRequest }
-
         // Add the two factor information to the request.
         twoFactorRequest.twoFactorCode = code
         twoFactorRequest.twoFactorMethod = method
         twoFactorRequest.twoFactorRemember = remember
+
+        if twoFactorRequest.deviceVerificationRequired {
+            // Add code to new device verification
+            twoFactorRequest.newDeviceOtp = code
+        }
 
         // Add the captcha result, if applicable.
         if let captchaToken { twoFactorRequest.captchaToken = captchaToken }
@@ -767,6 +780,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
     func resendVerificationCodeEmail() async throws {
         guard let resendEmailModel else { throw AuthError.unableToResendEmail }
         try await authAPIService.resendEmailCode(resendEmailModel)
+    }
+
+    func resendNewDeviceOtp() async throws {
+        guard let resendNewDeviceOtpModel else { throw AuthError.unableToResendNewDeviceOtp }
+        try await authAPIService.resendNewDeviceOtp(resendNewDeviceOtpModel)
     }
 
     func setPendingAdminLoginRequest(_ adminLoginRequest: PendingAdminLoginRequest?, userId: String?) async throws {
@@ -927,6 +945,16 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
                     ssoEmail2FaSessionToken: ssoToken
                 )
 
+                // If this error was thrown, it also means any cached two-factor token is not valid.
+                await stateService.setTwoFactorToken(nil, email: email)
+            }
+            if case .newDeviceNotVerified = error {
+                twoFactorRequest = request
+                twoFactorRequest?.deviceVerificationRequired = true
+                if case let .password(_, password) = request?.authenticationMethod {
+                    // Form the resend email request in case the user needs to resend the verification code email.
+                    resendNewDeviceOtpModel = .init(email: email, masterPasswordHash: password)
+                }
                 // If this error was thrown, it also means any cached two-factor token is not valid.
                 await stateService.setTwoFactorToken(nil, email: email)
             }

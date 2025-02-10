@@ -70,6 +70,12 @@ protocol AuthAPIService {
     ///
     func resendEmailCode(_ model: ResendEmailCodeRequestModel) async throws
 
+    /// Sends the request a new verification otp to the user's email.
+    ///
+    /// - Parameter model: The data needed to send the request.
+    ///
+    func resendNewDeviceOtp(_ model: ResendNewDeviceOtpRequestModel) async throws
+
     /// Sends the trusted device keys to the server.
     ///
     /// - Parameters:
@@ -121,6 +127,10 @@ extension APIService: AuthAPIService {
 
     func resendEmailCode(_ model: ResendEmailCodeRequestModel) async throws {
         _ = try await apiUnauthenticatedService.send(ResendEmailCodeRequest(model: model))
+    }
+
+    func resendNewDeviceOtp(_ model: ResendNewDeviceOtpRequestModel) async throws {
+        _ = try await apiUnauthenticatedService.send(ResendNewDeviceOtpRequest(model: model))
     }
 
     func updateTrustedDeviceKeys(deviceIdentifier: String, model: TrustedDeviceKeysRequestModel) async throws {

@@ -203,7 +203,11 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         do {
             coordinator.showLoadingOverlay(title: Localizations.submitting)
 
-            try await services.authService.resendVerificationCodeEmail()
+            if state.deviceVerificationRequired {
+                try await services.authService.resendNewDeviceOtp()
+            } else {
+                try await services.authService.resendVerificationCodeEmail()
+            }
 
             coordinator.hideLoadingOverlay()
             state.toast = Toast(title: Localizations.verificationEmailSent)

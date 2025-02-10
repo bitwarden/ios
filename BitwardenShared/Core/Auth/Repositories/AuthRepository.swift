@@ -87,18 +87,24 @@ protocol AuthRepository: AnyObject {
     ///
     func hasMasterPassword() async throws -> Bool
 
+    /// Checks the locked status of a user vault by user id.
+    ///
+    ///  - Parameter userId: The userId of the account.
+    ///  - Returns: Returns: `True` if locked, `false` otherwise.
+    ///
+    func isLocked(userId: String?) async throws -> Bool
+
     /// Whether pin unlock is available for a userId.
     ///  - Parameter userId: The userId of the account.
     ///  - Returns: Whether pin unlock is available.
     ///
     func isPinUnlockAvailable(userId: String?) async throws -> Bool
 
-    /// Checks the locked status of a user vault by user id.
+    /// Whether the user is managed by an organization.
     ///
-    ///  - Parameter userId: The userId of the account.
-    ///  - Returns: A bool, true if locked, false if unlocked.
+    /// - Returns: `true` user is managed by an organization, `false` otherwise.
     ///
-    func isLocked(userId: String?) async throws -> Bool
+    func isUserManagedByOrganization() async throws -> Bool
 
     /// Locks the user's vault and clears decrypted data from memory
     /// - Parameters:
@@ -696,6 +702,15 @@ extension DefaultAuthRepository: AuthRepository {
 
     func isPinUnlockAvailable(userId: String?) async throws -> Bool {
         try await stateService.pinProtectedUserKey(userId: userId) != nil
+    }
+
+    func isUserManagedByOrganization() async throws -> Bool {
+        guard await configService.getFeatureFlag(.accountDeprovisioning) else {
+            return false
+        }
+
+        let orgs = try await organizationService.fetchAllOrganizations()
+        return orgs.contains { $0.userIsManagedByOrganization }
     }
 
     func lockVault(userId: String?, isManuallyLocking: Bool) async {

@@ -33,6 +33,13 @@ class DeleteAccountViewTests: BitwardenTestCase {
         assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
+    /// The view renders correctly.
+    @MainActor
+    func test_preventUserFromDeletingAccount() {
+        processor.state.shouldPreventUserFromDeletingAccount = true
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
     /// Tapping the delete account button performs the `.deleteAccount` effect.
     @MainActor
     func test_deleteAccount_tap() async throws {
