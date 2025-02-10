@@ -61,6 +61,8 @@ class MockAuthService: AuthService {
     var requirePasswordChangeResult: Result<Bool, Error> = .success(false)
     var resendVerificationCodeEmailResult: Result<Void, Error> = .success(())
     var sentVerificationEmail = false
+    var resendNewDeviceOtpResult: Result<Void, Error> = .success(())
+    var sentNewDeviceOtp = false
 
     var setPendingAdminLoginRequest: PendingAdminLoginRequest?
     var setPendingAdminLoginRequestResult: Result<Void, Error> = .success(())
@@ -166,6 +168,11 @@ class MockAuthService: AuthService {
         policy: BitwardenSdk.MasterPasswordPolicyOptions?
     ) async throws -> Bool {
         try requirePasswordChangeResult.get()
+    }
+
+    func resendNewDeviceOtp() async throws {
+        sentNewDeviceOtp = true
+        try resendNewDeviceOtpResult.get()
     }
 
     func resendVerificationCodeEmail() async throws {

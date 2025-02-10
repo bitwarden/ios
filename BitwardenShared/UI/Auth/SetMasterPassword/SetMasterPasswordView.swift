@@ -17,6 +17,7 @@ struct SetMasterPasswordView: View {
                 title: Localizations.chooseYourMasterPassword,
                 message: store.state.explanationText
             )
+            .padding(.top, 12)
 
             if store.state.resetPasswordAutoEnroll {
                 InfoContainer(Localizations.resetPasswordAutoEnrollInviteWarning)
@@ -85,7 +86,7 @@ struct SetMasterPasswordView: View {
                 )
             }
         }
-        .scrollView(padding: 16)
+        .scrollView(padding: 12)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.setMasterPassword)
         .navigationBarTitleDisplayMode(.inline)

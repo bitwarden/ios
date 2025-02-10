@@ -1,0 +1,13 @@
+import Foundation
+import Networking
+
+// MARK: - ResendNewDeviceOtpRequestModel
+
+/// API request model for re-sending the device verification code to email.
+///
+struct ResendNewDeviceOtpRequestModel: JSONRequestBody {
+    // MARK: Properties
+
+    /// The email to send the verification code to.
+    let email: String
+}

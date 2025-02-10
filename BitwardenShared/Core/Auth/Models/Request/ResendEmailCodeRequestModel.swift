@@ -6,10 +6,6 @@ import Networking
 /// API request model for re-sending the two-factor verification code email.
 ///
 struct ResendEmailCodeRequestModel: JSONRequestBody {
-    // MARK: Static Properties
-
-    static let encoder = JSONEncoder()
-
     // MARK: Properties
 
     /// The device identifier.

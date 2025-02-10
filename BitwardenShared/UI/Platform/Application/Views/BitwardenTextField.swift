@@ -142,23 +142,24 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
             ZStack {
                 let isPassword = isPasswordVisible != nil || canViewPassword == false
                 let isPasswordVisible = isPasswordVisible?.wrappedValue ?? false
-
                 TextField("", text: $text)
                     .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
+                    /// After some investigation, we found that .accessibilityIdentifier(..) calls should be placed before setting an id
+                    /// or hiding the field to avoid breaking accessibilityIds used on our mobile automation test suite
+                    .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)
                     .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
                     }
-                    .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                     .accessibilityLabel(title ?? "")
                 if isPassword, !isPasswordVisible {
                     SecureField("", text: $text)
                         .focused($isSecureFieldFocused)
+                        .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                         .id(title)
-                        .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                         .accessibilityLabel(title ?? "")
                 }
             }
