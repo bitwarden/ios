@@ -63,7 +63,16 @@ struct StartRegistrationView: View {
                 get: \.emailText,
                 send: StartRegistrationAction.emailTextChanged
             ),
-            accessibilityIdentifier: "EmailAddressEntry"
+            accessibilityIdentifier: "EmailAddressEntry",
+            footerContent: {
+                RegionSelector(
+                    selectorLabel: Localizations.creatingOn,
+                    regionName: store.state.region.baseURLDescription
+                ) {
+                    await store.perform(.regionTapped)
+                }
+                .padding(.vertical, 14)
+            }
         )
         .textFieldConfiguration(.email)
     }
@@ -90,7 +99,7 @@ struct StartRegistrationView: View {
             .padding(.top, store.state.isCreateAccountFeatureFlagEnabled ? 0 : 16)
             .padding(.bottom, 16)
             .frame(minHeight: store.state.isCreateAccountFeatureFlagEnabled ? proxy.size.height : 0)
-            .scrollView(addVerticalPadding: false, showsIndicators: false)
+            .scrollView(addVerticalPadding: false, padding: 12, showsIndicators: false)
         }
     }
 
@@ -110,7 +119,7 @@ struct StartRegistrationView: View {
     /// A toggle for the terms and privacy agreement.
     @ViewBuilder private var receiveMarketingToggle: some View {
         if store.state.showReceiveMarketingToggle {
-            Toggle(isOn: store.binding(
+            BitwardenToggle(isOn: store.binding(
                 get: \.isReceiveMarketingToggleOn,
                 send: StartRegistrationAction.toggleReceiveMarketing
             )) {
@@ -120,8 +129,7 @@ struct StartRegistrationView: View {
                     .styleGuide(.subheadline)
             }
             .accessibilityIdentifier("ReceiveMarketingToggle")
-            .foregroundColor(Color(asset: Asset.Colors.textPrimary))
-            .toggleStyle(.bitwarden)
+            .contentBlock()
             .id(ViewIdentifier.StartRegistration.receiveMarketing)
         }
     }
@@ -129,24 +137,14 @@ struct StartRegistrationView: View {
     /// The section of the view containing input fields, and action buttons.
     private var registrationDetails: some View {
         VStack(spacing: 16) {
-            name
-
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(spacing: 8) {
+                name
                 email
-                    .padding(.bottom, 8)
-
-                RegionSelector(
-                    selectorLabel: Localizations.creatingOn,
-                    regionName: store.state.region.baseURLDescription
-                ) {
-                    await store.perform(.regionTapped)
-                }
+                receiveMarketingToggle
             }
 
-            receiveMarketingToggle
             continueButton
             termsAndPrivacyText
-                .frame(maxWidth: .infinity)
         }
     }
 
