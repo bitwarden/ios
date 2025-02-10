@@ -718,8 +718,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
         twoFactorRequest.twoFactorCode = code
         twoFactorRequest.twoFactorMethod = method
         twoFactorRequest.twoFactorRemember = remember
-        // Add code to new device verification
-        twoFactorRequest.newDeviceOtp = code
+
+        if twoFactorRequest.deviceVerificationRequired {
+            // Add code to new device verification
+            twoFactorRequest.newDeviceOtp = code
+        }
 
         // Add the captcha result, if applicable.
         if let captchaToken { twoFactorRequest.captchaToken = captchaToken }
@@ -947,10 +950,11 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             }
             if case .newDeviceNotVerified = error {
                 twoFactorRequest = request
-
-                // Form the resend email request in case the user needs to resend the verification code email.
-                resendNewDeviceOtpModel = .init(email: email)
-
+                twoFactorRequest?.deviceVerificationRequired = true
+                if case let .password(_, password) = request?.authenticationMethod {
+                    // Form the resend email request in case the user needs to resend the verification code email.
+                    resendNewDeviceOtpModel = .init(email: email, masterPasswordHash: password)
+                }
                 // If this error was thrown, it also means any cached two-factor token is not valid.
                 await stateService.setTwoFactorToken(nil, email: email)
             }

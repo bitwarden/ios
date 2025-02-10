@@ -805,6 +805,74 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertGetConfig()
     }
 
+    /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` uses the cached request but with device verification
+    /// code added in to authenticate.
+    func test_loginWithNewDeviceVerificationCode() async throws { // swiftlint:disable:this function_body_length
+        // Set up the mock data.
+        client.results = [
+            .httpSuccess(testData: .preLoginSuccess),
+            .httpFailure(
+                statusCode: 400,
+                headers: [:],
+                data: APITestData.identityTokenNewDeviceError.data
+            ),
+            .httpSuccess(testData: .identityTokenSuccess),
+        ]
+        appSettingsStore.appId = "App id"
+        await stateService.setTwoFactorToken("some token", email: "email@example.com")
+        clientService.mockAuth.hashPasswordResult = .success("hashed password")
+        stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
+        systemDevice.modelIdentifier = "Model id"
+
+        // First login with the master password so that the request will be saved.
+        let authMethodsData = AuthMethodsData.fixture()
+        await assertAsyncThrows(
+            error: IdentityTokenRequestError.newDeviceNotVerified
+        ) {
+            try await subject.loginWithMasterPassword(
+                "Password1234!",
+                username: "email@example.com",
+                captchaToken: nil,
+                isNewAccount: false
+            )
+        }
+
+        // Login with the two-factor code.
+        let unlockMethod = try await subject.loginWithTwoFactorCode(
+            email: "email@example.com",
+            code: "just_a_lil_code",
+            method: .email,
+            remember: true
+        )
+
+        // Verify the results.
+        XCTAssertEqual(stateService.accountsAdded, [.fixtureAccountLogin()])
+        XCTAssertEqual(
+            stateService.accountEncryptionKeys,
+            [
+                "13512467-9cfe-43b0-969f-07534084764b": AccountEncryptionKeys(
+                    encryptedPrivateKey: "PRIVATE_KEY",
+                    encryptedUserKey: "KEY"
+                ),
+            ]
+        )
+        XCTAssertEqual(
+            stateService.masterPasswordHashes,
+            ["13512467-9cfe-43b0-969f-07534084764b": "hashed password"]
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .accessToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().accessToken
+        )
+        try XCTAssertEqual(
+            keychainRepository.getValue(for: .refreshToken(userId: "13512467-9cfe-43b0-969f-07534084764b")),
+            IdentityTokenResponseModel.fixture().refreshToken
+        )
+
+        XCTAssertEqual(unlockMethod, .masterPassword(.fixtureAccountLogin()))
+        await assertGetConfig()
+    }
+
     /// `loginWithTwoFactorCode()` returns the device key unlock method if the user uses trusted
     /// device encryption.
     func test_loginWithTwoFactorCode_deviceKey() async throws {
