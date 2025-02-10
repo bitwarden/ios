@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Использовать отпечаток пальца для разблокировки";
 "UseThisButtonToGenerateANewUniquePassword" = "Используйте эту кнопку для генерации нового уникального пароля.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам нужно настроить ключ аутентификатора только для логинов, которые требуют двухфакторной аутентификации с помощью кода. Ключ будет постоянно генерировать шестизначные коды, которые можно использовать для авторизации.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Используйте генератор для создания надежных паролей, парольных фраз и имен пользователей.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Парольные фразы - это надёжные пароли, которые зачастую легче запомнить и ввести, чем случайные пароли. Они полезны для входа в аккаунты, в которых автозаполнение недоступно, например в стриминговых сервисах на телевизоре.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Уникальные имена пользователей обеспечивают дополнительный уровень безопасности и могут предотвратить поиск ваших аккаунтов хакерами.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Используйте эти параметры, чтобы настроить пароль в соответствии с требованиями вашего аккаунта.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "После того как вы сохраните новый пароль в Bitwarden, не забудьте обновить его на сайте вашего аккаунта.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Вы должны добавить веб-адрес, чтобы использовать автозаполнение для доступа к этому аккаунту.";
 "Username" = "Имя пользователя";
 "ValidationFieldRequired" = "Поле %1$@ обязательно.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Войти в Bitwarden";
 "Manage" = "Управление";
 "MasterPasswordConfirmationValMessage" = "Неверное подтверждение пароля.";
-"MasterPasswordDescription" = "Мастер-пароль – это ключ к вашему защищенному хранилищу. Он очень важен, поэтому не забывайте его. Восстановить мастер-пароль невозможно.";
-"MasterPasswordHint" = "Подсказка к мастер-паролю (необяз.)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Мастер-пароль - это пароль, используемый для доступа к вашему хранилищу.";
+"MasterPasswordHint" = "Подсказка к мастер-паролю";
 "MasterPasswordHintDescription" = "Подсказка к мастер-паролю может помочь вам его вспомнить.";
 "MasterPasswordLengthValMessageX" = "Мастер-пароль должен содержать не менее %1$@ символов.";
 "MinNumbers" = "Минимум цифр";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Двухэтапная аутентификация";
 "UnlockWith" = "Разблокировка %1$@";
 "UnlockWithPIN" = "Разблокировка PIN-кодом";
+"UnlockWithUnknownBiometrics" = "Разблокировать с помощью биометрии";
 "Validating" = "Проверка";
 "VerificationCode" = "Код подтверждения";
 "ViewItem" = "Просмотр элемента";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Фраза отпечатка";
 "YourAccountsFingerprint" = "Фраза отпечатка вашего аккаунта";
 "LearnOrgConfirmation" = "Bitwarden позволяет делиться элементами вашего хранилища с другими пользователями, используя аккаунт организации. Хотите посетить сайт bitwarden.com, чтобы узнать больше?";
+"Export" = "Экспорт";
 "ExportVault" = "Экспорт хранилища";
 "LockNow" = "Заблокировать";
 "PIN" = "PIN-код";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "Вы действительно хотите выйти из Bitwarden?";
 "PINRequireMasterPasswordRestart" = "Хотите, чтобы при перезапуске приложения требовалась разблокировка с помощью мастер-пароля?";
 "PINRequireBioOrMasterPasswordRestart" = "Хотите, чтобы при перезапуске приложения требовалась разблокировка с помощью %1$@ или мастер-пароля?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Хотите, чтобы при перезапуске приложения требовалась разблокировка с помощью биометрии или мастер-пароля?";
 "Black" = "Черная";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Время удаления";
 "DeletionDateInfo" = "Эта Send будет окончательно удалена в указанные дату и время.";
 "PendingDelete" = "Ожидание удаления";
-"ExpirationDate" = "Дата истечения";
 "ExpirationTime" = "Время истечения";
-"ExpirationDateInfo" = "Если задано, доступ к этой Send истечет в указанные дату и время.";
 "Expired" = "Срок истек";
 "MaximumAccessCount" = "Максимум обращений";
 "MaximumAccessCountInfo" = "Если задано, пользователи больше не смогут получить доступ к этой Send, как только будет достигнуто максимальное количество обращений.";
 "MaximumAccessCountReached" = "Достигнут максимум обращений";
 "CurrentAccessCount" = "Текущих обращений";
 "NewPassword" = "Новый пароль";
-"PasswordInfo" = "По возможности запрашивать у пользователей пароль для доступа к этой Send.";
+"PasswordInfo" = "Требовать этот пароль для просмотра Send.";
 "RemovePassword" = "Удалить пароль";
 "AreYouSureRemoveSendPassword" = "Вы уверены, что хотите удалить пароль?";
 "RemovingSendPassword" = "Удаление пароля";
 "SendPasswordRemoved" = "Пароль был удален.";
-"NotesInfo" = "Личные заметки об этой Send.";
-"DisableSend" = "Отключить эту Send, чтобы никто не мог получить к ней доступ";
 "NoSends" = "В вашем хранилище нет Send.";
 "CopyLink" = "Скопировать ссылку";
 "ShareLink" = "Поделиться ссылкой";
@@ -680,7 +684,8 @@
 "EnterKeyManually" = "Ввести ключ вручную";
 "AddTotp" = "Добавить TOTP";
 "SetupTotp" = "Настроить TOTP";
-"OnceTheKeyIsSuccessfullyEntered" = "После успешного ввода ключа\n выберите Добавить TOTP для безопасного сохранения ключа";
+"OnceTheKeyIsSuccessfullyEntered" = "После успешного ввода ключа
+ выберите Добавить Totp, чтобы безопасно сохранить ключ.";
 "NeverLockWarning" = "При установке опции блокировки на \"Никогда\" хранилище будет доступно любому, кто имеет доступ к вашему устройству, поэтому убедитесь, что устройство защищено должным образом.";
 "EnvironmentPageUrlsError" = "Один или несколько введенных URL неверны. Пожалуйста, проверьте их и попробуйте сохранить снова.";
 "GenericErrorMessage" = "Нам не удалось обработать ваш запрос. Пожалуйста, попробуйте снова или свяжитесь с нами.";
@@ -936,6 +941,8 @@
 "UnknownAccount" = "Неизвестный аккаунт";
 "UserVerificationForPasskey" = "Верификация пользователя по passskey";
 "NewItem" = "Новый элемент";
+"ExploreTheGenerator" = "Исследуйте генератор";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Узнайте больше о создании надежных учетных данных, просмотрев гид.";
 "ExportVaultFilePwProtectInfo" = "Экспорт этого файла будет защищен паролем, и для расшифровки потребуется пароль файла.";
 "IntroCarouselPage1Title" = "Безопасность, приоритет";
 "IntroCarouselPage1Message" = "Сохраняйте логины, карты и личные данные в своем защищенном хранилище. Bitwarden использует сквозное шифрование, чтобы защитить то, что для вас важно.";
@@ -1065,6 +1072,8 @@
 "CopyPrivateKey" = "Скопировать приватный ключ";
 "CopyFingerprint" = "Скопировать отпечаток";
 "SSHKeys" = "Ключи SSH";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Использовать Optic ID для разблокировки";
 "ImportantNotice" = "Важное уведомление";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств.";
 "DoYouHaveReliableAccessToYourEmail" = "Есть ли у вас надежный доступ к электронной почте **%1$@**?";
@@ -1103,3 +1112,6 @@
 "TextToShare" = "Текст для отправки";
 "SendDetails" = "Информация о Send";
 "SendNameRequired" = "Название Send (требуется)";
+"CheckPasswordForDataBreaches" = "Проверить пароль на скомпрометированность";
+"PrivateNote" = "Приватная заметка";
+"XItems" = "Элементов: %1$@";
