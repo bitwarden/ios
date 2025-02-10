@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Erabili hatz-marka desblokeatzeko";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Erabiltzaile izena";
 "ValidationFieldRequired" = "%1$@ ezinbestekoa da.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Kudeatu";
 "MasterPasswordConfirmationValMessage" = "Pasahitzaren baieztapena ez da zuzena.";
-"MasterPasswordDescription" = "Pasahitz nagusia, kutxa gotorrera sartzeko erabiltzen duzun pasahitza da. Oso garrantzitsua da ez ahaztea, ahazten baduzu, ez dago pasahitza berreskuratzeko modurik.";
-"MasterPasswordHint" = "Pasahitz nagusirako pista (aukerakoa)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "Pasahitz nagusia ahazten baduzu, pista batek pasahitza gogoratzen lagunduko dizu.";
 "MasterPasswordLengthValMessageX" = "Pasahitz nagusiak %1$@ karaktere izan behar ditu gutxienez.";
 "MinNumbers" = "Gutxieneko zenbaki kopurua";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Bi urratseko saio hasiera";
 "UnlockWith" = "%1$@-arekin desblokeatu";
 "UnlockWithPIN" = "PIN kodearekin desblokeatu";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Baliozkotzen";
 "VerificationCode" = "Egiaztatze-kodea";
 "ViewItem" = "Bistaratu elementua";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Hatz-marka digitalaren esaldia";
 "YourAccountsFingerprint" = "Zure kontuaren hatz-marka digitalaren esaldia";
 "LearnOrgConfirmation" = "Bitwardek kutxa gotorreko elementuak beste batzuekin partekatzeko aukera ematen dizu erakunde kontu bat erabiliz. Gehiago jakiteko, bitwarden.com webgunea bisitatu nahi duzu?";
+"Export" = "Export";
 "ExportVault" = "Esportatu kutxa gotorra";
 "LockNow" = "Blokeatu orain";
 "PIN" = "PIN-a";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "Zihur al zaude Bitwardenetik irten nahi duzula?";
 "PINRequireMasterPasswordRestart" = "Aplikazioa berrabiarazten denean, pasahitz nagusiarekin desblokeatu nahi duzu?";
 "PINRequireBioOrMasterPasswordRestart" = "Do you want to require unlocking with %1$@ or your master password when the application is restarted?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Beltza";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized iluna";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Ezabatutako unea";
 "DeletionDateInfo" = "Send-a betiko ezabatuko da zehaztutako datan eta orduan.";
 "PendingDelete" = "Ezabatzea egiteke";
-"ExpirationDate" = "Iraungitze data";
 "ExpirationTime" = "Iraungitze unea";
-"ExpirationDateInfo" = "Hala ezartzen bada, Send honetarako sarbidea zehaztutako egunean eta orduan amaituko da.";
 "Expired" = "Iraungita";
 "MaximumAccessCount" = "Sarbide kopuru maximoa";
 "MaximumAccessCountInfo" = "Hala ezartzen bada, erabiltzaileak ezin izango dira Send honetara sartu gehienezko sarbide kopurura iritsi ondoren.";
 "MaximumAccessCountReached" = "Sarbide kopuru maximoa gaindituta";
 "CurrentAccessCount" = "Uneko sarbide kopurua";
 "NewPassword" = "Pasahitz berria";
-"PasswordInfo" = "Nahi izanez gero, pasahitza eskatu erabiltzaileak Send honetara sar daitezen.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Kendu pasahitza";
 "AreYouSureRemoveSendPassword" = "Ziur al zaude pasahitz hau ezabatu nahi duzula?";
 "RemovingSendPassword" = "Pasahitza kentzen";
 "SendPasswordRemoved" = "Pasahitza kendu da.";
-"NotesInfo" = "Send honi buruzko ohar pribatuak.";
-"DisableSend" = "Desgaitu Send hau inor sar ez dadin";
 "NoSends" = "Zure kontuan ez dago Send-ik.";
 "CopyLink" = "Kopiatu esteka";
 "ShareLink" = "Partekatu esteka";
@@ -934,6 +938,8 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExploreTheGenerator" = "Explore the generator";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
 "IntroCarouselPage1Title" = "Security, prioritized";
 "IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
@@ -1063,6 +1069,8 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
@@ -1101,3 +1109,6 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
+"XItems" = "%1$@ items";

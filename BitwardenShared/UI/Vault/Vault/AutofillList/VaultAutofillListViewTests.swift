@@ -387,6 +387,35 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         )
     }
 
+    /// The populated view renders correctly when registering and excluded credentials has been found.
+    @MainActor
+    func test_snapshot_vaultAutofillList_populatedWhenRegisteringExcludedCredentialFound() {
+        let account = ProfileSwitcherItem.anneAccount
+        processor.state.profileSwitcherState.accounts = [account]
+        processor.state.profileSwitcherState.activeAccountId = account.userId
+        processor.state.isCreatingFido2Credential = true
+        processor.state.excludedCredentialFound = true
+        processor.state.vaultListSections = [
+            VaultListSection(
+                id: Localizations.aPasskeyAlreadyExistsForThisApplication,
+                items: [
+                    .fixture(cipherView: .loginFixture(
+                        attachments: [.fixture()],
+                        id: "13",
+                        login: .fixture(username: "user@bitwarden.com"),
+                        name: "Bitwarden",
+                        organizationId: "1"
+                    ), fido2CredentialAutofillView: .fixture()),
+                ],
+                name: Localizations.aPasskeyAlreadyExistsForThisApplication
+            ),
+        ]
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+        )
+    }
+
     /// The view renders correctly when searching a term with populated results.
     @MainActor
     func test_snapshot_vaultAutofillList_searching_populated() {

@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Ujjlenyomat használata feloldáshoz";
 "UseThisButtonToGenerateANewUniquePassword" = "Ezzel a gombbal új egyedi jelszót generálhatunk.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Csak azokhoz a bejelentkezésekhez kell beállítani a Hitelesítő kulcsot, amelyek kétlépcsős hitelesítést igényelnek kóddal. A kulcs folyamatosan hatjegyű kódokat generál, amelyek segítségével bejelentkezhetümk.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Használjuk a generátort biztonságos jelszavak, jelmondatok és felhasználónevek létrehozásához.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "A jelmondatok erős jelszavak, amelyeket gyakran könnyebb megjegyezni és begépelni, mint a véletlenszerű jelszavakat. Hasznosak az olyan fiókokba bejelentkezéshez, ahol az Automatikus kitöltés nem érhető el, például a tévén a streaming szolgáltatásba.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Az egyedi felhasználónevek további biztonsági réteget adnak és megakadályozhatják, hogy a hackerek megtalálják a fiókokat.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Ezekkel az opciókkal állíthatjuk be a jelszót a fiók követelményeihez.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "Miután elmentettük az új jelszót a Bitwardenbe, ne felejtsük el frissíteni azt a fiók webhelyén. ";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Meg kell adnia egy webcímet, hogy automatikus kitöltést használjunk a fiók eléréséhez.";
 "Username" = "Felhasználónév";
 "ValidationFieldRequired" = "A(z) %1$@ mező megadása kötelező.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Bejelentkezés a Bitwardenbe";
 "Manage" = "Kezelés";
 "MasterPasswordConfirmationValMessage" = "A megadott két jelszó nem egyezik.";
-"MasterPasswordDescription" = "A mesterjelszó az a jelszó amit a széfed eléréséhez fogsz használni. Nagyon fontos, hogy ne felejtsd el a mesterjelszavad, mert nincs lehetőséged visszaállítani ha elfelejtetted.";
-"MasterPasswordHint" = "Mesterjelszó emlékeztető (nem kötelező)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "A mesterjelszó az a jelszó, amelyet a széf eléréséhez használunk.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "A mesterjelszó emlékeztető segíthet emlékezni a jelszavadra ha elfejetetted volna.";
 "MasterPasswordLengthValMessageX" = "Mesterjelszónak legalább %1$@ karakter hosszúnak kell lennie.";
 "MinNumbers" = "Legalább ennyi szám";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Kétlépcsős bejelentkezés";
 "UnlockWith" = "Kinyitás ezzel: %1$@";
 "UnlockWithPIN" = "Kinyitás PIN-kóddal";
+"UnlockWithUnknownBiometrics" = "Biometrikus feloldás";
 "Validating" = "Hitelesítés";
 "VerificationCode" = "Ellenőrzőkód";
 "ViewItem" = "Elem megtekintése";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Ujjlenyomat mondat";
 "YourAccountsFingerprint" = "A fiók ujjlenyomat mondata";
 "LearnOrgConfirmation" = "A Bitwardenben szervezeti fiók használatával megoszthatók másokkal a széfben lévő elemek.. Szeretnénk megnyitni a bitwarden.com webhelyet további információért?";
+"Export" = "Exportálás";
 "ExportVault" = "Széf exportálása";
 "LockNow" = "Zárolás most";
 "PIN" = "Pinkód";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "Biztosan kilépünk?";
 "PINRequireMasterPasswordRestart" = "Szükséges a feloldás mesterjelszóval az alkalmazás újraindításakor?";
 "PINRequireBioOrMasterPasswordRestart" = "Szeretnénk előírni a zárolás feloldását %1$@ használatával vagy a mesterjelszóval az alkalmazás újraindításakor?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Szeretnénk megkövetelni a biometrikus adatokkal vagy a mesterjelszóval feloldást az alkalmazás újraindításakor?";
 "Black" = "Fekete";
 "Nord" = "Nord";
 "SolarizedDark" = "Szolarizált sötét";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Törlési időpont";
 "DeletionDateInfo" = "A Send véglegesen törlésre kerül a meghatározott időpontban.";
 "PendingDelete" = "Függőben lévő törlés";
-"ExpirationDate" = "Lejárati dátum";
 "ExpirationTime" = "Lejárati időpont";
-"ExpirationDateInfo" = "Beállítva a hozzáférés ehhez a Send elemhez lejár a meghatározott időpontban.";
 "Expired" = "Lejárt";
 "MaximumAccessCount" = "Maximális elérési szám";
 "MaximumAccessCountInfo" = "Beállítva a Send elérhetetlen lesz a meghatározott hozzáférések számának elérése után.";
 "MaximumAccessCountReached" = "A maximális hozzáférések száma elérésre került.";
 "CurrentAccessCount" = "Aktuális elérési szám";
 "NewPassword" = "Új jelszó";
-"PasswordInfo" = "Opcionálissan egy jelszó kérhető a felhasználóktól a Send eléréséhez.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Jelszó eltávolítása";
 "AreYouSureRemoveSendPassword" = "Biztosan eltávolításra kerüljön ez a jelszó?";
 "RemovingSendPassword" = "Jelszó eltávolítása..";
 "SendPasswordRemoved" = "A jelszó eltávolításra került.";
-"NotesInfo" = "Személyes megjegyzések erről a Sendről.";
-"DisableSend" = "A Send letiltásával mindenki hozzáférése megvonható.";
 "NoSends" = "A fiókban nincsenek Send elemek.";
 "CopyLink" = "Hivatkozás másolása";
 "ShareLink" = "Hivatkozás megosztása";
@@ -934,6 +938,8 @@
 "UnknownAccount" = "Ismeretlen fiók";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "Új elem";
+"ExploreTheGenerator" = "A generátor felfedezése";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tudjunk meg többet a biztonságos bejelentkezési hitelesítő adatok létrehozásáról egy vezetett bemutatóval.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
 "IntroCarouselPage1Title" = "Biztonság, prioritás";
 "IntroCarouselPage1Message" = "Mentsük el a bejelentkezési adatokat, kártyákat és azonosításokat a biztonságos széfbe. A Bitwarden tudás nélküli, végpontok közötti titkosítást használ a felhasználók számára fontos dolgok védelmére.";
@@ -1063,6 +1069,8 @@
 "CopyPrivateKey" = "Személyes kulcs másolása";
 "CopyFingerprint" = "Ujjlenyomat másolása";
 "SSHKeys" = "SSH kulcsok";
+"OpticID" = "Optikai AZ";
+"UseOpticIDToUnlock" = "Optikai AZ használata a feloldáshoz";
 "ImportantNotice" = "Fontos megjegyzés";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "A Bitwarden 2025 februárjától kódot küld a fiókhoz tartozó email címre, amellyel ellenőrizhetők az új eszközökről történő bejelentkezések.";
 "DoYouHaveReliableAccessToYourEmail" = "Megbízható a hozzáférés az email címhez, **%1$@**?";
@@ -1101,3 +1109,6 @@
 "TextToShare" = "Megosztandó szöveg";
 "SendDetails" = "Send részletek";
 "SendNameRequired" = "Send név (kötelező)";
+"CheckPasswordForDataBreaches" = "A jelszó ellenőrzése, hogy nem történt-e adatszivárgás";
+"PrivateNote" = "Személyes jegyzet";
+"XItems" = "%1$@ elem";
