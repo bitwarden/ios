@@ -5,6 +5,7 @@ import XCTest
 
 // MARK: - UpdateMasterPasswordProcessorTests
 
+// swiftlint:disable:next type_body_length
 class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -94,6 +95,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.masterPasswordPolicy)
         await subject.perform(.appeared)
         XCTAssertNotNil(subject.state.masterPasswordPolicy)
+        XCTAssertEqual(subject.state.userEmail, Account.fixture().profile.email)
     }
 
     /// `perform()` with `.appeared` succeeds to sync but master password policy fails to load,
@@ -124,10 +126,10 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertTrue(coordinator.routes.isEmpty)
     }
 
-    /// `perform()` with `.logoutPressed` logs the user out.
+    /// `perform()` with `.logoutTapped` logs the user out.
     @MainActor
-    func test_perform_logoutPressed() async throws {
-        await subject.perform(.logoutPressed)
+    func test_perform_logoutTapped() async throws {
+        await subject.perform(.logoutTapped)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert.title, Localizations.logOut)
@@ -147,9 +149,9 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if an error occurs.
+    /// `perform()` with `.saveTapped` shows an alert if an error occurs.
     @MainActor
-    func test_perform_submitPressed_error() async throws {
+    func test_perform_saveTapped_error() async throws {
         authRepository.updateMasterPasswordResult = .failure(BitwardenTestError.example)
 
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
@@ -158,18 +160,18 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         subject.state.masterPasswordRetype = "NEW_PASSWORD"
         subject.state.masterPasswordHint = "NEW_PASSWORD_HINT"
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if the master password field is empty.
+    /// `perform()` with `.saveTapped` shows an alert if the master password field is empty.
     @MainActor
-    func test_perform_submitPressed_emptyPassword() async throws {
+    func test_perform_saveTapped_emptyPassword() async throws {
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(
             coordinator.alertShown.last,
@@ -179,21 +181,21 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if the password is invalid.
+    /// `perform()` with `.saveTapped` shows an alert if the password is invalid.
     @MainActor
-    func test_perform_submitPressed_passwordInvalid() async throws {
+    func test_perform_saveTapped_passwordInvalid() async throws {
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.masterPassword = "NEW_PASSWORD"
         subject.state.masterPasswordRetype = "OTHER"
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .passwordsDontMatch)
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if the password doesn't satisfy the policy.
+    /// `perform()` with `.saveTapped` shows an alert if the password doesn't satisfy the policy.
     @MainActor
-    func test_perform_submitPressed_passwordMismatch() async throws {
+    func test_perform_saveTapped_passwordMismatch() async throws {
         authService.requirePasswordChangeResult = .success(true)
         authRepository.activeAccount = .fixture()
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
@@ -210,33 +212,33 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         subject.state.masterPassword = "INVALID"
         subject.state.masterPasswordRetype = "INVALID"
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .masterPasswordInvalid())
     }
 
-    /// `perform()` with `.submitPressed` shows an alert if the password is too short.
+    /// `perform()` with `.saveTapped` shows an alert if the password is too short.
     @MainActor
-    func test_perform_submitPressed_passwordTooShort() async throws {
+    func test_perform_saveTapped_passwordTooShort() async throws {
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.masterPassword = "ABC"
         subject.state.masterPasswordRetype = "ABC"
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .passwordIsTooShort)
     }
 
-    /// `perform()` with `.submitPressed` submits the request for updating the master password.
+    /// `perform()` with `.saveTapped` submits the request for updating the master password.
     @MainActor
-    func test_perform_submitPressed_success() async throws {
+    func test_perform_saveTapped_success() async throws {
         subject.state.forcePasswordResetReason = .weakMasterPasswordOnLogin
         subject.state.currentMasterPassword = "PASSWORD"
         subject.state.masterPassword = "NEW_PASSWORD"
         subject.state.masterPasswordRetype = "NEW_PASSWORD"
         subject.state.masterPasswordHint = "NEW_PASSWORD_HINT"
 
-        await subject.perform(.submitPressed)
+        await subject.perform(.saveTapped)
 
         XCTAssertEqual(authRepository.updateMasterPasswordCurrentPassword, "PASSWORD")
         XCTAssertEqual(authRepository.updateMasterPasswordNewPassword, "NEW_PASSWORD")
@@ -265,6 +267,32 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.masterPassword, "password")
     }
 
+    /// `receive(_:)` with `.masterPasswordChanged(_:)` updates the password strength score based on
+    /// the entered password.
+    @MainActor
+    func test_receive_masterPasswordChanged_updatesPasswordStrength() {
+        subject.state.userEmail = "user@bitwarden.com"
+        subject.receive(.masterPasswordChanged(""))
+        XCTAssertNil(subject.state.passwordStrengthScore)
+        XCTAssertNil(authRepository.passwordStrengthPassword)
+
+        authRepository.passwordStrengthResult = 0
+        subject.receive(.masterPasswordChanged("T"))
+        waitFor(subject.state.passwordStrengthScore == 0)
+        XCTAssertEqual(subject.state.passwordStrengthScore, 0)
+        XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
+        XCTAssertEqual(authRepository.passwordStrengthPassword, "T")
+
+        authRepository.passwordStrengthResult = 4
+        subject.receive(.masterPasswordChanged("TestPassword1234567890!@#"))
+        waitFor(subject.state.passwordStrengthScore == 4)
+        XCTAssertEqual(subject.state.passwordStrengthScore, 4)
+        XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
+        XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
+        XCTAssertEqual(authRepository.passwordStrengthPassword, "TestPassword1234567890!@#")
+    }
+
     /// `receive(_:)` with `.masterPasswordRetypeChanged` updates the state to reflect the changes.
     @MainActor
     func test_receive_masterPasswordRetypeChanged() {
@@ -282,6 +310,13 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         subject.receive(.masterPasswordHintChanged("this is password hint"))
 
         XCTAssertEqual(subject.state.masterPasswordHint, "this is password hint")
+    }
+
+    /// `receive(_:)` with `.preventAccountLockTapped` navigates to the right route.
+    @MainActor
+    func test_receive_preventAccountLock() {
+        subject.receive(.preventAccountLockTapped)
+        XCTAssertEqual(coordinator.routes.last, .preventAccountLock)
     }
 
     /// `receive(_:)` with `.revealCurrentMasterPasswordFieldPressed` updates the state to reflect the changes.

@@ -5,6 +5,9 @@ enum UpdateMasterPasswordAction: Equatable {
     /// The value for the current master password was changed.
     case currentMasterPasswordChanged(String)
 
+    /// The user tapped on prevent account lock.
+    case preventAccountLockTapped
+
     /// The value for the new master password was changed.
     case masterPasswordChanged(String)
 
