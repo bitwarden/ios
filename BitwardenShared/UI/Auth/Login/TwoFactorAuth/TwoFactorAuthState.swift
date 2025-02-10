@@ -18,8 +18,16 @@ struct TwoFactorAuthState: Equatable, Sendable {
     /// Whether the continue button is enabled.
     var continueEnabled = false
 
+    /// Whether the flow is to verify the device or not
+    var deviceVerificationRequired: Bool = false
+
     /// The text to display in the detailed instructions.
-    var detailsText: String { authMethod.details(displayEmail) }
+    var detailsText: String {
+        if deviceVerificationRequired {
+            return Localizations.weDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong(displayEmail)
+        }
+        return authMethod.details(displayEmail)
+    }
 
     /// The email address that should be displayed in the instructions of the email method.
     var displayEmail = ""

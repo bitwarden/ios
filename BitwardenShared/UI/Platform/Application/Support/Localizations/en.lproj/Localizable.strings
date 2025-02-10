@@ -1111,6 +1111,7 @@
 "XItems" = "%1$@ items";
 "APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
 "ItemNameRequired" = "Item name (required)";
 "AutofillOptions" = "Autofill options";
 "WebsiteURI" = "Website (URI)";

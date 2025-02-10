@@ -49,7 +49,9 @@ struct TwoFactorAuthView: View {
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    authMethodsMenu
+                    if !store.state.deviceVerificationRequired {
+                        authMethodsMenu
+                    }
                 }
             }
     }
@@ -94,12 +96,18 @@ struct TwoFactorAuthView: View {
     /// The body content for most 2FA methods.
     private var defaultContent: some View {
         VStack(spacing: 24) {
+            if store.state.authMethod == .email {
+                emailImage
+            }
+
             detailText
 
             VStack(spacing: 8) {
                 verificationCodeTextField
 
-                rememberMeToggle
+                if !store.state.deviceVerificationRequired {
+                    rememberMeToggle
+                }
             }
 
             VStack(spacing: 12) {
@@ -110,6 +118,13 @@ struct TwoFactorAuthView: View {
         }
         .padding(.top, 12)
         .scrollView(padding: 12)
+    }
+
+    /// The image representing the email method
+    private var emailImage: some View {
+        Image(decorative: Asset.Images.Illustrations.emailOtp)
+            .resizable()
+            .frame(width: 124, height: 124)
     }
 
     /// The detailed instructions for the method.
@@ -185,7 +200,7 @@ struct TwoFactorAuthView: View {
     /// The resend email button for the email authentication option.
     @ViewBuilder private var resendEmailButton: some View {
         if store.state.authMethod == .email {
-            AsyncButton(Localizations.sendVerificationCodeAgain) {
+            AsyncButton(Localizations.resendCode) {
                 await store.perform(.resendEmailTapped)
             }
             .buttonStyle(.secondary())
