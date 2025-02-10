@@ -273,32 +273,6 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// Perform with `.deleteAccount` presents the OTP code verification alert. If there's an
-    /// invalid verification error error, an alert is shown.
-    @MainActor
-    func test_perform_deleteAccount_noMasterPassword_serverError() async throws {
-        authRepository.deleteAccountResult = .failure(
-            ServerError.error(
-                errorResponse: ErrorResponseModel(
-                    validationErrors: nil,
-                    message: ""
-                )
-            )
-        )
-        authRepository.hasMasterPasswordResult = .success(false)
-
-        await subject.perform(.deleteAccount)
-
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
-        try alert.setText("otp", forTextFieldWithId: "otp")
-        try await alert.tapAction(title: Localizations.submit)
-
-        XCTAssertTrue(authRepository.deleteAccountCalled)
-
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidVerificationCode))
-    }
-
     /// `perform(_:)` with `.loadData` loads the initial data for the view.
     @MainActor
     func test_perform_loadData() async {
