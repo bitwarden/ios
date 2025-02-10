@@ -64,7 +64,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.count, 1)
         XCTAssertNil(clientService.mockVault.clientFolders.encryptedFolders.first?.id)
         XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.first?.name, folderName)
-        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolder, folder)
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptFolderValueToDecrypt, folder)
         XCTAssertEqual(folderService.addedFolderName, folderName)
     }
 
