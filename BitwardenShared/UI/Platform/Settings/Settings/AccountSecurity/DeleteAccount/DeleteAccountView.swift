@@ -14,28 +14,45 @@ struct DeleteAccountView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack(spacing: 12) {
-                Image(asset: Asset.Images.warning24)
-                    .foregroundColor(Color(asset: Asset.Colors.error))
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(Localizations.deletingYourAccountIsPermanent)
-                        .foregroundColor(Color(asset: Asset.Colors.error))
-                        .styleGuide(
-                            .headline,
-                            weight: .semibold,
-                            includeLinePadding: false,
-                            includeLineSpacing: false
-                        )
-
-                    Text(Localizations.deleteAccountExplanation)
-                        .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-                        .styleGuide(.subheadline)
-                }
+            viewContent
+        }
+        .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
+        .scrollView(padding: 12)
+        .toolbar {
+            cancelToolbarItem {
+                store.send(.dismiss)
             }
-            .padding(12)
-            .contentBlock()
+        }
+        .task {
+            await store.perform(.loadData)
+        }
+    }
 
+    /// The content is presented to the user depending on their state.
+    @ViewBuilder var viewContent: some View {
+        HStack(spacing: 12) {
+            Image(decorative: store.state.mainIcon)
+                .foregroundColor(Color(asset: Asset.Colors.error))
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(store.state.title)
+                    .foregroundColor(Color(asset: Asset.Colors.error))
+                    .styleGuide(
+                        .headline,
+                        weight: .semibold,
+                        includeLinePadding: false,
+                        includeLineSpacing: false
+                    )
+
+                Text(store.state.description)
+                    .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                    .styleGuide(.subheadline)
+            }
+        }
+        .padding(12)
+        .contentBlock()
+
+        if store.state.showDeleteAccountButtons {
             VStack(spacing: 12) {
                 AsyncButton(Localizations.deleteAccount) {
                     await store.perform(.deleteAccount)
@@ -49,14 +66,7 @@ struct DeleteAccountView: View {
                     Text(Localizations.cancel)
                 }
                 .buttonStyle(.secondary(isDestructive: true))
-                .accessibilityIdentifier("CANCEL")
-            }
-        }
-        .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
-        .scrollView(padding: 12)
-        .toolbar {
-            cancelToolbarItem {
-                store.send(.dismiss)
+                .accessibilityIdentifier("CancelDeletionButton")
             }
         }
     }

@@ -13,18 +13,14 @@ struct LoginView: View {
     @ObservedObject var store: Store<LoginState, LoginAction, LoginEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
-                textField
+        VStack(spacing: 24) {
+            textField
 
-                loginButtons
+            loginButtons
 
-                loggedInAs
-            }
-            .padding(.horizontal)
-            .padding(.top, 16)
-            .frame(maxWidth: .infinity)
+            loggedInAs
         }
+        .scrollView(padding: 12)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.bitwarden)
         .navigationBarTitleDisplayMode(.inline)
@@ -56,7 +52,15 @@ struct LoginView: View {
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: LoginAction.revealMasterPasswordFieldPressed
-                )
+                ),
+                footerContent: {
+                    Button(Localizations.getMasterPasswordwordHint) {
+                        store.send(.getMasterPasswordHintPressed)
+                    }
+                    .buttonStyle(.bitwardenBorderless)
+                    .padding(.vertical, 14)
+                    .accessibilityIdentifier("GetMasterPasswordHintLabel")
+                }
             )
             .textFieldConfiguration(.password)
             .submitLabel(.go)
@@ -65,23 +69,14 @@ struct LoginView: View {
                     await store.perform(.loginWithMasterPasswordPressed)
                 }
             }
-
-            Button(Localizations.getMasterPasswordwordHint) {
-                store.send(.getMasterPasswordHintPressed)
-            }
-            .styleGuide(.subheadline)
-            .accessibilityIdentifier("GetMasterPasswordHintLabel")
-            .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
         }
     }
 
     /// The set of login option buttons.
     @ViewBuilder var loginButtons: some View {
         VStack(alignment: .center, spacing: 12) {
-            Button(Localizations.logInWithMasterPassword) {
-                Task {
-                    await store.perform(.loginWithMasterPasswordPressed)
-                }
+            AsyncButton(Localizations.logInWithMasterPassword) {
+                await store.perform(.loginWithMasterPasswordPressed)
             }
             .accessibilityIdentifier("LogInWithMasterPasswordButton")
             .buttonStyle(.primary())
@@ -116,13 +111,14 @@ struct LoginView: View {
 
     /// The "logged in as..." text along with the not you button.
     @ViewBuilder var loggedInAs: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .center, spacing: 2) {
             Text(Localizations.loggedInAsOn(
                 store.state.username,
                 store.state.serverURLString
             ))
             .accessibilityIdentifier("LoggingInAsLabel")
             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+            .multilineTextAlignment(.center)
 
             Button(Localizations.notYou) {
                 store.send(.notYouPressed)
@@ -130,6 +126,7 @@ struct LoginView: View {
             .accessibilityIdentifier("NotYouLabel")
             .foregroundColor(Asset.Colors.textInteraction.swiftUIColor)
         }
+        .frame(maxWidth: .infinity, alignment: .center)
         .styleGuide(.footnote)
     }
 }
