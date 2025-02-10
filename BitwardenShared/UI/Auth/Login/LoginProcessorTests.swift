@@ -449,6 +449,29 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` navigates to the `.twoFactor` route
+    /// with new device verification is required.
+    @MainActor
+    func test_perform_loginWithMasterPasswordPressed_newDeviceNotVerifiedError() async {
+        subject.state.masterPassword = "Test"
+        subject.state.username = "test@bitwarden.com"
+        authService.loginWithMasterPasswordResult = .failure(
+            IdentityTokenRequestError.newDeviceNotVerified
+        )
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(coordinator.routes.last, .twoFactor(
+            "test@bitwarden.com",
+            .password("Test"),
+            AuthMethodsData(email: Email(email: "test@bitwarden.com")),
+            nil,
+            true
+        ))
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.loggingIn)])
+    }
+
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` navigates to the `.twoFactor` route
     /// if two-factor authentication is required.
     @MainActor
     func test_perform_loginWithMasterPasswordPressed_twoFactorError() async {

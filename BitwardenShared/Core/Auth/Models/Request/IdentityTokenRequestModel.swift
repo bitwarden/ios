@@ -29,6 +29,9 @@ struct IdentityTokenRequestModel {
     /// The id of the associated login with device request, if applicable.
     let loginRequestId: String?
 
+    /// whether the device needs to be verified
+    var deviceVerificationRequired: Bool = false
+
     /// The otp to verify a new device
     var newDeviceOtp: String?
 
