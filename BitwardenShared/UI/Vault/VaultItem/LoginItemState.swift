@@ -50,8 +50,8 @@ struct LoginItemState: Equatable {
     var username: String = ""
 
     /// The TOTP Key.
-    var authenticatorKey: String? {
-        totpState.rawAuthenticatorKeyString
+    var authenticatorKey: String {
+        totpState.rawAuthenticatorKeyString ?? ""
     }
 
     /// BitwardenSDK loginView representation of loginItemState.
@@ -61,7 +61,7 @@ struct LoginItemState: Equatable {
             password: password.nilIfEmpty,
             passwordRevisionDate: passwordUpdatedDate,
             uris: uris.compactMap(\.loginUriView).nilIfEmpty,
-            totp: authenticatorKey,
+            totp: authenticatorKey.nilIfEmpty,
             autofillOnPageLoad: nil,
             fido2Credentials: nil
         )

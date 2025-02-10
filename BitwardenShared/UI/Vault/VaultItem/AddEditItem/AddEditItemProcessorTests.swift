@@ -548,7 +548,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 ]
             )
         )
-        XCTAssertNil(subject.state.loginState.authenticatorKey)
+        XCTAssertEqual(subject.state.loginState.authenticatorKey, "")
         XCTAssertNil(subject.state.toast)
     }
 
@@ -1618,7 +1618,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.totpState = LoginTOTPState(.standardTotpKey)
         subject.receive(.totpKeyChanged(nil))
 
-        XCTAssertNil(subject.state.loginState.authenticatorKey)
+        XCTAssertEqual(subject.state.loginState.authenticatorKey, "")
     }
 
     /// `receive(_:)` with `.removePasskeyPressed` clears the fido2Credentials.

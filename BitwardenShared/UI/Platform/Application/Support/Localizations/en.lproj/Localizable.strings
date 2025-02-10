@@ -679,7 +679,6 @@
 "CannotScanQRCode" = "Cannot scan QR Code?";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
-"SetupTotp" = "Set up TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered, select Save to store the key safely.";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
@@ -1119,3 +1118,4 @@
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";
