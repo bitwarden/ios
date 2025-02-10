@@ -214,4 +214,38 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .defaultAlert(title: Localizations.invalidVerificationCode))
     }
+
+    /// `perform(_:)` with `.loadData` loads the initial data for the view.
+    @MainActor
+    func test_perform_loadData() async {
+        stateService.activeAccount = .fixture()
+        authRepository.isUserManagedByOrganizationResult = .success(true)
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.shouldPreventUserFromDeletingAccount)
+
+        authRepository.isUserManagedByOrganizationResult = .success(false)
+        await subject.perform(.loadData)
+
+        XCTAssertFalse(subject.state.shouldPreventUserFromDeletingAccount)
+    }
+
+    /// `perform(_:)` with `.loadData` loads the initial data for the view. If an error occurs it's logged
+    ///  and an alert is shown.
+    @MainActor
+    func test_perform_loadData_error() async throws {
+        stateService.activeAccount = .fixture()
+        authRepository.isUserManagedByOrganizationResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.loadData)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.alertActions.count, 1)
+
+        try await alert.tapAction(title: Localizations.ok)
+        coordinator.alertOnDismissed?()
+
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
 }

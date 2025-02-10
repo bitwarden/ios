@@ -41,6 +41,11 @@ struct ProfileOrganizationResponseModel: Codable, Equatable {
     /// Whether the profile organization uses policies.
     let usePolicies: Bool
 
+    /// Whether the user is managed by an organization.
+    /// A user is considered managed by an organization if their email domain
+    /// matches one of the verified domains of that organization, and the user is a member of it.
+    @DefaultFalse var userIsManagedByOrganization: Bool
+
     /// Whether the profile organization's users get premium.
     let usersGetPremium: Bool
 }
