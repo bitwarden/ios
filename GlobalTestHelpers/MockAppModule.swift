@@ -3,6 +3,7 @@
 // MARK: - MockAppModule
 
 class MockAppModule:
+    AddEditFolderModule,
     AppModule,
     AuthModule,
     DebugMenuModule,
@@ -22,6 +23,7 @@ class MockAppModule:
     TwoFactorNoticeModule,
     VaultModule,
     VaultItemModule {
+    var addEditFolderCoordinator = MockCoordinator<AddEditFolderRoute, Void>()
     var appCoordinator = MockCoordinator<AppRoute, AppEvent>()
     var authCoordinator = MockCoordinator<AuthRoute, AuthEvent>()
     var authRouter = MockRouter<AuthEvent, AuthRoute>(routeForEvent: { _ in .landing })
@@ -48,6 +50,12 @@ class MockAppModule:
     var twoFactorNoticeCoordinator = MockCoordinator<TwoFactorNoticeRoute, Void>()
     var vaultCoordinator = MockCoordinator<VaultRoute, AuthAction>()
     var vaultItemCoordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
+
+    func makeAddEditFolderCoordinator(
+        stackNavigator _: StackNavigator
+    ) -> AnyCoordinator<AddEditFolderRoute, Void> {
+        addEditFolderCoordinator.asAnyCoordinator()
+    }
 
     func makeAppCoordinator(
         appContext _: AppContext,

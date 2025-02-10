@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - AddEditFolderDelegate
 
 /// An object that is notified when specific circumstances in the add/edit folder view have occurred.
@@ -5,7 +7,7 @@
 @MainActor
 protocol AddEditFolderDelegate: AnyObject {
     /// Called when the folder has been successfully created.
-    func folderAdded()
+    func folderAdded(_ folderView: FolderView)
 
     /// Called when the folder has been successfully edited.
     func folderDeleted()
@@ -27,7 +29,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     // MARK: Properties
 
     /// The coordinator used to manage navigation.
-    private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
+    private let coordinator: AnyCoordinator<AddEditFolderRoute, Void>
 
     /// The delegate that is notified when specific circumstances in the add/edit folder view have occurred.
     private weak var delegate: AddEditFolderDelegate?
@@ -45,7 +47,7 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
     ///   - state: The initial state of the processor.
     ///
     init(
-        coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
+        coordinator: AnyCoordinator<AddEditFolderRoute, Void>,
         delegate: AddEditFolderDelegate?,
         services: Services,
         state: AddEditFolderState
@@ -80,9 +82,9 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
 
     /// Adds a new folder with the entered name and closes the view.
     private func addFolder() async throws {
-        try await services.settingsRepository.addFolder(name: state.folderName)
+        let folderView = try await services.settingsRepository.addFolder(name: state.folderName)
         coordinator.navigate(to: .dismiss)
-        delegate?.folderAdded()
+        delegate?.folderAdded(folderView)
     }
 
     /// Deletes a folder.

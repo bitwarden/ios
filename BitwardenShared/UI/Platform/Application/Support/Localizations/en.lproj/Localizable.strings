@@ -1119,3 +1119,4 @@
 "AddWebsite" = "Add website";
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";

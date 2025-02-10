@@ -199,6 +199,14 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.dispatchedActions.last, .customField(.newCustomFieldPressed))
     }
 
+    /// Tapping the new folder button dispatches the `.addFolder` action.
+    @MainActor
+    func test_newFolder_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.newFolder)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addFolder)
+    }
+
     /// Updating the notes text field dispatches the `.notesChanged()` action.
     @MainActor
     func test_notesTextField_updateValue() throws {
