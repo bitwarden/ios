@@ -240,7 +240,7 @@
 "UnableToOpenFile" = "Your device cannot open this type of file.";
 "Downloading" = "Downloading...";
 "AttachmentLargeWarning" = "This attachment is %1$@ in size. Are you sure you want to download it onto your device?";
-"AuthenticatorKey" = "Authenticator key (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Verification code (TOTP)";
 "AuthenticatorKeyAdded" = "Authenticator key added.";
 "AuthenticatorKeyReadError" = "Cannot read authenticator key.";
@@ -677,7 +677,6 @@
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "ScanQRCode" = "Scan QR Code";
 "CannotScanQRCode" = "Cannot scan QR Code?";
-"AuthenticatorKeyScanner" = "Authenticator key";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
 "SetupTotp" = "Set up TOTP";

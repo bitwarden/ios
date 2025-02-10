@@ -135,7 +135,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .copyTotpPressed:
             guard let key = state.loginState.authenticatorKey else { return }
             services.pasteboardService.copy(key)
-            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKey))
         case .dismissNewLoginActionCard:
             state.isLearnNewLoginActionCardEligible = false
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
