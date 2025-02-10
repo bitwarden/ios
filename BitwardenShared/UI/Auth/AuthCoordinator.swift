@@ -215,12 +215,13 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 state: state,
                 url: url
             )
-        case let .twoFactor(email, unlockMethod, authMethodsData, orgIdentifier):
+        case let .twoFactor(email, unlockMethod, authMethodsData, orgIdentifier, deviceVerificationRequired):
             showTwoFactorAuth(
                 email: email,
                 unlockMethod: unlockMethod,
                 authMethodsData: authMethodsData,
-                orgIdentifier: orgIdentifier
+                orgIdentifier: orgIdentifier,
+                deviceVerificationRequired: deviceVerificationRequired
             )
         case .updateMasterPassword:
             showUpdateMasterPassword()
@@ -804,10 +805,12 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         email: String,
         unlockMethod: TwoFactorUnlockMethod?,
         authMethodsData: AuthMethodsData,
-        orgIdentifier: String?
+        orgIdentifier: String?,
+        deviceVerificationRequired: Bool?
     ) {
         let state = TwoFactorAuthState(
             authMethodsData: authMethodsData,
+            deviceVerificationRequired: deviceVerificationRequired ?? false,
             email: email,
             orgIdentifier: orgIdentifier,
             unlockMethod: unlockMethod

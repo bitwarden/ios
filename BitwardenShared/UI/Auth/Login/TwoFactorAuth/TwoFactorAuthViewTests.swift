@@ -80,7 +80,7 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
     /// Tapping the resend email button performs the `.resendEmailTapped` effect.
     @MainActor
     func test_resendEmailButton_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.sendVerificationCodeAgain)
+        let button = try subject.inspect().find(asyncButton: Localizations.resendCode)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .resendEmailTapped)
     }
@@ -142,6 +142,22 @@ class TwoFactorAuthViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_default_email_filled() {
         processor.state.isRememberMeOn = true
+        processor.state.verificationCode = "123456"
+        processor.state.continueEnabled = true
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// The default view renders correctly for the email method and device needs verification.
+    @MainActor
+    func test_snapshot_default_email_deviceVerificationRequired() {
+        processor.state.deviceVerificationRequired = true
+        assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+    }
+
+    /// The default view renders correctly for the email method when filled and device needs verification.
+    @MainActor
+    func test_snapshot_default_email_filled_deviceVerificationRequired() {
+        processor.state.deviceVerificationRequired = true
         processor.state.verificationCode = "123456"
         processor.state.continueEnabled = true
         assertSnapshots(of: subject.navStackWrapped, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])

@@ -45,6 +45,8 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
         switch effect {
         case .deleteAccount:
             await showAccountVerification()
+        case .loadData:
+            await loadData()
         }
     }
 
@@ -122,6 +124,20 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
             }
         } catch {
             coordinator.showAlert(.networkResponseError(error))
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Load any initial data for the view.
+    private func loadData() async {
+        do {
+            state.shouldPreventUserFromDeletingAccount =
+                try await services.authRepository.isUserManagedByOrganization()
+        } catch {
+            coordinator.showAlert(.networkResponseError(error)) { [weak self] in
+                guard let self else { return }
+                coordinator.navigate(to: .dismiss)
+            }
             services.errorReporter.log(error: error)
         }
     }

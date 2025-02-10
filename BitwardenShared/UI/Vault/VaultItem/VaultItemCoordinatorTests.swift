@@ -190,6 +190,25 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(view.store.state.folderId, "12345")
     }
 
+    /// `navigate(to:)` with `.addItem` with an organization ID, pushes the add item view onto the
+    /// stack navigator and sets organization's ID on the new item.
+    @MainActor
+    func test_navigateTo_addItem_withOrganizationId() throws {
+        subject.navigate(
+            to: .addItem(
+                organizationId: "org-12345"
+            )
+        )
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is AddEditItemView)
+
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertEqual(view.store.state.type, .login)
+        XCTAssertEqual(view.store.state.organizationId, "org-12345")
+    }
+
     /// `navigate(to:)` with `.cloneItem()` triggers the show clone item flow.
     @MainActor
     func test_navigateTo_cloneItem_nonPremium() throws {

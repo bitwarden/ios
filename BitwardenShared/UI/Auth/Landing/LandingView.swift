@@ -86,47 +86,50 @@ struct LandingView: View {
             }
             .padding(.bottom, 16)
             .frame(minHeight: geometry.size.height)
-            .scrollView(addVerticalPadding: false, showsIndicators: false)
+            .scrollView(addVerticalPadding: false, padding: 12, showsIndicators: false)
         }
     }
 
     /// The section of the view containing input fields, and action buttons.
     private var landingDetails: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 24) {
             Text(Localizations.logInToBitwarden)
                 .styleGuide(.title2, weight: .semibold)
                 .multilineTextAlignment(.center)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                 .frame(maxWidth: .infinity)
 
-            BitwardenTextField(
-                title: Localizations.emailAddress,
-                text: store.binding(
-                    get: \.email,
-                    send: LandingAction.emailChanged
-                ),
-                accessibilityIdentifier: "LoginEmailAddressEntry"
-            )
-            .textFieldConfiguration(.email)
-            .onSubmit {
-                guard store.state.isContinueButtonEnabled else { return }
-                Task { await store.perform(.continuePressed) }
-            }
+            VStack(spacing: 8) {
+                BitwardenTextField(
+                    title: Localizations.emailAddress,
+                    text: store.binding(
+                        get: \.email,
+                        send: LandingAction.emailChanged
+                    ),
+                    accessibilityIdentifier: "LoginEmailAddressEntry",
+                    footerContent: {
+                        RegionSelector(
+                            selectorLabel: Localizations.loggingInOn,
+                            regionName: store.state.region.baseURLDescription
+                        ) {
+                            await store.perform(.regionPressed)
+                        }
+                        .padding(.vertical, 14)
+                    }
+                )
+                .textFieldConfiguration(.email)
+                .onSubmit {
+                    guard store.state.isContinueButtonEnabled else { return }
+                    Task { await store.perform(.continuePressed) }
+                }
 
-            RegionSelector(
-                selectorLabel: Localizations.loggingInOn,
-                regionName: store.state.region.baseURLDescription
-            ) {
-                await store.perform(.regionPressed)
+                BitwardenToggle(Localizations.rememberMe, isOn: store.binding(
+                    get: { $0.isRememberMeOn },
+                    send: { .rememberMeChanged($0) }
+                ))
+                .accessibilityIdentifier("RememberMeSwitch")
+                .contentBlock()
             }
-
-            Toggle(Localizations.rememberMe, isOn: store.binding(
-                get: { $0.isRememberMeOn },
-                send: { .rememberMeChanged($0) }
-            ))
-            .accessibilityIdentifier("RememberMeSwitch")
-            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            .toggleStyle(.bitwarden)
 
             AsyncButton(Localizations.continue) {
                 await store.perform(.continuePressed)
