@@ -128,7 +128,7 @@ final class VaultListProcessor: StateProcessor<
             setProfileSwitcher(visible: false)
             switch state.vaultFilterType {
             case let .organization(organization):
-                coordinator.navigate(to: .addItem(selectedOrganizationId: organization.id))
+                coordinator.navigate(to: .addItem(organizationId: organization.id))
             default:
                 coordinator.navigate(to: .addItem())
             }

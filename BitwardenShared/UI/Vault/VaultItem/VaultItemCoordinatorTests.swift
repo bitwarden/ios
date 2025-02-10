@@ -196,7 +196,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_addItem_withOrganizationId() throws {
         subject.navigate(
             to: .addItem(
-                selectedOrganizationId: "org-12345"
+                organizationId: "org-12345"
             )
         )
 

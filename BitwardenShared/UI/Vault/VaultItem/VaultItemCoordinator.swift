@@ -85,14 +85,14 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             group,
             hasPremium,
             newCipherOptions,
-            selectedOrganizationId
+            organizationId
         ):
             showAddItem(
                 for: group,
                 allowTypeSelection: allowTypeSelection,
                 hasPremium: hasPremium,
                 newCipherOptions: newCipherOptions,
-                selectedOrganizationId: selectedOrganizationId,
+                organizationId: organizationId,
                 delegate: context as? CipherItemOperationDelegate
             )
         case let .attachments(cipher):
@@ -154,7 +154,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - hasPremium: Whether the user has premium,
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
-    ///   - selectedOrganizationId: The organization id in case an organization was selected in the vault filter.
+    ///   - organizationId: The organization id in case an organization was selected in the vault filter.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
@@ -163,7 +163,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         allowTypeSelection: Bool,
         hasPremium: Bool,
         newCipherOptions: NewCipherOptions?,
-        selectedOrganizationId: String?,
+        organizationId: String?,
         delegate: CipherItemOperationDelegate?
     ) {
         let state = CipherItemState(
@@ -173,7 +173,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             folderId: group?.folderId,
             hasPremium: hasPremium,
             name: newCipherOptions?.name,
-            organizationId: selectedOrganizationId ?? group?.organizationId,
+            organizationId: organizationId ?? group?.organizationId,
             password: newCipherOptions?.password,
             totpKeyString: newCipherOptions?.totpKey,
             uri: newCipherOptions?.uri,

@@ -1145,7 +1145,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject.receive(.addItemPressed)
 
-        XCTAssertEqual(coordinator.routes.last, .addItem(selectedOrganizationId: "organization-1"))
+        XCTAssertEqual(coordinator.routes.last, .addItem(organizationId: "organization-1"))
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.
