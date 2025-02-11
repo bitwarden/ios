@@ -24,12 +24,12 @@ on:
 
 env:
   build-variant: ${{ inputs.build-variant || 'Production' }}
-  XCODE_VERSION: ${{ inputs.xcode-version || '15.4' }}
+  XCODE_VERSION: ${{ inputs.xcode-version || '16.2' }}
 
 jobs:
   build:
     name: Build
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin

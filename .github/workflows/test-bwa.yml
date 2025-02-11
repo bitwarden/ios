@@ -41,7 +41,7 @@ env:
   MINT_LINK_PATH: .mint/bin # used by mint in bootstrap.sh
   MINT_PATH: .mint/lib # used by mint in bootstrap.sh
   _COVERAGE_PATH: build/coverage.xml
-  _RESULT_BUNDLE_PATH: build/BitwardenTests.xcresult
+  _RESULT_BUNDLE_PATH: build/AuthenticatorTests.xcresult
   _SIMULATOR_NAME: ${{ inputs.simulator-name }}
   _SIMULATOR_VERSION: ${{ inputs.simulator-version }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
@@ -55,8 +55,8 @@ jobs:
 
   test:
     name: Test
-    runs-on: macos-14-xlarge
-    needs: check-run
+    runs-on: macos-15-xlarge
+    timeout-minutes: 30
     permissions:
       contents: read
 
@@ -164,7 +164,7 @@ jobs:
         continue-on-error: true
         with:
           plugin: xcode
-          files: ${{ env.COVERAGE_PATH }}
+          files: ${{ env._COVERAGE_PATH }}
 
   report:
     name: Process Test Reports

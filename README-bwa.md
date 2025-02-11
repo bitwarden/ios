@@ -61,7 +61,7 @@ Bitwarden Authenticator allows you easily store and generate two-factor authenti
 
 ### Run the App
 
-1. Open the project in Xcode 15.2+.
+1. Open the project in Xcode 16.2+.
 2. Run the app in the Simulator with the `Authenticator` target.
 
 ### Running Tests

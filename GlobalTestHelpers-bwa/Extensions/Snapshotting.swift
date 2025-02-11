@@ -3,7 +3,7 @@ import SwiftUI
 
 extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// The default precision for all snapshots in this project. Defaults to `1`.
-    private static var defaultPrecision: Float { 1 }
+    private static var defaultPrecision: Float { 0.99 }
 
     /// The default perceptual precision for all snapshots in this project. Defaults to `0.95`.
     private static var defaultPerceptualPrecision: Float { 0.95 }
