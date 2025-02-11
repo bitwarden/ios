@@ -67,6 +67,16 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .revealCurrentMasterPasswordFieldPressed(true))
     }
 
+    /// Tapping on the learn to prevent account lock out button dispatches the `.preventAccountLockTapped` action.
+    @MainActor
+    func test_learnPreventAccountLock_tap() throws {
+        let button = try subject.inspect().find(
+            button: Localizations.learnAboutWaysToPreventAccountLockout
+        )
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .preventAccountLockTapped)
+    }
+
     /// Tapping on the logout button dispatches the `.logoutTapped` action.
     @MainActor
     func test_logout_tap() async throws {
