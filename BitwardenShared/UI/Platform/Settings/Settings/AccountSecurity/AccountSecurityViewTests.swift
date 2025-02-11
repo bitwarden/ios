@@ -217,7 +217,7 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     // MARK: Snapshots
 
-    /// The view renders correctly with the vault unlock action scard is displayed.
+    /// The view renders correctly with the vault unlock action card is displayed.
     @MainActor
     func test_snapshot_actionCardVaultUnlock() async {
         processor.state.badgeState = .fixture(vaultUnlockSetupProgress: .setUpLater)
