@@ -98,6 +98,7 @@ struct UpdateMasterPasswordView: View {
                                 Text(Localizations.learnAboutWaysToPreventAccountLockout)
                             }
                             .buttonStyle(.bitwardenBorderless)
+                            .accessibilityIdentifier("PreventAccountLockButton")
                         }
                         .padding(.vertical, 12)
                     }
@@ -119,7 +120,7 @@ struct UpdateMasterPasswordView: View {
                 primaryActionToolbarButton(Localizations.save) {
                     await store.perform(.saveTapped)
                 }
-                .accessibilityIdentifier("SubmitButton")
+                .accessibilityIdentifier("SaveButton")
             }
         }
         .task {

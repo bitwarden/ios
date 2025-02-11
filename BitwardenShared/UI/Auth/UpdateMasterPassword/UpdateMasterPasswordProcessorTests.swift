@@ -276,21 +276,28 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.passwordStrengthScore)
         XCTAssertNil(authRepository.passwordStrengthPassword)
 
-        authRepository.passwordStrengthResult = 0
+        authRepository.passwordStrengthResult = .success(0)
         subject.receive(.masterPasswordChanged("T"))
         waitFor(subject.state.passwordStrengthScore == 0)
-        XCTAssertEqual(subject.state.passwordStrengthScore, 0)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
         XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "T")
 
-        authRepository.passwordStrengthResult = 4
+        authRepository.passwordStrengthResult = .success(4)
         subject.receive(.masterPasswordChanged("TestPassword1234567890!@#"))
         waitFor(subject.state.passwordStrengthScore == 4)
-        XCTAssertEqual(subject.state.passwordStrengthScore, 4)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
         XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "TestPassword1234567890!@#")
+    }
+
+    /// `receive(_:)` with `.masterPasswordChanged(_:)` records an error if the `.passwordStrength()` throws.
+    @MainActor
+    func test_receive_masterPasswordChanged_updatePasswordStrength_fails() {
+        authRepository.passwordStrengthResult = .failure(BitwardenTestError.example)
+        subject.receive(.masterPasswordChanged("T"))
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, BitwardenTestError.example)
     }
 
     /// `receive(_:)` with `.masterPasswordRetypeChanged` updates the state to reflect the changes.

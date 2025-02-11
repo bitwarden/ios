@@ -187,11 +187,15 @@ class UpdateMasterPasswordProcessor: StateProcessor<
             return
         }
         Task {
-            state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
-                email: state.userEmail,
-                password: state.masterPassword,
-                isPreAuth: false
-            )
+            do {
+                state.passwordStrengthScore = try await services.authRepository.passwordStrength(
+                    email: state.userEmail,
+                    password: state.masterPassword,
+                    isPreAuth: false
+                )
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
     }
 }

@@ -46,7 +46,7 @@ struct UpdateMasterPasswordState: Equatable, Sendable {
     }
 
     /// The required text count for the password strength.
-    var requiredPasswordCount = Constants.minimumPasswordCharacters
+    let requiredPasswordCount = Constants.minimumPasswordCharacters
 
     /// The email of the user that is updating the account password.
     var userEmail: String = ""
