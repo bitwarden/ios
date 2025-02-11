@@ -53,9 +53,35 @@ class SettingsRepositoryTests: BitwardenTestCase {
     /// `addFolder(name:)` encrypts the folder name and makes the request to add the folder.
     func test_addFolder() async throws {
         let folderName = "Test folder name"
-        try await subject.addFolder(name: folderName)
+        let folder = Folder.fixture(name: folderName)
+        folderService.addFolderWithServerResult = .success(folder)
+        let folderView = FolderView(folder: folder)
+        clientService.mockVault.clientFolders.decryptFolderResult = .success(folderView)
+
+        let addedFolder = try await subject.addFolder(name: folderName)
+
+        XCTAssertEqual(addedFolder, folderView)
+        XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.count, 1)
+        XCTAssertNil(clientService.mockVault.clientFolders.encryptedFolders.first?.id)
         XCTAssertEqual(clientService.mockVault.clientFolders.encryptedFolders.first?.name, folderName)
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptFolderValueToDecrypt, folder)
         XCTAssertEqual(folderService.addedFolderName, folderName)
+    }
+
+    /// `addFolder(name:)` throws an error if it's unable to decrypt the folder returned from the server.
+    func test_addFolder_errorDecrypt() async throws {
+        clientService.mockVault.clientFolders.decryptFolderResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.addFolder(name: "Test folder")
+        }
+    }
+
+    /// `addFolder(name:)` throws an error if the server returns an error.
+    func test_addFolder_errorServer() async throws {
+        folderService.addFolderWithServerResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.addFolder(name: "Test folder")
+        }
     }
 
     /// `clearClipboardValue` gets and sets the value from the `PasteboardService`.

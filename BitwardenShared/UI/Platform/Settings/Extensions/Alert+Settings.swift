@@ -249,8 +249,12 @@ extension Alert {
         let message = switch biometricType {
         case .faceID:
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.faceID)
+        case .opticID:
+            Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.opticID)
         case .touchID:
             Localizations.pinRequireBioOrMasterPasswordRestart(Localizations.touchID)
+        case .unknown:
+            Localizations.pinRequireUnknownBiometricsOrMasterPasswordRestart
         case nil:
             Localizations.pinRequireMasterPasswordRestart
         }

@@ -15,6 +15,7 @@ struct VaultUnlockView: View {
         \(store.state.unlockMethod == .pin
             ? Localizations.vaultLockedPIN
             : Localizations.vaultLockedMasterPassword)
+
         \(Localizations.loggedInAsOn(store.state.email, store.state.webVaultHost))
         """
     }
@@ -62,19 +63,12 @@ struct VaultUnlockView: View {
 
     /// the scrollable content of the view.
     @ViewBuilder var scrollView: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                if store.state.shouldShowPasswordOrPinFields {
-                    VStack(alignment: .leading, spacing: 8) {
-                        textField
+        VStack(spacing: 24) {
+            if store.state.shouldShowPasswordOrPinFields {
+                textField
+            }
 
-                        Text(footerText)
-                            .styleGuide(.footnote)
-                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                            .accessibilityIdentifier("UserAndEnvironmentDataLabel")
-                    }
-                }
-
+            VStack(spacing: 12) {
                 biometricAuthButton
                 if store.state.shouldShowPasswordOrPinFields {
                     AsyncButton {
@@ -86,8 +80,8 @@ struct VaultUnlockView: View {
                     .accessibilityIdentifier("UnlockVaultButton")
                 }
             }
-            .padding(16)
         }
+        .scrollView(padding: 12)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
     }
 
@@ -147,14 +141,20 @@ struct VaultUnlockView: View {
                     get: \.masterPassword,
                     send: VaultUnlockAction.masterPasswordChanged
                 ),
-                footer: nil,
                 accessibilityIdentifier: "MasterPasswordEntry",
                 passwordVisibilityAccessibilityId: "PasswordVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isMasterPasswordRevealed,
                     send: VaultUnlockAction.revealMasterPasswordFieldPressed
-                )
+                ),
+                footerContent: {
+                    Text(footerText)
+                        .styleGuide(.footnote)
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier("UserAndEnvironmentDataLabel")
+                        .padding(.vertical, 12)
+                }
             )
             .textFieldConfiguration(.password)
             .submitLabel(.go)
@@ -170,14 +170,20 @@ struct VaultUnlockView: View {
                     get: \.pin,
                     send: VaultUnlockAction.pinChanged
                 ),
-                footer: nil,
                 accessibilityIdentifier: "PinEntry",
                 passwordVisibilityAccessibilityId: "PinVisibilityToggle",
                 isPasswordAutoFocused: true,
                 isPasswordVisible: store.binding(
                     get: \.isPinRevealed,
                     send: VaultUnlockAction.revealPinFieldPressed
-                )
+                ),
+                footerContent: {
+                    Text(footerText)
+                        .styleGuide(.footnote)
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .accessibilityIdentifier("UserAndEnvironmentDataLabel")
+                        .padding(.vertical, 12)
+                }
             )
             .textFieldConfiguration(.numeric(.password))
             .submitLabel(.go)
@@ -193,8 +199,12 @@ struct VaultUnlockView: View {
         switch biometryType {
         case .faceID:
             Text(Localizations.useFaceIDToUnlock)
+        case .opticID:
+            Text(Localizations.useOpticIDToUnlock)
         case .touchID:
             Text(Localizations.useFingerprintToUnlock)
+        case .unknown:
+            Text(Localizations.useBiometricsToUnlock)
         }
     }
 }

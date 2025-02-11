@@ -4,11 +4,14 @@ import SwiftUI
 
 /// A wrapper around a `Toggle` that is customized based on the Bitwarden design system.
 ///
-struct BitwardenToggle<FooterContent: View>: View {
+struct BitwardenToggle<TitleContent: View, FooterContent: View>: View {
     // MARK: Properties
 
     /// The accessibility identifier for the toggle.
     let accessibilityIdentifier: String?
+
+    /// The accessibility label for the toggle.
+    let accessibilityLabel: String?
 
     /// The footer text displayed below the toggle.
     let footer: String?
@@ -20,18 +23,20 @@ struct BitwardenToggle<FooterContent: View>: View {
     /// A binding for whether the toggle is on.
     @Binding var isOn: Bool
 
-    /// The title of the toggle.
-    let title: String
+    /// The content containing the title of the toggle.
+    let titleContent: TitleContent
 
     // MARK: View
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Toggle(title, isOn: $isOn)
-                .toggleStyle(.bitwarden)
-                .padding(.vertical, 12)
-                .accessibilityIdentifier(accessibilityIdentifier ?? "")
-                .accessibilityLabel(title)
+            Toggle(isOn: $isOn) {
+                titleContent
+            }
+            .toggleStyle(.bitwarden)
+            .padding(.vertical, 12)
+            .accessibilityIdentifier(accessibilityIdentifier ?? "")
+            .accessibilityLabel(accessibilityLabel ?? "")
 
             if footer != nil || footerContent != nil {
                 Divider()
@@ -64,12 +69,13 @@ struct BitwardenToggle<FooterContent: View>: View {
         _ title: String,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil
-    ) where FooterContent == EmptyView {
+    ) where TitleContent == Text, FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
+        accessibilityLabel = title
         _isOn = isOn
         footer = nil
         footerContent = nil
-        self.title = title
+        titleContent = Text(title)
     }
 
     /// Initialize a `BitwardenToggle` with footer text.
@@ -85,12 +91,13 @@ struct BitwardenToggle<FooterContent: View>: View {
         footer: String,
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil
-    ) where FooterContent == EmptyView {
+    ) where TitleContent == Text, FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
+        accessibilityLabel = title
         _isOn = isOn
         self.footer = footer
         footerContent = nil
-        self.title = title
+        titleContent = Text(title)
     }
 
     /// Initialize a `BitwardenToggle` with footer content.
@@ -106,12 +113,35 @@ struct BitwardenToggle<FooterContent: View>: View {
         isOn: Binding<Bool>,
         accessibilityIdentifier: String? = nil,
         @ViewBuilder footerContent: () -> FooterContent
-    ) {
+    ) where TitleContent == Text {
         self.accessibilityIdentifier = accessibilityIdentifier
+        accessibilityLabel = title
         _isOn = isOn
         footer = nil
         self.footerContent = footerContent()
-        self.title = title
+        titleContent = Text(title)
+    }
+
+    /// Initialize a `BitwardenToggle` with no footer.
+    ///
+    /// - Parameters:
+    ///   - isOn: A binding for whether the toggle is on.
+    ///   - accessibilityIdentifier: The accessibility identifier for the toggle.
+    ///   - accessibilityLabel: The accessibility label for the toggle.
+    ///   - title: The content to display in the title of the toggle.
+    ///
+    init(
+        isOn: Binding<Bool>,
+        accessibilityIdentifier: String? = nil,
+        accessibilityLabel: String? = nil,
+        @ViewBuilder title titleContent: () -> TitleContent
+    ) where FooterContent == EmptyView {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibilityLabel = accessibilityLabel
+        self.titleContent = titleContent()
+        _isOn = isOn
+        footer = nil
+        footerContent = nil
     }
 }
 
@@ -126,12 +156,25 @@ struct BitwardenToggle<FooterContent: View>: View {
         BitwardenToggle("Toggle", isOn: .constant(true))
             .contentBlock()
 
+        BitwardenToggle(isOn: .constant(true)) {
+            HStack(spacing: 8) {
+                Text("Toggle")
+
+                Button {} label: {
+                    Asset.Images.cog16.swiftUIImage
+                }
+                .buttonStyle(.fieldLabelIcon)
+            }
+        }
+        .contentBlock()
+
         BitwardenToggle("Toggle", footer: "Footer text", isOn: .constant(false))
             .contentBlock()
 
         BitwardenToggle("Toggle", isOn: .constant(false)) {
             Button("Custom footer content") {}
-                .styleGuide(.body)
+                .buttonStyle(.bitwardenBorderless)
+                .padding(.vertical, 14)
         }
         .contentBlock()
     }

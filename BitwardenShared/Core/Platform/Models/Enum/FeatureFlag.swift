@@ -4,6 +4,9 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 enum FeatureFlag: String, CaseIterable, Codable {
+    /// A feature flag to enable/disable account deprovisioning.
+    case accountDeprovisioning = "pm-10308-account-deprovisioning"
+
     /// A feature flag to enable/disable the app review prompt.
     case appReviewPrompt = "app-review-prompt"
 
@@ -24,7 +27,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
     case enableDebugAppReviewPrompt = "enable-debug-app-review-prompt"
 
     /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
-    case enableAuthenticatorSync = "enable-authenticator-sync-ios"
+    case enableAuthenticatorSync = "enable-pm-bwa-sync"
 
     /// An SDK flag that enables individual cipher encryption.
     case enableCipherKeyEncryption
@@ -113,9 +116,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
         case .enableCipherKeyEncryption,
              .enableDebugAppReviewPrompt,
              .ignore2FANoticeEnvironmentCheck,
-             .importLoginsFlow,
-             .nativeCarouselFlow,
-             .nativeCreateAccountFlow,
              .newDeviceVerificationPermanentDismiss,
              .newDeviceVerificationTemporaryDismiss,
              .testLocalFeatureFlag,
@@ -123,12 +123,16 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .testLocalInitialIntFlag,
              .testLocalInitialStringFlag:
             false
-        case .appReviewPrompt,
+        case .accountDeprovisioning,
+             .appReviewPrompt,
              .cipherKeyEncryption,
              .cxpExportMobile,
              .cxpImportMobile,
              .emailVerification,
              .enableAuthenticatorSync,
+             .importLoginsFlow,
+             .nativeCarouselFlow,
+             .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
              .sshKeyVaultItem,
              .testRemoteFeatureFlag,

@@ -502,33 +502,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertIdentical(coordinator.contexts.last as? FileSelectionDelegate, subject)
     }
 
-    /// `receive(_:)` with `.clearExpirationDatePressed` removes the expiration date.
-    @MainActor
-    func test_receive_clearExpirationDatePressed() {
-        subject.state.customExpirationDate = Date(year: 2023, month: 11, day: 5)
-        subject.receive(.clearExpirationDatePressed)
-
-        XCTAssertNil(subject.state.customExpirationDate)
-    }
-
-    /// `receive(_:)` with `.customExpirationDateChanged` updates the custom expiration date.
-    @MainActor
-    func test_receive_customExpirationDateChanged() {
-        subject.state.customExpirationDate = Date(year: 2000, month: 5, day: 5)
-        subject.receive(.customExpirationDateChanged(Date(year: 2023, month: 11, day: 5)))
-
-        XCTAssertEqual(subject.state.customExpirationDate, Date(year: 2023, month: 11, day: 5))
-    }
-
-    /// `receive(_:)` with `.deactivateThisSendChanged` updates the deactivate this send toggle.
-    @MainActor
-    func test_receive_deactivateThisSendChanged() {
-        subject.state.isDeactivateThisSendOn = false
-        subject.receive(.deactivateThisSendChanged(true))
-
-        XCTAssertTrue(subject.state.isDeactivateThisSendOn)
-    }
-
     /// `receive(_:)` with `.deletionDateChanged` updates the deletion date.
     @MainActor
     func test_receive_deletionDateChanged() {
@@ -544,15 +517,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.receive(.dismissPressed)
 
         XCTAssertEqual(coordinator.routes.last, .cancel)
-    }
-
-    /// `receive(_:)` with `.expirationDateChanged` updates the expiration date.
-    @MainActor
-    func test_receive_expirationDateChanged() {
-        subject.state.expirationDate = .sevenDays
-        subject.receive(.expirationDateChanged(.thirtyDays))
-
-        XCTAssertEqual(subject.state.expirationDate, .thirtyDays)
     }
 
     /// `receive(_:)` with `.hideMyEmailChanged` updates the hide my email toggle.
@@ -581,36 +545,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertEqual(subject.state.maximumAccessCount, 42)
         XCTAssertEqual(subject.state.maximumAccessCountText, "42")
-    }
-
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged() {
-        subject.state.maximumAccessCountText = "0"
-        subject.receive(.maximumAccessCountTextFieldChanged("32"))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 32)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "32")
-    }
-
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged_zeroToEmptyState() {
-        subject.state.maximumAccessCountText = "0"
-        subject.receive(.maximumAccessCountTextFieldChanged(""))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 0)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "")
-    }
-
-    /// `receive(_:)` with `.maximumAccessCountTextChanged` updates the maximum access count.
-    @MainActor
-    func test_receive_maximumAccessCountTextChanged_emptyToZeroState() {
-        subject.state.maximumAccessCountText = ""
-        subject.receive(.maximumAccessCountTextFieldChanged("0"))
-
-        XCTAssertEqual(subject.state.maximumAccessCount, 0)
-        XCTAssertEqual(subject.state.maximumAccessCountText, "0")
     }
 
     /// `receive(_:)` with `.nameChanged` updates the name.

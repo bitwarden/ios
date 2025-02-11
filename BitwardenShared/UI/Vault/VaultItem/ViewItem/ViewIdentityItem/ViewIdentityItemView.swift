@@ -11,6 +11,13 @@ struct ViewIdentityItemView: View {
     @ObservedObject var store: Store<IdentityItemState, ViewItemAction, Void>
 
     var body: some View {
+        ContentBlock {
+            content
+        }
+    }
+
+    /// The content displayed in the view.
+    @ViewBuilder var content: some View {
         if !store.state.identityName.isEmpty {
             let identityName = store.state.identityName
             BitwardenTextValueField(

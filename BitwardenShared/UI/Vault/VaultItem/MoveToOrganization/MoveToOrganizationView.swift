@@ -16,7 +16,7 @@ struct MoveToOrganizationView: View {
     var body: some View {
         content
             .navigationBar(title: Localizations.moveToOrganization, titleDisplayMode: .inline)
-            .scrollView()
+            .scrollView(padding: 12)
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
                 cancelToolbarItem {
@@ -36,17 +36,19 @@ struct MoveToOrganizationView: View {
 
     /// The section containing the collections for the organizations.
     private var collectionsSections: some View {
-        SectionView(Localizations.collections) {
-            ForEach(store.state.collectionsForOwner, id: \.id) { collection in
-                if let collectionId = collection.id {
-                    Toggle(isOn: store.binding(
-                        get: { _ in store.state.collectionIds.contains(collectionId) },
-                        send: { .collectionToggleChanged($0, collectionId: collectionId) }
-                    )) {
-                        Text(collection.name)
+        SectionView(Localizations.collections, contentSpacing: 8) {
+            ContentBlock {
+                ForEach(store.state.collectionsForOwner, id: \.id) { collection in
+                    if let collectionId = collection.id {
+                        BitwardenToggle(
+                            collection.name,
+                            isOn: store.binding(
+                                get: { _ in store.state.collectionIds.contains(collectionId) },
+                                send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                            ),
+                            accessibilityIdentifier: "CollectionItemSwitch"
+                        )
                     }
-                    .toggleStyle(.bitwarden)
-                    .accessibilityIdentifier("CollectionItemSwitch")
                 }
             }
         }
@@ -62,9 +64,11 @@ struct MoveToOrganizationView: View {
                 .padding(16)
                 .frame(maxWidth: .infinity)
         } else {
-            organizationSection
+            VStack(spacing: 16) {
+                organizationSection
 
-            collectionsSections
+                collectionsSections
+            }
         }
     }
 

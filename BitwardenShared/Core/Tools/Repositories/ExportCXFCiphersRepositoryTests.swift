@@ -108,6 +108,8 @@ class ExportCXFCiphersRepositoryTests: BitwardenTestCase {
             .fixture(deletedDate: .now, id: "del1"),
             .fixture(deletedDate: .now, id: "del2"),
             .fixture(id: "2"),
+            .fixture(id: "org1", organizationId: "someorg1"),
+            .fixture(id: "org5", organizationId: "someorg2"),
             .fixture(deletedDate: .now, id: "del3"),
         ])
         let result = try await subject.getAllCiphersToExportCXF()

@@ -43,14 +43,11 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// The custom deletion date.
     var customDeletionDate = Date.midnightOneWeekFromToday() ?? Date()
 
-    /// The custom expiration date.
-    var customExpirationDate: Date?
-
     /// The deletion date for this item.
     var deletionDate: SendDeletionDateType = .sevenDays
 
     /// The expiration date for this item.
-    var expirationDate: SendExpirationDateType = .never
+    var expirationDate: Date?
 
     /// The data for the selected file.
     var fileData: Data?
@@ -146,9 +143,8 @@ extension AddEditSendItemState {
             accessId: sendView.accessId,
             currentAccessCount: Int(sendView.accessCount),
             customDeletionDate: sendView.deletionDate,
-            customExpirationDate: sendView.expirationDate,
             deletionDate: .custom(sendView.deletionDate),
-            expirationDate: .custom,
+            expirationDate: sendView.expirationDate,
             fileData: nil,
             fileName: sendView.file?.fileName,
             fileSize: sendView.file?.sizeName,
@@ -174,7 +170,8 @@ extension AddEditSendItemState {
     /// Returns a `SendView` based on the properties of the `AddEditSendItemState`.
     ///
     func newSendView() -> SendView {
-        SendView(
+        let deletionDate = deletionDate.calculateDate() ?? Date()
+        return SendView(
             id: id,
             accessId: accessId,
             name: name,
@@ -190,8 +187,10 @@ extension AddEditSendItemState {
             disabled: isDeactivateThisSendOn,
             hideEmail: isHideMyEmailOn,
             revisionDate: Date(),
-            deletionDate: deletionDate.calculateDate() ?? Date(),
-            expirationDate: expirationDate.calculateDate(customValue: customExpirationDate)
+            deletionDate: deletionDate,
+            // If the send has an expiration date, reset it to the deletion date to prevent a server
+            // error which disallows editing a send after it has expired.
+            expirationDate: expirationDate != nil ? deletionDate : nil
         )
     }
 

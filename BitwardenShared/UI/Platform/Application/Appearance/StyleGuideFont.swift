@@ -15,6 +15,26 @@ struct StyleGuideFont {
 
     /// The default font size for this style, in px
     let size: CGFloat
+
+    /// The text style for the font, used to determine how the font scales with dynamic type.
+    let textStyle: SwiftUI.Font.TextStyle
+
+    // MARK: Initialization
+
+    /// Initialize a `StyleGuideFont`.
+    ///
+    /// - Parameters:
+    ///   - font: The font to use for the style.
+    ///   - lineHeight: The line height for this style, in px.
+    ///   - size: The default font size for this style, in px
+    ///   - textStyle: The text style for the font, used to determine how the font scales with dynamic type.
+    ///
+    init(font: SwiftUI.Font, lineHeight: CGFloat, size: CGFloat, textStyle: SwiftUI.Font.TextStyle = .body) {
+        self.font = font
+        self.lineHeight = lineHeight
+        self.size = size
+        self.textStyle = textStyle
+    }
 }
 
 extension StyleGuideFont {
@@ -30,6 +50,7 @@ extension StyleGuideFont {
         self.font = font.swiftUIFont(size: size, relativeTo: textStyle)
         self.lineHeight = lineHeight
         self.size = size
+        self.textStyle = textStyle
     }
 
     /// Returns a `StyleGuideFont` that uses the DMSans font.
@@ -43,6 +64,20 @@ extension StyleGuideFont {
     static func dmSans(lineHeight: CGFloat, size: CGFloat, textStyle: SwiftUI.Font.TextStyle) -> StyleGuideFont {
         FontFamily.registerAllCustomFonts()
         return self.init(font: FontFamily.DMSans.regular, lineHeight: lineHeight, size: size, textStyle: textStyle)
+    }
+
+    /// Returns a new `StyleGuideFont` with same properties but different font.
+    ///
+    /// - Parameter font: The `FontConvertible` font for this style.
+    /// - Returns: A `StyleGuideFont` modified to use the specified font.
+    ///
+    private func with(font: FontConvertible) -> StyleGuideFont {
+        StyleGuideFont(
+            font: font,
+            lineHeight: lineHeight,
+            size: size,
+            textStyle: textStyle
+        )
     }
 }
 
@@ -71,19 +106,25 @@ extension StyleGuideFont {
     static let body = StyleGuideFont.dmSans(lineHeight: 20, size: 15, textStyle: .body)
 
     /// The font for the bold body style.
-    static let bodyBold = StyleGuideFont(font: FontFamily.DMSans.bold, lineHeight: 20, size: 15, textStyle: .body)
+    static let bodyBold = body.with(font: FontFamily.DMSans.bold)
 
     /// The font for the monospaced body style.
     static let bodyMonospaced = StyleGuideFont(font: .system(.body, design: .monospaced), lineHeight: 22, size: 17)
+
+    /// The font for the bold semibody style.
+    static let bodySemibold = body.with(font: FontFamily.DMSans.semiBold)
 
     /// The font for the callout style.
     static let callout = StyleGuideFont.dmSans(lineHeight: 18, size: 13, textStyle: .callout)
 
     /// The font for the callout style.
-    static let calloutBold = StyleGuideFont(font: FontFamily.DMSans.bold, lineHeight: 18, size: 13, textStyle: .callout)
+    static let calloutBold = callout.with(font: FontFamily.DMSans.bold)
 
     /// The font for the subheadline style.
     static let subheadline = StyleGuideFont.dmSans(lineHeight: 16, size: 12, textStyle: .subheadline)
+
+    /// The font for the subheadline semibold style.
+    static let subheadlineSemibold = subheadline.with(font: FontFamily.DMSans.semiBold)
 
     /// The font for the footnote style.
     static let footnote = StyleGuideFont.dmSans(lineHeight: 18, size: 12, textStyle: .footnote)

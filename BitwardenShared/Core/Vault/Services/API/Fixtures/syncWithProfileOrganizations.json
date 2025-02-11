@@ -50,7 +50,8 @@
           "useSso": true,
           "useTotp": true,
           "userId": "USER_1",
-          "usersGetPremium": true
+          "usersGetPremium": true,
+          "userIsManagedByOrganization": false
         },
         {
           "accessSecretsManager": false,
@@ -86,7 +87,8 @@
           "useSso": true,
           "useTotp": true,
           "userId": "USER_1",
-          "usersGetPremium": true
+          "usersGetPremium": true,
+          "userIsManagedByOrganization": false
         },
     ],
     "providers": [],

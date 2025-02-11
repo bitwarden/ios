@@ -16,6 +16,7 @@ extension ProfileOrganizationResponseModel {
         type: OrganizationUserType = .user,
         useEvents: Bool = false,
         usePolicies: Bool = false,
+        userIsManagedByOrganization: Bool = false,
         usersGetPremium: Bool = false
     ) -> ProfileOrganizationResponseModel {
         self.init(
@@ -31,6 +32,7 @@ extension ProfileOrganizationResponseModel {
             type: type,
             useEvents: useEvents,
             usePolicies: usePolicies,
+            userIsManagedByOrganization: userIsManagedByOrganization,
             usersGetPremium: usersGetPremium
         )
     }

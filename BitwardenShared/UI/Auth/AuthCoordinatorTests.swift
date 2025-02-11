@@ -550,6 +550,16 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<TwoFactorAuthView>)
     }
 
+    /// `navigate(to:)` with `.twoFactor` shows the two factor auth view with device verification.
+    @MainActor
+    func test_navigate_twoFactor_deviceVerification() throws {
+        subject.navigate(to: .twoFactor("", .password(""), AuthMethodsData.fixture(), nil, true))
+
+        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
+        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<TwoFactorAuthView>)
+    }
+
     /// `navigate(to:)` with `.updateMasterPassword` pushes the update master password view onto the stack navigator.
     @MainActor
     func test_navigate_updateMasterPassword() throws {

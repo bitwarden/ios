@@ -29,6 +29,12 @@ struct IdentityTokenRequestModel {
     /// The id of the associated login with device request, if applicable.
     let loginRequestId: String?
 
+    /// whether the device needs to be verified
+    var deviceVerificationRequired: Bool = false
+
+    /// The otp to verify a new device
+    var newDeviceOtp: String?
+
     /// The two-factor authentication code.
     var twoFactorCode: String?
 
@@ -82,6 +88,10 @@ extension IdentityTokenRequestModel: FormURLEncodedRequestBody {
                 URLQueryItem(name: "twoFactorProvider", value: "\(twoFactorMethod.rawValue)"),
                 URLQueryItem(name: "twoFactorRemember", value: twoFactorRemember ? "1" : "0"),
             ])
+        }
+
+        if let newDeviceOtp {
+            queryItems.append(URLQueryItem(name: "newdeviceotp", value: newDeviceOtp))
         }
 
         return queryItems

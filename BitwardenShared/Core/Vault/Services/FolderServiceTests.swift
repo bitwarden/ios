@@ -51,10 +51,11 @@ class FolderServiceTests: XCTestCase {
             revisionDate: Date(year: 2023, month: 12, day: 25)
         )
 
-        try await subject.addFolderWithServer(name: folder.name)
+        let addedFolder = try await subject.addFolderWithServer(name: folder.name)
 
         XCTAssertEqual(folderDataStore.upsertFolderUserId, Account.fixtureAccountLogin().profile.userId)
         XCTAssertEqual(folderDataStore.upsertFolderValue, folder)
+        XCTAssertEqual(folderDataStore.upsertFolderValue, addedFolder)
     }
 
     /// `deleteFolderWithServer(id:)` deletes the folder in both the backend and the data store.

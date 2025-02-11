@@ -11,18 +11,18 @@ struct UpdateMasterPasswordView: View {
     @ObservedObject var store: Store<UpdateMasterPasswordState, UpdateMasterPasswordAction, UpdateMasterPasswordEffect>
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                if store.state.forcePasswordResetReason != nil {
-                    InfoContainer(store.state.updateMasterPasswordWarning)
+        VStack(spacing: 24) {
+            if store.state.forcePasswordResetReason != nil {
+                InfoContainer(store.state.updateMasterPasswordWarning)
 
-                    if let policy = store.state.masterPasswordPolicy,
-                       policy.isInEffect,
-                       let policySummary = policy.policySummary {
-                        InfoContainer(policySummary, textAlignment: .leading)
-                    }
+                if let policy = store.state.masterPasswordPolicy,
+                   policy.isInEffect,
+                   let policySummary = policy.policySummary {
+                    InfoContainer(policySummary)
                 }
+            }
 
+            ContentBlock {
                 if store.state.requireCurrentPassword {
                     BitwardenTextField(
                         title: Localizations.currentMasterPassword,
@@ -79,15 +79,15 @@ struct UpdateMasterPasswordView: View {
                     footer: Localizations.masterPasswordHintDescription,
                     accessibilityIdentifier: "MasterPasswordHintLabel"
                 )
-
-                AsyncButton(Localizations.submit) {
-                    await store.perform(.submitPressed)
-                }
-                .accessibilityIdentifier("SubmitButton")
-                .buttonStyle(.primary())
             }
-            .padding(16)
+
+            AsyncButton(Localizations.submit) {
+                await store.perform(.submitPressed)
+            }
+            .accessibilityIdentifier("SubmitButton")
+            .buttonStyle(.primary())
         }
+        .scrollView(padding: 12)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.updateMasterPassword)
         .navigationBarTitleDisplayMode(.inline)

@@ -73,6 +73,124 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         vaultRepository = nil
     }
 
+    /// `informExcludedCredentialFound(cipherView:)` updates the state with the excluded credential
+    /// vault list section.
+    @MainActor
+    func test_informExcludedCredentialFound_succeeds() async throws {
+        let cipher = CipherView.fixture()
+        vaultRepository.cipherDetailsSubject.send(cipher)
+        vaultRepository.createAutofillListExcludedCredentialSectionResult = .success(
+            VaultListSection(
+                id: "excludedCredentialsId",
+                items: [
+                    VaultListItem(
+                        cipherView: cipher,
+                        fido2CredentialAutofillView: .fixture()
+                    )!,
+                ],
+                name: "excludedCredentialsId"
+            )
+        )
+
+        let task = Task {
+            await subject.informExcludedCredentialFound(cipherView: cipher)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !subject.state.vaultListSections.isEmpty
+        }
+
+        XCTAssertTrue(subject.state.excludedCredentialFound)
+        XCTAssertEqual(subject.state.vaultListSections.count, 1)
+        let firstSection = try XCTUnwrap(subject.state.vaultListSections.first)
+        XCTAssertEqual(firstSection.id, "excludedCredentialsId")
+        XCTAssertEqual(firstSection.name, "excludedCredentialsId")
+        XCTAssertEqual(firstSection.items.count, 1)
+        let firstItem = try XCTUnwrap(firstSection.items.first)
+        XCTAssertEqual(firstItem.id, cipher.id)
+    }
+
+    /// `informExcludedCredentialFound(cipherView:)` throws when getting the excluded credential cipher
+    /// from the publisher so it shows an error and cancels the extension flow.
+    @MainActor
+    func test_informExcludedCredentialFound_cipherPublisherThrows() async throws {
+        let cipher = CipherView.fixture()
+        vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.informExcludedCredentialFound(cipherView: cipher)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !coordinator.alertShown.isEmpty
+        }
+
+        XCTAssertTrue(subject.state.excludedCredentialFound)
+        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt
+            )
+        )
+
+        guard let onDismissed = coordinator.alertOnDismissed else {
+            XCTFail("Alert does nothing on dismiss when it should.")
+            return
+        }
+        onDismissed()
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+    }
+
+    /// `informExcludedCredentialFound(cipherView:)` throws when creating the excluded credential cipher
+    /// section so it shows an error and cancels the extension flow.
+    @MainActor
+    func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
+        let cipher = CipherView.fixture()
+        vaultRepository.cipherDetailsSubject.send(cipher)
+        vaultRepository.createAutofillListExcludedCredentialSectionResult = .failure(BitwardenTestError.example)
+
+        let task = Task {
+            await subject.informExcludedCredentialFound(cipherView: cipher)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !coordinator.alertShown.isEmpty
+        }
+
+        XCTAssertTrue(subject.state.excludedCredentialFound)
+        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt
+            )
+        )
+
+        guard let onDismissed = coordinator.alertOnDismissed else {
+            XCTFail("Alert does nothing on dismiss when it should.")
+            return
+        }
+        onDismissed()
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+    }
+
     /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
     @MainActor
     func test_isAutofillingFromList_true() async throws {
@@ -787,6 +905,34 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         task.cancel()
 
         XCTAssertEqual(subject.state.vaultListSections, [expectedSection])
+        XCTAssertEqual(vaultRepository.ciphersAutofillPublisherUriCalled, "https://\(rpId)")
+    }
+
+    /// `perform(_:)` with `.streamAutofillItems` doesn't update the sections when
+    /// excluded credentials have been found.
+    @MainActor
+    func test_perform_streamAutofillItems_excludedCredentials() {
+        let rpId = "myApp.com"
+        subject.state.excludedCredentialFound = true
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(
+            credentialIdentity: .fixture(relyingPartyIdentifier: rpId)
+        ))
+        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        let section = VaultListSection(
+            id: "",
+            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            name: ""
+        )
+        vaultRepository.ciphersAutofillSubject.value = [section]
+
+        let task = Task {
+            await subject.perform(.streamAutofillItems)
+        }
+
+        waitFor(vaultRepository.ciphersAutofillPublisherUriCalled != nil)
+        task.cancel()
+
+        XCTAssertEqual(subject.state.vaultListSections, [])
         XCTAssertEqual(vaultRepository.ciphersAutofillPublisherUriCalled, "https://\(rpId)")
     }
 } // swiftlint:disable:this file_length

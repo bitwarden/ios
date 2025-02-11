@@ -32,7 +32,7 @@ extension Menuable {
 /// options. This view is identical to `BitwardenTextField`, but uses a `Menu`
 /// instead of a `TextField` as the input mechanism.
 ///
-struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
+struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View where T: Menuable {
     // MARK: Properties
 
     /// The selection chosen from the menu.
@@ -40,6 +40,9 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
 
     /// The accessibility identifier for the view.
     let accessibilityIdentifier: String?
+
+    /// Additional menu options to display in the menu, separated from the list of options.
+    let additionalMenu: AdditionalMenu?
 
     /// Whether the view allows user interaction.
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -88,6 +91,10 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
                 }
             } label: {
                 Text("")
+            }
+
+            if let additionalMenu {
+                additionalMenu
             }
         } label: {
             HStack(spacing: 8) {
@@ -153,8 +160,9 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>
-    ) where TrailingContent == EmptyView {
+    ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
+        additionalMenu = nil
         self.footer = footer
         self.options = options
         _selection = selection
@@ -179,13 +187,42 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
         options: [T],
         selection: Binding<T>,
         trailingContent: () -> TrailingContent
-    ) {
+    ) where AdditionalMenu == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
+        additionalMenu = nil
         self.footer = footer
         self.options = options
         _selection = selection
         self.title = title
         self.trailingContent = trailingContent()
+    }
+
+    /// Initializes a new `BitwardenMenuField`.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the menu field.
+    ///   - accessibilityIdentifier: The accessibility identifier for the view.
+    ///   - options: The options that the user can choose between.
+    ///   - selection: A `Binding` for the currently selected option.
+    ///   - additionalMenu: Additional menu options to display at the bottom of the menu.
+    ///
+    @_disfavoredOverload
+    init(
+        title: String? = nil,
+        footer: String? = nil,
+        accessibilityIdentifier: String? = nil,
+        options: [T],
+        selection: Binding<T>,
+        @ViewBuilder additionalMenu: () -> AdditionalMenu
+    ) where TrailingContent == EmptyView {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.additionalMenu = additionalMenu()
+        self.footer = footer
+        self.options = options
+        _selection = selection
+        self.title = title
+        trailingContent = nil
     }
 }
 
@@ -248,6 +285,21 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
             footer: "Select your favorite animal",
             options: MenuPreviewOptions.allCases,
             selection: .constant(.dog)
+        )
+        .padding()
+    }
+    .background(Color(.systemGroupedBackground))
+}
+
+#Preview("Addititional Menu") {
+    Group {
+        BitwardenMenuField(
+            title: "Animals",
+            options: MenuPreviewOptions.allCases,
+            selection: .constant(.dog),
+            additionalMenu: {
+                Button("Add an animal") {}
+            }
         )
         .padding()
     }

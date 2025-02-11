@@ -5,6 +5,9 @@ import SwiftUI
 
 /// A route to a screen for a specific vault item.
 enum VaultItemRoute: Equatable, Hashable {
+    /// A route to the add folder screen.
+    case addFolder
+
     /// A route to the add item screen.
     ///
     /// - Parameters:
@@ -12,12 +15,14 @@ enum VaultItemRoute: Equatable, Hashable {
     ///   - group: An optional `VaultListGroup` that the user wants to add an item for.
     ///   - hasPremium: Whether the user has premium.
     ///   - newCipherOptions: Optional options for creating a new cipher.
+    ///   - organizationId: The organization id in case an organization was selected in the vault filter.
     ///
     case addItem(
         allowTypeSelection: Bool = true,
         group: VaultListGroup? = nil,
         hasPremium: Bool = false,
-        newCipherOptions: NewCipherOptions? = nil
+        newCipherOptions: NewCipherOptions? = nil,
+        organizationId: String? = nil
     )
 
     /// A route to view the attachments.

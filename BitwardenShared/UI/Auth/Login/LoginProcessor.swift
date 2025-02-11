@@ -161,6 +161,16 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                 )
             case .twoFactorProvidersNotConfigured:
                 await handleErrorResponse(error)
+            case .newDeviceNotVerified:
+                coordinator.navigate(
+                    to: .twoFactor(
+                        state.username,
+                        .password(state.masterPassword),
+                        AuthMethodsData(email: Email(email: state.username)),
+                        nil,
+                        true
+                    )
+                )
             }
         } catch {
             await handleErrorResponse(error)
