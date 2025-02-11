@@ -265,6 +265,8 @@ extension VaultListProcessor {
                         errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
                     )
                 }
+            } else {
+                coordinator.showAlert(.networkResponseError(error))
             }
             services.errorReporter.log(error: error)
         }

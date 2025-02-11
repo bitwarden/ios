@@ -523,7 +523,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
     }
 
-    /// `perform(_:)` with `.refreshed` records an error and show an alert to user if there is cached data.
+    /// `perform(_:)` with `.refreshed` records an error and shows an alert to user if there is cached data.
     @MainActor
     func test_perform_refreshed_error_nonEmptyState() async {
         let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
@@ -538,22 +538,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.loadingState, .data([section]))
     }
 
-    /// `perform(_:)` with `.refreshed` records an error and change the loading state if needs sync.
+    /// `perform(_:)` with `.refreshed` records an error and shows alert if it does not need sync.
     @MainActor
-    func test_perform_refreshed_error_needsSync() async {
+    func test_perform_refreshed_error_doesNotNeedsSync() async {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
         vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
-        vaultRepository.needsSyncResult = .success(true)
+        vaultRepository.needsSyncResult = .success(false)
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertNil(coordinator.alertShown.last)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
-        XCTAssertEqual(
-            subject.state.loadingState,
-            .error(
-                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
-            )
-        )
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
     }
 
     /// `perform(.refreshAccountProfiles)` without profiles for the profile switcher.
@@ -963,7 +960,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             await subject.perform(.tryAgainTapped)
         }
         defer { task.cancel() }
-        try await waitForAsync { return self.subject.state.loadingState == .loading(nil) }
+        try await waitForAsync { self.subject.state.loadingState == .loading(nil) }
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
