@@ -186,7 +186,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
     }
 
-    /// Tapping the try again button dispatches the `.tryAgainTapped` and `.appeared` actions.
+    /// Tapping the try again button dispatches the `.tryAgainTapped` action.
     @MainActor
     func test_tryAgainButton_tap() async throws {
         processor.state.loadingState = .error(
@@ -194,7 +194,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
         let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
         try await button.tap()
-        XCTAssertEqual(processor.effects, [.tryAgainTapped, .appeared])
+        XCTAssertEqual(processor.effects, [.tryAgainTapped])
     }
 
     /// Tapping the vault item dispatches the `.itemPressed` action.

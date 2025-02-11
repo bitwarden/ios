@@ -169,14 +169,14 @@ private struct SearchableVaultListView: View {
 
     /// A view that displays either the my vault or empty vault interface.
     @ViewBuilder private var vault: some View {
-        LoadingView(state: store.state.loadingState) { errorMessage in
-            errorViewWithRetry(errorMessage: errorMessage)
-        } contents: { sections in
+        LoadingView(state: store.state.loadingState) { sections in
             if sections.isEmpty {
                 emptyVault
             } else {
                 vaultContents(with: sections)
             }
+        } errorView: { errorMessage in
+            errorViewWithRetry(errorMessage: errorMessage)
         }
         .overlay(alignment: .bottomTrailing) {
             addItemFloatingActionButton {
@@ -221,7 +221,6 @@ private struct SearchableVaultListView: View {
 
                 AsyncButton {
                     await store.perform(.tryAgainTapped)
-                    await store.perform(.appeared)
                 } label: {
                     Text(Localizations.tryAgain)
                 }

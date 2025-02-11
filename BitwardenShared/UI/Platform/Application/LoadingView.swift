@@ -44,16 +44,16 @@ struct LoadingView<T: Equatable & Sendable, Contents: View, ErrorView: View>: Vi
     ///
     /// - Parameters:
     ///   - state: The state of this view.
-    ///   - error: A view builder for displaying the error view with an error message.
     ///   - contents: A view builder for displaying the loaded contents of this view.
+    ///   - error: A view builder for displaying the error view with an error message.
     ///
     init(
         state: LoadingState<T>,
-        @ViewBuilder errorView: @escaping (String) -> ErrorView,
-        @ViewBuilder contents: @escaping (T) -> Contents
+        @ViewBuilder contents: @escaping (T) -> Contents,
+        @ViewBuilder errorView: @escaping (String) -> ErrorView
     ) {
         self.state = state
-        self.errorView = errorView
         self.contents = contents
+        self.errorView = errorView
     }
 }
