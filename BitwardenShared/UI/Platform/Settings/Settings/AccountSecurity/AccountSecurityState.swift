@@ -295,4 +295,20 @@ struct AccountSecurityState: Equatable {
     var policyTimeoutMinutes: Int {
         policyTimeoutValue % 60
     }
+
+    /// Whether the policy to remove Unlock with pin feature is enabled.
+    var removeUnlockWithPinPolicyEnabled: Bool = false
+
+    /// Whether to show/hide unlock options.
+    var showUnlockOptions: Bool {
+        guard case .available = biometricUnlockStatus else {
+            return unlockWithPinFeatureAvailable
+        }
+        return true
+    }
+
+    /// Whether the unlock with Pin feature is available.
+    var unlockWithPinFeatureAvailable: Bool {
+        !removeUnlockWithPinPolicyEnabled || isUnlockWithPINCodeOn
+    }
 }
