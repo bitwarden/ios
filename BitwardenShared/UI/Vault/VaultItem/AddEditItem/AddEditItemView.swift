@@ -154,18 +154,6 @@ struct AddEditItemView: View {
 
     private var informationSection: some View {
         SectionView(Localizations.itemInformation, contentSpacing: 8) {
-            if case .add = store.state.configuration, store.state.allowTypeSelection {
-                BitwardenMenuField(
-                    title: Localizations.type,
-                    accessibilityIdentifier: "ItemTypePicker",
-                    options: CipherType.canCreateCases,
-                    selection: store.binding(
-                        get: \.type,
-                        send: AddEditItemAction.typeChanged
-                    )
-                )
-            }
-
             BitwardenTextField(
                 title: Localizations.itemNameRequired,
                 text: store.binding(

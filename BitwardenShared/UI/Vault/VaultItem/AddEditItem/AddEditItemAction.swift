@@ -85,9 +85,6 @@ enum AddEditItemAction: Equatable, Sendable {
     ///
     case totpKeyChanged(_ newValue: String?)
 
-    /// The type field was changed.
-    case typeChanged(CipherType)
-
     /// The uri field was changed.
     case uriChanged(String, index: Int)
 

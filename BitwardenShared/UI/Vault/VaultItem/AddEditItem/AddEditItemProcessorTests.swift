@@ -2126,19 +2126,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         }
     }
 
-    /// `receive(_:)` with `.typeChanged` updates the state correctly.
-    @MainActor
-    func test_receive_typeChanged() {
-        subject.state.type = .login
-        subject.receive(.typeChanged(.card))
-
-        XCTAssertEqual(subject.state.type, .card)
-        XCTAssertEqual(
-            subject.state.customFieldsState,
-            AddEditCustomFieldsState(cipherType: .card, customFields: [])
-        )
-    }
-
     /// `receive(_:)` with `.uriChanged` with a valid index updates the state correctly.
     @MainActor
     func test_receive_uriChanged_withValidIndex() {
