@@ -37,6 +37,14 @@ extension ImageStyle {
     ///
     static let accessoryIcon24 = accessoryIcon24()
 
+    /// An `ImageStyle` for applying common properties to an image in a floating action button.
+    static let floatingActionButton = ImageStyle(
+        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
+        scaleWithFont: false,
+        width: 32,
+        height: 32
+    )
+
     /// An `ImageStyle` for applying common properties for icons within a row.
     ///
     /// - Size: 22x22pt

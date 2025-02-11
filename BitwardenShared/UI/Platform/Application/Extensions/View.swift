@@ -130,6 +130,40 @@ extension View {
         .accessibilityIdentifier("AddItemFloatingActionButton")
     }
 
+    /// Returns a floating action menu positioned at the bottom-right corner of the screen.
+    ///
+    /// - Parameters:
+    ///     - addItem: The action to perform when a new cipher item type is tapped in the menu.
+    ///     - addFolder: The action to perform when the new folder button is tapped in the menu.
+    /// - Returns: A `FloatingActionMenu` configured for adding a vault item for folder.
+    ///
+    func addVaultItemFloatingActionMenu(
+        hidden: Bool = false,
+        addItem: @escaping (CipherType) -> Void,
+        addFolder: (() -> Void)? = nil
+    ) -> some View {
+        FloatingActionMenu(image: Asset.Images.plus32.swiftUIImage) {
+            // The items in the menu are added in reverse order so that when the context menu
+            // displays above the button, which is the common case, the types are at the top with
+            // folder at the bottom.
+
+            if let addFolder {
+                Button(Localizations.folder, action: addFolder)
+                Divider()
+            }
+
+            ForEach(CipherType.canCreateCases.reversed(), id: \.hashValue) { type in
+                Button(type.localizedName) {
+                    addItem(type)
+                }
+            }
+        }
+        .accessibilityLabel(Localizations.add)
+        .accessibilityIdentifier("AddItemFloatingActionButton")
+        .padding([.trailing, .bottom], 16)
+        .hidden(hidden)
+    }
+
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
     /// - Parameter action: The action to perform when the button is tapped.

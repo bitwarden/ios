@@ -16,13 +16,15 @@ enum VaultItemRoute: Equatable, Hashable {
     ///   - hasPremium: Whether the user has premium.
     ///   - newCipherOptions: Optional options for creating a new cipher.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
+    ///   - type: The type of item to add.
     ///
     case addItem(
         allowTypeSelection: Bool = true,
         group: VaultListGroup? = nil,
         hasPremium: Bool = false,
         newCipherOptions: NewCipherOptions? = nil,
-        organizationId: String? = nil
+        organizationId: String? = nil,
+        type: CipherType
     )
 
     /// A route to view the attachments.

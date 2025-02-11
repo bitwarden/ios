@@ -56,15 +56,23 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.loadingState = .data([])
         let button = try subject.inspect().find(button: Localizations.newLogin)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.login))
     }
 
-    /// Tapping the floating action button dispatches the `.addItemPressed` action.`
+    /// Tapping the floating action button dispatches the `.addItemPressed` action for a new login type.
     @MainActor
     func test_addItemFloatingActionButton_tap() throws {
         let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
-        try fab.button().tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        try fab.find(button: Localizations.typeLogin).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.login))
+    }
+
+    /// Tapping the floating action button dispatches the `.addItemPressed` action for a new identity type.
+    @MainActor
+    func test_addItemFloatingActionButton_tap_identity() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.find(button: Localizations.typeIdentity).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.identity))
     }
 
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.
@@ -202,7 +210,9 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_vaultItem_tap() throws {
         let item = VaultListItem(id: "1", itemType: .group(.login, 123))
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(button: Localizations.typeLogin)
+        let button = try subject.inspect().find(LoadingViewType.self)
+            .find(ViewType.ScrollView.self)
+            .find(button: Localizations.typeLogin)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
     }

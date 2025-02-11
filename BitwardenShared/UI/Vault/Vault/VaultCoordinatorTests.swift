@@ -99,14 +99,14 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_navigateTo_addItem() throws {
         let coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         module.vaultItemCoordinator = coordinator
-        subject.navigate(to: .addItem())
+        subject.navigate(to: .addItem(type: .login))
 
         waitFor(!stackNavigator.actions.isEmpty)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true))
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true, type: .login))
     }
 
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.

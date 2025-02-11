@@ -89,7 +89,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             group,
             hasPremium,
             newCipherOptions,
-            organizationId
+            organizationId,
+            type
         ):
             showAddItem(
                 for: group,
@@ -97,6 +98,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
                 hasPremium: hasPremium,
                 newCipherOptions: newCipherOptions,
                 organizationId: organizationId,
+                type: type,
                 delegate: context as? CipherItemOperationDelegate
             )
         case let .attachments(cipher):
@@ -173,6 +175,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - hasPremium: Whether the user has premium,
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
+    ///   - type: The type of item to add.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
@@ -182,10 +185,11 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         hasPremium: Bool,
         newCipherOptions: NewCipherOptions?,
         organizationId: String?,
+        type: CipherType,
         delegate: CipherItemOperationDelegate?
     ) {
         let state = CipherItemState(
-            addItem: group.flatMap(CipherType.init) ?? .login,
+            addItem: type,
             allowTypeSelection: allowTypeSelection,
             collectionIds: group?.collectionId.flatMap { [$0] } ?? [],
             folderId: group?.folderId,

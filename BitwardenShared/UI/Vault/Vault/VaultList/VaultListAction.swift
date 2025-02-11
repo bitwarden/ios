@@ -8,7 +8,7 @@ enum VaultListAction: Equatable {
     case appReviewPromptShown
 
     /// The add item button was pressed.
-    case addItemPressed
+    case addItemPressed(CipherType)
 
     /// The url has been opened so clear the value in the state.
     case clearURL

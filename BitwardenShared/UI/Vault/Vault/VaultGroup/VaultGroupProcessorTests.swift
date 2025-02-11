@@ -473,7 +473,17 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_receive_addItemPressed() {
         subject.state.group = .card
         subject.receive(.addItemPressed)
-        XCTAssertEqual(coordinator.routes.last, .addItem(group: .card))
+        XCTAssertEqual(coordinator.routes.last, .addItem(group: .card, type: .card))
+    }
+
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route with an organization
+    /// group.
+    @MainActor
+    func test_receive_addItemPressed_collection() {
+        let group = VaultListGroup.collection(id: "1", name: "Team A", organizationId: "12345")
+        subject.state.group = group
+        subject.receive(.addItemPressed)
+        XCTAssertEqual(coordinator.routes.last, .addItem(group: group, type: .login))
     }
 
     /// TOTP Code expiration updates the state's TOTP codes.

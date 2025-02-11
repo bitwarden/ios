@@ -154,7 +154,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
-        case let .addItem(allowTypeSelection, group, newCipherOptions, organizationId):
+        case let .addItem(allowTypeSelection, group, newCipherOptions, organizationId, type):
             Task {
                 let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
                 showVaultItem(
@@ -163,7 +163,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
                         group: group,
                         hasPremium: hasPremium ?? false,
                         newCipherOptions: newCipherOptions,
-                        organizationId: organizationId
+                        organizationId: organizationId,
+                        type: type
                     ),
                     delegate: context as? CipherItemOperationDelegate
                 )

@@ -25,7 +25,8 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
                         password: context.password,
                         uri: context.urlString,
                         username: context.username
-                    )
+                    ),
+                    type: .login
                 )
             )
         } else {

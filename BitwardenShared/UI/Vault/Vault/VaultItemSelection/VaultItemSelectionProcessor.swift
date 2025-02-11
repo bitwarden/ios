@@ -97,7 +97,8 @@ class VaultItemSelectionProcessor: StateProcessor<
                     newCipherOptions: NewCipherOptions(
                         name: state.ciphersMatchingName,
                         totpKey: state.totpKeyModel.rawAuthenticatorKey
-                    )
+                    ),
+                    type: .login
                 ),
                 context: self
             )

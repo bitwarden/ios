@@ -386,7 +386,8 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
                 newCipherOptions: NewCipherOptions(
                     name: "Example",
                     totpKey: .otpAuthUriKeyComplete
-                )
+                ),
+                type: .login
             )
         )
         XCTAssertTrue(coordinator.contexts.last as? VaultItemSelectionProcessor === subject)
