@@ -145,8 +145,9 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                 TextField("", text: $text)
                     .focused($isTextFieldFocused)
                     .styleGuide(isPassword ? .bodyMonospaced : .body, includeLineSpacing: false)
-                    /// After some investigation, we found that .accessibilityIdentifier(..) calls should be placed before setting an id
-                    /// or hiding the field to avoid breaking accessibilityIds used on our mobile automation test suite
+                    // After some investigation, we found that .accessibilityIdentifier(..)
+                    // calls should be placed before setting an id
+                    // or hiding the field to avoid breaking accessibilityIds used on our mobile automation test suite
                     .accessibilityIdentifier(accessibilityIdentifier ?? "BitwardenTextField")
                     .hidden(!isPasswordVisible && isPassword)
                     .id(title)

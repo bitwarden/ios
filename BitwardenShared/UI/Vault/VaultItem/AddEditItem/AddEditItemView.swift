@@ -8,9 +8,6 @@ import SwiftUI
 struct AddEditItemView: View {
     // MARK: Private Properties
 
-    /// A responder to keyboard visibility events.
-    @ObservedObject private var keyboard = KeyboardResponder()
-
     /// An object used to open urls in this view.
     @Environment(\.openURL) private var openURL
 
@@ -37,6 +34,7 @@ struct AddEditItemView: View {
         }
         .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }
+        .task { await store.perform(.streamFolders) }
         .toast(store.binding(
             get: \.toast,
             send: AddEditItemAction.toastShown
@@ -98,7 +96,7 @@ struct AddEditItemView: View {
                 .ignoresSafeArea()
         )
         .navigationBarTitleDisplayMode(.inline)
-        .backport.scrollContentMargins(Edge.Set.bottom, keyboard.isShown ? 30.0 : 0.0)
+        .backport.scrollContentMargins(Edge.Set.bottom, 30.0)
     }
 
     @ViewBuilder private var cardItems: some View {
@@ -260,7 +258,12 @@ private extension AddEditItemView {
                 selection: store.binding(
                     get: \.folder,
                     send: AddEditItemAction.folderChanged
-                )
+                ),
+                additionalMenu: {
+                    Button(Localizations.newFolder) {
+                        store.send(.addFolder)
+                    }
+                }
             )
             .accessibilityIdentifier("FolderPicker")
 

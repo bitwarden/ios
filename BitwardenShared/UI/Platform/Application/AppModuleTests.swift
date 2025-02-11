@@ -27,6 +27,16 @@ class AppModuleTests: BitwardenTestCase {
 
     // MARK: Tests
 
+    /// `makeAddEditFolderCoordinator` builds the add/edit folder coordinator.
+    @MainActor
+    func test_makeAddEditFolderCoordinator() {
+        let navigationController = UINavigationController()
+        let coordinator = subject.makeAddEditFolderCoordinator(stackNavigator: navigationController)
+        coordinator.navigate(to: .addEditFolder(folder: nil))
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<AddEditFolderView>)
+    }
+
     /// `makeAppCoordinator` builds the app coordinator.
     @MainActor
     func test_makeAppCoordinator() {

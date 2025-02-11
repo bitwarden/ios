@@ -6,6 +6,9 @@ import SwiftUI
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable, Sendable {
+    /// Navigate to the add folder view.
+    case addFolder
+
     /// The auth key visibility was toggled.
     case authKeyVisibilityTapped(Bool)
 

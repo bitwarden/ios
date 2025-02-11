@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Otključajte pomoću otiska prsta";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Korisničko ime";
 "ValidationFieldRequired" = "Polje %1$@ je obavezno.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Upravljanje";
 "MasterPasswordConfirmationValMessage" = "Potvrda lozinke nije tačna.";
-"MasterPasswordDescription" = "Glavna lozinka je lozinka koju koristite za pristup Vašem trezoru. Veoma je važno da ne zaboravite glavnu lozinku. Ne postoji način da povratite lozinku u slučaju da je zaboravite.";
-"MasterPasswordHint" = "Nagoveštaj za glavnu lozinku (opcionalno)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "Nagoveštaj glavne lozinke može Vam pomoći da zapamtite lozinku ako je zaboravite.";
 "MasterPasswordLengthValMessageX" = "Master password must be at least %1$@ characters long.";
 "MinNumbers" = "Minimalno brojeva";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Prijava u dva koraka";
 "UnlockWith" = "Otključajte sa %1$@";
 "UnlockWithPIN" = "Otključajte pomoću PIN koda";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Potvrđivanje";
 "VerificationCode" = "Verifikacioni kod";
 "ViewItem" = "Vidite stavku";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Jedinstvena fraza";
 "YourAccountsFingerprint" = "Jedinstvena fraza tvog računa";
 "LearnOrgConfirmation" = "Bitwarden omogućava da podijelite vaše datoteke ili prijave iz vašeg trezora sa drugim korisnicima pomoću korištenja računa za organizacije. Želiš li posjetiti bitwarden.com da naučiš više?";
+"Export" = "Export";
 "ExportVault" = "Izvoz trezora";
 "LockNow" = "Zaključaj odmah";
 "PIN" = "PIN";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "Sigurno želiš izaći iz Bitwarden-a?";
 "PINRequireMasterPasswordRestart" = "Obavezno otključavanje glavnom lozinkom pri ponovnom pokretanju aplikacije?";
 "PINRequireBioOrMasterPasswordRestart" = "Do you want to require unlocking with %1$@ or your master password when the application is restarted?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Crna";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Vrijeme brisanja";
 "DeletionDateInfo" = "Ovaj Send će biti trajno izbrisan na odabrani datum i vrijeme.";
 "PendingDelete" = "Brisanje na čekanju";
-"ExpirationDate" = "Rok upotrebe";
 "ExpirationTime" = "Vrijeme roka upotrebe";
-"ExpirationDateInfo" = "Ako je postavljeno, pristup ovom Sendu ističe na navedeni datum i vrijeme.";
 "Expired" = "Isteklo";
 "MaximumAccessCount" = "Maksimalan broj pristupa";
 "MaximumAccessCountInfo" = "Ako je određeno, ovom Send-u će se moći pristupiti samo ograničeni broj puta.";
 "MaximumAccessCountReached" = "Dostignut najveći broj pristupanja";
 "CurrentAccessCount" = "Trenutni broj pristupa";
 "NewPassword" = "Nova lozinka";
-"PasswordInfo" = "Neobavezno zahtijevaj lozinku od korisnika za pristup ovom Send-u.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Ukloni lozinku";
 "AreYouSureRemoveSendPassword" = "Sigurno želiš ukloniti lozinku?";
 "RemovingSendPassword" = "Uklanjanje lozinke";
 "SendPasswordRemoved" = "Lozinka je uklonjena.";
-"NotesInfo" = "Privatne bilješke o ovom Send-u.";
-"DisableSend" = "Onemogući ovaj Send da mu niko drugi ne može pristupiti.";
 "NoSends" = "Nema Send-ova na tvom računu.";
 "CopyLink" = "Kopiraj link";
 "ShareLink" = "Podijeli link";
@@ -934,6 +938,8 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExploreTheGenerator" = "Explore the generator";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
 "IntroCarouselPage1Title" = "Security, prioritized";
 "IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
@@ -1063,6 +1069,8 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
@@ -1101,3 +1109,6 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
+"XItems" = "%1$@ items";

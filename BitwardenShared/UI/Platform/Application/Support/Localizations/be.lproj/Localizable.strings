@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Выкарыстоўваць адбітак пальца для разблакіроўкі";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Імя карыстальніка";
 "ValidationFieldRequired" = "Поле %1$@ з'яўляецца абавязковым.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Кіраванне";
 "MasterPasswordConfirmationValMessage" = "Няправільна пацвярджэнне пароля.";
-"MasterPasswordDescription" = "Асноўны пароль — гэта ключ, які выкарыстоўваецца для доступу да вашага сховішча. Ён вельмі важны, таму не забывайце яго. Аднавіць асноўны пароль немагчыма ў выпадку, калі вы яго забылі.";
-"MasterPasswordHint" = "Падказка да асноўнага пароля (неабавязкова)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "Падказка да асноўнага пароля можа дапамагчы вам успомніць яго, калі вы яго забылі.";
 "MasterPasswordLengthValMessageX" = "Асноўны пароль павінен змяшчаць прынамсі %1$@ сімвалаў.";
 "MinNumbers" = "Мінімум лічбаў";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Двухэтапны ўваход";
 "UnlockWith" = "Разблакіраваць з %1$@";
 "UnlockWithPIN" = "Разблакіраваць PIN-кодам";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Праверка";
 "VerificationCode" = "Праверачны код";
 "ViewItem" = "Прагледзець элемент";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Фраза адбітка пальца";
 "YourAccountsFingerprint" = "Фраза адбітка пальца вашага ўліковага запісу";
 "LearnOrgConfirmation" = "Bitwarden дазваляе абагуліць элементы вашага сховішча з іншымі карыстальнікамі, выкарыстоўваючы ўліковы запіс арганізацыі. Хочаце наведаць сайт bitwarden.com, каб даведацца больш?";
+"Export" = "Export";
 "ExportVault" = "Экспартаваць сховішча";
 "LockNow" = "Заблакіраваць зараз";
 "PIN" = "PIN";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "Вы сапраўды хочаце выйсці з Bitwarden?";
 "PINRequireMasterPasswordRestart" = "Вы сапраўды хочаце, каб пасля перазапуску праграма патрабавала асноўны пароль для разблакіроўкі?";
 "PINRequireBioOrMasterPasswordRestart" = "Do you want to require unlocking with %1$@ or your master password when the application is restarted?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Чорная";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Час выдалення";
 "DeletionDateInfo" = "Send будзе незваротна выдалены ў азначаныя дату і час.";
 "PendingDelete" = "Чаканне выдалення";
-"ExpirationDate" = "Дата завяршэння";
 "ExpirationTime" = "Час завяршэння";
-"ExpirationDateInfo" = "Калі прызначана, доступ да гэтага адпраўлення завершыцца ў зададзеныя дату і час.";
 "Expired" = "Пратэрмінавана";
 "MaximumAccessCount" = "Максімальная колькасць доступаў";
 "MaximumAccessCountInfo" = "Калі прызначана, то карыстальнікі больш не змогуць атрымаць доступ да гэтага Send пасля таго, як будзе дасягнута максімальная колькасць зваротаў.";
 "MaximumAccessCountReached" = "Дасягнута максімальная колькасць доступаў";
 "CurrentAccessCount" = "Бягучая колькасць доступаў";
 "NewPassword" = "Новы пароль";
-"PasswordInfo" = "Па магчымасці запытваць у карыстальнікаў пароль для доступу да гэтага Send.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Выдаліць пароль";
 "AreYouSureRemoveSendPassword" = "Вы сапраўды хочаце выдаліць пароль?";
 "RemovingSendPassword" = "Выдаленне пароля";
 "SendPasswordRemoved" = "Пароль быў выдалены.";
-"NotesInfo" = "Прыватныя нататкі пра гэты Send.";
-"DisableSend" = "Адключыць гэты Send, каб ніхто не змог атрымаць да яго доступ";
 "NoSends" = "У вашым Send'e адсутнічаюць уліковыя запісы.";
 "CopyLink" = "Скапіяваць спасылку";
 "ShareLink" = "Абагуліць спасылку";
@@ -934,6 +938,8 @@
 "UnknownAccount" = "Unknown account";
 "UserVerificationForPasskey" = "User verification for passkey";
 "NewItem" = "New item";
+"ExploreTheGenerator" = "Explore the generator";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
 "IntroCarouselPage1Title" = "Security, prioritized";
 "IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
@@ -1063,6 +1069,8 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
@@ -1101,3 +1109,6 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
+"XItems" = "%1$@ items";

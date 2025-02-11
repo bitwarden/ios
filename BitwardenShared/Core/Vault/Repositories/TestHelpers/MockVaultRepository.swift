@@ -20,6 +20,11 @@ class MockVaultRepository: VaultRepository {
 
     var clearTemporaryDownloadsCalled = false
 
+    // swiftlint:disable:next identifier_name
+    var createAutofillListExcludedCredentialSectionResult: Result<VaultListSection, Error> = .failure(
+        BitwardenTestError.example
+    )
+
     var deleteAttachmentId: String?
     var deleteAttachmentResult: Result<CipherView?, Error> = .success(.fixture())
 
@@ -146,6 +151,10 @@ class MockVaultRepository: VaultRepository {
 
     func clearTemporaryDownloads() {
         clearTemporaryDownloadsCalled = true
+    }
+
+    func createAutofillListExcludedCredentialSection(from cipher: CipherView) async throws -> VaultListSection {
+        try createAutofillListExcludedCredentialSectionResult.get()
     }
 
     func deleteAttachment(withId attachmentId: String, cipherId _: String) async throws -> CipherView? {

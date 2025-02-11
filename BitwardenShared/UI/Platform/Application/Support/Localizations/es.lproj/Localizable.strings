@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Usar huella dactilar para desbloquear";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Usuario";
 "ValidationFieldRequired" = "El campo %1$@ es obligatorio.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Log in to Bitwarden";
 "Manage" = "Gestionar";
 "MasterPasswordConfirmationValMessage" = "La confirmación de la contraseña no es correcta.";
-"MasterPasswordDescription" = "La contraseña maestra es la clave que utilizas para acceder a tu caja fuerte. Es muy importante que no olvides tu contraseña maestra. No hay forma de recuperarla si la olvidas.";
-"MasterPasswordHint" = "Pista de contraseña maestra (opcional)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "Una pista de tu contraseña maestra puede ayudarte a recordarla en caso de que la olvides.";
 "MasterPasswordLengthValMessageX" = "La contraseña maestra debe tener al menos %1$@ caracteres.";
 "MinNumbers" = "Mínimo de caracteres numéricos";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Autenticación en dos pasos";
 "UnlockWith" = "Desbloquear con %1$@";
 "UnlockWithPIN" = "Desbloquear con código PIN";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Validando";
 "VerificationCode" = "Código de verificación";
 "ViewItem" = "Ver elemento";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Frase de huella digital";
 "YourAccountsFingerprint" = "Frase de la huella digital de su cuenta";
 "LearnOrgConfirmation" = "Bitwarden te permite compartir tu caja fuerte con otras personas utilizando una cuenta de organización. ¿Quieres visitar la web bitwarden.com para conocer más?";
+"Export" = "Export";
 "ExportVault" = "Exportar caja fuerte";
 "LockNow" = "Bloquear ahora";
 "PIN" = "PIN";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "¿Está seguro de que desea salir de Bitwarden?";
 "PINRequireMasterPasswordRestart" = "¿Quiere solicitar el desbloqueo con su contraseña maestra cuando se reinicie la aplicación?";
 "PINRequireBioOrMasterPasswordRestart" = "Do you want to require unlocking with %1$@ or your master password when the application is restarted?";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Negro";
 "Nord" = "Nord";
 "SolarizedDark" = "Oscuro Solar";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Tiempo de eliminación";
 "DeletionDateInfo" = "El Send se eliminará permanentemente en la fecha y hora especificada.";
 "PendingDelete" = "Eliminación pendiente";
-"ExpirationDate" = "Fecha de caducidad";
 "ExpirationTime" = "Tiempo de caducidad";
-"ExpirationDateInfo" = "Si se configura, el acceso a este Send caducará en la fecha y hora especificada.";
 "Expired" = "Caducó";
 "MaximumAccessCount" = "Número máximo de accesos";
 "MaximumAccessCountInfo" = "Si se configura, los usuarios ya no podrán acceder a este Send una vez que se alcance el número máximo de accesos.";
 "MaximumAccessCountReached" = "Número máximo de accesos alcanzado";
 "CurrentAccessCount" = "Número de acceso actual";
 "NewPassword" = "Nueva contraseña";
-"PasswordInfo" = "Opcionalmente requieren una contraseña para que los usuarios accedan al Send.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Eliminar contraseña";
 "AreYouSureRemoveSendPassword" = "¿Está seguro que desea eliminar la contraseña?";
 "RemovingSendPassword" = "Eliminando contraseña";
 "SendPasswordRemoved" = "La contraseña ha sido eliminada.";
-"NotesInfo" = "Notas privadas sobre este Send.";
-"DisableSend" = "Desactivar este Send para que nadie pueda acceder a él";
 "NoSends" = "No hay Sends en tu cuenta.";
 "CopyLink" = "Copiar enlace";
 "ShareLink" = "Compartir enlace";
@@ -935,6 +939,8 @@
 "UnknownAccount" = "Cuenta desconocida";
 "UserVerificationForPasskey" = "Verificación de usuario para passkey";
 "NewItem" = "Nuevo elemento";
+"ExploreTheGenerator" = "Explore the generator";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "This file export will be password protected and require the file password to decrypt.";
 "IntroCarouselPage1Title" = "Security, prioritized";
 "IntroCarouselPage1Message" = "Save logins, cards, and identities to your secure vault. Bitwarden uses zero-knowledge, end-to-end encryption to protect what’s important to you.";
@@ -1064,6 +1070,8 @@
 "CopyPrivateKey" = "Copy private key";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
@@ -1102,3 +1110,6 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
+"XItems" = "%1$@ items";

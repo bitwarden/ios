@@ -75,14 +75,14 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is UIHostingController<AccountSecurityView>)
     }
 
-    /// `navigate(to:)` with `.addEditFolder` pushes the add/edit folder view onto the stack navigator.
+    /// `navigate(to:)` with `.addEditFolder` starts the add/edit folder coordinator and navigates
+    /// to the add/edit folder view.
     @MainActor
     func test_navigateTo_addEditFolder() throws {
         subject.navigate(to: .addEditFolder(folder: nil))
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<AddEditFolderView>)
+        XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
+        XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
     }
 
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.

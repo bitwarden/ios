@@ -1,3 +1,4 @@
+import BitwardenSdk
 import XCTest
 
 @testable import BitwardenShared
@@ -5,7 +6,7 @@ import XCTest
 class AddEditFolderProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
-    var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var coordinator: MockCoordinator<AddEditFolderRoute, Void>!
     var delegate: MockAddEditFolderDelegate!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
@@ -16,7 +17,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
+        coordinator = MockCoordinator<AddEditFolderRoute, Void>()
         delegate = MockAddEditFolderDelegate()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
@@ -194,12 +195,16 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_savePressed_add() async {
         let folderName = "FolderName"
+        let folderAdded = FolderView.fixture(name: folderName)
+        settingsRepository.addFolderResult = .success(folderAdded)
+
         subject.state.folderName = folderName
         await subject.perform(.saveTapped)
 
         XCTAssertEqual(settingsRepository.addedFolderName, folderName)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
         XCTAssertTrue(delegate.folderAddedCalled)
+        XCTAssertEqual(delegate.folderAddedFolder, folderAdded)
     }
 
     /// `perform(_:)` with `.savePressed` edits the existing folder.
@@ -236,11 +241,13 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
 class MockAddEditFolderDelegate: AddEditFolderDelegate {
     var folderAddedCalled = false
+    var folderAddedFolder: FolderView?
     var folderDeletedCalled = false
     var folderEditedCalled = false
 
-    func folderAdded() {
+    func folderAdded(_ folderView: FolderView) {
         folderAddedCalled = true
+        folderAddedFolder = folderView
     }
 
     func folderDeleted() {

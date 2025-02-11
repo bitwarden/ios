@@ -69,6 +69,11 @@
 "UseFingerprintToUnlock" = "Χρήση δακτυλικού αποτυπώματος για ξεκλείδωμα";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
+"UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Use the generator to create secure passwords, passphrases and usernames.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrases are often easier to remember and type than random passwords. They can be helpful when you need to log into accounts where autofill is not available, like a streaming service on your TV.";
+"UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Unique usernames add an extra layer of security and can help prevent hackers from finding your accounts.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Use these options to adjust your password to meet your account website’s requirements.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "You must add a web address to use autofill to access this account.";
 "Username" = "Όνομα χρήστη";
 "ValidationFieldRequired" = "Το πεδίο %1$@ είναι υποχρεωτικό.";
@@ -137,8 +142,8 @@
 "LogInToBitwarden" = "Σύνδεση στο Bitwarden";
 "Manage" = "Διαχείριση";
 "MasterPasswordConfirmationValMessage" = "Η επιβεβαίωση του κύριου κωδικού δεν είναι σωστή.";
-"MasterPasswordDescription" = "Ο κύριος κωδικός χρησιμοποιείται για πρόσβαση στο vault σας. Είναι πολύ σημαντικό να μην τον ξεχάσετε. Δεν υπάρχει τρόπος να τον ανακτήσετε σε αυτή την περίπτωση.";
-"MasterPasswordHint" = "Υπόδειξη κύριου κωδικού (προαιρετικό)";
+"TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
+"MasterPasswordHint" = "Master password hint";
 "MasterPasswordHintDescription" = "Η υπόδειξη κύριου κωδικού μπορεί να σας βοηθήσει να θυμηθείτε τον κωδικό σας αν τον ξεχάσετε.";
 "MasterPasswordLengthValMessageX" = "Ο κύριος κωδικός πρέπει να έχει μήκος τουλάχιστον %1$@ χαρακτήρες.";
 "MinNumbers" = "Ελάχιστα αριθμητικά ψηφία";
@@ -182,6 +187,7 @@
 "TwoStepLogin" = "Σύνδεση δύο βημάτων";
 "UnlockWith" = "Ξεκλείδωμα με %1$@";
 "UnlockWithPIN" = "Ξεκλείδωμα με κωδικό PIN";
+"UnlockWithUnknownBiometrics" = "Unlock with biometrics";
 "Validating" = "Επαλήθευση";
 "VerificationCode" = "Κωδικός επαλήθευσης";
 "ViewItem" = "Προβολή στοιχείου";
@@ -425,6 +431,7 @@
 "FingerprintPhrase" = "Φράση δακτυλικών αποτυπωμάτων";
 "YourAccountsFingerprint" = "Η φράση δακτυλικών αποτυπωμάτων του λογαριασμού σας";
 "LearnOrgConfirmation" = "Το Bitwarden επιτρέπει να μοιράζεστε τα στοιχεία του vault σας με άλλους χρησιμοποιώντας ένα λογαριασμό οργανισμού. Θέλετε να επισκεφθείτε την ιστοσελίδα bitwarden.com για να μάθετε περισσότερα;";
+"Export" = "Export";
 "ExportVault" = "Εξαγωγή κρύπτης";
 "LockNow" = "Κλείδωμα τώρα";
 "PIN" = "PIN";
@@ -456,6 +463,7 @@
 "ExitConfirmation" = "Είστε βέβαιοι ότι θέλετε να βγείτε από το Bitwarden;";
 "PINRequireMasterPasswordRestart" = "Θέλετε να απαιτείται ξεκλείδωμα με τον κύριο κωδικό κατά την επανεκκίνηση της εφαρμογής;";
 "PINRequireBioOrMasterPasswordRestart" = "Θέλετε να απαιτείται το ξεκλείδωμα με %1$@ ή τον κύριο κωδικό πρόσβασής σας όταν επανεκκινείται η εφαρμογή;";
+"PINRequireUnknownBiometricsOrMasterPasswordRestart" = "Do you want to require unlocking with biometrics or your master password when the application is restarted?";
 "Black" = "Μαύρο";
 "Nord" = "Nord";
 "SolarizedDark" = "Solarized Dark";
@@ -563,22 +571,18 @@
 "DeletionTime" = "Χρόνος διαγραφής";
 "DeletionDateInfo" = "Το Send θα διαγραφεί οριστικά την καθορισμένη ημερομηνία και ώρα.";
 "PendingDelete" = "Εκκρεμεί διαγραφή";
-"ExpirationDate" = "Ημερομηνία λήξης";
 "ExpirationTime" = "Χρόνος λήξης";
-"ExpirationDateInfo" = "Εάν οριστεί, η πρόσβαση σε αυτό το Send θα λήξει την καθορισμένη ημερομηνία και ώρα.";
 "Expired" = "Έληξε";
 "MaximumAccessCount" = "Μέγιστος Αριθμός Πρόσβασης";
 "MaximumAccessCountInfo" = "Εάν οριστεί, οι χρήστες δεν θα μπορούν πλέον να έχουν πρόσβαση σε αυτό το send μόλις επιτευχθεί ο μέγιστος αριθμός πρόσβασης.";
 "MaximumAccessCountReached" = "Φτάσατε στον μέγιστο αριθμό πρόσβασης";
 "CurrentAccessCount" = "Τρέχων Αριθμός Πρόσβασης";
 "NewPassword" = "Νέος κωδικός πρόσβασης";
-"PasswordInfo" = "Προαιρετικά απαιτείται κωδικός πρόσβασης για τους χρήστες για να έχουν πρόσβαση σε αυτό το Send.";
+"PasswordInfo" = "Require this password to view the Send.";
 "RemovePassword" = "Αφαίρεση κωδικού πρόσβασης";
 "AreYouSureRemoveSendPassword" = "Είστε βέβαιοι ότι θέλετε να καταργήσετε τον κωδικό πρόσβασης;";
 "RemovingSendPassword" = "Αφαίρεση κωδικού...";
 "SendPasswordRemoved" = "Ο κωδικός έχει αφαιρεθεί.";
-"NotesInfo" = "Ιδιωτικές σημειώσεις σχετικά με αυτό το Send.";
-"DisableSend" = "Απενεργοποιήστε αυτό το Send έτσι ώστε κανείς να μην έχει πρόσβαση σε αυτό";
 "NoSends" = "Δεν υπάρχουν sends στο λογαριασμό σας.";
 "CopyLink" = "Αντιγραφή συνδέσμου";
 "ShareLink" = "Κοινοποίηση συνδέσμου";
@@ -934,6 +938,8 @@
 "UnknownAccount" = "Άγνωστος λογαριασμός";
 "UserVerificationForPasskey" = "Επαλήθευση χρήστη για κλειδί πρόσβασης";
 "NewItem" = "Νέο στοιχείο";
+"ExploreTheGenerator" = "Explore the generator";
+"LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Learn more about generating secure login credentials with a guided tour.";
 "ExportVaultFilePwProtectInfo" = "Αυτή η εξαγωγή αρχείου θα προστατεύεται με κωδικό πρόσβασης και θα απαιτείται ο κωδικός πρόσβασης του αρχείου για αποκρυπτογράφηση.";
 "IntroCarouselPage1Title" = "Η ασφάλεια σε προτεραιότητα";
 "IntroCarouselPage1Message" = "Αποθηκεύστε συνδέσεις, κάρτες και ταυτότητες στο ασφαλές θησαυροφυλάκιό σας. Το Bitwarden χρησιμοποιεί κρυπτογράφηση από άκρο σε άκρο και μηδενικής γνώσης για να προστατεύσει ό,τι είναι σημαντικό για εσάς.";
@@ -1063,6 +1069,8 @@
 "CopyPrivateKey" = "Αντιγραφή ιδιωτικού κλειδιού";
 "CopyFingerprint" = "Copy fingerprint";
 "SSHKeys" = "SSH keys";
+"OpticID" = "Optic ID";
+"UseOpticIDToUnlock" = "Use Optic ID To Unlock";
 "ImportantNotice" = "Important notice";
 "BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
 "DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
@@ -1101,3 +1109,6 @@
 "TextToShare" = "Text to share";
 "SendDetails" = "Send details";
 "SendNameRequired" = "Send name (required)";
+"CheckPasswordForDataBreaches" = "Check password for data breaches";
+"PrivateNote" = "Private note";
+"XItems" = "%1$@ items";

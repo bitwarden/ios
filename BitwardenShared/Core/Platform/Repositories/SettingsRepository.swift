@@ -11,8 +11,9 @@ protocol SettingsRepository: AnyObject {
     /// Add a new folder.
     ///
     /// - Parameter name: The name of the new folder.
+    /// - Returns: The added folder.
     ///
-    func addFolder(name: String) async throws
+    func addFolder(name: String) async throws -> FolderView
 
     /// Delete a folder.
     ///
@@ -154,10 +155,11 @@ extension DefaultSettingsRepository: SettingsRepository {
         set { pasteboardService.updateClearClipboardValue(newValue) }
     }
 
-    func addFolder(name: String) async throws {
+    func addFolder(name: String) async throws -> FolderView {
         let folderView = FolderView(id: nil, name: name, revisionDate: Date.now)
         let folder = try await clientService.vault().folders().encrypt(folder: folderView)
-        try await folderService.addFolderWithServer(name: folder.name)
+        let addedFolder = try await folderService.addFolderWithServer(name: folder.name)
+        return try await clientService.vault().folders().decrypt(folder: addedFolder)
     }
 
     func deleteFolder(id: String) async throws {
