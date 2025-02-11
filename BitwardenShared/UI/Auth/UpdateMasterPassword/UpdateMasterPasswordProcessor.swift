@@ -63,8 +63,6 @@ class UpdateMasterPasswordProcessor: StateProcessor<
         switch action {
         case let .currentMasterPasswordChanged(newValue):
             state.currentMasterPassword = newValue
-        case .preventAccountLockTapped:
-            coordinator.navigate(to: .preventAccountLock)
         case let .masterPasswordChanged(newValue):
             state.masterPassword = newValue
             updatePasswordStrength()
@@ -72,6 +70,8 @@ class UpdateMasterPasswordProcessor: StateProcessor<
             state.masterPasswordHint = newValue
         case let .masterPasswordRetypeChanged(newValue):
             state.masterPasswordRetype = newValue
+        case .preventAccountLockTapped:
+            coordinator.navigate(to: .preventAccountLock)
         case let .revealCurrentMasterPasswordFieldPressed(isOn):
             state.isCurrentMasterPasswordRevealed = isOn
         case let .revealMasterPasswordFieldPressed(isOn):
