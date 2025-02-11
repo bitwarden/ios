@@ -5,9 +5,9 @@ enum UpdateMasterPasswordEffect: Equatable {
     /// The update master password view appeared on screen.
     case appeared
 
-    /// The logout button was pressed.
-    case logoutPressed
+    /// The logout button was tapped.
+    case logoutTapped
 
-    /// The submit button was pressed.
-    case submitPressed
+    /// The save button was tapped.
+    case saveTapped
 }
