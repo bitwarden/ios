@@ -130,7 +130,7 @@ struct AddEditLoginItemView: View {
                     send: AddEditItemAction.authKeyVisibilityTapped
                 ),
                 trailingContent: {
-                    if store.state.canViewPassword, !store.state.authenticatorKey.isEmpty {
+                    if !store.state.authenticatorKey.isEmpty {
                         AccessoryButton(asset: Asset.Images.copy24, accessibilityLabel: Localizations.copyTotp) {
                             await store.perform(.copyTotpPressed)
                         }
