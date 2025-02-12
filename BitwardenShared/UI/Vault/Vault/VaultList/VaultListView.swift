@@ -212,26 +212,28 @@ private struct SearchableVaultListView: View {
     @ViewBuilder
     private func errorViewWithRetry(errorMessage: String) -> some View {
         GeometryReader { reader in
-            VStack(spacing: 24) {
-                Text(errorMessage)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                    .styleGuide(.body)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 12)
+            ScrollView {
+                VStack(spacing: 24) {
+                    Text(errorMessage)
+                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .styleGuide(.body)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 12)
 
-                AsyncButton {
-                    await store.perform(.tryAgainTapped)
-                } label: {
-                    Text(Localizations.tryAgain)
-                }
-                .buttonStyle(
-                    .primary(
-                        shouldFillWidth: false
+                    AsyncButton {
+                        await store.perform(.tryAgainTapped)
+                    } label: {
+                        Text(Localizations.tryAgain)
+                    }
+                    .buttonStyle(
+                        .primary(
+                            shouldFillWidth: false
+                        )
                     )
-                )
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, minHeight: reader.size.height)
             }
-            .padding(12)
-            .frame(maxWidth: .infinity, minHeight: reader.size.height)
         }
     }
 

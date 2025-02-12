@@ -950,7 +950,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(sections[0].items, [vaultListItem])
     }
 
-    /// `perform(_:)` with `.tryAgainTapped` will reset the loading state to `.loading[nil]`.
+    /// `perform(_:)` with `.tryAgainTapped` will reset the loading state to `.loading(nil)`.
     @MainActor
     func test_perform_tryAgain() async throws {
         subject.state.loadingState = .error(errorMessage: "error")
@@ -961,6 +961,19 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         }
         defer { task.cancel() }
         try await waitForAsync { self.subject.state.loadingState == .loading(nil) }
+    }
+
+    /// `perform(_:)` with `.tryAgainTapped` will fetch the data again and set the state to '.data(sections)'
+    @MainActor
+    func test_perform_tryAgain_success() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .error(errorMessage: "error")
+        vaultRepository.fetchSyncResult = .success([section])
+        let task = Task {
+            await subject.perform(.tryAgainTapped)
+        }
+        defer { task.cancel() }
+        try await waitForAsync { self.subject.state.loadingState == .data([section]) }
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
