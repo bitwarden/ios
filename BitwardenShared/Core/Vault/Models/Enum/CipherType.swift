@@ -1,6 +1,6 @@
 /// An enum describing the type of data contained in a cipher.
 ///
-public enum CipherType: Int, Codable {
+public enum CipherType: Int, Codable, Sendable {
     /// A login containing a username and password.
     case login = 1
 

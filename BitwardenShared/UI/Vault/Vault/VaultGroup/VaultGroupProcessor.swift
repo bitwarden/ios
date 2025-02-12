@@ -123,8 +123,9 @@ final class VaultGroupProcessor: StateProcessor<
 
     override func receive(_ action: VaultGroupAction) {
         switch action {
-        case .addItemPressed:
-            coordinator.navigate(to: .addItem(group: state.group, type: CipherType(group: state.group) ?? .login))
+        case let .addItemPressed(type):
+            let type = type ?? CipherType(group: state.group) ?? .login
+            coordinator.navigate(to: .addItem(group: state.group, type: type))
         case .clearURL:
             state.url = nil
         case let .copyTOTPCode(code):
