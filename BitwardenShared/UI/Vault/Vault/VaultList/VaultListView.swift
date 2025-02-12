@@ -231,7 +231,7 @@ private struct SearchableVaultListView: View {
                 )
             }
             .padding(12)
-            .frame(minHeight: reader.size.height)
+            .frame(maxWidth: .infinity, minHeight: reader.size.height)
         }
     }
 
@@ -473,6 +473,20 @@ struct VaultListView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Empty")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            loadingState: .error(errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }
+        .previewDisplayName("Error")
 
         NavigationView {
             VaultListView(
