@@ -186,6 +186,17 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
     }
 
+    /// Tapping the try again button dispatches the `.tryAgainTapped` action.
+    @MainActor
+    func test_tryAgainButton_tap() async throws {
+        processor.state.loadingState = .error(
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+        )
+        let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.tryAgainTapped])
+    }
+
     /// Tapping the vault item dispatches the `.itemPressed` action.
     @MainActor
     func test_vaultItem_tap() throws {
@@ -233,6 +244,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.loadingState = .data([])
 
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
+    }
+
+    @MainActor
+    func test_snapshot_errorState() {
+        processor.state.loadingState = .error(
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor
