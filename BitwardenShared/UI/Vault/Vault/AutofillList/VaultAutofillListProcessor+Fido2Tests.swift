@@ -230,7 +230,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         XCTAssertEqual(
             coordinator.routes.last,
-            .addItem(allowTypeSelection: false, group: .login, newCipherOptions: expectedNewCipherOptions, type: .login)
+            .addItem(group: .login, newCipherOptions: expectedNewCipherOptions, type: .login)
         )
     }
 

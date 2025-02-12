@@ -18,7 +18,6 @@ public class ActionExtensionHelper { // swiftlint:disable:this type_body_length
         } else if isProviderSaveLogin {
             AppRoute.vault(
                 .addItem(
-                    allowTypeSelection: false,
                     group: .login,
                     newCipherOptions: NewCipherOptions(
                         name: context.loginTitle,

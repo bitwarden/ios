@@ -157,12 +157,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             delegate?.didTapAddAccount()
         case .addFolder:
             showAddFolder()
-        case let .addItem(allowTypeSelection, group, newCipherOptions, organizationId, type):
+        case let .addItem(group, newCipherOptions, organizationId, type):
             Task {
                 let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
                 showVaultItem(
                     route: .addItem(
-                        allowTypeSelection: allowTypeSelection,
                         group: group,
                         hasPremium: hasPremium ?? false,
                         newCipherOptions: newCipherOptions,

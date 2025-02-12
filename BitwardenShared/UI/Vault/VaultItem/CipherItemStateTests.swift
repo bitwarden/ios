@@ -14,7 +14,6 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertEqual(state.name, "\(cipher.name) - \(Localizations.clone)")
         XCTAssertNil(state.cipher.id)
         XCTAssertEqual(state.accountHasPremium, true)
-        XCTAssertEqual(state.allowTypeSelection, false)
         XCTAssertEqual(state.cardItemState, cipher.cardItemState())
         XCTAssertEqual(state.configuration, .add)
         XCTAssertEqual(state.customFieldsState, .init(cipherType: .login, customFields: cipher.customFields))
