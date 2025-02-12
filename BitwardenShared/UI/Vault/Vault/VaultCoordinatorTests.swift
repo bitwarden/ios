@@ -76,6 +76,16 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(delegate.switchAccountUserId, "1")
     }
 
+    /// `navigate(to:)` with `.addFolder` starts the add/edit folder coordinator and navigates
+    /// to the add/edit folder view.
+    @MainActor
+    func test_navigateTo_addFolder() throws {
+        subject.navigate(to: .addFolder)
+
+        XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
+        XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+    }
+
     /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.
     @MainActor
     func test_navigateTo_autofillList() throws {

@@ -75,6 +75,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.identity))
     }
 
+    /// Tapping the add folder button in the FAB dispatches the `.addFolder` action.
+    @MainActor
+    func test_addItemFloatingActionButton_tap_addFolder() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.find(button: Localizations.folder).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addFolder)
+    }
+
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.
     @MainActor
     func test_accountRow_longPress_currentAccount() throws {

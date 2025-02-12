@@ -181,6 +181,8 @@ private struct SearchableVaultListView: View {
         .overlay(alignment: .bottomTrailing) {
             addVaultItemFloatingActionMenu { type in
                 store.send(.addItemPressed(type))
+            } addFolder: {
+                store.send(.addFolder)
             }
         }
     }

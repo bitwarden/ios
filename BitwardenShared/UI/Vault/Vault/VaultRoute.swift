@@ -8,6 +8,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to the add account flow.
     case addAccount
 
+    /// A route to the add folder screen.
+    case addFolder
+
     /// A route to the add item screen.
     ///
     /// - Parameters

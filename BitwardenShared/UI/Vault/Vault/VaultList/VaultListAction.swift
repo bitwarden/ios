@@ -4,6 +4,9 @@ import BitwardenSdk
 
 /// Actions that can be processed by a `VaultListProcessor`.
 enum VaultListAction: Equatable {
+    /// Navigate to add a new folder.
+    case addFolder
+
     /// The app review prompt was attempted to be shown.
     case appReviewPromptShown
 

@@ -57,7 +57,8 @@ public protocol VaultCoordinatorDelegate: AnyObject {
 final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
-    typealias Module = GeneratorModule
+    typealias Module = AddEditFolderModule
+        & GeneratorModule
         & ImportCXFModule
         & ImportLoginsModule
         & TwoFactorNoticeModule
@@ -154,6 +155,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         switch route {
         case .addAccount:
             delegate?.didTapAddAccount()
+        case .addFolder:
+            showAddFolder()
         case let .addItem(allowTypeSelection, group, newCipherOptions, organizationId, type):
             Task {
                 let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
@@ -218,6 +221,17 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     func start() {}
 
     // MARK: Private Methods
+
+    /// Shows the add folder screen.
+    ///
+    private func showAddFolder() {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .addEditFolder(folder: nil))
+
+        stackNavigator?.present(navigationController)
+    }
 
     /// Shows the autofill list screen.
     ///

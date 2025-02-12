@@ -123,6 +123,8 @@ final class VaultListProcessor: StateProcessor<
 
     override func receive(_ action: VaultListAction) {
         switch action {
+        case .addFolder:
+            coordinator.navigate(to: .addFolder)
         case let .addItemPressed(type):
             addItem(type: type)
         case .clearURL:

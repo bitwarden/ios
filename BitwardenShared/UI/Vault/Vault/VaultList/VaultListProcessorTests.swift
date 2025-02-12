@@ -1173,6 +1173,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
+    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route.
+    @MainActor
+    func test_receive_addFolder() {
+        subject.receive(.addFolder)
+
+        XCTAssertEqual(coordinator.routes.last, .addFolder)
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     @MainActor
     func test_receive_addItemPressed() {
