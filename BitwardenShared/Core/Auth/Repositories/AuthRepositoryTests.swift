@@ -2094,10 +2094,10 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `logout` successfully logs out a user clearing pins because of policy Remove unlock with pin being enabled.
-    func test_logout_throwsWhenClearingPins() {
+    func test_logout_throwsWhenClearingPins() async throws {
         let account = Account.fixture()
         stateService.accounts = [account]
-        stateService.activeAccount = account
+        stateService.activeAccount = nil
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
         biometricsRepository.capturedUserAuthKey = "Value"
         biometricsRepository.setBiometricUnlockKeyError = nil
@@ -2105,19 +2105,17 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.encryptedPinByUserId["1"] = "1"
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
 
-        let task = Task {
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             try await subject.logout(userInitiated: true)
         }
-        waitFor(!vaultTimeoutService.removedIds.isEmpty)
-        task.cancel()
 
-        XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
-        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
-        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
-        XCTAssertTrue(stateService.logoutAccountUserInitiated)
-        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
-        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
-        XCTAssertNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertEqual([], stateService.accountsLoggedOut)
+        XCTAssertNotNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertEqual(keychainService.deleteItemsForUserIds, [])
+        XCTAssertFalse(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [])
+        XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
