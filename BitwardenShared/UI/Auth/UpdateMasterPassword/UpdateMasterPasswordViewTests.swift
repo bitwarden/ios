@@ -109,7 +109,7 @@ class UpdateMasterPasswordViewTests: BitwardenTestCase {
     @MainActor
     func test_masterPasswordRetype_change() throws {
         let textField = try subject.inspect().find(
-            bitwardenTextField: Localizations.retypeMasterPasswordRequired
+            bitwardenTextField: Localizations.retypeNewMasterPasswordRequired
         )
         try textField.inputBinding().wrappedValue = "text"
         XCTAssertEqual(processor.dispatchedActions.last, .masterPasswordRetypeChanged("text"))
