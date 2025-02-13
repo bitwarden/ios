@@ -131,4 +131,38 @@ class ViewItemStateTests: BitwardenTestCase {
         )
         XCTAssertFalse(subject.isMasterPasswordRequired)
     }
+
+    /// `navigationTitle` returns the navigation title for the view based on the cipher type.
+    func test_navigationTitle_loaded() throws {
+        let subjectCard = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .card), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectCard.navigationTitle, Localizations.viewCard)
+
+        let subjectIdentity = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .identity), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.viewIdentity)
+
+        let subjectLogin = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .login), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.viewLogin)
+
+        let subjectSecureNote = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .secureNote), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.viewNote)
+
+        let subjectSSHKey = try ViewItemState(
+            loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .sshKey), hasPremium: false)))
+        )
+        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.viewSSHKey)
+    }
+
+    /// `navigationTitle` returns an empty navigation title for the view before the item is loaded.
+    func test_navigationTitle_loading() {
+        let subject = ViewItemState()
+        XCTAssertEqual(subject.navigationTitle, "")
+    }
 }

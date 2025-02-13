@@ -32,6 +32,7 @@ struct AddEditItemView: View {
                 existing
             }
         }
+        .navigationTitle(store.state.navigationTitle)
         .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }
         .task { await store.perform(.streamFolders) }
@@ -43,7 +44,6 @@ struct AddEditItemView: View {
 
     private var addView: some View {
         content
-            .navigationTitle(Localizations.addItem)
             .toolbar {
                 cancelToolbarItem {
                     store.send(.dismissPressed)
@@ -126,7 +126,6 @@ struct AddEditItemView: View {
 
     private var existing: some View {
         content
-            .navigationTitle(Localizations.editItem)
             .toolbar {
                 cancelToolbarItem {
                     store.send(.dismissPressed)
