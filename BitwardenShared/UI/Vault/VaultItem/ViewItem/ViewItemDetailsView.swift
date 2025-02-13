@@ -143,7 +143,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
 
     /// The item information section.
     private var itemInformationSection: some View {
-        SectionView(Localizations.itemInformation, contentSpacing: 8) {
+        VStack (spacing: 8) {
             BitwardenTextValueField(title: Localizations.itemNameRequired, value: store.state.name) {
                 let image = store.state.isFavoriteOn
                     ? Asset.Images.starFilled24.swiftUIImage
@@ -201,11 +201,14 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var notesSection: some View {
         if !store.state.notes.isEmpty {
             let notes = store.state.notes
-            SectionView(Localizations.notes) {
-                BitwardenTextValueField(value: notes,
-                                        useUIKitTextView: true,
-                                        copyButtonAccessibilityIdentifier: "CopyNotesButton",
-                                        copyButtonAction: { store.send(.copyPressed(value: notes, field: .notes)) })
+            SectionView(Localizations.additionalOptions) {
+                BitwardenTextValueField(
+                    title: Localizations.notes,
+                    value: notes,
+                    useUIKitTextView: true,
+                    copyButtonAccessibilityIdentifier: "CopyNotesButton",
+                    copyButtonAction: { store.send(.copyPressed(value: notes, field: .notes))
+                    })
             }
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("CipherNotesLabel")

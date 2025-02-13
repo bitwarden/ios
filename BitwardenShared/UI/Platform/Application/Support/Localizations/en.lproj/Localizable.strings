@@ -3,6 +3,7 @@
 "AddFolder" = "Add Folder";
 "AddItem" = "Add Item";
 "AnErrorHasOccurred" = "An error has occurred.";
+"AuthenticatorKey" = "Authenticator key";
 "Back" = "Back";
 "Bitwarden" = "Bitwarden";
 "Cancel" = "Cancel";
@@ -39,6 +40,7 @@
 "InvalidPIN" = "Invalid PIN. Try again.";
 "Launch" = "Launch";
 "LogIn" = "Log in";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Login";
 "LogOut" = "Log out";
 "LogoutConfirmation" = "Are you sure you want to log out?";
@@ -976,6 +978,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
