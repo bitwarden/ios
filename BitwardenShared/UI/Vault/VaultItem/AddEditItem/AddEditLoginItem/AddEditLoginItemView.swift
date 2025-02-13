@@ -28,20 +28,24 @@ struct AddEditLoginItemView: View {
     // MARK: View
 
     var body: some View {
-        ContentBlock {
-            usernameField
+        VStack(spacing: 16) {
+            VStack(spacing: 8) {
+                ContentBlock {
+                    usernameField
 
-            passwordField
+                    passwordField
 
-            fidoField
-        }
+                    fidoField
+                }
 
-        totpView
-            .guidedTourStep(.step2) { frame in
-                didRenderFrame?(.step2, frame)
+                totpView
+                    .guidedTourStep(.step2) { frame in
+                        didRenderFrame?(.step2, frame)
+                    }
             }
 
-        uriSection
+            uriSection
+        }
     }
 
     // MARK: Private views
@@ -112,64 +116,46 @@ struct AddEditLoginItemView: View {
 
     /// The view for TOTP authenticator key.
     @ViewBuilder private var totpView: some View {
-        if let key = store.state.authenticatorKey, !key.isEmpty {
-            if store.state.canViewPassword {
-                BitwardenTextField(
-                    title: Localizations.authenticatorKey,
-                    text: store.binding(
-                        get: { _ in key },
-                        send: AddEditItemAction.totpKeyChanged
-                    ),
-                    accessibilityIdentifier: "LoginTotpEntry",
-                    canViewPassword: store.state.canViewPassword,
-                    isPasswordVisible: store.binding(
-                        get: \.isAuthKeyVisible,
-                        send: AddEditItemAction.authKeyVisibilityTapped
-                    ),
-                    trailingContent: {
-                        if store.state.canViewPassword {
-                            AccessoryButton(asset: Asset.Images.copy24, accessibilityLabel: Localizations.copyTotp) {
-                                await store.perform(.copyTotpPressed)
-                            }
-                        }
-                        AccessoryButton(asset: Asset.Images.camera24, accessibilityLabel: Localizations.setupTotp) {
-                            await store.perform(.setupTotpPressed)
+        if store.state.canViewPassword {
+            BitwardenTextField(
+                title: Localizations.authenticatorKey,
+                text: store.binding(
+                    get: \.authenticatorKey,
+                    send: AddEditItemAction.totpKeyChanged
+                ),
+                accessibilityIdentifier: "LoginTotpEntry",
+                canViewPassword: store.state.canViewPassword,
+                isPasswordVisible: store.binding(
+                    get: \.isAuthKeyVisible,
+                    send: AddEditItemAction.authKeyVisibilityTapped
+                ),
+                trailingContent: {
+                    if !store.state.authenticatorKey.isEmpty {
+                        AccessoryButton(asset: Asset.Images.copy24, accessibilityLabel: Localizations.copyTotp) {
+                            await store.perform(.copyTotpPressed)
                         }
                     }
-                )
-                .disabled(!store.state.canViewPassword)
-                .focused($focusedField, equals: .totp)
-                .onSubmit {
-                    store.send(.totpFieldLeftFocus)
-                    focusNextField($focusedField)
+                },
+                footerContent: {
+                    AsyncButton {
+                        await store.perform(.setupTotpPressed)
+                    } label: {
+                        Label(Localizations.setUpAuthenticatorKey, image: Asset.Images.camera16.swiftUIImage)
+                    }
+                    .accessibilityIdentifier("SetupTotpButton")
+                    .buttonStyle(.bitwardenBorderless)
+                    .padding(.vertical, 14)
                 }
-            } else {
-                BitwardenField(title: Localizations.authenticatorKey) {
-                    PasswordText(password: key, isPasswordVisible: false)
-                }
-                .focused($focusedField, equals: .totp)
-                .onSubmit {
-                    store.send(.totpFieldLeftFocus)
-                    focusNextField($focusedField)
-                }
+            )
+            .disabled(!store.state.canViewPassword)
+            .focused($focusedField, equals: .totp)
+            .onSubmit {
+                store.send(.totpFieldLeftFocus)
+                focusNextField($focusedField)
             }
         } else {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(Localizations.authenticatorKey)
-                    .styleGuide(.subheadline, weight: .semibold)
-                    .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-                AsyncButton {
-                    await store.perform(.setupTotpPressed)
-                } label: {
-                    HStack(alignment: .center, spacing: 4) {
-                        Asset.Images.camera16.swiftUIImage
-                            .imageStyle(.accessoryIcon16(scaleWithFont: true))
-                        Text(Localizations.setupTotp)
-                    }
-                }
-                .buttonStyle(.secondary())
-                .accessibilityIdentifier("SetupTotpButton")
+            BitwardenField(title: Localizations.authenticatorKey) {
+                PasswordText(password: store.state.authenticatorKey, isPasswordVisible: false)
             }
         }
     }

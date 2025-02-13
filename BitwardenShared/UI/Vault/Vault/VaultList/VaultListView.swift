@@ -175,6 +175,8 @@ private struct SearchableVaultListView: View {
             } else {
                 vaultContents(with: sections)
             }
+        } errorView: { errorMessage in
+            errorViewWithRetry(errorMessage: errorMessage)
         }
         .overlay(alignment: .bottomTrailing) {
             addItemFloatingActionButton {
@@ -202,6 +204,38 @@ private struct SearchableVaultListView: View {
     }
 
     // MARK: Private Methods
+
+    /// A view that displays an error message and a retry button.
+    ///
+    /// - Parameter errorMessage: The error message to display.
+    ///
+    @ViewBuilder
+    private func errorViewWithRetry(errorMessage: String) -> some View {
+        GeometryReader { reader in
+            ScrollView {
+                VStack(spacing: 24) {
+                    Text(errorMessage)
+                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .styleGuide(.body)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 12)
+
+                    AsyncButton {
+                        await store.perform(.tryAgainTapped)
+                    } label: {
+                        Text(Localizations.tryAgain)
+                    }
+                    .buttonStyle(
+                        .primary(
+                            shouldFillWidth: false
+                        )
+                    )
+                }
+                .padding(12)
+                .frame(maxWidth: .infinity, minHeight: reader.size.height)
+            }
+        }
+    }
 
     /// A view that displays the main vault interface, including sections for groups and
     /// vault items.
@@ -441,6 +475,20 @@ struct VaultListView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Empty")
+
+        NavigationView {
+            VaultListView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: VaultListState(
+                            loadingState: .error(errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider()
+            )
+        }
+        .previewDisplayName("Error")
 
         NavigationView {
             VaultListView(

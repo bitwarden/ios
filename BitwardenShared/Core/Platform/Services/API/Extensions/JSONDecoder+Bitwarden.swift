@@ -87,13 +87,17 @@ extension JSONDecoder {
     /// Transforms the keys from Credential Exchange format handled by the Bitwarden SDK
     /// into the keys that Apple expects.
     private static func customTransformCodingKeyForCXF(key: String) -> String {
-        return switch key {
-        case "credentialId":
-            "credentialID"
-        case "rpId":
-            "rpID"
-        default:
-            key
+        guard #available(iOS 18.3, *) else {
+            return switch key {
+            case "credentialId":
+                "credentialID"
+            case "rpId":
+                "rpID"
+            default:
+                key
+            }
         }
+
+        return key
     }
 }

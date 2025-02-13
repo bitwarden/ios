@@ -205,6 +205,7 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.loadData)
 
         XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+        XCTAssertFalse(subject.state.removeUnlockWithPinPolicyEnabled)
     }
 
     /// `perform(_:)` with `.loadData` updates the state.
@@ -301,6 +302,19 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         authRepository.isPinUnlockAvailableResult = .success(true)
         await subject.perform(.loadData)
         XCTAssertEqual(stateService.accountSetupVaultUnlock["1"], .complete)
+    }
+
+    /// `perform(_:)` with `.loadData` loads the initial data for the view with remove unlock pin policy enabled.
+    @MainActor
+    func test_perform_loadData_removeUnlockPinPolicy() async {
+        stateService.activeAccount = .fixture()
+        authRepository.isPinUnlockAvailableResult = .success(true)
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
+
+        await subject.perform(.loadData)
+
+        XCTAssertTrue(subject.state.isUnlockWithPINCodeOn)
+        XCTAssertTrue(subject.state.removeUnlockWithPinPolicyEnabled)
     }
 
     /// `perform(_:)` with `.lockVault` locks the user's vault.

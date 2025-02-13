@@ -280,20 +280,20 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.effects.last, .savePressed)
     }
 
-    /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
+    /// Tapping the set up authenticator key button dispatches the `.setupTotpPressed` action.
     @MainActor
     func test_setupTotpButton_noKey_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.setupTotp)
+        let button = try subject.inspect().find(asyncButton: Localizations.setUpAuthenticatorKey)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
-    /// Tapping the setup totp button dispatches the `.setupTotpPressed` action.
+    /// Tapping the set up authenticator button dispatches the `.setupTotpPressed` action.
     @MainActor
     func test_setupTotpButton_withKey_tap() async throws {
         processor.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
 
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.setupTotp)
+        let button = try subject.inspect().find(asyncButton: Localizations.setUpAuthenticatorKey)
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)

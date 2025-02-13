@@ -18,6 +18,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     var keyConnectorService: MockKeyConnectorService!
     var keychainService: MockKeychainRepository!
     var organizationService: MockOrganizationService!
+    var policyService: MockPolicyService!
     var subject: DefaultAuthRepository!
     var stateService: MockStateService!
     var vaultTimeoutService: MockVaultTimeoutService!
@@ -95,6 +96,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         keyConnectorService = MockKeyConnectorService()
         keychainService = MockKeychainRepository()
         organizationService = MockOrganizationService()
+        policyService = MockPolicyService()
         stateService = MockStateService()
         trustDeviceService = MockTrustDeviceService()
         vaultTimeoutService = MockVaultTimeoutService()
@@ -112,6 +114,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             organizationAPIService: APIService(client: client),
             organizationService: organizationService,
             organizationUserAPIService: APIService(client: client),
+            policyService: policyService,
             stateService: stateService,
             trustDeviceService: trustDeviceService,
             vaultTimeoutService: vaultTimeoutService
@@ -131,6 +134,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         errorReporter = nil
         keychainService = nil
         organizationService = nil
+        policyService = nil
         subject = nil
         stateService = nil
         vaultTimeoutService = nil
@@ -2045,6 +2049,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         vaultTimeoutService.isClientLocked[account.profile.userId] = false
         biometricsRepository.capturedUserAuthKey = "Value"
         biometricsRepository.setBiometricUnlockKeyError = nil
+        stateService.pinProtectedUserKeyValue["1"] = "1"
+        stateService.encryptedPinByUserId["1"] = "1"
         let task = Task {
             try await subject.logout(userInitiated: true)
         }
@@ -2056,6 +2062,60 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
         XCTAssertTrue(stateService.logoutAccountUserInitiated)
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
+        XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
+    }
+
+    /// `logout` successfully logs out a user clearing pins because of policy Remove unlock with pin being enabled.
+    func test_logout_successWhenClearingPins() {
+        let account = Account.fixture()
+        stateService.accounts = [account]
+        stateService.activeAccount = account
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        biometricsRepository.capturedUserAuthKey = "Value"
+        biometricsRepository.setBiometricUnlockKeyError = nil
+        stateService.pinProtectedUserKeyValue["1"] = "1"
+        stateService.encryptedPinByUserId["1"] = "1"
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
+
+        let task = Task {
+            try await subject.logout(userInitiated: true)
+        }
+        waitFor(!vaultTimeoutService.removedIds.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
+        XCTAssertNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertEqual(keychainService.deleteItemsForUserIds, ["1"])
+        XCTAssertTrue(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
+        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertNil(stateService.encryptedPinByUserId["1"])
+    }
+
+    /// `logout` throws when clearing pins and policy Remove unlock with pin being enabled.
+    func test_logout_throwsWhenClearingPins() async throws {
+        let account = Account.fixture()
+        stateService.accounts = [account]
+        stateService.activeAccount = nil
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        biometricsRepository.capturedUserAuthKey = "Value"
+        biometricsRepository.setBiometricUnlockKeyError = nil
+        stateService.pinProtectedUserKeyValue["1"] = "1"
+        stateService.encryptedPinByUserId["1"] = "1"
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
+
+        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
+            try await subject.logout(userInitiated: true)
+        }
+
+        XCTAssertEqual([], stateService.accountsLoggedOut)
+        XCTAssertNotNil(biometricsRepository.capturedUserAuthKey)
+        XCTAssertEqual(keychainService.deleteItemsForUserIds, [])
+        XCTAssertFalse(stateService.logoutAccountUserInitiated)
+        XCTAssertEqual(vaultTimeoutService.removedIds, [])
+        XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
+        XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
     }
 
     /// `unlockVault(password:)` throws an error if the vault is unable to be unlocked.
