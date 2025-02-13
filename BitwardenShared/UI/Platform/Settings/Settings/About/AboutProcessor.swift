@@ -17,6 +17,9 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     /// Additional info to be used by this processor.
     private let aboutAdditionalInfo: AboutAdditionalInfo
 
+    /// The app's bundle identifier.
+    private let bundleIdentifier: String?
+
     /// The coordinator used to manage navigation.
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
@@ -29,16 +32,19 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     ///
     /// - Parameters:
     ///   - aboutAdditionalInfo: Additional info to be used by this processor.
+    ///   - bundleIdentifier: The app's bundle identifier.
     ///   - coordinator: The coordinator used to manage navigation.
     ///   - services: The services used by this processor.
     ///   - state: The initial state of the processor.
     init(
         aboutAdditionalInfo: AboutAdditionalInfo,
+        bundleIdentifier: String? = Bundle.main.bundleIdentifier,
         coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>,
         services: Services,
         state: AboutState
     ) {
         self.aboutAdditionalInfo = aboutAdditionalInfo
+        self.bundleIdentifier = bundleIdentifier
         self.coordinator = coordinator
         self.services = services
 
@@ -89,10 +95,10 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     /// Prepare the text to be copied.
     private func handleVersionTapped() {
-        var buildVariant = switch Bundle.main.bundleIdentifier {
+        var buildVariant = switch bundleIdentifier {
         case "com.8bit.bitwarden.beta": "Beta"
         case "com.8bit.bitwarden": "Production"
-        default: "Unkown"
+        default: "Unknown"
         }
         buildVariant = "📦 \(buildVariant)"
         let hardwareInfo = "📱 \(services.systemDevice.modelIdentifier)"
