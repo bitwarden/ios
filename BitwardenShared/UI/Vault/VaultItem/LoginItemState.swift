@@ -25,9 +25,9 @@ struct LoginItemState: Equatable {
     /// A flag indicating if this view has no data to display.
     var isEmpty: Bool {
         username.isEmpty
-        && password.isEmpty
-        && fido2Credentials.isEmpty
-        && totpCode == nil
+            && password.isEmpty
+            && fido2Credentials.isEmpty
+            && totpCode == nil
     }
 
     /// A flag indicating if the totp feature is available.
