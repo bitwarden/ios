@@ -114,7 +114,9 @@ extension View {
 
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
-    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Parameters:
+    ///   - hidden: Whether the button should be hidden.
+    ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured for adding an item.
     ///
     func addItemFloatingActionButton(
@@ -133,8 +135,9 @@ extension View {
     /// Returns a floating action menu positioned at the bottom-right corner of the screen.
     ///
     /// - Parameters:
-    ///     - addItem: The action to perform when a new cipher item type is tapped in the menu.
-    ///     - addFolder: The action to perform when the new folder button is tapped in the menu.
+    ///   - hidden: Whether the menu button should be hidden.
+    ///   - addItem: The action to perform when a new cipher item type is tapped in the menu.
+    ///   - addFolder: The action to perform when the new folder button is tapped in the menu.
     /// - Returns: A `FloatingActionMenu` configured for adding a vault item for folder.
     ///
     func addVaultItemFloatingActionMenu(
@@ -166,7 +169,9 @@ extension View {
 
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
-    /// - Parameter action: The action to perform when the button is tapped.
+    /// - Parameters:
+    ///   - hidden: Whether the button should be hidden.
+    ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured for adding an item.
     ///
     func editItemFloatingActionButton(
@@ -185,6 +190,7 @@ extension View {
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
     /// - Parameters:
+    ///   - hidden: Whether the button should be hidden.
     ///   - image: The image to display within the button.
     ///   - action: The action to perform when the button is tapped.
     /// - Returns: A `FloatingActionButton` configured with the specified image and action.
