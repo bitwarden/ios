@@ -161,6 +161,10 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     /// Load any initial data for the view.
     private func loadData() async {
         do {
+            state.removeUnlockWithPinPolicyEnabled = await services.policyService.policyAppliesToUser(
+                .removeUnlockWithPin
+            )
+
             state.biometricUnlockStatus = await loadBiometricUnlockPreference()
 
             if try await services.authRepository.isPinUnlockAvailable() {

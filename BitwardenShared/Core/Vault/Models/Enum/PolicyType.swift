@@ -37,6 +37,9 @@ enum PolicyType: Int, Codable {
     /// Activates autofill with page load on the browser extension.
     case activateAutofill = 11
 
+    /// If enabled, the setting to "Unlock with Pin" is hidden.
+    case removeUnlockWithPin = 14
+
     /// An unknown policy type.
     case unknown = -1
 

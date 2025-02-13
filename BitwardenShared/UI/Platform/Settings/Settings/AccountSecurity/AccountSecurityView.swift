@@ -21,7 +21,9 @@ struct AccountSecurityView: View {
 
             pendingLoginRequests
 
-            unlockOptionsSection
+            if store.state.showUnlockOptions {
+                unlockOptionsSection
+            }
 
             authenticatorSyncSection
 
@@ -198,14 +200,16 @@ struct AccountSecurityView: View {
             ContentBlock(dividerLeadingPadding: 16) {
                 biometricsSetting
 
-                BitwardenToggle(
-                    Localizations.unlockWithPIN,
-                    isOn: store.bindingAsync(
-                        get: \.isUnlockWithPINCodeOn,
-                        perform: AccountSecurityEffect.toggleUnlockWithPINCode
+                if store.state.unlockWithPinFeatureAvailable {
+                    BitwardenToggle(
+                        Localizations.unlockWithPIN,
+                        isOn: store.bindingAsync(
+                            get: \.isUnlockWithPINCodeOn,
+                            perform: AccountSecurityEffect.toggleUnlockWithPINCode
+                        )
                     )
-                )
-                .accessibilityIdentifier("UnlockWithPinSwitch")
+                    .accessibilityIdentifier("UnlockWithPinSwitch")
+                }
             }
         }
     }
