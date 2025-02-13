@@ -504,16 +504,53 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
-    /// `perform(_:)` with `.refreshed` records an error if applicable.
+    /// `perform(_:)` with `.refreshed` records an error and change the loading state
+    /// to `.error` if there is no cached data.
     @MainActor
-    func test_perform_refreshed_error() async {
+    func test_perform_refreshed_error_emptyState() async {
         vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
 
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertNil(coordinator.alertShown.last)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .error(
+                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error and shows an alert to user if there is cached data.
+    @MainActor
+    func test_perform_refreshed_error_nonEmptyState() async {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error and shows alert if it does not need sync.
+    @MainActor
+    func test_perform_refreshed_error_doesNotNeedsSync() async {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(false)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
     }
 
     /// `perform(.refreshAccountProfiles)` without profiles for the profile switcher.
@@ -911,6 +948,32 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let sections = try XCTUnwrap(subject.state.loadingState.data)
         XCTAssertEqual(sections.count, 1)
         XCTAssertEqual(sections[0].items, [vaultListItem])
+    }
+
+    /// `perform(_:)` with `.tryAgainTapped` will reset the loading state to `.loading(nil)`.
+    @MainActor
+    func test_perform_tryAgain() async throws {
+        subject.state.loadingState = .error(errorMessage: "error")
+        vaultRepository.needsSyncResult = .success(false)
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        let task = Task {
+            await subject.perform(.tryAgainTapped)
+        }
+        defer { task.cancel() }
+        try await waitForAsync { self.subject.state.loadingState == .loading(nil) }
+    }
+
+    /// `perform(_:)` with `.tryAgainTapped` will fetch the data again and set the state to '.data(sections)'
+    @MainActor
+    func test_perform_tryAgain_success() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .error(errorMessage: "error")
+        vaultRepository.fetchSyncResult = .success([section])
+        let task = Task {
+            await subject.perform(.tryAgainTapped)
+        }
+        defer { task.cancel() }
+        try await waitForAsync { self.subject.state.loadingState == .data([section]) }
     }
 
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to

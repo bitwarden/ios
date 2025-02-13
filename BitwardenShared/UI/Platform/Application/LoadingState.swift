@@ -11,6 +11,9 @@ enum LoadingState<T: Equatable & Sendable>: Equatable, Sendable {
     /// The view is loading.
     case loading(T?)
 
+    /// An error occurred while loading the data.
+    case error(errorMessage: String)
+
     /// The data to be displayed, if the case is `data`.
     var data: T? {
         switch self {
@@ -18,6 +21,8 @@ enum LoadingState<T: Equatable & Sendable>: Equatable, Sendable {
             return data
         case let .loading(maybeData):
             return maybeData
+        case .error:
+            return nil
         }
     }
 }

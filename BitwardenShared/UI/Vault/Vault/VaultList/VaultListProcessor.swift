@@ -78,11 +78,7 @@ final class VaultListProcessor: StateProcessor<
     override func perform(_ effect: VaultListEffect) async {
         switch effect {
         case .appeared:
-            await refreshVault()
-            await handleNotifications()
-            await checkPendingLoginRequests()
-            await checkPersonalOwnershipPolicy()
-            await twoFactorNoticeHelper.maybeShowTwoFactorNotice()
+            await appeared()
         case .checkAppReviewEligibility:
             if await services.reviewPromptService.isEligibleForReviewPrompt() {
                 await scheduleReviewPrompt()
@@ -119,6 +115,9 @@ final class VaultListProcessor: StateProcessor<
             }
         case .streamVaultList:
             await streamVaultList()
+        case .tryAgainTapped:
+            state.loadingState = .loading(nil)
+            await appeared()
         }
     }
 
@@ -182,6 +181,15 @@ final class VaultListProcessor: StateProcessor<
 
 extension VaultListProcessor {
     // MARK: Private Methods
+
+    /// Called when the vault list appears on screen.
+    private func appeared() async {
+        await refreshVault()
+        await handleNotifications()
+        await checkPendingLoginRequests()
+        await checkPersonalOwnershipPolicy()
+        await twoFactorNoticeHelper.maybeShowTwoFactorNotice()
+    }
 
     /// Check if there are any pending login requests for the user to deal with.
     private func checkPendingLoginRequests() async {
@@ -249,7 +257,22 @@ extension VaultListProcessor {
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            let needsSync = try? await services.vaultRepository.needsSync()
+            if needsSync == true {
+                // If the vault needs a sync and there are cached items,
+                // display the cached data and show an error alert.
+                if let sections = state.loadingState.data, !sections.isEmpty {
+                    coordinator.showAlert(.networkResponseError(error))
+                } else {
+                    // If the vault needs a sync and there were no cached items,
+                    // show the full screen error view.
+                    state.loadingState = .error(
+                        errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+                    )
+                }
+            } else {
+                coordinator.showAlert(.networkResponseError(error))
+            }
             services.errorReporter.log(error: error)
         }
     }

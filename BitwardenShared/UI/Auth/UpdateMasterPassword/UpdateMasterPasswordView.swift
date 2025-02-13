@@ -65,7 +65,7 @@ struct UpdateMasterPasswordView: View {
                 .textFieldConfiguration(.password)
 
                 BitwardenTextField(
-                    title: Localizations.retypeMasterPasswordRequired,
+                    title: Localizations.retypeNewMasterPasswordRequired,
                     text: store.binding(
                         get: \.masterPasswordRetype,
                         send: UpdateMasterPasswordAction.masterPasswordRetypeChanged
