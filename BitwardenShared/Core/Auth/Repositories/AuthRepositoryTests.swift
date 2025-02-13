@@ -2093,7 +2093,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(stateService.encryptedPinByUserId["1"])
     }
 
-    /// `logout` successfully logs out a user clearing pins because of policy Remove unlock with pin being enabled.
+    /// `logout` throws when clearing pins and policy Remove unlock with pin being enabled.
     func test_logout_throwsWhenClearingPins() async throws {
         let account = Account.fixture()
         stateService.accounts = [account]
