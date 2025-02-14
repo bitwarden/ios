@@ -8,7 +8,7 @@ struct VaultGroupState: Equatable, Sendable {
 
     /// The type of floating action button to display in the view.
     ///
-    enum FloatingActionButtonType {
+    enum FloatingActionButtonType: Equatable {
         /// The standard floating action button which performs an action on tap.
         case button
 
