@@ -65,7 +65,6 @@
 "Sync" = "Синхронизиране";
 "ThankYou" = "Благодарим ви!";
 "Tools" = "Инструменти";
-"URI" = "Адрес";
 "UseFingerprintToUnlock" = "Отключване с пръстов отпечатък";
 "UseThisButtonToGenerateANewUniquePassword" = "Използвайте този бутон, за да генерирате нова уникална парола.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Ще трябва да настроите удостоверителен ключ само за само за елементите, които изискват двустепенно удостоверяване с код. Ключът непрекъснато ще генерира шест-цифрени кодове, чрез които можете да се впишете.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Потвърждението не съвпада с паролата.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Главната парола е паролата, която използвате за достъп до трезора си.";
 "MasterPasswordHint" = "Подсказка за главната парола";
+"NewMasterPasswordHint" = "Подсказка за новата главна парола";
 "MasterPasswordHintDescription" = "Подсказката помага да си спомните паролата, ако сте я забравили.";
 "MasterPasswordLengthValMessageX" = "Главната парола трябва да е дълга поне %1$@ знака.";
 "MinNumbers" = "Минимален брой цифри";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Устройството ви не поддържа този вид файлове.";
 "Downloading" = "Изтегляне…";
 "AttachmentLargeWarning" = "Размерът на прикачения файл е %1$@. Сигурни ли сте, че искате да го свалите на устройството си?";
-"AuthenticatorKey" = "Удостоверителен ключ (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Код за потвърждаване (TOTP)";
 "AuthenticatorKeyAdded" = "Удостоверителният ключ е добавен.";
 "AuthenticatorKeyReadError" = "Удостоверителният ключ не може да се прочете.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Ново допълнително поле";
 "SelectTypeField" = "Вид на допълнителното поле.";
 "Remove" = "Премахване";
-"NewUri" = "Нов адрес";
 "URIPosition" = "Адрес %1$@";
 "BaseDomain" = "Основен домейн";
 "Default" = "Стандартно";
@@ -392,7 +391,6 @@
 "Logins" = "Записи";
 "SecureNotes" = "Защитени бележки";
 "AllItems" = "Всички елементи";
-"URIs" = "Адреси";
 "CheckingPassword" = "Проверка на паролата…";
 "CheckPassword" = "Проверка дали паролата е разкрита.";
 "PasswordExposed" = "Паролата е била разкрита поне %1$@ път/и в пробиви. Непременно я сменете.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Уникална фраза";
 "YourAccountsFingerprint" = "Уникална фраза, идентифицираща абонамента ви";
 "LearnOrgConfirmation" = "Битуорден позволява да споделяте записите в трезора си чрез регистрация на организация. Искате ли да научите повече от сайта bitwarden.com?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Заявката не може да бъде обработена. Моля, опитайте отново или се свържете с нас.";
 "Export" = "Изнасяне";
 "ExportVault" = "Изнасяне на трезора";
 "LockNow" = "Заключване сега";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Не можете да добавите удостоверителен ключ?";
 "ScanQRCode" = "Сканиране на QR код";
 "CannotScanQRCode" = "Не можете да сканирате QR кода?";
-"AuthenticatorKeyScanner" = "Ключ за удостоверяване";
 "EnterKeyManually" = "Ръчно въвеждане на кода";
 "AddTotp" = "Добавяне на TOTP";
-"SetupTotp" = "Настройка на TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "След като ключът бъде въведен успешно,\nизберете „Добавяне на код за потвърждаване“, за да запазите ключа";
 "NeverLockWarning" = "Ако изберете „Никога“ като настройка за заключването, трезорът Ви ще бъде достъпен за всеки, който има досег с устройството. Ако използвате тази настройка, трябва да се уверите, че устройството Ви е удачно защитено.";
 "EnvironmentPageUrlsError" = "Един или повече от въведените адреси са неправилни. Прегледайте ги и ги поправете, а след това опитайте да запазите отново.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Регион на данните";
 "Region" = "Регион";
 "UpdateWeakMasterPasswordWarning" = "Вашата главна парола не отговаря на една или повече политики на организацията Ви. За да получите достъп до трезора, трябва да промените главната си парола сега. Това означава, че ще бъдете отписан(а) от текущата си сесия и ще трябва да се впишете отново. Активните сесии на други устройства може да продължат да бъдат активни още един час.";
-"CurrentMasterPassword" = "Текуща главна парола";
+"CurrentMasterPasswordRequired" = "Текуща главна парола (задължително)";
+"NewMasterPasswordRequired" = "Нова главна парола (задължително)";
 "LoggedIn" = "Вписахте се!";
 "ApproveWithMyOtherDevice" = "Одобряване с другото ми устройство";
 "RequestAdminApproval" = "Подаване на заявка за одобрение от администратор";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Изберете уникална и сложна парола, за да запазите информацията си защитена.";
 "MasterPasswordRequired" = "Главна парола (задължително)";
 "RetypeMasterPasswordRequired" = "Въведете отново главната парола (задължително)";
+"RetypeNewMasterPasswordRequired" = "Въведете отново новата главна парола (задължително)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Битуорден не може да нулира загубена или забравена парола.";
 "LearnAboutWaysToPreventAccountLockout" = "Научете и за начините, чрез които да избегнете загуба на достъп до регистрацията си";
 "WhatMakesAPasswordStrong" = "Какво прави една парола сложна?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Проверка дали паролата е засегната от пробиви";
 "PrivateNote" = "Лична бележка";
 "XItems" = "%1$@ елемента";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Този потребител не може да бъде изтрит, тъй като е единственият собственик на поне една организация. Трябва да изтриете съответните организации или да повишите друг потребител.";
+"APasskeyAlreadyExistsForThisApplication" = "За това приложение вече съществува секретен ключ.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "За това приложение вече съществува секретен ключ, но имаше грешка при зареждането му.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Това устройство е непознато. Въведете 8-цифрения код за потвърждаване, който беше изпратен на %1$@.";
+"ItemNameRequired" = "Име на елемента (задължително)";
+"AutofillOptions" = "Опции за автоматично попълване";
+"WebsiteURI" = "Уеб сайт (адрес)";
+"AddWebsite" = "Добавяне на уеб сайт";
+"CannotDeleteAccount" = "Регистрацията не може да бъде изтрита";
+"CannotDeleteAccountDescriptionLong" = "Това действие не може да бъде завършено, тъй като регистрацията Ви се управлява от организация. Свържете се с администратора на организацията си за повече подробности.";
+"NewFolder" = "Нова папка";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

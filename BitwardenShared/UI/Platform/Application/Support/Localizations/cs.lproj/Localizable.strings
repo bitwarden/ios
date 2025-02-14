@@ -65,7 +65,6 @@
 "Sync" = "Synchronizace";
 "ThankYou" = "Poděkování";
 "Tools" = "Nástroje";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Pro odemknutí použít otisk prstu";
 "UseThisButtonToGenerateANewUniquePassword" = "Použijte toto tlačítko pro vytvoření nového jedinečného hesla.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Budete jen muset nastavit Authenticator pro přihlášení, která vyžadují dvoufaktorové ověření s kódem. Klíč průběžně generuje šestimístné kódy, které můžete použít pro přihlášení.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Potvrzení hesla se neshoduje.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hlavní heslo je heslo, které používáte pro přístup k trezoru.";
 "MasterPasswordHint" = "Nápověda k hlavnímu heslu";
+"NewMasterPasswordHint" = "Nová nápověda k hlavnímu heslu";
 "MasterPasswordHintDescription" = "Nápověda k hlavnímu heslu Vám pomůže vzpomenout si heslo, pokud ho zapomenete.";
 "MasterPasswordLengthValMessageX" = "Hlavní heslo musí obsahovat alespoň %1$@ znaků.";
 "MinNumbers" = "Minimální počet číslic";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Vaše zařízení nemůže otevřít tento typ souboru.";
 "Downloading" = "Stahování...";
 "AttachmentLargeWarning" = "Tato příloha má velikost %1$@. Opravdu ji chcete stáhnout do Vašeho zařízení?";
-"AuthenticatorKey" = "Autentizační klíč (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Ověřovací kód (TOTP)";
 "AuthenticatorKeyAdded" = "Byl přidán autentizační klíč.";
 "AuthenticatorKeyReadError" = "Nelze přečíst autentizační klíč.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Nové vlastní pole";
 "SelectTypeField" = "Jaký typ vlastního pole chcete přidat?";
 "Remove" = "Odebrat";
-"NewUri" = "Nová URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Základní doména";
 "Default" = "Výchozí";
@@ -392,7 +391,6 @@
 "Logins" = "Přihlašovací údaje";
 "SecureNotes" = "Zabezpečené poznámky";
 "AllItems" = "Všechny položky";
-"URIs" = "URI";
 "CheckingPassword" = "Kontrolování hesla...";
 "CheckPassword" = "Zkontrolujte, zda nedošlo k úniku hesla.";
 "PasswordExposed" = "K úniku tohoto hesla došlo celkem %1$@x. Měli byste jej změnit.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Fráze otisku prstu";
 "YourAccountsFingerprint" = "Fráze otisku prstu Vašeho účtu";
 "LearnOrgConfirmation" = "Bitwarden Vám umožňuje sdílet položky v trezoru s ostatními prostřednictvím organizace. Chcete přejít na bitwarden.com a dozvědět se více?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Nemůžeme zpracovat Váš požadavek. Zkuste to znovu nebo nás kontaktujte.";
 "Export" = "Exportovat";
 "ExportVault" = "Exportovat trezor";
 "LockNow" = "Zamknout nyní";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Nelze přidat ověřovací klíč?";
 "ScanQRCode" = "Naskenovat QR kód";
 "CannotScanQRCode" = "Nelze naskenovat QR kód?";
-"AuthenticatorKeyScanner" = "Autentizační klíč";
 "EnterKeyManually" = "Zadat klíč ručně";
 "AddTotp" = "Přidat TOTP";
-"SetupTotp" = "Nastavit TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Jakmile je klíč úspěšně zadán, zvolte \"Uložit\" pro bezpečné uložení klíče.";
 "NeverLockWarning" = "Nastavení zámku na \"Nikdy\" ponechá Váš trezor k dispozici komukoli s přístupem k Vašemu zařízení. Používáte-li tuto možnost, měli byste zajistit, aby Vaše zařízení bylo náležitě chráněno.";
 "EnvironmentPageUrlsError" = "Jedna nebo více zadaných URL jsou neplatné. Zkontrolujte je a opakujte akci znovu.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Datový region";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny.";
-"CurrentMasterPassword" = "Aktuální hlavní heslo";
+"CurrentMasterPasswordRequired" = "Aktuální hlavní heslo (vyžadováno)";
+"NewMasterPasswordRequired" = "Nové hlavní heslo (vyžadováno)";
 "LoggedIn" = "Přihlášeno!";
 "ApproveWithMyOtherDevice" = "Schválit s mým dalším zařízením";
 "RequestAdminApproval" = "Žádost o schválení správcem";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Zvolte jedinečné a silné heslo pro zabezpečení Vašich informací.";
 "MasterPasswordRequired" = "Hlavní heslo (vyžadováno)";
 "RetypeMasterPasswordRequired" = "Zadejte znovu hlavní heslo (vyžadováno)";
+"RetypeNewMasterPasswordRequired" = "Zadejte znovu nové hlavní heslo (vyžadováno)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden nemůže obnovit ztracené nebo zapomenuté hlavní heslo.";
 "LearnAboutWaysToPreventAccountLockout" = "Více o způsobech, jak zabránit uzamčení účtu";
 "WhatMakesAPasswordStrong" = "Co je silným heslem?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Kontrola hesla pro případ narušení bezpečnosti dat";
 "PrivateNote" = "Soukromá poznámka";
 "XItems" = "%1$@ položek";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "Přístupový klíč pro tuto aplikaci již existuje.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Pro tuto aplikaci již existuje přístupový klíč, ale při načítání došlo k chybě.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Toto zařízení nelze rozpoznat. Zadejte osmimístný ověřovací kód, který byl zaslán e-mailem na %1$@.";
+"ItemNameRequired" = "Název položky (povinné)";
+"AutofillOptions" = "Volby automatického vyplňování";
+"WebsiteURI" = "Webová stránka (URI)";
+"AddWebsite" = "Přidat webovou stránku";
+"CannotDeleteAccount" = "Nelze smazat účet";
+"CannotDeleteAccountDescriptionLong" = "Tuto akci nelze dokončit, protože Váš účet vlastní organizace. Další informace získáte od správce organizace.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

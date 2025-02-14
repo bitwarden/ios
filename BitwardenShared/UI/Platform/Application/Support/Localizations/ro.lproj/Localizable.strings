@@ -65,7 +65,6 @@
 "Sync" = "Sincronizare";
 "ThankYou" = "Vă mulțumim";
 "Tools" = "Instrumente";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Utilizare amprentă pentru deblocare";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Confirmarea parolei nu este corectă.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Un indiciu pentru parola principală vă poate ajuta să v-o reamintiți dacă o uitați.";
 "MasterPasswordLengthValMessageX" = "Parola principală trebuie să aibă cel puțin %1$@ caractere.";
 "MinNumbers" = "Minimum de cifre";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Dispozitivul nu poate deschide acest tip de fișiere.";
 "Downloading" = "Descărcare...";
 "AttachmentLargeWarning" = "Acest atașament are o mărime de %1$@. Sigur doriți să îl descărcați pe dispozitivul dvs.?";
-"AuthenticatorKey" = "Cheie de autentificare (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Cod de verificare (TOTP)";
 "AuthenticatorKeyAdded" = "Cheia de autentificare s-a adăugat.";
 "AuthenticatorKeyReadError" = "Nu se poate citi cheia de autentificare.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Câmp nou particularizat";
 "SelectTypeField" = "Ce tip de câmp particularizat doriți să adăugați?";
 "Remove" = "Ștergere";
-"NewUri" = "URI nou";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Domeniu de bază";
 "Default" = "Implicit";
@@ -392,7 +391,6 @@
 "Logins" = "Conectări";
 "SecureNotes" = "Note securizate";
 "AllItems" = "Toate articolele";
-"URIs" = "URI-uri";
 "CheckingPassword" = "Verificare parolă...";
 "CheckPassword" = "Verificați dacă parola a fost dezvăluită.";
 "PasswordExposed" = "Această parolă a fost dezvăluită de %1$@ ori în breșe de date. Ar trebui să o schimbați.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Frază amprentă";
 "YourAccountsFingerprint" = "Fraza amprentă a contului dvs.";
 "LearnOrgConfirmation" = "Bitwarden vă permite să vă partajați seiful cu alte persoane utilizând un cont pentru organizații. Doriți să vizitați siteul bitwarden.com pentru a afla mai multe?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Export seif";
 "LockNow" = "Blocare imediată";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Nu se poate adăuga cheia de autentificare?";
 "ScanQRCode" = "Scanare cod QR";
 "CannotScanQRCode" = "Nu puteți scana codul QR?";
-"AuthenticatorKeyScanner" = "Cheie de autentificare";
 "EnterKeyManually" = "Introducere manuală a cheii";
 "AddTotp" = "Adăugare TOTP";
-"SetupTotp" = "Configurare TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "După ce cheia este introdusă corect,\nselectați „Adăugare TOTP” pentru a stoca cheia în siguranță";
 "NeverLockWarning" = "Setarea opțiunilor de blocare la „Niciodată” face ca seiful dvs. să fie disponibil oricui are acces la acesta. Dacă utilizați această opțiune, trebuie să vă asigurați că vă păstrați dispozitivul protejat corespunzător.";
 "EnvironmentPageUrlsError" = "Unul sau mai multe dintre URL-urile introduse nu sunt valide. Vă rugăm să le revizuiți și să încercați să le salvați din nou.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Regiunea de date";
 "Region" = "Regiune";
 "UpdateWeakMasterPasswordWarning" = "Parola principală nu îndeplinește una sau mai multe politici ale organizației. Pentru a accesa seiful trebuie să actualizați acum parola principală. Continuarea te va deconecta din sesiunea curentă, necesitând să te autentifici din nou. Sesiunile active pe alte dispozitive pot continua să rămână active timp de maxim o oră.";
-"CurrentMasterPassword" = "Parola principală curentă";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Conectat!";
 "ApproveWithMyOtherDevice" = "Aprobați cu celălalt dispozitiv al meu";
 "RequestAdminApproval" = "Solicitați aprobarea administratorului";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

@@ -65,7 +65,6 @@
 "Sync" = "Sincronizza";
 "ThankYou" = "Grazie";
 "Tools" = "Strumenti";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Usa l'impronta digitale per sbloccare";
 "UseThisButtonToGenerateANewUniquePassword" = "Usa questo pulsante per generare una nuova parola d'accesso univoca.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Dovrai solo impostare la chiave di autenticazione per gli accessi che richiedono l'autenticazione a due fattori con un codice. La chiave genera continuamente codici a sei cifre che puoi usare per accedere.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Le password principali non corrispondono.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "La parola d'accesso principale è la parola d'accesso che usi per accedere alla tua cassaforte.";
 "MasterPasswordHint" = "Suggerimento per la password principale";
+"NewMasterPasswordHint" = "Nuovo suggerimento parola d'accesso principale";
 "MasterPasswordHintDescription" = "Il suggerimento per la password principale può aiutarti a ricordarla nel caso la dimenticassi.";
 "MasterPasswordLengthValMessageX" = "La password principale deve essere lunga almeno %1$@ caratteri.";
 "MinNumbers" = "Minimo numeri";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Il tuo dispositivo non può aprire questo tipo di file.";
 "Downloading" = "Download in corso...";
 "AttachmentLargeWarning" = "Questo allegato ha dimensione %1$@. Sei sicuro di volerlo scaricare sul tuo dispositivo?";
-"AuthenticatorKey" = "Chiave di autenticazione (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Codice di verifica (TOTP)";
 "AuthenticatorKeyAdded" = "Chiave di autenticazione aggiunta.";
 "AuthenticatorKeyReadError" = "Impossibile leggere chiave di autenticazione.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Nuovo campo personalizzato";
 "SelectTypeField" = "Che tipo di campo personalizzato vuoi aggiungere?";
 "Remove" = "Rimuovi";
-"NewUri" = "Nuovo URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Dominio di base";
 "Default" = "Predefinito";
@@ -392,7 +391,6 @@
 "Logins" = "Login";
 "SecureNotes" = "Note sicure";
 "AllItems" = "Tutti gli elementi";
-"URIs" = "URI";
 "CheckingPassword" = "Controllo password...";
 "CheckPassword" = "Verifica se la password è stata esposta.";
 "PasswordExposed" = "Questa password è stata trovata %1$@ volta(e) in archivi di dati trafugati. Dovresti cambiarla.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Frase impronta";
 "YourAccountsFingerprint" = "Frase impronta del tuo account";
 "LearnOrgConfirmation" = "Bitwarden ti permette di condividere gli elementi della tua cassaforte con altri usando un account aziendale. Vuoi visitare il sito bitwarden.com per saperne di più?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Non siamo in grado di elaborare la tua richiesta. Riprova o contattaci.";
 "Export" = "Esporta";
 "ExportVault" = "Esporta cassaforte";
 "LockNow" = "Blocca ora";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Non riesci ad aggiungere la chiave di autenticazione?";
 "ScanQRCode" = "Scansiona codice QR";
 "CannotScanQRCode" = "Non riesci a scansionare il codice QR?";
-"AuthenticatorKeyScanner" = "Chiave di autenticazione";
 "EnterKeyManually" = "Inserisci chiave manualmente";
 "AddTotp" = "Aggiungi TOTP";
-"SetupTotp" = "Imposta TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Una volta inserita la chiave,\nclicca Aggiungi TOTP per salvare la chiave in modo sicuro";
 "NeverLockWarning" = "Sei sicuro di voler usare l'opzione \"Mai\"? Impostare le opzioni di blocco su \"Mai\" salverà la chiave di crittografia della cassaforte sul tuo dispositivo. Se utilizzi questa opzione, assicurati di mantenere il tuo dispositivo adeguatamente protetto.";
 "EnvironmentPageUrlsError" = "L'URL inserito non è valido, controllalo e prova a salvarlo di nuovo.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Area dati";
 "Region" = "Regione";
 "UpdateWeakMasterPasswordWarning" = "La tua password principale non soddisfa uno o più politiche della tua organizzazione. Per accedere alla cassaforte, aggiornala ora. Procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora.";
-"CurrentMasterPassword" = "Password principale corrente";
+"CurrentMasterPasswordRequired" = "Parola d'accesso principale attuale (obbligatoria)";
+"NewMasterPasswordRequired" = "Nuova parola d'accesso principale (obbligatoria)";
 "LoggedIn" = "Accesso effettuato!";
 "ApproveWithMyOtherDevice" = "Approva con un altro mio dispositivo";
 "RequestAdminApproval" = "Richiedi approvazione dell'amministratore";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Ridigita la nuova parola d'accesso principale (obbligatoria)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Controlla la parola d'accesso per le violazioni dei dati";
 "PrivateNote" = "Nota privata";
 "XItems" = "%1$@ elementi";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Impossibile eliminare questo utente perché è l'unico proprietario di almeno un'organizzazione. Si prega di eliminare queste organizzazioni o aggiornare un altro utente.";
+"APasskeyAlreadyExistsForThisApplication" = "Esiste già una chiave di accesso per questa applicazione.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Esiste già una chiave di accesso per questa applicazione, ma si è verificato un errore durante il caricamento.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Nome dell'elemento (obbligatorio)";
+"AutofillOptions" = "Opzioni compilazione automatica";
+"WebsiteURI" = "Sito web (URI)";
+"AddWebsite" = "Aggiungi sito web";
+"CannotDeleteAccount" = "Impossibile eliminare account";
+"CannotDeleteAccountDescriptionLong" = "Questa azione non può essere completata perché il tuo account è di proprietà di un'organizzazione. Contatta l'amministratore della tua organizzazione per dettagli.";
+"NewFolder" = "Nuova cartella";
+"SetUpAuthenticatorKey" = "Set up authenticator key";
