@@ -1136,4 +1136,8 @@
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
 "ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
 "Owner" = "Owner";

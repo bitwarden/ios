@@ -302,6 +302,10 @@ private extension AddEditItemView {
             loginItems
         case .secureNote:
             notesField
+                // The secure note type doesn't have a top-level section header for its field, so
+                // remove the extra top padding (8 points of total padding from the last field as
+                // opposed to 16)
+                .padding(.top, -8)
         case .identity:
             identityItems
         case .sshKey:
