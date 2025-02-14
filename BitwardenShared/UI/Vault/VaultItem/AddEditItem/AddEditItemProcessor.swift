@@ -233,9 +233,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):
             state.loginState.totpState = LoginTOTPState(newValue)
-        case let .typeChanged(newValue):
-            state.type = newValue
-            state.customFieldsState = AddEditCustomFieldsState(cipherType: newValue, customFields: [])
         case let .uriChanged(newValue, index: index):
             guard state.loginState.uris.count > index else { return }
             state.loginState.uris[index].uri = newValue

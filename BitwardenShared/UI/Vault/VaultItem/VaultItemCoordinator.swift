@@ -85,18 +85,18 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case .addFolder:
             showAddFolder(delegate: context as? AddEditFolderDelegate)
         case let .addItem(
-            allowTypeSelection,
             group,
             hasPremium,
             newCipherOptions,
-            organizationId
+            organizationId,
+            type
         ):
             showAddItem(
                 for: group,
-                allowTypeSelection: allowTypeSelection,
                 hasPremium: hasPremium,
                 newCipherOptions: newCipherOptions,
                 organizationId: organizationId,
+                type: type,
                 delegate: context as? CipherItemOperationDelegate
             )
         case let .attachments(cipher):
@@ -169,24 +169,23 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///
     /// - Parameters:
     ///   - group: An optional `VaultListGroup` to initialize this view with.
-    ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - hasPremium: Whether the user has premium,
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
+    ///   - type: The type of item to add.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
     private func showAddItem(
         for group: VaultListGroup?,
-        allowTypeSelection: Bool,
         hasPremium: Bool,
         newCipherOptions: NewCipherOptions?,
         organizationId: String?,
+        type: CipherType,
         delegate: CipherItemOperationDelegate?
     ) {
         let state = CipherItemState(
-            addItem: group.flatMap(CipherType.init) ?? .login,
-            allowTypeSelection: allowTypeSelection,
+            addItem: type,
             collectionIds: group?.collectionId.flatMap { [$0] } ?? [],
             folderId: group?.folderId,
             hasPremium: hasPremium,

@@ -299,14 +299,6 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
-    @MainActor
-    func test_typeMenuField_updateValue() throws {
-        processor.state.type = .login
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.type)
-        try menuField.select(newValue: BitwardenShared.CipherType.card)
-        XCTAssertEqual(processor.dispatchedActions.last, .typeChanged(.card))
-    }
-
     /// Selecting a new value with the uri match type picker dispatches the `.uriTypeChanged` action.
     /// is selected.
     @MainActor

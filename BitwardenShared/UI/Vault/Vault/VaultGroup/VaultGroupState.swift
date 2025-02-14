@@ -4,6 +4,18 @@ import Foundation
 
 /// The state of a `VaultGroupView`.
 struct VaultGroupState: Equatable, Sendable {
+    // MARK: Types
+
+    /// The type of floating action button to display in the view.
+    ///
+    enum FloatingActionButtonType: Equatable {
+        /// The standard floating action button which performs an action on tap.
+        case button
+
+        /// A floating action button which displays a menu.
+        case menu
+    }
+
     // MARK: Properties
 
     /// Whether the vault filter can be shown.
@@ -12,6 +24,18 @@ struct VaultGroupState: Equatable, Sendable {
     /// Whether there is data for the vault group.
     var emptyData: Bool {
         loadingState.data.isEmptyOrNil
+    }
+
+    /// The type of floating action button to display based on which group type is shown.
+    var floatingActionButtonType: FloatingActionButtonType? {
+        switch group {
+        case .card, .identity, .login, .secureNote:
+            return .button
+        case .collection, .folder, .noFolder:
+            return .menu
+        case .sshKey, .totp, .trash:
+            return nil
+        }
     }
 
     /// The `VaultListGroup` being displayed.
@@ -62,16 +86,6 @@ struct VaultGroupState: Equatable, Sendable {
 
         switch group {
         case .collection, .sshKey, .trash:
-            return false
-        default:
-            return true
-        }
-    }
-
-    /// Whether to show the add item floating action button.
-    var showAddItemFloatingActionButton: Bool {
-        switch group {
-        case .sshKey, .trash:
             return false
         default:
             return true

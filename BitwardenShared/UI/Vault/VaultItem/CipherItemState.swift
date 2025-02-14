@@ -34,9 +34,6 @@ struct CipherItemState: Equatable {
     /// A flag indicating if this account has premium features.
     var accountHasPremium: Bool
 
-    /// Whether the user should be able to select the type of item to add.
-    var allowTypeSelection: Bool
-
     /// The card item state.
     var cardItemState: CardItemState
 
@@ -190,7 +187,6 @@ struct CipherItemState: Equatable {
 
     private init(
         accountHasPremium: Bool,
-        allowTypeSelection: Bool,
         cardState: CardItemState,
         collectionIds: [String],
         configuration: Configuration,
@@ -209,7 +205,6 @@ struct CipherItemState: Equatable {
         updatedDate: Date
     ) {
         self.accountHasPremium = accountHasPremium
-        self.allowTypeSelection = allowTypeSelection
         cardItemState = cardState
         self.collectionIds = collectionIds
         collections = []
@@ -234,7 +229,6 @@ struct CipherItemState: Equatable {
 
     init(
         addItem type: CipherType = .login,
-        allowTypeSelection: Bool = true,
         collectionIds: [String] = [],
         customFields: [CustomFieldState] = [],
         folderId: String? = nil,
@@ -248,7 +242,6 @@ struct CipherItemState: Equatable {
     ) {
         self.init(
             accountHasPremium: hasPremium,
-            allowTypeSelection: allowTypeSelection,
             cardState: .init(),
             collectionIds: collectionIds,
             configuration: .add,
@@ -277,7 +270,6 @@ struct CipherItemState: Equatable {
     init(cloneItem cipherView: CipherView, hasPremium: Bool) {
         self.init(
             accountHasPremium: hasPremium,
-            allowTypeSelection: false,
             cardState: cipherView.cardItemState(),
             collectionIds: cipherView.collectionIds,
             configuration: .add,
@@ -305,7 +297,6 @@ struct CipherItemState: Equatable {
         guard cipherView.id != nil else { return nil }
         self.init(
             accountHasPremium: hasPremium,
-            allowTypeSelection: false,
             cardState: cipherView.cardItemState(),
             collectionIds: cipherView.collectionIds,
             configuration: .existing(cipherView: cipherView),

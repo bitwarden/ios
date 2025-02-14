@@ -82,6 +82,17 @@ struct BitwardenUITextViewType: BaseViewType {
     ]
 }
 
+/// A generic type wrapper around `LoadingView` to allow `ViewInspector` to find instances of
+/// `LoadingView` without needing to know the details of it's implementation.
+///
+struct LoadingViewType: BaseViewType {
+    static var typePrefix: String = "LoadingView"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.LoadingView",
+    ]
+}
+
 /// A generic type wrapper around `SettingsMenuField` to allow `ViewInspector` to find instances of
 /// `SettingsMenuField` without needing to know the details of it's implementation.
 ///
