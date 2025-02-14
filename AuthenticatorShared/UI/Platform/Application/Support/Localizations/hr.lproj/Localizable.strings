@@ -109,7 +109,7 @@
 "Export" = "Izvoz";
 "Key" = "Ključ";
 "KeyReadError" = "Ne mogu očitati ključ.";
-"CannotAddAuthenticatorKey" = "Nije moguće dodati ključ za provjeru autentičnosti?";
+"CannotAddAuthenticatorKey" = "Nije moguće dodati ključ autentifikatora?";
 "Import" = "Uvoz";
 "Steam" = "Steam";
 "OtpType" = "Vrsta OTP-a";
@@ -131,7 +131,7 @@
 "AccountsSyncedFromBitwardenApp" = "Računi sinkronizirani iz Bitwarden aplikacije";
 "CopyToBitwarden" = "Kopiraj u Bitwarden";
 "ScanComplete" = "Skeniranje završeno";
-"SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Spremi ovaj autentifikatorski ključ ovdje ili ga dodaj prijavi u Bitwarden aplikaciji.";
+"SaveThisAuthenticatorKeyHereOrAddItToALoginInYourBitwardenApp" = "Ovdje spremi autentifikatorski ključ ili ga dodaj prijavi u Bitwarden aplikaciji.";
 "SaveHere" = "Spremi ovdje";
 "SetSaveToBitwardenAsYourDefaultSaveOption" = "Podasiti „Spremi u Bitwarden” kao tvoju zadanu opciju spremanja?";
 "SetSaveLocallyAsYourDefaultSaveOption" = "Podesiti „Spremi lokalno” kao tvoju zadanu opciju spremanja?";
