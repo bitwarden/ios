@@ -20,25 +20,29 @@ struct ViewLoginItemView: View {
     // MARK: View
 
     var body: some View {
-        ContentBlock {
-            if !store.state.username.isEmpty {
-                usernameRow
-            }
+        if !store.state.isEmpty {
+            SectionView(Localizations.loginCredentials, contentSpacing: 8) {
+                ContentBlock {
+                    if !store.state.username.isEmpty {
+                        usernameRow
+                    }
 
-            if !store.state.password.isEmpty {
-                passwordRow
-            }
+                    if !store.state.password.isEmpty {
+                        passwordRow
+                    }
 
-            if let fido2Credential = store.state.fido2Credentials.first {
-                passkeyRow(fido2Credential)
-            }
-        }
+                    if let fido2Credential = store.state.fido2Credentials.first {
+                        passkeyRow(fido2Credential)
+                    }
+                }
 
-        if let totpModel = store.state.totpCode {
-            if store.state.isTOTPAvailable {
-                totpRow(totpModel)
-            } else {
-                premiumSubscriptionRequired
+                if let totpModel = store.state.totpCode {
+                    if store.state.isTOTPAvailable {
+                        totpRow(totpModel)
+                    } else {
+                        premiumSubscriptionRequired
+                    }
+                }
             }
         }
     }
@@ -71,7 +75,7 @@ struct ViewLoginItemView: View {
             }
         } footerContent: {
             if store.state.canViewPassword {
-                AsyncButton(Localizations.checkPassword) {
+                AsyncButton(Localizations.checkPasswordForDataBreaches) {
                     await store.perform(.checkPasswordPressed)
                 }
                 .buttonStyle(.bitwardenBorderless)
@@ -87,7 +91,7 @@ struct ViewLoginItemView: View {
     ///
     @ViewBuilder private var premiumSubscriptionRequired: some View {
         BitwardenField(
-            title: Localizations.verificationCodeTotp,
+            title: Localizations.authenticatorKey,
             titleAccessibilityIdentifier: "ItemName"
         ) {
             Text(Localizations.premiumSubscriptionRequired)
@@ -141,7 +145,7 @@ struct ViewLoginItemView: View {
     ///
     private func totpRow(_ model: TOTPCodeModel) -> some View {
         BitwardenField(
-            title: Localizations.verificationCodeTotp,
+            title: Localizations.authenticatorKey,
             titleAccessibilityIdentifier: "ItemName",
             content: {
                 if store.state.isTOTPCodeVisible {

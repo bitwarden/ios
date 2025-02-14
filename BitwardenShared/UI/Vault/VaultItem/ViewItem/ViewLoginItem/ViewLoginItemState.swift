@@ -15,6 +15,9 @@ protocol ViewLoginItemState: Sendable {
     /// The FIDO2 credentials for the login.
     var fido2Credentials: [Fido2Credential] { get }
 
+    /// A flag indicating if this view has no data to display.
+    var isEmpty: Bool { get }
+
     /// A flag indicating if the TOTP feature is available.
     var isTOTPAvailable: Bool { get }
 

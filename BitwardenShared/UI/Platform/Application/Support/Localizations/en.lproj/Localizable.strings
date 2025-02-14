@@ -39,6 +39,7 @@
 "InvalidPIN" = "Invalid PIN. Try again.";
 "Launch" = "Launch";
 "LogIn" = "Log in";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Login";
 "LogOut" = "Log out";
 "LogoutConfirmation" = "Are you sure you want to log out?";
