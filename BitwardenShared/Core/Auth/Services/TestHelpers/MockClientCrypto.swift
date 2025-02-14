@@ -2,7 +2,7 @@ import BitwardenSdk
 
 @testable import BitwardenShared
 
-class MockClientCrypto: ClientCryptoProtocol {
+class MockClientCrypto: CryptoClientProtocol {
     var deriveKeyConnectorRequest: DeriveKeyConnectorRequest?
     var deriveKeyConnectorResult: Result<String, Error> = .success("key")
 

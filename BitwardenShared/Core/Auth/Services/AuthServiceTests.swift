@@ -805,8 +805,8 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         await assertGetConfig()
     }
 
-    /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` uses the cached request but with device verification
-    /// code added in to authenticate.
+    /// `loginWithTwoFactorCode(email:code:method:remember:captchaToken:)` uses the cached request
+    /// but with device verification code added in to authenticate.
     func test_loginWithNewDeviceVerificationCode() async throws { // swiftlint:disable:this function_body_length
         // Set up the mock data.
         client.results = [
@@ -825,7 +825,6 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the request will be saved.
-        let authMethodsData = AuthMethodsData.fixture()
         await assertAsyncThrows(
             error: IdentityTokenRequestError.newDeviceNotVerified
         ) {
@@ -1167,7 +1166,6 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         systemDevice.modelIdentifier = "Model id"
 
         // First login with the master password so that the resend email request will be saved.
-        let authMethodsData = AuthMethodsData.fixture()
         await assertAsyncThrows(
             error: IdentityTokenRequestError.newDeviceNotVerified
         ) {

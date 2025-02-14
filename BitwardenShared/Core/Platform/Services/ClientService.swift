@@ -6,46 +6,46 @@ import BitwardenSdk
 protocol ClientService {
     // MARK: Methods
 
-    /// Returns a `ClientAuthProtocol` for auth data tasks.
+    /// Returns a `AuthClientProtocol` for auth data tasks.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID mapped to the client instance.
+    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
+    ///     the user's ID doesn't yet exist).o
+    /// - Returns: A `AuthClientProtocol` for auth data tasks.
+    ///
+    func auth(for userId: String?, isPreAuth: Bool) async throws -> AuthClientProtocol
+
+    /// Returns a `CryptoClientProtocol` for crypto data tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `CryptoClientProtocol` for crypto data tasks.
+    ///
+    func crypto(for userId: String?) async throws -> CryptoClientProtocol
+
+    /// Returns a `ExporterClientProtocol` for vault export data tasks.
+    ///
+    /// - Parameter userId: The user ID mapped to the client instance.
+    /// - Returns: A `ExporterClientProtocol` for vault export data tasks.
+    ///
+    func exporters(for userId: String?) async throws -> ExporterClientProtocol
+
+    /// Returns a `GeneratorClientsProtocol` for generator data tasks.
     ///
     /// - Parameters:
     ///   - userId: The user ID mapped to the client instance.
     ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
     ///     the user's ID doesn't yet exist).
-    /// - Returns: A `ClientAuthProtocol` for auth data tasks.
+    /// - Returns: A `GeneratorClientsProtocol` for generator data tasks.
     ///
-    func auth(for userId: String?, isPreAuth: Bool) async throws -> ClientAuthProtocol
+    func generators(for userId: String?, isPreAuth: Bool) async throws -> GeneratorClientsProtocol
 
-    /// Returns a `ClientCryptoProtocol` for crypto data tasks.
+    /// Returns a `PlatformClientService` for client platform tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `ClientCryptoProtocol` for crypto data tasks.
+    /// - Returns: A `PlatformClientService` for client platform tasks.
     ///
-    func crypto(for userId: String?) async throws -> ClientCryptoProtocol
-
-    /// Returns a `ClientExportersProtocol` for vault export data tasks.
-    ///
-    /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `ClientExportersProtocol` for vault export data tasks.
-    ///
-    func exporters(for userId: String?) async throws -> ClientExportersProtocol
-
-    /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
-    ///
-    /// - Parameters:
-    ///   - userId: The user ID mapped to the client instance.
-    ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
-    ///     the user's ID doesn't yet exist).
-    /// - Returns: A `ClientGeneratorsProtocol` for generator data tasks.
-    ///
-    func generators(for userId: String?, isPreAuth: Bool) async throws -> ClientGeneratorsProtocol
-
-    /// Returns a `ClientPlatformService` for client platform tasks.
-    ///
-    /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `ClientPlatformService` for client platform tasks.
-    ///
-    func platform(for userId: String?) async throws -> ClientPlatformService
+    func platform(for userId: String?) async throws -> PlatformClientService
 
     /// Removes the user's client from memory.
     ///
@@ -53,57 +53,57 @@ protocol ClientService {
     ///
     func removeClient(for userId: String?) async throws
 
-    /// Returns a `ClientSendsProtocol` for send data tasks.
+    /// Returns a `SendClientProtocol` for send data tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `ClientSendsProtocol` for vault data tasks.
+    /// - Returns: A `SendClientProtocol` for vault data tasks.
     ///
-    func sends(for userId: String?) async throws -> ClientSendsProtocol
+    func sends(for userId: String?) async throws -> SendClientProtocol
 
-    /// Returns a `ClientVaultService` for vault data tasks.
+    /// Returns a `VaultClientService` for vault data tasks.
     ///
     /// - Parameter userId: The user ID mapped to the client instance.
-    /// - Returns: A `ClientVaultService` for vault data tasks.
+    /// - Returns: A `VaultClientService` for vault data tasks.
     ///
-    func vault(for userId: String?) async throws -> ClientVaultService
+    func vault(for userId: String?) async throws -> VaultClientService
 }
 
 // MARK: Extension
 
 extension ClientService {
-    /// Returns a `ClientAuthProtocol` for auth data tasks.
+    /// Returns a `AuthClientProtocol` for auth data tasks.
     ///
     /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
     ///     (when the user's ID doesn't yet exist).
     ///
-    func auth(isPreAuth: Bool = false) async throws -> ClientAuthProtocol {
+    func auth(isPreAuth: Bool = false) async throws -> AuthClientProtocol {
         try await auth(for: nil, isPreAuth: isPreAuth)
     }
 
-    /// Returns a `ClientCryptoProtocol` for crypto data tasks.
+    /// Returns a `CryptoClientProtocol` for crypto data tasks.
     ///
-    func crypto() async throws -> ClientCryptoProtocol {
+    func crypto() async throws -> CryptoClientProtocol {
         try await crypto(for: nil)
     }
 
-    /// Returns a `ClientExportersProtocol` for vault export data tasks.
+    /// Returns a `ExporterClientProtocol` for vault export data tasks.
     ///
-    func exporters() async throws -> ClientExportersProtocol {
+    func exporters() async throws -> ExporterClientProtocol {
         try await exporters(for: nil)
     }
 
-    /// Returns a `ClientGeneratorsProtocol` for generator data tasks.
+    /// Returns a `GeneratorClientsProtocol` for generator data tasks.
     ///
     /// - Parameter isPreAuth: Whether the client is being used for a user prior to authentication
     ///     (when the user's ID doesn't yet exist). This primarily will happen in SSO flows.
     ///
-    func generators(isPreAuth: Bool = false) async throws -> ClientGeneratorsProtocol {
+    func generators(isPreAuth: Bool = false) async throws -> GeneratorClientsProtocol {
         try await generators(for: nil, isPreAuth: isPreAuth)
     }
 
-    /// Returns a `ClientPlatformService` for client platform tasks.
+    /// Returns a `PlatformClientService` for client platform tasks.
     ///
-    func platform() async throws -> ClientPlatformService {
+    func platform() async throws -> PlatformClientService {
         try await platform(for: nil)
     }
 
@@ -113,15 +113,15 @@ extension ClientService {
         try await removeClient(for: nil)
     }
 
-    /// Returns a `ClientSendsProtocol` for send data tasks.
+    /// Returns a `SendClientProtocol` for send data tasks.
     ///
-    func sends() async throws -> ClientSendsProtocol {
+    func sends() async throws -> SendClientProtocol {
         try await sends(for: nil)
     }
 
-    /// Returns a `ClientVaultService` for vault data tasks.
+    /// Returns a `VaultClientService` for vault data tasks.
     ///
-    func vault() async throws -> ClientVaultService {
+    func vault() async throws -> VaultClientService {
         try await vault(for: nil)
     }
 }
@@ -191,23 +191,23 @@ actor DefaultClientService: ClientService {
 
     // MARK: Methods
 
-    func auth(for userId: String?, isPreAuth: Bool = false) async throws -> ClientAuthProtocol {
+    func auth(for userId: String?, isPreAuth: Bool = false) async throws -> AuthClientProtocol {
         try await client(for: userId, isPreAuth: isPreAuth).auth()
     }
 
-    func crypto(for userId: String?) async throws -> ClientCryptoProtocol {
+    func crypto(for userId: String?) async throws -> CryptoClientProtocol {
         try await client(for: userId).crypto()
     }
 
-    func exporters(for userId: String?) async throws -> ClientExportersProtocol {
+    func exporters(for userId: String?) async throws -> ExporterClientProtocol {
         try await client(for: userId).exporters()
     }
 
-    func generators(for userId: String?, isPreAuth: Bool = false) async throws -> ClientGeneratorsProtocol {
+    func generators(for userId: String?, isPreAuth: Bool = false) async throws -> GeneratorClientsProtocol {
         try await client(for: userId, isPreAuth: isPreAuth).generators()
     }
 
-    func platform(for userId: String?) async throws -> ClientPlatformService {
+    func platform(for userId: String?) async throws -> PlatformClientService {
         try await client(for: userId).platform()
     }
 
@@ -216,11 +216,11 @@ actor DefaultClientService: ClientService {
         userClientArray.removeValue(forKey: userId)
     }
 
-    func sends(for userId: String?) async throws -> ClientSendsProtocol {
+    func sends(for userId: String?) async throws -> SendClientProtocol {
         try await client(for: userId).sends()
     }
 
-    func vault(for userId: String?) async throws -> ClientVaultService {
+    func vault(for userId: String?) async throws -> VaultClientService {
         try await client(for: userId).vault()
     }
 
@@ -360,55 +360,55 @@ class DefaultClientBuilder: ClientBuilder {
 ///
 protocol BitwardenSdkClient {
     /// Returns auth operations.
-    func auth() -> ClientAuthProtocol
+    func auth() -> AuthClientProtocol
 
     /// Returns crypto operations.
-    func crypto() -> ClientCryptoProtocol
+    func crypto() -> CryptoClientProtocol
 
     ///  Returns exporters.
-    func exporters() -> ClientExportersProtocol
+    func exporters() -> ExporterClientProtocol
 
     /// Returns generator operations.
-    func generators() -> ClientGeneratorsProtocol
+    func generators() -> GeneratorClientsProtocol
 
     /// Returns platform operations.
-    func platform() -> ClientPlatformService
+    func platform() -> PlatformClientService
 
     /// Returns sends operations.
-    func sends() -> ClientSendsProtocol
+    func sends() -> SendClientProtocol
 
     /// Returns vault operations.
-    func vault() -> ClientVaultService
+    func vault() -> VaultClientService
 }
 
 // MARK: BitwardenSdkClient Extension
 
 extension Client: BitwardenSdkClient {
-    func auth() -> ClientAuthProtocol {
-        auth() as ClientAuth
+    func auth() -> AuthClientProtocol {
+        auth() as AuthClient
     }
 
-    func crypto() -> ClientCryptoProtocol {
-        crypto() as ClientCrypto
+    func crypto() -> CryptoClientProtocol {
+        crypto() as CryptoClient
     }
 
-    func exporters() -> ClientExportersProtocol {
-        exporters() as ClientExporters
+    func exporters() -> ExporterClientProtocol {
+        exporters() as ExporterClient
     }
 
-    func generators() -> ClientGeneratorsProtocol {
-        generators() as ClientGenerators
+    func generators() -> GeneratorClientsProtocol {
+        generators() as GeneratorClients
     }
 
-    func platform() -> ClientPlatformService {
-        platform() as ClientPlatform
+    func platform() -> PlatformClientService {
+        platform() as PlatformClient
     }
 
-    func sends() -> ClientSendsProtocol {
-        sends() as ClientSends
+    func sends() -> SendClientProtocol {
+        sends() as SendClient
     }
 
-    func vault() -> ClientVaultService {
-        vault() as ClientVault
+    func vault() -> VaultClientService {
+        vault() as VaultClient
     }
 } // swiftlint:disable:this file_length

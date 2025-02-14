@@ -4,7 +4,7 @@ import BitwardenSdk
 
 // MARK: - MockClientExporters
 
-/// A mocked `ClientExportersProtocol`.
+/// A mocked `ExporterClientProtocol`.
 ///
 class MockClientExporters {
     // MARK: Properties
@@ -41,9 +41,9 @@ class MockClientExporters {
     var format: BitwardenSdk.ExportFormat?
 }
 
-// MARK: - ClientExportersProtocol
+// MARK: - ExporterClientProtocol
 
-extension MockClientExporters: ClientExportersProtocol {
+extension MockClientExporters: ExporterClientProtocol {
     func exportCxf(account: BitwardenSdk.Account, ciphers: [BitwardenSdk.Cipher]) throws -> String {
         self.account = account
         self.ciphers = ciphers

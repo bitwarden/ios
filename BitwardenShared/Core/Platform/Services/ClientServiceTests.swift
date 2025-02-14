@@ -44,7 +44,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     // MARK: Tests
 
-    /// `auth(for:)` returns a new `ClientAuthProtocol` for every user.
+    /// `auth(for:)` returns a new `AuthClientProtocol` for every user.
     func test_auth() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
@@ -379,7 +379,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
     }
 
-    /// `crypto(for:)` returns a new `ClientCryptoProtocol` for every user.
+    /// `crypto(for:)` returns a new `CryptoClientProtocol` for every user.
     func test_crypto() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
@@ -390,7 +390,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNotIdentical(crypto, user2Crypto)
     }
 
-    /// `exporters(for:)` returns a new `ClientExportersProtocol` for every user.
+    /// `exporters(for:)` returns a new `ExporterClientProtocol` for every user.
     func test_exporters() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
@@ -401,7 +401,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNotIdentical(exporters, user2Exporters)
     }
 
-    /// `generators(for:)` returns a new `ClientGeneratorsProtocol` for every user.
+    /// `generators(for:)` returns a new `GeneratorClientsProtocol` for every user.
     func test_generators() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
