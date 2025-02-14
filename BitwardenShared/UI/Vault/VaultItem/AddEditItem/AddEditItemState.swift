@@ -66,6 +66,9 @@ protocol AddEditItemState: Sendable {
     /// The name of this item.
     var name: String { get set }
 
+    /// The view's navigation title.
+    var navigationTitle: String { get }
+
     /// The notes for this item.
     var notes: String { get set }
 

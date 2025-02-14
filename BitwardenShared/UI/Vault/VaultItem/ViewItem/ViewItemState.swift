@@ -41,6 +41,18 @@ struct ViewItemState: Equatable, Sendable {
         }
     }
 
+    /// The view's navigation title.
+    var navigationTitle: String {
+        guard let item = loadingState.data else { return "" }
+        return switch item.type {
+        case .card: Localizations.viewCard
+        case .identity: Localizations.viewIdentity
+        case .login: Localizations.viewLogin
+        case .secureNote: Localizations.viewNote
+        case .sshKey: Localizations.viewSSHKey
+        }
+    }
+
     /// The password history of the item.
     var passwordHistory: [PasswordHistoryView]?
 

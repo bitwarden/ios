@@ -346,7 +346,28 @@ struct CipherItemState: Equatable {
     }
 }
 
-extension CipherItemState: AddEditItemState {}
+extension CipherItemState: AddEditItemState {
+    var navigationTitle: String {
+        switch configuration {
+        case .add:
+            switch type {
+            case .card: Localizations.newCard
+            case .identity: Localizations.newIdentity
+            case .login: Localizations.newLogin
+            case .secureNote: Localizations.newNote
+            case .sshKey: Localizations.newSSHKey
+            }
+        case .existing:
+            switch type {
+            case .card: Localizations.editCard
+            case .identity: Localizations.editIdentity
+            case .login: Localizations.editLogin
+            case .secureNote: Localizations.editNote
+            case .sshKey: Localizations.editSSHKey
+            }
+        }
+    }
+}
 
 extension CipherItemState: ViewVaultItemState {
     var attachments: [AttachmentView]? {

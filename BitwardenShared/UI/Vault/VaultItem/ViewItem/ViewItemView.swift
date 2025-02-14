@@ -44,7 +44,7 @@ struct ViewItemView: View {
             }
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(navigationTitle)
+        .navigationTitle(store.state.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toast(
             store.binding(
@@ -95,11 +95,6 @@ struct ViewItemView: View {
         .task {
             await store.perform(.appeared)
         }
-    }
-
-    /// The title of the view
-    private var navigationTitle: String {
-        Localizations.viewItem
     }
 
     // MARK: Private Views
