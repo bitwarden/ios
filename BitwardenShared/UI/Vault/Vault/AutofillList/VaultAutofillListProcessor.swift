@@ -170,9 +170,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                   autofillAppExtensionDelegate.isCreatingFido2Credential else {
                 coordinator.navigate(
                     to: .addItem(
-                        allowTypeSelection: false,
                         group: .login,
-                        newCipherOptions: createNewCipherOptions()
+                        newCipherOptions: createNewCipherOptions(),
+                        type: .login
                     )
                 )
                 return

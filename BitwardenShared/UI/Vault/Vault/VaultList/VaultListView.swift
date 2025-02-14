@@ -85,7 +85,7 @@ private struct SearchableVaultListView: View {
                     .padding(.horizontal, 16)
 
                     Button {
-                        store.send(.addItemPressed)
+                        store.send(.addItemPressed(.login))
                     } label: {
                         HStack {
                             Image(decorative: Asset.Images.plus16)
@@ -179,8 +179,10 @@ private struct SearchableVaultListView: View {
             errorViewWithRetry(errorMessage: errorMessage)
         }
         .overlay(alignment: .bottomTrailing) {
-            addItemFloatingActionButton {
-                store.send(.addItemPressed)
+            addVaultItemFloatingActionMenu { type in
+                store.send(.addItemPressed(type))
+            } addFolder: {
+                store.send(.addFolder)
             }
         }
     }

@@ -463,6 +463,20 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     @MainActor
+    func test_snapshot_login_empty() {
+        let loginState = CipherItemState(
+            existing: .fixture(
+                favorite: true,
+                id: "fake-id"
+            ),
+            hasPremium: true
+        )!
+        processor.state.loadingState = .data(loginState)
+
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
     func test_snapshot_login_hiddenTotp() {
         processor.state.loadingState = .data(loginState(isTOTPCodeVisible: false))
         assertSnapshot(of: subject, as: .tallPortrait)

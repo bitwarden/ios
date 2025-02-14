@@ -6,9 +6,6 @@ import Foundation
 protocol AddEditItemState: Sendable {
     // MARK: Properties
 
-    /// Whether the user should be able to select the type of item to add.
-    var allowTypeSelection: Bool { get }
-
     /// The card item state.
     var cardItemState: CardItemState { get set }
 
@@ -68,6 +65,9 @@ protocol AddEditItemState: Sendable {
 
     /// The name of this item.
     var name: String { get set }
+
+    /// The view's navigation title.
+    var navigationTitle: String { get }
 
     /// The notes for this item.
     var notes: String { get set }

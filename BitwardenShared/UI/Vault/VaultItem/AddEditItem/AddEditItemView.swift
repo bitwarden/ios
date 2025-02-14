@@ -32,6 +32,7 @@ struct AddEditItemView: View {
                 existing
             }
         }
+        .navigationTitle(store.state.navigationTitle)
         .task { await store.perform(.appeared) }
         .task { await store.perform(.fetchCipherOptions) }
         .task { await store.perform(.streamFolders) }
@@ -43,7 +44,6 @@ struct AddEditItemView: View {
 
     private var addView: some View {
         content
-            .navigationTitle(Localizations.addItem)
             .toolbar {
                 cancelToolbarItem {
                     store.send(.dismissPressed)
@@ -126,7 +126,6 @@ struct AddEditItemView: View {
 
     private var existing: some View {
         content
-            .navigationTitle(Localizations.editItem)
             .toolbar {
                 cancelToolbarItem {
                     store.send(.dismissPressed)
@@ -154,18 +153,6 @@ struct AddEditItemView: View {
 
     private var informationSection: some View {
         SectionView(Localizations.itemInformation, contentSpacing: 8) {
-            if case .add = store.state.configuration, store.state.allowTypeSelection {
-                BitwardenMenuField(
-                    title: Localizations.type,
-                    accessibilityIdentifier: "ItemTypePicker",
-                    options: CipherType.canCreateCases,
-                    selection: store.binding(
-                        get: \.type,
-                        send: AddEditItemAction.typeChanged
-                    )
-                )
-            }
-
             BitwardenTextField(
                 title: Localizations.itemNameRequired,
                 text: store.binding(
