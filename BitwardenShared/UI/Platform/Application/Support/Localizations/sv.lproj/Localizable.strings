@@ -65,7 +65,6 @@
 "Sync" = "Synkronisering";
 "ThankYou" = "Tack";
 "Tools" = "Verktyg";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Använd fingeravtryck för att låsa upp";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Bekräftelsen för huvudlösenordet stämde ej.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "En huvudlösenordsledtråd kan hjälpa dig att komma ihåg ditt huvudlösenord om du glömmer bort det.";
 "MasterPasswordLengthValMessageX" = "Huvudlösenordet måste vara minst %1$@ tecken långt.";
 "MinNumbers" = "Minsta antal siffror";
@@ -242,7 +242,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "UnableToOpenFile" = "Enheten kan inte öppna denna typ av fil.";
 "Downloading" = "Laddar ner...";
 "AttachmentLargeWarning" = "Denna bilaga är %1$@ i storlek. Är du säker på att du vill ladda ner den till din enhet?";
-"AuthenticatorKey" = "Autentiseringsnyckel (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Verifieringskod (TOTP)";
 "AuthenticatorKeyAdded" = "Autentiseringsnyckel tillagd.";
 "AuthenticatorKeyReadError" = "Kan inte läsa autentiseringsnyckeln.";
@@ -355,7 +355,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "NewCustomField" = "Nytt anpassat fält";
 "SelectTypeField" = "Vilken typ av anpassat fält vill du lägga till?";
 "Remove" = "Ta bort";
-"NewUri" = "Ny URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Basdomän";
 "Default" = "Standard";
@@ -393,7 +392,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "Logins" = "Inloggningar";
 "SecureNotes" = "Säkra anteckningar";
 "AllItems" = "Alla objekt";
-"URIs" = "URI:er";
 "CheckingPassword" = "Kontrollerar lösenord...";
 "CheckPassword" = "Kontrollera om lösenordet har avslöjats.";
 "PasswordExposed" = "Detta lösenord har avslöjats %1$@ gång(er) i dataintrång. Du bör ändra det.";
@@ -432,6 +430,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "FingerprintPhrase" = "Fingeravtrycksfras";
 "YourAccountsFingerprint" = "Ditt kontos fingeravtrycksfras";
 "LearnOrgConfirmation" = "Bitwarden gör det möjligt för dig att dela ditt valvs objekt med andra genom att använda ett organisationskonto. Vill du besöka bitwarden.com för att lära dig mer?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Exportera valv";
 "LockNow" = "Lås nu";
@@ -681,10 +680,8 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "CannotAddAuthenticatorKey" = "Kan inte lägga till autentiseringsnyckel?";
 "ScanQRCode" = "Skanna QR-kod";
 "CannotScanQRCode" = "Kan inte skanna QR-kod?";
-"AuthenticatorKeyScanner" = "Autentiseringsnyckel";
 "EnterKeyManually" = "Ange nyckel manuellt";
 "AddTotp" = "Lägg till TOTP";
-"SetupTotp" = "Ställ in TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "När nyckeln har matats in,\nvälj Lägg till TOTP för att lagra nyckeln på ett säkert sätt";
 "NeverLockWarning" = "Att ställa in låsalternativ till “Aldrig” håller ditt valv tillgängligt för alla med tillgång till din enhet. Om du använder det här alternativet bör du se till att du håller din enhet ordentligt skyddad.";
 "EnvironmentPageUrlsError" = "En eller flera av de angivna webbadresserna är ogiltiga. Vänligen ändra det och försök att spara igen.";
@@ -791,7 +788,8 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "DataRegion" = "Dataregion";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Ditt huvudlösenord följer inte ett eller flera av din organisations regler. För att komma åt ditt valv så måste du ändra ditt huvudlösenord nu. Om du gör det kommer du att loggas du ut ur din nuvarande session så du måste logga in på nytt. Aktiva sessioner på andra enheter kommer fortsatt vara aktiva i upp till en timme.";
-"CurrentMasterPassword" = "Nuvarande huvudlösenord";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Inloggad!";
 "ApproveWithMyOtherDevice" = "Godkänn med min andra enhet";
 "RequestAdminApproval" = "Be om godkännande från administratör";
@@ -978,6 +976,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Välj ett unikt och starkt lösenord för att hålla användarinformationen säker.";
 "MasterPasswordRequired" = "Huvudlösenord (obligatoriskt)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden kan inte återställa ett förlorat eller glömt huvudlösenord.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "Vad gör ett lösenord starkt?";
@@ -1113,3 +1112,15 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

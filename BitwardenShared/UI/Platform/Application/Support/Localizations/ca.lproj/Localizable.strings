@@ -65,7 +65,6 @@
 "Sync" = "Sincronització";
 "ThankYou" = "Gràcies";
 "Tools" = "Eines";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Utilitzeu l'empremta digital per desbloquejar";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "La confirmació de la contrasenya no és correcta.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Una pista de contrasenya mestra pot ajudar-vos a recordar-la si la oblideu.";
 "MasterPasswordLengthValMessageX" = "La contrasenya mestra ha de contenir almenys %1$@ caràcters.";
 "MinNumbers" = "Mínim de caràcters numèrics";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "El dispositiu no pot obrir aquest tipus de fitxer.";
 "Downloading" = "S'està baixant...";
 "AttachmentLargeWarning" = "Aquest fitxer adjunt ocupa %1$@. Esteu segur que voleu descarregar-lo al vostre dispositiu?";
-"AuthenticatorKey" = "Clau d'autenticació (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Codi de verificació (TOTP)";
 "AuthenticatorKeyAdded" = "S'ha afegit la clau d'autenticació.";
 "AuthenticatorKeyReadError" = "No es pot llegir la clau d'autenticació.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Camp nou personalitzat";
 "SelectTypeField" = "Quin tipus de camp personalitzat voleu afegir?";
 "Remove" = "Suprimeix";
-"NewUri" = "Nova URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Domini base";
 "Default" = "Per defecte";
@@ -392,7 +391,6 @@
 "Logins" = "Inicis de sessió";
 "SecureNotes" = "Notes segures";
 "AllItems" = "Tots els elements";
-"URIs" = "URI";
 "CheckingPassword" = "S'està comprovant la contrasenya...";
 "CheckPassword" = "Comprova si la contrasenya ha estat exposada.";
 "PasswordExposed" = "Aquesta contrasenya ha estat exposada %1$@ vegades en filtracions de seguretat de dades. Heu de canviar-la.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Frase d'empremta digital";
 "YourAccountsFingerprint" = "Frase d'empremta digital del vostre compte";
 "LearnOrgConfirmation" = "Bitwarden us permet compartir la vostra caixa forta amb altres usuaris mitjançant un compte d'organització. Voleu visitar el lloc web de bitwarden.com per obtenir més informació?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Exporta caixa forta";
 "LockNow" = "Bloqueja ara";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "No es pot afegir la clau d'autenticació?";
 "ScanQRCode" = "Escaneja el codi QR";
 "CannotScanQRCode" = "No podeu escanejar el codi QR?";
-"AuthenticatorKeyScanner" = "Clau autenticadora";
 "EnterKeyManually" = "Introdueix la clau manualment";
 "AddTotp" = "Afegeix TOTP";
-"SetupTotp" = "Configura TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Una vegada introduïda la clau correctament,\nseleccioneu Afegeix TOTP per emmagatzemar la clau de manera segura";
 "NeverLockWarning" = "Si configureu les opcions de bloqueig a \"Mai\", la vostra caixa forta està disponible per a qualsevol persona amb accés al vostre dispositiu. Si utilitzeu aquesta opció, hauríeu d'assegurar-vos de mantenir el vostre dispositiu correctament protegit.";
 "EnvironmentPageUrlsError" = "Un o més dels URL introduïts no són vàlids. Reviseu-ho i torneu a provar de guardar-ho.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Regió de dades";
 "Region" = "Regió";
 "UpdateWeakMasterPasswordWarning" = "La vostra contrasenya mestra no compleix una o més de les polítiques de l'organització. Per accedir a la caixa forta, heu d'actualitzar-la ara. Si continueu, es tancarà la sessió actual i us demanarà que torneu a iniciar-la. Les sessions en altres dispositius poden continuar romanent actives fins a una hora.";
-"CurrentMasterPassword" = "Contrasenya mestra actual";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Connectat!";
 "ApproveWithMyOtherDevice" = "Aproveu des d'un altre dispositiu vostre";
 "RequestAdminApproval" = "Sol·liciteu l'aprovació de l'administrador";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

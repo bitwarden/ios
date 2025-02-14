@@ -65,7 +65,6 @@
 "Sync" = "同步";
 "ThankYou" = "谢谢";
 "Tools" = "工具";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "使用指纹解锁";
 "UseThisButtonToGenerateANewUniquePassword" = "使用此按钮生成新的唯一密码。";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "您只需为要求使用代码进行双重身份验证的登录设置验证器密钥。该密钥将持续不断地生成可用于登录的六位数代码。";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "两次填写的密码不一致。";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "主密码是用于访问您的密码库的密码。";
 "MasterPasswordHint" = "主密码提示";
+"NewMasterPasswordHint" = "新主密码提示";
 "MasterPasswordHintDescription" = "主密码提示可以在您忘记密码时帮您回忆起来。";
 "MasterPasswordLengthValMessageX" = "主密码长度必须至少为 %1$@ 个字符。";
 "MinNumbers" = "数字最少个数";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "您的设备无法打开这种类型的文件。";
 "Downloading" = "正在下载……";
 "AttachmentLargeWarning" = "此附件大小为 %1$@ 。确定要将其下载到您的设备上吗？";
-"AuthenticatorKey" = "验证器密钥 (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "验证码 (TOTP)";
 "AuthenticatorKeyAdded" = "已添加验证器密钥。";
 "AuthenticatorKeyReadError" = "无法读取验证器密钥。";
@@ -354,7 +354,6 @@
 "NewCustomField" = "新增自定义字段";
 "SelectTypeField" = "您想添加的自定义字段的类型是？";
 "Remove" = "移除";
-"NewUri" = "新增 URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "基础域";
 "Default" = "默认";
@@ -392,7 +391,6 @@
 "Logins" = "登录项";
 "SecureNotes" = "安全笔记";
 "AllItems" = "所有项目";
-"URIs" = "URI";
 "CheckingPassword" = "正在检查密码......";
 "CheckPassword" = "检查密码是否已经被公开。";
 "PasswordExposed" = "此密码在泄露数据中已被公开 %1$@ 次。请立即修改。";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "指纹短语";
 "YourAccountsFingerprint" = "您的账户指纹短语";
 "LearnOrgConfirmation" = "Bitwarden 允许您通过使用组织账户与他人分享您的密码库项目。要访问 bitwarden.com 网站了解更多信息吗？";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "我们无法处理您的请求。请重试或联系我们。";
 "Export" = "导出";
 "ExportVault" = "导出密码库";
 "LockNow" = "立即锁定";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "无法添加验证器密钥吗？";
 "ScanQRCode" = "扫描二维码";
 "CannotScanQRCode" = "无法扫描二维码吗？";
-"AuthenticatorKeyScanner" = "验证器密钥";
 "EnterKeyManually" = "手动输入密钥";
 "AddTotp" = "添加 TOTP";
-"SetupTotp" = "设置 TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "成功输入密钥后，\n选择「保存」以安全地存储密钥。";
 "NeverLockWarning" = "将锁定选项设置为「从不」可让任何能够访问您的设备的人都可以使用您的密码库。如果您使用此选项，则应确保您的设备得到妥善的保护。";
 "EnvironmentPageUrlsError" = "输入的一个或多个 URL 无效。请修改后再次尝试保存。";
@@ -765,7 +762,7 @@
 "EnableCamerPermissionToUseTheScanner" = "启用相机权限以使用扫描器";
 "Language" = "语言";
 "LanguageChangeXDescription" = "语言已更改为 %1$@。请重新启动 App 以查看更改";
-"LanguageChangeRequiresAppRestart" = "更改语言需要重新启动 app";
+"LanguageChangeRequiresAppRestart" = "更改语言需要重新启动 App";
 "DefaultSystem" = "默认（系统）";
 "Important" = "重要：";
 "YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "主密码忘记后，将无法恢复！至少 %1$@ 个字符。";
@@ -790,7 +787,8 @@
 "DataRegion" = "数据区域";
 "Region" = "区域";
 "UpdateWeakMasterPasswordWarning" = "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您退出当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。";
-"CurrentMasterPassword" = "当前主密码";
+"CurrentMasterPasswordRequired" = "当前主密码（必填）";
+"NewMasterPasswordRequired" = "新主密码（必填）";
 "LoggedIn" = "已登录！";
 "ApproveWithMyOtherDevice" = "通过我的其他设备批准";
 "RequestAdminApproval" = "请求管理员批准";
@@ -908,7 +906,7 @@
 "PasskeyOperationFailedBecauseBrowserSignatureDoesNotMatch" = "由于浏览器签名不匹配，通行密钥操作失败";
 "PasskeyOperationFailedBecauseOfMissingAssetLinks" = "由于资源链接缺失，通行密钥操作失败";
 "PasskeyOperationFailedBecauseAppNotFoundInAssetLinks" = "由于在资源链接中找不到 App，通行密钥操作失败";
-"PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "由于无法验证 App ，通行密钥操作失败";
+"PasskeyOperationFailedBecauseAppCouldNotBeVerified" = "由于无法验证 App，通行密钥操作失败";
 "RemindMeLater" = "稍后提醒我";
 "Notice" = "注意";
 "AppInfo" = "App 信息";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "选择一个唯一且强大的密码，以保障您的信息安全。";
 "MasterPasswordRequired" = "主密码（必填）";
 "RetypeMasterPasswordRequired" = "再次输入主密码（必填）";
+"RetypeNewMasterPasswordRequired" = "再次输入新主密码（必填）";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden 无法重置丢失或遗忘的主密码。";
 "LearnAboutWaysToPreventAccountLockout" = "了解防止账户被锁住的方法";
 "WhatMakesAPasswordStrong" = "如何使密码更安全？";
@@ -1111,4 +1110,16 @@
 "SendNameRequired" = "Send 名称（必填）";
 "CheckPasswordForDataBreaches" = "检查数据泄露中的密码";
 "PrivateNote" = "私密备注";
-"XItems" = "%1$@ items";
+"XItems" = "%1$@ 个项目";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "无法删除此用户，因为它是至少一个组织的唯一所有者。请删除这些组织或升级其他用户。";
+"APasskeyAlreadyExistsForThisApplication" = "此应用程序已存在一个通行密钥。";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "此应用程序已存在一个通行密钥，但加载时发生错误。";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "我们无法识别这个设备。请输入发送到 %1$@ 的 8 位数验证码。";
+"ItemNameRequired" = "项目名称（必填）";
+"AutofillOptions" = "自动填充选项";
+"WebsiteURI" = "网站 (URI)";
+"AddWebsite" = "添加网站";
+"CannotDeleteAccount" = "无法删除账户";
+"CannotDeleteAccountDescriptionLong" = "此操作无法完成，因为您的账户归组织所有。请联系您的组织管理员获取详细信息。";
+"NewFolder" = "新增文件夹";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

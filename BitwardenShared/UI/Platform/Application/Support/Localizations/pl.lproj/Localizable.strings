@@ -65,7 +65,6 @@
 "Sync" = "Synchronizacja";
 "ThankYou" = "Dziękujemy";
 "Tools" = "Narzędzia";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Odblokuj odciskiem palca";
 "UseThisButtonToGenerateANewUniquePassword" = "Użyj tego przycisku, aby wygenerować nowe, unikalne hasło.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Musisz skonfigurować klucz uwierzytelniający tylko dla loginów, które wymagają uwierzytelniania dwuskładnikowego za pomocą kodu. Klucz będzie stale generował sześciocyfrowe kody, których możesz użyć do logowania.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Potwierdzenie hasła nie pasuje.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hasło główne to hasło, którego używasz do dostępu do swojego sejfu.";
 "MasterPasswordHint" = "Wskazówka do hasła głównego";
+"NewMasterPasswordHint" = "Nowa podpowiedź do hasła głównego";
 "MasterPasswordHintDescription" = "Podpowiedź do hasła głównego może pomóc Ci przypomnieć hasło, jeśli je zapomnisz.";
 "MasterPasswordLengthValMessageX" = "Hasło główne musi zawierać co najmniej %1$@ znaków.";
 "MinNumbers" = "Minimalna liczba cyfr";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Twoje urządzenie nie może otworzyć pliku tego typu.";
 "Downloading" = "Pobieranie...";
 "AttachmentLargeWarning" = "Ten załącznik ma rozmiar %1$@. Czy na pewno chcesz go pobrać na swoje urządzenie?";
-"AuthenticatorKey" = "Klucz uwierzytelniający (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Kod weryfikacyjny (TOTP)";
 "AuthenticatorKeyAdded" = "Klucz uwierzytelniający został dodany.";
 "AuthenticatorKeyReadError" = "Nie można odczytać klucza uwierzytelniającego.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Nowe pole niestandardowe";
 "SelectTypeField" = "Jakiego rodzaju pole niestandardowe chcesz dodać?";
 "Remove" = "Usuń";
-"NewUri" = "Nowy URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Domena podstawowa";
 "Default" = "Domyślny";
@@ -392,7 +391,6 @@
 "Logins" = "Dane logowania";
 "SecureNotes" = "Bezpieczne notatki";
 "AllItems" = "Wszystkie elementy";
-"URIs" = "URI";
 "CheckingPassword" = "Sprawdzanie hasła...";
 "CheckPassword" = "Sprawdź, czy hasło zostało ujawnione.";
 "PasswordExposed" = "To hasło zostało ujawnione %1$@ raz(y) w wyciekach danych. Należy je zmienić.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Unikalny identyfikator konta";
 "YourAccountsFingerprint" = "Unikalny identyfikator Twojego konta";
 "LearnOrgConfirmation" = "Bitwarden pozwala na udostępnianie zawartości sejfu innym osobom za pośrednictwem organizacji. Czy chcesz odwiedzić stronę bitwarden.com, aby dowiedzieć się więcej?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Nie mogliśmy przetworzyć żądania. Spróbuj ponownie lub skontaktuj się z nami.";
 "Export" = "Eksportuj";
 "ExportVault" = "Eksportuj sejf";
 "LockNow" = "Zablokuj";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Nie możesz dodać klucza uwierzytelniającego?";
 "ScanQRCode" = "Zeskanuj kod QR";
 "CannotScanQRCode" = "Nie możesz zeskanować kodu QR?";
-"AuthenticatorKeyScanner" = "Klucz uwierzytelniający";
 "EnterKeyManually" = "Wpisz klucz ręcznie";
 "AddTotp" = "Dodaj TOTP";
-"SetupTotp" = "Skonfiguruj TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Gdy klucz zostanie pomyślnie wprowadzony, wybierz Zapisz, aby bezpiecznie przechowywać klucz";
 "NeverLockWarning" = "Ustawienie opcji blokady na „Nigdy” sprawi, że sejf będzie dostępny dla każdego, kto ma dostęp do urządzenia. Jeśli korzystasz z tej opcji, upewnij się, że urządzenie jest odpowiednio chronione.";
 "EnvironmentPageUrlsError" = "Co najmniej jeden ze wpisanych adresów URL jest nieprawidłowy. Popraw je i spróbuj ponownie zapisać.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Region danych";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Twoje hasło główne nie spełnia jednej lub kilku zasad organizacji. Aby uzyskać dostęp do sejfu, musisz teraz zaktualizować swoje hasło główne. Kontynuacja wyloguje Cię z bieżącej sesji, wymagając zalogowania się ponownie. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie jedną godzinę.";
-"CurrentMasterPassword" = "Aktualne hasło główne";
+"CurrentMasterPasswordRequired" = "Obecne hasło główne (wymagane)";
+"NewMasterPasswordRequired" = "Nowe hasło główne (wymagane)";
 "LoggedIn" = "Zalogowano!";
 "ApproveWithMyOtherDevice" = "Zatwierdź za pomocą mojego innego urządzenia";
 "RequestAdminApproval" = "Poproś administratora o zatwierdzenie";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Wybierz unikalne i mocne hasło, aby Twoje informacje były bezpieczne.";
 "MasterPasswordRequired" = "Hasło główne (wymagane)";
 "RetypeMasterPasswordRequired" = "Powtórz hasło główne (wymagane)";
+"RetypeNewMasterPasswordRequired" = "Powtórz nowe hasło główne (wymagane)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden nie może zresetować utraconego lub zapomnianego hasła głównego.";
 "LearnAboutWaysToPreventAccountLockout" = "Dowiedz się więcej o sposobach zapobiegania blokowaniu konta";
 "WhatMakesAPasswordStrong" = "Co czyni hasło silnym?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Sprawdź hasło pod kątem wycieków danych";
 "PrivateNote" = "Prywatna notatka";
 "XItems" = "%1$@ elementów(y)";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Nie można usunąć tego użytkownika, ponieważ jest on jedynym właścicielem co najmniej jednej organizacji. Usuń te organizacje lub awansuj innego użytkownika.";
+"APasskeyAlreadyExistsForThisApplication" = "Klucz dostępu już istnieje dla tej aplikacji.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Klucz dostępu już istnieje dla tej aplikacji, ale wystąpił błąd podczas jego ładowania.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Nie rozpoznajemy tego urządzenia. Wprowadź 8-cyfrowy kod weryfikacyjny, który został wysłany na adres %1$@.";
+"ItemNameRequired" = "Nazwa elementu (wymagana)";
+"AutofillOptions" = "Opcje autouzupełniania";
+"WebsiteURI" = "Strona internetowa (URI)";
+"AddWebsite" = "Dodaj stronę internetową";
+"CannotDeleteAccount" = "Nie można usunąć konta";
+"CannotDeleteAccountDescriptionLong" = "Tej akcji nie można zakończyć, ponieważ Twoje konto jest zarządzane przez organizację. Skontaktuj się z administratorem organizacji, aby uzyskać dodatkowe informacje.";
+"NewFolder" = "Nowy folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

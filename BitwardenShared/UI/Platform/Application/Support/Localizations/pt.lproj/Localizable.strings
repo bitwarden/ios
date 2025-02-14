@@ -65,7 +65,6 @@
 "Sync" = "Sincronizar";
 "ThankYou" = "Obrigado";
 "Tools" = "Ferramentas";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Utilizar a impressão digital para desbloquear";
 "UseThisButtonToGenerateANewUniquePassword" = "Utilize este botão para gerar uma nova palavra-passe única.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Só precisa de configurar a chave do autenticador para os inícios de sessão que requerem verificação de dois passos com um código. A chave gerará continuamente códigos de seis dígitos que pode utilizar para iniciar sessão.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "A confirmação da palavra-passe não está correta.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "A palavra-passe mestra é a palavra-passe que utiliza para aceder ao seu cofre.";
 "MasterPasswordHint" = "Dica da palavra-passe mestra";
+"NewMasterPasswordHint" = "Nova dica da palavra-passe mestra";
 "MasterPasswordHintDescription" = "Uma dica da palavra-passe mestra pode ajudá-lo a lembrar-se da sua palavra-passe, caso se esqueça dela.";
 "MasterPasswordLengthValMessageX" = "A palavra-passe mestra deve ter pelo menos %1$@ carateres.";
 "MinNumbers" = "Mínimo de números";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "O seu dispositivo não consegue abrir este tipo de ficheiro.";
 "Downloading" = "A transferir...";
 "AttachmentLargeWarning" = "O anexo tem %1$@ de tamanho. Tem a certeza que deseja transferi-lo para o seu dispositivo?";
-"AuthenticatorKey" = "Chave de autenticação (TOTP)";
+"AuthenticatorKey" = "Chave de autenticação";
 "VerificationCodeTotp" = "Código de verificação (TOTP)";
 "AuthenticatorKeyAdded" = "Chave de autenticação adicionada.";
 "AuthenticatorKeyReadError" = "Não é possível ler a chave de autenticação.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Novo campo personalizado";
 "SelectTypeField" = "Que tipo de campo personalizado pretende adicionar?";
 "Remove" = "Remover";
-"NewUri" = "Novo URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Domínio de base";
 "Default" = "Predefinido";
@@ -392,7 +391,6 @@
 "Logins" = "Credenciais";
 "SecureNotes" = "Notas seguras";
 "AllItems" = "Todos os itens";
-"URIs" = "URIs";
 "CheckingPassword" = "A verificar palavra-passe...";
 "CheckPassword" = "Verificar se a palavra-passe foi exposta.";
 "PasswordExposed" = "Esta palavra-passe foi exposta %1$@ vez(es) em violações de dados. Deve alterá-la.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Frase de impressão digital";
 "YourAccountsFingerprint" = "Frase de impressão digital da sua conta";
 "LearnOrgConfirmation" = "O Bitwarden permite-lhe partilhar os itens do seu cofre com outros ao utilizar uma conta de organização. Gostaria de visitar o site bitwarden.com para saber mais?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Não é possível processar o seu pedido. Por favor, tente novamente ou contacte-nos.";
 "Export" = "Exportar";
 "ExportVault" = "Exportar cofre";
 "LockNow" = "Bloquear agora";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Não é possível adicionar uma chave de autenticação?";
 "ScanQRCode" = "Ler código QR";
 "CannotScanQRCode" = "Não consegue ler o código QR?";
-"AuthenticatorKeyScanner" = "Chave de autenticação";
 "EnterKeyManually" = "Introduzir a chave manualmente";
 "AddTotp" = "Adicionar TOTP";
-"SetupTotp" = "Configurar TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Quando a chave for introduzida com sucesso, selecione Guardar para guardar a chave em segurança.";
 "NeverLockWarning" = "Ao definir as suas opções de bloqueio para \"Nunca\" mantém o seu cofre disponível para qualquer pessoa que tenha acesso ao seu dispositivo. Se utilizar esta opção, deve assegurar-se de que mantém o seu dispositivo devidamente protegido.";
 "EnvironmentPageUrlsError" = "Um ou mais URLs introduzidos são inválidos. Por favor, reveja-o e tente guardar novamente.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Região dos dados";
 "Region" = "Região";
 "UpdateWeakMasterPasswordWarning" = "A sua palavra-passe mestra não cumpre uma ou mais políticas da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora.";
-"CurrentMasterPassword" = "Palavra-passe mestra atual";
+"CurrentMasterPasswordRequired" = "Palavra-passe mestra atual (obrigatório)";
+"NewMasterPasswordRequired" = "Nova palavra-passe mestra (obrigatório)";
 "LoggedIn" = "Sessão iniciada!";
 "ApproveWithMyOtherDevice" = "Aprovado com o meu outro dispositivo";
 "RequestAdminApproval" = "Pedir aprovação do administrador";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Escolha uma palavra-passe única e forte para manter as suas informações seguras.";
 "MasterPasswordRequired" = "Palavra-passe mestra (obrigatório)";
 "RetypeMasterPasswordRequired" = "Reintroduzir palavra-passe mestra (obrigatório)";
+"RetypeNewMasterPasswordRequired" = "Reintroduzir a nova palavra-passe mestra (obrigatório)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "O Bitwarden não pode repor uma palavra-passe mestra perdida ou esquecida.";
 "LearnAboutWaysToPreventAccountLockout" = "Saiba mais sobre formas de evitar o bloqueio da conta";
 "WhatMakesAPasswordStrong" = "O que torna uma palavra-passe forte?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Verificar a palavra-passe para detetar violações de dados";
 "PrivateNote" = "Nota privada";
 "XItems" = "%1$@ itens";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Não é possível eliminar este utilizador porque é o único proprietário de pelo menos uma organização. Por favor, elimine estas organizações ou atualize outro utilizador.";
+"APasskeyAlreadyExistsForThisApplication" = "Já existe uma chave de acesso para esta aplicação.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Já existe uma chave de acesso para esta aplicação, mas ocorreu um erro ao carregá-la.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Não reconhecemos este dispositivo. Introduza o código de verificação de 8 dígitos que foi enviado por e-mail para %1$@.";
+"ItemNameRequired" = "Nome do item (obrigatório)";
+"AutofillOptions" = "Opções de preenchimento automático";
+"WebsiteURI" = "Site (URI)";
+"AddWebsite" = "Adicionar site";
+"CannotDeleteAccount" = "Não é possível eliminar a conta";
+"CannotDeleteAccountDescriptionLong" = "Esta ação não pode ser concluída porque a sua conta é propriedade de uma organização. Contacte o administrador da sua organização para obter mais informações.";
+"NewFolder" = "Nova pasta";
+"SetUpAuthenticatorKey" = "Configurar a chave de autenticação";

@@ -65,7 +65,6 @@
 "Sync" = "Szinkronizálás";
 "ThankYou" = "Köszönjük!";
 "Tools" = "Eszközök";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Ujjlenyomat használata feloldáshoz";
 "UseThisButtonToGenerateANewUniquePassword" = "Ezzel a gombbal új egyedi jelszót generálhatunk.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Csak azokhoz a bejelentkezésekhez kell beállítani a Hitelesítő kulcsot, amelyek kétlépcsős hitelesítést igényelnek kóddal. A kulcs folyamatosan hatjegyű kódokat generál, amelyek segítségével bejelentkezhetümk.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "A megadott két jelszó nem egyezik.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "A mesterjelszó az a jelszó, amelyet a széf eléréséhez használunk.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "Új mesterjelszó kérés";
 "MasterPasswordHintDescription" = "A mesterjelszó emlékeztető segíthet emlékezni a jelszavadra ha elfejetetted volna.";
 "MasterPasswordLengthValMessageX" = "Mesterjelszónak legalább %1$@ karakter hosszúnak kell lennie.";
 "MinNumbers" = "Legalább ennyi szám";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "A készülék nem tudja megnyitni az ilyen típusú fájlt.";
 "Downloading" = "Letöltés...";
 "AttachmentLargeWarning" = "Ez a melléklet %1$@ méretű. Biztosan le akarod tölteni a készülékedre?";
-"AuthenticatorKey" = "Igazolókód (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Ellenőrzőkód (TOTP)";
 "AuthenticatorKeyAdded" = "Hitelesítő kulcs hozzáadva.";
 "AuthenticatorKeyReadError" = "Nem lehet olvasni a hitelesítő kulcsot.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Új egyedi mező";
 "SelectTypeField" = "Milyen típusú egyéni mező legyen hozzáadva?";
 "Remove" = "Eltávolítás";
-"NewUri" = "Új URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Alap domain";
 "Default" = "Alapértelmezett";
@@ -392,7 +391,6 @@
 "Logins" = "Bejelentkezések";
 "SecureNotes" = "Védett jegyzetek";
 "AllItems" = "Összes elem";
-"URIs" = "URI elemek";
 "CheckingPassword" = "A jelszó ellenőrzése folyamatban van...";
 "CheckPassword" = "Ellenőrizzük, hogy a jelszó kiszivárgott-e.";
 "PasswordExposed" = "Ez a jelszó %1$@ alkalommal jelent meg az adatszivárgásban. Változtassuk meg.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Ujjlenyomat mondat";
 "YourAccountsFingerprint" = "A fiók ujjlenyomat mondata";
 "LearnOrgConfirmation" = "A Bitwardenben szervezeti fiók használatával megoszthatók másokkal a széfben lévő elemek.. Szeretnénk megnyitni a bitwarden.com webhelyet további információért?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Nem lehetett feldolgozni a kérést. Próbáljuk újra vagy vegyük fel a kapcsolatot a Bitwarden szolgáltatóval.";
 "Export" = "Exportálás";
 "ExportVault" = "Széf exportálása";
 "LockNow" = "Zárolás most";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Nem lehet hozzáadni a hitelesítő kulcsot.";
 "ScanQRCode" = "QR kód beolvasása";
 "CannotScanQRCode" = "Nem sikerül beolvasni a QR kódot?";
-"AuthenticatorKeyScanner" = "Hitelesítő kulcs";
 "EnterKeyManually" = "Kód megadása manuálisan";
 "AddTotp" = "TOTP hozzáadása";
-"SetupTotp" = "TOTP beállítása";
 "OnceTheKeyIsSuccessfullyEntered" = "A kulcs sikeres megadása után válasszuk ki a \nTOTP hozzáadása a kulcs biztonságos tárolásához lehetőséget.";
 "NeverLockWarning" = "Ha a zárolási lehetőségeket \"Soha” értékre állítjuk, akkor a széf bárki számára elérhető lesz, aki hozzáfér az eszközhöz. Ha ezt az opciót használjuk, akkor gondoskodni kell arról, hogy az eszköz megfelelően védett legyen.";
 "EnvironmentPageUrlsError" = "A beírt webcímek közül egy vagy több érvénytelen. Vizsgáljuk át és próbáljuk meg újra elmenteni.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Adatrégió";
 "Region" = "Régió";
 "UpdateWeakMasterPasswordWarning" = "A mesterjelszó nem felel meg egy vagy több szervezeti szabályzatnak. A széf eléréséhez frissíteni kell a meszerjelszót. A továbblépés kijelentkeztet az aktuális munkamenetből és újra be kell jelentkezni. A többi eszközön lévő aktív munkamenetek akár egy óráig is aktívak maradhatnak.";
-"CurrentMasterPassword" = "Jelenlegi mesterjelszó";
+"CurrentMasterPasswordRequired" = "Jelenlegi mesterjelszó (kötelező)";
+"NewMasterPasswordRequired" = "Új mesterjelszó (kötelező)";
 "LoggedIn" = "Megtörtént a bejelentkezés.";
 "ApproveWithMyOtherDevice" = "Jóváhagyás másik eszközzel";
 "RequestAdminApproval" = "Adminisztrátori jóváhagyás kérés";
@@ -836,7 +834,7 @@
 "Vault" = "Széf";
 "Appearance" = "Megjelenés";
 "AccountSecurity" = "Fiókbiztonság";
-"BitwardenHelpCenter" = "Bitwardsn Segítségközpont";
+"BitwardenHelpCenter" = "Bitwarden Segítségközpont";
 "ContactBitwardenSupport" = "Bitwarden ügyfélszolgálat";
 "CopyAppInformation" = "Alkalmazás információ másolása";
 "SyncNow" = "Szinkronizálás most";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Válasszunk egyedi és erős jelszót az adatok biztonságának megőrzése érdekében.";
 "MasterPasswordRequired" = "Mesterjelszó (kötelező)";
 "RetypeMasterPasswordRequired" = "Mesterjelszó ismételt megadása (kötelező)";
+"RetypeNewMasterPasswordRequired" = "Mesterjelszó ismételt megadása (kötelező)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "A Bitward nem tudja visszaállítani az elveszett vagy elfelejtett mesterjelszót.";
 "LearnAboutWaysToPreventAccountLockout" = "További információ a fiókzárolás megelőzésének módjairól";
 "WhatMakesAPasswordStrong" = "Mitől erős egy jelszó?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "A jelszó ellenőrzése, hogy nem történt-e adatszivárgás";
 "PrivateNote" = "Személyes jegyzet";
 "XItems" = "%1$@ elem";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Ez a felhasználó nem törölhető, mert legalább egy szervezet kizárólagos tulajdonosa. Töröljük ezeket a szervezeteket vagy térjünk át másik felhasználóra.";
+"APasskeyAlreadyExistsForThisApplication" = "Az alkalmazáshoz már létezik hozzáférési kulcs.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Már létezik jelszó ehhez az alkalmazáshoz, de hiba történt a betöltése során.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Nem ismerhető fel ez az eszköz. Írjuk be a 8 számjegyű ellenőrző kódot, amelyet emailben lett elküldve %1$@ email címre.";
+"ItemNameRequired" = "Elem név (kötelező)";
+"AutofillOptions" = "Automatikus kitöltés opciók";
+"WebsiteURI" = "Webhely (URI)";
+"AddWebsite" = "Webhely hozzáadása";
+"CannotDeleteAccount" = "A fiók nem törölhető.";
+"CannotDeleteAccountDescriptionLong" = "Ez a művelet nem hajtható végre, mert a fiók egy szervezet tulajdonában van. További részletekért forduljunk a szervezet adminisztrátorához.";
+"NewFolder" = "Új mappa";
+"SetUpAuthenticatorKey" = "Set up authenticator key";
