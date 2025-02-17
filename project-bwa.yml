@@ -1,0 +1,226 @@
+name: Authenticator
+fileGroups:
+  - Configs-bwa
+configs:
+  Debug: debug
+  Release: release
+options:
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: 15.0
+    watchOS: 8.0
+  groupSortPosition: top
+  usesTabs: false
+  indentWidth: 4
+  tabWidth: 4
+settings:
+  MARKETING_VERSION: 2024.6.1
+  CURRENT_PROJECT_VERSION: 1
+packages:
+  BitwardenSdk:
+    url: https://github.com/bitwarden/sdk-swift
+    revision: 93ce71195a729f30b3edd48caeb7af9a39f35403
+  BitwardenShared:
+    url: https://github.com/bitwarden/ios
+    branch: main
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    exactVersion: 10.19.0
+  Networking:
+    path: Networking
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    exactVersion: 1.15.2
+  SwiftProtobuf:
+    url: https://github.com/apple/swift-protobuf
+    exactVersion: 1.26.0
+  ViewInspector:
+    url: https://github.com/nalexn/ViewInspector
+    exactVersion: 0.10.0
+schemes:
+  Authenticator:
+    build:
+      targets:
+        Authenticator: all
+        AuthenticatorTests: [test]
+    test:
+      commandLineArguments:
+        "-testing": true
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      coverageTargets:
+        - Authenticator
+        - AuthenticatorShared
+      targets:
+        - AuthenticatorTests
+        - AuthenticatorSharedTests
+        - package: Networking/NetworkingTests
+  AuthenticatorShared:
+    build:
+      targets:
+        AuthenticatorShared: all
+        AuthenticatorSharedTests: [test]
+    test:
+      commandLineArguments:
+        "-testing": true
+      environmentVariables:
+        TZ: UTC
+      gatherCoverageData: true
+      targets:
+        - AuthenticatorSharedTests
+
+targets:
+  Authenticator:
+    type: application
+    platform: iOS
+    configFiles:
+      Debug: Configs-bwa/Authenticator-Debug.xcconfig
+      Release: Configs-bwa/Authenticator-Release.xcconfig
+    settings:
+      base:
+        INFOPLIST_FILE: Authenticator/Application/Support/Info.plist
+    sources:
+      - path: Authenticator
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/swiftgen-bwa.yml"
+          - "**/GoogleService-Info.*.plist"
+          - "**/__Snapshots__/*"
+      - path: Authenticator
+        includes:
+          - "**/__Snapshots__/*"
+          - "**/GoogleService-Info.*.plist"
+        buildPhase: none
+      - path: README-bwa.md
+        buildPhase: none
+      - path: swiftgen-bwa.yml
+        buildPhase: none
+    dependencies:
+      - target: AuthenticatorShared
+      - package: Firebase
+        product: FirebaseCrashlytics
+    preBuildScripts:
+      - path: Scripts-bwa/update_acknowledgements.sh
+        name: "Settings.bundle: Update Acknowledgements"
+        outputFiles:
+          - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements.plist
+          - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements.latest_results.txt
+          - $(SRCROOT)/Authenticator/Application/Support/Settings.bundle/Acknowledgements
+    postCompileScripts:
+      - script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftlint
+        name: Swiftlint
+        basedOnDependencyAnalysis: false
+      - script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftformat --lint --lenient .
+        name: SwiftFormat Lint
+        basedOnDependencyAnalysis: false
+    postBuildScripts:
+      - path: Scripts-bwa/update_settings_version_number.sh
+        name: "Settings.bundle: Update Version Number"
+        basedOnDependencyAnalysis: false
+  AuthenticatorTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: Authenticator/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: Authenticator
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+      - path: GlobalTestHelpers-bwa
+    dependencies:
+      - target: Authenticator
+      - package: BitwardenShared
+        product: AuthenticatorBridgeKit
+      - package: SnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
+
+  AuthenticatorShared:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs-bwa/AuthenticatorShared-Debug.xcconfig
+      Release: Configs-bwa/AuthenticatorShared-Release.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/Support/Info.plist
+    sources:
+      - path: AuthenticatorShared
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+          - "**/__Snapshots__/*"
+      - path: AuthenticatorShared
+        includes:
+          - "**/__Snapshots__/*"
+        buildPhase: none
+      - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
+        optional: true
+      - path: AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
+        optional: true
+      - path: AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
+        optional: true
+    dependencies:
+      - package: BitwardenShared
+        product: AuthenticatorBridgeKit
+      - package: BitwardenSdk
+      - package: Networking
+      - package: SwiftProtobuf
+    preBuildScripts:
+      - name: SwiftGen
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          mint run swiftgen config run --config "swiftgen-bwa.yml"
+        basedOnDependencyAnalysis: false
+        outputFiles:
+          - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Assets.swift
+          - $(SRCROOT)/AuthenticatorShared/UI/Platform/Application/Support/Generated/Localizations.swift
+      - name: Protobuf
+        script: |
+          if [[ ! "$PATH" =~ "/opt/homebrew/bin" ]]; then
+            PATH="/opt/homebrew/bin:$PATH"
+          fi
+          protoc --proto_path=$SRCROOT/AuthenticatorShared/Core/Vault/Services/Importers/Support \
+                 --swift_out=$SRCROOT/AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated \
+                 $SRCROOT/AuthenticatorShared/Core/Vault/Services/Importers/Support/GoogleAuth.proto
+        outputFiles:
+          - $(SRCROOT)/AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
+  AuthenticatorSharedTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Authenticator.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Authenticator"
+        INFOPLIST_FILE: AuthenticatorShared/UI/Platform/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorShared
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/Fixtures/*"
+      - path: GlobalTestHelpers-bwa
+    dependencies:
+      - target: Authenticator
+      - target: AuthenticatorShared
+      - package: SnapshotTesting
+      - package: SnapshotTesting
+        product: InlineSnapshotTesting
+      - package: ViewInspector
+    randomExecutionOrder: true
