@@ -2,7 +2,7 @@ import BitwardenSdk
 import Foundation
 
 /// A protocol for a service that handles encryption and decryption tasks for the vault. This is
-/// similar to `ClientVaultProtocol` but returns the protocols so they can be mocked for testing.
+/// similar to `VaultClientProtocol` but returns the protocols so they can be mocked for testing.
 ///
 protocol VaultClientService: AnyObject {
     /// Returns an object that handles encryption and decryption for attachments.
@@ -35,7 +35,7 @@ protocol VaultClientService: AnyObject {
     func passwordHistory() -> ClientPasswordHistoryProtocol
 }
 
-// MARK: - ClientVault
+// MARK: - VaultClient
 
 extension VaultClient: VaultClientService {
     func attachments() -> ClientAttachmentsProtocol {

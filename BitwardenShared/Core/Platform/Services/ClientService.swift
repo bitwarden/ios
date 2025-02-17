@@ -11,7 +11,7 @@ protocol ClientService {
     /// - Parameters:
     ///   - userId: The user ID mapped to the client instance.
     ///   - isPreAuth: Whether the client is being used for a user prior to authentication (when
-    ///     the user's ID doesn't yet exist).o
+    ///     the user's ID doesn't yet exist).
     /// - Returns: A `AuthClientProtocol` for auth data tasks.
     ///
     func auth(for userId: String?, isPreAuth: Bool) async throws -> AuthClientProtocol

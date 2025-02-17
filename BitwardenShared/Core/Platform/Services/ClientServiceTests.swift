@@ -49,7 +49,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let auth = try await subject.auth()
-        XCTAssertIdentical(auth, clientBuilder.clients.first?.clientAuth)
+        XCTAssertIdentical(auth, clientBuilder.clients.first?.authClient)
 
         let user2Auth = try await subject.auth(for: "2")
         XCTAssertNotIdentical(auth, user2Auth)
@@ -85,7 +85,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_client_multiple_users() async throws {
         // No active user.
         let noActiveUserAuth = try await subject.auth()
-        let auth = clientBuilder.clients.first?.clientAuth
+        let auth = clientBuilder.clients.first?.authClient
         XCTAssertIdentical(noActiveUserAuth, auth)
 
         // Creates new client for user that doesn't have one.
@@ -98,8 +98,8 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNotIdentical(userAuth, user2Auth)
 
         // Returns a user's existing client.
-        let userExistingClientAuth = try await subject.auth(for: "1")
-        XCTAssertIdentical(userAuth, userExistingClientAuth)
+        let userExistingAuthClient = try await subject.auth(for: "1")
+        XCTAssertIdentical(userAuth, userExistingAuthClient)
     }
 
     /// `client(for:)` loads flags into the SDK.
@@ -121,7 +121,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.clientPlatform.featureFlags,
+            client.platformClient.featureFlags,
             ["enableCipherKeyEncryption": true]
         )
     }
@@ -146,7 +146,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.clientPlatform.featureFlags,
+            client.platformClient.featureFlags,
             ["enableCipherKeyEncryption": false]
         )
     }
@@ -171,7 +171,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.clientPlatform.featureFlags,
+            client.platformClient.featureFlags,
             ["enableCipherKeyEncryption": false]
         )
     }
@@ -190,7 +190,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         ))
         clientBuilder.setupClientOnCreation = { client in
-            client.clientPlatform.loadFlagsError = BitwardenTestError.example
+            client.platformClient.loadFlagsError = BitwardenTestError.example
         }
 
         _ = try await subject.auth(for: "1")
@@ -207,7 +207,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.clientPlatform.featureFlags,
+            client.platformClient.featureFlags,
             [:]
         )
     }
@@ -237,7 +237,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 return false
             }
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.clientPlatform.featureFlags == ["enableCipherKeyEncryption": true]
+            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": true]
         }
     }
 
@@ -259,7 +259,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         _ = try await subject.auth(for: "1")
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.clientPlatform.featureFlags,
+            client.platformClient.featureFlags,
             ["enableCipherKeyEncryption": false]
         )
 
@@ -282,7 +282,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await waitForAsync {
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.clientPlatform.featureFlags == ["enableCipherKeyEncryption": true]
+            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": true]
         }
         XCTAssertEqual(clientBuilder.clients.count, 1)
 
@@ -306,7 +306,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await waitForAsync {
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.clientPlatform.featureFlags == ["enableCipherKeyEncryption": false]
+            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": false]
         }
         XCTAssertEqual(clientBuilder.clients.count, 1)
     }
@@ -374,7 +374,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let client = try XCTUnwrap(clientBuilder.clients.first)
         XCTAssertEqual(
-            client.clientPlatform.featureFlags,
+            client.platformClient.featureFlags,
             [:]
         )
     }
@@ -385,7 +385,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let crypto = try await subject.crypto()
 
-        XCTAssertIdentical(crypto, clientBuilder.clients.first?.clientCrypto)
+        XCTAssertIdentical(crypto, clientBuilder.clients.first?.cryptoClient)
         let user2Crypto = try await subject.crypto(for: "2")
         XCTAssertNotIdentical(crypto, user2Crypto)
     }
@@ -395,7 +395,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let exporters = try await subject.exporters()
-        XCTAssertIdentical(exporters, clientBuilder.clients.first?.clientExporters)
+        XCTAssertIdentical(exporters, clientBuilder.clients.first?.exporterClient)
 
         let user2Exporters = try await subject.exporters(for: "2")
         XCTAssertNotIdentical(exporters, user2Exporters)
@@ -406,18 +406,18 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let generators = try await subject.generators(isPreAuth: false)
-        XCTAssertIdentical(generators, clientBuilder.clients.first?.clientGenerators)
+        XCTAssertIdentical(generators, clientBuilder.clients.first?.generatorClient)
 
         let user2Generators = try await subject.generators(for: "2")
         XCTAssertNotIdentical(generators, user2Generators)
     }
 
-    /// `platform(for:)` returns a new `ClientPlatformProtocol` for every user.
+    /// `platform(for:)` returns a new `PlatformClientProtocol` for every user.
     func test_platform() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let platform = try await subject.platform()
-        XCTAssertIdentical(platform, clientBuilder.clients.first?.clientPlatform)
+        XCTAssertIdentical(platform, clientBuilder.clients.first?.platformClient)
 
         let user2Platform = try await subject.platform(for: "2")
         XCTAssertNotIdentical(platform, user2Platform)
@@ -439,23 +439,23 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNotIdentical(crypto, cryptoAfterRemoving)
     }
 
-    /// `sends(for:)` returns a new `ClientVaultProtocol` for every user.
+    /// `sends(for:)` returns a new `VaultClientProtocol` for every user.
     func test_sends() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let sends = try await subject.sends()
-        XCTAssertIdentical(sends, clientBuilder.clients.first?.clientSends)
+        XCTAssertIdentical(sends, clientBuilder.clients.first?.sendClient)
 
         let user2Sends = try await subject.sends(for: "2")
         XCTAssertNotIdentical(sends, user2Sends)
     }
 
-    /// `vault(for:)` returns a new `ClientVaultProtocol` for every user.
+    /// `vault(for:)` returns a new `VaultClientProtocol` for every user.
     func test_vault() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
 
         let vault = try await subject.vault()
-        XCTAssertIdentical(vault, clientBuilder.clients.first?.clientVault)
+        XCTAssertIdentical(vault, clientBuilder.clients.first?.vaultClient)
 
         let user2Vault = try await subject.vault(for: "2")
         XCTAssertNotIdentical(vault, user2Vault)

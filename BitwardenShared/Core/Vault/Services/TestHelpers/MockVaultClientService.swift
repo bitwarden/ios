@@ -189,9 +189,9 @@ class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
     }
 }
 
-// MARK: - MockClientSends
+// MARK: - MockSendClient
 
-class MockClientSends: SendClientProtocol {
+class MockSendClient: SendClientProtocol {
     var decryptedSends: [Send] = []
     var encryptedSendViews: [SendView] = []
     var encryptedBuffers: [Data] = []

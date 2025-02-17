@@ -1,6 +1,6 @@
 import BitwardenSdk
 
-class MockClientGenerators: GeneratorClientsProtocol {
+class MockGeneratorClient: GeneratorClientsProtocol {
     var passphraseGeneratorRequest: PassphraseGeneratorRequest?
     var passphraseResult: Result<String, Error> = .success("PASSPHRASE")
 
