@@ -201,18 +201,23 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var notesSection: some View {
         if !store.state.notes.isEmpty {
             let notes = store.state.notes
-            SectionView(Localizations.additionalOptions) {
-                BitwardenTextValueField(
-                    title: Localizations.notes,
-                    value: notes,
-                    useUIKitTextView: true,
-                    copyButtonAccessibilityIdentifier: "CopyNotesButton",
-                    copyButtonAction: { store.send(.copyPressed(value: notes, field: .notes))
-                    }
-                )
-            }
+            let notesView = BitwardenTextValueField(
+                title: Localizations.notes,
+                value: notes,
+                useUIKitTextView: true,
+                copyButtonAccessibilityIdentifier: "CopyNotesButton",
+                copyButtonAction: { store.send(.copyPressed(value: notes, field: .notes))
+                }
+            )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("CipherNotesLabel")
+            if store.state.type == .secureNote {
+                notesView
+            } else {
+                SectionView(Localizations.additionalOptions) {
+                    notesView
+                }
+            }
         }
     }
 
