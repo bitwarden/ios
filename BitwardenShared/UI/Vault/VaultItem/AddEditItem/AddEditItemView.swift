@@ -82,10 +82,9 @@ struct AddEditItemView: View {
                     )
                 }
 
-                informationSection
-                miscellaneousSection
-                customSection
-                ownershipSection
+                itemDetailsSection
+                itemTypeSection
+                additionalOptions
             }
             .padding(12)
         }
@@ -97,31 +96,6 @@ struct AddEditItemView: View {
         )
         .navigationBarTitleDisplayMode(.inline)
         .backport.scrollContentMargins(Edge.Set.bottom, 30.0)
-    }
-
-    @ViewBuilder private var cardItems: some View {
-        AddEditCardItemView(
-            store: store.child(
-                state: { addEditState in
-                    addEditState.cardItemState
-                },
-                mapAction: { action in
-                    .cardFieldChanged(action)
-                },
-                mapEffect: { $0 }
-            )
-        )
-    }
-
-    private var customSection: some View {
-        AddEditCustomFieldsView(
-            store: store.child(
-                state: { $0.customFieldsState },
-                mapAction: { .customField($0) },
-                mapEffect: nil
-            )
-        )
-        .animation(.easeInOut(duration: 0.2), value: store.state.customFieldsState)
     }
 
     private var existing: some View {
@@ -151,8 +125,9 @@ struct AddEditItemView: View {
             }
     }
 
-    private var informationSection: some View {
-        SectionView(Localizations.itemInformation, contentSpacing: 8) {
+    /// The item details section containing the name, folder, and owner fields.
+    private var itemDetailsSection: some View {
+        SectionView(Localizations.itemDetails, contentSpacing: 8) {
             BitwardenTextField(
                 title: Localizations.itemNameRequired,
                 text: store.binding(
@@ -173,86 +148,68 @@ struct AddEditItemView: View {
                 .accessibilityLabel(Localizations.favorite)
                 .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
             }
+            .contentBlock()
 
-            switch store.state.type {
-            case .card:
-                cardItems
-            case .login:
-                loginItems
-            case .secureNote:
-                EmptyView()
-            case .identity:
-                identityItems
-            case .sshKey:
-                sshKeyItems
+            ContentBlock {
+                BitwardenMenuField(
+                    title: Localizations.folder,
+                    options: store.state.folders,
+                    selection: store.binding(
+                        get: \.folder,
+                        send: AddEditItemAction.folderChanged
+                    ),
+                    additionalMenu: {
+                        Button(Localizations.newFolder) {
+                            store.send(.addFolder)
+                        }
+                    }
+                )
+                .accessibilityIdentifier("FolderPicker")
+
+                if store.state.configuration.isAdding, let owner = store.state.owner {
+                    ContentBlock(dividerLeadingPadding: 16) {
+                        BitwardenMenuField(
+                            title: Localizations.owner,
+                            accessibilityIdentifier: "ItemOwnershipPicker",
+                            options: store.state.ownershipOptions,
+                            selection: store.binding(
+                                get: { _ in owner },
+                                send: AddEditItemAction.ownerChanged
+                            )
+                        )
+
+                        ForEach(store.state.collectionsForOwner, id: \.id) { collection in
+                            if let collectionId = collection.id {
+                                BitwardenToggle(
+                                    collection.name,
+                                    isOn: store.binding(
+                                        get: { _ in store.state.collectionIds.contains(collectionId) },
+                                        send: { .collectionToggleChanged($0, collectionId: collectionId) }
+                                    )
+                                )
+                                .accessibilityIdentifier("CollectionItemSwitch")
+                            }
+                        }
+                    }
+                }
             }
         }
-    }
-
-    @ViewBuilder private var identityItems: some View {
-        AddEditIdentityItemView(
-            store: store.child(
-                state: { addEditState in
-                    addEditState.identityState
-                },
-                mapAction: { action in
-                    .identityFieldChanged(action)
-                },
-                mapEffect: { $0 }
-            )
-        )
-    }
-
-    @ViewBuilder private var loginItems: some View {
-        AddEditLoginItemView(
-            store: store.child(
-                state: { addEditState in
-                    addEditState.loginState
-                },
-                mapAction: { $0 },
-                mapEffect: { $0 }
-            ),
-            didRenderFrame: { step, frame in
-                let enlargedFrame = frame.enlarged(by: 8)
-                store.send(
-                    .guidedTourViewAction(.didRenderViewToSpotlight(
-                        frame: enlargedFrame,
-                        step: step
-                    ))
-                )
-            }
-        )
-    }
-
-    @ViewBuilder private var sshKeyItems: some View {
-        ViewSSHKeyItemView(
-            showCopyButtons: false,
-            store: store.child(
-                state: { _ in store.state.sshKeyState },
-                mapAction: { .sshKeyItemAction($0) },
-                mapEffect: nil
-            )
-        )
     }
 }
 
 private extension AddEditItemView {
-    var miscellaneousSection: some View {
-        SectionView(Localizations.miscellaneous, contentSpacing: 8) {
-            BitwardenMenuField(
-                title: Localizations.folder,
-                options: store.state.folders,
-                selection: store.binding(
-                    get: \.folder,
-                    send: AddEditItemAction.folderChanged
-                ),
-                additionalMenu: {
-                    Button(Localizations.newFolder) {
-                        store.send(.addFolder)
-                    }
-                }
+    /// The expandable additional options section.
+    @ViewBuilder var additionalOptions: some View {
+        ExpandableContent(
+            title: Localizations.additionalOptions,
+            isExpanded: store.binding(
+                get: \.isAdditionalOptionsExpanded,
+                send: AddEditItemAction.toggleAdditionalOptionsExpanded
             )
-            .accessibilityIdentifier("FolderPicker")
+        ) {
+            if store.state.type != .secureNote {
+                notesField
+            }
 
             if store.state.showMasterPasswordReprompt {
                 BitwardenToggle(isOn: store.binding(
@@ -277,55 +234,117 @@ private extension AddEditItemView {
                 .contentBlock()
             }
 
-            BitwardenTextView(
-                title: Localizations.notes,
-                text: store.binding(
-                    get: \.notes,
-                    send: AddEditItemAction.notesChanged
-                )
-            )
+            customSection
         }
     }
 
-    @ViewBuilder var ownershipSection: some View {
-        if store.state.configuration.isAdding, let owner = store.state.owner {
-            SectionView(Localizations.ownership, contentSpacing: 8) {
-                BitwardenMenuField(
-                    title: Localizations.whoOwnsThisItem,
-                    accessibilityIdentifier: "ItemOwnershipPicker",
-                    options: store.state.ownershipOptions,
-                    selection: store.binding(
-                        get: { _ in owner },
-                        send: AddEditItemAction.ownerChanged
-                    )
+    /// The section containing custom fields.
+    private var customSection: some View {
+        AddEditCustomFieldsView(
+            store: store.child(
+                state: { $0.customFieldsState },
+                mapAction: { .customField($0) },
+                mapEffect: nil
+            )
+        )
+        .animation(.easeInOut(duration: 0.2), value: store.state.customFieldsState)
+    }
+
+    /// The notes fields.
+    private var notesField: some View {
+        BitwardenTextView(
+            title: Localizations.notes,
+            text: store.binding(
+                get: \.notes,
+                send: AddEditItemAction.notesChanged
+            )
+        )
+    }
+}
+
+private extension AddEditItemView {
+    /// Specific fields for a card item.
+    @ViewBuilder private var cardItems: some View {
+        AddEditCardItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.cardItemState
+                },
+                mapAction: { action in
+                    .cardFieldChanged(action)
+                },
+                mapEffect: { $0 }
+            )
+        )
+    }
+
+    /// Specific fields for an identity item.
+    @ViewBuilder private var identityItems: some View {
+        AddEditIdentityItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.identityState
+                },
+                mapAction: { action in
+                    .identityFieldChanged(action)
+                },
+                mapEffect: { $0 }
+            )
+        )
+    }
+
+    /// The specific fields for the type of item being created or updated.
+    @ViewBuilder private var itemTypeSection: some View {
+        switch store.state.type {
+        case .card:
+            cardItems
+        case .login:
+            loginItems
+        case .secureNote:
+            notesField
+                // The secure note type doesn't have a top-level section header for its field, so
+                // remove the extra top padding (8 points of total padding from the last field as
+                // opposed to 16)
+                .padding(.top, -8)
+        case .identity:
+            identityItems
+        case .sshKey:
+            sshKeyItems
+        }
+    }
+
+    /// Specific fields for a login item.
+    @ViewBuilder private var loginItems: some View {
+        AddEditLoginItemView(
+            store: store.child(
+                state: { addEditState in
+                    addEditState.loginState
+                },
+                mapAction: { $0 },
+                mapEffect: { $0 }
+            ),
+            didRenderFrame: { step, frame in
+                let enlargedFrame = frame.enlarged(by: 8)
+                store.send(
+                    .guidedTourViewAction(.didRenderViewToSpotlight(
+                        frame: enlargedFrame,
+                        step: step
+                    ))
                 )
             }
+        )
+    }
 
-            if !owner.isPersonal {
-                SectionView(Localizations.collections, contentSpacing: 8) {
-                    if store.state.collectionsForOwner.isEmpty {
-                        Text(Localizations.noCollectionsToList)
-                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                            .multilineTextAlignment(.leading)
-                            .styleGuide(.body)
-                    } else {
-                        ForEach(store.state.collectionsForOwner, id: \.id) { collection in
-                            if let collectionId = collection.id {
-                                BitwardenToggle(
-                                    collection.name,
-                                    isOn: store.binding(
-                                        get: { _ in store.state.collectionIds.contains(collectionId) },
-                                        send: { .collectionToggleChanged($0, collectionId: collectionId) }
-                                    )
-                                )
-                                .accessibilityIdentifier("CollectionItemSwitch")
-                            }
-                        }
-                        .contentBlock()
-                    }
-                }
-            }
-        }
+    /// Specific fields for a SSK key item.
+    @ViewBuilder private var sshKeyItems: some View {
+        ViewSSHKeyItemView(
+            showCopyButtons: false,
+            store: store.child(
+                state: { _ in store.state.sshKeyState },
+                mapAction: { .sshKeyItemAction($0) },
+                mapEffect: nil
+            )
+        )
     }
 }
 

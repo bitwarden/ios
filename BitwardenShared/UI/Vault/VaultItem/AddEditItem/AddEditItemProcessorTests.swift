@@ -2017,6 +2017,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, toast)
     }
 
+    /// `receive(_:)` with `.toggleAdditionalOptionsExpanded` toggles whether the additional options
+    /// are expanded.
+    @MainActor
+    func test_receive_toggleAdditionalOptionsExpanded() {
+        subject.receive(.toggleAdditionalOptionsExpanded(true))
+        XCTAssertTrue(subject.state.isAdditionalOptionsExpanded)
+
+        subject.receive(.toggleAdditionalOptionsExpanded(false))
+        XCTAssertFalse(subject.state.isAdditionalOptionsExpanded)
+    }
+
     /// `receive(_:)` with `guidedTourViewAction(.toggleGuidedTourVisibilityChanged)`
     /// updates the state correctly.
     @MainActor
