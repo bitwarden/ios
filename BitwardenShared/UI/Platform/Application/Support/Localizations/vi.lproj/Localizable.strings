@@ -65,7 +65,6 @@
 "Sync" = "Đồng bộ";
 "ThankYou" = "Cảm ơn bạn";
 "Tools" = "Công cụ";
-"URI" = "Đường dẫn";
 "UseFingerprintToUnlock" = "Dùng vân tay để mở khóa";
 "UseThisButtonToGenerateANewUniquePassword" = "Sử dụng nút này để tạo mật khẩu mới độc nhất.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Bạn chỉ cần thiết lập Mã Xác Thực cho các lần đăng nhập yêu cầu xác thực hai bước bằng mã. Sáu chữ số sẽ liên tục được tạo để bạn có thể dùng đăng nhập.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Mật khẩu nhập lại không trùng khớp.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Mật khẩu chính là mật khẩu bạn dùng để mở khóa kho.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "Gợi ý mật khẩu chính mới";
 "MasterPasswordHintDescription" = "Một gợi ý mật khẩu có thể giúp bạn nhớ lại mật khẩu chính của bạn nếu bạn quên nó.";
 "MasterPasswordLengthValMessageX" = "Mật khẩu chính phải có tối thiểu %1$@ kí tự.";
 "MinNumbers" = "Số chữ số";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Thiết bị của bạn không thể mở loại tập tin này.";
 "Downloading" = "Đang tải xuống...";
 "AttachmentLargeWarning" = "Tập tin đính kèm này có kích thước %1$@. Bạn có chắc chắn muốn tải nó xuống thiết bị của mình?";
-"AuthenticatorKey" = "Khóa xác thực (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Mã xác thực (TOTP)";
 "AuthenticatorKeyAdded" = "Đã thêm khóa xác thực.";
 "AuthenticatorKeyReadError" = "Không thể đọc khóa xác thực.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Trường tùy chỉnh mới";
 "SelectTypeField" = "Bạn muốn thêm loại trường tùy chỉnh nào?";
 "Remove" = "Xoá";
-"NewUri" = "URL Mới";
 "URIPosition" = "URL %1$@";
 "BaseDomain" = "Tên miền cơ sở";
 "Default" = "Mặc định";
@@ -392,7 +391,6 @@
 "Logins" = "Đăng nhập";
 "SecureNotes" = "Ghi chú";
 "AllItems" = "Tất cả mục";
-"URIs" = "Đường dẫn";
 "CheckingPassword" = "Đang kiểm tra mật khẩu...";
 "CheckPassword" = "Kiểm tra xem mật khẩu có bị lộ không.";
 "PasswordExposed" = "Mật khẩu này đã bị lộ %1$@ lần trong các vụ rò rỉ dữ liệu. Bạn nên đổi nó.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Cụm vân tay";
 "YourAccountsFingerprint" = "Cụm vân tay của tài khoản của bạn";
 "LearnOrgConfirmation" = "Bitwarden cho phép bạn chia sẻ các mục trong kho của mình với những người khác bằng cách sử dụng tài khoản tổ chức. Bạn có muốn truy cập trang web bitwarden.com để tìm hiểu thêm không?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Chúng tôi không thể xử lý yêu cầu của bạn. Vui lòng thử lại hoặc liên hệ hỗ trợ.";
 "Export" = "Xuất";
 "ExportVault" = "Xuất kho";
 "LockNow" = "Khóa lập tức";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Không thể thêm khóa xác thực?";
 "ScanQRCode" = "Quét mã QR";
 "CannotScanQRCode" = "Không thể quét mã QR?";
-"AuthenticatorKeyScanner" = "Khóa xác thực";
 "EnterKeyManually" = "Nhập khóa thủ công";
 "AddTotp" = "Thêm TOTP";
-"SetupTotp" = "Thiết lập TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Khi nhập khóa thành công,\nchọn Thêm TOTP để lưu khóa an toàn";
 "NeverLockWarning" = "Đặt tùy chọn khóa của bạn thành “Không bao giờ” sẽ khiến bất kỳ ai có quyền truy cập vào thiết bị của bạn cũng có thể mở kho. Hãy đảm bảo rằng bạn luôn bảo vệ thiết bị của mình đúng cách.";
 "EnvironmentPageUrlsError" = "Một hoặc nhiều URL đã nhập không hợp lệ. Vui lòng sửa và thử lại.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Nơi lưu dữ liệu";
 "Region" = "Khu vực";
 "UpdateWeakMasterPasswordWarning" = "Mật khẩu chính của bạn không đáp ứng chính sách tổ chức của bạn. Để truy cập kho, bạn phải cập nhật mật khẩu chính của mình ngay bây giờ. Việc tiếp tục sẽ đăng xuất bạn khỏi phiên hiện tại và bắt buộc đăng nhập lại. Các phiên hoạt động trên các thiết bị khác có thể tiếp tục duy trì hoạt động trong tối đa một giờ.";
-"CurrentMasterPassword" = "Mật khẩu chính hiện tại";
+"CurrentMasterPasswordRequired" = "Mật khẩu chính hiện tại (bắt buộc)";
+"NewMasterPasswordRequired" = "Mật khẩu chính mới (bắt buộc)";
 "LoggedIn" = "Đã đăng nhập!";
 "ApproveWithMyOtherDevice" = "Phê duyệt bằng thiết bị khác";
 "RequestAdminApproval" = "Yêu cầu quản trị viên phê duyệt";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Chọn mật khẩu mạnh và duy nhất để giữ thông tin của bạn an toàn.";
 "MasterPasswordRequired" = "Mật khẩu chính (bắt buộc)";
 "RetypeMasterPasswordRequired" = "Nhập lại mật khẩu chính (bắt buộc)";
+"RetypeNewMasterPasswordRequired" = "Nhập lại mật khẩu chính mới (bắt buộc)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden không thể khôi phục mật khẩu chính bị mất hoặc bị quên.";
 "LearnAboutWaysToPreventAccountLockout" = "Tìm hiểu thêm các cách khác để ngăn chặn việc tài khoản bị khoá";
 "WhatMakesAPasswordStrong" = "Làm sao để mật khẩu mạnh?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Kiểm tra mật khẩu để tránh lộ dữ liệu";
 "PrivateNote" = "Ghi chú riêng";
 "XItems" = "%1$@ mục";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Không thể xóa người dùng này vì người dùng này là chủ sở hữu duy nhất của ít nhất một tổ chức. Vui lòng xóa các tổ chức này hoặc nâng cấp người dùng khác.";
+"APasskeyAlreadyExistsForThisApplication" = "Ứng dụng này đã có mã khóa.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Ứng dụng này đã có mã khóa nhưng xảy ra lỗi khi tải.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Không nhận ra thiết bị này. Nhập mã xác thực 8 số đã được gửi tới email %1$@.";
+"ItemNameRequired" = "Tên mục (bắt buộc)";
+"AutofillOptions" = "Tùy chọn tự động điền";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Thêm website";
+"CannotDeleteAccount" = "Không thể xóa tài khoản";
+"CannotDeleteAccountDescriptionLong" = "Không thể thực hiện hành động này vì tài khoản của bạn thuộc sở hữu của một tổ chức. Liên hệ với quản trị viên tổ chức của bạn để biết thêm thông tin chi tiết.";
+"NewFolder" = "Thư mục mới";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

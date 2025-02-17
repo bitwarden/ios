@@ -65,7 +65,6 @@
 "Sync" = "Sinchronizuoti";
 "ThankYou" = "Dėkojame";
 "Tools" = "Įrankiai";
-"URI" = "URI - \"nuoroda\"";
 "UseFingerprintToUnlock" = "Atrakinimui naudokite piršto antspaudą";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Slaptažodžio patvirtinimas neteisingas.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Pagrindinio slaptažodžio užuomina gali padėti prisiminti slaptažodį, jei jį pamiršite.";
 "MasterPasswordLengthValMessageX" = "Pagrindinis slaptažodis turi būti bent %1$@ simbolių ilgio.";
 "MinNumbers" = "Mažiausiai skaičių";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Jūsų įrenginys negali atidaryti tokio tipo failo.";
 "Downloading" = "Atsiunčiama...";
 "AttachmentLargeWarning" = "Šis priedas yra %1$@ dydžio. Ar tikrai norite jį atsisiųsti į savo įrenginį?";
-"AuthenticatorKey" = "Vienkartinio autentifikavimo raktas (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Patvirtinimo kodas (TOTP)";
 "AuthenticatorKeyAdded" = "Vienkartinio autentifikavimo raktas (TOTP)";
 "AuthenticatorKeyReadError" = "Nepavyko nuskaityti autentifikavimo rakto.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Naujas pasirinktis laukelis";
 "SelectTypeField" = "Kokio tipo tinkintą lauką norite pridėti?";
 "Remove" = "Pašalinti";
-"NewUri" = "Naujas URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Bazinis domenas";
 "Default" = "Numatyta";
@@ -392,7 +391,6 @@
 "Logins" = "Prisijungimai";
 "SecureNotes" = "Saugūs įrašai";
 "AllItems" = "Visi elementai";
-"URIs" = "URI - \"nuoroda\"";
 "CheckingPassword" = "Tikrinamas slaptažodis...";
 "CheckPassword" = "Patikrinkite, ar slaptažodis buvo atskleistas.";
 "PasswordExposed" = "Šis slaptažodis buvo atskleistas %1$@ kartą (-us) dėl duomenų pažeidimų. Turėtumėte jį pakeisti.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Pirštų atspaudų frazė";
 "YourAccountsFingerprint" = "Jūsų paskyros kontrolinio kodo frazė";
 "LearnOrgConfirmation" = "„Bitwarden“ leidžia bendrinti saugyklos elementus su kitais naudojant organizacijos paskyrą. Ar norėtumėte apsilankyti bitwarden.com svetainėje ir sužinoti daugiau?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Eksportuoti saugyklą";
 "LockNow" = "Užrakinti dabar";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Nepavyko nuskaityti autentifikavimo rakto?";
 "ScanQRCode" = "Nuskaitykite QR kodą";
 "CannotScanQRCode" = "Negalite nuskaityti QR kodo?";
-"AuthenticatorKeyScanner" = "Autentifikatoriaus raktas";
 "EnterKeyManually" = "Įvesti raktą rankiniu būdu";
 "AddTotp" = "Pridėti TOTP";
-"SetupTotp" = "Nustatyti TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Sėkmingai įvedus raktą,\npasirinkite Pridėti TOTP, kad raktas būtų saugiai išsaugotas";
 "NeverLockWarning" = "Nustačius užrakto parinktis į „Niekada“, saugykla bus pasiekiama visiems, turintiems prieigą prie jūsų įrenginio. Jei naudojate šią parinktį, turėtumėte užtikrinti, kad jūsų įrenginys būtų tinkamai apsaugotas.";
 "EnvironmentPageUrlsError" = "Vienas ar daugiau įvestų URL yra neteisingi. Peržiūrėkite jį ir bandykite išsaugoti dar kartą.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Data region";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Jūsų pagrindinis slaptažodis neatitinka vieno ar kelių organizacijos slaptažodžiui keliamų reikalavimų. Norėdami prisijungti prie saugyklos, jūs turite atnaujinti savo pagrindinį slaptažodį. Jeigu nuspręsite tęsti, jūs būsite atjungti nuo dabartinės sesijos ir jums reikės vėl prisijungti. Visos aktyvios sesijos kituose įrenginiuose gali išlikti aktyvios iki vienos valandos.";
-"CurrentMasterPassword" = "Dabartinis pagrindinis slaptažodis";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Logged in!";
 "ApproveWithMyOtherDevice" = "Approve with my other device";
 "RequestAdminApproval" = "Request admin approval";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

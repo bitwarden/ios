@@ -65,7 +65,6 @@
 "Sync" = "동기화";
 "ThankYou" = "감사합니다";
 "Tools" = "도구";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "지문으로 잠금 해제";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "비밀번호 확인과 비밀번호가 일치하지 않습니다.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "마스터 비밀번호 힌트는 마스터 비밀번호를 잊었을 때 도움이 될 수 있습니다.";
 "MasterPasswordLengthValMessageX" = "마스터 비밀번호는 최소 %1$@자 이상이어야 합니다.";
 "MinNumbers" = "숫자 최소 개수";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "이 기기에서 열 수 없는 형식의 파일입니다.";
 "Downloading" = "다운로드 중...";
 "AttachmentLargeWarning" = "이 첨부 파일의 크기는 %1$@입니다. 정말 이 파일을 기기에 다운로드하시겠습니까?";
-"AuthenticatorKey" = "인증 키 (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "인증 코드 (TOTP)";
 "AuthenticatorKeyAdded" = "인증 키를 추가했습니다.";
 "AuthenticatorKeyReadError" = "인증 키를 읽을 수 없습니다.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "새 사용자 지정 필드";
 "SelectTypeField" = "어떤 유형의 사용자 지정 필드를 추가하시겠습니까?";
 "Remove" = "제거";
-"NewUri" = "새 URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "기본 도메인";
 "Default" = "기본값";
@@ -392,7 +391,6 @@
 "Logins" = "로그인";
 "SecureNotes" = "보안 메모";
 "AllItems" = "모든 항목";
-"URIs" = "URI";
 "CheckingPassword" = "비밀번호 확인 중...";
 "CheckPassword" = "비밀번호가 노출되었는지 확인합니다.";
 "PasswordExposed" = "이 비밀번호는 데이터 유출에 %1$@회 노출되었습니다. 비밀번호를 변경하는 것이 좋습니다.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "지문 구절";
 "YourAccountsFingerprint" = "계정 지문 구절";
 "LearnOrgConfirmation" = "Bitwarden은 조직용 계정을 사용하면 사용자의 보관함 내 항목을 타인에게 공유할 수 있습니다. bitwarden.com 웹 사이트를 방문하여 더 자세히 알아보시겠습니까?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "보관함 내보내기";
 "LockNow" = "지금 잠그기";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "인증 키를 추가할 수 없습니다.";
 "ScanQRCode" = "QR 코드 스캔";
 "CannotScanQRCode" = "QR 코드를 스캔할 수 없나요?";
-"AuthenticatorKeyScanner" = "인증 키";
 "EnterKeyManually" = "수동으로 Api 키 입력";
 "AddTotp" = "TOTP 추가";
-"SetupTotp" = "TOTP 설정하기";
 "OnceTheKeyIsSuccessfullyEntered" = "키가 첫 번째로 입력되었다면\n키를 안전히 저장하기 위해 TOTP를 추가하세요.";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "하나 이상의 URL이 유효하지 않습니다. 다시 시도하세요.";
@@ -790,7 +787,8 @@
 "DataRegion" = "데이터 지역";
 "Region" = "지역";
 "UpdateWeakMasterPasswordWarning" = "마스터 비밀번호가 조직 정책에 맞지 않습니다. 보관함에 액세스하려면 지금 마스터 비밀번호를 업데이트해야 합니다. 계속하면 현재 세션에서 로그아웃되며 다시 로그인해야 합니다. 다른 장치의 활성 세션은 최대 1시간 동안 계속 활성 상태로 유지될 수 있습니다.";
-"CurrentMasterPassword" = "현재 마스터 비밀번호";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "로그인 완료!";
 "ApproveWithMyOtherDevice" = "Approve with my other device";
 "RequestAdminApproval" = "Request admin approval";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

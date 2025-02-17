@@ -65,7 +65,6 @@
 "Sync" = "Sinxr";
 "ThankYou" = "Təşəkkür edirik";
 "Tools" = "Alətlər";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Kilidi açmaq üçün barmaq izi istifadə et";
 "UseThisButtonToGenerateANewUniquePassword" = "Yeni və unikal bir parol yaratmaq üçün bu düyməni istifadə edin.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Yalnız iki faktorlu kimlik doğrulamanı kod ilə tələb edən girişlər üçün Kimlik doğrulayıcı Açarı qurmağınız lazımdır. Açar, giriş edə bilməyiniz üçün altı rəqəmli kodları davamlı yaradacaq.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Parol təsdiqləmə doğru deyil.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Ana parol, seyfinizə müraciət etmək üçün istifadə etdiyiniz paroldur.";
 "MasterPasswordHint" = "Ana parol ipucusu";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Ana parol məsləhəti, unutduğunuz parolu xatırlamağınıza kömək edir.";
 "MasterPasswordLengthValMessageX" = "Ana parol ən azı %1$@ simvol uzunluğunda olmalıdır.";
 "MinNumbers" = "Minimum rəqəm";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Cihazınız bu növdəki faylları aça bilmir.";
 "Downloading" = "Endirilir...";
 "AttachmentLargeWarning" = "Bu qoşmanın həcmi %1$@. Faylı cihazınıza endirmək istədiyinizə əminsiniz?";
-"AuthenticatorKey" = "Kimlik doğrulayıcı açarı (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Doğrulama kodu (TOTP)";
 "AuthenticatorKeyAdded" = "Kimlik doğrulayıcı açarı əlavə edildi.";
 "AuthenticatorKeyReadError" = "Kimlik doğrulayıcı açarı oxuna bilmir.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Yeni özəl xana";
 "SelectTypeField" = "Necə bir özəl xana əlavə etmək istəyirsiniz?";
 "Remove" = "Çıxart";
-"NewUri" = "Yeni URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Baza domeni";
 "Default" = "İlkin";
@@ -392,7 +391,6 @@
 "Logins" = "Girişlər";
 "SecureNotes" = "Güvənli qeydlər";
 "AllItems" = "Bütün elementlər";
-"URIs" = "URI-lər";
 "CheckingPassword" = "Parol yoxlanılır...";
 "CheckPassword" = "Parolunuzun oğurlanıb oğurlanmadığını yoxlayın.";
 "PasswordExposed" = "Bu parol, məlumat pozuntularında %1$@ dəfə üzə çıxıb. Dəyişdirməyi məsləhət görürük.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Barmaq izi ifadəsi";
 "YourAccountsFingerprint" = "Hesabınızın barmaq izi ifadəsi";
 "LearnOrgConfirmation" = "Bitwarden, bir təşkilat hesabı istifadə edərək seyf elementlərinizi başqaları ilə paylaşmağınıza icazə verir. Daha ətraflı məlumat üçün bitwarden.com saytını ziyarət etmək istəyirsiniz?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Xaricə köçür";
 "ExportVault" = "Seyfi xaricə köçür";
 "LockNow" = "İndi kilidlə";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Kimlik doğrulayıcı açarı oxuna bilmir?";
 "ScanQRCode" = "QR kodu skan edin";
 "CannotScanQRCode" = "QR kodunu skan edə bilmədiniz?";
-"AuthenticatorKeyScanner" = "Kimlik doğrulayıcı açarı";
 "EnterKeyManually" = "Kodu əllə daxil et";
 "AddTotp" = "TOTP əlavə et";
-"SetupTotp" = "TOTP quraşdır";
 "OnceTheKeyIsSuccessfullyEntered" = "Açar uğurla daxil edildikdən sonra, açarı güvənli şəkildə saxlamaq üçün \"TOTP əlavə et\"i seçin";
 "NeverLockWarning" = "Kilid seçimlərini \"Heç vaxt\" olaraq ayarlamaq, seyfinizi cihazınıza müraciəti olan hər kəsə əlçatan edir. Bu seçimi istifadə etsəniz, cihazınızı düzgün qoruduğunuza əmin olmalısınız.";
 "EnvironmentPageUrlsError" = "Daxil edilən bir və ya daha çox URL yararsızdır. Lütfən nəzər salın və yenidən saxlamağa çalışın.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Data bölgəsi";
 "Region" = "Bölgə";
 "UpdateWeakMasterPasswordWarning" = "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə müraciət üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər.";
-"CurrentMasterPassword" = "Hazırkı ana parol";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Giriş edildi!";
 "ApproveWithMyOtherDevice" = "Digər cihazımla təsdiqlə";
 "RequestAdminApproval" = "Admin təsdiqini tələb et";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Məlumatlarınızı təhlükəsiz saxlamaq üçün unikal və güclü bir parol seçin.";
 "MasterPasswordRequired" = "Ana parol (tələb olunur)";
 "RetypeMasterPasswordRequired" = "Ana parolu təkrar yaz (tələb olunur)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden itmiş və ya unutulmuş ana parolu sıfırlaya bilməz.";
 "LearnAboutWaysToPreventAccountLockout" = "Hesab kilidlənməsini önləməyin yolları haqqında daha ətraflı";
 "WhatMakesAPasswordStrong" = "Bir parol necə güclü olur?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Data pozuntularına qarşı parolları yoxla";
 "PrivateNote" = "Şəxsi not";
 "XItems" = "%1$@ element";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "Bu tətbiq üçün bir keçid açarı artıq mövcuddur.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Bu tətbiq üçün bir keçid açarı artıq mövcuddur, ancaq yüklənərkən bir xəta baş verdi.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Bu cihazı tanımırıq. %1$@ ünvanına göndərilən 8 rəqəmli doğrulama kodunu daxil edin.";
+"ItemNameRequired" = "Element adı (tələb olunur)";
+"AutofillOptions" = "Avto-doldurma seçimləri";
+"WebsiteURI" = "Veb sayt (URI)";
+"AddWebsite" = "Veb sayt əlavə et";
+"CannotDeleteAccount" = "Hesab silinə bilmir";
+"CannotDeleteAccountDescriptionLong" = "Hesabınız bir təşkilata aid olduğu üçün bu əməliyyat icra edilə bilməz. Əlavə məlumat üçün təşkilatınızın inzibatçısı ilə əlaqə saxlayın.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

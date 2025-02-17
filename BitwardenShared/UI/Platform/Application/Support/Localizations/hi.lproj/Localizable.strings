@@ -65,7 +65,6 @@
 "Sync" = "सिंक्रनाइज़ करें";
 "ThankYou" = "थैंक यू";
 "Tools" = "टूल्स";
-"URI" = "यूआरआई";
 "UseFingerprintToUnlock" = "फिंगरप्रिंट से खोलें";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "पासवर्ड गलत है।";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "मास्टर पासवर्ड हिंट पासवर्ड भूल जाने के हालत में उसको याद करने में मदद करता है।";
 "MasterPasswordLengthValMessageX" = "मास्टर पासवर्ड कम-से-कम %1$@ अक्षर लंबा होना चाहिए।";
 "MinNumbers" = "कम-से-कम इतने नंबर";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "आपका डिवाइस इस तरह के फाइल नहीं खोल सकता।";
 "Downloading" = "डाउनलोड कर रहे...";
 "AttachmentLargeWarning" = "इस अटैचमेंट का साइज़ %1$@ है। इसे डिवाइस पर डाउनलोड करें?";
-"AuthenticatorKey" = "ऑथेंटिकेशन चाबी (टीओटीपी)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "वेरिफिकेशन कोड (टीओटीपी)";
 "AuthenticatorKeyAdded" = "ऑथेंटिकेशन चाबी डाला गया।";
 "AuthenticatorKeyReadError" = "ऑथेंटिकेशन चाबी पढ़ नहीं पा रहे।";
@@ -354,7 +354,6 @@
 "NewCustomField" = "नया कस्टम फील्ड डालें";
 "SelectTypeField" = "किस तरह का कस्टम फील्ड डालना है?";
 "Remove" = "हटाएं";
-"NewUri" = "नया यूआरआई";
 "URIPosition" = "यूआरआई %1$@";
 "BaseDomain" = "बेस डोमेन";
 "Default" = "डिफॉल्ट";
@@ -392,7 +391,6 @@
 "Logins" = "लॉगइन";
 "SecureNotes" = "सेक्योर नोट";
 "AllItems" = "सारे आइटम";
-"URIs" = "यूआरआई";
 "CheckingPassword" = "पासवर्ड चेक हो रहा है....";
 "CheckPassword" = "Check if password has been exposed.";
 "PasswordExposed" = "This password has been exposed %1$@ time(s) in data breaches. You should change it.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "फिंगरप्रिंट फ्रेज़";
 "YourAccountsFingerprint" = "Your account's fingerprint phrase";
 "LearnOrgConfirmation" = "Bitwarden allows you to share your vault items with others by using an organization account. Would you like to visit the bitwarden.com website to learn more?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "तिजोरी एक्सपोर्ट करें";
 "LockNow" = "अभी लॉक करें";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "ScanQRCode" = "क्यूआर कोड स्कैन करें";
 "CannotScanQRCode" = "क्यूआर कोड स्कैन नहीं हो रहा?";
-"AuthenticatorKeyScanner" = "Authenticator key";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "टीओटीपी जोड़ें";
-"SetupTotp" = "टीओटीपी सेट करें";
 "OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered, select Save to store the key safely.";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
@@ -790,7 +787,8 @@
 "DataRegion" = "डाटा लोकेशन";
 "Region" = "इलाका";
 "UpdateWeakMasterPasswordWarning" = "आपका मुख्य पासवर्ड आपके संगठन के एक या उससे ज़्यादा नीति को नहीं मानता। तिजोरी एक्सेस करने के लिए आपको अपना मुख्य पासवर्ड अभी बदलना होगा। ये करने से आप अपने चालू सत्र से लॉग आउट हो जाएंगे, जिसके वजह से आपको वापस लॉग इन करना पड़ेगा। दूसरे डिवाइसों पर चालू सत्र एक घंटे तक सक्रिय रह सकते हैं।";
-"CurrentMasterPassword" = "चालू मुख्य पासवर्ड";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "लॉगइन हो गए!";
 "ApproveWithMyOtherDevice" = "Approve with my other device";
 "RequestAdminApproval" = "Request admin approval";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

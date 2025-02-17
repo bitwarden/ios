@@ -65,7 +65,6 @@
 "Sync" = "同步";
 "ThankYou" = "非常感謝";
 "Tools" = "工具";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "使用指紋解鎖";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "兩次填寫的主密碼不一致。";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "主密碼提示可以在您忘記主密碼時幫助您回憶主密碼。";
 "MasterPasswordLengthValMessageX" = "主密碼需要至少 %1$@ 個字元。";
 "MinNumbers" = "最少數字位數";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "您的裝置無法開啟這種類型的檔案。";
 "Downloading" = "正在下載...";
 "AttachmentLargeWarning" = "這個附件大小為 %1$@ 。確定要下載至您的裝置嗎？";
-"AuthenticatorKey" = "驗證器金鑰 (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "驗證碼 (TOTP)";
 "AuthenticatorKeyAdded" = "已新增驗證器金鑰。";
 "AuthenticatorKeyReadError" = "無法讀取驗證器金鑰。";
@@ -354,7 +354,6 @@
 "NewCustomField" = "新增自訂欄位";
 "SelectTypeField" = "您要新增哪種類型的自訂欄位？";
 "Remove" = "移除";
-"NewUri" = "新增 URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "基底網域";
 "Default" = "預設";
@@ -392,7 +391,6 @@
 "Logins" = "登入資料";
 "SecureNotes" = "安全筆記";
 "AllItems" = "所有項目";
-"URIs" = "URIs";
 "CheckingPassword" = "正在檢查密碼...";
 "CheckPassword" = "檢查密碼是否已暴露。";
 "PasswordExposed" = "此密碼在資料外洩事件中被暴露了 %1$@ 次，應立即變更它。";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "指紋短語";
 "YourAccountsFingerprint" = "您帳戶的指紋短語";
 "LearnOrgConfirmation" = "Bitwarden 允許您使用組織帳戶與他人共用您的密碼庫項目。您想造訪 bitwarden.com 網站以了解更多內容嗎？";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "匯出密碼庫";
 "LockNow" = "立即鎖定";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "無法添加驗證器金鑰嗎？";
 "ScanQRCode" = "掃描 QR Code";
 "CannotScanQRCode" = "無法掃描 QR Code 嗎？";
-"AuthenticatorKeyScanner" = "驗證器金鑰";
 "EnterKeyManually" = "手動輸入金鑰";
 "AddTotp" = "新增 TOTP";
-"SetupTotp" = "設定 TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "成功輸入金鑰後，\n選擇「新增 TOTP」即可安全地儲存金鑰";
 "NeverLockWarning" = "將鎖定選項設定為「從不」可讓任何能夠存取您的裝置的人都可以使用您的密碼庫。 如果您使用此選項，則應確保您的裝置得到妥善的保護。";
 "EnvironmentPageUrlsError" = "一或多個輸入的網址無效，請修正後再嘗試儲存。";
@@ -790,7 +787,8 @@
 "DataRegion" = "資料區域";
 "Region" = "區域";
 "UpdateWeakMasterPasswordWarning" = "您的主密碼不符合您的組織政策之一或多個要求。您必須立即更新您的主密碼以存取密碼庫。進行此操作將登出您目前的工作階段，需要您重新登入。其他裝置上的工作階段可能持續長達一小時。";
-"CurrentMasterPassword" = "目前主密碼";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "已登入！";
 "ApproveWithMyOtherDevice" = "使用我的其他裝置核准";
 "RequestAdminApproval" = "要求管理員核准";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "選擇一個獨特且強度足夠的密碼來保護您的資訊安全。";
 "MasterPasswordRequired" = "主密碼（必填）";
 "RetypeMasterPasswordRequired" = "再次輸入主密碼（必填）";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden 無法為您恢復遺失或忘記的主密碼。";
 "LearnAboutWaysToPreventAccountLockout" = "[%1$s] 採用自架金鑰伺服器的 SSO 功能，因此該組織成員不再需要主密碼來登入。";
 "WhatMakesAPasswordStrong" = "一個強密碼具有哪些特性？";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

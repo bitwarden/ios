@@ -65,7 +65,6 @@
 "Sync" = "Sincronizar";
 "ThankYou" = "Obrigado";
 "Tools" = "Ferramentas";
-"URI" = "URL";
 "UseFingerprintToUnlock" = "Usar a impressão digital para desbloquear";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "A confirmação de senha não está correta.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Uma dica de senha mestra pode ajudá-lo(a) a lembrá-la caso você a esqueça.";
 "MasterPasswordLengthValMessageX" = "A senha mestra deve ter pelo menos %1$@ caracteres.";
 "MinNumbers" = "Números mínimos";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "O seu dispositivo não pode abrir este tipo de arquivo.";
 "Downloading" = "Baixando...";
 "AttachmentLargeWarning" = "Este anexo tem %1$@ de tamanho. Tem certeza que deseja baixar para o seu dispositivo?";
-"AuthenticatorKey" = "Chave de Autenticação (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Código de Verificação (TOTP)";
 "AuthenticatorKeyAdded" = "Chave do autenticador adicionada.";
 "AuthenticatorKeyReadError" = "Não é possível ler a chave do autenticador.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Novo Campo Personalizado";
 "SelectTypeField" = "Que tipo de campo personalizado você deseja adicionar?";
 "Remove" = "Remover";
-"NewUri" = "Novo URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Domínio de base";
 "Default" = "Padrão";
@@ -392,7 +391,6 @@
 "Logins" = "Credenciais";
 "SecureNotes" = "Notas Seguras";
 "AllItems" = "Todos os Itens";
-"URIs" = "URIs";
 "CheckingPassword" = "Verificando a senha...";
 "CheckPassword" = "Verifique se a senha foi exposta.";
 "PasswordExposed" = "Esta senha foi exposta %1$@ vez(es) em brechas de dados. Você deve alterá-la.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Frase Biométrica";
 "YourAccountsFingerprint" = "A sua frase biométrica";
 "LearnOrgConfirmation" = "O Bitwarden permite que você compartilhe os itens do seu cofre com outros ao usar uma conta da organização. Você gostaria de visitar o site bitwarden.com para saber mais?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Exportar cofre";
 "LockNow" = "Bloquear agora";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Não foi possível adicionar chave de autenticação?";
 "ScanQRCode" = "Escanear QR Code";
 "CannotScanQRCode" = "Não foi possível escanear o QR Code?";
-"AuthenticatorKeyScanner" = "Chave de Autenticação";
 "EnterKeyManually" = "Insira manualmente a chave";
 "AddTotp" = "Adicionar TOTP";
-"SetupTotp" = "Configurar TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Assim que a chave for inserida corretamente,\nselecione Adicionar TOTP para armazenar a chave de forma segura";
 "NeverLockWarning" = "Definir suas opções de bloqueio para \"Nunca\" mantém o cofre disponível para qualquer pessoa com acesso ao seu dispositivo. Se usar esta opção, você deverá garantir que manterá seu dispositivo devidamente protegido.";
 "EnvironmentPageUrlsError" = "Um ou mais dos URLs inseridos são inválidos. Por favor, revise-os e tente salvar novamente.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Região de dados";
 "Region" = "Região";
 "UpdateWeakMasterPasswordWarning" = "A sua senha mestra não atende a uma ou mais das políticas da sua organização. Para acessar o cofre, você deve atualizar a sua senha mestra agora. O processo desconectará você da sessão atual, exigindo que você inicie a sessão novamente. Sessões ativas em outros dispositivos podem continuar ativas por até uma hora.";
-"CurrentMasterPassword" = "Senha mestra atual";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Conectado!";
 "ApproveWithMyOtherDevice" = "Aprovar com meu outro dispositivo";
 "RequestAdminApproval" = "Solicitar aprovação do administrador";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Escolha uma senha única e forte para manter suas informações seguras.";
 "MasterPasswordRequired" = "Senha mestra (obrigatório)";
 "RetypeMasterPasswordRequired" = "Digite a senha mestra novamente (obrigatório)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "O Bitwarden não consegue recuperar uma senha mestra perdida ou esquecida.";
 "LearnAboutWaysToPreventAccountLockout" = "Saiba mais sobre outras formas de evitar a perca da conta";
 "WhatMakesAPasswordStrong" = "O que faz com que uma senha seja forte?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

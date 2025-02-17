@@ -65,7 +65,6 @@
 "Sync" = "Synkroniser";
 "ThankYou" = "Tusen takk";
 "Tools" = "Verktøy";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Lås opp med fingeravtrykk";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Passorda stemmer ikkje.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "Nytt hovudpassordhint";
 "MasterPasswordHintDescription" = "Eit hovudpassordvink kan hjelpa deg med å hugsa passordet ditt om du gløymer det.";
 "MasterPasswordLengthValMessageX" = "Hovudpassordet ditt må vera minst %1$@ teikn langt.";
 "MinNumbers" = "Min. tal på nummer";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Eininga di kan ikkje opna denne filtypen.";
 "Downloading" = "Lastar ned...";
 "AttachmentLargeWarning" = "Dette vedlegget er %1$@ stort. Er du trygg på at du vil lasta det ned til eininga di?";
-"AuthenticatorKey" = "Autentiseringsnykel (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Stadfestingskode (TOTP)";
 "AuthenticatorKeyAdded" = "Autentiseringsnykel lagd til.";
 "AuthenticatorKeyReadError" = "Kan ikkje lesa autentiseringsnykel.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Nytt eigendefinert felt";
 "SelectTypeField" = "Kva for ein type eigendefinert felt vil du leggje til?";
 "Remove" = "Fjern";
-"NewUri" = "Ny URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Grunndomene";
 "Default" = "Standard";
@@ -392,7 +391,6 @@
 "Logins" = "Innskrivingar";
 "SecureNotes" = "Trygge notat";
 "AllItems" = "Alle oppføringar";
-"URIs" = "URI-ar";
 "CheckingPassword" = "Går gjennom passord...";
 "CheckPassword" = "Check if password has been exposed.";
 "PasswordExposed" = "This password has been exposed %1$@ time(s) in data breaches. You should change it.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Fingeravtrykksuttrykk";
 "YourAccountsFingerprint" = "Your account's fingerprint phrase";
 "LearnOrgConfirmation" = "Bitwarden lèt deg dela kvelvoppføringar med andre ved å bruka ein samskipnadskonto. Vil du fara til bitwarden.com for å læra meir?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Eksporter";
 "ExportVault" = "Eksporter kvelv";
 "LockNow" = "Lås no";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "ScanQRCode" = "Scan QR Code";
 "CannotScanQRCode" = "Cannot scan QR Code?";
-"AuthenticatorKeyScanner" = "Authenticator key";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
-"SetupTotp" = "Set up TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered, select Save to store the key safely.";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Dataregion";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour.";
-"CurrentMasterPassword" = "Current master password";
+"CurrentMasterPasswordRequired" = "Noverande hovudpassord (påkravd)";
+"NewMasterPasswordRequired" = "Nytt hovudpassord (påkravt)";
 "LoggedIn" = "Logged in!";
 "ApproveWithMyOtherDevice" = "Approve with my other device";
 "RequestAdminApproval" = "Request admin approval";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Sjekk passordet for databrot";
 "PrivateNote" = "Privat notat";
 "XItems" = "%1$@ element";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "Ny mappe";
+"SetUpAuthenticatorKey" = "Set up authenticator key";
