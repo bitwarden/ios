@@ -483,7 +483,9 @@ struct VaultListView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: VaultListState(
-                            loadingState: .error(errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs)
+                            loadingState: .error(
+                                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+                            )
                         )
                     )
                 ),

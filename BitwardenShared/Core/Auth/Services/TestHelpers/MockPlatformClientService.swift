@@ -2,7 +2,7 @@ import BitwardenSdk
 
 @testable import BitwardenShared
 
-class MockClientPlatformService: ClientPlatformService {
+class MockPlatformClientService: PlatformClientService {
     var fido2Mock = MockClientFido2Service()
     var fingerprintMaterialString: String?
     var fingerprintResult: Result<String, Error> = .success("a-fingerprint-phrase-string-placeholder")
