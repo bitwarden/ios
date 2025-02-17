@@ -65,7 +65,6 @@
 "Sync" = "Синхронизуј";
 "ThankYou" = "Хвала";
 "Tools" = "Алатке";
-"URI" = "УРЛ";
 "UseFingerprintToUnlock" = "Користите отисак прста за откључавање";
 "UseThisButtonToGenerateANewUniquePassword" = "Користите ово дугме да би сте генерисали нову јединствену лозинку.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Морате подесити само кључ аутентификатора за пријављивања која захтевају двофакторску аутентификацију са кодом. Кључ ће непрестано генерисати шестоцифрене кодове које можете користити за пријављивање.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Потврђена лозинка није тачна.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Главна лозинка је лозинка коју користите за приступ вашем трезору.";
 "MasterPasswordHint" = "Помоћ за главну лозинку";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Савет Главне Лозинке може да Вам помогне да се потсетите ако је заборавите.";
 "MasterPasswordLengthValMessageX" = "Главна лозинка мора имати барем %1$@ карактера.";
 "MinNumbers" = "Минимално Бројева";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Уређај не може да отвори ову врсту датотеке.";
 "Downloading" = "Преузимање...";
 "AttachmentLargeWarning" = "Овај прилог има %1$@. Да ли сте сигурни да желите да га преузмете на свој уређај?";
-"AuthenticatorKey" = "Једнократни код";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Једнократни код";
 "AuthenticatorKeyAdded" = "Верификациони код додат.";
 "AuthenticatorKeyReadError" = "Не могу да читам верификациони код.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Ново прилагођено поље";
 "SelectTypeField" = "Какву врсту прилагођеног поља желите да додате?";
 "Remove" = "Уклони";
-"NewUri" = "Нови УРЛ";
 "URIPosition" = "УРЛ %1$@";
 "BaseDomain" = "Главни домен";
 "Default" = "Подразумевано";
@@ -392,7 +391,6 @@
 "Logins" = "Пријаве";
 "SecureNotes" = "Сигурносне белешке";
 "AllItems" = "Све ставке";
-"URIs" = "УРЛ";
 "CheckingPassword" = "Проверавање лозинке...";
 "CheckPassword" = "Проверите да ли је лозинка изложена.";
 "PasswordExposed" = "Ова лозинка је изложена %1$@ пута. Требали би да је промените.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Сигурносна Фраза Сефа";
 "YourAccountsFingerprint" = "Ваша Сигурносна Фраза Сефа";
 "LearnOrgConfirmation" = "Bitwarden вам омогућава да делите ставке сефа другима користећи налог организације. Да ли желите да посетите веб локацију bitwarden.com да бисте сазнали више?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Извоз сефа";
 "LockNow" = "Закључај одмах";
@@ -681,10 +680,8 @@
 "CannotAddAuthenticatorKey" = "Не може да се дода верификациони код?";
 "ScanQRCode" = "Скенирај QR код";
 "CannotScanQRCode" = "Не мигу да скенирам QR код?";
-"AuthenticatorKeyScanner" = "Кључ аутентификатора";
 "EnterKeyManually" = "Унесите кључ ручно";
 "AddTotp" = "Додати ТОТП";
-"SetupTotp" = "Подесити ТОТП";
 "OnceTheKeyIsSuccessfullyEntered" = "Када се кључ успешно унесе,\nодабрати Додати ТОТП да би сигурносно сачували кључ";
 "NeverLockWarning" = "Постављањем опција закључавања на „Никад“, ваш сеф остаје доступан свима који имају приступ вашем уређају. Ако користите ову опцију, требало би да будете сигурни да ћете свој уређај правилно заштитити.";
 "EnvironmentPageUrlsError" = "Једна или више унетих УРЛ адреса су неважеће. Проверите их и покушајте поново да сачувате.";
@@ -791,7 +788,8 @@
 "DataRegion" = "Регион података";
 "Region" = "Регион";
 "UpdateWeakMasterPasswordWarning" = "Ваша главна лозинка не испуњава једну или више смерница ваше организације. Да бисте приступили сефу, морате одмах да ажурирате главну лозинку. Ако наставите, одјавићете се са ваше тренутне сесије, што захтева да се поново пријавите. Активне сесије на другим уређајима могу да остану активне до један сат.";
-"CurrentMasterPassword" = "Тренутна главна лозинка";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Пријављено!";
 "ApproveWithMyOtherDevice" = "Одобри са мојим другим уређајем";
 "RequestAdminApproval" = "Затражити одобрење администратора";
@@ -978,6 +976,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Изаберите јединствену и јаку лозинку да бисте заштитили своје податке.";
 "MasterPasswordRequired" = "Главна лозинка (неопходно)";
 "RetypeMasterPasswordRequired" = "Поново унети главну лозинку (неопходно)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden не може да рисетује изгубљену или заборављену главну лозинку.";
 "LearnAboutWaysToPreventAccountLockout" = "Сазнајте више о начинима да спречите закључавање налога";
 "WhatMakesAPasswordStrong" = "Шта лозинку чини јаком?";
@@ -1113,3 +1112,15 @@
 "CheckPasswordForDataBreaches" = "Провери лозинку за провалу података";
 "PrivateNote" = "Приватна белешка";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

@@ -65,7 +65,6 @@
 "Sync" = "مزامنة";
 "ThankYou" = "شكرا";
 "Tools" = "أدوات";
-"URI" = "عنوان الـ URI";
 "UseFingerprintToUnlock" = "استخدام بصمة إصبعك لإلغاء القفل";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "تأكيد كلمة المرور غير صحيح.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "يمكن أن تساعدك فكرة كلمة المرور الرئيسية على تذكر كلمة المرور الخاصة بك إذا نسيت.";
 "MasterPasswordLengthValMessageX" = "كلمة المرور الرئيسية يجب أن تكون على الأقل %1$@ حرفاً.";
 "MinNumbers" = "الحد الأدنى للأرقام";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "لا يمكن لجهازك فتح هذا النوع من الملفات.";
 "Downloading" = "جارِ التحميل...";
 "AttachmentLargeWarning" = "حجم هذا المرفق %1$@. هل أنت متأكد أنك تريد تنزيله على جهازك؟";
-"AuthenticatorKey" = "مفتاح المصادقة (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "رمز التحقق (TOTP)";
 "AuthenticatorKeyAdded" = "تم إضافة مفتاح المصادقة.";
 "AuthenticatorKeyReadError" = "لا يمكن قراءة مفتاح المصادقة.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "حقل مخصص جديد";
 "SelectTypeField" = "ما نوع الحقل المخصص الذي تريد إضافته؟";
 "Remove" = "إزالة";
-"NewUri" = "رابط جديد";
 "URIPosition" = "رابط %1$@";
 "BaseDomain" = "النطاق الأساسي";
 "Default" = "الافتراضي";
@@ -392,7 +391,6 @@
 "Logins" = "تسجيلات الدخول";
 "SecureNotes" = "ملاحظات آمنة";
 "AllItems" = "كافة العناصر";
-"URIs" = "الرابط";
 "CheckingPassword" = "التحقق من كلمة المرور...";
 "CheckPassword" = "تحقق مما إذا تم الكشف عن كلمة المرور.";
 "PasswordExposed" = "تم كشف كلمة المرور هذه %1$@ مرة (مرات) في عمليات اختراق البيانات. يجب عليك تغييرها.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "عبارة بصمة الإصبع";
 "YourAccountsFingerprint" = "عبارة بصمة حسابك";
 "LearnOrgConfirmation" = "يسمح لك Bitwarden بمشاركة عناصر خزانتك مع الآخرين باستخدام حساب المؤسسة. هل ترغب في زيارة موقع bitwarden.com لمعرفة المزيد؟";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "تصدير الخزانة";
 "LockNow" = "إقفل الآن";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "لا يمكن إضافة مفتاح المصادقة؟";
 "ScanQRCode" = "مسح رمز QR";
 "CannotScanQRCode" = "لا يمكن مسح رمز QR؟";
-"AuthenticatorKeyScanner" = "مفتاح المصادقة";
 "EnterKeyManually" = "أدخل المفتاح يدوياً";
 "AddTotp" = "إضافة TOTP";
-"SetupTotp" = "إعداد TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "بمجرد إدخال المفتاح بنجاح،\nحدد إضافة TOTP لتخزين المفتاح بأمان";
 "NeverLockWarning" = "تعيين خيارات قفل الخاص بك إلى \"مطلقا\" يبقي خزانتك متاحةً لأي شخص لديه حق الوصول إلى جهازك. إذا كنت تستخدم هذا الخيار، يجب أن تتأكد من الحفاظ على حماية جهازك بشكل صحيح.";
 "EnvironmentPageUrlsError" = "واحد أو أكثر من عناوين URL التي تم إدخالها غير صالحة. الرجاء مراجعتها ومحاولة الحفظ مرة أخرى.";
@@ -790,7 +787,8 @@
 "DataRegion" = "منطقة البيانات";
 "Region" = "المنطقة";
 "UpdateWeakMasterPasswordWarning" = "كلمة المرور الرئيسية الخاصة بك لا تفي بواحدة أو أكثر من سياسات مؤسستك. من أجل الوصول إلى الخزانة، يجب عليك تحديث كلمة المرور الرئيسية الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. وقد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة.";
-"CurrentMasterPassword" = "كلمة المرور الرئيسية الحالية";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "سجلت دخولك!";
 "ApproveWithMyOtherDevice" = "الموافقة بجهازي الآخر";
 "RequestAdminApproval" = "طلب موافقة المسؤول";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "اختر كلمة مرور فريدة وقوية للحفاظ على سلامة معلوماتك.";
 "MasterPasswordRequired" = "كلمة المرور الرئيسية (مطلوب)";
 "RetypeMasterPasswordRequired" = "إعادة كتابة كلمة المرور الرئيسية (مطلوب)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "لا يمكن لـ Bitwarden إعادة تعيين كلمة مرور رئيسية مفقودة أو منسية.";
 "LearnAboutWaysToPreventAccountLockout" = "تعرف على طرق منع قفل الحساب";
 "WhatMakesAPasswordStrong" = "ما الذي يجعل كلمة المرور قوية؟";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

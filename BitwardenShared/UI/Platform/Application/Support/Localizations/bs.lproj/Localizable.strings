@@ -65,7 +65,6 @@
 "Sync" = "Sinhronizacija";
 "ThankYou" = "Hvala Vam";
 "Tools" = "Alati";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Otključajte pomoću otiska prsta";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Potvrda lozinke nije tačna.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Nagoveštaj glavne lozinke može Vam pomoći da zapamtite lozinku ako je zaboravite.";
 "MasterPasswordLengthValMessageX" = "Master password must be at least %1$@ characters long.";
 "MinNumbers" = "Minimalno brojeva";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Vaš uređaj ne može da otvori ovu vrstu datoteke.";
 "Downloading" = "Preuzimanje...";
 "AttachmentLargeWarning" = "Veličina ovog priloga je %1$@. Da li ste sigurni da ga želite preuzeti na svom uređaju?";
-"AuthenticatorKey" = "Ključ autentifikatora (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Verifikacioni kod (TOTP)";
 "AuthenticatorKeyAdded" = "Dodat je ključ autentifikatora.";
 "AuthenticatorKeyReadError" = "Ne može se pročitati ključ autentifikatora.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Novo prilagođeno polje";
 "SelectTypeField" = "Kakvu vrstu prilagođenog polja želite da dodate?";
 "Remove" = "Uklonite";
-"NewUri" = "Novi URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Osnovni domen";
 "Default" = "Zadano";
@@ -392,7 +391,6 @@
 "Logins" = "Prijave";
 "SecureNotes" = "Sigurna zabilješke";
 "AllItems" = "Sve spremljene lozinke";
-"URIs" = "URLs";
 "CheckingPassword" = "Provjeravanje vaše lozinke...";
 "CheckPassword" = "Provjeri da li je lozinka kompromitovana.";
 "PasswordExposed" = "Ova lozinka je kompromitovana %1$@ puta tijekom malicioznih napada. Savjetujemo njenu promjenu.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Jedinstvena fraza";
 "YourAccountsFingerprint" = "Jedinstvena fraza tvog računa";
 "LearnOrgConfirmation" = "Bitwarden omogućava da podijelite vaše datoteke ili prijave iz vašeg trezora sa drugim korisnicima pomoću korištenja računa za organizacije. Želiš li posjetiti bitwarden.com da naučiš više?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Izvoz trezora";
 "LockNow" = "Zaključaj odmah";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Nije moguće dodati autentifikacijski ključ?";
 "ScanQRCode" = "Skenirajte QR kod";
 "CannotScanQRCode" = "Nije moguće skenirati QR kod?";
-"AuthenticatorKeyScanner" = "Autentifikacijski ključ";
 "EnterKeyManually" = "Ručno unesi ključ";
 "AddTotp" = "Dodaj TOTP";
-"SetupTotp" = "Podesi TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Jednom kada je ključ uspješno unesen, odaberi „Dodaj TOTP” za sigurno spremanje ključa";
 "NeverLockWarning" = "Postavljanje zaključavanja na „Nikad” čini tvoj trezor dostupnim svima koji imaju pristupom tvom uređaju. Ako koristiš ovu mogućnost, pobrini se da je uređaj adekvatno zaštićen.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Data region";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour.";
-"CurrentMasterPassword" = "Current master password";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Logged in!";
 "ApproveWithMyOtherDevice" = "Approve with my other device";
 "RequestAdminApproval" = "Request admin approval";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

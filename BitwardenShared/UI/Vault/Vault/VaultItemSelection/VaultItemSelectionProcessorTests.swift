@@ -381,12 +381,12 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
         XCTAssertEqual(
             coordinator.routes.last,
             .addItem(
-                allowTypeSelection: false,
                 group: .login,
                 newCipherOptions: NewCipherOptions(
                     name: "Example",
                     totpKey: .otpAuthUriKeyComplete
-                )
+                ),
+                type: .login
             )
         )
         XCTAssertTrue(coordinator.contexts.last as? VaultItemSelectionProcessor === subject)

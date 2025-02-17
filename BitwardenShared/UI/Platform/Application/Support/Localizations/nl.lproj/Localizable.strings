@@ -65,7 +65,6 @@
 "Sync" = "Synchronisatie";
 "ThankYou" = "Bedankt";
 "Tools" = "Hulpmiddelen";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Vingerafdruk gebruiken om te ontgrendelen";
 "UseThisButtonToGenerateANewUniquePassword" = "Gebruik deze knop voor het genereren van een nieuw uniek wachtwoord.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Je hoeft alleen de Authenticator sleutel in te stellen voor logins die tweestapsverificatie vereisen met een code. De sleutel genereert continu zescijferige codes die je kunt gebruiken om in te loggen.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "De wachtwoorden komen niet overeen.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Het hoofdwachtwoord is het wachtwoord dat je gebruikt om toegang te krijgen tot je kluis.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "Nieuwe hoofdwachtwoordhint";
 "MasterPasswordHintDescription" = "Een hoofdwachtwoordhint kan je helpen je wachtwoord te herinneren als je het vergeten bent.";
 "MasterPasswordLengthValMessageX" = "Hoofdwachtwoord moet minstens %1$@ karakters lang zijn.";
 "MinNumbers" = "Min. aantal cijfers";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Je apparaat kan dit type bestand niet openen.";
 "Downloading" = "Downloaden...";
 "AttachmentLargeWarning" = "Deze bijlage heeft een omvang van %1$@. Weet je zeker dat je deze naar je apparaat wilt downloaden?";
-"AuthenticatorKey" = "Authenticatiesleutel (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Verificatiecode (TOTP)";
 "AuthenticatorKeyAdded" = "Authenticatiecode is toegevoegd.";
 "AuthenticatorKeyReadError" = "Kan de authenticatiecode niet lezen.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Nieuw aangepast veld";
 "SelectTypeField" = "Welk type aangepast veld wil je toevoegen?";
 "Remove" = "Verwijderen";
-"NewUri" = "Nieuwe URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Basisdomein";
 "Default" = "Standaard";
@@ -392,7 +391,6 @@
 "Logins" = "Logins";
 "SecureNotes" = "Veilige notities";
 "AllItems" = "Alle items";
-"URIs" = "URI's";
 "CheckingPassword" = "Wachtwoord controleren...";
 "CheckPassword" = "Controleer of wachtwoord is gelekt.";
 "PasswordExposed" = "Dit wachtwoord is %1$@ keer gelekt. Je zou het moeten veranderen.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Vingerafdrukzin";
 "YourAccountsFingerprint" = "Vingerafdrukzin van je account";
 "LearnOrgConfirmation" = "Met een organisatie-account kunt je je Bitwarden-kluis delen met anderen. Wil je de website bitwarden.com bezoeken voor meer informatie?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We kunnen je verzoek niet verwerken. Probeer het opnieuw of neem contact met ons op.";
 "Export" = "Exporteren";
 "ExportVault" = "Kluis exporteren";
 "LockNow" = "Nu vergrendelen";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Kun je de authenticatiesleutel niet toevoegen?";
 "ScanQRCode" = "QR-code scannen";
 "CannotScanQRCode" = "Kun je de QR-code niet scannen?";
-"AuthenticatorKeyScanner" = "Authenticatiesleutel";
 "EnterKeyManually" = "Sleutel handmatig invoeren";
 "AddTotp" = "TOTP toevoegen";
-"SetupTotp" = "TOTP instellen";
 "OnceTheKeyIsSuccessfullyEntered" = "Zodra de sleutel succesvol is ingevoerd, selecteer Opslaan om de sleutel veilig op te slaan.";
 "NeverLockWarning" = "De vergrendelingsoptie \"Nooit\" houdt je kluis beschikbaar voor iedereen met toegang tot je apparaat. Als je deze optie gebruikt, moet je ervoor zorgen dat je je apparaat naar behoren beschermt.";
 "EnvironmentPageUrlsError" = "Een of meerdere van de ingevoerde URL's zijn ongeldig. Controleer en probeer opnieuw op te slaan.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Dataregio";
 "Region" = "Regio";
 "UpdateWeakMasterPasswordWarning" = "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief.";
-"CurrentMasterPassword" = "Huidig hoofdwachtwoord";
+"CurrentMasterPasswordRequired" = "Huidig hoofdwachtwoord (vereist)";
+"NewMasterPasswordRequired" = "Nieuw hoofdwachtwoord (vereist)";
 "LoggedIn" = "Ingelogd!";
 "ApproveWithMyOtherDevice" = "Goedkeuren met mijn andere apparaat";
 "RequestAdminApproval" = "Goedkeuring van beheerder vragen";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Kies een uniek en sterk wachtwoord om je gegevens veilig te houden.";
 "MasterPasswordRequired" = "Hoofdwachtwoord (vereist)";
 "RetypeMasterPasswordRequired" = "Hoofdwachtwoord opnieuw invoeren (verplicht)";
+"RetypeNewMasterPasswordRequired" = "Hoofdwachtwoord opnieuw invoeren (verplicht)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden kan een verloren of vergeten hoofdwachtwoord niet herstellen.";
 "LearnAboutWaysToPreventAccountLockout" = "Lees meer over manieren om te voorkomen dat je wordt buitengesloten van je account";
 "WhatMakesAPasswordStrong" = "Wat maakt een wachtwoord sterk?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Controleer wachtwoord op datalekken";
 "PrivateNote" = "Privénotitie";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Kan deze gebruiker niet verwijderen omdat het de enige eigenaar is van ten minste één organisatie. Verwijder deze organisatie(s) of upgrade een andere gebruiker.";
+"APasskeyAlreadyExistsForThisApplication" = "Er bestaat al een passkey voor deze applicatie.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Er bestaat al een passkey voor deze applicatie, maar er is een fout opgetreden tijdens het laden ervan.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We herkennen dit apparaat niet. Voer de 8-cijferige verificatiecode in die gemaild is naar %1$@.";
+"ItemNameRequired" = "Itemnaam (verplicht)";
+"AutofillOptions" = "Instellingen automatisch invullen";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Website toevoegen";
+"CannotDeleteAccount" = "Kan account niet verwijderen";
+"CannotDeleteAccountDescriptionLong" = "Je kunt deze actie niet afronden omdat je account eigendom is van een organisatie. Neem contact op met de beheerder van je organisatie voor details.";
+"NewFolder" = "Nieuwe map";
+"SetUpAuthenticatorKey" = "Authenticatiesleutel instellen";

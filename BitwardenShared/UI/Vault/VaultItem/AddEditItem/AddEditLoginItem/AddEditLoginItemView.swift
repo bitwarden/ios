@@ -28,24 +28,22 @@ struct AddEditLoginItemView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 8) {
-                ContentBlock {
-                    usernameField
+        SectionView(Localizations.loginCredentials, contentSpacing: 8) {
+            ContentBlock {
+                usernameField
 
-                    passwordField
+                passwordField
 
-                    fidoField
-                }
-
-                totpView
-                    .guidedTourStep(.step2) { frame in
-                        didRenderFrame?(.step2, frame)
-                    }
+                fidoField
             }
 
-            uriSection
+            totpView
+                .guidedTourStep(.step2) { frame in
+                    didRenderFrame?(.step2, frame)
+                }
         }
+
+        uriSection
     }
 
     // MARK: Private views
@@ -250,7 +248,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
             ScrollView {
-                LazyVStack(spacing: 20) {
+                LazyVStack(spacing: 16) {
                     AddEditLoginItemView(
                         store: Store(
                             processor: StateProcessor(
@@ -271,7 +269,7 @@ struct AddEditLoginItemView_Previews: PreviewProvider {
 
         NavigationView {
             ScrollView {
-                LazyVStack(spacing: 20) {
+                LazyVStack(spacing: 16) {
                     AddEditLoginItemView(
                         store: Store(
                             processor: StateProcessor(

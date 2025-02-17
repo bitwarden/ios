@@ -27,8 +27,8 @@
 "Folder" = "Cartafol";
 "FolderCreated" = "Creouse un novo cartafol.";
 "FolderDeleted" = "Cartafol eliminado.";
-"FolderNone" = "Sen cartafois";
-"Folders" = "Cartafois";
+"FolderNone" = "Sen cartafoles";
+"Folders" = "Cartafoles";
 "FolderUpdated" = "Cartafol gardado";
 "GoToWebsite" = "Ir ao sitio web";
 "HelpAndFeedback" = "Axuda e comentarios";
@@ -65,7 +65,6 @@
 "Sync" = "Sincronizar";
 "ThankYou" = "Grazas";
 "Tools" = "Ferramentas";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Engade unha pegada dactilar para desbloquear";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "O contrasinal repetido non é correcto.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Unha pista do contrasinal mestre pode axudarte a lembrar o teu contrasinal se o esqueces.";
 "MasterPasswordLengthValMessageX" = "O contrasinal mestre debe ter polo menos %1$@ caracteres.";
 "MinNumbers" = "Mínimo de cifras";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "O teu dispositivo non pode abrir este tipo de arquivo.";
 "Downloading" = "Descargando...";
 "AttachmentLargeWarning" = "Este anexo pesa %1$@. Seguro que queres descargalo neste dispositivo?";
-"AuthenticatorKey" = "Clave de autenticación (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Código de verificación (TOTP)";
 "AuthenticatorKeyAdded" = "Clave de autenticación engadida.";
 "AuthenticatorKeyReadError" = "Non se pode ler a Clave de autenticación.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Novo campo personalizado";
 "SelectTypeField" = "Que tipo de campo personalizado queres engadir?";
 "Remove" = "Eliminar";
-"NewUri" = "Nova URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Dominio base";
 "Default" = "Por defecto";
@@ -392,7 +391,6 @@
 "Logins" = "Credenciais";
 "SecureNotes" = "Notas seguras";
 "AllItems" = "Todas as entradas";
-"URIs" = "URIs";
 "CheckingPassword" = "Comprobando contrasinal...";
 "CheckPassword" = "Comprobar se o contrasinal foi filtrado.";
 "PasswordExposed" = "Este contrasinal foi filtrado %1$@ vez/veces. Deberías cambialo.";
@@ -427,10 +425,11 @@
 "WordSeparator" = "Separador de palabras";
 "Clear" = "Limpar";
 "Generator" = "Xerador";
-"NoFoldersToList" = "Non hai cartafois que listar.";
+"NoFoldersToList" = "Non hai cartafoles que listar";
 "FingerprintPhrase" = "Frase de pegada dixital";
 "YourAccountsFingerprint" = "Frase de pegada dixital da túa conta";
 "LearnOrgConfirmation" = "Bitwarden permite compartir entradas da caixa forte con outros empregando unha conta de organización. Queres visitar bitwarden.com para saber máis?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Exportar caixa forte";
 "LockNow" = "Pechar agora";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Non se pode engadir a Clave de autenticación?";
 "ScanQRCode" = "Escanear código QR";
 "CannotScanQRCode" = "Non consegue escanear o código QR?";
-"AuthenticatorKeyScanner" = "Clave de autenticación";
 "EnterKeyManually" = "Engadir clave automaticamente";
 "AddTotp" = "Engadir TOTP";
-"SetupTotp" = "Configurar TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Unha vez metida a clave correctamente,\nselecciona Engadir código dun só uso para gardar a clave de forma segura";
 "NeverLockWarning" = "Ó definir a opción de bloqueo a \"Nunca\" a túa Caixa forte será accesible para calquera con acceso ó dispositivo. Se empregas está opción, asegúrate de protexer o dispositivo.";
 "EnvironmentPageUrlsError" = "Algunha das URLs introducidas é invalida. Por favor, revísaas e volve intentar gardalas.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Rexión de datos";
 "Region" = "Rexión";
 "UpdateWeakMasterPasswordWarning" = "O teu contrasinal mestre non cumpre algún dos requisitos das directivas da empresa. Para poder acceder a caixa forte debes actualizar o teu contrasinal mestre. A continuación cerrarase a túa sesión, requirindo volver iniciala. As sesións activas noutros dispositivos poden permanecer activas por unha hora.";
-"CurrentMasterPassword" = "Contrasinal mestre actual";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Sesión iniciada!";
 "ApproveWithMyOtherDevice" = "Aprobar dende o meu outro dispositivo";
 "RequestAdminApproval" = "Solicitar aprobación do administrador";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Escolle un contrasinal único e seguro para ofrecer a túa información.";
 "MasterPasswordRequired" = "É preciso o contrasinal mestre";
 "RetypeMasterPasswordRequired" = "É preciso repetir o contrasinal mestre";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden non pode recuperar contrasinais mestres oxidados ou perdidos.";
 "LearnAboutWaysToPreventAccountLockout" = "Descobre outras formas de prever o bloqueo da conta";
 "WhatMakesAPasswordStrong" = "Que fai un contrasinal seguro?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

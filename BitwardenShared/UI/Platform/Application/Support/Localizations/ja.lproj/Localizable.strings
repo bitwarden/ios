@@ -65,7 +65,6 @@
 "Sync" = "同期";
 "ThankYou" = "ありがとうございます";
 "Tools" = "ツール";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "指紋認証でロック解除";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "パスワードの確認が正しくありません。";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "マスターパスワードのヒントは、パスワードを忘れた場合に役立ちます。";
 "MasterPasswordLengthValMessageX" = "マスターパスワードは、少なくとも%1$@文字以上で設定してください。";
 "MinNumbers" = "数字の最小個数";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "お使いの端末ではこの種類のファイルを開けません。";
 "Downloading" = "ダウンロード中...";
 "AttachmentLargeWarning" = "この添付ファイルのサイズは%1$@です。本当に端末にダウンロードしますか？";
-"AuthenticatorKey" = "認証キー (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "認証コード (TOTP)";
 "AuthenticatorKeyAdded" = "認証キーを追加しました。";
 "AuthenticatorKeyReadError" = "認証キーを読み取れません。";
@@ -354,7 +354,6 @@
 "NewCustomField" = "新規カスタムフィールド";
 "SelectTypeField" = "どのタイプのカスタムフィールドを追加しますか？";
 "Remove" = "削除";
-"NewUri" = "新しい URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "ベースドメイン";
 "Default" = "デフォルト";
@@ -392,7 +391,6 @@
 "Logins" = "ログイン";
 "SecureNotes" = "秘密のメモ";
 "AllItems" = "すべてのアイテム";
-"URIs" = "URI";
 "CheckingPassword" = "パスワードを確認しています...";
 "CheckPassword" = "パスワードが漏洩していないか確認する";
 "PasswordExposed" = "このパスワードは過去に %1$@ 回漏洩しています。変更するべきです。";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "パスフレーズ";
 "YourAccountsFingerprint" = "アカウントのパスフレーズ";
 "LearnOrgConfirmation" = "Bitwardenでは、組織アカウントを使用して保管庫のアイテムを他の人と共有できます。 詳細は bitwarden.com のウェブサイトをご覧ください。";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "保管庫のエクスポート";
 "LockNow" = "今すぐロック";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "認証キーを追加できませんか？";
 "ScanQRCode" = "QR コードを読み取る";
 "CannotScanQRCode" = "QR コードをスキャンできませんか？";
-"AuthenticatorKeyScanner" = "認証キー";
 "EnterKeyManually" = "キーを手動で入力してください";
 "AddTotp" = "TOTP を追加";
-"SetupTotp" = "TOTP の設定";
 "OnceTheKeyIsSuccessfullyEntered" = "キーを入力したら、安全に保存するため\n『TOTP を追加』を選択してください。";
 "NeverLockWarning" = "ロックオプションを「なし」に設定すると、あなたのデバイスを操作できる誰もが保管庫を見られます。 このオプションを使用する場合は、デバイスを適切に保護しておく必要があります。";
 "EnvironmentPageUrlsError" = "入力されたURLのうち1つ以上が無効です。変更して再度保存してください。";
@@ -790,7 +787,8 @@
 "DataRegion" = "データのリージョン";
 "Region" = "リージョン";
 "UpdateWeakMasterPasswordWarning" = "マスターパスワードが組織のポリシーに適合していません。保管庫にアクセスするには、今すぐマスターパスワードを更新しなければなりません。続行すると現在のセッションからログアウトし、再度ログインする必要があります。 他のデバイス上のアクティブなセッションは、最大1時間アクティブであり続けることがあります。";
-"CurrentMasterPassword" = "現在のマスターパスワード";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "ログインしました!";
 "ApproveWithMyOtherDevice" = "他のデバイスで承認する";
 "RequestAdminApproval" = "管理者の承認を要求する";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "あなたの情報を安全に保つために、ユニークで強力なパスワードを選択してください。";
 "MasterPasswordRequired" = "マスターパスワード (必須)";
 "RetypeMasterPasswordRequired" = "マスターパスワードを再入力 (必須)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden は紛失した、または忘れられたマスターパスワードをリセットできません。";
 "LearnAboutWaysToPreventAccountLockout" = "アカウントのロックアウトを防ぐ方法について学ぶ";
 "WhatMakesAPasswordStrong" = "パスワードを強くする方法は?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

@@ -121,17 +121,12 @@ final class VaultListProcessor: StateProcessor<
         }
     }
 
-    override func receive(_ action: VaultListAction) {
+    override func receive(_ action: VaultListAction) { // swiftlint:disable:this function_body_length
         switch action {
-        case .addItemPressed:
-            setProfileSwitcher(visible: false)
-            switch state.vaultFilterType {
-            case let .organization(organization):
-                coordinator.navigate(to: .addItem(organizationId: organization.id))
-            default:
-                coordinator.navigate(to: .addItem())
-            }
-            reviewPromptTask?.cancel()
+        case .addFolder:
+            coordinator.navigate(to: .addFolder)
+        case let .addItemPressed(type):
+            addItem(type: type)
         case .clearURL:
             state.url = nil
         case .copyTOTPCode:
@@ -181,6 +176,21 @@ final class VaultListProcessor: StateProcessor<
 
 extension VaultListProcessor {
     // MARK: Private Methods
+
+    /// Navigates to the add vault item screen.
+    ///
+    /// - Parameter type: The type of vault item to add.
+    ///
+    private func addItem(type: CipherType) {
+        setProfileSwitcher(visible: false)
+        switch state.vaultFilterType {
+        case let .organization(organization):
+            coordinator.navigate(to: .addItem(organizationId: organization.id, type: type))
+        default:
+            coordinator.navigate(to: .addItem(type: type))
+        }
+        reviewPromptTask?.cancel()
+    }
 
     /// Called when the vault list appears on screen.
     private func appeared() async {

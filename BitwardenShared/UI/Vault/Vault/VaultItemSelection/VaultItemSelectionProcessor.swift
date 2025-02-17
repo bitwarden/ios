@@ -92,12 +92,12 @@ class VaultItemSelectionProcessor: StateProcessor<
             state.profileSwitcherState.setIsVisible(false)
             coordinator.navigate(
                 to: .addItem(
-                    allowTypeSelection: false,
                     group: .login,
                     newCipherOptions: NewCipherOptions(
                         name: state.ciphersMatchingName,
                         totpKey: state.totpKeyModel.rawAuthenticatorKey
-                    )
+                    ),
+                    type: .login
                 ),
                 context: self
             )

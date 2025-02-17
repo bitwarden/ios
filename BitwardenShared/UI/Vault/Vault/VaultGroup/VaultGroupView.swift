@@ -83,7 +83,7 @@ struct VaultGroupView: View {
 
                     if store.state.showAddItemButton {
                         Button(Localizations.addAnItem) {
-                            store.send(.addItemPressed)
+                            store.send(.addItemPressed(nil))
                         }
                         .buttonStyle(.primary(shouldFillWidth: false))
                     }
@@ -106,8 +106,17 @@ struct VaultGroupView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            addItemFloatingActionButton(hidden: !store.state.showAddItemFloatingActionButton) {
-                store.send(.addItemPressed)
+            if let floatingActionButtonType = store.state.floatingActionButtonType {
+                switch floatingActionButtonType {
+                case .button:
+                    addItemFloatingActionButton {
+                        store.send(.addItemPressed(nil))
+                    }
+                case .menu:
+                    addVaultItemFloatingActionMenu { type in
+                        store.send(.addItemPressed(type))
+                    }
+                }
             }
         }
     }

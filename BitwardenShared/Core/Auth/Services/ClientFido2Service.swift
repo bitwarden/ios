@@ -31,7 +31,7 @@ protocol ClientFido2Service: AnyObject {
     func decryptFido2AutofillCredentials(cipherView: CipherView) throws -> [Fido2CredentialAutofillView]
 }
 
-// MARK: ClientPlatform
+// MARK: ClientFido2
 
 extension ClientFido2: ClientFido2Service {
     func authenticator(

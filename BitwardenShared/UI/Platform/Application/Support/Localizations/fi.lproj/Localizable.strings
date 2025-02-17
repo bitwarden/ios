@@ -65,7 +65,6 @@
 "Sync" = "Synkronointi";
 "ThankYou" = "Kiitokset";
 "Tools" = "Työkalut";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Avaa sormenjäljellä";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Salasanan vahvistus ei täsmää.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "Pääsalasanan vihje voi auttaa sinua muistamaan unohtamasi salasanan.";
 "MasterPasswordLengthValMessageX" = "Pääsalasanan tulee sisältää vähintään %1$@ merkkiä.";
 "MinNumbers" = "Numeroita vähintään";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Laitteesi ei voi avata tämän tyyppistä tiedostoa.";
 "Downloading" = "Ladataan…";
 "AttachmentLargeWarning" = "Tiedostoliitteen koko on %1$@. Haluatko varmasti ladata sen laitteellesi?";
-"AuthenticatorKey" = "Todennusavain (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Todennuskoodi (TOTP)";
 "AuthenticatorKeyAdded" = "Todennusavain on lisätty.";
 "AuthenticatorKeyReadError" = "Todennusavaimen lukeminen ei onnistu.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Uusi lisäkenttä";
 "SelectTypeField" = "Minkä tyyppisen lisäkentän haluat lisätä?";
 "Remove" = "Poista";
-"NewUri" = "Uusi URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Pääverkkotunnus";
 "Default" = "Oletus";
@@ -392,7 +391,6 @@
 "Logins" = "Kirjautumistiedot";
 "SecureNotes" = "Salatut muistiot";
 "AllItems" = "Kaikki kohteet";
-"URIs" = "URI:t";
 "CheckingPassword" = "Tarkistetaan salasanaa...";
 "CheckPassword" = "Tarkasta, onko salasana paljastunut.";
 "PasswordExposed" = "Salasana on paljastunut %1$@ tietovuodossa. Se tulisi vaihtaa.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Tunnistelauseke";
 "YourAccountsFingerprint" = "Tilisi tunnistelauseke";
 "LearnOrgConfirmation" = "Bitwardenin avulla voit jakaa holvisi sisältöä muiden kanssa organisaatiotiliä käyttäen. Haluatko lukea bitwarden.com-sivustolta lisää?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Vie holvi";
 "LockNow" = "Lukitse nyt";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Eikä todennusavaimen lisääminen onnistu?";
 "ScanQRCode" = "Skannaa QR-koodi";
 "CannotScanQRCode" = "Eikö QR-koodin skannaus onnistu?";
-"AuthenticatorKeyScanner" = "Todennusavain";
 "EnterKeyManually" = "Syötä se manuaalisesti";
 "AddTotp" = "Lisää TOTP";
-"SetupTotp" = "Määritä TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Kun avain on syötetty oikein, tallenna se\nturvallisesti valitsemalla \"Lisää TOTP\"";
 "NeverLockWarning" = "Käyttämällä lukitusasetusta \"Ei koskaan\"? Tallentuu holvisi salausavain laitteellesi. Jos käytät asetusta, varmista, että laite on suojattu hyvin.";
 "EnvironmentPageUrlsError" = "Yksi tai useampi syötetyistä URL-osoitteista on virheellinen. Tarkista virheet ja yritä tallennusta uudelleen.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Tietoalue";
 "Region" = "Alue";
 "UpdateWeakMasterPasswordWarning" = "Pääsalasanasi ei täytä yhden tai useamman organisaatiokäytännön vaatimuksia ja holvin käyttämiseksi sinun on vaihdettava se nyt. Tämä uloskirjaa kaikki nykyiset istunnot pakottaen uudelleenkirjautumisen. Muiden laitteiden aktiiviset istunnot saattavat toimia vielä tunnin ajan.";
-"CurrentMasterPassword" = "Nykyinen pääsalasana";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Kirjautuminen onnistui";
 "ApproveWithMyOtherDevice" = "Hyväksy toisella laitteellani";
 "RequestAdminApproval" = "Pyydä hyväksyntää ylläpidolta";
@@ -897,7 +895,7 @@
 "UnknownAccount" = "Tuntematon tili";
 "SetUpAutofill" = "Määritä automaattitäyttö";
 "GetInstantAccessToYourPasswordsAndPasskeys" = "Tavoita salasanasi ja pääsyavaimesi välittömästi!";
-"SetUpAutoFillDescriptionLong" = "To set up password autofill and passkey management, set Bitwarden as your preferred provider in the iOS Settings.";
+"SetUpAutoFillDescriptionLong" = "Määrittääksesi salasanojen automaattitäytön ja pääsyavainten hallinnan, aseta Bitwarden iOS-laitteesi asetuksista näiden oletusratkaisuksi.";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. Avaa laitteesi Asetukset > Salasanat > Salasanavalinnat";
 "SecondDotTurnOnAutoFill" = "4. Kytke automaattitäyttö käyttöön";
 "ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. Valitse \"Bitwarden\" käyttääksesi sitä salasanoille ja pääsyavaimille";
@@ -948,7 +946,7 @@
 "IntroCarouselPage3Title" = "Nosta kirjautumisesi uudelle tasolle";
 "IntroCarouselPage3Message" = "Käytä generaattoria luodaksesi ja tallentaaksesi vahvoja, ainutlaatuisia salasanoja kaikille tileillesi.";
 "IntroCarouselPage4Title" = "Sinun tietosi, missä ja milloin tarvitset niitä";
-"IntroCarouselPage4Message" = "Tallenna rajattomasti salasanoja, rajattomalla määrällä laitteita, Bitwardenin mobiili-, selain- ja työpöytäsovelluksilla.";
+"IntroCarouselPage4Message" = "Tallenna rajattomasti salasanoja, rajattomalla määrällä laitteita, Bitwardenin mobiili-, selain- ja työpöytäapeilla.";
 "AccountSetup" = "Tilin määritys";
 "SetUpUnlock" = "Määritä lukituksen poisto";
 "SetUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins" = "Määritä biometriatiedot tai aseta PIN-koodi avataksesi holvisi ja automaattitäyttääksesi kirjautumistietojasi nopeasti.";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Suojaa tietosi valitsemalla ainutlaatuinen ja vahva salasana.";
 "MasterPasswordRequired" = "Pääsalasana (pakollinen)";
 "RetypeMasterPasswordRequired" = "Kirjoita pääsalasana uudelleen (pakollinen)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden ei voi nollata kadonnutta tai unohtunutta pääsalasanaa.";
 "LearnAboutWaysToPreventAccountLockout" = "Lue tavoista joilla voit välttyä tilin menetykseltä";
 "WhatMakesAPasswordStrong" = "Mikä tekee salasanasta vahvan?";
@@ -1035,7 +1034,7 @@
 "NeedHelpCheckOutImportHelp" = "Tarvitsetko apua? Tutustu **[tuontiohjeisiin](%1$@)**";
 "LogInToBitwarden" = "Kirjaudu Bitwardeniin";
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
-"LogInToTheBitwardenWebApp" = "**Kirjaudu Bitwarden-verkkosovellukseen.**";
+"LogInToTheBitwardenWebApp" = "**Kirjaudu Bitwarden-verkkoappiin.**";
 "ImportLoginsToBitwarden" = "Tuo kirjautumistietoja Bitwardeniin";
 "InTheBitwardenNavigationFindTheToolsOptionAndSelectImportData" = "In the Bitwarden navigation, **find the Tools option** and **select Import data.**";
 "FillOutTheFormAndImportYourSavedPasswordFile" = "Fill out the form and **import your saved password file.**";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";

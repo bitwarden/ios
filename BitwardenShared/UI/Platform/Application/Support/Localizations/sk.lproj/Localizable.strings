@@ -65,7 +65,6 @@
 "Sync" = "Synchronizácia";
 "ThankYou" = "Ďakujeme Vám";
 "Tools" = "Nástroje";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Použiť odtlačkov prsta na odomknutie";
 "UseThisButtonToGenerateANewUniquePassword" = "Toto tlačidlo použite na vygenerovanie nového jedinečného hesla.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Kľúč overovateľa budete musieť nastaviť pre prihlásenia, ktoré vyžadujú dvojstupňové overenie kódom. Tento kľúč bude neustále generovať 6-ciferné kódy, ktoré môžete použiť na prihlásenie.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Potvrdenie hesla nie je správne.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Hlavné heslo je heslo, ktoré používate na prístup do svojho trezora.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "Nová nápoveď pre hlavné heslo";
 "MasterPasswordHintDescription" = "Nápoveď k hlavnému heslu vám môže pomôcť spomenúť si na heslo, ak ho zabudnete.";
 "MasterPasswordLengthValMessageX" = "Hlavné heslo musí obsahovať aspoň %1$@ znakov.";
 "MinNumbers" = "Minimum číslic";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Vaše zariadenie nevie otvoriť tento typ súboru.";
 "Downloading" = "Sťahovanie...";
 "AttachmentLargeWarning" = "Táto príloha je veľká %1$@. Naozaj ju chcete stiahnúť do vášho zariadenia?";
-"AuthenticatorKey" = "Kľúč overovateľa (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Overovací kód (TOTP)";
 "AuthenticatorKeyAdded" = "Kľúč overovateľa pridaný.";
 "AuthenticatorKeyReadError" = "Overovací kľúč sa nedá čítať.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Nové vlastné pole";
 "SelectTypeField" = "Aký typ poľa chcete pridať?";
 "Remove" = "Odstrániť";
-"NewUri" = "Nové URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Základná doména";
 "Default" = "Predvolené";
@@ -392,7 +391,6 @@
 "Logins" = "Prihlasovacie údaje";
 "SecureNotes" = "Zabezpečené poznámky";
 "AllItems" = "Všetky položky";
-"URIs" = "Adresy URI";
 "CheckingPassword" = "Overujem heslo...";
 "CheckPassword" = "Overiť či došlo k úniku hesla.";
 "PasswordExposed" = "Toto heslo uniklo %1$@ krát v dátových únikoch. Mali by ste ho zmeniť.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Fráza odtlačku";
 "YourAccountsFingerprint" = "Fráza odtlačku vašeho účtu";
 "LearnOrgConfirmation" = "Bitwarden vám umožňuje zdieľať položky vášho trezora s ostatnými použitím konta v organizácii. Chcete navštíviť stránku bitwarden.com a dozvedieť sa viac?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Vašu žiadosť sa nám nepodarilo spracovať. Skúste to, prosím, znova alebo nás kontaktujte.";
 "Export" = "Exportovať";
 "ExportVault" = "Export trezoru";
 "LockNow" = "Uzamknúť teraz";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Overovací kľúč sa nedá pridať?";
 "ScanQRCode" = "Skenovať QR kód";
 "CannotScanQRCode" = "QR kód sa nedá skenovať?";
-"AuthenticatorKeyScanner" = "Kľúč z aplikácie Authenticator";
 "EnterKeyManually" = "Zadajte kľúč manuálne";
 "AddTotp" = "Pridať TOTP";
-"SetupTotp" = "Nastaviť TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Po úspešnom zadaní kľúča, vyberte možnosť\nPridať TOTP, aby ste kľúč bezpečne uložili";
 "NeverLockWarning" = "Nastavením možností uzamknutia na možnosť \"Nikdy\" zostane váš trezor dostupný pre každého, kto má prístup k vášmu zariadeniu. Ak používate túto možnosť, mali by ste zabezpečiť, aby bolo vaše zariadenie riadne chránené.";
 "EnvironmentPageUrlsError" = "Jedna alebo viacero zadaných adries URL sú neplatné. Opravte ich a skúste ich uložiť znova.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Dátová oblasť";
 "Region" = "Región";
 "UpdateWeakMasterPasswordWarning" = "Vaše hlavné heslo nespĺňa jednu alebo viacero podmienok vašej organizácie. Ak chcete získať prístup k trezoru, musíte teraz aktualizovať svoje hlavné heslo. Pokračovaním sa odhlásite z aktuálnej relácie a budete sa musieť znova prihlásiť. Aktívne relácie na iných zariadeniach môžu zostať aktívne až jednu hodinu.";
-"CurrentMasterPassword" = "Súčasné hlavné heslo";
+"CurrentMasterPasswordRequired" = "Súčasné hlavné heslo (povinné)";
+"NewMasterPasswordRequired" = "Nové hlavné heslo (povinné)";
 "LoggedIn" = "Prihlásený!";
 "ApproveWithMyOtherDevice" = "Schváliť pomocou môjho druhého zariadenia";
 "RequestAdminApproval" = "Žiadosť o schválenie správcom";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Na udržanie vašich informácií v bezpečí si zvoľte unikátne a silné heslo.";
 "MasterPasswordRequired" = "Hlavné heslo (povinné)";
 "RetypeMasterPasswordRequired" = "Opätovne zadajte hlavné heslo (povinné)";
+"RetypeNewMasterPasswordRequired" = "Opätovne zadajte nové hlavné heslo (povinné)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden nemôže obnoviť stratené alebo zabudnuté hlavné heslo.";
 "LearnAboutWaysToPreventAccountLockout" = "Prečítajte si o spôsoboch, ako zabrániť zablokovaniu účtu";
 "WhatMakesAPasswordStrong" = "Čo robí heslo silným?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Skontrolovať kompromitáciu hesla";
 "PrivateNote" = "Súkromná poznámka";
 "XItems" = "Položky: %1$@";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Tohto používateľa nie je možné vymazať, pretože je jediným vlastníkom najmenej jednej organizácie. Odstráňte tieto organizácie, alebo povýšte iného používateľa.";
+"APasskeyAlreadyExistsForThisApplication" = "Pre túto aplikáciu už existuje prístupový kľúč.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Pre túto aplikáciu už existuje prístupový kľúč, ale počas jej načítavania sa vyskytla chyba.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Nespoznávame toto zariadenie. Zadajte 8-miestny overovací kód zaslaný na %1$@.";
+"ItemNameRequired" = "Názov položky (povinné)";
+"AutofillOptions" = "Možnosti automatického vypĺňania";
+"WebsiteURI" = "Webová stránka (URI)";
+"AddWebsite" = "Pridať webovú stránku";
+"CannotDeleteAccount" = "Účet nie je možné odstrániť";
+"CannotDeleteAccountDescriptionLong" = "Túto akciu nie je možné dokončiť, pretože váš účet vlastní organizácia. Ďalšie informácie vám poskytne správca vašej organizácie.";
+"NewFolder" = "Nový priečinok";
+"SetUpAuthenticatorKey" = "Nastaviť kľúč overovateľa";

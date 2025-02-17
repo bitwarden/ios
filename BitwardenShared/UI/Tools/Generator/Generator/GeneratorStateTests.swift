@@ -677,7 +677,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.forwardedEmailService = .simpleLogin
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .forwarded(service: .simpleLogin(apiKey: "SIMPLE LOGIN TOKEN"), website: "example.com")
+            .forwarded(service: .simpleLogin(apiKey: "SIMPLE LOGIN TOKEN", baseUrl: ""), website: "example.com")
         )
     }
 

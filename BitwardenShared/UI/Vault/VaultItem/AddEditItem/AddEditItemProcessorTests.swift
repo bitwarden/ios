@@ -2017,6 +2017,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, toast)
     }
 
+    /// `receive(_:)` with `.toggleAdditionalOptionsExpanded` toggles whether the additional options
+    /// are expanded.
+    @MainActor
+    func test_receive_toggleAdditionalOptionsExpanded() {
+        subject.receive(.toggleAdditionalOptionsExpanded(true))
+        XCTAssertTrue(subject.state.isAdditionalOptionsExpanded)
+
+        subject.receive(.toggleAdditionalOptionsExpanded(false))
+        XCTAssertFalse(subject.state.isAdditionalOptionsExpanded)
+    }
+
     /// `receive(_:)` with `guidedTourViewAction(.toggleGuidedTourVisibilityChanged)`
     /// updates the state correctly.
     @MainActor
@@ -2124,19 +2135,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         default:
             XCTFail("Unexpected State")
         }
-    }
-
-    /// `receive(_:)` with `.typeChanged` updates the state correctly.
-    @MainActor
-    func test_receive_typeChanged() {
-        subject.state.type = .login
-        subject.receive(.typeChanged(.card))
-
-        XCTAssertEqual(subject.state.type, .card)
-        XCTAssertEqual(
-            subject.state.customFieldsState,
-            AddEditCustomFieldsState(cipherType: .card, customFields: [])
-        )
     }
 
     /// `receive(_:)` with `.uriChanged` with a valid index updates the state correctly.

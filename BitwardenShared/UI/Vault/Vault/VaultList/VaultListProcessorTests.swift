@@ -1173,19 +1173,35 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
+    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route.
+    @MainActor
+    func test_receive_addFolder() {
+        subject.receive(.addFolder)
+
+        XCTAssertEqual(coordinator.routes.last, .addFolder)
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     @MainActor
     func test_receive_addItemPressed() {
-        subject.receive(.addItemPressed)
+        subject.receive(.addItemPressed(.login))
 
-        XCTAssertEqual(coordinator.routes.last, .addItem())
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .login))
+    }
+
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route for a new secure note.
+    @MainActor
+    func test_receive_addItemPressed_secureNote() {
+        subject.receive(.addItemPressed(.secureNote))
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .secureNote))
     }
 
     /// `receive(_:)` with `.addItemPressed` hides the profile switcher view
     @MainActor
     func test_receive_addItemPressed_hideProfiles() {
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.addItemPressed)
+        subject.receive(.addItemPressed(.login))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
@@ -1196,7 +1212,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         reviewPromptService.isEligibleForReviewPromptResult = true
         await subject.perform(.checkAppReviewEligibility)
         waitFor(subject.reviewPromptTask != nil)
-        subject.receive(.addItemPressed)
+        subject.receive(.addItemPressed(.login))
         XCTAssertTrue(subject.reviewPromptTask!.isCancelled)
     }
 
@@ -1206,9 +1222,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_addItemPressed_organizationSelected() {
         subject.state.vaultFilterType = .organization(Organization.fixture())
 
-        subject.receive(.addItemPressed)
+        subject.receive(.addItemPressed(.login))
 
-        XCTAssertEqual(coordinator.routes.last, .addItem(organizationId: "organization-1"))
+        XCTAssertEqual(coordinator.routes.last, .addItem(organizationId: "organization-1", type: .login))
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.

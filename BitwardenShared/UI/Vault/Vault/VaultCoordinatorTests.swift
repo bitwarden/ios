@@ -76,6 +76,16 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(delegate.switchAccountUserId, "1")
     }
 
+    /// `navigate(to:)` with `.addFolder` starts the add/edit folder coordinator and navigates
+    /// to the add/edit folder view.
+    @MainActor
+    func test_navigateTo_addFolder() throws {
+        subject.navigate(to: .addFolder)
+
+        XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
+        XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+    }
+
     /// `navigate(to:)` with `.autofillList` replaces the stack navigator's stack with the autofill list.
     @MainActor
     func test_navigateTo_autofillList() throws {
@@ -99,14 +109,14 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_navigateTo_addItem() throws {
         let coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         module.vaultItemCoordinator = coordinator
-        subject.navigate(to: .addItem())
+        subject.navigate(to: .addItem(type: .login))
 
         waitFor(!stackNavigator.actions.isEmpty)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
         XCTAssertTrue(module.vaultItemCoordinator.isStarted)
-        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true))
+        XCTAssertEqual(module.vaultItemCoordinator.routes.last, .addItem(hasPremium: true, type: .login))
     }
 
     /// `.navigate(to:)` with `.editItem` presents the edit item screen.

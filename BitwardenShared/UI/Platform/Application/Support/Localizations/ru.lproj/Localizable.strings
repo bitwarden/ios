@@ -65,7 +65,6 @@
 "Sync" = "Синхронизация";
 "ThankYou" = "Спасибо";
 "Tools" = "Инструменты";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Использовать отпечаток пальца для разблокировки";
 "UseThisButtonToGenerateANewUniquePassword" = "Используйте эту кнопку для генерации нового уникального пароля.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам нужно настроить ключ аутентификатора только для логинов, которые требуют двухфакторной аутентификации с помощью кода. Ключ будет постоянно генерировать шестизначные коды, которые можно использовать для авторизации.";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Неверное подтверждение пароля.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Мастер-пароль - это пароль, используемый для доступа к вашему хранилищу.";
 "MasterPasswordHint" = "Подсказка к мастер-паролю";
+"NewMasterPasswordHint" = "Новая подсказка к мастер-паролю";
 "MasterPasswordHintDescription" = "Подсказка к мастер-паролю может помочь вам его вспомнить.";
 "MasterPasswordLengthValMessageX" = "Мастер-пароль должен содержать не менее %1$@ символов.";
 "MinNumbers" = "Минимум цифр";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Устройство не может открыть файл этого типа.";
 "Downloading" = "Загрузка...";
 "AttachmentLargeWarning" = "Размер этого вложения - %1$@. Вы действительно хотите загрузить его на устройство?";
-"AuthenticatorKey" = "Ключ аутентификатора (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Код подтверждения (TOTP)";
 "AuthenticatorKeyAdded" = "Ключ аутентификатора добавлен.";
 "AuthenticatorKeyReadError" = "Не удается прочитать ключ аутентификатора.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Новое пользовательское поле";
 "SelectTypeField" = "Какой тип пользовательского поля вы хотите добавить?";
 "Remove" = "Удалить";
-"NewUri" = "Новый URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Основной домен";
 "Default" = "По умолчанию";
@@ -392,7 +391,6 @@
 "Logins" = "Логины";
 "SecureNotes" = "Защищенные заметки";
 "AllItems" = "Все элементы";
-"URIs" = "URI";
 "CheckingPassword" = "Проверка пароля...";
 "CheckPassword" = "Проверьте, не скомпрометирован ли пароль.";
 "PasswordExposed" = "Этот пароль был скомпрометирован %1$@ раз(а). Вам следует его изменить.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Фраза отпечатка";
 "YourAccountsFingerprint" = "Фраза отпечатка вашего аккаунта";
 "LearnOrgConfirmation" = "Bitwarden позволяет делиться элементами вашего хранилища с другими пользователями, используя аккаунт организации. Хотите посетить сайт bitwarden.com, чтобы узнать больше?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Мы не можем обработать ваш запрос. Пожалуйста, попробуйте снова или свяжитесь с нами.";
 "Export" = "Экспорт";
 "ExportVault" = "Экспорт хранилища";
 "LockNow" = "Заблокировать";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Не удается добавить ключ аутентификатора?";
 "ScanQRCode" = "Сканировать QR-код";
 "CannotScanQRCode" = "Не удается сосканировать QR-код?";
-"AuthenticatorKeyScanner" = "Ключ аутентификатора";
 "EnterKeyManually" = "Ввести ключ вручную";
 "AddTotp" = "Добавить TOTP";
-"SetupTotp" = "Настроить TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "После успешного ввода ключа
  выберите Добавить Totp, чтобы безопасно сохранить ключ.";
 "NeverLockWarning" = "При установке опции блокировки на \"Никогда\" хранилище будет доступно любому, кто имеет доступ к вашему устройству, поэтому убедитесь, что устройство защищено должным образом.";
@@ -791,7 +788,8 @@
 "DataRegion" = "Регион данных";
 "Region" = "Регион";
 "UpdateWeakMasterPasswordWarning" = "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа.";
-"CurrentMasterPassword" = "Текущий мастер-пароль";
+"CurrentMasterPasswordRequired" = "Текущий мастер-пароль (обязательно)";
+"NewMasterPasswordRequired" = "Новый мастер-пароль (обязательно)";
 "LoggedIn" = "Выполнен вход!";
 "ApproveWithMyOtherDevice" = "Одобрить с другим устройством";
 "RequestAdminApproval" = "Запросить одобрение администратора";
@@ -980,6 +978,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Задайте уникальный и надежный пароль, чтобы хранить информацию в безопасности.";
 "MasterPasswordRequired" = "Мастер-пароль (требуется)";
 "RetypeMasterPasswordRequired" = "Повторите мастер-пароль (требуется)";
+"RetypeNewMasterPasswordRequired" = "Повторите новый мастер-пароль (обязательно)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden не может сбросить утерянный или забытый мастер-пароль.";
 "LearnAboutWaysToPreventAccountLockout" = "Узнайте о способах предотвращения блокировки аккаунта";
 "WhatMakesAPasswordStrong" = "Какой пароль считается надежным?";
@@ -1115,3 +1114,15 @@
 "CheckPasswordForDataBreaches" = "Проверить пароль на скомпрометированность";
 "PrivateNote" = "Приватная заметка";
 "XItems" = "Элементов: %1$@";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Невозможно удалить этого пользователя, поскольку он является единственным владельцем по крайней мере одной организации. Пожалуйста, удалите эти организации или обновите другого пользователя.";
+"APasskeyAlreadyExistsForThisApplication" = "Для данного приложения уже существует passkey.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Passkey уже существует для этого приложения, но при его загрузке произошла ошибка.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Мы не распознали это устройство. Введите 8-значный код подтверждения, который был отправлен на email %1$@.";
+"ItemNameRequired" = "Название элемента (обязательно)";
+"AutofillOptions" = "Параметры автозаполнения";
+"WebsiteURI" = "Сайт (URI)";
+"AddWebsite" = "Добавить сайт";
+"CannotDeleteAccount" = "Невозможно удалить аккаунт";
+"CannotDeleteAccountDescriptionLong" = "Это действие не может быть выполнено, поскольку ваш аккаунт принадлежит организации. Обратитесь к администратору организации за дополнительными сведениями.";
+"NewFolder" = "Новая папка";
+"SetUpAuthenticatorKey" = "Настроить ключ аутентификатора";

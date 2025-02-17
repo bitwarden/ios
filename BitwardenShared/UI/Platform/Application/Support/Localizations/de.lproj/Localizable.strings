@@ -65,14 +65,13 @@
 "Sync" = "Synchronisieren";
 "ThankYou" = "Vielen Dank";
 "Tools" = "Werkzeuge";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Fingerabdruck zum Entsperren nutzen";
 "UseThisButtonToGenerateANewUniquePassword" = "Verwende diesen Button, um ein neues, einzigartiges Passwort zu generieren.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Du musst den Authentifizierungsschlüssel nur für Zugangsdaten einrichten, die eine zwei-Faktor-Authentifizierung mit einem Code erfordern. Der Schlüssel generiert kontinuierlich sechsstellige Codes, mit denen du dich anmelden kannst.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Verwende den Generator, um sichere Passwörter, Passphrasen und Benutzernamen zu erstellen.";
-"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrasen sind oft einfacher zu merken und einzugeben als zufällige Passwörter. Sie können hilfreich sein, wenn du dich in Konten einloggen musst, bei denen Auto-Ausfüllen nicht verfügbar ist, wie ein Streaming-Dienst auf deinem TV.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Passphrasen sind oft einfacher zu merken und einzugeben als zufällige Passwörter. Sie können hilfreich sein, wenn du dich bei Konten anmelden musst, bei denen Auto-Ausfüllen nicht verfügbar ist, wie ein Streaming-Dienst auf deinem TV.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Einzigartige Benutzernamen fügen eine zusätzliche Sicherheitsebene hinzu und können Hacker daran hindern, deine Konten zu finden.";
-"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Verwende diese Optionen, um dein Passwort an die Anforderungen deiner Konto-Webseite anzupassen.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Verwende diese Optionen, um dein Passwort an die Anforderungen deiner Konto-Website anzupassen.";
 "AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "Nachdem du dein neues Passwort in Bitwarden gespeichert hast, vergiss nicht, es auf deiner Konto-Website zu aktualisieren.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Du musst eine Webseiten-Adresse hinzufügen, um automatisches Ausfüllen für den Zugriff auf dieses Konto benutzen zu können.";
 "Username" = "Nutzername";
@@ -144,6 +143,7 @@
 "MasterPasswordConfirmationValMessage" = "Passwortbestätigung ist nicht korrekt.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Das Master-Passwort ist das Passwort, mit dem du auf deinen Tresor zugreifst.";
 "MasterPasswordHint" = "Master-Passwort-Hinweis";
+"NewMasterPasswordHint" = "Neuer Hinweis zum Master-Passwort";
 "MasterPasswordHintDescription" = "Ein Hinweis auf dein Master-Passwort kann dir helfen, dich an das Passwort zu erinnern, solltest du es vergessen.";
 "MasterPasswordLengthValMessageX" = "Das Master-Passwort muss mindestens %1$@ Zeichen lang sein.";
 "MinNumbers" = "Mindestanzahl Ziffern";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Ihr Gerät kann diesen Dateitypen nicht öffnen.";
 "Downloading" = "Wird heruntergeladen...";
 "AttachmentLargeWarning" = "Dieser Anhang ist %1$@ groß. Bist du sicher, dass du ihn herunterladen möchtest?";
-"AuthenticatorKey" = "Authentifizierungsschlüssel (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Verifizierungscode (TOTP)";
 "AuthenticatorKeyAdded" = "Authentifizierungsschlüssel hinzugefügt.";
 "AuthenticatorKeyReadError" = "Authentifizierungsschlüssel kann nicht gelesen werden.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Neues benutzerdefiniertes Feld";
 "SelectTypeField" = "Welche Art Eintrag möchtest du hinzufügen?";
 "Remove" = "Entfernen";
-"NewUri" = "Neue URL";
 "URIPosition" = "URL %1$@";
 "BaseDomain" = "Basis-Domäne";
 "Default" = "Standard";
@@ -392,7 +391,6 @@
 "Logins" = "Zugangsdaten";
 "SecureNotes" = "Sichere Notizen";
 "AllItems" = "Alle Einträge";
-"URIs" = "URIs";
 "CheckingPassword" = "Passwort wird überprüft...";
 "CheckPassword" = "Überprüfe ob dein Kennwort kompromittiert ist.";
 "PasswordExposed" = "Dieses Passwort wurde %1$@-mal in Passwortdiebstahl Datenbanken gefunden. Du solltest es ändern.";
@@ -431,6 +429,7 @@
 "FingerprintPhrase" = "Fingerabdruck-Phrase";
 "YourAccountsFingerprint" = "Prüfschlüssel für deinen Account";
 "LearnOrgConfirmation" = "Bitwarden ermöglicht es, deinen Tresor mit anderen zu teilen, indem du ein Organisationskonto benutzt. Möchtest du bitwarden.com besuchen, um mehr zu erfahren?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "Tresor exportieren";
 "LockNow" = "Jetzt sperren";
@@ -680,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Authentifizierungsschlüssel lässt sich nicht hinzufügen?";
 "ScanQRCode" = "QR Code scannen";
 "CannotScanQRCode" = "QR-Code kann nicht gescannt werden?";
-"AuthenticatorKeyScanner" = "Authentifizierungsschlüssel";
 "EnterKeyManually" = "Schlüssel manuell eingeben";
 "AddTotp" = "TOTP hinzufügen";
-"SetupTotp" = "TOTP einrichten";
 "OnceTheKeyIsSuccessfullyEntered" = "Sobald der Schlüssel erfolgreich eingegeben wurde, wähle TOTP hinzufügen, um den Schlüssel sicher abzuspeichern";
 "NeverLockWarning" = "Wenn du deine Sperroptionen auf „Nie“ einstellst, bleibt dein Tresor für jeden zugänglich, der Zugriff auf dein Gerät hat. Wenn du diese Option verwendest, solltest du sicherstellen, dass du dein Gerät angemessen schützt.";
 "EnvironmentPageUrlsError" = "Eine oder mehrere der eingegebenen URLs sind ungültig. Bitte überarbeite diese und versuche erneut zu speichern.";
@@ -790,7 +787,8 @@
 "DataRegion" = "Datenregion";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben.";
-"CurrentMasterPassword" = "Aktuelles Master-Passwort";
+"CurrentMasterPasswordRequired" = "Aktuelles Master-Passwort (erforderlich)";
+"NewMasterPasswordRequired" = "Neues Master-Passwort (erforderlich)";
 "LoggedIn" = "Angemeldet!";
 "ApproveWithMyOtherDevice" = "Mit meinem anderen Gerät genehmigen";
 "RequestAdminApproval" = "Admin-Genehmigung anfordern";
@@ -977,6 +975,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Wähle ein einzigartiges und starkes Passwort, damit deine Informationen sicher sind.";
 "MasterPasswordRequired" = "Master-Passwort (erforderlich)";
 "RetypeMasterPasswordRequired" = "Master-Passwort erneut eingeben (erforderlich)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden kann kein verlorenes oder vergessenes Master-Passwort zurücksetzen.";
 "LearnAboutWaysToPreventAccountLockout" = "Erfahre, wie du ein Aussperren von deinem Konto verhindern kannst";
 "WhatMakesAPasswordStrong" = "Was zeichnet ein starkes Passwort aus?";
@@ -1112,3 +1111,15 @@
 "CheckPasswordForDataBreaches" = "Passwort auf Datendiebstahl überprüfen";
 "PrivateNote" = "Private Notiz";
 "XItems" = "%1$@ Einträge";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Dieser Benutzer kann nicht gelöscht werden, da er der einzige Eigentümer von mindestens einer Organisation ist. Bitte lösche diese Organisationen oder upgrade einen anderen Benutzer.";
+"APasskeyAlreadyExistsForThisApplication" = "Für diese Anwendung existiert bereits ein Passkey.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Für diese Anwendung existiert bereits ein Passkey, aber beim Laden ist ein Fehler aufgetreten.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Wir erkennen dieses Gerät nicht. Gib den 8-stelligen Verifizierungscode ein, der an %1$@ gesendet wurde.";
+"ItemNameRequired" = "Eintragsname (erforderlich)";
+"AutofillOptions" = "Auto-Ausfüllen Optionen";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Website hinzufügen";
+"CannotDeleteAccount" = "Konto kann nicht gelöscht werden";
+"CannotDeleteAccountDescriptionLong" = "Diese Aktion kann nicht abgeschlossen werden, da dein Konto im Besitz einer Organisation ist. Kontaktiere deinen Organisationsadministrator für weitere Details.";
+"NewFolder" = "Neuer Ordner";
+"SetUpAuthenticatorKey" = "Set up authenticator key";
