@@ -217,6 +217,10 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             .accessibilityIdentifier("CipherNotesLabel")
             if store.state.type == .secureNote {
                 notesView
+                    // The secure note type doesn't have a top-level section header for its field, so
+                    // remove the extra top padding (8 points of total padding from the last section as
+                    // opposed to 16)
+                    .padding(.top, -8)
             } else {
                 SectionView(Localizations.additionalOptions) {
                     notesView
