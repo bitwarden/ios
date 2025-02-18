@@ -47,7 +47,7 @@ case "$MODE" in
   "Simulator")
     echo "🔨 Performing Xcode build"
     xcrun xcodebuild \
-      -project Bitwarden.xcodeproj \
+      -workspace Bitwarden.xcworkspace \
       -scheme Bitwarden \
       -configuration Debug \
       -destination "generic/platform=iOS Simulator" \
@@ -57,7 +57,7 @@ case "$MODE" in
   "Device")
     echo "📦 Performing Xcode archive"
     xcrun xcodebuild archive \
-      -project Bitwarden.xcodeproj \
+      -workspace Bitwarden.xcworkspace \
       -scheme Bitwarden \
       -configuration Release \
       -archivePath "${ARCHIVE_PATH}" \
