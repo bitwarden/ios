@@ -295,8 +295,7 @@ actor DefaultClientService: ClientService {
             }
 
             let cipherKeyEncryptionFlagEnabled: Bool = await configService.getFeatureFlag(
-                .cipherKeyEncryption,
-                defaultValue: true
+                .cipherKeyEncryption
             )
             let enableCipherKeyEncryption = cipherKeyEncryptionFlagEnabled && config.supportsCipherKeyEncryption()
 

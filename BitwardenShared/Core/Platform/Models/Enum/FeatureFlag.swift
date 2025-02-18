@@ -99,7 +99,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// but if `isRemotelyConfigured` is false for the flag, then the value here will be used.
     /// This is a helpful way to manage local feature flags.
     static let initialValues: [FeatureFlag: AnyCodable] = [
-        .cipherKeyEncryption: .bool(true),
         .testLocalInitialBoolFlag: .bool(true),
         .testLocalInitialIntFlag: .int(42),
         .testLocalInitialStringFlag: .string("Test String"),

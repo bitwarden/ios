@@ -215,6 +215,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `configPublisher` loads flags into the SDK.
     @MainActor
     func test_configPublisher_loadFlags() async throws {
+        configService.featureFlagsBool[.cipherKeyEncryption] = true
         configService.configSubject.send(
             MetaServerConfig(
                 isPreAuth: false,
@@ -282,11 +283,11 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await waitForAsync {
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": true]
+            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": false]
         }
         XCTAssertEqual(clientBuilder.clients.count, 1)
 
-        configService.featureFlagsBool[.cipherKeyEncryption] = false
+        configService.featureFlagsBool[.cipherKeyEncryption] = true
         configService.configSubject.send(
             MetaServerConfig(
                 isPreAuth: false,
@@ -295,7 +296,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                     date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
                     responseModel: ConfigResponseModel(
                         environment: nil,
-                        featureStates: [:],
+                        featureStates: ["cipher-key-encryption": .bool(true)],
                         gitHash: "75238191",
                         server: nil,
                         version: "2024.4.0"
@@ -306,7 +307,7 @@ final class ClientServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await waitForAsync {
             let client = try? XCTUnwrap(self.clientBuilder.clients.first)
-            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": false]
+            return client?.platformClient.featureFlags == ["enableCipherKeyEncryption": true]
         }
         XCTAssertEqual(clientBuilder.clients.count, 1)
     }
