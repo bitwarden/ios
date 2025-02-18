@@ -29,8 +29,6 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.24.0
-  Networking:
-    path: Networking
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
     exactVersion: 1.3.0
@@ -58,20 +56,19 @@ schemes:
       language: en
       region: US
       coverageTargets:
-        # - AuthenticatorBridgeKit
         - Bitwarden
         - BitwardenActionExtension
         - BitwardenAutoFillExtension
         - BitwardenShareExtension
         - BitwardenShared
       targets:
-        # - AuthenticatorBridgeKitTests
         - BitwardenTests
         - BitwardenActionExtensionTests
         - BitwardenAutoFillExtensionTests
         - BitwardenShareExtensionTests
         - BitwardenSharedTests
-        - package: Networking/NetworkingTests
+        - BitwardenKit/AuthenticatorBridgeKitTests
+        - BitwardenKit/NetworkingTests
   BitwardenActionExtension:
     build:
       targets:
@@ -366,7 +363,7 @@ targets:
     dependencies:
       - target: BitwardenKit/AuthenticatorBridgeKit
       - package: BitwardenSdk
-      - package: Networking
+      - target: BitwardenKit/Networking
       - package: SwiftUIIntrospect
     preBuildScripts:
       - name: SwiftGen

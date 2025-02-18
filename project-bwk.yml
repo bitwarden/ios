@@ -29,8 +29,6 @@ packages:
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.24.0
-  Networking:
-    path: Networking
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
     exactVersion: 1.3.0
@@ -50,6 +48,15 @@ schemes:
       gatherCoverageData: true
       targets:
         - AuthenticatorBridgeKitTests
+  Networking:
+    build:
+      targets:
+        Networking: all
+        NetworkingTests: [test]
+    test:
+      gatherCoverageData: true
+      targets:
+        - NetworkingTests
 targets:
   AuthenticatorBridgeKit:
     type: framework
@@ -77,4 +84,31 @@ targets:
           - "**/Tests/*"
     dependencies:
       - target: AuthenticatorBridgeKit
+    randomExecutionOrder: true
+  Networking:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/Networking.xcconfig
+      Release: Configs/Networking.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: Networking/Info.plist
+    sources:
+      - path: Networking
+        excludes:
+          - "**/Tests/*"
+  NetworkingTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: Networking/Tests/NetworkingTests/Support/Info.plist
+    sources:
+      - path: Networking
+        includes:
+          - "**/Tests/*"
+    dependencies:
+      - target: Networking
     randomExecutionOrder: true
