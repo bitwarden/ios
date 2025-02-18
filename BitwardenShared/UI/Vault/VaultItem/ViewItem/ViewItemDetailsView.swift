@@ -143,6 +143,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         }
     }
 
+    /// The item details section.
     private var itemDetailsSection: some View {
         SectionView(Localizations.itemDetails, contentSpacing: 8) {
             BitwardenTextValueField(title: Localizations.itemNameRequired, value: store.state.name) {
