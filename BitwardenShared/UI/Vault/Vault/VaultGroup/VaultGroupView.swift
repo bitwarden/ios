@@ -82,8 +82,16 @@ struct VaultGroupView: View {
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                     if store.state.showAddItemButton {
-                        Button(Localizations.addAnItem) {
+                        Button {
                             store.send(.addItemPressed(nil))
+                        } label: {
+                            HStack {
+                                Image(decorative: Asset.Images.plus16)
+                                    .resizable()
+                                    .frame(width: 16, height: 16)
+                                Text(store.state.addItemButtonTitle)
+                            }
+                            .padding(.horizontal, 24)
                         }
                         .buttonStyle(.primary(shouldFillWidth: false))
                     }

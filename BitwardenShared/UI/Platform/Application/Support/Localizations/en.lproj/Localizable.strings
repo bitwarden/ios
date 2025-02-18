@@ -779,6 +779,10 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "There are no items in your vault that match \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Search for an item or add a new item";
 "ThereAreNoItemsThatMatchTheSearch" = "There are no items that match the search";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault.";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault.";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault.";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault.";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Self-hosted";
