@@ -40,16 +40,10 @@ packages:
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.0
+projectReferences:
+  BitwardenKit:
+    path: BitwardenKit.xcodeproj
 schemes:
-  AuthenticatorBridgeKit:
-    build:
-      targets:
-        AuthenticatorBridgeKit: all
-        AuthenticatorBridgeKitTests: [test]
-    test:
-      gatherCoverageData: true
-      targets:
-        - AuthenticatorBridgeKitTests
   Bitwarden:
     build:
       targets:
@@ -64,14 +58,14 @@ schemes:
       language: en
       region: US
       coverageTargets:
-        - AuthenticatorBridgeKit
+        # - AuthenticatorBridgeKit
         - Bitwarden
         - BitwardenActionExtension
         - BitwardenAutoFillExtension
         - BitwardenShareExtension
         - BitwardenShared
       targets:
-        - AuthenticatorBridgeKitTests
+        # - AuthenticatorBridgeKitTests
         - BitwardenTests
         - BitwardenActionExtensionTests
         - BitwardenAutoFillExtensionTests
@@ -141,33 +135,6 @@ schemes:
       targets:
         BitwardenWatchWidgetExtension: all
 targets:
-  AuthenticatorBridgeKit:
-    type: framework
-    platform: iOS
-    configFiles:
-      Debug: Configs/AuthenticatorBridgeKit.xcconfig
-      Release: Configs/AuthenticatorBridgeKit.xcconfig
-    settings:
-      base:
-        APPLICATION_EXTENSION_API_ONLY: true
-        INFOPLIST_FILE: AuthenticatorBridgeKit/Info.plist
-    sources:
-      - path: AuthenticatorBridgeKit
-        excludes:
-          - "**/Tests/*"
-  AuthenticatorBridgeKitTests:
-    type: bundle.unit-test
-    platform: iOS
-    settings:
-      base:
-        INFOPLIST_FILE: AuthenticatorBridgeKit/Tests/TestHelpers/Support/Info.plist
-    sources:
-      - path: AuthenticatorBridgeKit
-        includes:
-          - "**/Tests/*"
-    dependencies:
-      - target: AuthenticatorBridgeKit
-    randomExecutionOrder: true
   Bitwarden:
     type: application
     platform: iOS
@@ -197,7 +164,6 @@ targets:
       - path: swiftgen-pm.yml
         buildPhase: none
     dependencies:
-      - target: AuthenticatorBridgeKit
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
@@ -250,7 +216,6 @@ targets:
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
-      - target: AuthenticatorBridgeKit
       - target: Bitwarden
       - target: BitwardenShared
       - package: SnapshotTesting
@@ -399,7 +364,7 @@ targets:
         optional: true
       - path: BitwardenWatchShared
     dependencies:
-      - target: AuthenticatorBridgeKit
+      - target: BitwardenKit/AuthenticatorBridgeKit
       - package: BitwardenSdk
       - package: Networking
       - package: SwiftUIIntrospect

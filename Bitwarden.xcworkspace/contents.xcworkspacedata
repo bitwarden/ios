@@ -4,4 +4,7 @@
    <FileRef
       location = "group:Bitwarden.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:BitwardenKit.xcodeproj">
+   </FileRef>
 </Workspace>
