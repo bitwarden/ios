@@ -569,6 +569,15 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
+    /// Snapshots the previews for secure note types.
+    @MainActor
+    func test_snapshot_previews_secureNote() {
+        assertSnapshot(
+            of: ViewItemView_Previews.secureNotePreview,
+            as: .defaultPortrait
+        )
+    }
+
     /// Snapshots the previews for login types.
     @MainActor
     func test_snapshot_previews_sshKey() {
