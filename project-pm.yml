@@ -215,6 +215,7 @@ targets:
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -251,6 +252,7 @@ targets:
     dependencies:
       - target: BitwardenActionExtension
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -287,6 +289,7 @@ targets:
     dependencies:
       - target: BitwardenAutoFillExtension
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -323,6 +326,7 @@ targets:
     dependencies:
       - target: BitwardenShareExtension
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -364,6 +368,7 @@ targets:
       - target: BitwardenKit/AuthenticatorBridgeKit
       - package: BitwardenSdk
       - target: BitwardenKit/Networking
+      - target: BitwardenKit/BitwardenKit
       - package: SwiftUIIntrospect
     preBuildScripts:
       - name: SwiftGen
@@ -398,6 +403,7 @@ targets:
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting
