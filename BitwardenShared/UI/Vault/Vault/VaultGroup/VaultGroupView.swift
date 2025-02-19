@@ -86,12 +86,12 @@ struct VaultGroupView: View {
                             store.send(.addItemPressed(nil))
                         } label: {
                             HStack {
-                                Image(decorative: Asset.Images.plus16)
-                                    .resizable()
-                                    .frame(width: 16, height: 16)
-                                Text(store.state.addItemButtonTitle)
+                                Label(
+                                    store.state.addItemButtonTitle,
+                                    image: Asset.Images.plus16.swiftUIImage
+                                )
                             }
-                            .padding(.horizontal, 24)
+                            .padding(4)
                         }
                         .buttonStyle(.primary(shouldFillWidth: false))
                     }
