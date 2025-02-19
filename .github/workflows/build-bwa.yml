@@ -168,7 +168,7 @@ jobs:
       - name: Set up private auth key
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_S4VJ5UU8J2.p8
+          cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
           ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
           EOF
 
@@ -177,7 +177,7 @@ jobs:
           xcrun altool --validate-app \
             --type ios \
             --file "build/Authenticator/Authenticator.ipa" \
-            --apiKey "S4VJ5UU8J2" \
+            --apiKey "J46C83CB96" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight
@@ -185,7 +185,7 @@ jobs:
           xcrun altool --upload-app \
             --type ios \
             --file "build/Authenticator/Authenticator.ipa" \
-            --apiKey "S4VJ5UU8J2" \
+            --apiKey "J46C83CB96" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
   crowdin-push:
