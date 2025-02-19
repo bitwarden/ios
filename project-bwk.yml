@@ -128,19 +128,6 @@ targets:
     dependencies:
       - target: BitwardenKit
     randomExecutionOrder: true
-  AuthenticatorBridgeKitTests:
-    type: bundle.unit-test
-    platform: iOS
-    settings:
-      base:
-        INFOPLIST_FILE: AuthenticatorBridgeKit/Tests/TestHelpers/Support/Info.plist
-    sources:
-      - path: AuthenticatorBridgeKit
-        includes:
-          - "**/Tests/*"
-    dependencies:
-      - target: AuthenticatorBridgeKit
-    randomExecutionOrder: true
   Networking:
     type: framework
     platform: iOS
