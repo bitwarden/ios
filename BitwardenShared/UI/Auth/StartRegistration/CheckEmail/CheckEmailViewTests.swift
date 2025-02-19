@@ -38,10 +38,25 @@ class CheckEmailViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismissTapped)
     }
 
+    /// Tapping the change email address button dispatches the `.goBackTapped` action.
+    @MainActor
+    func test_changeEmailAddressButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.changeEmailAddress)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .goBackTapped)
+    }
+
     // MARK: Snapshots
 
     /// Tests the view renders correctly.
     func test_snapshot_empty() {
-        assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
+        assertSnapshots(
+            of: subject,
+            as: [
+                .defaultPortrait,
+                .defaultPortraitDark,
+                .tallPortraitAX5(heightMultiple: 2),
+            ]
+        )
     }
 }
