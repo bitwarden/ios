@@ -1,6 +1,6 @@
 import Foundation
 
-extension Bundle {
+public extension Bundle {
     /// Return's the app's action extension identifier.
     var appExtensionIdentifier: String {
         "\(bundleIdentifier!).find-login-action-extension"

@@ -1,7 +1,6 @@
 name: BitwardenKit
 fileGroups:
   - Configs
-  - Docs
 configs:
   Debug: debug
   Release: release
@@ -48,6 +47,15 @@ schemes:
       gatherCoverageData: true
       targets:
         - AuthenticatorBridgeKitTests
+  BitwardenKit:
+    build:
+      targets:
+        BitwardenKit: all
+        BitwardenKitTests: [test]
+    test:
+      gatherCoverageData: true
+      targets:
+        - BitwardenKitTests
   Networking:
     build:
       targets:
@@ -72,6 +80,54 @@ targets:
       - path: AuthenticatorBridgeKit
         excludes:
           - "**/Tests/*"
+  AuthenticatorBridgeKitTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: AuthenticatorBridgeKit/Tests/TestHelpers/Support/Info.plist
+    sources:
+      - path: AuthenticatorBridgeKit
+        includes:
+          - "**/Tests/*"
+    dependencies:
+      - target: AuthenticatorBridgeKit
+    randomExecutionOrder: true
+  BitwardenKit:
+    type: framework
+    platform: iOS
+    configFiles:
+      Debug: Configs/BitwardenKit.xcconfig
+      Release: Configs/BitwardenKit.xcconfig
+    settings:
+      base:
+        APPLICATION_EXTENSION_API_ONLY: true
+        INFOPLIST_FILE: BitwardenKit/Info.plist
+    sources:
+      - path: BitwardenKit
+        excludes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+          - "**/__Snapshots__/*"
+      - path: BitwardenKit
+        includes:
+          - "**/__Snapshots__/*"
+          - "**/GoogleService-Info.*.plist"
+        buildPhase: none
+  BitwardenKitTests:
+    type: bundle.unit-test
+    platform: iOS
+    settings:
+      base:
+        INFOPLIST_FILE: BitwardenKit/Application/TestHelpers/Support/Info.plist
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
+    dependencies:
+      - target: BitwardenKit
+    randomExecutionOrder: true
   AuthenticatorBridgeKitTests:
     type: bundle.unit-test
     platform: iOS
