@@ -43,7 +43,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     @MainActor
     func test_addAnItemButton_tap() throws {
         processor.state.loadingState = .data([])
-        let button = try subject.inspect().find(button: Localizations.addAnItem)
+        let button = try subject.inspect().find(button: Localizations.newLogin)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(nil))
     }
@@ -114,7 +114,28 @@ class VaultGroupViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     @MainActor
-    func test_snapshot_empty() {
+    func test_snapshot_empty_login() {
+        processor.state.loadingState = .data([])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_empty_card() {
+        processor.state.group = .card
+        processor.state.loadingState = .data([])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_empty_identity() {
+        processor.state.group = .identity
+        processor.state.loadingState = .data([])
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_empty_note() {
+        processor.state.group = .secureNote
         processor.state.loadingState = .data([])
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

@@ -18,6 +18,24 @@ struct VaultGroupState: Equatable, Sendable {
 
     // MARK: Properties
 
+    /// The title of the add item button.
+    var addItemButtonTitle: String {
+        switch group {
+        case .card:
+            return Localizations.newCard
+        case .collection, .folder:
+            return Localizations.newItem
+        case .identity:
+            return Localizations.newIdentity
+        case .login:
+            return Localizations.newLogin
+        case .secureNote:
+            return Localizations.newNote
+        default:
+            return Localizations.newItem
+        }
+    }
+
     /// Whether the vault filter can be shown.
     var canShowVaultFilter = true
 
@@ -56,10 +74,18 @@ struct VaultGroupState: Equatable, Sendable {
     /// The string to use in the empty view.
     var noItemsString: String {
         switch group {
+        case .card:
+            return Localizations.thereAreNoCardsInYourVault
         case .collection:
             return Localizations.noItemsCollection
         case .folder:
             return Localizations.noItemsFolder
+        case .identity:
+            return Localizations.thereAreNoIdentitiesInYourVault
+        case .login:
+            return Localizations.thereAreNoLoginsInYourVault
+        case .secureNote:
+            return Localizations.thereAreNoNotesInYourVault
         case .trash:
             return Localizations.noItemsTrash
         default:
