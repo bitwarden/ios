@@ -20,6 +20,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     // MARK: View
 
     var body: some View {
+        itemDetailsSection
+
         itemInformationSection
 
         uriSection
@@ -141,9 +143,9 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         }
     }
 
-    /// The item information section.
-    private var itemInformationSection: some View {
-        VStack(spacing: 8) {
+    /// The item details section.
+    private var itemDetailsSection: some View {
+        SectionView(Localizations.itemDetails, contentSpacing: 8) {
             BitwardenTextValueField(title: Localizations.itemNameRequired, value: store.state.name) {
                 let image = store.state.isFavoriteOn
                     ? Asset.Images.starFilled24.swiftUIImage
@@ -154,46 +156,49 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                     .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
             }
             .accessibilityElement(children: .contain)
+        }
+    }
 
-            // check for type
-            switch store.state.type {
-            case .card:
-                ViewCardItemView(
-                    store: store.child(
-                        state: { _ in store.state.cardItemViewState },
-                        mapAction: { $0 },
-                        mapEffect: nil
-                    )
+    /// The item information section.
+    @ViewBuilder private var itemInformationSection: some View {
+        // check for type
+        switch store.state.type {
+        case .card:
+            ViewCardItemView(
+                store: store.child(
+                    state: { _ in store.state.cardItemViewState },
+                    mapAction: { $0 },
+                    mapEffect: nil
                 )
-            case .identity:
-                ViewIdentityItemView(
-                    store: store.child(
-                        state: { _ in store.state.identityState },
-                        mapAction: { $0 },
-                        mapEffect: nil
-                    )
+            )
+        case .identity:
+            ViewIdentityItemView(
+                store: store.child(
+                    state: { _ in store.state.identityState },
+                    mapAction: { $0 },
+                    mapEffect: nil
                 )
-            case .login:
-                ViewLoginItemView(
-                    store: store.child(
-                        state: { _ in store.state.loginState },
-                        mapAction: { $0 },
-                        mapEffect: { $0 }
-                    ),
-                    timeProvider: timeProvider
+            )
+        case .login:
+            ViewLoginItemView(
+                store: store.child(
+                    state: { _ in store.state.loginState },
+                    mapAction: { $0 },
+                    mapEffect: { $0 }
+                ),
+                timeProvider: timeProvider
+            )
+        case .secureNote:
+            EmptyView()
+        case .sshKey:
+            ViewSSHKeyItemView(
+                showCopyButtons: true,
+                store: store.child(
+                    state: { _ in store.state.sshKeyState },
+                    mapAction: { .sshKeyItemAction($0) },
+                    mapEffect: nil
                 )
-            case .secureNote:
-                EmptyView()
-            case .sshKey:
-                ViewSSHKeyItemView(
-                    showCopyButtons: true,
-                    store: store.child(
-                        state: { _ in store.state.sshKeyState },
-                        mapAction: { .sshKeyItemAction($0) },
-                        mapEffect: nil
-                    )
-                )
-            }
+            )
         }
     }
 
@@ -213,6 +218,10 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
             .accessibilityIdentifier("CipherNotesLabel")
             if store.state.type == .secureNote {
                 notesView
+                    // The secure note type doesn't have a top-level section header for its field, so
+                    // remove the extra top padding (8 points of total padding from the last section as
+                    // opposed to 16)
+                    .padding(.top, -8)
             } else {
                 SectionView(Localizations.additionalOptions) {
                     notesView
