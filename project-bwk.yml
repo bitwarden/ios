@@ -175,9 +175,6 @@ targets:
       base:
         ENABLE_TESTING_SEARCH_PATHS: YES
         INFOPLIST_FILE: TestHelpers/Info.plist
-        FRAMEWORK_SEARCH_PATHS:
-          - $(DEVELOPER_FRAMEWORKS_DIR)
-          - $(PLATFORM_DIR)/Developer/Library/Frameworks
     sources:
       - path: TestHelpers
         excludes:
