@@ -37,7 +37,8 @@ echo "🧱 Archive path ${bold}${ARCHIVE_PATH}${normal}"
 echo "🧱 Export path ${bold}${EXPORT_PATH}${normal}"
 echo ""
 
-echo "🌱 Generating Xcode project"
+echo "🌱 Generating Xcode projects"
+mint run xcodegen --spec "project-bwk.yml"
 mint run xcodegen --spec "project-pm.yml"
 echo ""
 
