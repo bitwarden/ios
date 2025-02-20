@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Vault is locked";
 "GoToMyVault" = "Go to my vault";
 "Collections" = "Collections";
-"NoItemsCollection" = "There are no items in this collection.";
-"NoItemsFolder" = "There are no items in this folder.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "There are no items in the trash.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
