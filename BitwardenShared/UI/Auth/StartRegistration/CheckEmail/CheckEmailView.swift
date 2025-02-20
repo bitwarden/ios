@@ -50,7 +50,7 @@ struct CheckEmailView: View {
                     openURL(URL(string: "message://")!)
                 }
                 .accessibilityIdentifier("OpenEmailAppButton")
-                .padding(.horizontal, 50)
+                .padding(.horizontal, -8)
                 .padding(.bottom, 12)
                 .buttonStyle(.primary())
 
@@ -58,7 +58,7 @@ struct CheckEmailView: View {
                     store.send(.goBackTapped)
                 }
                 .accessibilityIdentifier("ChangeEmailAddressButton")
-                .padding(.horizontal, 50)
+                .padding(.horizontal, -8)
                 .padding(.bottom, 32)
                 .buttonStyle(.secondary())
             }
