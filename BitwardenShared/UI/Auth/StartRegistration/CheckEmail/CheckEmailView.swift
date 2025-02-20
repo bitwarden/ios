@@ -23,7 +23,8 @@ struct CheckEmailView: View {
                     .frame(width: 100, height: 100)
                     .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 32)
+                    .padding(.top, 36)
+                    .padding(.bottom, 32)
 
                 Text(Localizations.checkYourEmail)
                     .styleGuide(.title2, weight: .semibold)
@@ -50,7 +51,6 @@ struct CheckEmailView: View {
                     openURL(URL(string: "message://")!)
                 }
                 .accessibilityIdentifier("OpenEmailAppButton")
-                .padding(.horizontal, -8)
                 .padding(.bottom, 12)
                 .buttonStyle(.primary())
 
@@ -58,13 +58,12 @@ struct CheckEmailView: View {
                     store.send(.goBackTapped)
                 }
                 .accessibilityIdentifier("ChangeEmailAddressButton")
-                .padding(.horizontal, -8)
                 .padding(.bottom, 32)
                 .buttonStyle(.secondary())
             }
         }
         .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
-        .scrollView()
+        .scrollView(padding: 12)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismissTapped)
