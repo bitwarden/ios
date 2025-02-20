@@ -18,14 +18,21 @@ public enum InvocationMockerError: LocalizedError {
 
 /// A mocker of a func invocation that has one parameter.
 /// This is useful for tests where we need to verify a correct parameter is passed on invocation.
-class InvocationMocker<TParam> {
-    var invokedParam: TParam?
-    var called = false
+public class InvocationMocker<TParam> {
+    /// The parameter that was invoked.
+    public var invokedParam: TParam?
+
+    /// Whether or not the mock was called.
+    public var called = false
+
+    /// Initialize an `InvocationMocker`.
+    ///
+    public init() {}
 
     /// Executes the `verification` and if it passes returns the `result`, throwing otherwise.
     /// - Parameter param: The parameter of the function to invoke.
     /// - Returns: Returns the result setup.
-    func invoke(param: TParam?) {
+    public func invoke(param: TParam?) {
         called = true
         invokedParam = param
     }
@@ -36,7 +43,7 @@ class InvocationMocker<TParam> {
     ///   - message: Message if fails.
     ///   - file: File where this was originated.
     ///   - line: Line number where this was originated.
-    func assert(
+    public func assert(
         verification: (TParam?) -> Bool,
         _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
         file: StaticString = #filePath,
@@ -52,7 +59,7 @@ class InvocationMocker<TParam> {
     ///   - message: Message if fails.
     ///   - file: File where this was originated.
     ///   - line: Line number where this was originated.
-    func assertUnwrapping(
+    public func assertUnwrapping(
         verification: (TParam) -> Bool,
         _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
         file: StaticString = #filePath,
@@ -69,11 +76,19 @@ class InvocationMocker<TParam> {
 /// A mocker of a func invocation that has one parameter, a result and can throw.
 /// This is useful for tests where we need to verify a correct parameter is passed
 /// to return the correct result.
-class InvocationMockerWithThrowingResult<TParam, TResult> {
-    var called = false
-    var invokedParam: TParam?
+public class InvocationMockerWithThrowingResult<TParam, TResult> {
+    /// Whether or not the mock was called.
+    public var called = false
+
+    /// What parameter the mock was invoked with.
+    public var invokedParam: TParam?
+
     var result: (TParam) throws -> TResult = { _ in throw InvocationMockerError.resultNotSet }
     var verification: (TParam) -> Bool = { _ in true }
+
+    /// Initialize an `InvocationMockerWithThrowingResult`.
+    ///
+    public init() {}
 
     /// Asserts by verifying the parameter which was passed to the invoked function.
     /// - Parameters:
@@ -97,7 +112,7 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     ///   - message: Message if fails.
     ///   - file: File where this was originated.
     ///   - line: Line number where this was originated.
-    func assertUnwrapping(
+    public func assertUnwrapping(
         verification: (TParam) -> Bool,
         _ message: @autoclosure () -> String = "\(TParam.self) verification failed",
         file: StaticString = #filePath,
@@ -113,7 +128,7 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     /// Executes the `verification` and if it passes returns the `result`, throwing otherwise.
     /// - Parameter param: The parameter of the function to invoke.
     /// - Returns: Returns the result setup.
-    func invoke(param: TParam) throws -> TResult {
+    public func invoke(param: TParam) throws -> TResult {
         called = true
         guard verification(param) else {
             XCTFail("\(TParam.self) verification failed.")
@@ -126,7 +141,7 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     /// Sets up a verification to be executed and needs to pass in order to return the result.
     /// - Parameter verification: Verification to run.
     /// - Returns: `Self` for fluent coding.
-    func withVerification(verification: @escaping (TParam) -> Bool) -> Self {
+    public func withVerification(verification: @escaping (TParam) -> Bool) -> Self {
         self.verification = verification
         return self
     }
@@ -135,7 +150,7 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     /// - Parameter result: The result to return.
     /// - Returns: `Self` for fluent coding
     @discardableResult
-    func withResult(_ result: TResult) -> Self {
+    public func withResult(_ result: TResult) -> Self {
         self.result = { _ in result }
         return self
     }
@@ -144,7 +159,7 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     /// - Parameter resultFunc: The result func to execute.
     /// - Returns: `Self` for fluent coding
     @discardableResult
-    func withResult(_ resultFunc: @escaping (TParam) throws -> TResult) -> Self {
+    public func withResult(_ resultFunc: @escaping (TParam) throws -> TResult) -> Self {
         result = resultFunc
         return self
     }
@@ -153,7 +168,7 @@ class InvocationMockerWithThrowingResult<TParam, TResult> {
     /// - Parameter error: The error to throw.
     /// - Returns: `Self` for fluent coding
     @discardableResult
-    func throwing(_ error: Error) -> Self {
+    public func throwing(_ error: Error) -> Self {
         result = { _ in throw error }
         return self
     }
