@@ -88,6 +88,8 @@ struct VaultGroupState: Equatable, Sendable {
             return Localizations.thereAreNoLoginsInYourVault
         case .secureNote:
             return Localizations.thereAreNoNotesInYourVault
+        case .sshKey:
+            return Localizations.thereAreNoSSHKeysInYourVault
         case .trash:
             return Localizations.noItemsTrash
         default:
