@@ -100,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwarden Autofill Service";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmail" = "Change email";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "You can change your email address on the bitwarden.com web vault. Do you want to visit the website now?";
 "ChangeMasterPassword" = "Change master password";
 "Close" = "Close";
@@ -923,7 +923,8 @@
 "FilePasswordDescription" = "This password will be used to export and import this file";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Check your email";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "Open email app";
