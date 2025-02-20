@@ -7,7 +7,4 @@ enum CheckEmailAction: Equatable {
 
     /// The go back button was tapped
     case goBackTapped
-
-    /// The log in button was tapped
-    case logInTapped
 }
