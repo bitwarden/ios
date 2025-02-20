@@ -8,6 +8,9 @@ struct GuidedTourScrollView<Content: View>: View {
     /// The content of the scroll view.
     @ViewBuilder var content: Content
 
+    /// A state variable for disabling animations.
+    @SwiftUI.State var disableAnimation = false
+
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass
 
@@ -32,8 +35,7 @@ struct GuidedTourScrollView<Content: View>: View {
                 guidedTourView()
             }
             .transaction { transaction in
-                // disable the default FullScreenCover modal animation
-                transaction.disablesAnimations = true
+                transaction.disablesAnimations = disableAnimation
             }
             .onChange(of: verticalSizeClass) { _ in
                 handleLandscapeScroll(reader)
@@ -42,8 +44,15 @@ struct GuidedTourScrollView<Content: View>: View {
                 handleLandscapeScroll(reader)
             }
             .onChange(of: store.state.showGuidedTour) { newValue in
-                if newValue == false {
+                if newValue {
+                    disableAnimation = true
+                } else {
                     reader.scrollTo(top)
+                    // Need to reenable animation after dismissing the guided tour.
+                    Task {
+                        try? await Task.sleep(nanoseconds: 3 * 100_000_000)
+                        disableAnimation = false
+                    }
                 }
             }
         }
