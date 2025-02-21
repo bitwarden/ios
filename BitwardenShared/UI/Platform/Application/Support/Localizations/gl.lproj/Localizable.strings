@@ -39,6 +39,7 @@
 "InvalidPIN" = "PIN non válido. Téntao de novo.";
 "Launch" = "Abrir";
 "LogIn" = "Iniciar sesión";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Inicio de sesión";
 "LogOut" = "Pechar sesión";
 "LogoutConfirmation" = "Estás seguro de que queres pechar a sesión?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Usar Bitwarden en Safari e outras apps para autoencher as túas credenciais.";
 "BitwardenAutofillService" = "Servizo de autoenchido de Bitwarden";
 "BitwardenAutofillAccessibilityServiceDescription" = "Empregar o servizo de accesibilidade de Bitwarden para autoencher as túas credenciais.";
-"ChangeEmail" = "Cambiar correo electrónico";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "Podes cambiar o teu correo na aplicación web de bitwarden.com. Queres visitala agora mesmo?";
 "ChangeMasterPassword" = "Cambiar o contrasinal mestre";
 "Close" = "Pechar";
@@ -175,7 +176,6 @@
 "Select" = "Seleccionar";
 "SetPIN" = "Crear PIN";
 "SetPINDirection" = "Introduce un PIN de 4 díxitos para desbloquear a app.";
-"ItemInformation" = "Información da entrada";
 "ItemUpdated" = "Entrada gardada";
 "Submitting" = "Enviando...";
 "Syncing" = "Sincronizando...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "A caixa forte está pechada";
 "GoToMyVault" = "Ir á caixa forte";
 "Collections" = "Coleccións";
-"NoItemsCollection" = "No hai entradas nesta colección.";
-"NoItemsFolder" = "No hai entradas neste cartafol.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "No hai entradas no lixo.";
 "AutofillAccessibilityService" = "Servizo de Accesibilidade de Autoenchido";
 "AutofillServiceDescription" = "O servizo de autoenchido de Bitwarden emprega o Framework de Autoenchido de Android para facilitar a información necesaria a outras apps.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Baixar";
 "MoveUp" = "Subir";
 "Miscellaneous" = "Varios";
-"Ownership" = "Propiedade";
-"WhoOwnsThisItem" = "Quen posúe esta entrada?";
 "NoCollectionsToList" = "Non hai coleccións que listar.";
 "MovedItemToOrg" = "%1$@ movido a %2$@.";
 "ItemShared" = "Elemento compartido.";
@@ -781,6 +779,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "Non hai entradas coincidentes para \"%1$@\" na caixa forte";
 "SearchForAnItemOrAddANewItem" = "Buscar unha entrada ou engadir unha nova";
 "ThereAreNoItemsThatMatchTheSearch" = "Non hai entradas que coincidan ca busca";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "EUA";
 "EU" = "UE";
 "SelfHosted" = "Autoaloxado";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "Este contrasinal empregarase para exportar e importar o arquivo";
 "CreatingOn" = "Creando en";
 "CheckYourEmail" = "Revisa o teu correo";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Segue as instrucións enviadas a %1$@ para continuar creando a túa conta.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "Ningún correo noso? **[Volve atrás](https://)** para revisar o correo introducido.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Ou **[inicia sesión](https://)**, pode que xa teñas unha conta.";
 "OpenEmailApp" = "Abrir app de email";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "Envía información sensible de forma segura";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Comparte arquivos e datos de forma segura con quen queiras. A información permanecerá cifrada de punto a punto e limitarase a exposición.";
 "NewLogin" = "Novo inicio de sesión";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Importar credenciais gardadas";
 "ImportSavedLoginsDescriptionLong" = "Emprega unha computadora para importar credenciais doutro xestor de contrasinais.";
 "ImportLogins" = "Importar credenciais";
@@ -1123,3 +1141,9 @@
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";

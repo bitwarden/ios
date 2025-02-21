@@ -39,6 +39,7 @@
 "InvalidPIN" = "'Di-wastong PIN. Subukan ulit.";
 "Launch" = "Buksan";
 "LogIn" = "Log in";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Login";
 "LogOut" = "Mag-log out";
 "LogoutConfirmation" = "Sigurado ka bang gusto mong mag-log out?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwarden Autofill Service";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmail" = "Palitan ang email";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "Maaari mong baguhin ang iyong email address sa bitwarden.com web vault. Gusto mo bang bisitahin ang website ngayon?";
 "ChangeMasterPassword" = "Palitan ang master password";
 "Close" = "Isara";
@@ -175,7 +176,6 @@
 "Select" = "Piliin";
 "SetPIN" = "Magtakda ng PIN";
 "SetPINDirection" = "Maglagay ng 4 na numerong PIN code na gagawing pambukas ng app.";
-"ItemInformation" = "Impormasyon tungkol sa item";
 "ItemUpdated" = "Na-save ang item";
 "Submitting" = "Ipinapadala...";
 "Syncing" = "Nagsi-sync...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Naka-lock ang vault";
 "GoToMyVault" = "Pumunta sa vault ko";
 "Collections" = "Mga Koleksyon";
-"NoItemsCollection" = "Walang mga item sa koleksyong ito.";
-"NoItemsFolder" = "Walang mga item sa folder na ito.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "Walang mga item sa basurahan.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Ilipat pababa";
 "MoveUp" = "Ilipat Pataas";
 "Miscellaneous" = "Miscellaneous";
-"Ownership" = "Pag-aari";
-"WhoOwnsThisItem" = "Sino ang may-ari ng item na ito?";
 "NoCollectionsToList" = "Walang maililistang koleksyon.";
 "MovedItemToOrg" = "Nilipat ang %1$@ sa %2$@.";
 "ItemShared" = "Naibahagi na ang item.";
@@ -781,6 +779,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "Walang mga item sa vault mo na tumutugma sa \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Hanapin ang isang item o gumawa ng bagong item";
 "ThereAreNoItemsThatMatchTheSearch" = "Walang mga item na tumutugma sa paghahanap";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Self-hosted";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "This password will be used to export and import this file";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Check your email";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "Open email app";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
 "NewLogin" = "New login";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Import saved logins";
 "ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";
 "ImportLogins" = "Import logins";
@@ -1123,3 +1141,9 @@
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";
