@@ -3211,6 +3211,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3366,53 +3367,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Card (1)
               - Group: Identity (1)
               - Group: Secure note (1)
-            Section: Folders
-              - Group: Development (0)
-              - Group: Internal (1)
-              - Group: Social (2)
-              - Group: No Folder (5)
-            Section: Collections
-              - Group: Design (2)
-              - Group: Engineering (3)
-            Section: Trash
-              - Group: Trash (1)
-            """
-        }
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections and folders, with no filter.
-    @MainActor
-    func test_vaultListPublisher_withCollections_allWithSSHKeyFlagEnabled() async throws {
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        var iterator = try await subject.vaultListPublisher(
-            filter: VaultListFilter(filterType: .allVaults)
-        ).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Favorites
-              - Cipher: Apple
-            Section: Types
-              - Group: Login (6)
-              - Group: Card (1)
-              - Group: Identity (1)
-              - Group: Secure note (1)
               - Group: SSH key (1)
             Section: Folders
               - Group: Development (0)
               - Group: Internal (1)
               - Group: Social (2)
-              - Group: No Folder (6)
+              - Group: No Folder (5)
             Section: Collections
               - Group: Design (2)
               - Group: Engineering (3)
@@ -3452,45 +3412,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Section: No Folder
               - Cipher: Bitwarden User
               - Cipher: Top Secret Note
-              - Cipher: Visa
-            Section: Trash
-              - Group: Trash (1)
-            """
-        }
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections with the my vault filter with SSH Key flag enabled.
-    @MainActor
-    func test_vaultListPublisher_withCollections_myVaultWithSSHKeyFlagEnabled() async throws {
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        var iterator = try await subject.vaultListPublisher(
-            filter: VaultListFilter(filterType: .myVault)
-        ).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Types
-              - Group: Login (1)
-              - Group: Card (1)
-              - Group: Identity (1)
-              - Group: Secure note (1)
-              - Group: SSH key (1)
-            Section: Folders
-              - Group: Social (1)
-            Section: No Folder
-              - Cipher: Bitwarden User
-              - Cipher: Top Secret Note
-              - Cipher: Top SSH Key
               - Cipher: Visa
             Section: Trash
               - Group: Trash (1)
