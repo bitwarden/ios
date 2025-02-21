@@ -50,7 +50,7 @@ struct GuidedTourScrollView<Content: View>: View {
                     reader.scrollTo(top)
                     // Need to reenable animation after dismissing the guided tour.
                     Task {
-                        try? await Task.sleep(nanoseconds: 3 * 100_000_000)
+                        try? await Task.sleep(nanoseconds: 300 * NSEC_PER_MSEC)
                         disableAnimation = false
                     }
                 }
