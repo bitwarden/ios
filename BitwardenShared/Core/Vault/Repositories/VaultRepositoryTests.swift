@@ -237,7 +237,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
         cipherService.ciphersSubject.value = ciphers
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                 .availableCredentialsForAuthenticationPublisher(),
@@ -294,7 +293,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
         cipherService.ciphersSubject.value = ciphers
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                 .availableCredentialsForAuthenticationPublisher(),
@@ -656,8 +654,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(publishedSections)), as: .lines) {
             """
-            Section: 
-              - TOTP: 2 Example 123 456 
+            Section:
+              - TOTP: 2 Example 123 456
             """
         }
     }
@@ -1678,8 +1676,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         assertInlineSnapshot(of: dumpVaultListSections(sections), as: .lines) {
             """
-            Section: 
-              - TOTP: 4 Cafffffffe 123 456 
+            Section:
+              - TOTP: 4 Cafffffffe 123 456
             """
         }
     }
@@ -1736,7 +1734,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "4", name: "Caféeee", type: .card),
             .fixture(id: "5", name: "Cafée12312ee", type: .sshKey),
         ]
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
@@ -1768,7 +1765,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "4", name: "Caféeee", type: .card),
             .fixture(id: "5", name: "Cafée12312ee", type: .sshKey),
         ]
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
@@ -2110,7 +2106,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// returns search matching cipher name for SSH key items.
     @MainActor
     func test_searchVaultListPublisher_searchText_sshKey() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         stateService.activeAccount = .fixture()
         cipherService.ciphersSubject.value = [
             .fixture(id: "1", name: "café", type: .card),
@@ -2153,48 +2148,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
-    }
-
-    /// `searchVaultListPublisher(searchText:, group: .sshKey, filterType:)`
-    /// returns 0 search matching cipher name for SSH key items when `.sshKeyVaultItem` flag is disabled.
-    @MainActor
-    func test_searchVaultListPublisher_searchText_sshKeyWithFlagDisabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = false
-        stateService.activeAccount = .fixture()
-        cipherService.ciphersSubject.value = [
-            .fixture(id: "1", name: "café", type: .card),
-            .fixture(id: "2", name: "cafepass", type: .login),
-            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
-            .fixture(
-                folderId: "coffee",
-                id: "0",
-                name: "Best Cafes",
-                type: .secureNote
-            ),
-            .fixture(
-                collectionIds: ["123", "meep"],
-                id: "4",
-                name: "Café Friend",
-                type: .identity
-            ),
-            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
-            .fixture(
-                id: "6",
-                login: .fixture(totp: .standardTotpKey),
-                name: "one time cafefe",
-                type: .login
-            ),
-            .fixture(id: "7", name: "cafe", type: .sshKey),
-        ]
-        var iterator = try await subject
-            .searchVaultListPublisher(
-                searchText: "cafe",
-                group: .sshKey,
-                filter: VaultListFilter(filterType: .allVaults)
-            )
-            .makeAsyncIterator()
-        let ciphers = try await iterator.next()
-        XCTAssertEqual(ciphers, [])
     }
 
     /// `searchVaultListPublisher(searchText:, group: .totp, filterType:)`
@@ -3426,7 +3379,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// displayed in the vault for a vault that contains collections and folders, with no filter.
     @MainActor
     func test_vaultListPublisher_withCollections_allWithSSHKeyFlagEnabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         stateService.activeAccount = .fixture()
         let syncResponse = try JSONDecoder.defaultDecoder.decode(
             SyncResponseModel.self,
@@ -3505,7 +3457,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// displayed in the vault for a vault that contains collections with the my vault filter with SSH Key flag enabled.
     @MainActor
     func test_vaultListPublisher_withCollections_myVaultWithSSHKeyFlagEnabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         stateService.activeAccount = .fixture()
         let syncResponse = try JSONDecoder.defaultDecoder.decode(
             SyncResponseModel.self,

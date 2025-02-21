@@ -527,11 +527,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             ? { $0.deletedDate == nil }
             : { $0.deletedDate != nil }
 
-        let isSSHKeyVaultItemEnabled: Bool = await configService.getFeatureFlag(.sshKeyVaultItem)
-        let sshKeyFilter: (CipherView) -> Bool = { cipher in
-            cipher.type != .sshKey || isSSHKeyVaultItemEnabled
-        }
-
         return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherView] in
             // Convert the Ciphers to CipherViews and filter appropriately.
             let matchingCiphers = try await ciphers.asyncMap { cipher in
@@ -540,7 +535,6 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             .filter { cipher in
                 filter.filterType.cipherFilter(cipher) &&
                     isMatchingCipher(cipher) &&
-                    sshKeyFilter(cipher) &&
                     (cipherFilter?(cipher) ?? true)
             }
 
@@ -851,10 +845,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         .filter(filter.filterType.cipherFilter)
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let isSSHKeyVaultItemFlagEnabled: Bool = await configService.getFeatureFlag(.sshKeyVaultItem)
         let activeCiphers = ciphers.filter { cipher in
             cipher.deletedDate == nil
-                && (isSSHKeyVaultItemFlagEnabled || cipher.type != .sshKey)
         }
 
         let folders = try await clientService.vault().folders()
@@ -916,10 +908,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             VaultListItem(id: "Types.SecureNotes", itemType: .group(.secureNote, typesSecureNoteCount)),
         ]
 
-        if isSSHKeyVaultItemFlagEnabled {
-            let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
-            types.append(VaultListItem(id: "Types.SSHKeys", itemType: .group(.sshKey, typesSSHKeyCount)))
-        }
+        let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
+        types.append(VaultListItem(id: "Types.SSHKeys", itemType: .group(.sshKey, typesSSHKeyCount)))
 
         sections.append(contentsOf: [
             VaultListSection(id: "Favorites", items: ciphersFavorites, name: Localizations.favorites),
