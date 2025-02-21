@@ -96,7 +96,11 @@ struct TwoFactorAuthView: View {
     /// The body content for most 2FA methods.
     private var defaultContent: some View {
         VStack(spacing: 24) {
-            authMethodImage
+            if let authMethodImage = store.state.authMethodImageAsset {
+                Image(decorative: authMethodImage)
+                    .resizable()
+                    .frame(width: 124, height: 124)
+            }
 
             detailText
 
@@ -116,22 +120,6 @@ struct TwoFactorAuthView: View {
         }
         .padding(.top, 12)
         .scrollView(padding: 12)
-    }
-
-    /// The image representing the selected authentication method.
-    @ViewBuilder private var authMethodImage: some View {
-        switch store.state.authMethod {
-        case .email:
-            Image(decorative: Asset.Images.Illustrations.emailOtp)
-                .resizable()
-                .frame(width: 124, height: 124)
-        case .authenticatorApp:
-            Image(decorative: Asset.Images.Illustrations.authenticatorApp)
-                .resizable()
-                .frame(width: 124, height: 124)
-        default:
-            EmptyView()
-        }
     }
 
     /// The detailed instructions for the method.
