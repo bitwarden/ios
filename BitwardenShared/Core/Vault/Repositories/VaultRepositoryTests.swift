@@ -2938,6 +2938,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3008,6 +3009,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3070,6 +3072,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3266,6 +3269,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3317,6 +3321,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3441,6 +3446,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Card (1)
               - Group: Identity (1)
               - Group: Secure note (1)
+              - Group: SSH key (1)
             Section: Folders
               - Group: Social (1)
             Section: No Folder
@@ -3519,6 +3525,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Card (0)
               - Group: Identity (0)
               - Group: Secure note (0)
+              - Group: SSH key (0)
             Section: Folders
               - Group: Development/Artifacts (1)
               - Group: Internal (1)
