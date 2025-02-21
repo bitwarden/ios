@@ -900,16 +900,15 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let typesIdentityCount = activeCiphers.lazy.filter { $0.type == .identity }.count
         let typesLoginCount = activeCiphers.lazy.filter { $0.type == .login }.count
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
+        let typesSshKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
 
         var types = [
             VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount)),
             VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)),
             VaultListItem(id: "Types.Identities", itemType: .group(.identity, typesIdentityCount)),
             VaultListItem(id: "Types.SecureNotes", itemType: .group(.secureNote, typesSecureNoteCount)),
+            VaultListItem(id: "Types.SSHKeys", itemType: .group(.sshKey, typesSshKeyCount)),
         ]
-
-        let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
-        types.append(VaultListItem(id: "Types.SSHKeys", itemType: .group(.sshKey, typesSSHKeyCount)))
 
         sections.append(contentsOf: [
             VaultListSection(id: "Favorites", items: ciphersFavorites, name: Localizations.favorites),
