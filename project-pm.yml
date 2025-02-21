@@ -368,14 +368,11 @@ targets:
         optional: true
       - path: BitwardenWatchShared
     dependencies:
-      - target: BitwardenKit/AuthenticatorBridgeKit
-        embed: true
       - package: BitwardenSdk
-      - target: BitwardenKit/Networking
-        embed: true
-      - target: BitwardenKit/BitwardenKit
-        embed: true
       - package: SwiftUIIntrospect
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/Networking
+      - target: BitwardenKit/BitwardenKit
     preBuildScripts:
       - name: SwiftGen
         script: |
