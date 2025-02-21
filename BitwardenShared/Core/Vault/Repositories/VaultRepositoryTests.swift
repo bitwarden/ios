@@ -654,8 +654,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(publishedSections)), as: .lines) {
             """
-            Section:
-              - TOTP: 2 Example 123 456
+            Section: 
+              - TOTP: 2 Example 123 456 
             """
         }
     }
@@ -1676,8 +1676,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         assertInlineSnapshot(of: dumpVaultListSections(sections), as: .lines) {
             """
-            Section:
-              - TOTP: 4 Cafffffffe 123 456
+            Section: 
+              - TOTP: 4 Cafffffffe 123 456 
             """
         }
     }
@@ -3372,7 +3372,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Development (0)
               - Group: Internal (1)
               - Group: Social (2)
-              - Group: No Folder (5)
+              - Group: No Folder (6)
             Section: Collections
               - Group: Design (2)
               - Group: Engineering (3)
@@ -3412,6 +3412,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             Section: No Folder
               - Cipher: Bitwarden User
               - Cipher: Top Secret Note
+              - Cipher: Top SSH Key
               - Cipher: Visa
             Section: Trash
               - Group: Trash (1)
