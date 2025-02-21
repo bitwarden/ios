@@ -131,7 +131,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
-             .sshKeyVaultItem,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,
