@@ -169,6 +169,9 @@ targets:
       - target: BitwardenAutoFillExtension
       - target: BitwardenShareExtension
       - target: BitwardenWatchApp
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
     preBuildScripts:
@@ -371,8 +374,8 @@ targets:
       - package: BitwardenSdk
       - package: SwiftUIIntrospect
       - target: BitwardenKit/AuthenticatorBridgeKit
-      - target: BitwardenKit/Networking
       - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen
         script: |
