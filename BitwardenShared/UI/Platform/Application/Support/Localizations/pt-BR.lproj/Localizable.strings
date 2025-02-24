@@ -39,6 +39,7 @@
 "InvalidPIN" = "PIN inválido. Tente novamente.";
 "Launch" = "Abrir";
 "LogIn" = "Log in";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Login";
 "LogOut" = "Encerrar sessão";
 "LogoutConfirmation" = "Tem certeza que deseja sair?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwarden Autofill Service";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmail" = "Alterar E-mail";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "Você pode alterar o seu endereço de e-mail no cofre web em bitwarden.com. Você deseja visitar o site agora?";
 "ChangeMasterPassword" = "Alterar Senha Mestra";
 "Close" = "Fechar";
@@ -175,7 +176,6 @@
 "Select" = "Selecionar";
 "SetPIN" = "Definir PIN";
 "SetPINDirection" = "Digite um código PIN de 4 dígitos para desbloquear o aplicativo.";
-"ItemInformation" = "Informação do Item";
 "ItemUpdated" = "Item salvo";
 "Submitting" = "Enviando...";
 "Syncing" = "Sincronizando...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "O cofre está trancado.";
 "GoToMyVault" = "Ir para o meu cofre";
 "Collections" = "Coleções";
-"NoItemsCollection" = "Não existem itens nesta coleção.";
-"NoItemsFolder" = "Não existem itens nesta pasta.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "Não há itens na lixeira.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Mover para Baixo";
 "MoveUp" = "Mover para Cima";
 "Miscellaneous" = "Diversos";
-"Ownership" = "Propriedade";
-"WhoOwnsThisItem" = "Quem possui este item?";
 "NoCollectionsToList" = "Não há coleções para listar.";
 "MovedItemToOrg" = "%1$@ movido para %2$@.";
 "ItemShared" = "O item foi compartilhado.";
@@ -781,6 +779,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "Não existem itens no seu cofre que correspondam a \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Procure por um item ou adicione um novo item";
 "ThereAreNoItemsThatMatchTheSearch" = "Não há itens que correspondam à pesquisa";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "EUA";
 "EU" = "Europa";
 "SelfHosted" = "Auto-hospedado";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "Esta senha será usada para exportar e importar este arquivo";
 "CreatingOn" = "Criando em";
 "CheckYourEmail" = "Verifique seu correio eletrônico";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Siga as instruções no e-mail enviado para %1$@ para continuar a criar sua conta.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "Não tem endereço eletrônico? **[Voltar](https://)** para editar seu endereço de endereço eletrônico.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Ou **[acesse](https://)**, você pode já ter uma conta.";
 "OpenEmailApp" = "Abrir aplicativo de endereço eletrônico";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "Envie informações confidenciais, com segurança";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Compartilhe arquivos e dados de forma segura com qualquer pessoa, em qualquer plataforma. Suas informações permanecerão criptografadas de ponta a ponta enquanto limitam a exposição.";
 "NewLogin" = "Novo login";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Importar logins salvos";
 "ImportSavedLoginsDescriptionLong" = "Use um computador para importar logins de um gerenciador de senhas existente.";
 "ImportLogins" = "Importar logins";
@@ -1123,3 +1141,9 @@
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";

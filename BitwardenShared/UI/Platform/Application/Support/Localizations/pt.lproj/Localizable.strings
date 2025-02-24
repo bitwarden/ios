@@ -39,6 +39,7 @@
 "InvalidPIN" = "PIN inválido. Tente novamente.";
 "Launch" = "Iniciar";
 "LogIn" = "Iniciar sessão";
+"LoginCredentials" = "Credenciais de início de sessão";
 "LogInNoun" = "Iniciar sessão";
 "LogOut" = "Terminar sessão";
 "LogoutConfirmation" = "Tem a certeza de que pretende terminar sessão?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Utilize o Bitwarden no Safari e noutras aplicações para preencher automaticamente as suas credenciais.";
 "BitwardenAutofillService" = "Serviço de preenchimento automático do Bitwarden";
 "BitwardenAutofillAccessibilityServiceDescription" = "Utilize o serviço de acessibilidade do Bitwarden para preencher automaticamente as suas credenciais.";
-"ChangeEmail" = "Alterar e-mail";
+"ChangeEmailAddress" = "Alterar o endereço de e-mail";
 "ChangeEmailConfirmation" = "Pode alterar o seu endereço de e-mail no cofre do site bitwarden.com. Pretende visitar o site agora?";
 "ChangeMasterPassword" = "Alterar palavra-passe mestra";
 "Close" = "Fechar";
@@ -175,7 +176,6 @@
 "Select" = "Selecionar";
 "SetPIN" = "Definir PIN";
 "SetPINDirection" = "Introduza um código PIN de 4 dígitos para desbloquear a aplicação.";
-"ItemInformation" = "Informações do item";
 "ItemUpdated" = "Item guardado";
 "Submitting" = "A submeter...";
 "Syncing" = "A sincronizar...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "O cofre está bloqueado";
 "GoToMyVault" = "Ir para o meu cofre";
 "Collections" = "Coleções";
-"NoItemsCollection" = "Não existem itens nesta coleção.";
-"NoItemsFolder" = "Não existem itens nesta pasta.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "Não existem itens no lixo.";
 "AutofillAccessibilityService" = "Serviço de acessibilidade de preenchimento automático";
 "AutofillServiceDescription" = "O serviço de preenchimento automático do Bitwarden utiliza o Android Autofill Framework para ajudar a preencher as informações de início de sessão noutras aplicações no seu dispositivo.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Mover para baixo";
 "MoveUp" = "Mover para cima";
 "Miscellaneous" = "Diversos";
-"Ownership" = "Propriedade";
-"WhoOwnsThisItem" = "Quem é o proprietário deste item?";
 "NoCollectionsToList" = "Não há coleções a enumerar.";
 "MovedItemToOrg" = "%1$@ movido para %2$@.";
 "ItemShared" = "O item foi partilhado.";
@@ -781,6 +779,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "Não existem itens no seu cofre que correspondam a \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Procure um item ou adicione um novo";
 "ThereAreNoItemsThatMatchTheSearch" = "Não existem itens que correspondam à pesquisa";
+"ThereAreNoLoginsInYourVault" = "Não existem credenciais no seu cofre.";
+"ThereAreNoCardsInYourVault" = "Não existem cartões no seu cofre.";
+"ThereAreNoNotesInYourVault" = "Não existem notas no seu cofre.";
+"ThereAreNoIdentitiesInYourVault" = "Não existem identidades no seu cofre.";
+"ThereAreNoSSHKeysInYourVault" = "Não existem chaves SSH no seu cofre";
 "US" = "EUA";
 "EU" = "UE";
 "SelfHosted" = "Auto-hospedado";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "Esta palavra-passe será utilizada para exportar e importar este ficheiro";
 "CreatingOn" = "A criar em";
 "CheckYourEmail" = "Verifique o seu e-mail";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Siga as instruções do e-mail enviado para %1$@ para continuar a criar a sua conta.";
+"WeSentAnEmailTo" = "Enviámos um e-mail para %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Selecione o link no e-mail enviado para verificar o seu endereço de e-mail e continuar a criar a sua conta.";
 "NoEmailGoBackToEditYourEmailAddress" = "Não recebeu nenhum e-mail? **[Volte atrás](https://)** para editar o seu endereço de e-mail.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Ou **[inicie sessão](https://)**, uma vez que pode já ter uma conta.";
 "OpenEmailApp" = "Abrir a app de e-mail";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "Envie informações sensíveis, com segurança";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Partilhe ficheiros e dados de forma segura com qualquer pessoa, em qualquer plataforma. As suas informações permanecerão encriptadas ponto a ponto, limitando a exposição.";
 "NewLogin" = "Nova credencial";
+"NewCard" = "Novo cartão";
+"NewIdentity" = "Nova identidade";
+"NewNote" = "Nova nota";
+"NewSSHKey" = "Nova chave SSH";
+"EditLogin" = "Editar credencial";
+"EditCard" = "Editar cartão";
+"EditIdentity" = "Editar identidade";
+"EditNote" = "Editar nota";
+"EditSSHKey" = "Editar chave SSH";
+"ViewLogin" = "Ver credencial";
+"ViewCard" = "Ver cartão";
+"ViewIdentity" = "Ver identidade";
+"ViewNote" = "Ver nota";
+"ViewSSHKey" = "Ver chave SSH";
 "ImportSavedLogins" = "Importar credenciais guardadas";
 "ImportSavedLoginsDescriptionLong" = "Utilize um computador para importar credenciais de um gestor de palavras-passe existente.";
 "ImportLogins" = "Importar credenciais";
@@ -1123,3 +1141,9 @@
 "CannotDeleteAccountDescriptionLong" = "Esta ação não pode ser concluída porque a sua conta é propriedade de uma organização. Contacte o administrador da sua organização para obter mais informações.";
 "NewFolder" = "Nova pasta";
 "SetUpAuthenticatorKey" = "Configurar a chave de autenticação";
+"ItemDetails" = "Detalhes do item";
+"CardDetails" = "Detalhes do cartão";
+"PersonalDetails" = "Dados pessoais";
+"ContactInfo" = "Informações de contacto";
+"Identification" = "Identificação";
+"Owner" = "Proprietário";

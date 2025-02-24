@@ -39,6 +39,7 @@
 "InvalidPIN" = "Неверный PIN. Попробуйте снова.";
 "Launch" = "Перейти";
 "LogIn" = "Войти";
+"LoginCredentials" = "Данные для авторизации";
 "LogInNoun" = "Вход";
 "LogOut" = "Выход";
 "LogoutConfirmation" = "Вы действительно хотите выйти?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Используйте Bitwarden в Safari и других приложениях для автозаполнения логинов.";
 "BitwardenAutofillService" = "Служба автозаполнения Bitwarden";
 "BitwardenAutofillAccessibilityServiceDescription" = "Используйте службу специальных возможностей Bitwarden для автоматического заполнения логинов.";
-"ChangeEmail" = "Изменить email";
+"ChangeEmailAddress" = "Изменить адрес email";
 "ChangeEmailConfirmation" = "Вы можете изменить свой адрес электронной почты на bitwarden.com. Перейти на сайт сейчас?";
 "ChangeMasterPassword" = "Изменить мастер-пароль";
 "Close" = "Закрыть";
@@ -175,7 +176,6 @@
 "Select" = "Выбрать";
 "SetPIN" = "Установка PIN";
 "SetPINDirection" = "Введите 4-значный PIN-код для разблокировки приложения.";
-"ItemInformation" = "Информация об элементе";
 "ItemUpdated" = "Элемент сохранен";
 "Submitting" = "Отправка...";
 "Syncing" = "Синхронизация...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Хранилище заблокировано";
 "GoToMyVault" = "Перейти в мое хранилище";
 "Collections" = "Коллекции";
-"NoItemsCollection" = "В этой коллекции нет элементов.";
-"NoItemsFolder" = "В этой папке нет элементов.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "В корзине нет элементов.";
 "AutofillAccessibilityService" = "Служба специальных возможностей автозаполнения";
 "AutofillServiceDescription" = "Служба автозаполнения Bitwarden использует фреймворк автозаполнения Android для заполнения логинов в других приложениях на устройстве.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Переместить ниже";
 "MoveUp" = "Переместить выше";
 "Miscellaneous" = "Прочее";
-"Ownership" = "Владелец";
-"WhoOwnsThisItem" = "Кому принадлежит этот элемент?";
 "NoCollectionsToList" = "Нет коллекций для отображения.";
 "MovedItemToOrg" = "%1$@ перемещено в %2$@.";
 "ItemShared" = "Элемент был сделан общим.";
@@ -782,6 +780,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "В вашем хранилище нет элементов, соответствующих \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Поиск или добавление нового элемента";
 "ThereAreNoItemsThatMatchTheSearch" = "Нет элементов, соответствующих запросу";
+"ThereAreNoLoginsInYourVault" = "В вашем хранилище нет логинов.";
+"ThereAreNoCardsInYourVault" = "В вашем хранилище нет карт.";
+"ThereAreNoNotesInYourVault" = "В вашем хранилище нет заметок.";
+"ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личных данных.";
+"ThereAreNoSSHKeysInYourVault" = "В вашем хранилище нет ключей SSH";
 "US" = "США";
 "EU" = "Европа";
 "SelfHosted" = "Собственный хостинг";
@@ -924,7 +927,8 @@
 "FilePasswordDescription" = "Этот пароль будет использоваться для экспорта и импорта этого файла";
 "CreatingOn" = "Создание";
 "CheckYourEmail" = "Проверьте свою почту";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Следуйте инструкциям в письме, отправленном на %1$@, чтобы продолжить создание аккаунта.";
+"WeSentAnEmailTo" = "Мы отправили письмо на %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Кликните ссылку в письме, чтобы подтвердить свой адрес email и продолжить создание у аккаунта.";
 "NoEmailGoBackToEditYourEmailAddress" = "Нет письма? **[Вернитесь](https://)**, чтобы изменить свой адрес email.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Или **[авторизуйтесь](https://)**, возможно, у вас уже есть аккаунт.";
 "OpenEmailApp" = "Открыть приложение электронной почты";
@@ -1018,6 +1022,20 @@
 "SendSensitiveInformationSafely" = "Безопасная отправка конфиденциальной информации";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Безопасно обменивайтесь файлами и данными с кем угодно на любой платформе. Ваша информация надежно шифруется и доступ к ней ограничен.";
 "NewLogin" = "Новый логин";
+"NewCard" = "Новая карта";
+"NewIdentity" = "New identity";
+"NewNote" = "Новая заметка";
+"NewSSHKey" = "Новый ключ SSH";
+"EditLogin" = "Изменить логин";
+"EditCard" = "Редактировать карту";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Редактировать заметку";
+"EditSSHKey" = "Редактировать ключ SSH";
+"ViewLogin" = "Просмотр логина";
+"ViewCard" = "Просмотр карты";
+"ViewIdentity" = "View identity";
+"ViewNote" = "Просмотр заметки";
+"ViewSSHKey" = "Просмотр ключа SSH";
 "ImportSavedLogins" = "Импортировать сохраненные логины";
 "ImportSavedLoginsDescriptionLong" = "Используйте компьютер для импорта логинов из существующего менеджера паролей.";
 "ImportLogins" = "Импорт логинов";
@@ -1126,3 +1144,9 @@
 "CannotDeleteAccountDescriptionLong" = "Это действие не может быть выполнено, поскольку ваш аккаунт принадлежит организации. Обратитесь к администратору организации за дополнительными сведениями.";
 "NewFolder" = "Новая папка";
 "SetUpAuthenticatorKey" = "Настроить ключ аутентификатора";
+"ItemDetails" = "Информация об элементе";
+"CardDetails" = "Реквизиты карты";
+"PersonalDetails" = "Личные данные";
+"ContactInfo" = "Контактная информация";
+"Identification" = "Идентификация";
+"Owner" = "Владелец";

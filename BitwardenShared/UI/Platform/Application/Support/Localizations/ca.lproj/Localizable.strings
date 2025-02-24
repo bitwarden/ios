@@ -39,6 +39,7 @@
 "InvalidPIN" = "El PIN no és vàlid. Torna-ho a provar.";
 "Launch" = "Inicia";
 "LogIn" = "Log in";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Inici de sessió";
 "LogOut" = "Tanca la sessió";
 "LogoutConfirmation" = "Segur que voleu tancar la sessió?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwarden Autofill Service";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmail" = "Canvia el correu electrònic";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "Podeu canviar la contrasenya mestra a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?";
 "ChangeMasterPassword" = "Canvia la contrasenya mestra";
 "Close" = "Tanca";
@@ -175,7 +176,6 @@
 "Select" = "Selecciona";
 "SetPIN" = "Estableix el PIN";
 "SetPINDirection" = "Introduïu un codi PIN de 4 dígits per obrir l'aplicació.";
-"ItemInformation" = "Informació de l'element";
 "ItemUpdated" = "Element guardat";
 "Submitting" = "S'està enviant...";
 "Syncing" = "S'està sincronitzant...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "La caixa forta està bloquejada";
 "GoToMyVault" = "Vés a la meua caixa forta";
 "Collections" = "Col·leccions";
-"NoItemsCollection" = "No hi ha elements en aquesta col·lecció.";
-"NoItemsFolder" = "No hi ha elements en aquesta carpeta.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "No hi ha elements a la paperera.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Desplaça cap avall";
 "MoveUp" = "Desplaça cap amunt";
 "Miscellaneous" = "Diversos";
-"Ownership" = "Propietat";
-"WhoOwnsThisItem" = "Qui és el propietari d'aquest element?";
 "NoCollectionsToList" = "No hi ha cap col·lecció per llistar.";
 "MovedItemToOrg" = "%1$@ desplaçat a %2$@.";
 "ItemShared" = "L'element s'ha compartit.";
@@ -781,6 +779,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "No hi ha cap element a la caixa forta que coincidisca amb \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Cerca un element o n'afig un nou";
 "ThereAreNoItemsThatMatchTheSearch" = "No hi ha elements que coincidisquen amb la cerca";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "EUA";
 "EU" = "UE";
 "SelfHosted" = "Autoallotjat";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "Aquesta contrasenya s'utilitzarà per exportar i importar aquest fitxer";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Check your email";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "Open email app";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
 "NewLogin" = "New login";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Import saved logins";
 "ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";
 "ImportLogins" = "Import logins";
@@ -1123,3 +1141,9 @@
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";

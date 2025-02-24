@@ -39,6 +39,7 @@
 "InvalidPIN" = "Памылковы PIN. Паспрабуйце яшчэ раз.";
 "Launch" = "Запусціць";
 "LogIn" = "Log in";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Лагін";
 "LogOut" = "Выйсці";
 "LogoutConfirmation" = "Вы сапраўды хочаце выйсці?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwarden Autofill Service";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmail" = "Змяніць адрас электроннай пошты";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "Вы можаце змяніць сваю электронную пошту ў вэб-сховішчы на bitwarden.com. Перайсці на вэб-сайт зараз?";
 "ChangeMasterPassword" = "Змяніць асноўны пароль";
 "Close" = "Закрыць";
@@ -175,7 +176,6 @@
 "Select" = "Выбраць";
 "SetPIN" = "Прызначыць PIN";
 "SetPINDirection" = "Увядзіце PIN-код з чатырох лічбаў, каб разблакіраваць праграму.";
-"ItemInformation" = "Звесткі аб элеменце";
 "ItemUpdated" = "Элемент абноўлены.";
 "Submitting" = "Адпраўка...";
 "Syncing" = "Сінхранізацыя...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Сховішча заблакіравана";
 "GoToMyVault" = "Перайсці ў сховішча";
 "Collections" = "Калекцыі";
-"NoItemsCollection" = "У гэтай калекцыі адсутнічаюць элементы.";
-"NoItemsFolder" = "У гэтай папцы адсутнічаюць элементы.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "У сметніцы адсутнічаюць элементы.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Перамясціць уніз";
 "MoveUp" = "Перамясціць уверх";
 "Miscellaneous" = "Рознае";
-"Ownership" = "Уладальнік";
-"WhoOwnsThisItem" = "Каму належыць гэты элемент?";
 "NoCollectionsToList" = "У спісе адсутнічаюць калекцыі.";
 "MovedItemToOrg" = "%1$@ перамешчана ў %2$@.";
 "ItemShared" = "Элемент быў абагулены.";
@@ -781,6 +779,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "У вашым сховішчы адсутнічаюць элементы, якія адпавядаюць \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Пошук або дабаўленне новага элемента";
 "ThereAreNoItemsThatMatchTheSearch" = "Адсутнічаюць элементы, якія адпавядаюць пошуку";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "ЗША";
 "EU" = "ЕС";
 "SelfHosted" = "Уласнае размяшчэнне";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "Гэты пароль будзе выкарыстоўвацца для экспартавання і імпартавання гэтага файла";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Check your email";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "Open email app";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
 "NewLogin" = "New login";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Import saved logins";
 "ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";
 "ImportLogins" = "Import logins";
@@ -1123,3 +1141,9 @@
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";

@@ -39,6 +39,7 @@
 "InvalidPIN" = "Ugyldig PIN-kode. Prøv igjen.";
 "Launch" = "Åpne";
 "LogIn" = "Logg inn";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Innlogging";
 "LogOut" = "Logg av";
 "LogoutConfirmation" = "Er du sikker på at du vil logge av?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwarden Autofill Service";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmail" = "Endre e-postadresse";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "Du kan endre din kontos E-postadresse på bitwarden.net-netthvelvet. Vil du besøke det nettstedet nå?";
 "ChangeMasterPassword" = "Endre hovedpassord";
 "Close" = "Lukk";
@@ -175,7 +176,6 @@
 "Select" = "Velg";
 "SetPIN" = "Velg PIN";
 "SetPINDirection" = "Skriv inn en 4-sifret PIN-kode til å låse opp appen med.";
-"ItemInformation" = "Elementinformasjon";
 "ItemUpdated" = "Element oppdatert.";
 "Submitting" = "Sender inn...";
 "Syncing" = "Synkroniserer...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Hvelvet er låst";
 "GoToMyVault" = "Gå til hvelvet mitt";
 "Collections" = "Samlinger";
-"NoItemsCollection" = "Det er ingen gjenstander i denne samlingen.";
-"NoItemsFolder" = "Det er ingen gjenstander i denne mappen.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "Det er ingen elementer i papirkurven.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Flytt ned";
 "MoveUp" = "Flytt opp";
 "Miscellaneous" = "Diverse";
-"Ownership" = "Eierskap";
-"WhoOwnsThisItem" = "Hvem eier dette elementet?";
 "NoCollectionsToList" = "Det er ingen samlinger å vise.";
 "MovedItemToOrg" = "%1$@ flyttet til %2$@.";
 "ItemShared" = "Elementet har blitt delt.";
@@ -781,6 +779,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "Det er ingen elementer i hvelvet ditt som samsvarer med \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Søk etter et element eller legg til et nytt element";
 "ThereAreNoItemsThatMatchTheSearch" = "Det er ingen elementer som samsvarer med søket";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Self-hosted";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "This password will be used to export and import this file";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Sjekk E-postinnboksen din";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "Open email app";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
 "NewLogin" = "Ny innlogging";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Import saved logins";
 "ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";
 "ImportLogins" = "Import logins";
@@ -1123,3 +1141,9 @@
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";
