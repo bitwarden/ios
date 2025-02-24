@@ -1,5 +1,3 @@
-import SnapshotTesting
-import SwiftUI
 import XCTest
 
 open class BitwardenTestCase: XCTestCase {
