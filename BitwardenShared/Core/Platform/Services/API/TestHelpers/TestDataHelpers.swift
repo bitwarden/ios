@@ -1,10 +1,13 @@
 import Foundation
+import TestHelpers
+
+class BitwardenTestCaseBundleClass {}
 
 /// A type that wraps fixture data for use in mocking responses during tests.
 ///
 enum TestDataHelpers {
     static func loadFromBundle(resource: String, extension: String) -> Data {
-        let bundle = Bundle(for: BitwardenTestCase.self)
+        let bundle = Bundle(for: BitwardenTestCaseBundleClass.self)
         guard let url = bundle.url(forResource: resource, withExtension: `extension`) else {
             fatalError("Unable to locate file \(resource).\(`extension`) in the bundle.")
         }

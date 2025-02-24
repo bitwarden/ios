@@ -1,3 +1,4 @@
+import TestHelpers
 import UniformTypeIdentifiers
 import XCTest
 

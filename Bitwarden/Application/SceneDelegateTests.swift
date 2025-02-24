@@ -2,6 +2,7 @@ import XCTest
 
 @testable import Bitwarden
 @testable import BitwardenShared
+import TestHelpers
 
 // MARK: - SceneDelegateTests
 

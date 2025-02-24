@@ -1,4 +1,5 @@
 import CoreNFC
+import TestHelpers
 import XCTest
 
 @testable import Bitwarden

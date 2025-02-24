@@ -1,5 +1,6 @@
 import BitwardenSdk
 import SnapshotTesting
+import TestHelpers
 import ViewInspector
 import XCTest
 
