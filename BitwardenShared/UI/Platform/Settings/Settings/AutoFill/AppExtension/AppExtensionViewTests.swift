@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AppExtensionViewTests: BitwardenTestCase {
+class AppExtensionViewTests: BitwardenSnapshotTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<AppExtensionState, AppExtensionAction, Void>!

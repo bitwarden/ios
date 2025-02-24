@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - AddEditSendItemViewTests
 
-class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
+class AddEditSendItemViewTests: BitwardenSnapshotTestCase { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// Wraps the add/edit send view in a navigation controller with the hairline divider removed

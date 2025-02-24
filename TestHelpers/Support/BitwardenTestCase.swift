@@ -17,9 +17,6 @@ open class BitwardenTestCase: XCTestCase {
                 """
             )
         }
-
-        // Apply default appearances for snapshot tests.
-//        UI.applyDefaultAppearances()
     }
 
     /// Executes any logic that should be applied before each test runs.
@@ -27,8 +24,6 @@ open class BitwardenTestCase: XCTestCase {
     @MainActor
     override open func setUp() {
         super.setUp()
-//        UI.animated = false
-//        UI.sizeCategory = .large
         window = UIWindow(frame: UIScreen.main.bounds)
         window.layer.speed = 100
     }
@@ -37,7 +32,6 @@ open class BitwardenTestCase: XCTestCase {
     ///
     override open func tearDown() {
         super.tearDown()
-//        UI.animated = false
         window = nil
     }
 

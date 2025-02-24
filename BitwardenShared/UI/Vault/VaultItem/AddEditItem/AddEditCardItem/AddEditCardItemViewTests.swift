@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AddEditCardItemViewTests: BitwardenTestCase {
+class AddEditCardItemViewTests: BitwardenSnapshotTestCase {
     // MARK: Snapshots
 
     /// Test preview snapshots of the `AddEditCardItemView`.
