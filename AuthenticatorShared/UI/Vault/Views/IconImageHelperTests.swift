@@ -1,0 +1,51 @@
+import BitwardenSdk
+import XCTest
+
+@testable import AuthenticatorShared
+
+final class IconImageHelperTests: AuthenticatorTestCase {
+    // MARK: Parameters
+
+    let defaultURL = URL(string: "https://icons.bitwarden.net")!
+
+    // MARK: Tests
+
+    func test_getIconImage_emptyURIs() {
+        let loginView = BitwardenSdk.LoginView.fixture(
+            uris: []
+        )
+        let result = IconImageHelper.getIconImage(for: loginView, from: defaultURL)
+        XCTAssertNil(result)
+    }
+
+    func test_getIconImage_nilURIs() {
+        let loginView = BitwardenSdk.LoginView.fixture()
+        let result = IconImageHelper.getIconImage(for: loginView, from: defaultURL)
+        XCTAssertNil(result)
+    }
+
+    func test_getIconImage_nilURL() {
+        let loginView = BitwardenSdk.LoginView.fixture(
+            uris: [
+                .init(uri: "bitwarden.com", match: nil),
+            ]
+        )
+        let result = IconImageHelper.getIconImage(for: loginView, from: defaultURL)
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.absoluteString, "https://icons.bitwarden.net/bitwarden.com/icon.png")
+    }
+
+    func test_getIconImage_multiURI() {
+        let loginView = BitwardenSdk.LoginView.fixture(
+            uris: [
+                .init(uri: nil, match: nil),
+                .init(uri: "://peanuts", match: nil),
+                .init(uri: "://peanuts.yum", match: nil),
+                .init(uri: "bitwarden.com", match: nil),
+            ]
+        )
+        let result = IconImageHelper.getIconImage(for: loginView, from: defaultURL)
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result?.absoluteString, "https://icons.bitwarden.net/bitwarden.com/icon.png")
+    }
+}

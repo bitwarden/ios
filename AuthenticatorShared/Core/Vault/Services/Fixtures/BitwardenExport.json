@@ -1,0 +1,25 @@
+{
+    "encrypted": false,
+    "items": [
+        {
+            "favorite": false,
+            "id": "One",
+            "login": {
+                "totp": "otpauth://totp/Bitwarden:person@example.com?secret=EXAMPLE&issuer=Bitwarden",
+                "username": "person@example.com"
+            },
+            "name": "Name",
+            "type": 1
+        },
+        {
+            "favorite": true,
+            "id": "Two",
+            "login": {
+                "totp": "steam://EXAMPLE",
+                "username": "person@example.com"
+            },
+            "name": "Steam",
+            "type": 1
+        }
+    ]
+}

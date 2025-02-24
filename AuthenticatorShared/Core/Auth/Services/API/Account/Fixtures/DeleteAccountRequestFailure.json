@@ -1,0 +1,10 @@
+{
+    "message":"The model state is invalid.",
+    "validationErrors":{
+        "":["User verification failed."]
+    },
+    "exceptionMessage":null,
+    "exceptionStackTrace":null,
+    "innerExceptionMessage":null,
+    "object":"error"
+}

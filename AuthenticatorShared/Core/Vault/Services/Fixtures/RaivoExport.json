@@ -1,0 +1,28 @@
+[
+    {
+        "pinned": "false",
+        "timer": "30",
+        "secret": "Secret1One",
+        "iconValue": "",
+        "iconType": "",
+        "counter": "0",
+        "digits": "6",
+        "issuer": "Name",
+        "kind": "TOTP",
+        "algorithm": "SHA1",
+        "account": "person@example.com"
+    },
+    {
+        "algorithm": "SHA256",
+        "timer": "60",
+        "digits": "8",
+        "counter": "0",
+        "secret": "SecretTwo",
+        "kind": "TOTP",
+        "iconValue": "",
+        "issuer": "Issuer2",
+        "account": "",
+        "iconType": "",
+        "pinned": "true"
+    }
+]
