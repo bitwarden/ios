@@ -5,4 +5,5 @@ class MockSystemDevice: SystemDevice {
     var modelIdentifier = "iPhone14,2"
     var systemName = "iOS"
     var systemVersion = "16.4"
+    var isIPhone = true
 }

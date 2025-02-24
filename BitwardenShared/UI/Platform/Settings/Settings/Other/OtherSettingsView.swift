@@ -24,7 +24,9 @@ struct OtherSettingsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 clearClipboard
 
-                connectToWatch
+                if store.state.shouldShowConnectToWatchToggle {
+                    connectToWatch
+                }
             }
         }
         .scrollView(padding: 12)

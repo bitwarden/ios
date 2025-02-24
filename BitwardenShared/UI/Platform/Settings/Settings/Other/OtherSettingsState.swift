@@ -5,6 +5,8 @@ import Foundation
 /// An object that defines the current state of the `OtherSettingsView`.
 ///
 struct OtherSettingsState {
+    // MARK: Properties
+
     /// The time after which the clipboard should clear.
     var clearClipboardValue: ClearClipboardValue = .never
 
@@ -19,4 +21,7 @@ struct OtherSettingsState {
 
     /// A toast message to show in the view.
     var toast: Toast?
+
+    /// Whether the connect to watch toggle should be shown.
+    var shouldShowConnectToWatchToggle: Bool = false
 }
