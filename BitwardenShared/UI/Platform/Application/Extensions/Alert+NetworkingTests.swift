@@ -2,6 +2,7 @@
 
 import Foundation
 import Networking
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
