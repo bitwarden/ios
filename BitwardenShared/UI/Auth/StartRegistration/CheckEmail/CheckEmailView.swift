@@ -41,7 +41,7 @@ struct CheckEmailView: View {
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                 Text(Localizations.selectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount)
-                    .styleGuide(.headline)
+                    .styleGuide(.body)
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 20)
                     .padding(.horizontal, 34)
