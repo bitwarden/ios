@@ -223,8 +223,10 @@ struct ProfileSwitcherRow: View {
                     )
                 }
         }
-        .accessibilityAsyncAction(named: Localizations.select) {
-            await store.perform(.accessibility(.select(profileSwitcherItem)))
+        .accessibilityAction {
+            Task {
+                await store.perform(.accessibility(.select(profileSwitcherItem)))
+            }
         }
         .conditionalAccessibilityAsyncAction(
             if: store.state.allowLockAndLogout && profileSwitcherItem.canBeLocked
