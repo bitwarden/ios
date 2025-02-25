@@ -2067,7 +2067,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `logout` successfully logs out a user clearing pins because of policy Remove unlock with pin being enabled.
-    func test_logout_successWhenClearingPins() {
+    func test_logout_successWhenClearingPins() async throws {
         let account = Account.fixture()
         stateService.accounts = [account]
         stateService.activeAccount = account
@@ -2078,11 +2078,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.encryptedPinByUserId["1"] = "1"
         policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
 
-        let task = Task {
-            try await subject.logout(userInitiated: true)
-        }
-        waitFor(!vaultTimeoutService.removedIds.isEmpty)
-        task.cancel()
+        try await subject.logout(userInitiated: true)
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
