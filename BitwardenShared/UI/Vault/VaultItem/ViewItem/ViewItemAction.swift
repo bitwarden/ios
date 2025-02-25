@@ -42,6 +42,9 @@ enum ViewItemAction: Equatable, Sendable {
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 
+    /// The SSN visiblity button was pressed
+    case ssnVisibilityPressed
+    
     /// A flag indicating if this action requires the user to reenter their master password to
     /// complete. This value works hand-in-hand with the `isMasterPasswordRequired` value in
     /// `ViewItemState`.
@@ -53,7 +56,8 @@ enum ViewItemAction: Equatable, Sendable {
              .editPressed,
              .morePressed,
              .passwordVisibilityPressed,
-             .sshKeyItemAction:
+             .sshKeyItemAction,
+             .ssnVisibilityPressed:
             true
         case let .copyPressed(_, field):
             field.requiresMasterPasswordReprompt

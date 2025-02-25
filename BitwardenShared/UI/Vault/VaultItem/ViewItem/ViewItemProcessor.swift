@@ -189,6 +189,22 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
             handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
+        case .ssnVisibilityPressed:
+            guard case var .data(cipherState) = state.loadingState else {
+                services.errorReporter.log(
+                    error: ActionError.dataNotLoaded("Cannot toggle ssn for non-loaded item.")
+                )
+                return
+            }
+            cipherState.identityState.showSocialSecurityNumber.toggle()
+            state.loadingState = .data(cipherState)
+//            if cipherState.identityState.showSocialSecurityNumber {
+//                Task {
+//                    await services.eventService.collect(
+//                    )
+//                }
+//            }
+            return
         }
     }
 }
