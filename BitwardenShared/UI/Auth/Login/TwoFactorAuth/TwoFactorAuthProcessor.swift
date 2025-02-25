@@ -93,7 +93,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             state.toast = newValue
         case let .verificationCodeChanged(newValue):
             state.verificationCode = newValue
-            state.continueEnabled = (newValue.count >= 6)
+            state.continueEnabled = newValue.count >= (state.deviceVerificationRequired ? 8 : 6)
         }
     }
 

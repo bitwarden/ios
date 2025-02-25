@@ -729,6 +729,20 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(subject.state.verificationCode, "123456")
         XCTAssertTrue(subject.state.continueEnabled)
     }
+
+    /// `receive(_:)` with `.verificationCodeChanged` updates the value in the state and enables the button if
+    /// applicable if device needs verification and code length is at least 8 characters.
+    @MainActor
+    func test_receive_verificationCodeChanged_deviceNeedsVerification() {
+        subject.state.deviceVerificationRequired = true
+        subject.receive(.verificationCodeChanged("123456"))
+        XCTAssertEqual(subject.state.verificationCode, "123456")
+        XCTAssertFalse(subject.state.continueEnabled)
+
+        subject.receive(.verificationCodeChanged("12345678"))
+        XCTAssertEqual(subject.state.verificationCode, "12345678")
+        XCTAssertTrue(subject.state.continueEnabled)
+    }
 }
 
 // MARK: - MockWebAuthnFlowDelegate
