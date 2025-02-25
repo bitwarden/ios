@@ -1077,7 +1077,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `onFetchSyncSucceeded(userId:)` doesn't clear the unlock user pins when it has performed sync after login
     /// for the first time and `.removeUnlockWithPin` policy is disabled.
-    func test_onFetchSyncSucceeded_doesnNotClearPinsWhenRemoveUnlockWithPinPolicyDisabled() async throws {
+    func test_onFetchSyncSucceeded_doesNotClearPinsWhenRemoveUnlockWithPinPolicyDisabled() async throws {
         await stateService.addAccount(.fixture())
         stateService.pinProtectedUserKeyValue["1"] = "pin"
         stateService.encryptedPinByUserId["1"] = "encPin"
@@ -1090,11 +1090,12 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
         XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
         XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertTrue(stateService.hasPerformedSyncAfterLogin["1"] == true)
     }
 
     /// `onFetchSyncSucceeded(userId:)` doesn't clear the unlock user pins when it's not the first time it has
     /// performed sync after login.
-    func test_onFetchSyncSucceeded_doesnNotClearPinsWhenNotFirstTimeSyncAfterLogin() async throws {
+    func test_onFetchSyncSucceeded_doesNotClearPinsWhenNotFirstTimeSyncAfterLogin() async throws {
         await stateService.addAccount(.fixture())
         stateService.pinProtectedUserKeyValue["1"] = "pin"
         stateService.encryptedPinByUserId["1"] = "encPin"
