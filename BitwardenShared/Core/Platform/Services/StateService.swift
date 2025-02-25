@@ -194,7 +194,8 @@ protocol StateService: AnyObject {
     /// needs to be executed right after login in and after the first successful sync.
     ///
     /// - Parameter userId: The user ID associated with the sync after login.
-    /// - Returns: `True` if sync has already been done after login, `false` otherwise.
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
     func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool
 
     /// Gets whether the intro carousel screen has been shown.
