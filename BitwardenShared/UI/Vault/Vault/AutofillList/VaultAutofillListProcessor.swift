@@ -406,6 +406,11 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 }
                 guard let cipher else { continue }
 
+                guard cipher.hasFido2Credentials else {
+                    state.excludedCredentialFound = false
+                    break
+                }
+
                 let vaultListSection = try await services.vaultRepository.createAutofillListExcludedCredentialSection(
                     from: cipher
                 )
@@ -486,7 +491,10 @@ extension VaultAutofillListProcessor: Fido2UserInterfaceHelperDelegate {
 
     func informExcludedCredentialFound(cipherView: CipherView) async {
         state.excludedCredentialFound = true
-        await updateExcludedCredentialSection(from: cipherView)
+        Task { [weak self] in
+            guard let self else { return }
+            await updateExcludedCredentialSection(from: cipherView)
+        }
     }
 
     func onNeedsUserInteraction() async throws {
@@ -518,6 +526,10 @@ extension VaultAutofillListProcessor {
                 state.emptyViewMessage = Localizations.noItemsForUri(credentialIdentity.relyingPartyIdentifier)
                 state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
                 services.fido2UserInterfaceHelper.setupDelegate(fido2UserInterfaceHelperDelegate: self)
+
+                guard !state.excludedCredentialFound else {
+                    return
+                }
 
                 await handleFido2CredentialCreation(
                     autofillAppExtensionDelegate: autofillAppExtensionDelegate,

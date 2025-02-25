@@ -77,7 +77,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// vault list section.
     @MainActor
     func test_informExcludedCredentialFound_succeeds() async throws {
-        let cipher = CipherView.fixture()
+        let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         vaultRepository.cipherDetailsSubject.send(cipher)
         vaultRepository.createAutofillListExcludedCredentialSectionResult = .success(
             VaultListSection(
@@ -92,10 +92,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             )
         )
 
-        let task = Task {
-            await subject.informExcludedCredentialFound(cipherView: cipher)
-        }
-        defer { task.cancel() }
+        await subject.informExcludedCredentialFound(cipherView: cipher)
 
         try await waitForAsync { [weak self] in
             guard let self else { return true }
@@ -110,6 +107,49 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertEqual(firstSection.items.count, 1)
         let firstItem = try XCTUnwrap(firstSection.items.first)
         XCTAssertEqual(firstItem.id, cipher.id)
+    }
+
+    /// `informExcludedCredentialFound(cipherView:)` updates the state with the excluded credential
+    /// vault list section but then toggles `excludedCredentialFound` in state when cipher
+    /// has no Fido2 credentials.
+    @MainActor
+    func test_informExcludedCredentialFound_cipherHasNoFido2Credentials() async throws {
+        let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
+        vaultRepository.cipherDetailsSubject.send(cipher)
+        vaultRepository.createAutofillListExcludedCredentialSectionResult = .success(
+            VaultListSection(
+                id: "excludedCredentialsId",
+                items: [
+                    VaultListItem(
+                        cipherView: cipher,
+                        fido2CredentialAutofillView: .fixture()
+                    )!,
+                ],
+                name: "excludedCredentialsId"
+            )
+        )
+
+        await subject.informExcludedCredentialFound(cipherView: cipher)
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !subject.state.vaultListSections.isEmpty
+        }
+
+        XCTAssertTrue(subject.state.excludedCredentialFound)
+        XCTAssertEqual(subject.state.vaultListSections.count, 1)
+
+        vaultRepository.cipherDetailsSubject.send(
+            CipherView.fixture(
+                login: .fixture(
+                    fido2Credentials: []
+                )
+            )
+        )
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !subject.state.excludedCredentialFound
+        }
     }
 
     /// `informExcludedCredentialFound(cipherView:)` throws when getting the excluded credential cipher
@@ -155,14 +195,11 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// section so it shows an error and cancels the extension flow.
     @MainActor
     func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
-        let cipher = CipherView.fixture()
+        let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
         vaultRepository.cipherDetailsSubject.send(cipher)
         vaultRepository.createAutofillListExcludedCredentialSectionResult = .failure(BitwardenTestError.example)
 
-        let task = Task {
-            await subject.informExcludedCredentialFound(cipherView: cipher)
-        }
-        defer { task.cancel() }
+        await subject.informExcludedCredentialFound(cipherView: cipher)
 
         try await waitForAsync { [weak self] in
             guard let self else { return true }
@@ -803,6 +840,24 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// there is NO create FIdo2 request.
     @MainActor
     func test_perform_initFido2_noRequestForFido2Creation() async throws {
+        await subject.perform(.initFido2)
+
+        XCTAssertFalse(clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .makeCredentialMocker
+            .called)
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
+    }
+
+    /// `perform(_:)` with `.initFido2` doesn't call `makeCredential` from the Fido2 authenticator when
+    /// there is a create FIdo2 request but an excluded credential has been found.
+    @MainActor
+    func test_perform_initFido2_registerFido2CredentialExcludedCredential() async throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        subject.state.excludedCredentialFound = true
+
         await subject.perform(.initFido2)
 
         XCTAssertFalse(clientService.mockPlatform.fido2Mock
