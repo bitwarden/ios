@@ -931,7 +931,8 @@ extension StateService {
     /// This is particular useful to trigger logic that needs to be executed right after login in
     /// and after the first successful sync.
     ///
-    /// - Returns: `True` if sync has already been done after login, `false` otherwise.
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
     func getHasPerformedSyncAfterLogin() async throws -> Bool {
         try await getHasPerformedSyncAfterLogin(userId: nil)
     }
