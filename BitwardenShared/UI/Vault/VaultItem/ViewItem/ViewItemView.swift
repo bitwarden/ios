@@ -92,8 +92,10 @@ struct ViewItemView: View {
                 store.send(.editPressed)
             }
         }
-        .task {
-            await store.perform(.appeared)
+        .onAppear {
+            Task {
+                await store.perform(.appeared)
+            }
         }
     }
 
