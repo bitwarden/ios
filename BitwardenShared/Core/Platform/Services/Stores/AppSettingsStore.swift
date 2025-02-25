@@ -173,7 +173,8 @@ protocol AppSettingsStore: AnyObject {
     /// needs to be executed right after login in and after the first successful sync.
     ///
     /// - Parameter userId: The user ID associated with the sync after login.
-    /// - Returns: `True` if sync has already been done after login, `false` otherwise.
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
     func hasPerformedSyncAfterLogin(userId: String) -> Bool
 
     /// The user's last active time within the app.
