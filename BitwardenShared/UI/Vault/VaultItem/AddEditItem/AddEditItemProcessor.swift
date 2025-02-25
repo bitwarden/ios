@@ -282,6 +282,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 state.collections.contains(where: { $0.id == collectionId })
             }
 
+            state.hasOrganizations = try await services.vaultRepository.hasOrganizations()
             state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
             state.ownershipOptions = ownershipOptions
             if isPersonalOwnershipDisabled, state.organizationId == nil {

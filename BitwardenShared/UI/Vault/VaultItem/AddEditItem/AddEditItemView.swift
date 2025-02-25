@@ -288,7 +288,7 @@ private extension AddEditItemView {
     }
 
     @ViewBuilder var ownershipSection: some View {
-        if store.state.configuration.isAdding, let owner = store.state.owner {
+        if let owner = store.state.owner, store.state.hasOrganizations {
             SectionView(Localizations.ownership, contentSpacing: 8) {
                 BitwardenMenuField(
                     title: Localizations.whoOwnsThisItem,
@@ -299,7 +299,7 @@ private extension AddEditItemView {
                         send: AddEditItemAction.ownerChanged
                     )
                 )
-            }
+            }.disabled(!owner.isPersonal)
 
             if !owner.isPersonal {
                 SectionView(Localizations.collections, contentSpacing: 8) {
