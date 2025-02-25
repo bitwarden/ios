@@ -398,6 +398,24 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.continueTapped` handles identity device verification code error correctly.
+    @MainActor
+    func test_perform_continueTapped_deviceVerificationCode_error() async {
+        subject.state.authMethod = .email
+        subject.state.deviceVerificationRequired = true
+        subject.state.verificationCode = "123123123  "
+        authService.loginWithTwoFactorCodeResult = .failure(
+            IdentityTokenRequestError.newDeviceNotVerified
+        )
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.verifying)])
+        XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "123123123")
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.invalidVerificationCode))
+    }
+
     /// `perform(_:)` with `.continueTapped` shows an alert for empty verification code text.
     @MainActor
     func test_perform_continueTapped_invalidInput() async throws {

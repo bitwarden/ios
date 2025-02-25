@@ -179,6 +179,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch let IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode) {
             launchCaptchaFlow(with: hCaptchaSiteCode)
+        } catch IdentityTokenRequestError.newDeviceNotVerified {
+            coordinator.showAlert(.defaultAlert(title: Localizations.invalidVerificationCode))
         } catch let authError as AuthError {
             if authError == .requireSetPassword,
                let orgId = state.orgIdentifier {
