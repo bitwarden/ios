@@ -506,6 +506,17 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(policyApplies)
     }
 
+    /// `policyAppliesToUser(_:)` returns `true` when the policy applies to the user when the
+    /// organization user is `admin`.
+    func test_policyAppliesToUser_organizationNotExemptWhenPolicyIsRemoveUnlockWithPin() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .removeUnlockWithPin)])
+
+        let policyApplies = await subject.policyAppliesToUser(.removeUnlockWithPin)
+        XCTAssertTrue(policyApplies)
+    }
+
     /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when the
     /// organization doesn't use policies.
     func test_policyAppliesToUser_organizationDoesNotUsePolicies() async {
