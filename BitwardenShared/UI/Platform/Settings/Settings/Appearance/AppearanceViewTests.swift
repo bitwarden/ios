@@ -1,5 +1,4 @@
 import SnapshotTesting
-import TestHelpers
 import XCTest
 
 // MARK: - AppearanceViewTests

@@ -1,4 +1,3 @@
-import TestHelpers
 import ViewInspector
 import XCTest
 
