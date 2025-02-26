@@ -118,6 +118,10 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     override func perform(_ effect: VaultAutofillListEffect) async {
         switch effect {
+        case .excludedCredentialFoundChaged:
+            if let cipherIdFound = state.excludedCredentialIdFound {
+                await updateExcludedCredentialSection(from: cipherIdFound)
+            }
         case let .vaultItemTapped(vaultItem):
             switch vaultItem.itemType {
             case let .cipher(cipher, fido2CredentialAutofillView):
@@ -374,7 +378,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 rpID: autofillAppExtensionDelegate?.rpID,
                 uri: uri
             ) {
-                guard !state.excludedCredentialFound else {
+                guard state.excludedCredentialIdFound == nil else {
                     break
                 }
 
@@ -392,22 +396,18 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Updates the vault list sections with the section including the excluded credential found.
     /// This is necessary in case the user edits the item so we get the new value from the publisher.
     ///
-    /// - Parameter cipherView: The `CipherView` to found as excluded credential.
+    /// - Parameter cipherId: The cipher ID found as excluded credential.
     @MainActor
-    private func updateExcludedCredentialSection(from cipherView: CipherView) async {
+    private func updateExcludedCredentialSection(from cipherId: String) async {
         do {
-            guard let cipherId = cipherView.id else {
-                return
-            }
-
             for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: cipherId) {
-                guard state.excludedCredentialFound else {
+                guard state.excludedCredentialIdFound != nil else {
                     break
                 }
                 guard let cipher else { continue }
 
                 guard cipher.hasFido2Credentials else {
-                    state.excludedCredentialFound = false
+                    state.excludedCredentialIdFound = nil
                     break
                 }
 
@@ -490,11 +490,7 @@ extension VaultAutofillListProcessor: Fido2UserInterfaceHelperDelegate {
     // MARK: Methods
 
     func informExcludedCredentialFound(cipherView: CipherView) async {
-        state.excludedCredentialFound = true
-        Task { [weak self] in
-            guard let self else { return }
-            await updateExcludedCredentialSection(from: cipherView)
-        }
+        state.excludedCredentialIdFound = cipherView.id
     }
 
     func onNeedsUserInteraction() async throws {
@@ -527,7 +523,7 @@ extension VaultAutofillListProcessor {
                 state.emptyViewButtonText = Localizations.savePasskeyAsNewLogin
                 services.fido2UserInterfaceHelper.setupDelegate(fido2UserInterfaceHelperDelegate: self)
 
-                guard !state.excludedCredentialFound else {
+                guard state.excludedCredentialIdFound == nil else {
                     return
                 }
 
@@ -623,7 +619,7 @@ extension VaultAutofillListProcessor {
                 )
             )
         } catch {
-            guard !state.excludedCredentialFound else {
+            guard state.excludedCredentialIdFound == nil else {
                 return
             }
 
@@ -640,7 +636,7 @@ extension VaultAutofillListProcessor {
         }
 
         if autofillAppExtensionDelegate.isCreatingFido2Credential {
-            guard !state.excludedCredentialFound else {
+            guard state.excludedCredentialIdFound == nil else {
                 guard let cipherId = state.vaultListSections.first?.items.first?.id else {
                     coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
                     return
@@ -730,9 +726,9 @@ extension VaultAutofillListProcessor: CipherItemOperationDelegate {
         // If an excluded credential was found and we get here
         // then such item was deleted so we can safely say
         // there are no excluded credential found now.
-        if state.excludedCredentialFound {
+        if state.excludedCredentialIdFound != nil {
             state.toast = Toast(title: Localizations.itemSoftDeleted)
-            state.excludedCredentialFound = false
+            state.excludedCredentialIdFound = nil
         }
     }
 }
