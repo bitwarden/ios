@@ -71,6 +71,7 @@ schemes:
         - BitwardenShareExtensionTests
         - BitwardenSharedTests
         - BitwardenKit/AuthenticatorBridgeKitTests
+        - BitwardenKit/BitwardenKitTests
         - BitwardenKit/NetworkingTests
   BitwardenActionExtension:
     build:
