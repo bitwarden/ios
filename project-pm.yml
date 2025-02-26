@@ -222,7 +222,6 @@ targets:
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
-      - target: BitwardenKit/BitwardenKitTests
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
