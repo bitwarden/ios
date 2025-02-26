@@ -14,9 +14,6 @@ protocol SystemDevice {
 
     /// The version of the operating system on the device, e.g. "17.0".
     var systemVersion: String { get }
-
-    /// Whether the device is an iPhone.
-    var isIPhone: Bool { get }
 }
 
 extension UIDevice: SystemDevice {
@@ -29,9 +26,5 @@ extension UIDevice: SystemDevice {
         let data = Data(bytes: &sysinfo.machine, count: Int(_SYS_NAMELEN))
         return String(bytes: data, encoding: .ascii)?.trimmingCharacters(in: .controlCharacters) ?? ""
         #endif
-    }
-
-    var isIPhone: Bool {
-        model == "iPhone"
     }
 }

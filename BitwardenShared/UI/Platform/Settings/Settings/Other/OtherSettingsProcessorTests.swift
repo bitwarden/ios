@@ -9,6 +9,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
     var subject: OtherSettingsProcessor!
+    var watchService: MockWatchService!
 
     // MARK: Setup and Teardown
 
@@ -18,11 +19,13 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
+        watchService = MockWatchService()
         subject = OtherSettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
-                settingsRepository: settingsRepository
+                settingsRepository: settingsRepository,
+                watchService: watchService
             ),
             state: OtherSettingsState()
         )
@@ -35,6 +38,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         errorReporter = nil
         settingsRepository = nil
         subject = nil
+        watchService = nil
     }
 
     // MARK: Tests
@@ -55,7 +59,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         settingsRepository.allowSyncOnRefresh = true
         settingsRepository.clearClipboardValue = .thirtySeconds
         settingsRepository.connectToWatch = true
-        settingsRepository.shouldShowConnectToWatchToggle = true
+        watchService.isSupportedValue = true
 
         await subject.perform(.loadInitialValues)
 
