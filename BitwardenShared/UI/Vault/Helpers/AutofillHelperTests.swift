@@ -397,4 +397,4 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertNil(pasteboardService.copiedString)
     }
-} // swiftlint:disable:this file_length
+}
