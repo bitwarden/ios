@@ -17,8 +17,8 @@ struct VaultAutofillListState: Equatable, Sendable {
     /// The text to be displayed in the button of the empty view.
     var emptyViewButtonText: String = Localizations.newItem
 
-    /// Whether an excluded Fido2 credential was found when registering.
-    var excludedCredentialFound: Bool = false
+    /// The excluded Fido2 credential id that was found when registering.
+    var excludedCredentialIdFound: String?
 
     /// The group filter.
     var group: VaultListGroup?
@@ -58,6 +58,6 @@ struct VaultAutofillListState: Equatable, Sendable {
 
     /// Whether to show the add item button.
     var showAddItemButton: Bool {
-        !isAutofillingTotpList && !isAutofillingTextToInsertList && !excludedCredentialFound
+        !isAutofillingTotpList && !isAutofillingTextToInsertList && excludedCredentialIdFound == nil
     }
 }

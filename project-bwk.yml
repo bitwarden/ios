@@ -27,7 +27,7 @@ packages:
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 10.24.0
+    exactVersion: 11.8.1
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
     exactVersion: 1.3.0
