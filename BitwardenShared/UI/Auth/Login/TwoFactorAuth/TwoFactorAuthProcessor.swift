@@ -93,7 +93,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             state.toast = newValue
         case let .verificationCodeChanged(newValue):
             state.verificationCode = newValue
-            state.continueEnabled = (newValue.count >= 6)
+            state.continueEnabled = newValue.count >= (state.deviceVerificationRequired ? 8 : 6)
         }
     }
 
@@ -179,6 +179,8 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch let IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode) {
             launchCaptchaFlow(with: hCaptchaSiteCode)
+        } catch IdentityTokenRequestError.newDeviceNotVerified {
+            coordinator.showAlert(.defaultAlert(title: Localizations.invalidVerificationCode))
         } catch let authError as AuthError {
             if authError == .requireSetPassword,
                let orgId = state.orgIdentifier {

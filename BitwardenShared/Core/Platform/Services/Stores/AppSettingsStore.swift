@@ -169,6 +169,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func encryptedUserKey(userId: String) -> String?
 
+    /// Gets whether a sync has been done successfully after login. This is particular useful to trigger logic that
+    /// needs to be executed right after login in and after the first successful sync.
+    ///
+    /// - Parameter userId: The user ID associated with the sync after login.
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
+    func hasPerformedSyncAfterLogin(userId: String) -> Bool
+
     /// The user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -366,6 +374,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the events.
     ///
     func setEvents(_ events: [EventData], userId: String)
+
+    /// Sets whether a sync has been done successfully after login. This is particular useful to trigger logic that
+    /// needs to be executed right after login in and after the first successful sync.
+    ///
+    /// - Parameters:
+    ///   - hasBeenPerformed: Whether a sync has been performed after login.
+    ///   - userId: The user ID associated with the sync after login.
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String)
 
     /// Sets the last active time within the app.
     ///
@@ -715,6 +731,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
+        case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
         case lastActiveTime(userId: String)
@@ -790,6 +807,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .events(userId):
                 key = "events_\(userId)"
+            case let .hasPerformedSyncAfterLogin(userId):
+                key = "hasPerformedSyncAfterLogin_\(userId)"
             case .introCarouselShown:
                 key = "introCarouselShown"
             case .learnNewLoginActionCardStatus:
@@ -1007,6 +1026,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .events(userId: userId)) ?? []
     }
 
+    func hasPerformedSyncAfterLogin(userId: String) -> Bool {
+        fetch(for: .hasPerformedSyncAfterLogin(userId: userId))
+    }
+
     func lastActiveTime(userId: String) -> Date? {
         fetch(for: .lastActiveTime(userId: userId)).map { Date(timeIntervalSince1970: $0) }
     }
@@ -1107,6 +1130,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setEvents(_ events: [EventData], userId: String) {
         store(events, for: .events(userId: userId))
+    }
+
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {
+        store(hasBeenPerformed, for: .hasPerformedSyncAfterLogin(userId: userId))
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) {

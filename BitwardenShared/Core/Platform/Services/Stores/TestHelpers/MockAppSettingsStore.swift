@@ -38,6 +38,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var encryptedUserKeys = [String: String]()
     var eventsByUserId = [String: [EventData]]()
     var featureFlags = [String: Bool]()
+    var hasPerformedSyncAfterLogin = [String: Bool]()
     var lastActiveTime = [String: Date]()
     var lastSyncTimeByUserId = [String: Date]()
     var manuallyLockedAccounts = [String: Bool]()
@@ -119,6 +120,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func events(userId: String) -> [EventData] {
         eventsByUserId[userId] ?? []
+    }
+
+    func hasPerformedSyncAfterLogin(userId: String) -> Bool {
+        hasPerformedSyncAfterLogin[userId] ?? false
     }
 
     func lastActiveTime(userId: String) -> Date? {
@@ -228,6 +233,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setEvents(_ events: [EventData], userId: String) {
         eventsByUserId[userId] = events
+    }
+
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool?, userId: String) {
+        guard let hasBeenPerformed else {
+            hasPerformedSyncAfterLogin.removeValue(forKey: userId)
+            return
+        }
+        hasPerformedSyncAfterLogin[userId] = hasBeenPerformed
     }
 
     func setLastActiveTime(_ date: Date?, userId: String) {

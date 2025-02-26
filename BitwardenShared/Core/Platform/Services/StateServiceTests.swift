@@ -684,6 +684,17 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
+    /// `getHasPerformedSyncAfterLogin(userId:)` returns whether the user has performed a sync after login.
+    func test_getHasPerformedSyncAfterLogin() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "1")))
+        var hasPerformedSync = try await subject.getHasPerformedSyncAfterLogin(userId: "1")
+        XCTAssertFalse(hasPerformedSync)
+
+        appSettingsStore.hasPerformedSyncAfterLogin["1"] = true
+        hasPerformedSync = try await subject.getHasPerformedSyncAfterLogin()
+        XCTAssertTrue(hasPerformedSync)
+    }
+
     /// `getIntroCarouselShown()` returns whether the intro carousel screen has been shown.
     func test_getIntroCarouselShown() async {
         var hasShownCarousel = await subject.getIntroCarouselShown()
@@ -1768,6 +1779,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await subject.setForcePasswordResetReason(nil)
         XCTAssertNil(appSettingsStore.state?.accounts["1"]?.profile.forcePasswordResetReason)
         XCTAssertNil(appSettingsStore.state?.accounts["2"]?.profile.forcePasswordResetReason)
+    }
+
+    /// `setHasPerformedSyncAfterLogin(_:userId:)` sets if the user has performed a sync after logging in.
+    func test_setHasPerformedSyncAfterLogin() async throws {
+        appSettingsStore.hasPerformedSyncAfterLogin["1"] = true
+        try await subject.setHasPerformedSyncAfterLogin(false, userId: "1")
+        XCTAssertFalse(appSettingsStore.hasPerformedSyncAfterLogin["1"]!)
     }
 
     /// `setLastActiveTime(userId:)` sets the user's last active time.

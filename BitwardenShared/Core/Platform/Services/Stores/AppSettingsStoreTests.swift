@@ -428,6 +428,20 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(subject.debugFeatureFlag(name: ""))
     }
 
+    /// `hasPerformedSyncAfterLogin(userId:)` returns `false` if there isn't a previously stored value.
+    func test_hasPerformedSyncAfterLogin_initialValue() {
+        XCTAssertFalse(subject.hasPerformedSyncAfterLogin(userId: "0"))
+    }
+
+    /// `hasPerformedSyncAfterLogin(userId:)` returns `false` or `true` depending what is saved in user defaults.
+    func test_hasPerformedSyncAfterLogin_withValue() {
+        subject.setHasPerformedSyncAfterLogin(false, userId: "1")
+        subject.setHasPerformedSyncAfterLogin(true, userId: "2")
+
+        XCTAssertFalse(subject.hasPerformedSyncAfterLogin(userId: "1"))
+        XCTAssertTrue(subject.hasPerformedSyncAfterLogin(userId: "2"))
+    }
+
     /// `isBiometricAuthenticationEnabled` returns false if there is no previous value.
     func test_isBiometricAuthenticationEnabled_isInitiallyFalse() {
         XCTAssertFalse(subject.isBiometricAuthenticationEnabled(userId: "-1"))
@@ -885,6 +899,19 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
             ),
             config
         )
+    }
+
+    /// `setHasPerformedSyncAfterLogin(hasBeenPerformed:, userId:)` can be used to
+    /// set the has performed sync after login.
+    func test_setHasPerformedSyncAfterLogin() {
+        subject.setHasPerformedSyncAfterLogin(true, userId: "1")
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:hasPerformedSyncAfterLogin_1"))
+
+        subject.setHasPerformedSyncAfterLogin(false, userId: "1")
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:hasPerformedSyncAfterLogin_1"))
+
+        subject.setHasPerformedSyncAfterLogin(nil, userId: "1")
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:hasPerformedSyncAfterLogin_1"))
     }
 
     /// `syncToAuthenticator(userId:)` returns false if there isn't a previously stored value.

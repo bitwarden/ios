@@ -36,7 +36,7 @@ struct TwoFactorAuthView: View {
                 get: \.toast,
                 send: TwoFactorAuthAction.toastShown
             ))
-            .navigationBar(title: store.state.authMethod.title, titleDisplayMode: .inline)
+            .navigationBar(title: store.state.titleText, titleDisplayMode: .inline)
             .task(id: store.state.authMethod) {
                 guard store.state.authMethod == .yubiKey else { return }
                 await store.perform(.listenForNFC)
