@@ -6,6 +6,9 @@ import SwiftUI
 
 /// Actions that can be handled by an `AddEditItemProcessor`.
 enum AddEditItemAction: Equatable, Sendable {
+    /// Navigate to the add folder view.
+    case addFolder
+
     /// The auth key visibility was toggled.
     case authKeyVisibilityTapped(Bool)
 
@@ -69,6 +72,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 
+    /// The additional options expanded section was toggled.
+    case toggleAdditionalOptionsExpanded(Bool)
+
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool)
 
@@ -81,9 +87,6 @@ enum AddEditItemAction: Equatable, Sendable {
     /// - Parameter newValue: the updated TOTP key.
     ///
     case totpKeyChanged(_ newValue: String?)
-
-    /// The type field was changed.
-    case typeChanged(CipherType)
 
     /// The uri field was changed.
     case uriChanged(String, index: Int)

@@ -50,7 +50,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = AuthModule
+    typealias Module = AddEditFolderModule
+        & AuthModule
         & ExportCXFModule
         & ImportLoginsModule
         & LoginRequestModule
@@ -231,16 +232,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// - Parameter folder: The existing folder to edit, if applicable.
     ///
     private func showAddEditFolder(_ folder: FolderView?, delegate: AddEditFolderDelegate?) {
-        let mode: AddEditFolderState.Mode = if let folder { .edit(folder) } else { .add }
-        let processor = AddEditFolderProcessor(
-            coordinator: asAnyCoordinator(),
-            delegate: delegate,
-            services: services,
-            state: AddEditFolderState(folderName: folder?.name ?? "", mode: mode)
-        )
-        let view = AddEditFolderView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        let navigationController = UINavigationController()
+        let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .addEditFolder(folder: folder), context: delegate)
+
+        stackNavigator?.present(navigationController)
     }
 
     /// Shows the appearance screen.

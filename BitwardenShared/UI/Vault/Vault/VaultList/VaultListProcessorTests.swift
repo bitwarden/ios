@@ -504,16 +504,53 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(vaultRepository.fetchSyncForceSync, false)
     }
 
-    /// `perform(_:)` with `.refreshed` records an error if applicable.
+    /// `perform(_:)` with `.refreshed` records an error and change the loading state
+    /// to `.error` if there is no cached data.
     @MainActor
-    func test_perform_refreshed_error() async {
+    func test_perform_refreshed_error_emptyState() async {
         vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
+        await subject.perform(.refreshVault)
 
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertNil(coordinator.alertShown.last)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(
+            subject.state.loadingState,
+            .error(
+                errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+            )
+        )
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error and shows an alert to user if there is cached data.
+    @MainActor
+    func test_perform_refreshed_error_nonEmptyState() async {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(true)
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
         XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
+    }
+
+    /// `perform(_:)` with `.refreshed` records an error and shows alert if it does not need sync.
+    @MainActor
+    func test_perform_refreshed_error_doesNotNeedsSync() async {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .data([section])
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        vaultRepository.needsSyncResult = .success(false)
+        await subject.perform(.refreshVault)
+
+        XCTAssertTrue(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        XCTAssertEqual(subject.state.loadingState, .data([section]))
     }
 
     /// `perform(.refreshAccountProfiles)` without profiles for the profile switcher.
@@ -913,6 +950,32 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(sections[0].items, [vaultListItem])
     }
 
+    /// `perform(_:)` with `.tryAgainTapped` will reset the loading state to `.loading(nil)`.
+    @MainActor
+    func test_perform_tryAgain() async throws {
+        subject.state.loadingState = .error(errorMessage: "error")
+        vaultRepository.needsSyncResult = .success(false)
+        vaultRepository.fetchSyncResult = .failure(BitwardenTestError.example)
+        let task = Task {
+            await subject.perform(.tryAgainTapped)
+        }
+        defer { task.cancel() }
+        try await waitForAsync { self.subject.state.loadingState == .loading(nil) }
+    }
+
+    /// `perform(_:)` with `.tryAgainTapped` will fetch the data again and set the state to '.data(sections)'
+    @MainActor
+    func test_perform_tryAgain_success() async throws {
+        let section = VaultListSection(id: "1", items: [.fixture()], name: "Section")
+        subject.state.loadingState = .error(errorMessage: "error")
+        vaultRepository.fetchSyncResult = .success([section])
+        let task = Task {
+            await subject.perform(.tryAgainTapped)
+        }
+        defer { task.cancel() }
+        try await waitForAsync { self.subject.state.loadingState == .data([section]) }
+    }
+
     /// `receive(_:)` with `.profileSwitcher(.accountLongPressed)` shows the alert and allows the user to
     /// lock the selected account, which navigates back to the vault unlock page for the active account.
     @MainActor
@@ -1110,19 +1173,35 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.routes.last, .addAccount)
     }
 
+    /// `receive(_:)` with `.addFolder` navigates to the `.addFolder` route.
+    @MainActor
+    func test_receive_addFolder() {
+        subject.receive(.addFolder)
+
+        XCTAssertEqual(coordinator.routes.last, .addFolder)
+    }
+
     /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
     @MainActor
     func test_receive_addItemPressed() {
-        subject.receive(.addItemPressed)
+        subject.receive(.addItemPressed(.login))
 
-        XCTAssertEqual(coordinator.routes.last, .addItem())
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .login))
+    }
+
+    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route for a new secure note.
+    @MainActor
+    func test_receive_addItemPressed_secureNote() {
+        subject.receive(.addItemPressed(.secureNote))
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .secureNote))
     }
 
     /// `receive(_:)` with `.addItemPressed` hides the profile switcher view
     @MainActor
     func test_receive_addItemPressed_hideProfiles() {
         subject.state.profileSwitcherState.isVisible = true
-        subject.receive(.addItemPressed)
+        subject.receive(.addItemPressed(.login))
 
         XCTAssertFalse(subject.state.profileSwitcherState.isVisible)
     }
@@ -1133,7 +1212,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         reviewPromptService.isEligibleForReviewPromptResult = true
         await subject.perform(.checkAppReviewEligibility)
         waitFor(subject.reviewPromptTask != nil)
-        subject.receive(.addItemPressed)
+        subject.receive(.addItemPressed(.login))
         XCTAssertTrue(subject.reviewPromptTask!.isCancelled)
     }
 
@@ -1143,9 +1222,9 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_receive_addItemPressed_organizationSelected() {
         subject.state.vaultFilterType = .organization(Organization.fixture())
 
-        subject.receive(.addItemPressed)
+        subject.receive(.addItemPressed(.login))
 
-        XCTAssertEqual(coordinator.routes.last, .addItem(organizationId: "organization-1"))
+        XCTAssertEqual(coordinator.routes.last, .addItem(organizationId: "organization-1", type: .login))
     }
 
     /// `receive(_:)` with `.clearURL` clears the url in the state.

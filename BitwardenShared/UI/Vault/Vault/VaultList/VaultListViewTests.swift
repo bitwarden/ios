@@ -56,15 +56,31 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.loadingState = .data([])
         let button = try subject.inspect().find(button: Localizations.newLogin)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.login))
     }
 
-    /// Tapping the floating action button dispatches the `.addItemPressed` action.`
+    /// Tapping the floating action button dispatches the `.addItemPressed` action for a new login type.
     @MainActor
     func test_addItemFloatingActionButton_tap() throws {
         let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
-        try fab.button().tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        try fab.find(button: Localizations.typeLogin).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.login))
+    }
+
+    /// Tapping the floating action button dispatches the `.addItemPressed` action for a new identity type.
+    @MainActor
+    func test_addItemFloatingActionButton_tap_identity() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.find(button: Localizations.typeIdentity).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed(.identity))
+    }
+
+    /// Tapping the add folder button in the FAB dispatches the `.addFolder` action.
+    @MainActor
+    func test_addItemFloatingActionButton_tap_addFolder() throws {
+        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
+        try fab.find(button: Localizations.folder).tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addFolder)
     }
 
     /// Long pressing a profile row dispatches the `.accountLongPressed` action.
@@ -186,12 +202,25 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
     }
 
+    /// Tapping the try again button dispatches the `.tryAgainTapped` action.
+    @MainActor
+    func test_tryAgainButton_tap() async throws {
+        processor.state.loadingState = .error(
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+        )
+        let button = try subject.inspect().find(asyncButton: Localizations.tryAgain)
+        try await button.tap()
+        XCTAssertEqual(processor.effects, [.tryAgainTapped])
+    }
+
     /// Tapping the vault item dispatches the `.itemPressed` action.
     @MainActor
     func test_vaultItem_tap() throws {
         let item = VaultListItem(id: "1", itemType: .group(.login, 123))
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
-        let button = try subject.inspect().find(button: Localizations.typeLogin)
+        let button = try subject.inspect().find(LoadingViewType.self)
+            .find(ViewType.ScrollView.self)
+            .find(button: Localizations.typeLogin)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
     }
@@ -233,6 +262,14 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.loadingState = .data([])
 
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
+    }
+
+    @MainActor
+    func test_snapshot_errorState() {
+        processor.state.loadingState = .error(
+            errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
     }
 
     @MainActor

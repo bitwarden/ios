@@ -6,7 +6,41 @@ class JSONDecoderBitwardenTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `JSONDecoder.cxfDecoder` can decode Credential Exchange Format.
-    func test_cxfDecoder_decodesISO8601DateWithFractionalSeconds() {
+    func test_cxfDecoder_decodesISO8601DateWithFractionalSeconds() throws {
+        guard #available(iOS 18.3, *) else {
+            throw XCTSkip("This test only works from iOS 18.3")
+        }
+
+        let subject = JSONDecoder.cxfDecoder
+        let toDecode = #"{"credentialId":"credential","date":1697790414,"otherKey":"other","rpId":"rp"}"#
+
+        struct JSONBody: Codable, Equatable {
+            let credentialId: String
+            let date: Date
+            let otherKey: String
+            let rpId: String
+        }
+
+        let body = JSONBody(
+            credentialId: "credential",
+            date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54),
+            otherKey: "other",
+            rpId: "rp"
+        )
+
+        XCTAssertEqual(
+            try subject
+                .decode(JSONBody.self, from: Data(toDecode.utf8)),
+            body
+        )
+    }
+
+    /// `JSONDecoder.cxfDecoder` can decode Credential Exchange Format on iOS versions lower than iOS 18.3.
+    func test_cxfDecoder_decodesISO8601DateWithFractionalSecondsOlderiOS18dot3() throws {
+        if #available(iOS 18.3, *) {
+            throw XCTSkip("This test only works until iOS 18.3")
+        }
+
         let subject = JSONDecoder.cxfDecoder
         let toDecode = #"{"credentialId":"credential","date":1697790414,"otherKey":"other","rpId":"rp"}"#
 

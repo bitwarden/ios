@@ -26,14 +26,16 @@ struct VaultAutofillListView: View {
             profileSwitcher
         }
         .navigationBar(title: store.state.group?.navigationTitle ?? Localizations.items, titleDisplayMode: .inline)
-        .searchable(
-            text: store.binding(
-                get: \.searchText,
-                send: VaultAutofillListAction.searchTextChanged
-            ),
-            placement: .navigationBarDrawer(displayMode: .always),
-            prompt: Localizations.search
-        )
+        .if(!store.state.excludedCredentialFound) { view in
+            view.searchable(
+                text: store.binding(
+                    get: \.searchText,
+                    send: VaultAutofillListAction.searchTextChanged
+                ),
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: Localizations.search
+            )
+        }
         .toolbar {
             cancelToolbarItem(hidden: store.state.group != nil) {
                 store.send(.cancelTapped)
@@ -232,7 +234,7 @@ private struct VaultAutofillListSearchableView: View {
                 }
             }
             .overlay(alignment: .bottomTrailing) {
-                addItemFloatingActionButton(hidden: store.state.isAutofillingTextToInsertList) {
+                addItemFloatingActionButton(hidden: !store.state.showAddItemButton) {
                     store.send(.addTapped(fromFAB: true))
                 }
             }

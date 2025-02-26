@@ -282,11 +282,15 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             return
         }
         Task {
-            state.passwordStrengthScore = try? await services.authRepository.passwordStrength(
-                email: state.emailText,
-                password: state.passwordText,
-                isPreAuth: true
-            )
+            do {
+                state.passwordStrengthScore = try await services.authRepository.passwordStrength(
+                    email: state.emailText,
+                    password: state.passwordText,
+                    isPreAuth: true
+                )
+            } catch {
+                services.errorReporter.log(error: error)
+            }
         }
     }
 }

@@ -194,14 +194,24 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// Tapping the new custom field button dispatches the `.newCustomFieldPressed` action.
     @MainActor
     func test_newCustomFieldButton_tap() throws {
+        processor.state.isAdditionalOptionsExpanded = true
         let button = try subject.inspect().find(button: Localizations.newCustomField)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .customField(.newCustomFieldPressed))
     }
 
+    /// Tapping the new folder button dispatches the `.addFolder` action.
+    @MainActor
+    func test_newFolder_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.newFolder)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .addFolder)
+    }
+
     /// Updating the notes text field dispatches the `.notesChanged()` action.
     @MainActor
     func test_notesTextField_updateValue() throws {
+        processor.state.isAdditionalOptionsExpanded = true
         let textField = try subject.inspect().find(
             type: BitwardenUITextViewType.self,
             accessibilityLabel: Localizations.notes
@@ -218,7 +228,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             CipherOwner.personal(email: "user@bitwarden.com"),
             organizationOwner,
         ]
-        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.whoOwnsThisItem)
+        let menu = try subject.inspect().find(bitwardenMenuField: Localizations.owner)
         try menu.select(newValue: organizationOwner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
     }
@@ -272,31 +282,23 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(processor.effects.last, .savePressed)
     }
 
-    /// Tapping the setup totp button disptaches the `.setupTotpPressed` action.
+    /// Tapping the set up authenticator key button dispatches the `.setupTotpPressed` action.
     @MainActor
     func test_setupTotpButton_noKey_tap() async throws {
-        let button = try subject.inspect().find(asyncButton: Localizations.setupTotp)
+        let button = try subject.inspect().find(asyncButton: Localizations.setUpAuthenticatorKey)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
     }
 
-    /// Tapping the setup totp button dispatches the `.setupTotpPressed` action.
+    /// Tapping the set up authenticator button dispatches the `.setupTotpPressed` action.
     @MainActor
     func test_setupTotpButton_withKey_tap() async throws {
         processor.state.loginState.totpState = LoginTOTPState("JBSWY3DPEHPK3PXP")
 
-        let button = try subject.inspect().find(asyncButtonWithAccessibilityLabel: Localizations.setupTotp)
+        let button = try subject.inspect().find(asyncButton: Localizations.setUpAuthenticatorKey)
         try await button.tap()
 
         XCTAssertEqual(processor.effects.last, .setupTotpPressed)
-    }
-
-    @MainActor
-    func test_typeMenuField_updateValue() throws {
-        processor.state.type = .login
-        let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.type)
-        try menuField.select(newValue: BitwardenShared.CipherType.card)
-        XCTAssertEqual(processor.dispatchedActions.last, .typeChanged(.card))
     }
 
     /// Selecting a new value with the uri match type picker dispatches the `.uriTypeChanged` action.
@@ -544,6 +546,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.type = .identity
         processor.state.name = ""
         processor.state.identityState = .init()
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = false
         processor.state.isMasterPasswordRePromptOn = false
         processor.state.notes = ""
@@ -577,6 +580,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             postalCode: "1234",
             country: "country"
         )
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "A long segment of notes that proves that the multiline feature is working."
@@ -611,6 +615,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             postalCode: "1234",
             country: "country"
         )
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -632,6 +637,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ],
             username: "username"
         )
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.loginState.uris = [
@@ -651,6 +657,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.name = "Name"
         processor.state.loginState.username = "username"
         processor.state.loginState.password = "password1!"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.loginState.uris = [
@@ -703,6 +710,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.type = .login
         processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -723,6 +731,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_add_secureNote_full_fieldsVisible() {
         processor.state.type = .secureNote
         processor.state.name = "Secure Note Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -750,6 +759,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.type = .login
         processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -777,6 +787,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.type = .login
         processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -804,6 +815,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ],
             username: "username"
         )
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"
@@ -831,6 +843,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         processor.state.type = .login
         processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
         processor.state.isFavoriteOn = true
         processor.state.isMasterPasswordRePromptOn = true
         processor.state.notes = "Notes"

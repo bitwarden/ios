@@ -6,7 +6,7 @@ import Foundation
 
 class MockSettingsRepository: SettingsRepository {
     var addedFolderName: String?
-    var addFolderResult: Result<Void, Error> = .success(())
+    var addFolderResult: Result<FolderView, Error> = .success(.fixture())
     var allowSyncOnRefresh = false
     var allowSyncOnRefreshResult: Result<Void, Error> = .success(())
     var connectToWatch = false
@@ -36,9 +36,9 @@ class MockSettingsRepository: SettingsRepository {
 
     var clearClipboardValue: ClearClipboardValue = .never
 
-    func addFolder(name: String) async throws {
+    func addFolder(name: String) async throws -> FolderView {
         addedFolderName = name
-        try addFolderResult.get()
+        return try addFolderResult.get()
     }
 
     func deleteFolder(id: String) async throws {

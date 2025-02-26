@@ -24,6 +24,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     var reviewPromptService: MockReviewPromptService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
+    var settingsRepository: MockSettingsRepository!
     var stateService: MockStateService!
     var totpService: MockTOTPService!
     var subject: AddEditItemProcessor!
@@ -49,6 +50,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         policyService = MockPolicyService()
         rehydrationHelper = MockRehydrationHelper()
         reviewPromptService = MockReviewPromptService()
+        settingsRepository = MockSettingsRepository()
         stateService = MockStateService()
         totpService = MockTOTPService()
         vaultRepository = MockVaultRepository()
@@ -67,6 +69,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 policyService: policyService,
                 rehydrationHelper: rehydrationHelper,
                 reviewPromptService: reviewPromptService,
+                settingsRepository: settingsRepository,
                 stateService: stateService,
                 totpService: totpService,
                 vaultRepository: vaultRepository
@@ -97,6 +100,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         pasteboardService = nil
         rehydrationHelper = nil
         reviewPromptService = nil
+        settingsRepository = nil
         stateService = nil
         subject = nil
         totpService = nil
@@ -544,7 +548,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
                 ]
             )
         )
-        XCTAssertNil(subject.state.loginState.authenticatorKey)
+        XCTAssertEqual(subject.state.loginState.authenticatorKey, "")
         XCTAssertNil(subject.state.toast)
     }
 
@@ -589,6 +593,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         waitFor { subject.state.toast != nil }
 
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.itemUpdated))
+    }
+
+    /// `folderAdded(_:)` sets the selected folder to the folder that was added.
+    @MainActor
+    func test_folderAdded() {
+        let newFolder = FolderView.fixture(name: "New folder")
+        subject.state.folders = [.default, .custom(newFolder)]
+
+        subject.folderAdded(newFolder)
+
+        XCTAssertEqual(subject.state.folder, .custom(newFolder))
     }
 
     /// `init(appExtensionDelegate:coordinator:delegate:services:state:)` with adding configuration
@@ -953,22 +968,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "1", name: "Design"),
             .fixture(id: "2", name: "Engineering"),
         ]
-        let folders: [FolderView] = [
-            .fixture(id: "1", name: "Social"),
-            .fixture(id: "2", name: "Work"),
-        ]
 
         vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .success(collections)
-        vaultRepository.fetchFoldersResult = .success(folders)
 
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.collections, collections)
-        XCTAssertEqual(
-            subject.state.folders,
-            [.default] + folders.map { .custom($0) }
-        )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
@@ -1020,22 +1026,13 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "1", name: "Design"),
             .fixture(id: "2", name: "Engineering"),
         ]
-        let folders: [FolderView] = [
-            .fixture(id: "1", name: "Social"),
-            .fixture(id: "2", name: "Work"),
-        ]
 
         vaultRepository.fetchCipherOwnershipOptions = [.personal(email: "user@bitwarden.com")]
         vaultRepository.fetchCollectionsResult = .success(collections)
-        vaultRepository.fetchFoldersResult = .success(folders)
 
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.collections, collections)
-        XCTAssertEqual(
-            subject.state.folders,
-            [.default] + folders.map { .custom($0) }
-        )
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
@@ -1072,17 +1069,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
             .fixture(id: "1", name: "Design"),
             .fixture(id: "2", name: "Engineering"),
         ]
-        let folders: [FolderView] = [
-            .fixture(id: "1", name: "Social"),
-            .fixture(id: "2", name: "Work"),
-        ]
 
         vaultRepository.fetchCipherOwnershipOptions = [
             .organization(id: "123", name: "Test Org 1"),
             .organization(id: "987", name: "Test Org 2"),
         ]
         vaultRepository.fetchCollectionsResult = .success(collections)
-        vaultRepository.fetchFoldersResult = .success(folders)
 
         policyService.policyAppliesToUserResult[.personalOwnership] = true
 
@@ -1090,10 +1082,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(subject.state.collectionIds, [])
         XCTAssertEqual(subject.state.collections, collections)
-        XCTAssertEqual(
-            subject.state.folders,
-            [.default] + folders.map { .custom($0) }
-        )
         XCTAssertEqual(subject.state.organizationId, "123")
         XCTAssertEqual(subject.state.ownershipOptions, [
             .organization(id: "123", name: "Test Org 1"),
@@ -1562,6 +1550,45 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertTrue(subject.state.guidedTourViewState.showGuidedTour)
     }
 
+    /// `perform(_:)` with `.streamFolders` updates the state's list of folders whenever it changes.
+    @MainActor
+    func test_perform_streamFolders() {
+        let task = Task {
+            await subject.perform(.streamFolders)
+        }
+        defer { task.cancel() }
+
+        let folders: [FolderView] = [
+            .fixture(id: "1", name: "Social"),
+            .fixture(id: "2", name: "Work"),
+        ]
+        settingsRepository.foldersListSubject.send(folders)
+
+        waitFor(!subject.state.folders.isEmpty)
+
+        XCTAssertEqual(
+            subject.state.folders,
+            [.default] + folders.map { .custom($0) }
+        )
+    }
+
+    /// `perform(_:)` with `.streamFolders` logs an error if getting the list of folders fails.
+    @MainActor
+    func test_perform_streamLastSyncTime_error() async {
+        settingsRepository.foldersListError = StateServiceError.noActiveAccount
+
+        await subject.perform(.streamFolders)
+
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `receive(_:)` with `.addFolder` navigates to the add folder view.
+    @MainActor
+    func test_receive_addFolder() {
+        subject.receive(.addFolder)
+        XCTAssertEqual(coordinator.routes, [.addFolder])
+    }
+
     /// `receive(_:)` with `authKeyVisibilityTapped` updates the value in the state.
     @MainActor
     func test_receive_authKeyVisibilityTapped() {
@@ -1591,7 +1618,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         subject.state.loginState.totpState = LoginTOTPState(.standardTotpKey)
         subject.receive(.totpKeyChanged(nil))
 
-        XCTAssertNil(subject.state.loginState.authenticatorKey)
+        XCTAssertEqual(subject.state.loginState.authenticatorKey, "")
     }
 
     /// `receive(_:)` with `.removePasskeyPressed` clears the fido2Credentials.
@@ -1990,6 +2017,17 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, toast)
     }
 
+    /// `receive(_:)` with `.toggleAdditionalOptionsExpanded` toggles whether the additional options
+    /// are expanded.
+    @MainActor
+    func test_receive_toggleAdditionalOptionsExpanded() {
+        subject.receive(.toggleAdditionalOptionsExpanded(true))
+        XCTAssertTrue(subject.state.isAdditionalOptionsExpanded)
+
+        subject.receive(.toggleAdditionalOptionsExpanded(false))
+        XCTAssertFalse(subject.state.isAdditionalOptionsExpanded)
+    }
+
     /// `receive(_:)` with `guidedTourViewAction(.toggleGuidedTourVisibilityChanged)`
     /// updates the state correctly.
     @MainActor
@@ -2097,19 +2135,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         default:
             XCTFail("Unexpected State")
         }
-    }
-
-    /// `receive(_:)` with `.typeChanged` updates the state correctly.
-    @MainActor
-    func test_receive_typeChanged() {
-        subject.state.type = .login
-        subject.receive(.typeChanged(.card))
-
-        XCTAssertEqual(subject.state.type, .card)
-        XCTAssertEqual(
-            subject.state.customFieldsState,
-            AddEditCustomFieldsState(cipherType: .card, customFields: [])
-        )
     }
 
     /// `receive(_:)` with `.uriChanged` with a valid index updates the state correctly.

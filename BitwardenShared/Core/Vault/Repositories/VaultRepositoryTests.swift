@@ -702,6 +702,32 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
+    /// `createAutofillListExcludedCredentialSection(from:)` creates a `VaultListSection`
+    /// from the given excluded credential cipher.
+    func test_createAutofillListExcludedCredentialSection() async throws {
+        let cipher = CipherView.fixture()
+        let expectedCredentialId = Data(repeating: 123, count: 16)
+        setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
+
+        let result = try await subject.createAutofillListExcludedCredentialSection(from: cipher)
+        XCTAssertEqual(result.id, Localizations.aPasskeyAlreadyExistsForThisApplication)
+        XCTAssertEqual(result.name, Localizations.aPasskeyAlreadyExistsForThisApplication)
+        XCTAssertEqual(result.items.count, 1)
+        XCTAssertEqual(result.items.first?.id, cipher.id)
+        XCTAssertEqual(result.items.first?.fido2CredentialRpId, "myApp.com")
+    }
+
+    /// `createAutofillListExcludedCredentialSection(from:)` throws when decrypting Fido2 credentials.
+    func test_createAutofillListExcludedCredentialSection_throws() async throws {
+        let cipher = CipherView.fixture()
+        clientService.mockPlatform.fido2Mock.decryptFido2AutofillCredentialsMocker
+            .throwing(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.createAutofillListExcludedCredentialSection(from: cipher)
+        }
+    }
+
     /// `deleteCipher()` throws on id errors.
     func test_deleteCipher_idError_nil() async throws {
         cipherService.deleteCipherWithServerResult = .failure(CipherAPIServiceError.updateMissingId)

@@ -559,6 +559,25 @@ extension AppProcessor: NotificationServiceDelegate {
 // MARK: - SyncServiceDelegate
 
 extension AppProcessor: SyncServiceDelegate {
+    func onFetchSyncSucceeded(userId: String) async {
+        do {
+            let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
+                userId: userId
+            )
+            // Check so the next gets executed only once after login.
+            guard !hasPerformedSyncAfterLogin else {
+                return
+            }
+            try await services.stateService.setHasPerformedSyncAfterLogin(true, userId: userId)
+
+            if await services.policyService.policyAppliesToUser(.removeUnlockWithPin) {
+                try await services.stateService.clearPins()
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     func removeMasterPassword(organizationName: String) {
         // Don't show the remove master password screen if running in an app extension.
         guard appExtensionDelegate?.isInAppExtension != true else { return }
@@ -611,12 +630,20 @@ extension AppProcessor: AutofillCredentialServiceDelegate {
 // MARK: - Fido2UserVerificationMediatorDelegate
 
 extension AppProcessor: Fido2UserInterfaceHelperDelegate {
+    // MARK: Properties
+
     var isAutofillingFromList: Bool {
         guard let autofillAppExtensionDelegate = appExtensionDelegate as? AutofillAppExtensionDelegate,
               autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList else {
             return false
         }
         return true
+    }
+
+    // MARK: Methods
+
+    func informExcludedCredentialFound(cipherView: BitwardenSdk.CipherView) async {
+        // No-op
     }
 
     func onNeedsUserInteraction() async throws {

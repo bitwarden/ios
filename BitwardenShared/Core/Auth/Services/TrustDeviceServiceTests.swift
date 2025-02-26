@@ -115,7 +115,7 @@ class TrustDeviceServiceTests: BitwardenTestCase {
     }
 
     /// `trustDeviceWithExistingKeys()` set the current device as trusted storing the keys and saving them server side.
-    ///  Uses input as the keys to be store instead of being computed by clientAuth
+    ///  Uses input as the keys to be store instead of being computed by authClient
     func test_trustDeviceWithExistingKeys() async throws {
         // Set up the mock data.
         client.results = [.httpSuccess(testData: .emptyResponse)]

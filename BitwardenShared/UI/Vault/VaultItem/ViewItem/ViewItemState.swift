@@ -12,7 +12,7 @@ struct ViewItemState: Equatable, Sendable {
         switch loadingState {
         case let .data(state):
             state.cipher.organizationId == nil
-        case .loading:
+        case .error, .loading:
             false
         }
     }
@@ -36,8 +36,20 @@ struct ViewItemState: Equatable, Sendable {
         return switch loadingState {
         case let .data(state):
             state.isMasterPasswordRePromptOn && hasMasterPassword
-        case .loading:
+        case .error, .loading:
             false
+        }
+    }
+
+    /// The view's navigation title.
+    var navigationTitle: String {
+        guard let item = loadingState.data else { return "" }
+        return switch item.type {
+        case .card: Localizations.viewCard
+        case .identity: Localizations.viewIdentity
+        case .login: Localizations.viewLogin
+        case .secureNote: Localizations.viewNote
+        case .sshKey: Localizations.viewSSHKey
         }
     }
 

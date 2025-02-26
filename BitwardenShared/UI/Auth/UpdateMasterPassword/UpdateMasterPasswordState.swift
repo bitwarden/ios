@@ -34,12 +34,22 @@ struct UpdateMasterPasswordState: Equatable, Sendable {
     /// The retype of new master password provided by the user.
     var masterPasswordRetype: String = ""
 
+    /// A scoring metric that represents the strength of the entered password. The score ranges from
+    /// 0-4 (weak to strong password).
+    var passwordStrengthScore: UInt8?
+
     // MARK: Computed Properties
 
     /// Whether the current password is required.
     var requireCurrentPassword: Bool {
         forcePasswordResetReason == .weakMasterPasswordOnLogin
     }
+
+    /// The required text count for the password strength.
+    let requiredPasswordCount = Constants.minimumPasswordCharacters
+
+    /// The email of the user that is updating the account password.
+    var userEmail: String = ""
 
     /// The message to display for why the user's password needs to be updated.
     var updateMasterPasswordWarning: String {

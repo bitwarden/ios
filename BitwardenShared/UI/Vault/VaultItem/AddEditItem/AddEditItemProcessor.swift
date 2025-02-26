@@ -65,6 +65,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         & HasPolicyService
         & HasRehydrationHelper
         & HasReviewPromptService
+        & HasSettingsRepository
         & HasStateService
         & HasTOTPService
         & HasVaultRepository
@@ -132,9 +133,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         case .checkPasswordPressed:
             await checkPassword()
         case .copyTotpPressed:
-            guard let key = state.loginState.authenticatorKey else { return }
-            services.pasteboardService.copy(key)
-            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKeyScanner))
+            services.pasteboardService.copy(state.loginState.authenticatorKey)
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.authenticatorKey))
         case .dismissNewLoginActionCard:
             state.isLearnNewLoginActionCardEligible = false
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
@@ -151,11 +151,15 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             await services.stateService.setLearnNewLoginActionCardStatus(.complete)
             state.guidedTourViewState.currentIndex = 0
             state.guidedTourViewState.showGuidedTour = true
+        case .streamFolders:
+            await streamFolders()
         }
     }
 
     override func receive(_ action: AddEditItemAction) { // swiftlint:disable:this function_body_length
         switch action {
+        case .addFolder:
+            coordinator.navigate(to: .addFolder, context: self)
         case let .authKeyVisibilityTapped(newValue):
             state.loginState.isAuthKeyVisible = newValue
         case let .cardFieldChanged(cardFieldAction):
@@ -225,13 +229,12 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
+        case let .toggleAdditionalOptionsExpanded(newValue):
+            state.isAdditionalOptionsExpanded = newValue
         case .totpFieldLeftFocus:
             parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):
             state.loginState.totpState = LoginTOTPState(newValue)
-        case let .typeChanged(newValue):
-            state.type = newValue
-            state.customFieldsState = AddEditCustomFieldsState(cipherType: newValue, customFields: [])
         case let .uriChanged(newValue, index: index):
             guard state.loginState.uris.count > index else { return }
             state.loginState.uris[index].uri = newValue
@@ -289,10 +292,6 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 // new item from a collection group view.
                 state.owner = ownershipOptions.first
             }
-
-            let folders = try await services.vaultRepository.fetchFolders()
-                .map { DefaultableType<FolderView>.custom($0) }
-            state.folders = [.default] + folders
 
             if !state.configuration.isAdding {
                 await services.eventService.collect(eventType: .cipherClientViewed, cipherId: state.cipher.id)
@@ -695,6 +694,18 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         await services.stateService.setAddSitePromptShown(true)
     }
 
+    /// Stream the list of folders.
+    ///
+    private func streamFolders() async {
+        do {
+            for try await folders in try await services.settingsRepository.foldersListPublisher() {
+                state.folders = [.default] + folders.map { DefaultableType.custom($0) }
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     /// Check if the user has a master password and set showMasterPasswordReprompt accordingly
     ///
     private func checkIfUserHasMasterPassword() async {
@@ -758,6 +769,22 @@ extension AddEditItemProcessor: GeneratorCoordinatorDelegate {
             state.loginState.username = value
         }
         coordinator.navigate(to: .dismiss())
+    }
+}
+
+// MARK: - AddEditFolderDelegate
+
+extension AddEditItemProcessor: AddEditFolderDelegate {
+    func folderAdded(_ folderView: FolderView) {
+        state.folder = .custom(folderView)
+    }
+
+    func folderDeleted() {
+        // No-op: deleting a folder isn't supported from the add folder flow.
+    }
+
+    func folderEdited() {
+        // No-op: editing a folder isn't supported from the add folder flow.
     }
 }
 

@@ -51,12 +51,22 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     // MARK: Tests
 
+    /// `navigate(to:)` with `.addFolder` starts the add/edit folder coordinator and navigates
+    /// to the add/edit folder view.
+    @MainActor
+    func test_navigateTo_addFolder() throws {
+        subject.navigate(to: .addFolder)
+
+        XCTAssertTrue(module.addEditFolderCoordinator.isStarted)
+        XCTAssertEqual(module.addEditFolderCoordinator.routes, [.addEditFolder(folder: nil)])
+    }
+
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
     @MainActor
     func test_navigateTo_addItem_nonPremium() throws {
         vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
         let task = Task {
-            subject.navigate(to: .addItem())
+            subject.navigate(to: .addItem(type: .login))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -74,7 +84,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         struct TestError: Error {}
         vaultRepository.doesActiveAccountHavePremiumResult = .failure(TestError())
         let task = Task {
-            subject.navigate(to: .addItem())
+            subject.navigate(to: .addItem(type: .login))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -99,7 +109,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
             )
             subject.navigate(
                 to: .addItem(
-                    newCipherOptions: newCipherOptions
+                    newCipherOptions: newCipherOptions,
+                    type: .login
                 )
             )
         }
@@ -122,7 +133,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_navigateTo_addItem_withoutGroup() throws {
         let task = Task {
-            subject.navigate(to: .addItem())
+            subject.navigate(to: .addItem(type: .login))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -138,7 +149,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     @MainActor
     func test_navigateTo_addItem_withGroup() throws {
         let task = Task {
-            subject.navigate(to: .addItem(group: .card))
+            subject.navigate(to: .addItem(group: .card, type: .card))
         }
         waitFor(!stackNavigator.actions.isEmpty)
         task.cancel()
@@ -157,7 +168,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_addItem_withGroupCollection() throws {
         subject.navigate(
             to: .addItem(
-                group: .collection(id: "12345", name: "Test", organizationId: "org-12345")
+                group: .collection(id: "12345", name: "Test", organizationId: "org-12345"),
+                type: .login
             )
         )
 
@@ -177,7 +189,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_addItem_withGroupFolder() throws {
         subject.navigate(
             to: .addItem(
-                group: .folder(id: "12345", name: "Test")
+                group: .folder(id: "12345", name: "Test"),
+                type: .login
             )
         )
 
@@ -196,7 +209,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     func test_navigateTo_addItem_withOrganizationId() throws {
         subject.navigate(
             to: .addItem(
-                organizationId: "org-12345"
+                organizationId: "org-12345",
+                type: .login
             )
         )
 
@@ -207,6 +221,20 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
         let view = try XCTUnwrap(action.view as? AddEditItemView)
         XCTAssertEqual(view.store.state.type, .login)
         XCTAssertEqual(view.store.state.organizationId, "org-12345")
+    }
+
+    /// `navigate(to:)` with `.addItem` with a cipher type, pushes the add item view onto the
+    /// stack navigator and sets the item's type.
+    @MainActor
+    func test_navigateTo_addItem_withType() throws {
+        subject.navigate(to: .addItem(type: .identity))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        XCTAssertTrue(action.view is AddEditItemView)
+
+        let view = try XCTUnwrap(action.view as? AddEditItemView)
+        XCTAssertEqual(view.store.state.type, .identity)
     }
 
     /// `navigate(to:)` with `.cloneItem()` triggers the show clone item flow.

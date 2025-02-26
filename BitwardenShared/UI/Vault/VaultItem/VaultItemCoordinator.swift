@@ -10,7 +10,8 @@ import SwiftUI
 class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftlint:disable:this type_body_length
     // MARK: Types
 
-    typealias Module = FileSelectionModule
+    typealias Module = AddEditFolderModule
+        & FileSelectionModule
         & GeneratorModule
         & PasswordHistoryModule
         & VaultItemModule
@@ -23,6 +24,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         & HasEventService
         & HasFido2UserInterfaceHelper
         & HasRehydrationHelper
+        & HasSettingsRepository
         & HasStateService
         & HasTOTPService
         & HasTimeProvider
@@ -80,19 +82,21 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 
     func navigate(to route: VaultItemRoute, context: AnyObject?) {
         switch route {
+        case .addFolder:
+            showAddFolder(delegate: context as? AddEditFolderDelegate)
         case let .addItem(
-            allowTypeSelection,
             group,
             hasPremium,
             newCipherOptions,
-            organizationId
+            organizationId,
+            type
         ):
             showAddItem(
                 for: group,
-                allowTypeSelection: allowTypeSelection,
                 hasPremium: hasPremium,
                 newCipherOptions: newCipherOptions,
                 organizationId: organizationId,
+                type: type,
                 delegate: context as? CipherItemOperationDelegate
             )
         case let .attachments(cipher):
@@ -147,28 +151,41 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         stackNavigator?.present(navigationController)
     }
 
+    /// Shows the add folder screen.
+    ///
+    /// - Parameter delegate: A `AddEditFolderDelegate` that is notified when the user makes a
+    ///     change to folders.
+    ///
+    private func showAddFolder(delegate: AddEditFolderDelegate?) {
+        let navigationController = UINavigationController()
+        let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
+        coordinator.start()
+        coordinator.navigate(to: .addEditFolder(folder: nil), context: delegate)
+
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the add item screen.
     ///
     /// - Parameters:
     ///   - group: An optional `VaultListGroup` to initialize this view with.
-    ///   - allowTypeSelection: Whether the user should be able to select the type of item to add.
     ///   - hasPremium: Whether the user has premium,
     ///   - newCipherOptions: Options that can be used to pre-populate the add item screen.
     ///   - organizationId: The organization id in case an organization was selected in the vault filter.
+    ///   - type: The type of item to add.
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
-    private func showAddItem(
+    private func showAddItem( // swiftlint:disable:this function_parameter_count
         for group: VaultListGroup?,
-        allowTypeSelection: Bool,
         hasPremium: Bool,
         newCipherOptions: NewCipherOptions?,
         organizationId: String?,
+        type: CipherType,
         delegate: CipherItemOperationDelegate?
     ) {
         let state = CipherItemState(
-            addItem: group.flatMap(CipherType.init) ?? .login,
-            allowTypeSelection: allowTypeSelection,
+            addItem: type,
             collectionIds: group?.collectionId.flatMap { [$0] } ?? [],
             folderId: group?.folderId,
             hasPremium: hasPremium,

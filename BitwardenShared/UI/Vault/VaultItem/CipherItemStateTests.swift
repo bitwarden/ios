@@ -14,7 +14,6 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertEqual(state.name, "\(cipher.name) - \(Localizations.clone)")
         XCTAssertNil(state.cipher.id)
         XCTAssertEqual(state.accountHasPremium, true)
-        XCTAssertEqual(state.allowTypeSelection, false)
         XCTAssertEqual(state.cardItemState, cipher.cardItemState())
         XCTAssertEqual(state.configuration, .add)
         XCTAssertEqual(state.customFieldsState, .init(cipherType: .login, customFields: cipher.customFields))
@@ -130,6 +129,42 @@ class CipherItemStateTests: BitwardenTestCase {
             CollectionView.fixture(id: "3", organizationId: "Org1", manage: false, readOnly: true),
         ]
         XCTAssertEqual(state.collectionsForOwner.map(\.id), ["1", "2"])
+    }
+
+    /// `navigationTitle` returns the navigation title for the view based on the cipher type being edited.
+    func test_navigationTitle_editItem() throws {
+        let subjectCard = try XCTUnwrap(CipherItemState(existing: .fixture(type: .card), hasPremium: false))
+        XCTAssertEqual(subjectCard.navigationTitle, Localizations.editCard)
+
+        let subjectIdentity = try XCTUnwrap(CipherItemState(existing: .fixture(type: .identity), hasPremium: false))
+        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.editIdentity)
+
+        let subjectLogin = try XCTUnwrap(CipherItemState(existing: .fixture(type: .login), hasPremium: false))
+        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.editLogin)
+
+        let subjectSecureNote = try XCTUnwrap(CipherItemState(existing: .fixture(type: .secureNote), hasPremium: false))
+        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.editNote)
+
+        let subjectSSHKey = try XCTUnwrap(CipherItemState(existing: .fixture(type: .sshKey), hasPremium: false))
+        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.editSSHKey)
+    }
+
+    /// `navigationTitle` returns the navigation title for the view based on the cipher type being added.
+    func test_navigationTitle_newItem() {
+        let subjectCard = CipherItemState(addItem: .card, hasPremium: false)
+        XCTAssertEqual(subjectCard.navigationTitle, Localizations.newCard)
+
+        let subjectIdentity = CipherItemState(addItem: .identity, hasPremium: false)
+        XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.newIdentity)
+
+        let subjectLogin = CipherItemState(addItem: .login, hasPremium: false)
+        XCTAssertEqual(subjectLogin.navigationTitle, Localizations.newLogin)
+
+        let subjectSecureNote = CipherItemState(addItem: .secureNote, hasPremium: false)
+        XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.newNote)
+
+        let subjectSSHKey = CipherItemState(addItem: .sshKey, hasPremium: false)
+        XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.newSSHKey)
     }
 
     /// `shouldShowLearnNewLoginActionCard` should be `true`, if the cipher is a login type and configuration is `.add`.

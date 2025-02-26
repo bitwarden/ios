@@ -40,4 +40,7 @@ enum VaultListEffect: Equatable {
 
     /// Stream the vault list for the user.
     case streamVaultList
+
+    /// The try again button was tapped on the error view.
+    case tryAgainTapped
 }

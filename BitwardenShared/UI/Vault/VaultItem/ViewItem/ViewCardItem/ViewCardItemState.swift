@@ -18,11 +18,11 @@ protocol ViewCardItemState: Equatable, Sendable {
     /// The security code of the card.
     var cardSecurityCode: String { get }
 
-    /// The expiration month of the card.
-    var expirationMonth: DefaultableType<CardComponent.Month> { get }
+    /// The card's formatted expiration string.
+    var expirationString: String { get }
 
-    /// The expiration year of the card.
-    var expirationYear: String { get }
+    /// Whether the card details section is empty.
+    var isCardDetailsSectionEmpty: Bool { get }
 
     /// The visibility of the card number.
     var isCodeVisible: Bool { get }

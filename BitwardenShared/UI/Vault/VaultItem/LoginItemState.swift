@@ -22,6 +22,14 @@ struct LoginItemState: Equatable {
     /// A flag indicating if the password field is visible.
     var isPasswordVisible: Bool = false
 
+    /// A flag indicating if this view has no data to display.
+    var isEmpty: Bool {
+        username.isEmpty
+            && password.isEmpty
+            && fido2Credentials.isEmpty
+            && totpCode == nil
+    }
+
     /// A flag indicating if the totp feature is available.
     let isTOTPAvailable: Bool
 
@@ -50,8 +58,8 @@ struct LoginItemState: Equatable {
     var username: String = ""
 
     /// The TOTP Key.
-    var authenticatorKey: String? {
-        totpState.rawAuthenticatorKeyString
+    var authenticatorKey: String {
+        totpState.rawAuthenticatorKeyString ?? ""
     }
 
     /// BitwardenSDK loginView representation of loginItemState.
@@ -61,7 +69,7 @@ struct LoginItemState: Equatable {
             password: password.nilIfEmpty,
             passwordRevisionDate: passwordUpdatedDate,
             uris: uris.compactMap(\.loginUriView).nilIfEmpty,
-            totp: authenticatorKey,
+            totp: authenticatorKey.nilIfEmpty,
             autofillOnPageLoad: nil,
             fido2Credentials: nil
         )

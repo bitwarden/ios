@@ -286,7 +286,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(
             coordinator.routes.last,
-            .addItem(allowTypeSelection: false, group: .login, newCipherOptions: NewCipherOptions())
+            .addItem(group: .login, newCipherOptions: NewCipherOptions(), type: .login)
         )
     }
 
@@ -307,7 +307,7 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
 
         XCTAssertEqual(
             coordinator.routes.last,
-            .addItem(allowTypeSelection: false, group: .login, newCipherOptions: NewCipherOptions())
+            .addItem(group: .login, newCipherOptions: NewCipherOptions(), type: .login)
         )
     }
 

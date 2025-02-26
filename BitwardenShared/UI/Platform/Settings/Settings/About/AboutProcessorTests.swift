@@ -26,6 +26,7 @@ class AboutProcessorTests: BitwardenTestCase {
 
         subject = AboutProcessor(
             aboutAdditionalInfo: aboutAdditionalInfo,
+            bundleIdentifier: "com.8bit.bitwarden",
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 environmentService: environmentService,

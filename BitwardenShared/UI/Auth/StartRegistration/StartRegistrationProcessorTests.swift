@@ -12,7 +12,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     var authRepository: MockAuthRepository!
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
-    var clientAuth: MockClientAuth!
+    var authClient: MockAuthClient!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var delegate: MockStartRegistrationDelegate!
@@ -28,7 +28,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         authRepository = MockAuthRepository()
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
-        clientAuth = MockClientAuth()
+        authClient = MockAuthClient()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         delegate = MockStartRegistrationDelegate()
@@ -42,7 +42,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 captchaService: captchaService,
-                clientService: MockClientService(auth: clientAuth),
+                clientService: MockClientService(auth: authClient),
                 configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
@@ -57,7 +57,7 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         super.tearDown()
         authRepository = nil
         captchaService = nil
-        clientAuth = nil
+        authClient = nil
         client = nil
         configService = nil
         coordinator = nil

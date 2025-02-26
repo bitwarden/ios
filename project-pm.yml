@@ -24,13 +24,11 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 02332b257970cde14e48a8708e12e722f4a236d9
+    revision: 94fd09f0b73367071bc033987a1962fce85f5c76
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
     exactVersion: 10.24.0
-  Networking:
-    path: Networking
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
     exactVersion: 1.3.0
@@ -40,16 +38,10 @@ packages:
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.0
+projectReferences:
+  BitwardenKit:
+    path: BitwardenKit.xcodeproj
 schemes:
-  AuthenticatorBridgeKit:
-    build:
-      targets:
-        AuthenticatorBridgeKit: all
-        AuthenticatorBridgeKitTests: [test]
-    test:
-      gatherCoverageData: true
-      targets:
-        - AuthenticatorBridgeKitTests
   Bitwarden:
     build:
       targets:
@@ -64,20 +56,22 @@ schemes:
       language: en
       region: US
       coverageTargets:
-        - AuthenticatorBridgeKit
         - Bitwarden
         - BitwardenActionExtension
         - BitwardenAutoFillExtension
         - BitwardenShareExtension
         - BitwardenShared
+        - BitwardenKit/AuthenticatorBridgeKit
+        - BitwardenKit/BitwardenKit
+        - BitwardenKit/Networking
       targets:
-        - AuthenticatorBridgeKitTests
         - BitwardenTests
         - BitwardenActionExtensionTests
         - BitwardenAutoFillExtensionTests
         - BitwardenShareExtensionTests
         - BitwardenSharedTests
-        - package: Networking/NetworkingTests
+        - BitwardenKit/AuthenticatorBridgeKitTests
+        - BitwardenKit/NetworkingTests
   BitwardenActionExtension:
     build:
       targets:
@@ -141,33 +135,6 @@ schemes:
       targets:
         BitwardenWatchWidgetExtension: all
 targets:
-  AuthenticatorBridgeKit:
-    type: framework
-    platform: iOS
-    configFiles:
-      Debug: Configs/AuthenticatorBridgeKit.xcconfig
-      Release: Configs/AuthenticatorBridgeKit.xcconfig
-    settings:
-      base:
-        APPLICATION_EXTENSION_API_ONLY: true
-        INFOPLIST_FILE: AuthenticatorBridgeKit/Info.plist
-    sources:
-      - path: AuthenticatorBridgeKit
-        excludes:
-          - "**/Tests/*"
-  AuthenticatorBridgeKitTests:
-    type: bundle.unit-test
-    platform: iOS
-    settings:
-      base:
-        INFOPLIST_FILE: AuthenticatorBridgeKit/Tests/TestHelpers/Support/Info.plist
-    sources:
-      - path: AuthenticatorBridgeKit
-        includes:
-          - "**/Tests/*"
-    dependencies:
-      - target: AuthenticatorBridgeKit
-    randomExecutionOrder: true
   Bitwarden:
     type: application
     platform: iOS
@@ -197,12 +164,14 @@ targets:
       - path: swiftgen-pm.yml
         buildPhase: none
     dependencies:
-      - target: AuthenticatorBridgeKit
       - target: BitwardenShared
       - target: BitwardenActionExtension
       - target: BitwardenAutoFillExtension
       - target: BitwardenShareExtension
       - target: BitwardenWatchApp
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
     preBuildScripts:
@@ -250,9 +219,9 @@ targets:
           - "**/TestHelpers/*"
       - path: GlobalTestHelpers
     dependencies:
-      - target: AuthenticatorBridgeKit
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -289,6 +258,7 @@ targets:
     dependencies:
       - target: BitwardenActionExtension
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -325,6 +295,7 @@ targets:
     dependencies:
       - target: BitwardenAutoFillExtension
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -361,6 +332,7 @@ targets:
     dependencies:
       - target: BitwardenShareExtension
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -399,10 +371,11 @@ targets:
         optional: true
       - path: BitwardenWatchShared
     dependencies:
-      - target: AuthenticatorBridgeKit
       - package: BitwardenSdk
-      - package: Networking
       - package: SwiftUIIntrospect
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/Networking
     preBuildScripts:
       - name: SwiftGen
         script: |
@@ -436,6 +409,7 @@ targets:
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting

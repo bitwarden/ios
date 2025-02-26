@@ -45,7 +45,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var passwordStrengthEmail: String?
     var passwordStrengthIsPreAuth = false
     var passwordStrengthPassword: String?
-    var passwordStrengthResult: UInt8 = 0
+    var passwordStrengthResult: Result<UInt8, Error> = .success(0)
     var pinProtectedUserKey = "123"
     var profileSwitcherState: ProfileSwitcherState?
     var requestOtpCalled = false
@@ -224,11 +224,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try isUserManagedByOrganizationResult.get()
     }
 
-    func passwordStrength(email: String, password: String, isPreAuth: Bool) async -> UInt8 {
+    func passwordStrength(email: String, password: String, isPreAuth: Bool) async throws -> UInt8 {
         passwordStrengthEmail = email
         passwordStrengthPassword = password
         passwordStrengthIsPreAuth = isPreAuth
-        return passwordStrengthResult
+        return try passwordStrengthResult.get()
     }
 
     func lockVault(userId: String?, isManuallyLocking: Bool) async {
