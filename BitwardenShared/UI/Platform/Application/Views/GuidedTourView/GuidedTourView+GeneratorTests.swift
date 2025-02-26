@@ -9,7 +9,7 @@ import XCTest
 
 // MARK: - GuidedTourView+GeneratorTests
 
-class GuidedTourViewGeneratorTests: BitwardenSnapshotTestCase {
+class GuidedTourViewGeneratorTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<GuidedTourViewState, GuidedTourViewAction, Void>!

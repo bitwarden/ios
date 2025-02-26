@@ -1,6 +1,6 @@
 import XCTest
 
-open class BitwardenTestCase: XCTestCase {
+open class BaseBitwardenTestCase: XCTestCase {
     /// The window being used for testing. Defaults to a new window with the same size as `UIScreen.main.bounds`.
     public var window: UIWindow!
 
@@ -118,20 +118,6 @@ open class BitwardenTestCase: XCTestCase {
     ///     - viewController: The `UIViewController` to make root view controller.
     ///
     open func setKeyWindowRoot(viewController: UIViewController) {
-        window.rootViewController = viewController
-        window.makeKeyAndVisible()
-    }
-
-    /// Nests a `UIView` within a root view controller in the test window. Allows testing
-    /// changes to the view that require the view to exist within a window or are dependent on safe
-    /// area layouts.
-    ///
-    /// - Parameters:
-    ///     - view: The `UIView` to add to a root view controller.
-    ///
-    open func setKeyWindowRoot(view: UIView) {
-        let viewController = UIViewController()
-//        viewController.view.addConstrained(subview: view)
         window.rootViewController = viewController
         window.makeKeyAndVisible()
     }

@@ -5,7 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AddEditFolderViewTests: BitwardenSnapshotTestCase {
+class AddEditFolderViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<AddEditFolderState, AddEditFolderAction, AddEditFolderEffect>!

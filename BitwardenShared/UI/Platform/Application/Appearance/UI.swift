@@ -49,26 +49,26 @@ public enum UI {
     /// Sets up the default global appearances used throughout the app.
     ///
     public static func applyDefaultAppearances() { // swiftlint:disable:this function_body_length
-        let bodyFont = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: FontFamily.DMSans.regular.font(size: 15)
-        )
-        let bodyBoldFont = UIFontMetrics(forTextStyle: .body).scaledFont(
-            for: FontFamily.DMSans.bold.font(size: 15)
-        )
-        let largeTitleFont = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
-            for: FontFamily.DMSans.bold.font(size: 26)
-        )
+//        let bodyFont = UIFontMetrics(forTextStyle: .body).scaledFont(
+//            for: FontFamily.DMSans.regular.font(size: 15)
+//        )
+//        let bodyBoldFont = UIFontMetrics(forTextStyle: .body).scaledFont(
+//            for: FontFamily.DMSans.bold.font(size: 15)
+//        )
+//        let largeTitleFont = UIFontMetrics(forTextStyle: .largeTitle).scaledFont(
+//            for: FontFamily.DMSans.bold.font(size: 26)
+//        )
         let iconBadgeBackground = Asset.Colors.iconBadgeBackground.color
-        let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
-            .font: FontFamily.DMSans.bold.font(size: 12),
-            .foregroundColor: Asset.Colors.iconBadgeForeground.color,
-        ]
+//        let iconBadgeTextAttributes: [NSAttributedString.Key: Any] = [
+//            .font: FontFamily.DMSans.bold.font(size: 12),
+//            .foregroundColor: Asset.Colors.iconBadgeForeground.color,
+//        ]
 
         let navigationBarAppearance = UINavigationBarAppearance()
         navigationBarAppearance.backgroundColor = Asset.Colors.backgroundSecondary.color
-        navigationBarAppearance.buttonAppearance.normal.titleTextAttributes = [.font: bodyFont]
-        navigationBarAppearance.largeTitleTextAttributes = [.font: largeTitleFont]
-        navigationBarAppearance.titleTextAttributes = [.font: bodyBoldFont]
+//        navigationBarAppearance.buttonAppearance.normal.titleTextAttributes = [.font: bodyFont]
+//        navigationBarAppearance.largeTitleTextAttributes = [.font: largeTitleFont]
+//        navigationBarAppearance.titleTextAttributes = [.font: bodyBoldFont]
         UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
         UINavigationBar.appearance().standardAppearance = navigationBarAppearance
 
@@ -82,7 +82,7 @@ public enum UI {
         tabBarAppearance.configureWithOpaqueBackground()
         tabBarAppearance.backgroundColor = Asset.Colors.backgroundSecondary.color
         tabBarAppearance.compactInlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
-        tabBarAppearance.compactInlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
+//        tabBarAppearance.compactInlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
         tabBarAppearance.compactInlineLayoutAppearance.selected.titleTextAttributes = [
             .foregroundColor: Asset.Colors.iconSecondary.color,
         ]
@@ -90,7 +90,7 @@ public enum UI {
             .foregroundColor: Asset.Colors.iconPrimary.color,
         ]
         tabBarAppearance.inlineLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
-        tabBarAppearance.inlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
+//        tabBarAppearance.inlineLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
         tabBarAppearance.inlineLayoutAppearance.selected.titleTextAttributes = [
             .foregroundColor: Asset.Colors.iconSecondary.color,
         ]
@@ -98,7 +98,7 @@ public enum UI {
             .foregroundColor: Asset.Colors.iconPrimary.color,
         ]
         tabBarAppearance.stackedLayoutAppearance.normal.badgeBackgroundColor = iconBadgeBackground
-        tabBarAppearance.stackedLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
+//        tabBarAppearance.stackedLayoutAppearance.normal.badgeTextAttributes = iconBadgeTextAttributes
         tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [
             .foregroundColor: Asset.Colors.iconSecondary.color,
         ]
