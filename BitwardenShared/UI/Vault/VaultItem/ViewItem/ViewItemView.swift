@@ -93,6 +93,9 @@ struct ViewItemView: View {
             }
         }
         .onAppear {
+            // GitHub issue #1344: Changed from `.task` to `.onAppear` because the close button
+            // on the navigation bar was consistently shifting position
+            // on physical devices running iOS 16.
             Task {
                 await store.perform(.appeared)
             }
