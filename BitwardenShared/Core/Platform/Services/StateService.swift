@@ -190,6 +190,14 @@ protocol StateService: AnyObject {
     ///
     func getEvents(userId: String?) async throws -> [EventData]
 
+    /// Gets whether a sync has been done successfully after login. This is particular useful to trigger logic that
+    /// needs to be executed right after login in and after the first successful sync.
+    ///
+    /// - Parameter userId: The user ID associated with the sync after login.
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
+    func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool
+
     /// Gets whether the intro carousel screen has been shown.
     ///
     /// - Returns: Whether the intro carousel screen has been shown.
@@ -518,6 +526,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws
+
+    /// Sets whether a sync has been done successfully after login. This is particular useful to trigger logic that
+    /// needs to be executed right after login in and after the first successful sync.
+    ///
+    /// - Parameters:
+    ///   - hasBeenPerformed: Whether a sync has been performed after login.
+    ///   - userId: The user ID associated with the sync after login.
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool, userId: String?) async throws
 
     /// Sets whether the intro carousel screen has been shown.
     ///
@@ -911,6 +927,16 @@ extension StateService {
         try await getEnvironmentURLs(userId: nil)
     }
 
+    /// Gets whether a sync has been done successfully after login for the current user.
+    /// This is particular useful to trigger logic that needs to be executed right after login in
+    /// and after the first successful sync.
+    ///
+    /// - Returns: `true` if sync has already been done after login, `false` otherwise.
+    ///
+    func getHasPerformedSyncAfterLogin() async throws -> Bool {
+        try await getHasPerformedSyncAfterLogin(userId: nil)
+    }
+
     /// Gets the user's last active time within the app.
     /// This value is set when the app is backgrounded.
     ///
@@ -1137,6 +1163,16 @@ extension StateService {
     ///
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?) async throws {
         try await setForcePasswordResetReason(reason, userId: nil)
+    }
+
+    /// Sets whether a sync has been done successfully after login for the current user.
+    /// This is particular useful to trigger logic that needs to be executed right after login in
+    /// and after the first successful sync.
+    ///
+    /// - Parameters:
+    ///   - hasBeenPerformed: Whether a sync has been performed after login.
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool) async throws {
+        try await setHasPerformedSyncAfterLogin(hasBeenPerformed, userId: nil)
     }
 
     /// Sets the last active time within the app.
@@ -1517,6 +1553,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.events(userId: userId)
     }
 
+    func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.hasPerformedSyncAfterLogin(userId: userId)
+    }
+
     func getIntroCarouselShown() async -> Bool {
         appSettingsStore.introCarouselShown
     }
@@ -1690,6 +1731,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setDisableAutoTotpCopy(nil, userId: knownUserId)
         appSettingsStore.setEncryptedPrivateKey(key: nil, userId: knownUserId)
         appSettingsStore.setEncryptedUserKey(key: nil, userId: knownUserId)
+        appSettingsStore.setHasPerformedSyncAfterLogin(nil, userId: knownUserId)
         appSettingsStore.setLastSyncTime(nil, userId: knownUserId)
         appSettingsStore.setMasterPasswordHash(nil, userId: knownUserId)
         appSettingsStore.setPasswordGenerationOptions(nil, userId: knownUserId)
@@ -1795,6 +1837,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         }
         defer { appSettingsStore.state = state }
         state.accounts[userId]?.profile.forcePasswordResetReason = reason
+    }
+
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setHasPerformedSyncAfterLogin(hasBeenPerformed, userId: userId)
     }
 
     func setIntroCarouselShown(_ shown: Bool) async {

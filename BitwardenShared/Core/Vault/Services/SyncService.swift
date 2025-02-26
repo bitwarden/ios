@@ -72,6 +72,12 @@ protocol SyncService: AnyObject {
 /// be taken outside of the service layer.
 ///
 protocol SyncServiceDelegate: AnyObject {
+    /// Called when `fetchSync(forceSync:)` is completed successfully.
+    ///
+    /// - Parameter userId: The user ID of the account that was synced.
+    ///
+    func onFetchSyncSucceeded(userId: String) async
+
     /// The user needs to remove their master password so they can be migrated to use Key Connector.
     ///
     /// - Parameter organizationName: The organization's name that requires Key Connector.
@@ -288,6 +294,8 @@ extension DefaultSyncService {
            let organization = try await keyConnectorService.getManagingOrganization() {
             await delegate?.removeMasterPassword(organizationName: organization.name)
         }
+
+        await delegate?.onFetchSyncSucceeded(userId: userId)
     }
 
     func deleteCipher(data: SyncCipherNotification) async throws {
