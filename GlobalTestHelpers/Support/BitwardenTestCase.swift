@@ -2,8 +2,6 @@ import BitwardenShared
 import TestHelpers
 import XCTest
 
-/// The common superclass for all tests specific to the Password Manager (that is, `Bitwarden`)
-/// target. This could include app-specific UI effects, or other global settings such as that.
 open class BitwardenTestCase: BaseBitwardenTestCase {
     @MainActor
     override open class func setUp() {
@@ -31,8 +29,8 @@ open class BitwardenTestCase: BaseBitwardenTestCase {
     /// changes to the view that require the view to exist within a window or are dependent on safe
     /// area layouts.
     ///
-    /// This is currently in `BitwardenPasswordManagerTestCase` because it relies on
-    /// `UIView.addConstrained(:)`, which is still in `BitwardenShared`.
+    /// This is currently in the `BitwardenShared` copy of `BitwardenTestCase`
+    /// because it relies on `UIView.addConstrained(:)`, which is still in `BitwardenShared`.
     ///
     /// - Parameters:
     ///     - view: The `UIView` to add to a root view controller.
