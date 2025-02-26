@@ -1,7 +1,6 @@
 import BitwardenSdk
 import PhotosUI
 import SwiftUI
-import TestHelpers
 import XCTest
 
 @testable import BitwardenShared

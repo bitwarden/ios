@@ -1,7 +1,6 @@
 import BitwardenSdk
 import Combine
 import Foundation
-import TestHelpers
 
 @testable import BitwardenShared
 

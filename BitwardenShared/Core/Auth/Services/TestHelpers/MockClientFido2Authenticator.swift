@@ -1,5 +1,4 @@
 import BitwardenSdk
-import TestHelpers
 
 @testable import BitwardenShared
 

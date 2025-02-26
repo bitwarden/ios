@@ -3,7 +3,6 @@
 import AuthenticationServices
 import BitwardenSdk
 import Foundation
-import TestHelpers
 import XCTest
 
 @testable import BitwardenShared

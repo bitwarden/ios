@@ -1,6 +1,5 @@
 import AuthenticationServices
 import SwiftUI
-import TestHelpers
 import XCTest
 
 // swiftlint:disable file_length

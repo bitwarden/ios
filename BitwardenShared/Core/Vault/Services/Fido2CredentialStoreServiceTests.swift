@@ -1,5 +1,4 @@
 import BitwardenSdk
-import TestHelpers
 import XCTest
 
 // swiftlint:disable file_length
