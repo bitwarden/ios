@@ -23,6 +23,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
+    var policyService: MockPolicyService!
     var router: MockRouter<AuthEvent, AuthRoute>!
     var stateService: MockStateService!
     var subject: AppProcessor!
@@ -55,6 +56,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
+        policyService = MockPolicyService()
         stateService = MockStateService()
         syncService = MockSyncService()
         timeProvider = MockTimeProvider(.currentTime)
@@ -76,6 +78,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 migrationService: migrationService,
                 notificationService: notificationService,
+                policyService: policyService,
                 notificationCenterService: notificationCenterService,
                 stateService: stateService,
                 syncService: syncService,
@@ -101,6 +104,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
+        policyService = nil
         router = nil
         stateService = nil
         subject = nil
@@ -729,34 +733,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         }
     }
 
-    /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
-    /// master password screen.
-    @MainActor
-    func test_removeMasterPassword() {
-        coordinator.isLoadingOverlayShowing = true
-
-        subject.removeMasterPassword(organizationName: "Example Org")
-
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.auth(.removeMasterPassword(organizationName: "Example Org"))])
-    }
-
-    /// `removeMasterPassword(organizationName:)` doesn't show the remove master password screen in
-    /// the extension.
-    @MainActor
-    func test_removeMasterPassword_extension() {
-        let delegate = MockAppExtensionDelegate()
-        let subject = AppProcessor(
-            appExtensionDelegate: delegate,
-            appModule: appModule,
-            services: ServiceContainer.withMocks()
-        )
-
-        subject.removeMasterPassword(organizationName: "Example Org")
-
-        XCTAssertTrue(coordinator.routes.isEmpty)
-    }
-
     /// `repromptForCredentialIfNecessary(for:)` reprompts the user for their master password if
     /// reprompt is enabled for the cipher.
     @MainActor
@@ -871,20 +847,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_routeToLanding() async {
         await subject.routeToLanding()
         XCTAssertEqual(coordinator.routes.last, .auth(.landing))
-    }
-
-    /// `securityStampChanged(userId:)` logs the user out and notifies the coordinator.
-    @MainActor
-    func test_securityStampChanged() async {
-        coordinator.isLoadingOverlayShowing = true
-
-        await subject.securityStampChanged(userId: "1")
-
-        XCTAssertTrue(authRepository.logoutCalled)
-        XCTAssertEqual(authRepository.logoutUserId, "1")
-        XCTAssertFalse(authRepository.logoutUserInitiated)
-        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
     }
 
     /// `showLoginRequest(_:)` navigates to show the login request view.
@@ -1092,5 +1054,152 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.unlockVaultWithNeverlockKey()
         }
+    }
+
+    // MARK: SyncServiceDelegate
+
+    /// `onFetchSyncSucceeded(userId:)` clear the unlock user pins when it has performed sync after login
+    /// for the first time and `.removeUnlockWithPin` policy is enabled.
+    func test_onFetchSyncSucceeded_clearPins() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.pinProtectedUserKeyValue["1"] = "pin"
+        stateService.encryptedPinByUserId["1"] = "encPin"
+        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
+        stateService.hasPerformedSyncAfterLogin["1"] = false
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertNil(stateService.accountVolatileData["1"])
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` doesn't clear the unlock user pins when it has performed sync after login
+    /// for the first time and `.removeUnlockWithPin` policy is disabled.
+    func test_onFetchSyncSucceeded_doesNotClearPinsWhenRemoveUnlockWithPinPolicyDisabled() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.pinProtectedUserKeyValue["1"] = "pin"
+        stateService.encryptedPinByUserId["1"] = "encPin"
+        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
+        stateService.hasPerformedSyncAfterLogin["1"] = false
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = false
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertTrue(stateService.hasPerformedSyncAfterLogin["1"] == true)
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` doesn't clear the unlock user pins when it's not the first time it has
+    /// performed sync after login.
+    func test_onFetchSyncSucceeded_doesNotClearPinsWhenNotFirstTimeSyncAfterLogin() async throws {
+        await stateService.addAccount(.fixture())
+        stateService.pinProtectedUserKeyValue["1"] = "pin"
+        stateService.encryptedPinByUserId["1"] = "encPin"
+        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
+        stateService.hasPerformedSyncAfterLogin["1"] = true
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
+        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertNotNil(stateService.accountVolatileData["1"])
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` doesn't do anything when `getHasPerformedSyncAfterLogin(userId:)` throws.
+    func test_onFetchSyncSucceeded_getHasPerformedSyncAfterLoginThrows() async throws {
+        stateService.pinProtectedUserKeyValue["1"] = "pin"
+        stateService.encryptedPinByUserId["1"] = "encPin"
+        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
+        stateService.getHasPerformedSyncAfterLoginError = BitwardenTestError.example
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
+        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` doesn't do anything when
+    /// `setHasPerformedSyncAfterLogin(hasBeenPerformed:, userId:)` throws.
+    func test_onFetchSyncSucceeded_setHasPerformedSyncAfterLoginThrows() async throws {
+        stateService.pinProtectedUserKeyValue["1"] = "pin"
+        stateService.encryptedPinByUserId["1"] = "encPin"
+        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
+        stateService.setHasPerformedSyncAfterLoginError = BitwardenTestError.example
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertTrue(policyService.policyAppliesToUserPolicies.isEmpty)
+        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `onFetchSyncSucceeded(userId:)` doesn't clear pins when
+    /// `clearPins(userId:)` throws.
+    func test_onFetchSyncSucceeded_clearPinsThrows() async throws {
+        stateService.pinProtectedUserKeyValue["1"] = "pin"
+        stateService.encryptedPinByUserId["1"] = "encPin"
+        stateService.accountVolatileData["1"] = AccountVolatileData(pinProtectedUserKey: "pin")
+        stateService.hasPerformedSyncAfterLogin["1"] = false
+        policyService.policyAppliesToUserResult[.removeUnlockWithPin] = true
+        stateService.activeAccount = nil
+
+        await subject.onFetchSyncSucceeded(userId: "1")
+
+        XCTAssertNotNil(stateService.pinProtectedUserKeyValue["1"])
+        XCTAssertNotNil(stateService.encryptedPinByUserId["1"])
+        XCTAssertNotNil(stateService.accountVolatileData["1"])
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `removeMasterPassword(organizationName:)` notifies the coordinator to show the remove
+    /// master password screen.
+    @MainActor
+    func test_removeMasterPassword() {
+        coordinator.isLoadingOverlayShowing = true
+
+        subject.removeMasterPassword(organizationName: "Example Org")
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.routes, [.auth(.removeMasterPassword(organizationName: "Example Org"))])
+    }
+
+    /// `removeMasterPassword(organizationName:)` doesn't show the remove master password screen in
+    /// the extension.
+    @MainActor
+    func test_removeMasterPassword_extension() {
+        let delegate = MockAppExtensionDelegate()
+        let subject = AppProcessor(
+            appExtensionDelegate: delegate,
+            appModule: appModule,
+            services: ServiceContainer.withMocks()
+        )
+
+        subject.removeMasterPassword(organizationName: "Example Org")
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `securityStampChanged(userId:)` logs the user out and notifies the coordinator.
+    @MainActor
+    func test_securityStampChanged() async {
+        coordinator.isLoadingOverlayShowing = true
+
+        await subject.securityStampChanged(userId: "1")
+
+        XCTAssertTrue(authRepository.logoutCalled)
+        XCTAssertEqual(authRepository.logoutUserId, "1")
+        XCTAssertFalse(authRepository.logoutUserInitiated)
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.events, [.didLogout(userId: "1", userInitiated: false)])
     }
 }
