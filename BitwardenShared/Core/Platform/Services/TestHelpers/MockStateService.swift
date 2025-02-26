@@ -39,6 +39,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
+    var getHasPerformedSyncAfterLoginError: Error?
+    var hasPerformedSyncAfterLogin = [String: Bool]()
     var introCarouselShown = false
     var isAuthenticated = [String: Bool]()
     var isAuthenticatedError: Error?
@@ -65,6 +67,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var preAuthServerConfig: ServerConfig?
     var rememberedOrgIdentifier: String?
     var reviewPromptData: ReviewPromptData?
+    var setHasPerformedSyncAfterLoginError: Error?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
     var timeoutAction = [String: SessionTimeoutAction]()
@@ -246,6 +249,14 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
         return events[userId] ?? []
+    }
+
+    func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool {
+        if let getHasPerformedSyncAfterLoginError {
+            throw getHasPerformedSyncAfterLoginError
+        }
+        let userId = try unwrapUserId(userId)
+        return hasPerformedSyncAfterLogin[userId] ?? false
     }
 
     func getIntroCarouselShown() async -> Bool {
@@ -503,6 +514,14 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         forcePasswordResetReason[userId] = reason
+    }
+
+    func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool, userId: String?) async throws {
+        if let setHasPerformedSyncAfterLoginError {
+            throw setHasPerformedSyncAfterLoginError
+        }
+        let userId = try unwrapUserId(userId)
+        hasPerformedSyncAfterLogin[userId] = hasBeenPerformed
     }
 
     func setIntroCarouselShown(_ shown: Bool) async {
