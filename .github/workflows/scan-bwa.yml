@@ -2,13 +2,13 @@ name: Scan
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - "main"
-      - "rc"
-      - "hotfix-rc"
-  pull_request_target:
-    types: [opened, synchronize]
+  # push:
+  #   branches:
+  #     - "main"
+  #     - "rc"
+  #     - "hotfix-rc"
+  # pull_request_target:
+  #   types: [opened, synchronize]
 
 jobs:
   check-run:

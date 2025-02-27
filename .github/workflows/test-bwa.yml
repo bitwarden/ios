@@ -1,13 +1,13 @@
 name: Test
 
 on:
-  push:
-    branches:
-      - "main"
-      - "rc"
-      - "hotfix-rc"
-  pull_request:
-    types: [opened, synchronize]
+  # push:
+  #   branches:
+  #     - "main"
+  #     - "rc"
+  #     - "hotfix-rc"
+  # pull_request:
+  #   types: [opened, synchronize]
   workflow_dispatch:
     inputs:
       xcode-version:
