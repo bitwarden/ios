@@ -39,6 +39,7 @@
 "InvalidPIN" = "Ongeldige PIN-code. Probeer het opnieuw.";
 "Launch" = "Starten";
 "LogIn" = "Inloggen";
+"LoginCredentials" = "Inloggegevens";
 "LogInNoun" = "Login";
 "LogOut" = "Uitloggen";
 "LogoutConfirmation" = "Weet je zeker dat je wilt uitloggen?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Gebruik Bitwarden in Safari en andere apps om je logins automatisch in te vullen.";
 "BitwardenAutofillService" = "Bitwarden Automatisch invullen dienst";
 "BitwardenAutofillAccessibilityServiceDescription" = "Gebruik de Bitwarden Toegankelijkheidsdienst om je logins automatisch in te vullen.";
-"ChangeEmail" = "E-mailadres wijzigen";
+"ChangeEmailAddress" = "E-mailadres aanpassen";
 "ChangeEmailConfirmation" = "Je kunt je e-mailadres wijzigen in de kluis op bitwarden.com. Wil je de website nu bezoeken?";
 "ChangeMasterPassword" = "Hoofdwachtwoord wijzigen";
 "Close" = "Sluiten";
@@ -175,7 +176,6 @@
 "Select" = "Selecteren";
 "SetPIN" = "PIN-code instellen";
 "SetPINDirection" = "Voer een PIN-code van 4 tekens in om de app mee te ontgrendelen.";
-"ItemInformation" = "Item";
 "ItemUpdated" = "Item bijgewerkt";
 "Submitting" = "Opslaan...";
 "Syncing" = "Synchroniseren...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Kluis is vergrendeld";
 "GoToMyVault" = "Ga naar mijn kluis";
 "Collections" = "Verzamelingen";
-"NoItemsCollection" = "Er zijn geen items in deze verzameling.";
-"NoItemsFolder" = "Er zijn geen items in deze map.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "Er zijn geen items in de prullenbak.";
 "AutofillAccessibilityService" = "Automatisch invullen toegankelijkheidsservice";
 "AutofillServiceDescription" = "De Bitwarden automatisch invullen dienst maakt gebruik van het Android Autofill Framework om te helpen bij het invullen van inloggegevens in andere apps op je apparaat.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Omlaag";
 "MoveUp" = "Omhoog";
 "Miscellaneous" = "Diversen";
-"Ownership" = "Eigendom";
-"WhoOwnsThisItem" = "Wie is eigenaar van dit object?";
 "NoCollectionsToList" = "Er zijn geen verzamelingen om weer te geven.";
 "MovedItemToOrg" = "%1$@ is verplaatst naar %2$@.";
 "ItemShared" = "Item is gedeeld.";
@@ -781,6 +779,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "Er zijn geen items in je kluis die overeenkomen met \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Naar een item zoeken of een nieuw item toevoegen";
 "ThereAreNoItemsThatMatchTheSearch" = "Er zijn geen items die overeenkomen met de zoekopdracht";
+"ThereAreNoLoginsInYourVault" = "Er zijn geen inloggegevens in je kluis.";
+"ThereAreNoCardsInYourVault" = "Er zijn geen kaarten in je kluis.";
+"ThereAreNoNotesInYourVault" = "Er zijn geen notities in je kluis.";
+"ThereAreNoIdentitiesInYourVault" = "Er zijn geen identiteiten in je kluis.";
+"ThereAreNoSSHKeysInYourVault" = "Er zijn geen SSH-sleutels in je kluis";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Zelfgehost";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "Dit wachtwoord wordt gebruikt om dit bestand te exporteren en te importeren";
 "CreatingOn" = "Aanmaken op";
 "CheckYourEmail" = "Check je e-mail";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Volg de instructies in de e-mail verzonden naar %1$@ om door te gaan met het aanmaken van je account.";
+"WeSentAnEmailTo" = "We hebben een e-mail gestuurd naar %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Gebruik de link in het e-mailbericht om je e-mailadres te verifiëren en door te gaan met het aanmaken van je account.";
 "NoEmailGoBackToEditYourEmailAddress" = "Geen e-mail? **[Ga terug](https://)** om je e-mailadres te bewerken.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Of **[inloggen](https://)**, je hebt mogelijk al een account.";
 "OpenEmailApp" = "E-mail-app openen";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "Gevoelige informatie veilig versturen";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Deel bestanden en gegevens veilig met iedereen, op elk platform. Je informatie blijft end-to-end versleuteld terwijl en blootstelling beperkt.";
 "NewLogin" = "Nieuwe login";
+"NewCard" = "Nieuwe kaart";
+"NewIdentity" = "Nieuwe identiteit";
+"NewNote" = "Nieuwe notitie";
+"NewSSHKey" = "Nieuwe SSH-sleutel";
+"EditLogin" = "Login bewerken";
+"EditCard" = "Kaart bewerken";
+"EditIdentity" = "Identiteit bewerken";
+"EditNote" = "Notitie bewerken";
+"EditSSHKey" = "SSH-sleutel bewerken";
+"ViewLogin" = "Login bekijken";
+"ViewCard" = "Kaart bekijken";
+"ViewIdentity" = "Identiteit bekijken";
+"ViewNote" = "Notitie bekijken";
+"ViewSSHKey" = "SSH-sleutel bekijken";
 "ImportSavedLogins" = "Opgeslagen logins importeren";
 "ImportSavedLoginsDescriptionLong" = "Gebruik een computer om logins te importeren uit een bestaande wachtwoordmanager.";
 "ImportLogins" = "Inloggegevens importeren";
@@ -1123,3 +1141,9 @@
 "CannotDeleteAccountDescriptionLong" = "Je kunt deze actie niet afronden omdat je account eigendom is van een organisatie. Neem contact op met de beheerder van je organisatie voor details.";
 "NewFolder" = "Nieuwe map";
 "SetUpAuthenticatorKey" = "Authenticatiesleutel instellen";
+"ItemDetails" = "Itemdetails";
+"CardDetails" = "Kaartgegevens";
+"PersonalDetails" = "Persoonlijke gegevens";
+"ContactInfo" = "Contactgegevens";
+"Identification" = "Identificatie";
+"Owner" = "Eigenaar";

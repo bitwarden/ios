@@ -39,6 +39,7 @@
 "InvalidPIN" = "Ogiltig PIN-kod. Försök igen.";
 "Launch" = "Öppna";
 "LogIn" = "Log in";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Inloggning";
 "LogOut" = "Logga ut";
 "LogoutConfirmation" = "Är du säker på att du vill logga ut?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwarden Autofill Service";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmail" = "Ändra e-postadress";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "Du kan ändra din e-postadress på bitwardens webbvalv. Vill du besöka webbplatsen nu?";
 "ChangeMasterPassword" = "Ändra huvudlösenord";
 "Close" = "Stäng";
@@ -175,7 +176,6 @@
 "Select" = "Välj";
 "SetPIN" = "Ställ in PIN-kod";
 "SetPINDirection" = "Ange en fyrsiffrig PIN-kod för att låsa upp appen.";
-"ItemInformation" = "Objektinformation";
 "ItemUpdated" = "Objektet uppdaterades";
 "Submitting" = "Skickar...";
 "Syncing" = "Synkroniserar...";
@@ -333,8 +333,8 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "VaultIsLocked" = "Valvet är låst";
 "GoToMyVault" = "Gå till mitt valv";
 "Collections" = "Samlingar";
-"NoItemsCollection" = "Det finns inga objekt i samlingen.";
-"NoItemsFolder" = "Det finns inga objekt i den här mappen.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "Det finns inga objekt i papperskorgen.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
@@ -410,8 +410,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "MoveDown" = "Flytta ner";
 "MoveUp" = "Flytta upp";
 "Miscellaneous" = "Diverse";
-"Ownership" = "Ägarskap";
-"WhoOwnsThisItem" = "Vem äger detta objekt?";
 "NoCollectionsToList" = "Det finns inga samlingar att visa.";
 "MovedItemToOrg" = "%1$@ flyttades till %2$@.";
 "ItemShared" = "Objektet har delats.";
@@ -782,6 +780,11 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ThereAreNoItemsInYourVaultThatMatchX" = "Det finns inga objekt i ditt valv som matchar \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Sök efter ett objekt eller lägg till ett nytt objekt";
 "ThereAreNoItemsThatMatchTheSearch" = "Det finns inga objekt som matchar sökningen";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "USA";
 "EU" = "EU";
 "SelfHosted" = "Lokalt installerad";
@@ -922,7 +925,8 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "FilePasswordDescription" = "Detta lösenord kommer att användas för att exportera och importera denna fil";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Kontrollera din e-post";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Följ instruktionerna i e-postmeddelandet som skickats till %1$@ för att fortsätta skapa ditt konto.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "Ingen e-post? **[Gå tillbaka](https://)** för att redigera din e-postadress.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Eller **[logga in](https://)**, du kanske redan har ett konto.";
 "OpenEmailApp" = "Öppna e-postappen";
@@ -1016,6 +1020,20 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
 "NewLogin" = "Ny inloggning";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Importera sparade inloggningar";
 "ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";
 "ImportLogins" = "Importera inloggningar";
@@ -1124,3 +1142,9 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";
