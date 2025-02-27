@@ -46,6 +46,7 @@ excluded:
   - BitwardenWatchShared
   - build
   - vendor/bundle
+  - '**/Generated'
 
 attributes:
   always_on_same_line:
