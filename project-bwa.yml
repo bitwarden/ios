@@ -25,7 +25,7 @@ packages:
     branch: main
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 10.19.0
+    exactVersion: 11.8.1
   Networking:
     path: Networking
   SnapshotTesting:
