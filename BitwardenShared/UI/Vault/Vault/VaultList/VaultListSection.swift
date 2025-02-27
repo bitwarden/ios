@@ -24,6 +24,8 @@ extension [VaultListSection] {
                     count > 0 // swiftlint:disable:this empty_count
                 } else if case let .cipher(cipherView, _) = item.itemType, cipherView.type == .login {
                     true
+                } else if case .totp = item.itemType {
+                    true
                 } else {
                     false
                 }

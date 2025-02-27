@@ -54,8 +54,13 @@ class VaultListSectionTests: BitwardenTestCase {
         XCTAssertTrue(subjectWithCipher.hasLoginItems)
 
         let subjectWithTOTP = [
-            VaultListSection(id: "2", items: [.fixtureGroup(group: .totp, count: 2)], name: "TOTP"),
+            VaultListSection(id: "1", items: [.fixtureTOTP(totp: .fixture())], name: "TOTP"),
         ]
         XCTAssertTrue(subjectWithTOTP.hasLoginItems)
+
+        let subjectWithTOTPGroup = [
+            VaultListSection(id: "2", items: [.fixtureGroup(group: .totp, count: 2)], name: "TOTP"),
+        ]
+        XCTAssertTrue(subjectWithTOTPGroup.hasLoginItems)
     }
 }
