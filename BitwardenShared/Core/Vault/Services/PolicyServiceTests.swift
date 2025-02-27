@@ -528,8 +528,7 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertFalse(policyApplies)
     }
 
-    /// `policyAppliesToUser(_:)` returns whether the policy applies to the user when the
-    /// organization disabled.
+    /// `policyAppliesToUser(_:)` returns enabled policy applies to the user even if the organization is disabled.
     func test_policyAppliesToUser_organizationNotEnabled() async {
         stateService.activeAccount = .fixture()
         organizationService.fetchAllOrganizationsResult = .success([.fixture(enabled: false)])
