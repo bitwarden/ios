@@ -38,6 +38,9 @@ packages:
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.0
+projectReferences:
+  BitwardenKit:
+    path: BitwardenKit.xcodeproj
 schemes:
   Authenticator:
     build:
@@ -53,10 +56,14 @@ schemes:
       coverageTargets:
         - Authenticator
         - AuthenticatorShared
+        - BitwardenKit/AuthenticatorBridgeKit
+        - BitwardenKit/BitwardenKit
+        - BitwardenKit/Networking
       targets:
         - AuthenticatorTests
         - AuthenticatorSharedTests
-        - package: Networking/NetworkingTests
+        - BitwardenKit/AuthenticatorBridgeKitTests
+        - BitwardenKit/NetworkingTests
   AuthenticatorShared:
     build:
       targets:
@@ -70,7 +77,6 @@ schemes:
       gatherCoverageData: true
       targets:
         - AuthenticatorSharedTests
-
 targets:
   Authenticator:
     type: application
@@ -100,6 +106,9 @@ targets:
         buildPhase: none
     dependencies:
       - target: AuthenticatorShared
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/BitwardenKit
+      - target: BitwardenKit/Networking
       - package: Firebase
         product: FirebaseCrashlytics
     preBuildScripts:
@@ -142,8 +151,8 @@ targets:
       - path: GlobalTestHelpers-bwa
     dependencies:
       - target: Authenticator
-      - package: BitwardenShared
-        product: AuthenticatorBridgeKit
+      - target: BitwardenKit/AuthenticatorBridgeKit
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
     randomExecutionOrder: true
@@ -176,10 +185,9 @@ targets:
       - path: AuthenticatorShared/Core/Vault/Services/Importers/Support/Generated/GoogleAuth.pb.swift
         optional: true
     dependencies:
-      - package: BitwardenShared
-        product: AuthenticatorBridgeKit
+      - target: BitwardenKit/AuthenticatorBridgeKit
       - package: BitwardenSdk
-      - package: Networking
+      - target: BitwardenKit/Networking
       - package: SwiftProtobuf
     preBuildScripts:
       - name: SwiftGen
