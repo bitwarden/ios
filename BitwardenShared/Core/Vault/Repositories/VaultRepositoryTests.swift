@@ -237,7 +237,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
         cipherService.ciphersSubject.value = ciphers
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                 .availableCredentialsForAuthenticationPublisher(),
@@ -294,7 +293,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
         cipherService.ciphersSubject.value = ciphers
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         var iterator = try await subject.ciphersAutofillPublisher(
             availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
                 .availableCredentialsForAuthenticationPublisher(),
@@ -1736,7 +1734,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "4", name: "Caféeee", type: .card),
             .fixture(id: "5", name: "Cafée12312ee", type: .sshKey),
         ]
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
@@ -1768,7 +1765,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "4", name: "Caféeee", type: .card),
             .fixture(id: "5", name: "Cafée12312ee", type: .sshKey),
         ]
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: MockFido2UserInterfaceHelper()
@@ -2110,7 +2106,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// returns search matching cipher name for SSH key items.
     @MainActor
     func test_searchVaultListPublisher_searchText_sshKey() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         stateService.activeAccount = .fixture()
         cipherService.ciphersSubject.value = [
             .fixture(id: "1", name: "café", type: .card),
@@ -2153,48 +2148,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .makeAsyncIterator()
         let ciphers = try await iterator.next()
         XCTAssertEqual(ciphers, expectedSearchResult)
-    }
-
-    /// `searchVaultListPublisher(searchText:, group: .sshKey, filterType:)`
-    /// returns 0 search matching cipher name for SSH key items when `.sshKeyVaultItem` flag is disabled.
-    @MainActor
-    func test_searchVaultListPublisher_searchText_sshKeyWithFlagDisabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = false
-        stateService.activeAccount = .fixture()
-        cipherService.ciphersSubject.value = [
-            .fixture(id: "1", name: "café", type: .card),
-            .fixture(id: "2", name: "cafepass", type: .login),
-            .fixture(deletedDate: .now, id: "3", name: "deleted Café"),
-            .fixture(
-                folderId: "coffee",
-                id: "0",
-                name: "Best Cafes",
-                type: .secureNote
-            ),
-            .fixture(
-                collectionIds: ["123", "meep"],
-                id: "4",
-                name: "Café Friend",
-                type: .identity
-            ),
-            .fixture(id: "5", name: "Café thoughts", type: .secureNote),
-            .fixture(
-                id: "6",
-                login: .fixture(totp: .standardTotpKey),
-                name: "one time cafefe",
-                type: .login
-            ),
-            .fixture(id: "7", name: "cafe", type: .sshKey),
-        ]
-        var iterator = try await subject
-            .searchVaultListPublisher(
-                searchText: "cafe",
-                group: .sshKey,
-                filter: VaultListFilter(filterType: .allVaults)
-            )
-            .makeAsyncIterator()
-        let ciphers = try await iterator.next()
-        XCTAssertEqual(ciphers, [])
     }
 
     /// `searchVaultListPublisher(searchText:, group: .totp, filterType:)`
@@ -2985,6 +2938,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3055,6 +3009,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3117,6 +3072,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3255,6 +3211,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3313,6 +3270,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3364,6 +3322,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
                     .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
                     .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
                 ],
                 name: Localizations.types
             ),
@@ -3385,48 +3344,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
     /// displayed in the vault for a vault that contains collections and folders, with no filter.
     func test_vaultListPublisher_withCollections_all() async throws {
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        var iterator = try await subject.vaultListPublisher(
-            filter: VaultListFilter(filterType: .allVaults)
-        ).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Favorites
-              - Cipher: Apple
-            Section: Types
-              - Group: Login (6)
-              - Group: Card (1)
-              - Group: Identity (1)
-              - Group: Secure note (1)
-            Section: Folders
-              - Group: Development (0)
-              - Group: Internal (1)
-              - Group: Social (2)
-              - Group: No Folder (5)
-            Section: Collections
-              - Group: Design (2)
-              - Group: Engineering (3)
-            Section: Trash
-              - Group: Trash (1)
-            """
-        }
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections and folders, with no filter.
-    @MainActor
-    func test_vaultListPublisher_withCollections_allWithSSHKeyFlagEnabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
         stateService.activeAccount = .fixture()
         let syncResponse = try JSONDecoder.defaultDecoder.decode(
             SyncResponseModel.self,
@@ -3489,44 +3406,6 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Card (1)
               - Group: Identity (1)
               - Group: Secure note (1)
-            Section: Folders
-              - Group: Social (1)
-            Section: No Folder
-              - Cipher: Bitwarden User
-              - Cipher: Top Secret Note
-              - Cipher: Visa
-            Section: Trash
-              - Group: Trash (1)
-            """
-        }
-    }
-
-    /// `vaultListPublisher()` returns a publisher for the list of sections and items that are
-    /// displayed in the vault for a vault that contains collections with the my vault filter with SSH Key flag enabled.
-    @MainActor
-    func test_vaultListPublisher_withCollections_myVaultWithSSHKeyFlagEnabled() async throws {
-        configService.featureFlagsBool[.sshKeyVaultItem] = true
-        stateService.activeAccount = .fixture()
-        let syncResponse = try JSONDecoder.defaultDecoder.decode(
-            SyncResponseModel.self,
-            from: APITestData.syncWithCiphersCollections.data
-        )
-        cipherService.ciphersSubject.send(syncResponse.ciphers.compactMap(Cipher.init))
-        collectionService.collectionsSubject.send(syncResponse.collections.compactMap(Collection.init))
-        folderService.foldersSubject.send(syncResponse.folders.compactMap(Folder.init))
-
-        var iterator = try await subject.vaultListPublisher(
-            filter: VaultListFilter(filterType: .myVault)
-        ).makeAsyncIterator()
-        let sections = try await iterator.next()
-
-        try assertInlineSnapshot(of: dumpVaultListSections(XCTUnwrap(sections)), as: .lines) {
-            """
-            Section: Types
-              - Group: Login (1)
-              - Group: Card (1)
-              - Group: Identity (1)
-              - Group: Secure note (1)
               - Group: SSH key (1)
             Section: Folders
               - Group: Social (1)
@@ -3568,6 +3447,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
               - Group: Card (0)
               - Group: Identity (0)
               - Group: Secure note (0)
+              - Group: SSH key (0)
             Section: Folders
               - Group: Development/Artifacts (1)
               - Group: Internal (1)
