@@ -125,7 +125,7 @@ jobs:
       - name: Build and test
         run: |
           xcrun xcodebuild test \
-            -project Authenticator.xcodeproj \
+            -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
             -configuration Debug \
             -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
