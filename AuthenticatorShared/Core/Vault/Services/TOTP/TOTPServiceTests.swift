@@ -7,7 +7,7 @@ import XCTest
 final class TOTPServiceTests: AuthenticatorTestCase {
     // MARK: Properties
 
-    var clientVaultService: MockClientVaultService!
+    var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
     var timeProvider: MockTimeProvider!
     var subject: DefaultTOTPService!
@@ -17,12 +17,12 @@ final class TOTPServiceTests: AuthenticatorTestCase {
     override func setUp() {
         super.setUp()
 
-        clientVaultService = MockClientVaultService()
+        clientService = MockClientService()
         errorReporter = MockErrorReporter()
         timeProvider = MockTimeProvider(.currentTime)
 
         subject = DefaultTOTPService(
-            clientVault: clientVaultService,
+            clientService: clientService,
             errorReporter: errorReporter,
             timeProvider: timeProvider
         )
@@ -31,7 +31,7 @@ final class TOTPServiceTests: AuthenticatorTestCase {
     override func tearDown() {
         super.tearDown()
 
-        clientVaultService = nil
+        clientService = nil
         errorReporter = nil
         timeProvider = nil
         subject = nil

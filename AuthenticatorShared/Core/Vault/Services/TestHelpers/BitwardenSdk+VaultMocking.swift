@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import BitwardenSdk
+import Foundation
 
 extension Attachment {
     init(attachmentView: AttachmentView) {
@@ -61,11 +62,13 @@ extension CipherListView {
             organizationId: cipher.organizationId,
             folderId: cipher.folderId,
             collectionIds: cipher.collectionIds,
+            key: cipher.key,
             name: cipher.name,
-            subTitle: "",
-            type: cipher.type,
+            subtitle: "",
+            type: CipherListViewType(cipher: cipher),
             favorite: cipher.favorite,
             reprompt: cipher.reprompt,
+            organizationUseTotp: cipher.organizationUseTotp,
             edit: cipher.edit,
             viewPassword: cipher.viewPassword,
             attachments: UInt32(cipher.attachments?.count ?? 0),
@@ -73,6 +76,31 @@ extension CipherListView {
             deletedDate: cipher.deletedDate,
             revisionDate: cipher.revisionDate
         )
+    }
+}
+
+extension CipherListViewType {
+    init(cipher: Cipher) {
+        switch cipher.type {
+        case .card:
+            self = .card
+        case .identity:
+            self = .identity
+        case .login:
+            self = .login(
+                LoginListView(
+                    hasFido2: !(
+                        cipher.login?.fido2Credentials?.isEmpty ?? true
+                    ),
+                    totp: cipher.login?.totp,
+                    uris: cipher.login?.uris?.map { LoginUriView(loginUri: $0) }
+                )
+            )
+        case .secureNote:
+            self = .secureNote
+        case .sshKey:
+            self = .sshKey
+        }
     }
 }
 
@@ -91,6 +119,7 @@ extension Cipher {
             identity: cipherView.identity.map(Identity.init),
             card: cipherView.card.map(Card.init),
             secureNote: cipherView.secureNote.map(SecureNote.init),
+            sshKey: cipherView.sshKey.map(SshKey.init),
             favorite: cipherView.favorite,
             reprompt: cipherView.reprompt,
             organizationUseTotp: cipherView.organizationUseTotp,
@@ -122,6 +151,7 @@ extension CipherView {
             identity: cipher.identity.map(IdentityView.init),
             card: cipher.card.map(CardView.init),
             secureNote: cipher.secureNote.map(SecureNoteView.init),
+            sshKey: cipher.sshKey.map(SshKeyView.init),
             favorite: cipher.favorite,
             reprompt: cipher.reprompt,
             organizationUseTotp: cipher.organizationUseTotp,
@@ -146,7 +176,48 @@ extension CollectionView {
             name: collection.name,
             externalId: collection.externalId,
             hidePasswords: collection.hidePasswords,
-            readOnly: collection.readOnly
+            readOnly: collection.readOnly,
+            manage: collection.manage
+        )
+    }
+}
+
+extension Fido2Credential {
+    init(fido2CredentialView: Fido2CredentialView) {
+        self.init(
+            credentialId: fido2CredentialView.credentialId,
+            keyType: fido2CredentialView.keyType,
+            keyAlgorithm: fido2CredentialView.keyAlgorithm,
+            keyCurve: fido2CredentialView.keyCurve,
+            keyValue: fido2CredentialView.keyValue,
+            rpId: fido2CredentialView.rpId,
+            userHandle: fido2CredentialView.userHandle,
+            userName: fido2CredentialView.userName,
+            counter: fido2CredentialView.counter,
+            rpName: fido2CredentialView.rpName,
+            userDisplayName: fido2CredentialView.userDisplayName,
+            discoverable: fido2CredentialView.discoverable,
+            creationDate: fido2CredentialView.creationDate
+        )
+    }
+}
+
+extension Fido2CredentialView {
+    init(fido2Credential: Fido2Credential) {
+        self.init(
+            credentialId: fido2Credential.credentialId,
+            keyType: fido2Credential.keyType,
+            keyAlgorithm: fido2Credential.keyAlgorithm,
+            keyCurve: fido2Credential.keyCurve,
+            keyValue: fido2Credential.keyValue,
+            rpId: fido2Credential.rpId,
+            userHandle: fido2Credential.userHandle,
+            userName: fido2Credential.userName,
+            counter: fido2Credential.counter,
+            rpName: fido2Credential.rpName,
+            userDisplayName: fido2Credential.userDisplayName,
+            discoverable: fido2Credential.discoverable,
+            creationDate: fido2Credential.creationDate
         )
     }
 }
@@ -293,7 +364,8 @@ extension LoginUri {
     init(loginUriView: LoginUriView) {
         self.init(
             uri: loginUriView.uri,
-            match: loginUriView.match
+            match: loginUriView.match,
+            uriChecksum: loginUriView.uriChecksum
         )
     }
 }
@@ -302,7 +374,8 @@ extension LoginUriView {
     init(loginUri: LoginUri) {
         self.init(
             uri: loginUri.uri,
-            match: loginUri.match
+            match: loginUri.match,
+            uriChecksum: loginUri.uriChecksum
         )
     }
 }
@@ -420,6 +493,26 @@ extension Send {
             revisionDate: sendView.revisionDate,
             deletionDate: sendView.deletionDate,
             expirationDate: sendView.expirationDate
+        )
+    }
+}
+
+extension SshKey {
+    init(sshKeyView: SshKeyView) {
+        self.init(
+            privateKey: sshKeyView.privateKey,
+            publicKey: sshKeyView.publicKey,
+            fingerprint: sshKeyView.fingerprint
+        )
+    }
+}
+
+extension SshKeyView {
+    init(sshKey: SshKey) {
+        self.init(
+            privateKey: sshKey.privateKey,
+            publicKey: sshKey.publicKey,
+            fingerprint: sshKey.fingerprint
         )
     }
 } // swiftlint:disable:this file_length

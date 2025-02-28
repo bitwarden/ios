@@ -22,8 +22,8 @@ protocol TOTPService {
 class DefaultTOTPService {
     // MARK: Properties
 
-    /// The service to communicate with the SDK for encryption/decryption tasks.
-    private let clientVault: ClientVaultService
+    /// The service used by the application to handle encryption and decryption tasks.
+    private let clientService: ClientService
 
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
@@ -36,16 +36,16 @@ class DefaultTOTPService {
     /// Initialize a `DefaultTOTPService`.
     ///
     /// - Parameters:
-    ///   - clientVault: The service to communicate with the SDK for encryption/decryption tasks.
+    ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - timeProvider: The service used to get the present time.
     ///
     init(
-        clientVault: ClientVaultService,
+        clientService: ClientService,
         errorReporter: ErrorReporter,
         timeProvider: TimeProvider
     ) {
-        self.clientVault = clientVault
+        self.clientService = clientService
         self.errorReporter = errorReporter
         self.timeProvider = timeProvider
     }
@@ -53,7 +53,7 @@ class DefaultTOTPService {
 
 extension DefaultTOTPService: TOTPService {
     func getTotpCode(for key: TOTPKeyModel) async throws -> TOTPCodeModel {
-        try await clientVault.generateTOTPCode(
+        try await clientService.vault().generateTOTPCode(
             for: key.rawAuthenticatorKey,
             date: timeProvider.presentTime
         )

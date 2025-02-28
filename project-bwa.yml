@@ -19,18 +19,19 @@ settings:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 93ce71195a729f30b3edd48caeb7af9a39f35403
+    revision: 94fd09f0b73367071bc033987a1962fce85f5c76
+    branch: unstable
   BitwardenShared:
     url: https://github.com/bitwarden/ios
     branch: main
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 10.19.0
+    exactVersion: 11.8.1
   Networking:
     path: Networking
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.15.2
+    exactVersion: 1.17.5
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
     exactVersion: 1.26.0

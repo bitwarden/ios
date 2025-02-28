@@ -2,9 +2,9 @@ import BitwardenSdk
 import Foundation
 
 /// A protocol for a service that handles encryption and decryption tasks for the vault. This is
-/// similar to `ClientVaultProtocol` but returns the protocols so they can be mocked for testing.
+/// similar to `VaultClientProtocol` but returns the protocols so they can be mocked for testing.
 ///
-protocol ClientVaultService: AnyObject {
+protocol VaultClientService: AnyObject {
     /// Returns an object that handles encryption and decryption for attachments.
     ///
     func attachments() -> ClientAttachmentsProtocol
@@ -28,20 +28,16 @@ protocol ClientVaultService: AnyObject {
     ///    - date: The date used to generate the code
     ///  - Returns: A TOTPCodeState model.
     ///
-    func generateTOTPCode(for key: String, date: Date?) async throws -> TOTPCodeModel
+    func generateTOTPCode(for key: String, date: Date?) throws -> TOTPCodeModel
 
     /// Returns an object that handles encryption and decryption for password history.
     ///
     func passwordHistory() -> ClientPasswordHistoryProtocol
-
-    /// Returns an object that handles encryption and decryption for sends.
-    ///
-    func sends() -> ClientSendsProtocol
 }
 
-// MARK: - ClientVault
+// MARK: - VaultClient
 
-extension ClientVault: ClientVaultService {
+extension VaultClient: VaultClientService {
     func attachments() -> ClientAttachmentsProtocol {
         attachments() as ClientAttachments
     }
@@ -58,9 +54,9 @@ extension ClientVault: ClientVaultService {
         folders() as ClientFolders
     }
 
-    func generateTOTPCode(for key: String, date: Date? = nil) async throws -> TOTPCodeModel {
+    func generateTOTPCode(for key: String, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
-        let response = try await generateTotp(key: key, time: calculationDate)
+        let response = try generateTotp(key: key, time: calculationDate)
         return TOTPCodeModel(
             code: response.code,
             codeGenerationDate: calculationDate,
@@ -70,9 +66,5 @@ extension ClientVault: ClientVaultService {
 
     func passwordHistory() -> ClientPasswordHistoryProtocol {
         passwordHistory() as ClientPasswordHistory
-    }
-
-    func sends() -> ClientSendsProtocol {
-        sends() as ClientSends
     }
 }

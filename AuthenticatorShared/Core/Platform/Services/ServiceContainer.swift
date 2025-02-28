@@ -152,7 +152,6 @@ public class ServiceContainer: Services {
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
         let biometricsService = DefaultBiometricsService()
         let cameraService = DefaultCameraService()
-        let clientService = DefaultClientService()
         let dataStore = DataStore(errorReporter: errorReporter)
         let keychainService = DefaultKeychainService()
 
@@ -181,6 +180,14 @@ public class ServiceContainer: Services {
             timeProvider: timeProvider
         )
 
+        let clientBuilder = DefaultClientBuilder(errorReporter: errorReporter)
+        let clientService = DefaultClientService(
+            clientBuilder: clientBuilder,
+            configService: configService,
+            errorReporter: errorReporter,
+            stateService: stateService
+        )
+
         let cryptographyKeyService = CryptographyKeyService(
             stateService: stateService
         )
@@ -198,7 +205,7 @@ public class ServiceContainer: Services {
         let notificationCenterService = DefaultNotificationCenterService()
 
         let totpService = DefaultTOTPService(
-            clientVault: clientService.clientVault(),
+            clientService: clientService,
             errorReporter: errorReporter,
             timeProvider: timeProvider
         )
