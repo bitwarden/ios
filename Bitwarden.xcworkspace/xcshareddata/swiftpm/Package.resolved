@@ -1,4 +1,5 @@
 {
+  "originHash" : "93ec2eb77f36826178e4c8677e95e70ec909a1b40aa8e2cb1ccaa066a778be58",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -82,15 +83,6 @@
       }
     },
     {
-      "identity" : "ios",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bitwarden/ios",
-      "state" : {
-        "branch" : "main",
-        "revision" : "c6374c5f9eefe6a21c9ee121a4bd72286e727177"
-      }
-    },
-    {
       "identity" : "leveldb",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/leveldb.git",
@@ -171,5 +163,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
