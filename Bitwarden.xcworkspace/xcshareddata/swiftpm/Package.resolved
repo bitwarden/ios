@@ -1,5 +1,4 @@
 {
-  "originHash" : "44233d436afca7aa486f09dea7dae754e5a76ce3bb0688895d5801f2d1cbe3d5",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -83,6 +82,15 @@
       }
     },
     {
+      "identity" : "ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitwarden/ios",
+      "state" : {
+        "branch" : "main",
+        "revision" : "c6374c5f9eefe6a21c9ee121a4bd72286e727177"
+      }
+    },
+    {
       "identity" : "leveldb",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/leveldb.git",
@@ -122,8 +130,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-protobuf.git",
       "state" : {
-        "revision" : "ebc7251dd5b37f627c93698e4374084d98409633",
-        "version" : "1.28.2"
+        "revision" : "9f0c76544701845ad98716f3f6a774a892152bcb",
+        "version" : "1.26.0"
       }
     },
     {
@@ -163,5 +171,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
