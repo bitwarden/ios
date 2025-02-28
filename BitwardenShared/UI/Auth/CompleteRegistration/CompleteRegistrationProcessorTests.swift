@@ -13,7 +13,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var authService: MockAuthService!
     var client: MockHTTPClient!
-    var clientAuth: MockClientAuth!
+    var authClient: MockAuthClient!
     var configService: MockConfigService!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var environmentService: MockEnvironmentService!
@@ -28,7 +28,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         authService = MockAuthService()
         client = MockHTTPClient()
-        clientAuth = MockClientAuth()
+        authClient = MockAuthClient()
         configService = MockConfigService()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         environmentService = MockEnvironmentService()
@@ -39,7 +39,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 authService: authService,
-                clientService: MockClientService(auth: clientAuth),
+                clientService: MockClientService(auth: authClient),
                 configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
@@ -57,7 +57,7 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         super.tearDown()
         authRepository = nil
         authService = nil
-        clientAuth = nil
+        authClient = nil
         client = nil
         coordinator = nil
         configService = nil

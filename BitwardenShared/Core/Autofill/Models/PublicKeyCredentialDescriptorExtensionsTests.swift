@@ -1,5 +1,3 @@
-// swiftlint:disable:this file_name
-
 import AuthenticationServices
 import BitwardenSdk
 import XCTest

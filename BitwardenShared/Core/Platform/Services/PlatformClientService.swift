@@ -2,9 +2,9 @@ import BitwardenSdk
 import Foundation
 
 /// A protocol for a service that handles platform tasks. This is similar to
-/// `ClientPlatformProtocol` but returns the protocols so they can be mocked for testing.
+/// `PlatformClientProtocol` but returns the protocols so they can be mocked for testing.
 ///
-protocol ClientPlatformService: AnyObject {
+protocol PlatformClientService: AnyObject {
     /// Returns an object to handle Fido2 operations.
     func fido2() -> ClientFido2Service
 
@@ -23,9 +23,9 @@ protocol ClientPlatformService: AnyObject {
     func userFingerprint(material fingerprintMaterial: String) throws -> String
 }
 
-// MARK: ClientPlatform
+// MARK: PlatformClient
 
-extension ClientPlatform: ClientPlatformService {
+extension PlatformClient: PlatformClientService {
     func fido2() -> ClientFido2Service {
         fido2() as ClientFido2
     }

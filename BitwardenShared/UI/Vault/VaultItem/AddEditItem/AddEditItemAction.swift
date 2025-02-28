@@ -72,6 +72,9 @@ enum AddEditItemAction: Equatable, Sendable {
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 
+    /// The additional options expanded section was toggled.
+    case toggleAdditionalOptionsExpanded(Bool)
+
     /// The toggle password visibility button was changed.
     case togglePasswordVisibilityChanged(Bool)
 

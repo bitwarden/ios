@@ -6,17 +6,36 @@ import Foundation
 struct VaultGroupState: Equatable, Sendable {
     // MARK: Types
 
-    /// The type of floating action button to display in the view.
+    /// The type of button to display in the view to add a new item. This is used for both the empty
+    /// state new item button and the floating action button.
     ///
-    enum FloatingActionButtonType: Equatable {
-        /// The standard floating action button which performs an action on tap.
+    enum NewItemButtonType: Equatable {
+        /// The standard button which performs an action on tap.
         case button
 
-        /// A floating action button which displays a menu.
+        /// A button which displays a menu.
         case menu
     }
 
     // MARK: Properties
+
+    /// The title of the add item button.
+    var addItemButtonTitle: String {
+        switch group {
+        case .card:
+            return Localizations.newCard
+        case .collection, .folder:
+            return Localizations.newItem
+        case .identity:
+            return Localizations.newIdentity
+        case .login:
+            return Localizations.newLogin
+        case .secureNote:
+            return Localizations.newNote
+        default:
+            return Localizations.newItem
+        }
+    }
 
     /// Whether the vault filter can be shown.
     var canShowVaultFilter = true
@@ -26,8 +45,9 @@ struct VaultGroupState: Equatable, Sendable {
         loadingState.data.isEmptyOrNil
     }
 
-    /// The type of floating action button to display based on which group type is shown.
-    var floatingActionButtonType: FloatingActionButtonType? {
+    /// The type of the new item button in the empty state and FAB to display based on which group
+    /// type is shown.
+    var newItemButtonType: NewItemButtonType? {
         switch group {
         case .card, .identity, .login, .secureNote:
             return .button
@@ -56,10 +76,20 @@ struct VaultGroupState: Equatable, Sendable {
     /// The string to use in the empty view.
     var noItemsString: String {
         switch group {
+        case .card:
+            return Localizations.thereAreNoCardsInYourVault
         case .collection:
             return Localizations.noItemsCollection
         case .folder:
             return Localizations.noItemsFolder
+        case .identity:
+            return Localizations.thereAreNoIdentitiesInYourVault
+        case .login:
+            return Localizations.thereAreNoLoginsInYourVault
+        case .secureNote:
+            return Localizations.thereAreNoNotesInYourVault
+        case .sshKey:
+            return Localizations.thereAreNoSSHKeysInYourVault
         case .trash:
             return Localizations.noItemsTrash
         default:
@@ -78,19 +108,6 @@ struct VaultGroupState: Equatable, Sendable {
 
     /// The search vault filter used to display a single or all vaults for the user.
     var searchVaultFilterType = VaultFilterType.allVaults
-
-    /// Whether to show the add item button in the view.
-    var showAddItemButton: Bool {
-        // Don't show if there is data.
-        guard emptyData else { return false }
-
-        switch group {
-        case .collection, .sshKey, .trash:
-            return false
-        default:
-            return true
-        }
-    }
 
     /// Whether to show the special web icons.
     var showWebIcons = true

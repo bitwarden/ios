@@ -121,7 +121,7 @@ final class VaultListProcessor: StateProcessor<
         }
     }
 
-    override func receive(_ action: VaultListAction) {
+    override func receive(_ action: VaultListAction) { // swiftlint:disable:this function_body_length
         switch action {
         case .addFolder:
             coordinator.navigate(to: .addFolder)

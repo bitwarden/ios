@@ -4,6 +4,8 @@ import OSLog
 /// The processor used to manage state and handle actions for the generator screen.
 ///
 final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, GeneratorEffect> {
+    // swiftlint:disable:previous type_body_length
+
     // MARK: Types
 
     typealias Services = HasConfigService

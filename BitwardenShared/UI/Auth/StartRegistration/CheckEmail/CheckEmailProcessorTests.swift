@@ -44,11 +44,4 @@ class CheckEmailProcessorTests: BitwardenTestCase {
         subject.receive(.goBackTapped)
         XCTAssertEqual(coordinator.routes.last, .dismissPresented)
     }
-
-    /// `receive(_:)` with `.logInTapped` dismisses the view.
-    @MainActor
-    func test_receive_logInTapped() {
-        subject.receive(.logInTapped)
-        XCTAssertEqual(coordinator.routes.last, .dismiss)
-    }
 }

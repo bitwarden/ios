@@ -60,7 +60,7 @@ struct ActionCard<LeadingContent: View>: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .styleGuide(.title2, weight: .bold, includeLinePadding: false, includeLineSpacing: false)
+                        .styleGuide(.title2, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
 
                     if let message {
                         Text(message)
@@ -132,7 +132,7 @@ struct ActionCard<LeadingContent: View>: View {
     ///
     init(
         title: String,
-        message: String?,
+        message: String? = nil,
         actionButtonState: ButtonState? = nil,
         dismissButtonState: ButtonState? = nil
     ) where LeadingContent == EmptyView {

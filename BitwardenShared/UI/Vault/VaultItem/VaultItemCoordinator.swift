@@ -176,7 +176,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///   - delegate: A `CipherItemOperationDelegate` delegate that is notified when specific circumstances
     ///     in the add/edit/delete item view have occurred.
     ///
-    private func showAddItem(
+    private func showAddItem( // swiftlint:disable:this function_parameter_count
         for group: VaultListGroup?,
         hasPremium: Bool,
         newCipherOptions: NewCipherOptions?,

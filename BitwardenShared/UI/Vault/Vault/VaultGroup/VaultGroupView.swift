@@ -81,10 +81,35 @@ struct VaultGroupView: View {
                         .styleGuide(.callout)
                         .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
-                    if store.state.showAddItemButton {
-                        Button(Localizations.addAnItem) {
-                            store.send(.addItemPressed(nil))
+                    if let newItemButtonType = store.state.newItemButtonType {
+                        let newItemLabel = Label(
+                            store.state.addItemButtonTitle,
+                            image: Asset.Images.plus16.swiftUIImage
+                        )
+                        .padding(.horizontal, 4)
+
+                        Group {
+                            switch newItemButtonType {
+                            case .button:
+                                Button {
+                                    store.send(.addItemPressed(nil))
+                                } label: {
+                                    newItemLabel
+                                }
+                                .buttonStyle(.primary(shouldFillWidth: false))
+                            case .menu:
+                                Menu {
+                                    ForEach(CipherType.canCreateCases, id: \.hashValue) { type in
+                                        Button(type.localizedName) {
+                                            store.send(.addItemPressed(type))
+                                        }
+                                    }
+                                } label: {
+                                    newItemLabel
+                                }
+                            }
                         }
+                        .accessibilityIdentifier("AddItemButton")
                         .buttonStyle(.primary(shouldFillWidth: false))
                     }
 
@@ -106,7 +131,7 @@ struct VaultGroupView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if let floatingActionButtonType = store.state.floatingActionButtonType {
+            if let floatingActionButtonType = store.state.newItemButtonType {
                 switch floatingActionButtonType {
                 case .button:
                     addItemFloatingActionButton {

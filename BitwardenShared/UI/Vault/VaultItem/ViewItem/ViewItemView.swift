@@ -200,6 +200,7 @@ struct ViewItemView_Previews: PreviewProvider {
         ]
         state.isMasterPasswordRePromptOn = false
         state.name = "Example"
+        state.notes = "secure note"
         state.loginState.fido2Credentials = [
             .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
         ]
@@ -218,6 +219,16 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         )
         state.loginState.username = "email@example.com"
+        return state
+    }
+
+    static var secureNoteState: CipherItemState {
+        var state = CipherItemState(
+            existing: cipher,
+            hasPremium: true
+        )!
+        state.notes = "secure note"
+        state.type = .secureNote
         return state
     }
 
@@ -260,6 +271,8 @@ struct ViewItemView_Previews: PreviewProvider {
         cardPreview
 
         loginPreview
+
+        secureNotePreview
 
         sshKeyPreview
     }
@@ -306,6 +319,28 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Login")
+    }
+
+    @ViewBuilder static var secureNotePreview: some View {
+        NavigationView {
+            ViewItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ViewItemState(
+                            loadingState: .data(secureNoteState)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_011
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("SecureNote")
     }
 
     @ViewBuilder static var sshKeyPreview: some View {

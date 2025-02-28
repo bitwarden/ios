@@ -13,112 +13,78 @@ struct MasterPasswordGuidanceView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 0) {
-                instructionsView
+        VStack(spacing: 24) {
+            VStack(alignment: .center, spacing: 12) {
+                Text(Localizations.aSecureMemorablePassword)
+                    .styleGuide(.title2, weight: .semibold)
 
-                detailedInstructionsView
+                Text(Localizations.aSecureMemorablePasswordDescriptionLong)
+                    .styleGuide(.body)
             }
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+            .multilineTextAlignment(.center)
+            .padding(.top, 12)
 
-            passwordGeneratorButton
+            NumberedList {
+                numberedRowView(
+                    title: Localizations.chooseThreeOrFourRandomWords,
+                    subtitle: Localizations.chooseThreeOrFourRandomWordsDescriptionLong
+                )
+
+                numberedRowView(
+                    title: Localizations.combineThoseWordsTogether,
+                    subtitle: Localizations.combineThoseWordsTogetherDescriptionLong
+                )
+
+                numberedRowView(
+                    title: Localizations.makeItYours,
+                    subtitle: Localizations.makeItYoursDescriptionLong
+                )
+            }
+
+            ActionCard(
+                title: Localizations.needSomeInspiration,
+                actionButtonState: ActionCard.ButtonState(title: Localizations.checkOutThePassphraseGenerator) {
+                    store.send(.generatePasswordPressed)
+                }
+            )
         }
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.masterPasswordHelp, titleDisplayMode: .inline)
         .toolbar {
-            cancelToolbarItem {
+            closeToolbarItem {
                 store.send(.dismiss)
             }
         }
     }
 
-    // MARK: Private views
+    // MARK: Private Views
 
-    /// The main instructions.
-    private var instructionsView: some View {
-        VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(Localizations.whatMakesAPasswordStrong)
-                    .styleGuide(.title3, weight: .semibold)
-
-                Text(Localizations.strongPasswordDescriptionLong)
-                    .styleGuide(.subheadline)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            .padding(24)
-
-            Divider()
-        }
-    }
-
-    /// The detailed instructions.
-    private var detailedInstructionsView: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(Localizations.theStrongestPasswordsAreUsually)
-                .styleGuide(.callout, weight: .semibold)
-                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                .padding(.bottom, 8)
-
-            bulletPoint(text: Localizations.twelveOrMoreCharacters)
-            bulletPoint(text: Localizations.randomAndComplexUsingNumbersAndSpecialCharacters)
-            bulletPoint(text: Localizations.totallyDifferentFromYourOtherPasswords)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 24)
-        .padding(.vertical, 16)
-    }
-
-    /// The password generator button.
-    private var passwordGeneratorButton: some View {
-        Button {
-            store.send(.generatePasswordPressed)
-        } label: {
-            HStack(spacing: 16) {
-                HStack(alignment: .top, spacing: 16) {
-                    Image(decorative: Asset.Images.generate24)
-                        .foregroundStyle(Asset.Colors.iconSecondary.swiftUIColor)
-
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(Localizations.useTheGeneratorToCreateAStrongUniquePassword)
-                            .styleGuide(.body, weight: .semibold)
-                            .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                            .multilineTextAlignment(.leading)
-
-                        Text(Localizations.tryItOut)
-                            .styleGuide(.subheadline)
-                            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
-                Image(decorative: Asset.Images.chevronRight16)
-                    .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
-            }
-            .padding(16)
-            .background(Asset.Colors.backgroundSecondary.swiftUIColor)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
-    }
-
-    /// Create a line of text with a bullet point in front of it.
+    /// Returns a view for displaying a numbered row within a `NumberedList`.
     ///
-    private func bulletPoint(text: String) -> some View {
-        HStack(alignment: .top, spacing: 6) {
-            Text("•")
+    /// - Parameters:
+    ///   - title: The title text to display in the row.
+    ///   - subtitle: The subtitle text to display in the row.
+    ///
+    private func numberedRowView(title: String, subtitle: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(LocalizedStringKey(title))
+                .styleGuide(.headline, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
+                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
 
-            Text(text)
+            Text(LocalizedStringKey(subtitle))
+                .styleGuide(.subheadline)
+                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
         }
-        .styleGuide(.subheadline)
-        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+        .padding(.vertical, 12)
+        .padding(.trailing, 16) // Leading padding is handled by `NumberedList`.
     }
 }
 
-// MARK: Previews
+// MARK: - Previews
 
 #if DEBUG
 #Preview {
-    MasterPasswordGuidanceView(store: Store(processor: StateProcessor()))
+    MasterPasswordGuidanceView(store: Store(processor: StateProcessor())).navStackWrapped
 }
 #endif

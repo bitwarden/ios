@@ -235,7 +235,8 @@ extension GeneratorState.UsernameState {
                 domain: forwardEmailDomainName
             )
         case .simpleLogin:
-            ForwarderServiceType.simpleLogin(apiKey: simpleLoginAPIKey)
+            // TODO: PM-18262 Add baseUrl support for self-hosted SimpleLogin.
+            ForwarderServiceType.simpleLogin(apiKey: simpleLoginAPIKey, baseUrl: "")
         }
         return UsernameGeneratorRequest.forwarded(service: service, website: emailWebsite)
     }

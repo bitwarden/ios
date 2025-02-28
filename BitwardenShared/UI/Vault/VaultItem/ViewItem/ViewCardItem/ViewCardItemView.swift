@@ -9,16 +9,20 @@ struct ViewCardItemView: View {
     @ObservedObject var store: Store<any ViewCardItemState, ViewItemAction, ViewItemEffect>
 
     var body: some View {
-        ContentBlock {
-            cardholderNameItem
+        if !store.state.isCardDetailsSectionEmpty {
+            SectionView(Localizations.cardDetails, contentSpacing: 8) {
+                ContentBlock {
+                    cardholderNameItem
 
-            cardNumberItem
+                    cardNumberItem
 
-            brandItem
+                    brandItem
 
-            expirationItems
+                    expirationItems
 
-            securityCodeItem
+                    securityCodeItem
+                }
+            }
         }
     }
 
@@ -79,17 +83,7 @@ struct ViewCardItemView: View {
     }
 
     @ViewBuilder private var expirationItems: some View {
-        let expirationString: String = {
-            var strings = [String]()
-            if case let .custom(month) = store.state.expirationMonth {
-                strings.append("\(month.rawValue)")
-            }
-            if !store.state.expirationYear.isEmpty {
-                strings.append(store.state.expirationYear)
-            }
-            return strings
-                .joined(separator: "/")
-        }()
+        let expirationString = store.state.expirationString
         if !expirationString.isEmpty {
             BitwardenTextValueField(
                 title: Localizations.expiration,

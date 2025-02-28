@@ -41,11 +41,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
                         sendDetails
 
-                        optionsButton
-
-                        if store.state.isOptionsExpanded {
-                            options
-                        }
+                        additionalOptions
                     }
                     .padding(12)
                 }
@@ -165,6 +161,53 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
+    /// Additional options.
+    @ViewBuilder private var additionalOptions: some View {
+        ExpandableContent(
+            title: Localizations.additionalOptions,
+            isExpanded: store.binding(
+                get: \.isOptionsExpanded,
+                send: { _ in AddEditSendItemAction.optionsPressed }
+            ),
+            buttonAccessibilityIdentifier: "SendShowHideOptionsButton"
+        ) {
+            accessCount
+
+            BitwardenTextField(
+                title: Localizations.newPassword,
+                text: store.binding(
+                    get: \.password,
+                    send: AddEditSendItemAction.passwordChanged
+                ),
+                footer: Localizations.passwordInfo,
+                accessibilityIdentifier: "SendNewPasswordEntry",
+                isPasswordVisible: store.binding(
+                    get: \.isPasswordVisible,
+                    send: AddEditSendItemAction.passwordVisibleChanged
+                )
+            )
+            .textFieldConfiguration(.password)
+
+            ContentBlock(dividerLeadingPadding: 16) {
+                BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
+                    get: \.isHideMyEmailOn,
+                    send: AddEditSendItemAction.hideMyEmailChanged
+                ))
+                .accessibilityIdentifier("SendHideEmailSwitch")
+                .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
+            }
+
+            BitwardenTextView(
+                title: Localizations.privateNote,
+                text: store.binding(
+                    get: \.notes,
+                    send: AddEditSendItemAction.notesChanged
+                )
+            )
+        }
+        .padding(.top, 8)
+    }
+
     /// The deletion date field.
     @ViewBuilder private var deletionDate: some View {
         ContentBlock(dividerLeadingPadding: 16) {
@@ -250,64 +293,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             ),
             accessibilityIdentifier: "SendNameEntry"
         )
-    }
-
-    /// Additional options.
-    @ViewBuilder private var options: some View {
-        accessCount
-
-        BitwardenTextField(
-            title: Localizations.newPassword,
-            text: store.binding(
-                get: \.password,
-                send: AddEditSendItemAction.passwordChanged
-            ),
-            footer: Localizations.passwordInfo,
-            accessibilityIdentifier: "SendNewPasswordEntry",
-            isPasswordVisible: store.binding(
-                get: \.isPasswordVisible,
-                send: AddEditSendItemAction.passwordVisibleChanged
-            )
-        )
-        .textFieldConfiguration(.password)
-
-        ContentBlock(dividerLeadingPadding: 16) {
-            BitwardenToggle(Localizations.hideEmail, isOn: store.binding(
-                get: \.isHideMyEmailOn,
-                send: AddEditSendItemAction.hideMyEmailChanged
-            ))
-            .accessibilityIdentifier("SendHideEmailSwitch")
-            .disabled(!store.state.isHideMyEmailOn && store.state.isSendHideEmailDisabled)
-        }
-
-        BitwardenTextView(
-            title: Localizations.privateNote,
-            text: store.binding(
-                get: \.notes,
-                send: AddEditSendItemAction.notesChanged
-            )
-        )
-    }
-
-    /// The options button.
-    @ViewBuilder private var optionsButton: some View {
-        Button {
-            store.send(.optionsPressed)
-        } label: {
-            HStack(spacing: 8) {
-                Text(Localizations.additionalOptions)
-                    .styleGuide(.callout, weight: .semibold)
-
-                Asset.Images.chevronDown16.swiftUIImage
-                    .imageStyle(.accessoryIcon16(scaleWithFont: true))
-                    .rotationEffect(store.state.isOptionsExpanded ? Angle(degrees: 180) : .zero)
-            }
-            .multilineTextAlignment(.leading)
-            .padding(.top, 8)
-            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
-        }
-        .accessibilityIdentifier("SendShowHideOptionsButton")
-        .padding(.leading, 12)
     }
 
     /// A view that displays the ability to add or switch between account profiles

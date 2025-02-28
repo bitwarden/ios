@@ -119,7 +119,7 @@ jobs:
       - name: Build and test
         run: |
             xcrun xcodebuild test \
-            -project Bitwarden.xcodeproj \
+            -workspace Bitwarden.xcworkspace \
             -scheme Bitwarden \
             -configuration Debug \
             -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \

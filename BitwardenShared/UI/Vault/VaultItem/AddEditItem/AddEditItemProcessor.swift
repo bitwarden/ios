@@ -229,6 +229,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             handleSSHKeyAction(sshKeyAction)
         case let .toastShown(newValue):
             state.toast = newValue
+        case let .toggleAdditionalOptionsExpanded(newValue):
+            state.isAdditionalOptionsExpanded = newValue
         case .totpFieldLeftFocus:
             parseAndValidateEditedAuthenticatorKey(state.loginState.totpState.rawAuthenticatorKeyString)
         case let .totpKeyChanged(newValue):

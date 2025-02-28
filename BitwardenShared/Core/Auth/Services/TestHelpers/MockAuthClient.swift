@@ -3,7 +3,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockClientAuth: ClientAuthProtocol {
+class MockAuthClient: AuthClientProtocol {
     var approveAuthRequestPublicKey: String?
     var approveAuthRequestResult: Result<AsymmetricEncString, Error> = .success("")
 

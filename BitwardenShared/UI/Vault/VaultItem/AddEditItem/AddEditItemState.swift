@@ -51,6 +51,9 @@ protocol AddEditItemState: Sendable {
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
 
+    /// Whether the additional options section is expanded.
+    var isAdditionalOptionsExpanded: Bool { get set }
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool { get set }
 

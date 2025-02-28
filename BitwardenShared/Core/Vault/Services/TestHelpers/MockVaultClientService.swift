@@ -3,7 +3,7 @@ import Foundation
 
 @testable import BitwardenShared
 
-class MockClientVaultService: ClientVaultService {
+class MockVaultClientService: VaultClientService {
     var clientAttachments = MockClientAttachments()
     var clientCiphers = MockClientCiphers()
     var clientCollections = MockClientCollections()
@@ -189,9 +189,9 @@ class MockClientPasswordHistory: ClientPasswordHistoryProtocol {
     }
 }
 
-// MARK: - MockClientSends
+// MARK: - MockSendClient
 
-class MockClientSends: ClientSendsProtocol {
+class MockSendClient: SendClientProtocol {
     var decryptedSends: [Send] = []
     var encryptedSendViews: [SendView] = []
     var encryptedBuffers: [Data] = []

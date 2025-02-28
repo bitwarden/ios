@@ -70,6 +70,9 @@ struct CipherItemState: Equatable {
     /// The state for a identity type item.
     var identityState: IdentityItemState
 
+    /// Whether the additional options section is expanded.
+    var isAdditionalOptionsExpanded = false
+
     /// A flag indicating if this item is favorited.
     var isFavoriteOn: Bool
 

@@ -30,7 +30,7 @@ struct DeleteAccountState: Equatable {
     var showDeleteAccountButtons: Bool {
         !shouldPreventUserFromDeletingAccount
     }
-    
+
     /// A short description of the view.
     var title: String {
         return if shouldPreventUserFromDeletingAccount {
