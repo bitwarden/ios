@@ -56,7 +56,8 @@ struct AddEditLoginItemView: View {
                 value: Localizations.createdXY(
                     fido2Credential.creationDate.formatted(date: .numeric, time: .omitted),
                     fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
-                )
+                ),
+                valueAccessibilityIdentifier: "LoginPasskeyEntry"
             ) {
                 if store.state.canViewPassword, store.state.editView {
                     AccessoryButton(

@@ -135,6 +135,7 @@ struct ViewLoginItemView: View {
                 fido2Credential.creationDate.formatted(date: .omitted, time: .shortened)
             )
         )
+        .accessibilityIdentifier("LoginPasskeyEntry")
         .accessibilityElement(children: .contain)
     }
 
