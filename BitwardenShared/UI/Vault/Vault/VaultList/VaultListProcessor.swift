@@ -434,6 +434,11 @@ extension VaultListProcessor {
                 if !value.isEmpty, await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
                     await setImportLoginsProgress(.complete)
                 }
+                // Dismiss the coach mark action cards once the vault has at least one login item in it.
+                if await services.configService.getFeatureFlag(.nativeCreateAccountFlow), value.hasLoginItems {
+                    await services.stateService.setLearnNewLoginActionCardStatus(.complete)
+                    await services.stateService.setLearnGeneratorActionCardStatus(.complete)
+                }
             }
         } catch {
             services.errorReporter.log(error: error)

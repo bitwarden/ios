@@ -39,6 +39,7 @@
 "InvalidPIN" = "Погрешан ПИН. Покушајте поново.";
 "Launch" = "Отвори";
 "LogIn" = "Пријави се";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "Пријава";
 "LogOut" = "Одјави се";
 "LogoutConfirmation" = "Заиста желите да се одјавите?";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Користи Bitwarden у Safari-ју и другим апликацијама за аутоматско попуњавање твојих пријава.";
 "BitwardenAutofillService" = "Bitwarden услуга Аутоматског попуњавања";
 "BitwardenAutofillAccessibilityServiceDescription" = "Користи услугу приступачности Bitwarden-а за аутоматско попуњавање твојих пријава.";
-"ChangeEmail" = "Промени адресу Е-поште";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "Можете променити адресу Е-поште у твом сефу на bitwarden.com. Да ли желиш да посетиш мрежну страницу сада?";
 "ChangeMasterPassword" = "Промени главну лозинку";
 "Close" = "Затвори";
@@ -175,7 +176,6 @@
 "Select" = "Изабери";
 "SetPIN" = "Подесити PIN";
 "SetPINDirection" = "Унесите четвороцифрени ПИН за откључавање апликације.";
-"ItemInformation" = "Инфо о ставци";
 "ItemUpdated" = "Ставка ажурирана.";
 "Submitting" = "Слање...";
 "Syncing" = "Синхронизација...";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Сеф је блокиран";
 "GoToMyVault" = "Иди у мој Сеф";
 "Collections" = "Колекције";
-"NoItemsCollection" = "Не постоје ставке у овој колекцији.";
-"NoItemsFolder" = "Нема ставке у овој фасцикли.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "У отпад нема ставке.";
 "AutofillAccessibilityService" = "Услуга приступачности аутоматског попуњавања";
 "AutofillServiceDescription" = "Bitwarden услуга ауто-пуњења користи Android Autofill Framework да би помогао у попуњавању података за пријављивање, кредитне картице и податке о идентитету у друге апликације на уређају.";
@@ -409,8 +409,6 @@
 "MoveDown" = "Помери доле";
 "MoveUp" = "Помери горе";
 "Miscellaneous" = "Разно";
-"Ownership" = "Власништво";
-"WhoOwnsThisItem" = "Ко је власник ове ставке?";
 "NoCollectionsToList" = "Нема колекције у листи.";
 "MovedItemToOrg" = "%1$@ премештено у %2$@.";
 "ItemShared" = "Ставка је подељена.";
@@ -782,6 +780,11 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "У вашем сефу нема ставке за \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Потражите ставку или додајте нову";
 "ThereAreNoItemsThatMatchTheSearch" = "Нема ставки које одговарају претрази";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Личан хостинг";
@@ -922,7 +925,8 @@
 "FilePasswordDescription" = "Ова лозинка ће се користити за извоз и увоз ове датотеке";
 "CreatingOn" = "Креирано";
 "CheckYourEmail" = "Проверите свој имејл";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Пратите упутства из имејла који је послат на %1$@ да наставите са креирањем налога.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "Немате имејл? **[Назад](https://)** за промену ваше имејл адресе.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Или **[пријавите се](https://)**, можда већ имате налог.";
 "OpenEmailApp" = "Отворите апликацију за имејл";
@@ -1016,6 +1020,20 @@
 "SendSensitiveInformationSafely" = "Шаљите осетљиве информације, безбедно";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Делите датотеке и податке безбедно са било ким, на било којој платформи. Ваше информације ће остати шифроване од почетка-до-краја уз ограничење изложености.";
 "NewLogin" = "Ново пријављивање";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Увезите сачуване пријаве";
 "ImportSavedLoginsDescriptionLong" = "Користите рачунар за увоз пријава из постојећег менаџера лозинки.";
 "ImportLogins" = "Увезите пријаве";
@@ -1124,3 +1142,9 @@
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";

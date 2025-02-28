@@ -394,7 +394,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
         processor.state.isCreatingFido2Credential = true
-        processor.state.excludedCredentialFound = true
+        processor.state.excludedCredentialIdFound = "1"
         processor.state.vaultListSections = [
             VaultListSection(
                 id: Localizations.aPasskeyAlreadyExistsForThisApplication,

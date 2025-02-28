@@ -39,6 +39,7 @@
 "InvalidPIN" = "无效的 PIN 码，请重试。";
 "Launch" = "前往";
 "LogIn" = "登录";
+"LoginCredentials" = "登录凭据";
 "LogInNoun" = "登录";
 "LogOut" = "注销";
 "LogoutConfirmation" = "确定要注销吗？";
@@ -99,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "在 Safari 和其他 App 中使用 Bitwarden 来自动填充您的登录信息。";
 "BitwardenAutofillService" = "Bitwarden 自动填充服务";
 "BitwardenAutofillAccessibilityServiceDescription" = "使用 Bitwarden 无障碍服务自动填充您的登录信息。";
-"ChangeEmail" = "更改电子邮箱";
+"ChangeEmailAddress" = "更改电子邮箱地址";
 "ChangeEmailConfirmation" = "您可以在 bitwarden.com 网页版密码库更改您的电子邮箱地址。现在要访问此网站吗？";
 "ChangeMasterPassword" = "更改主密码";
 "Close" = "关闭";
@@ -152,8 +153,8 @@
 "MustLogInMainApp" = "您必须先登录 Bitwarden 主应用程序，才能使用此扩展。";
 "Never" = "从不";
 "NewItemCreated" = "项目已添加";
-"NoFavorites" = "你的密码库中没有任何收藏。";
-"NoItems" = "您的密码库中没有任何项目。";
+"NoFavorites" = "你的密码库中没有收藏。";
+"NoItems" = "您的密码库中没有项目。";
 "NoItemsTap" = "您的密码库中没有此网站/App 的登录项目。点击添加一个。";
 "NoUsernamePasswordConfigured" = "此登录没有已配置的用户名或者密码。";
 "OkGotIt" = "好的，我知道了！";
@@ -175,7 +176,6 @@
 "Select" = "选择";
 "SetPIN" = "设置 PIN 码";
 "SetPINDirection" = "输入一个用于解锁此 App 的 4 位数 PIN 码。";
-"ItemInformation" = "项目信息";
 "ItemUpdated" = "项目已保存";
 "Submitting" = "正在提交...";
 "Syncing" = "正在同步...";
@@ -218,7 +218,7 @@
 "Search" = "搜索";
 "BitwardenAutofillServiceSearch" = "你正在搜索用于「%1$@」的自动填充项目。";
 "LearnAboutNewLogins" = "了解新的登录";
-"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "我们将通过主要功能引导您了解如何添加新的登录。";
+"WeWillWalkYouThroughTheKeyFeaturesToAddANewLogin" = "我们将通过主要功能引导您添加一个新的登录。";
 "LearnOrg" = "了解组织";
 "CannotOpenApp" = "无法打开 App「%1$@」。";
 "AuthenticatorAppTitle" = "验证器 App";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "您的设备无法打开这种类型的文件。";
 "Downloading" = "正在下载……";
 "AttachmentLargeWarning" = "此附件大小为 %1$@ 。确定要将其下载到您的设备上吗？";
-"AuthenticatorKey" = "Authenticator key";
+"AuthenticatorKey" = "验证器密钥";
 "VerificationCodeTotp" = "验证码 (TOTP)";
 "AuthenticatorKeyAdded" = "已添加验证器密钥。";
 "AuthenticatorKeyReadError" = "无法读取验证器密钥。";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "密码库已锁定";
 "GoToMyVault" = "转到我的密码库";
 "Collections" = "集合";
-"NoItemsCollection" = "此集合中没有项目。";
-"NoItemsFolder" = "此文件夹中没有项目。";
+"NoItemsCollection" = "此集合中没有项目";
+"NoItemsFolder" = "此文件夹中没有项目";
 "NoItemsTrash" = "回收站中没有项目。";
 "AutofillAccessibilityService" = "自动填充无障碍服务";
 "AutofillServiceDescription" = "Bitwarden 自动填充服务使用 Android 自动填充框架来协助将登录信息填充到您设备上的其他 App 中。";
@@ -382,7 +382,7 @@
 "AutofillTurnOn2" = "2. 点击「密码」";
 "AutofillTurnOn3" = "3. 点击「自动填充密码」";
 "AutofillTurnOn4" = "4. 打开自动填充";
-"AutofillTurnOn5" = "5. 勾选「Bitwarden」";
+"AutofillTurnOn5" = "5. 选择「Bitwarden」";
 "PasswordAutofill" = "密码自动填充";
 "BitwardenAutofillAlert2" = "向您的密码库中添加新登录项目的最简单方法，就是使用 Bitwarden 密码自动填充扩展。转到「设置」界面进一步了解 Bitwarden 密码自动填充扩展的使用。";
 "InvalidEmail" = "无效的电子邮箱地址。";
@@ -409,8 +409,6 @@
 "MoveDown" = "下移";
 "MoveUp" = "上移";
 "Miscellaneous" = "其他";
-"Ownership" = "所有权";
-"WhoOwnsThisItem" = "谁拥有这个项目？";
 "NoCollectionsToList" = "没有可列出的集合。";
 "MovedItemToOrg" = "%1$@ 已移动到 %2$@。";
 "ItemShared" = "项目已共享。";
@@ -482,7 +480,7 @@
 "Biometrics" = "生物识别";
 "UseBiometricsToUnlock" = "使用生物识别解锁";
 "AccessibilityOverlayPermissionAlert" = "Bitwarden 需要注意 - 请在 Bitwarden 设置中查看「自动填充无障碍服务」";
-"BitwardenAutofillServiceOverlayPermission" = "3. 在 Android App 设置界面找到 Bitwarden，进入「显示在其他应用上方」选项（在「高级」下），然后点击切换开关以启用叠加层支持。";
+"BitwardenAutofillServiceOverlayPermission" = "3. 在 Android App 设置界面找到 Bitwarden，进入「显示在其他应用上方」选项（在「高级」下），然后点击切换开关以允许叠加层支持。";
 "OverlayPermission" = "权限";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "打开叠加层权限设置";
 "BitwardenAutofillServiceStep3" = "3. 在 Android App 设置界面找到 Bitwarden，选择「显示在其他应用上方」选项（在「高级」下），然后打开切换开关以允许叠加层。";
@@ -569,7 +567,7 @@
 "DeletionDate" = "删除日期";
 "DeletionTime" = "删除时间";
 "DeletionDateInfo" = "此 Send 将在指定的日期和时间后被永久删除。";
-"PendingDelete" = "等待删除";
+"PendingDelete" = "待删除";
 "ExpirationTime" = "过期时间";
 "Expired" = "已过期";
 "MaximumAccessCount" = "最大访问次数";
@@ -687,7 +685,7 @@
 "GenericErrorMessage" = "我们无法处理您的请求。请重试或联系我们。";
 "AllowScreenCapture" = "允许屏幕截图";
 "AreYouSureYouWantToEnableScreenCapture" = "确定要启用屏幕截图吗？";
-"LogInRequested" = "已请求登录";
+"LogInRequested" = "登录请求";
 "AreYouTryingToLogIn" = "您正在尝试登录吗？";
 "LogInAttemptByXOnY" = "%1$@ 在 %2$@ 上的登录尝试";
 "DeviceType" = "设备类型";
@@ -758,7 +756,7 @@
 "DeclineAllRequests" = "拒绝所有请求";
 "AreYouSureYouWantToDeclineAllPendingLogInRequests" = "确定要拒绝所有待处理的登录请求吗？";
 "RequestsDeclined" = "请求被拒绝";
-"NoPendingRequests" = "无待处理的请求";
+"NoPendingRequests" = "没有待处理的请求";
 "EnableCamerPermissionToUseTheScanner" = "启用相机权限以使用扫描器";
 "Language" = "语言";
 "LanguageChangeXDescription" = "语言已更改为 %1$@。请重新启动 App 以查看更改";
@@ -778,9 +776,14 @@
 "WeakPasswordIdentifiedAndFoundInADataBreachAlertDescription" = "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护你的账户。确定要使用这个密码吗？";
 "OrganizationSsoIdentifierRequired" = "必须填写组织 SSO 标识符。";
 "AddTheKeyToAnExistingOrNewItem" = "将密钥添加到现有或新的项目";
-"ThereAreNoItemsInYourVaultThatMatchX" = "您的密码库中没有匹配 \"%1$@\" 的项目";
+"ThereAreNoItemsInYourVaultThatMatchX" = "您的密码库中没有匹配「%1$@」的项目";
 "SearchForAnItemOrAddANewItem" = "搜索一个项目或添加一个新的项目";
 "ThereAreNoItemsThatMatchTheSearch" = "没有匹配搜索条件的项目";
+"ThereAreNoLoginsInYourVault" = "您的密码库中没有登录信息";
+"ThereAreNoCardsInYourVault" = "您的密码库中没有支付卡";
+"ThereAreNoNotesInYourVault" = "您的密码库中没有笔记";
+"ThereAreNoIdentitiesInYourVault" = "您的密码库中没有身份信息";
+"ThereAreNoSSHKeysInYourVault" = "您的密码库中没有 SSH 密钥";
 "US" = "美国";
 "EU" = "欧盟";
 "SelfHosted" = "自托管";
@@ -898,7 +901,7 @@
 "SetUpAutoFillDescriptionLong" = "要设置密码自动填充和通行密钥管理，请在 iOS 设置中将 Bitwarden 设置为您的首选提供程序。";
 "FirstDotGoToYourDeviceSettingsPasswordsPasswordOptions" = "1. 转到您设备的设置 > 密码 > 密码选项";
 "SecondDotTurnOnAutoFill" = "2. 打开自动填充";
-"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. 选择「Bitwarden」用于密码和通行密钥";
+"ThirdDotSelectBitwardenToUseForPasswordsAndPasskeys" = "3. 选择「Bitwarden」以用于密码和通行密钥";
 "YourPasskeyWillBeSavedToYourBitwardenVault" = "您的通行密钥将保存在您的 Bitwarden 密码库中";
 "YourPasskeyWillBeSavedToYourBitwardenVaultForX" = "您的通行密钥将保存在您的 %1$@ Bitwarden 密码库中";
 "PasskeysNotSupportedForThisApp" = "此 App 不支持通行密钥";
@@ -921,7 +924,8 @@
 "FilePasswordDescription" = "此密码将用于导出和导入此文件";
 "CreatingOn" = "创建到";
 "CheckYourEmail" = "检查您的电子邮箱";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "按照发送到 %1$@ 的电子邮件中的说明继续创建您的账户。";
+"WeSentAnEmailTo" = "我们发送了一封电子邮件到 %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "选择电子邮件中的链接以验证您的电子邮箱地址并继续创建您的账户。";
 "NoEmailGoBackToEditYourEmailAddress" = "没收到电子邮件吗？请 **[返回](https://)** 修改您的电子邮箱地址。";
 "OrLogInYouMayAlreadyHaveAnAccount." = "或者 **[登录](https://)**，您可能已经有一个账户了。";
 "OpenEmailApp" = "打开电子邮箱 App";
@@ -980,7 +984,7 @@
 "LearnAboutWaysToPreventAccountLockout" = "了解防止账户被锁住的方法";
 "WhatMakesAPasswordStrong" = "如何使密码更安全？";
 "XCharacters" = "%1$@ 个字符";
-"RemoveMasterPasswordMessage" = "%1$@ 使用自托管密钥服务器 SSO。该组织的成员不再需要主密码登录。";
+"RemoveMasterPasswordMessage" = "%1$@ 正在使用自托管密钥服务器 SSO。该组织的成员不再需要主密码登录。";
 "RestartRegistration" = "重启注册";
 "ExpiredLink" = "失效链接";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "请重启注册或尝试登录。您可能已经有一个账户了。";
@@ -993,7 +997,7 @@
 "SetUpLaterQuestion" = "稍后设置吗？";
 "YouCanFinishSetupUnlockAnytimeDescriptionLong" = "您可以随时在「设置」下的「账户安全」中完成设置。在设置其他方法之前，您将使用主密码来解锁。";
 "Confirm" = "确认";
-"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "与 Duo 服务连接时出错。请使用不同的两步登录方式或联系 Duo 获取协助。";
+"ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 获取协助。";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "无法加载预认证 URL 来启动账户创建。";
 "FromYourDeviceSettingsToggleOnAutoFillPasswordsAndPasskeys" = "在您的设备设置中，**打开自动填充密码和通行密钥。**";
 "ToggleOffICloudToMakeBitwardenYourDefaultAutoFillSource" = "**关闭 iCloud 钥匙串** ，使 Bitwarden 成为默认的自动填充源。";
@@ -1015,6 +1019,20 @@
 "SendSensitiveInformationSafely" = "安全地发送敏感信息";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。";
 "NewLogin" = "新增登录";
+"NewCard" = "新增支付卡";
+"NewIdentity" = "新增身份";
+"NewNote" = "新增笔记";
+"NewSSHKey" = "新增 SSH 密钥";
+"EditLogin" = "编辑登录";
+"EditCard" = "编辑支付卡";
+"EditIdentity" = "编辑身份";
+"EditNote" = "编辑笔记";
+"EditSSHKey" = "编辑 SSH 密钥";
+"ViewLogin" = "查看登录";
+"ViewCard" = "查看支付卡";
+"ViewIdentity" = "查看身份";
+"ViewNote" = "查看笔记";
+"ViewSSHKey" = "查看 SSH 密钥";
 "ImportSavedLogins" = "导入已保存的登录信息";
 "ImportSavedLoginsDescriptionLong" = "使用计算机从现有密码管理器导入登录信息。";
 "ImportLogins" = "导入登录信息";
@@ -1122,4 +1140,10 @@
 "CannotDeleteAccount" = "无法删除账户";
 "CannotDeleteAccountDescriptionLong" = "此操作无法完成，因为您的账户归组织所有。请联系您的组织管理员获取详细信息。";
 "NewFolder" = "新增文件夹";
-"SetUpAuthenticatorKey" = "Set up authenticator key";
+"SetUpAuthenticatorKey" = "设置验证器密钥";
+"ItemDetails" = "项目详细信息";
+"CardDetails" = "支付卡详细信息";
+"PersonalDetails" = "个人详细信息";
+"ContactInfo" = "联系信息";
+"Identification" = "身份";
+"Owner" = "所有者";
