@@ -8,6 +8,9 @@ on:
       - "hotfix-rc"
   pull_request:
     types: [opened, synchronize]
+    paths-ignore:
+      - Authenticator/**
+      - AuthenticatorShared/**
   workflow_dispatch:
     inputs:
       xcode-version:

@@ -6,8 +6,16 @@ on:
   #     - "main"
   #     - "rc"
   #     - "hotfix-rc"
-  # pull_request:
-  #   types: [opened, synchronize]
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - Bitwarden/**
+      - BitwardenActionExtension/**
+      - BitwardenAutoFillExtension/**
+      - BitwardenShared/**
+      - BitwardenShareExtension/**
+      - BitwardenWatchApp/**
+      - BitwardenWatchWidgetExtension/**
   workflow_dispatch:
     inputs:
       xcode-version:
