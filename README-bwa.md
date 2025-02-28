@@ -46,11 +46,11 @@ Bitwarden Authenticator allows you easily store and generate two-factor authenti
 3. Bootstrap the project:
 
     ```sh
-    $ Scripts-bwa/bootstrap.sh
+    $ Scripts/bootstrap.sh
     ```
 
     > **Note**
-    > Because `Scripts-bwa/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
+    > Because `Scripts/bootstrap.sh` is how the project is generated, `bootstrap.sh` will need to be run every time the project configuration or file structure has changed (for example, when files have been added, removed or moved). It is typically best practice to run `bootstrap.sh` any time you switch branches or pull down changes.
 
     Alternatively, you can create git hooks to automatically execute the `bootstrap.sh` script every time a git hook occurs. To use the git hook scripts already defined in the `Scripts` directory, copy the scripts to the `.git/hooks` directory.
 

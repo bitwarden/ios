@@ -26,7 +26,7 @@ mkdir -p "${BUILD_DIR}"
 
 echo "🔨 Performing Xcode archive"
 xcrun xcodebuild archive \
-  -project Authenticator.xcodeproj \
+  -workspace Bitwarden.xcworkspace \
   -scheme Authenticator \
   -configuration Release \
   -archivePath "${ARCHIVE_PATH}" \
