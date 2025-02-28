@@ -128,7 +128,7 @@ jobs:
       - name: Install Mint, protobuf, and xcresultparser
         run: |
           brew install mint swift-protobuf xcresultparser
-          ./Scripts-bwa/bootstrap.sh
+          ./Scripts/bootstrap.sh
 
       - name: Build and test
         run: |
