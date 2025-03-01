@@ -1,4 +1,5 @@
 import Foundation
+import WatchConnectivity
 
 // MARK: - OtherSettingsProcessor
 
@@ -9,6 +10,8 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
 
     typealias Services = HasErrorReporter
         & HasSettingsRepository
+        & HasSystemDevice
+        & HasWatchService
 
     // MARK: Properties
 
@@ -72,6 +75,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             state.clearClipboardValue = services.settingsRepository.clearClipboardValue
             state.isAllowSyncOnRefreshToggleOn = try await services.settingsRepository.getAllowSyncOnRefresh()
             state.isConnectToWatchToggleOn = try await services.settingsRepository.getConnectToWatch()
+            state.shouldShowConnectToWatchToggle = services.watchService.isSupported()
         } catch {
             services.errorReporter.log(error: error)
         }
