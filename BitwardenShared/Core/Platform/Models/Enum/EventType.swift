@@ -28,6 +28,7 @@ public enum EventType: Int, Codable, Sendable {
     case cipherSoftDeleted = 1115
     case cipherRestored = 1116
     case cipherClientToggledCardNumberVisible = 1117
+//    need to add case for ssn?
 
     case collectionCreated = 1300
     case collectionUpdated = 1301
