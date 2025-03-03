@@ -36,6 +36,7 @@ class SettingsCoordinatorTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// `navigate(to:)` with `.alert` has the stack navigator present the alert.
+    @MainActor
     func test_navigateTo_alert() throws {
         let alert = Alert.defaultAlert(
             title: Localizations.anErrorHasOccurred,
@@ -47,6 +48,7 @@ class SettingsCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_navigate_dismiss() throws {
         subject.navigate(to: .dismiss)
 
@@ -55,6 +57,7 @@ class SettingsCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.exportItems` presents the export vault view.
+    @MainActor
     func test_navigateTo_exportVault() throws {
         subject.navigate(to: .exportItems)
 
@@ -64,6 +67,7 @@ class SettingsCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
+    @MainActor
     func test_navigateTo_selectLanguage() throws {
         subject.navigate(to: .selectLanguage(currentLanguage: .default))
 
@@ -73,6 +77,7 @@ class SettingsCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
+    @MainActor
     func test_navigateTo_settings() throws {
         subject.navigate(to: .settings)
 
@@ -82,6 +87,7 @@ class SettingsCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    @MainActor
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
         try setKeyWindowRoot(viewController: XCTUnwrap(stackNavigator.rootViewController))
@@ -97,6 +103,7 @@ class SettingsCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `start()` navigates to the settings view.
+    @MainActor
     func test_start() {
         subject.start()
 
