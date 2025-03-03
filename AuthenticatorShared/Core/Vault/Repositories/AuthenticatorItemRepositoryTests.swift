@@ -119,6 +119,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     /// 'isPasswordManagerSyncActive` should return `false` when both the
     /// `enablePasswordManagerSync` feature flag is disabled and the
     /// `AuthenticatorBridgeItemService.syncOn` is `false`.
+    @MainActor
     func test_isPasswordManagerSyncActive_bothOff() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = false
         sharedItemService.syncOn = false
@@ -130,6 +131,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     /// 'isPasswordManagerSyncActive` should return `false` when the
     /// `enablePasswordManagerSync` feature flag is disabled even if the
     /// `AuthenticatorBridgeItemService.syncOn` is `true`.
+    @MainActor
     func test_isPasswordManagerSyncActive_featureFlagDisabled() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = false
         sharedItemService.syncOn = true
@@ -141,6 +143,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     /// 'isPasswordManagerSyncActive` should return `false` when the
     /// `enablePasswordManagerSync` feature flag is enabled but the
     /// `AuthenticatorBridgeItemService.syncOn` is `false`.
+    @MainActor
     func test_isPasswordManagerSyncActive_syncOff() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = false
@@ -152,6 +155,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     /// 'isPasswordManagerSyncActive` should return `true` when the
     /// `enablePasswordManagerSync` feature flag is enabled and the
     /// `AuthenticatorBridgeItemService.syncOn` is `true`.
+    @MainActor
     func test_isPasswordManagerSyncActive_success() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
@@ -291,6 +295,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     }
 
     /// `itemListPublisher()` returns a publisher for the items.
+    @MainActor
     func test_itemListPublisher() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = false
         let items = [
@@ -330,6 +335,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     }
 
     /// `itemListPublisher()` returns a favorites section (when the feature flag not enabled)
+    @MainActor
     func test_itemListPublisher_favorites() async throws {
         sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
         sharedItemService.syncOn = true
@@ -384,6 +390,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
 
     /// `itemListPublisher()` returns a favorites section and a local codes section as normal. Adds a syncError section
     /// when the sync process if throwing an error.
+    @MainActor
     func test_itemListPublisher_syncError() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
@@ -422,6 +429,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
 
     /// `itemListPublisher()` returns a favorites section as before, when the feature flag is enabled, but
     /// the user has not yet enabled sync.
+    @MainActor
     func test_itemListPublisher_syncOff() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.storedItems = ["userId": AuthenticatorBridgeItemDataView.fixtures()]
