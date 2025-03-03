@@ -142,6 +142,8 @@ targets:
     sources:
       - path: Networking
         excludes:
+          - Package.swift
+          - .swiftpm
           - "**/Tests/*"
   NetworkingTests:
     type: bundle.unit-test

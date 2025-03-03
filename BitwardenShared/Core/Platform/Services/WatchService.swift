@@ -6,7 +6,10 @@ import WatchConnectivity
 
 /// The service used to connect to and communicate with the watch app.
 ///
-protocol WatchService {}
+protocol WatchService {
+    /// Whether the device has support for a watch session.
+    func isSupported() -> Bool
+}
 
 // MARK: - DefaultWatchService
 
@@ -74,6 +77,12 @@ class DefaultWatchService: NSObject, WatchService {
                 syncWithWatch(userId: userId, shouldConnect: shouldConnect)
             }
         }
+    }
+
+    // MARK: Methods
+
+    func isSupported() -> Bool {
+        WCSession.isSupported()
     }
 
     // MARK: Private Methods
