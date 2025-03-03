@@ -43,4 +43,4 @@ jobs:
       - name: Install Mint
         run: |
           brew install mint
-          ./Scripts-bwa/bootstrap.sh
+          ./Scripts/bootstrap.sh

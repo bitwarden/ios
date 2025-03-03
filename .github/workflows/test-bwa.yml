@@ -1,4 +1,4 @@
-name: Test
+name: Test Authenticator
 
 on:
   # push:
@@ -6,8 +6,16 @@ on:
   #     - "main"
   #     - "rc"
   #     - "hotfix-rc"
-  # pull_request:
-  #   types: [opened, synchronize]
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - Bitwarden/**
+      - BitwardenActionExtension/**
+      - BitwardenAutoFillExtension/**
+      - BitwardenShared/**
+      - BitwardenShareExtension/**
+      - BitwardenWatchApp/**
+      - BitwardenWatchWidgetExtension/**
   workflow_dispatch:
     inputs:
       xcode-version:
@@ -49,10 +57,6 @@ env:
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
 
 jobs:
-  check-run:
-    name: Check PR run
-    uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
-
   test:
     name: Test
     runs-on: macos-15-xlarge
@@ -72,8 +76,6 @@ jobs:
 
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Read Xcode version and simulator configuration from file if not provided
         run: |
@@ -120,12 +122,12 @@ jobs:
       - name: Install Mint, protobuf, and xcresultparser
         run: |
           brew install mint swift-protobuf xcresultparser
-          ./Scripts-bwa/bootstrap.sh
+          ./Scripts/bootstrap.sh
 
       - name: Build and test
         run: |
           xcrun xcodebuild test \
-            -project Authenticator.xcodeproj \
+            -workspace Bitwarden.xcworkspace \
             -scheme Authenticator \
             -configuration Debug \
             -destination "platform=iOS Simulator,name=$_SIMULATOR_NAME,OS=$_SIMULATOR_VERSION" \
@@ -157,14 +159,6 @@ jobs:
           path: |
             ${{ env._COVERAGE_PATH }}
             ${{ env._RESULT_BUNDLE_PATH }}
-
-      - name: Upload to codecov.io
-        id: upload-to-codecov
-        uses: codecov/codecov-action@13ce06bfc6bbe3ecf90edbbf1bc32fe5978ca1d3 # v5.3.1
-        continue-on-error: true
-        with:
-          plugin: xcode
-          files: ${{ env._COVERAGE_PATH }}
 
   report:
     name: Process Test Reports
