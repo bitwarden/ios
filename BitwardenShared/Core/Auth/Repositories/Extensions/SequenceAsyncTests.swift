@@ -1,6 +1,6 @@
-@testable import BitwardenShared
-
 import XCTest
+
+@testable import BitwardenShared
 
 final class SequenceAsyncTests: BitwardenTestCase {
     /// `asyncMap` correctly maps each element.
