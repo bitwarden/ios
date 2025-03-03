@@ -132,13 +132,12 @@ actor DefaultPolicyService: PolicyService {
             return []
         }
 
-        // The policy applies if the organization is enabled, uses policies, has the policy enabled,
+        // The policy applies even if the organization is disabled, uses policies, has the policy enabled,
         // and the user is not exempt from policies.
         return policies.filter { policy in
             guard let organization = organizations.first(where: { $0.id == policy.organizationId })
             else { return false }
-            return organization.enabled &&
-                (organization.status == .accepted || organization.status == .confirmed) &&
+            return (organization.status == .accepted || organization.status == .confirmed) &&
                 organization.usePolicies &&
                 !isOrganization(organization, exemptFrom: policyType)
         }
