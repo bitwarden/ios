@@ -1094,6 +1094,22 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(syncService.needsSyncOnlyCheckLocalData)
     }
 
+    /// `hasOrganizations()` returns true when there's at least one organization.
+    func test_hasOrganizations_hasAtLeastOne() async throws {
+        organizationService.fetchAllOrganizationsResult =
+            .success([.fixture(id: "One")])
+        let result = try await subject.hasOrganizations()
+        XCTAssertTrue(result)
+    }
+
+    /// `hasOrganizations()` returns false when there's no organizations.
+    func test_hasOrganizations_returnsFalse() async throws {
+        organizationService.fetchAllOrganizationsResult =
+            .success([])
+        let result = try await subject.hasOrganizations()
+        XCTAssertFalse(result)
+    }
+
     /// `isVaultEmpty()` throws an error if one occurs.
     func test_isVaultEmpty_error() async {
         cipherService.cipherCountResult = .failure(BitwardenTestError.example)
