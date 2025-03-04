@@ -44,7 +44,7 @@ struct ViewItemView: View {
             }
         }
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle(navigationTitle)
+        .navigationTitle(store.state.navigationTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toast(
             store.binding(
@@ -92,14 +92,14 @@ struct ViewItemView: View {
                 store.send(.editPressed)
             }
         }
-        .task {
-            await store.perform(.appeared)
+        .onAppear {
+            // GitHub issue #1344: Changed from `.task` to `.onAppear` because the close button
+            // on the navigation bar was consistently shifting position
+            // on physical devices running iOS 16.
+            Task {
+                await store.perform(.appeared)
+            }
         }
-    }
-
-    /// The title of the view
-    private var navigationTitle: String {
-        Localizations.viewItem
     }
 
     // MARK: Private Views
@@ -205,6 +205,7 @@ struct ViewItemView_Previews: PreviewProvider {
         ]
         state.isMasterPasswordRePromptOn = false
         state.name = "Example"
+        state.notes = "secure note"
         state.loginState.fido2Credentials = [
             .fixture(creationDate: Date(timeIntervalSince1970: 1_710_494_110)),
         ]
@@ -223,6 +224,16 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         )
         state.loginState.username = "email@example.com"
+        return state
+    }
+
+    static var secureNoteState: CipherItemState {
+        var state = CipherItemState(
+            existing: cipher,
+            hasPremium: true
+        )!
+        state.notes = "secure note"
+        state.type = .secureNote
         return state
     }
 
@@ -265,6 +276,8 @@ struct ViewItemView_Previews: PreviewProvider {
         cardPreview
 
         loginPreview
+
+        secureNotePreview
 
         sshKeyPreview
     }
@@ -311,6 +324,28 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("Login")
+    }
+
+    @ViewBuilder static var secureNotePreview: some View {
+        NavigationView {
+            ViewItemView(
+                store: Store(
+                    processor: StateProcessor(
+                        state: ViewItemState(
+                            loadingState: .data(secureNoteState)
+                        )
+                    )
+                ),
+                timeProvider: PreviewTimeProvider(
+                    fixedDate: Date(
+                        timeIntervalSinceReferenceDate: .init(
+                            1_695_000_011
+                        )
+                    )
+                )
+            )
+        }
+        .previewDisplayName("SecureNote")
     }
 
     @ViewBuilder static var sshKeyPreview: some View {

@@ -77,6 +77,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasTwoStepLoginService
         & HasVaultRepository
         & HasVaultTimeoutService
+        & HasWatchService
 
     // MARK: Private Properties
 

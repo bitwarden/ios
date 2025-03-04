@@ -39,6 +39,7 @@
 "InvalidPIN" = "קוד PIN שגוי. נסה שוב.";
 "Launch" = "הפעל";
 "LogIn" = "Log in";
+"LoginCredentials" = "Login credentials";
 "LogInNoun" = "כניסה";
 "LogOut" = "התנתק";
 "LogoutConfirmation" = "האם אתה בטוח שברצונך להתנתק?";
@@ -65,7 +66,6 @@
 "Sync" = "סנכרן";
 "ThankYou" = "תודה";
 "Tools" = "כלים";
-"URI" = "כתובת";
 "UseFingerprintToUnlock" = "השתמש בטביעת אצבע לפתיחה";
 "UseThisButtonToGenerateANewUniquePassword" = "Use this button to generate a new unique password.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "You'll only need to set up Authenticator Key for logins that require two-factor authentication with a code. The key will continuously generate six-digit codes you can use to log in.";
@@ -100,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwarden Autofill Service";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmail" = "החלף אימייל";
+"ChangeEmailAddress" = "Change email address";
 "ChangeEmailConfirmation" = "באפשרותך לשנות את כתובת האימייל שלך דרך הכספת באתר bitwarden.com. האם ברצונך לפתוח את האתר כעת?";
 "ChangeMasterPassword" = "החלף סיסמה ראשית";
 "Close" = "סגירה";
@@ -144,6 +144,7 @@
 "MasterPasswordConfirmationValMessage" = "שדה אימות סיסמה שגוי.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
 "MasterPasswordHint" = "Master password hint";
+"NewMasterPasswordHint" = "New master password hint";
 "MasterPasswordHintDescription" = "רמז לסיסמה הראשית יכול לעזור במקרה ושכחת את הסיסמה.";
 "MasterPasswordLengthValMessageX" = "הסיסמה הראשית חייבת להיות לפחות באורך %1$@ תווים.";
 "MinNumbers" = "מינימום ספרות";
@@ -175,7 +176,6 @@
 "Select" = "בחר";
 "SetPIN" = "קבע קוד PIN";
 "SetPINDirection" = "הזן קוד PIN של 4 ספרות בכדי לבטל את נעילת האפליקציה.";
-"ItemInformation" = "מידע על הפריט";
 "ItemUpdated" = "הפריט עודכן.";
 "Submitting" = "שולח...";
 "Syncing" = "מסנכרן...";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "המכשיר שלך לא יכול לפתוח סוג זה של קובץ.";
 "Downloading" = "מוריד...";
 "AttachmentLargeWarning" = "גודל הקובץ המצורף הוא %1$@. האם אתה בטוח שברצונך להוריד אותו למכשירך?";
-"AuthenticatorKey" = "מפתח אימות (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "קוד אימות (TOTP)";
 "AuthenticatorKeyAdded" = "מפתח אימות נוסף.";
 "AuthenticatorKeyReadError" = "קריאת מפתח האימות נכשלה.";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "הכספת נעולה";
 "GoToMyVault" = "עבור לכספת שלי";
 "Collections" = "אוספים";
-"NoItemsCollection" = "אין פרטים באוסף זה.";
-"NoItemsFolder" = "אין פריטים בתיקיה זו.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "אין פריטים בסל המחזור.";
 "AutofillAccessibilityService" = "Autofill Accessibility Service";
 "AutofillServiceDescription" = "The Bitwarden autofill service uses the Android Autofill Framework to assist in filling login information into other apps on your device.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "שדה מותאם אישית חדש";
 "SelectTypeField" = "איזה סוג של שדה מותאם אישית ברצונך להוסיף?";
 "Remove" = "הסר";
-"NewUri" = "כתובת חדשה";
 "URIPosition" = "כתובת %1$@";
 "BaseDomain" = "שם בסיס הדומיין";
 "Default" = "ברירת המחדל";
@@ -392,7 +391,6 @@
 "Logins" = "פרטי התחברות";
 "SecureNotes" = "פתקים מאובטחים";
 "AllItems" = "כל הפריטים";
-"URIs" = "כתובות";
 "CheckingPassword" = "בודק סיסמה...";
 "CheckPassword" = "בדוק אם הסיסמה נחשפה.";
 "PasswordExposed" = "הסיסמה הזו נחשפה %1$@ פעמים בפריצות אבטחה. כדאי לשנות אותה.";
@@ -411,8 +409,6 @@
 "MoveDown" = "הזז למטה";
 "MoveUp" = "הזז למעלה";
 "Miscellaneous" = "שונות";
-"Ownership" = "בעלות";
-"WhoOwnsThisItem" = "מי הבעלים של הפריט הזה?";
 "NoCollectionsToList" = "אין אוספים להציג ברשימה.";
 "MovedItemToOrg" = "%1$@ הועבר ל%2$@.";
 "ItemShared" = "הפריט שותף.";
@@ -432,6 +428,7 @@
 "YourAccountsFingerprint" = "הסיסמה של טביעת האצבעות בחשבון שלך";
 "LearnOrgConfirmation" = "Bitwarden מאפשר לך לשתף את פריטי הכספת שלך עם אחרים באמצעות חשבון ארגוני.
 האם תרצה לבקר באתר bitwarden.com כדי ללמוד עוד?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "We are unable to process your request. Please try again or contact us.";
 "Export" = "Export";
 "ExportVault" = "יצוא כספת";
 "LockNow" = "נעל עכשיו";
@@ -682,10 +679,8 @@
 "CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
 "ScanQRCode" = "Scan QR Code";
 "CannotScanQRCode" = "Cannot scan QR Code?";
-"AuthenticatorKeyScanner" = "Authenticator key";
 "EnterKeyManually" = "Enter key manually";
 "AddTotp" = "Add TOTP";
-"SetupTotp" = "Set up TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "Once the key is successfully entered, select Save to store the key safely.";
 "NeverLockWarning" = "Setting your lock options to “Never” keeps your vault available to anyone with access to your device. If you use this option, you should ensure that you keep your device properly protected.";
 "EnvironmentPageUrlsError" = "One or more of the URLs entered are invalid. Please revise it and try to save again.";
@@ -786,13 +781,19 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "There are no items in your vault that match \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Search for an item or add a new item";
 "ThereAreNoItemsThatMatchTheSearch" = "There are no items that match the search";
+"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
+"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
+"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
+"ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "US";
 "EU" = "EU";
 "SelfHosted" = "Self-hosted";
 "DataRegion" = "Data region";
 "Region" = "Region";
 "UpdateWeakMasterPasswordWarning" = "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour.";
-"CurrentMasterPassword" = "Current master password";
+"CurrentMasterPasswordRequired" = "Current master password (required)";
+"NewMasterPasswordRequired" = "New master password (required)";
 "LoggedIn" = "Logged in!";
 "ApproveWithMyOtherDevice" = "Approve with my other device";
 "RequestAdminApproval" = "Request admin approval";
@@ -925,7 +926,8 @@
 "FilePasswordDescription" = "This password will be used to export and import this file";
 "CreatingOn" = "Creating on";
 "CheckYourEmail" = "Check your email";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Follow the instructions in the email sent to %1$@ to continue creating your account.";
+"WeSentAnEmailTo" = "We sent an email to %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Select the link in the email to verify your email address and continue creating your account.";
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "Open email app";
@@ -979,6 +981,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Choose a unique and strong password to keep your information safe.";
 "MasterPasswordRequired" = "Master password (required)";
 "RetypeMasterPasswordRequired" = "Re-type master password (required)";
+"RetypeNewMasterPasswordRequired" = "Re-type new master password (required)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden cannot reset a lost or forgotten master password.";
 "LearnAboutWaysToPreventAccountLockout" = "Learn about ways to prevent account lockout";
 "WhatMakesAPasswordStrong" = "What makes a password strong?";
@@ -1018,6 +1021,20 @@
 "SendSensitiveInformationSafely" = "Send sensitive information, safely";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Share files and data securely with anyone, on any platform. Your information will remain end-to-end encrypted while limiting exposure.";
 "NewLogin" = "New login";
+"NewCard" = "New card";
+"NewIdentity" = "New identity";
+"NewNote" = "New note";
+"NewSSHKey" = "New SSH key";
+"EditLogin" = "Edit login";
+"EditCard" = "Edit card";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Edit note";
+"EditSSHKey" = "Edit SSH key";
+"ViewLogin" = "View login";
+"ViewCard" = "View card";
+"ViewIdentity" = "View identity";
+"ViewNote" = "View note";
+"ViewSSHKey" = "View SSH key";
 "ImportSavedLogins" = "Import saved logins";
 "ImportSavedLoginsDescriptionLong" = "Use a computer to import logins from an existing password manager.";
 "ImportLogins" = "Import logins";
@@ -1114,3 +1131,21 @@
 "CheckPasswordForDataBreaches" = "Check password for data breaches";
 "PrivateNote" = "Private note";
 "XItems" = "%1$@ items";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Cannot delete this user because it is the sole owner of at least one organization. Please delete these organizations or upgrade another user.";
+"APasskeyAlreadyExistsForThisApplication" = "A passkey already exists for this application.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "A passkey already exists for this application but an error occurred while loading it.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
+"ItemNameRequired" = "Item name (required)";
+"AutofillOptions" = "Autofill options";
+"WebsiteURI" = "Website (URI)";
+"AddWebsite" = "Add website";
+"CannotDeleteAccount" = "Cannot delete account";
+"CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
+"NewFolder" = "New folder";
+"SetUpAuthenticatorKey" = "Set up authenticator key";
+"ItemDetails" = "Item details";
+"CardDetails" = "Card details";
+"PersonalDetails" = "Personal details";
+"ContactInfo" = "Contact info";
+"Identification" = "Identification";
+"Owner" = "Owner";

@@ -25,7 +25,7 @@ struct UpdateMasterPasswordView: View {
             ContentBlock {
                 if store.state.requireCurrentPassword {
                     BitwardenTextField(
-                        title: Localizations.currentMasterPassword,
+                        title: Localizations.currentMasterPasswordRequired,
                         text: store.binding(
                             get: \.currentMasterPassword,
                             send: UpdateMasterPasswordAction.currentMasterPasswordChanged
@@ -41,7 +41,7 @@ struct UpdateMasterPasswordView: View {
                 }
 
                 BitwardenTextField(
-                    title: Localizations.masterPassword,
+                    title: Localizations.newMasterPasswordRequired,
                     text: store.binding(
                         get: \.masterPassword,
                         send: UpdateMasterPasswordAction.masterPasswordChanged
@@ -51,12 +51,21 @@ struct UpdateMasterPasswordView: View {
                     isPasswordVisible: store.binding(
                         get: \.isMasterPasswordRevealed,
                         send: UpdateMasterPasswordAction.revealMasterPasswordFieldPressed
-                    )
+                    ),
+                    footerContent: {
+                        PasswordStrengthIndicator(
+                            passwordStrengthScore: store.state.passwordStrengthScore,
+                            passwordTextCount: store.state.masterPassword.count,
+                            requiredTextCount: store.state.requiredPasswordCount,
+                            nativeCreateAccountFlow: true
+                        )
+                        .padding(.vertical, 12)
+                    }
                 )
                 .textFieldConfiguration(.password)
 
                 BitwardenTextField(
-                    title: Localizations.retypeMasterPassword,
+                    title: Localizations.retypeNewMasterPasswordRequired,
                     text: store.binding(
                         get: \.masterPasswordRetype,
                         send: UpdateMasterPasswordAction.masterPasswordRetypeChanged
@@ -71,31 +80,47 @@ struct UpdateMasterPasswordView: View {
                 .textFieldConfiguration(.password)
 
                 BitwardenTextField(
-                    title: Localizations.masterPasswordHint,
+                    title: Localizations.newMasterPasswordHint,
                     text: store.binding(
                         get: \.masterPasswordHint,
                         send: UpdateMasterPasswordAction.masterPasswordHintChanged
                     ),
-                    footer: Localizations.masterPasswordHintDescription,
-                    accessibilityIdentifier: "MasterPasswordHintLabel"
+                    accessibilityIdentifier: "MasterPasswordHintLabel",
+                    footerContent: {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(Localizations.bitwardenCannotResetALostOrForgottenMasterPassword)
+                                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+                                .styleGuide(.footnote)
+
+                            Button {
+                                store.send(.preventAccountLockTapped)
+                            } label: {
+                                Text(Localizations.learnAboutWaysToPreventAccountLockout)
+                            }
+                            .buttonStyle(.bitwardenBorderless)
+                            .accessibilityIdentifier("PreventAccountLockButton")
+                        }
+                        .padding(.vertical, 12)
+                    }
                 )
             }
-
-            AsyncButton(Localizations.submit) {
-                await store.perform(.submitPressed)
-            }
-            .accessibilityIdentifier("SubmitButton")
-            .buttonStyle(.primary())
         }
         .scrollView(padding: 12)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.updateMasterPassword)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .navigationBarTrailing) {
+            ToolbarItemGroup(placement: .topBarLeading) {
                 toolbarButton(Localizations.logOut) {
-                    await store.perform(.logoutPressed)
+                    await store.perform(.logoutTapped)
                 }
+            }
+
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                primaryActionToolbarButton(Localizations.save) {
+                    await store.perform(.saveTapped)
+                }
+                .accessibilityIdentifier("SaveButton")
             }
         }
         .task {

@@ -171,4 +171,61 @@ class IdentityItemStateTests: XCTestCase {
 
         XCTAssertEqual(subject.fullAddress, "")
     }
+
+    /// `isContactInfoSectionEmpty` returns `false` if there are items to display in the contact info section.
+    func test_isContactInfoSectionEmpty_false() {
+        let subjectWithEmailAddress = IdentityItemState(email: "test@example.com")
+        XCTAssertFalse(subjectWithEmailAddress.isContactInfoSectionEmpty)
+
+        let subjectWithPhone = IdentityItemState(phone: "123-456-7890")
+        XCTAssertFalse(subjectWithPhone.isContactInfoSectionEmpty)
+
+        let subjectWithAddress = IdentityItemState(address1: "123 Main St.")
+        XCTAssertFalse(subjectWithAddress.isContactInfoSectionEmpty)
+    }
+
+    /// `isContactInfoSectionEmpty` returns `true` if there are no items to display in the contact info section.
+    func test_isContactInfoSectionEmpty_true() {
+        let subject = IdentityItemState()
+        XCTAssertTrue(subject.isContactInfoSectionEmpty)
+    }
+
+    /// `isIdentificationSectionEmpty` returns `false` if there are items to display in the identification section.
+    func test_isIdentificationSectionEmpty_false() {
+        let subjectWithSocialSecurityNumber = IdentityItemState(socialSecurityNumber: "1234567890")
+        XCTAssertFalse(subjectWithSocialSecurityNumber.isIdentificationSectionEmpty)
+
+        let subjectWithPassportNumber = IdentityItemState(passportNumber: "12345")
+        XCTAssertFalse(subjectWithPassportNumber.isIdentificationSectionEmpty)
+
+        let subjectWithLicenseNumber = IdentityItemState(licenseNumber: "ABC123")
+        XCTAssertFalse(subjectWithLicenseNumber.isIdentificationSectionEmpty)
+    }
+
+    /// `isIdentificationSectionEmpty` returns `true` if there are no items to display in the identification section.
+    func test_isIdentificationSectionEmpty_true() {
+        let subject = IdentityItemState()
+        XCTAssertTrue(subject.isIdentificationSectionEmpty)
+    }
+
+    /// `isPersonalDetailsSectionEmpty` returns `false` if there are items to display in the personal details section.
+    func test_isPersonalDetailsSectionEmpty_false() {
+        let subjectWithFirstName = IdentityItemState(firstName: "John")
+        XCTAssertFalse(subjectWithFirstName.isPersonalDetailsSectionEmpty)
+
+        let subjectWithLastName = IdentityItemState(lastName: "Doe")
+        XCTAssertFalse(subjectWithLastName.isPersonalDetailsSectionEmpty)
+
+        let subjectWithUsername = IdentityItemState(userName: "john")
+        XCTAssertFalse(subjectWithUsername.isPersonalDetailsSectionEmpty)
+
+        let subjectWithCompany = IdentityItemState(company: "Acme Inc.")
+        XCTAssertFalse(subjectWithCompany.isPersonalDetailsSectionEmpty)
+    }
+
+    /// `isPersonalDetailsSectionEmpty` returns `true` if there are no items to display in the personal details section.
+    func test_isPersonalDetailsSectionEmpty_true() {
+        let subject = IdentityItemState()
+        XCTAssertTrue(subject.isPersonalDetailsSectionEmpty)
+    }
 }

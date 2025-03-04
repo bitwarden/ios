@@ -1,0 +1,55 @@
+{
+    "accounts": [
+        {
+            "originalIssuerName": "Name",
+            "originalUserName": "person@example.com",
+            "accountID": "",
+            "secret": "Secret1One",
+            "userName": "person@example.com",
+            "issuerName": "Name",
+            "folderData": {
+                "position": 0,
+                "folderId": 0
+            },
+            "lmiUserId": "",
+            "algorithm": "SHA1",
+            "digits": 6,
+            "isFavorite": false,
+            "timeStep": 30,
+            "creationTimestamp": 1715971083
+        },
+        {
+            "secret": "SecretTwo",
+            "userName": "name",
+            "creationTimestamp": 1715971137,
+            "accountID": "",
+            "originalUserName": "name",
+            "lmiUserId": "",
+            "originalIssuerName": "Issuer2",
+            "issuerName": "Issuer2",
+            "timeStep": 60,
+            "folderData": {
+                "folderId": 0,
+                "position": 1
+            },
+            "digits": 8,
+            "isFavorite": true,
+            "algorithm": "SHA512"
+        }
+    ],
+    "version": 1,
+    "localDeviceId": "D28801E6-4321-4B8F-BB0C-E8AFDD915FFF",
+    "folders": [
+        {
+            "id": 1,
+            "isOpened": true,
+            "name": "Favorites"
+        },
+        {
+            "name": "Other Accounts",
+            "isOpened": true,
+            "id": 0
+        }
+    ],
+    "deviceName": "iPhone15,4"
+}

@@ -21,15 +21,7 @@ struct FloatingActionButton: View {
 
     var body: some View {
         Button(action: action) {
-            image
-                .imageStyle(
-                    .init(
-                        color: Asset.Colors.buttonFilledForeground.swiftUIColor,
-                        scaleWithFont: false,
-                        width: 32,
-                        height: 32
-                    )
-                )
+            image.imageStyle(.floatingActionButton)
         }
         .buttonStyle(CircleButtonStyle(diameter: 50))
         .accessibilitySortPriority(1)

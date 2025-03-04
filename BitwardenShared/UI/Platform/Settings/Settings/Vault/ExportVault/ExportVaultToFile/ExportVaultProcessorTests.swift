@@ -358,22 +358,29 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `.receive()` with `.filePasswordTextChanged()` updates the password strength.
     @MainActor
     func test_receive_filePasswordTextChanged_updatesPasswordStrength() {
-        authRepository.passwordStrengthResult = 1
+        authRepository.passwordStrengthResult = .success(1)
         subject.receive(.filePasswordTextChanged("file"))
         waitFor(subject.state.filePasswordStrengthScore == 1)
         XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "file")
-        XCTAssertEqual(subject.state.filePasswordStrengthScore, 1)
 
-        authRepository.passwordStrengthResult = 4
+        authRepository.passwordStrengthResult = .success(4)
         subject.receive(.filePasswordTextChanged("file password"))
         waitFor(subject.state.filePasswordStrengthScore == 4)
         XCTAssertFalse(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "file password")
-        XCTAssertEqual(subject.state.filePasswordStrengthScore, 4)
 
         subject.receive(.filePasswordTextChanged(""))
         XCTAssertNil(subject.state.filePasswordStrengthScore)
+    }
+
+    /// `receive(_:)` with `.filePasswordTextChanged(_:)` records an error if the `.passwordStrength()` throws.
+    @MainActor
+    func test_receive_filePasswordTextChanged_updatePasswordStrength_fails() {
+        authRepository.passwordStrengthResult = .failure(BitwardenTestError.example)
+        subject.receive(.filePasswordTextChanged("T"))
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, BitwardenTestError.example)
     }
 
     /// `.receive()` with `.filePasswordConfirmationTextChanged()` updates the file password confirmation text.

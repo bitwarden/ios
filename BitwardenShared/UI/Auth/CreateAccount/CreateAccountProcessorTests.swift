@@ -13,7 +13,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var captchaService: MockCaptchaService!
     var client: MockHTTPClient!
-    var clientAuth: MockClientAuth!
+    var authClient: MockAuthClient!
     var coordinator: MockCoordinator<AuthRoute, AuthEvent>!
     var errorReporter: MockErrorReporter!
     var subject: CreateAccountProcessor!
@@ -25,7 +25,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         captchaService = MockCaptchaService()
         client = MockHTTPClient()
-        clientAuth = MockClientAuth()
+        authClient = MockAuthClient()
         coordinator = MockCoordinator<AuthRoute, AuthEvent>()
         errorReporter = MockErrorReporter()
         subject = CreateAccountProcessor(
@@ -33,7 +33,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 captchaService: captchaService,
-                clientService: MockClientService(auth: clientAuth),
+                clientService: MockClientService(auth: authClient),
                 errorReporter: errorReporter,
                 httpClient: client
             ),
@@ -45,7 +45,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         super.tearDown()
         authRepository = nil
         captchaService = nil
-        clientAuth = nil
+        authClient = nil
         client = nil
         coordinator = nil
         errorReporter = nil
@@ -60,7 +60,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_captchaCompleted() throws {
         CreateAccountRequestModel.encoder.outputFormatting = .sortedKeys
         subject.state.isTermsAndPrivacyToggleOn = true
-        clientAuth.hashPasswordResult = .success("hashed password")
+        authClient.hashPasswordResult = .success("hashed password")
         client.result = .httpSuccess(testData: .createAccountRequest)
         subject.state = .fixture()
         subject.captchaCompleted(token: "token")
@@ -82,8 +82,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].body, try createAccountRequest.encode())
-        XCTAssertEqual(clientAuth.hashPasswordPassword, "password1234")
-        XCTAssertEqual(clientAuth.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
+        XCTAssertEqual(authClient.hashPasswordPassword, "password1234")
+        XCTAssertEqual(authClient.hashPasswordKdfParams, .pbkdf2(iterations: 600_000))
         XCTAssertEqual(coordinator.routes.last, .login(username: "email@example.com"))
     }
 
@@ -697,21 +697,28 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.passwordStrengthScore)
         XCTAssertNil(authRepository.passwordStrengthPassword)
 
-        authRepository.passwordStrengthResult = 0
+        authRepository.passwordStrengthResult = .success(0)
         subject.receive(.passwordTextChanged("T"))
         waitFor(subject.state.passwordStrengthScore == 0)
-        XCTAssertEqual(subject.state.passwordStrengthScore, 0)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
         XCTAssertTrue(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "T")
 
-        authRepository.passwordStrengthResult = 4
+        authRepository.passwordStrengthResult = .success(4)
         subject.receive(.passwordTextChanged("TestPassword1234567890!@#"))
         waitFor(subject.state.passwordStrengthScore == 4)
-        XCTAssertEqual(subject.state.passwordStrengthScore, 4)
         XCTAssertEqual(authRepository.passwordStrengthEmail, "user@bitwarden.com")
         XCTAssertTrue(authRepository.passwordStrengthIsPreAuth)
         XCTAssertEqual(authRepository.passwordStrengthPassword, "TestPassword1234567890!@#")
+    }
+
+    /// `receive(_:)` with `.passwordTextChanged(_:)` records an error if the `.passwordStrength()` throws.
+    @MainActor
+    func test_receive_passwordTextChanged_updatePasswordStrength_fails() {
+        authRepository.passwordStrengthResult = .failure(BitwardenTestError.example)
+        subject.receive(.passwordTextChanged("T"))
+        waitFor(!errorReporter.errors.isEmpty)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, BitwardenTestError.example)
     }
 
     /// `receive(_:)` with `.retypePasswordTextChanged(_:)` updates the state to reflect the change.

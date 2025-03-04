@@ -39,6 +39,7 @@
 "InvalidPIN" = "Неверный PIN. Попробуйте снова.";
 "Launch" = "Перейти";
 "LogIn" = "Войти";
+"LoginCredentials" = "Данные для авторизации";
 "LogInNoun" = "Вход";
 "LogOut" = "Выход";
 "LogoutConfirmation" = "Вы действительно хотите выйти?";
@@ -65,7 +66,6 @@
 "Sync" = "Синхронизация";
 "ThankYou" = "Спасибо";
 "Tools" = "Инструменты";
-"URI" = "URI";
 "UseFingerprintToUnlock" = "Использовать отпечаток пальца для разблокировки";
 "UseThisButtonToGenerateANewUniquePassword" = "Используйте эту кнопку для генерации нового уникального пароля.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам нужно настроить ключ аутентификатора только для логинов, которые требуют двухфакторной аутентификации с помощью кода. Ключ будет постоянно генерировать шестизначные коды, которые можно использовать для авторизации.";
@@ -100,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Используйте Bitwarden в Safari и других приложениях для автозаполнения логинов.";
 "BitwardenAutofillService" = "Служба автозаполнения Bitwarden";
 "BitwardenAutofillAccessibilityServiceDescription" = "Используйте службу специальных возможностей Bitwarden для автоматического заполнения логинов.";
-"ChangeEmail" = "Изменить email";
+"ChangeEmailAddress" = "Изменить адрес email";
 "ChangeEmailConfirmation" = "Вы можете изменить свой адрес электронной почты на bitwarden.com. Перейти на сайт сейчас?";
 "ChangeMasterPassword" = "Изменить мастер-пароль";
 "Close" = "Закрыть";
@@ -144,6 +144,7 @@
 "MasterPasswordConfirmationValMessage" = "Неверное подтверждение пароля.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Мастер-пароль - это пароль, используемый для доступа к вашему хранилищу.";
 "MasterPasswordHint" = "Подсказка к мастер-паролю";
+"NewMasterPasswordHint" = "Новая подсказка к мастер-паролю";
 "MasterPasswordHintDescription" = "Подсказка к мастер-паролю может помочь вам его вспомнить.";
 "MasterPasswordLengthValMessageX" = "Мастер-пароль должен содержать не менее %1$@ символов.";
 "MinNumbers" = "Минимум цифр";
@@ -175,7 +176,6 @@
 "Select" = "Выбрать";
 "SetPIN" = "Установка PIN";
 "SetPINDirection" = "Введите 4-значный PIN-код для разблокировки приложения.";
-"ItemInformation" = "Информация об элементе";
 "ItemUpdated" = "Элемент сохранен";
 "Submitting" = "Отправка...";
 "Syncing" = "Синхронизация...";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Устройство не может открыть файл этого типа.";
 "Downloading" = "Загрузка...";
 "AttachmentLargeWarning" = "Размер этого вложения - %1$@. Вы действительно хотите загрузить его на устройство?";
-"AuthenticatorKey" = "Ключ аутентификатора (TOTP)";
+"AuthenticatorKey" = "Authenticator key";
 "VerificationCodeTotp" = "Код подтверждения (TOTP)";
 "AuthenticatorKeyAdded" = "Ключ аутентификатора добавлен.";
 "AuthenticatorKeyReadError" = "Не удается прочитать ключ аутентификатора.";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Хранилище заблокировано";
 "GoToMyVault" = "Перейти в мое хранилище";
 "Collections" = "Коллекции";
-"NoItemsCollection" = "В этой коллекции нет элементов.";
-"NoItemsFolder" = "В этой папке нет элементов.";
+"NoItemsCollection" = "There are no items in this collection";
+"NoItemsFolder" = "There are no items in this folder";
 "NoItemsTrash" = "В корзине нет элементов.";
 "AutofillAccessibilityService" = "Служба специальных возможностей автозаполнения";
 "AutofillServiceDescription" = "Служба автозаполнения Bitwarden использует фреймворк автозаполнения Android для заполнения логинов в других приложениях на устройстве.";
@@ -354,7 +354,6 @@
 "NewCustomField" = "Новое пользовательское поле";
 "SelectTypeField" = "Какой тип пользовательского поля вы хотите добавить?";
 "Remove" = "Удалить";
-"NewUri" = "Новый URI";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Основной домен";
 "Default" = "По умолчанию";
@@ -392,7 +391,6 @@
 "Logins" = "Логины";
 "SecureNotes" = "Защищенные заметки";
 "AllItems" = "Все элементы";
-"URIs" = "URI";
 "CheckingPassword" = "Проверка пароля...";
 "CheckPassword" = "Проверьте, не скомпрометирован ли пароль.";
 "PasswordExposed" = "Этот пароль был скомпрометирован %1$@ раз(а). Вам следует его изменить.";
@@ -411,8 +409,6 @@
 "MoveDown" = "Переместить ниже";
 "MoveUp" = "Переместить выше";
 "Miscellaneous" = "Прочее";
-"Ownership" = "Владелец";
-"WhoOwnsThisItem" = "Кому принадлежит этот элемент?";
 "NoCollectionsToList" = "Нет коллекций для отображения.";
 "MovedItemToOrg" = "%1$@ перемещено в %2$@.";
 "ItemShared" = "Элемент был сделан общим.";
@@ -431,6 +427,7 @@
 "FingerprintPhrase" = "Фраза отпечатка";
 "YourAccountsFingerprint" = "Фраза отпечатка вашего аккаунта";
 "LearnOrgConfirmation" = "Bitwarden позволяет делиться элементами вашего хранилища с другими пользователями, используя аккаунт организации. Хотите посетить сайт bitwarden.com, чтобы узнать больше?";
+"WeAreUnableToProcessYourRequestPleaseTryAgainOrContactUs" = "Мы не можем обработать ваш запрос. Пожалуйста, попробуйте снова или свяжитесь с нами.";
 "Export" = "Экспорт";
 "ExportVault" = "Экспорт хранилища";
 "LockNow" = "Заблокировать";
@@ -680,10 +677,8 @@
 "CannotAddAuthenticatorKey" = "Не удается добавить ключ аутентификатора?";
 "ScanQRCode" = "Сканировать QR-код";
 "CannotScanQRCode" = "Не удается сосканировать QR-код?";
-"AuthenticatorKeyScanner" = "Ключ аутентификатора";
 "EnterKeyManually" = "Ввести ключ вручную";
 "AddTotp" = "Добавить TOTP";
-"SetupTotp" = "Настроить TOTP";
 "OnceTheKeyIsSuccessfullyEntered" = "После успешного ввода ключа
  выберите Добавить Totp, чтобы безопасно сохранить ключ.";
 "NeverLockWarning" = "При установке опции блокировки на \"Никогда\" хранилище будет доступно любому, кто имеет доступ к вашему устройству, поэтому убедитесь, что устройство защищено должным образом.";
@@ -785,13 +780,19 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "В вашем хранилище нет элементов, соответствующих \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Поиск или добавление нового элемента";
 "ThereAreNoItemsThatMatchTheSearch" = "Нет элементов, соответствующих запросу";
+"ThereAreNoLoginsInYourVault" = "В вашем хранилище нет логинов.";
+"ThereAreNoCardsInYourVault" = "В вашем хранилище нет карт.";
+"ThereAreNoNotesInYourVault" = "В вашем хранилище нет заметок.";
+"ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личных данных.";
+"ThereAreNoSSHKeysInYourVault" = "В вашем хранилище нет ключей SSH";
 "US" = "США";
 "EU" = "Европа";
 "SelfHosted" = "Собственный хостинг";
 "DataRegion" = "Регион данных";
 "Region" = "Регион";
 "UpdateWeakMasterPasswordWarning" = "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа.";
-"CurrentMasterPassword" = "Текущий мастер-пароль";
+"CurrentMasterPasswordRequired" = "Текущий мастер-пароль (обязательно)";
+"NewMasterPasswordRequired" = "Новый мастер-пароль (обязательно)";
 "LoggedIn" = "Выполнен вход!";
 "ApproveWithMyOtherDevice" = "Одобрить с другим устройством";
 "RequestAdminApproval" = "Запросить одобрение администратора";
@@ -926,7 +927,8 @@
 "FilePasswordDescription" = "Этот пароль будет использоваться для экспорта и импорта этого файла";
 "CreatingOn" = "Создание";
 "CheckYourEmail" = "Проверьте свою почту";
-"FollowTheInstructionsInTheEmailSentToXToContinueCreatingYourAccount" = "Следуйте инструкциям в письме, отправленном на %1$@, чтобы продолжить создание аккаунта.";
+"WeSentAnEmailTo" = "Мы отправили письмо на %1$@";
+"SelectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount" = "Кликните ссылку в письме, чтобы подтвердить свой адрес email и продолжить создание у аккаунта.";
 "NoEmailGoBackToEditYourEmailAddress" = "Нет письма? **[Вернитесь](https://)**, чтобы изменить свой адрес email.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Или **[авторизуйтесь](https://)**, возможно, у вас уже есть аккаунт.";
 "OpenEmailApp" = "Открыть приложение электронной почты";
@@ -980,6 +982,7 @@
 "ChooseAUniqueAndStrongPasswordToKeepYourInformationSafe" = "Задайте уникальный и надежный пароль, чтобы хранить информацию в безопасности.";
 "MasterPasswordRequired" = "Мастер-пароль (требуется)";
 "RetypeMasterPasswordRequired" = "Повторите мастер-пароль (требуется)";
+"RetypeNewMasterPasswordRequired" = "Повторите новый мастер-пароль (обязательно)";
 "BitwardenCannotResetALostOrForgottenMasterPassword" = "Bitwarden не может сбросить утерянный или забытый мастер-пароль.";
 "LearnAboutWaysToPreventAccountLockout" = "Узнайте о способах предотвращения блокировки аккаунта";
 "WhatMakesAPasswordStrong" = "Какой пароль считается надежным?";
@@ -1019,6 +1022,20 @@
 "SendSensitiveInformationSafely" = "Безопасная отправка конфиденциальной информации";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Безопасно обменивайтесь файлами и данными с кем угодно на любой платформе. Ваша информация надежно шифруется и доступ к ней ограничен.";
 "NewLogin" = "Новый логин";
+"NewCard" = "Новая карта";
+"NewIdentity" = "New identity";
+"NewNote" = "Новая заметка";
+"NewSSHKey" = "Новый ключ SSH";
+"EditLogin" = "Изменить логин";
+"EditCard" = "Редактировать карту";
+"EditIdentity" = "Edit identity";
+"EditNote" = "Редактировать заметку";
+"EditSSHKey" = "Редактировать ключ SSH";
+"ViewLogin" = "Просмотр логина";
+"ViewCard" = "Просмотр карты";
+"ViewIdentity" = "View identity";
+"ViewNote" = "Просмотр заметки";
+"ViewSSHKey" = "Просмотр ключа SSH";
 "ImportSavedLogins" = "Импортировать сохраненные логины";
 "ImportSavedLoginsDescriptionLong" = "Используйте компьютер для импорта логинов из существующего менеджера паролей.";
 "ImportLogins" = "Импорт логинов";
@@ -1115,3 +1132,21 @@
 "CheckPasswordForDataBreaches" = "Проверить пароль на скомпрометированность";
 "PrivateNote" = "Приватная заметка";
 "XItems" = "Элементов: %1$@";
+"CannotDeleteUserSoleOwnerDescriptionLong" = "Невозможно удалить этого пользователя, поскольку он является единственным владельцем по крайней мере одной организации. Пожалуйста, удалите эти организации или обновите другого пользователя.";
+"APasskeyAlreadyExistsForThisApplication" = "Для данного приложения уже существует passkey.";
+"APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Passkey уже существует для этого приложения, но при его загрузке произошла ошибка.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Мы не распознали это устройство. Введите 8-значный код подтверждения, который был отправлен на email %1$@.";
+"ItemNameRequired" = "Название элемента (обязательно)";
+"AutofillOptions" = "Параметры автозаполнения";
+"WebsiteURI" = "Сайт (URI)";
+"AddWebsite" = "Добавить сайт";
+"CannotDeleteAccount" = "Невозможно удалить аккаунт";
+"CannotDeleteAccountDescriptionLong" = "Это действие не может быть выполнено, поскольку ваш аккаунт принадлежит организации. Обратитесь к администратору организации за дополнительными сведениями.";
+"NewFolder" = "Новая папка";
+"SetUpAuthenticatorKey" = "Настроить ключ аутентификатора";
+"ItemDetails" = "Информация об элементе";
+"CardDetails" = "Реквизиты карты";
+"PersonalDetails" = "Личные данные";
+"ContactInfo" = "Контактная информация";
+"Identification" = "Идентификация";
+"Owner" = "Владелец";

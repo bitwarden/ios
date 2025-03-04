@@ -435,6 +435,9 @@ class DefaultAuthRepository {
     /// The service used by the application to make organization user-related API requests.
     private let organizationUserAPIService: OrganizationUserAPIService
 
+    /// The service used by the application to manage the policy.
+    private var policyService: PolicyService
+
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
@@ -462,6 +465,7 @@ class DefaultAuthRepository {
     ///   - organizationService: The service used to manage syncing and updates to the user's organizations.
     ///   - organizationUserAPIService: The service used by the application to make organization
     ///     user-related API requests.
+    ///   - policyService: The service used by the application to manage the policy.
     ///   - stateService: The service used by the application to manage account state.
     ///   - trustDeviceService: The service used by the application to manage trust device information.
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
@@ -479,6 +483,7 @@ class DefaultAuthRepository {
         organizationAPIService: OrganizationAPIService,
         organizationService: OrganizationService,
         organizationUserAPIService: OrganizationUserAPIService,
+        policyService: PolicyService,
         stateService: StateService,
         trustDeviceService: TrustDeviceService,
         vaultTimeoutService: VaultTimeoutService
@@ -495,6 +500,7 @@ class DefaultAuthRepository {
         self.organizationAPIService = organizationAPIService
         self.organizationService = organizationService
         self.organizationUserAPIService = organizationUserAPIService
+        self.policyService = policyService
         self.stateService = stateService
         self.trustDeviceService = trustDeviceService
         self.vaultTimeoutService = vaultTimeoutService
@@ -735,6 +741,10 @@ extension DefaultAuthRepository: AuthRepository {
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         try await keychainService.deleteItems(for: userId)
         await vaultTimeoutService.remove(userId: userId)
+
+        if await policyService.policyAppliesToUser(.removeUnlockWithPin) {
+            try await clearPins()
+        }
 
         // Log the account out last.
         try await stateService.logoutAccount(userId: userId, userInitiated: userInitiated)

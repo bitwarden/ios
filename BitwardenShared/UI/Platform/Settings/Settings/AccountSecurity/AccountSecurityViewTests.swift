@@ -187,6 +187,34 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(processor.effects.last, .toggleUnlockWithPINCode(true))
     }
 
+    /// When `.removeUnlockWithPin` policy is enabled and unlock with pin is disabled then Unlock with Pin is not shown.
+    @MainActor
+    func test_unlockWithPin_removeUnlockWithPinPolicyEnabled() throws {
+        processor.state.removeUnlockWithPinPolicyEnabled = true
+        XCTAssertThrowsError(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.unlockWithPIN))
+    }
+
+    /// When `.removeUnlockWithPin` policy is enabled and unlock with pin is enabled then Unlock with Pin is shown.
+    @MainActor
+    func test_unlockWithPin_removeUnlockWithPinPolicyEnabledWithPinEnabled() throws {
+        processor.state.removeUnlockWithPinPolicyEnabled = true
+        processor.state.isUnlockWithPINCodeOn = true
+        XCTAssertNoThrow(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.unlockWithPIN))
+    }
+
+    /// When `.removeUnlockWithPin` policy is enabled, unlock with pin disabled and biometrics is disabled then entire
+    /// Unlock options section is not shown.
+    @MainActor
+    func test_unlockWithPin_removeUnlockWithPinPolicyEnabledNoPinNorBiometrics() throws {
+        processor.state.removeUnlockWithPinPolicyEnabled = true
+        processor.state.isUnlockWithPINCodeOn = false
+        XCTAssertThrowsError(try subject.inspect().find(text: Localizations.unlockOptions))
+        XCTAssertThrowsError(try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.unlockWithPIN))
+        XCTAssertThrowsError(try subject.inspect().find(ViewType.Toggle.self) { view in
+            try view.accessibilityIdentifier() == "UnlockWithBiometricsSwitch"
+        })
+    }
+
     // MARK: Snapshots
 
     /// The view renders correctly with the vault unlock action card is displayed.
@@ -264,6 +292,25 @@ class AccountSecurityViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    /// The view renders correctly when the remove unlock with pin policy is enabled.
+    @MainActor
+    func test_snapshot_removeUnlockPinPolicyEnabled() {
+        let subject = AccountSecurityView(
+            store: Store(
+                processor: StateProcessor(
+                    state: AccountSecurityState(
+                        biometricUnlockStatus: .available(.faceID, enabled: true),
+                        removeUnlockWithPinPolicyEnabled: true
+                    )
+                )
+            )
+        )
+        assertSnapshots(
+            of: subject,
+            as: [.defaultPortrait, .defaultPortraitDark, .tallPortraitAX5()]
+        )
     }
 
     /// The view renders correctly when the `shouldShowAuthenticatorSyncSection` is `true`.

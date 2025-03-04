@@ -210,6 +210,9 @@ struct AccountSecurityState: Equatable {
     /// The policy's timeout action, if set.
     var policyTimeoutAction: SessionTimeoutAction?
 
+    /// Whether the policy to remove Unlock with pin feature is enabled.
+    var removeUnlockWithPinPolicyEnabled: Bool = false
+
     /// The action taken when a session timeout occurs.
     var sessionTimeoutAction: SessionTimeoutAction = .lock
 
@@ -294,5 +297,18 @@ struct AccountSecurityState: Equatable {
     /// The policy's timeout value in minutes.
     var policyTimeoutMinutes: Int {
         policyTimeoutValue % 60
+    }
+
+    /// Whether to show/hide unlock options.
+    var showUnlockOptions: Bool {
+        guard case .available = biometricUnlockStatus else {
+            return unlockWithPinFeatureAvailable
+        }
+        return true
+    }
+
+    /// Whether the unlock with Pin feature is available.
+    var unlockWithPinFeatureAvailable: Bool {
+        !removeUnlockWithPinPolicyEnabled || isUnlockWithPINCodeOn
     }
 }

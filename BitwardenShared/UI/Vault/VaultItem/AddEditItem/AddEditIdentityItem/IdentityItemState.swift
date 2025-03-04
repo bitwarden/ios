@@ -126,4 +126,25 @@ struct IdentityItemState: Equatable {
             licenseNumber: licenseNumber.nilIfEmpty
         )
     }
+
+    /// Whether the contact info section is empty.
+    var isContactInfoSectionEmpty: Bool {
+        email.isEmpty
+            && phone.isEmpty
+            && fullAddress.isEmpty
+    }
+
+    /// Whether the identification section is empty.
+    var isIdentificationSectionEmpty: Bool {
+        socialSecurityNumber.isEmpty
+            && passportNumber.isEmpty
+            && licenseNumber.isEmpty
+    }
+
+    /// Whether the personal details section is empty.
+    var isPersonalDetailsSectionEmpty: Bool {
+        identityName.isEmpty
+            && userName.isEmpty
+            && company.isEmpty
+    }
 }

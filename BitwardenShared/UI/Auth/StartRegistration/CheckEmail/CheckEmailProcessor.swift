@@ -28,8 +28,6 @@ class CheckEmailProcessor: StateProcessor<CheckEmailState, CheckEmailAction, Voi
 
     override func receive(_ action: CheckEmailAction) {
         switch action {
-        case .logInTapped:
-            coordinator.navigate(to: .dismiss)
         case .dismissTapped,
              .goBackTapped:
             coordinator.navigate(to: .dismissPresented)

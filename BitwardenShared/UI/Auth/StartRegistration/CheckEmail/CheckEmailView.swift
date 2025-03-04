@@ -23,10 +23,11 @@ struct CheckEmailView: View {
                     .frame(width: 100, height: 100)
                     .foregroundColor(Asset.Colors.iconSecondary.swiftUIColor)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 32)
+                    .padding(.top, 36)
+                    .padding(.bottom, 32)
 
                 Text(Localizations.checkYourEmail)
-                    .styleGuide(.title2)
+                    .styleGuide(.title2, weight: .semibold)
                     .multilineTextAlignment(.center)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
                     .frame(maxWidth: .infinity)
@@ -35,42 +36,34 @@ struct CheckEmailView: View {
                 Text(LocalizedStringKey(store.state.headelineTextBoldEmail))
                     .styleGuide(.headline)
                     .multilineTextAlignment(.center)
-                    .padding(.bottom, 20)
                     .padding(.horizontal, 34)
                     .tint(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+
+                Text(Localizations.selectTheLinkInTheEmailToVerifyYourEmailAddressAndContinueCreatingYourAccount)
+                    .styleGuide(.body)
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 20)
+                    .padding(.horizontal, 34)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
                 Button(Localizations.openEmailApp) {
                     openURL(URL(string: "message://")!)
                 }
                 .accessibilityIdentifier("OpenEmailAppButton")
-                .padding(.horizontal, 50)
-                .padding(.bottom, 32)
+                .padding(.bottom, 12)
                 .buttonStyle(.primary())
 
-                Text(LocalizedStringKey(Localizations.noEmailGoBackToEditYourEmailAddress))
-                    .styleGuide(.subheadline)
-                    .tint(Asset.Colors.textInteraction.swiftUIColor)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .padding([.horizontal, .bottom], 32)
-                    .environment(\.openURL, OpenURLAction { _ in
-                        store.send(.goBackTapped)
-                        return .handled
-                    })
-
-                Text(LocalizedStringKey(Localizations.orLogInYouMayAlreadyHaveAnAccount))
-                    .styleGuide(.subheadline)
-                    .tint(Asset.Colors.textInteraction.swiftUIColor)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .padding(.horizontal, 32)
-                    .environment(\.openURL, OpenURLAction { _ in
-                        store.send(.logInTapped)
-                        return .handled
-                    })
+                Button(Localizations.changeEmailAddress) {
+                    store.send(.goBackTapped)
+                }
+                .accessibilityIdentifier("ChangeEmailAddressButton")
+                .padding(.bottom, 32)
+                .buttonStyle(.secondary())
             }
         }
         .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
-        .scrollView()
+        .scrollView(padding: 12)
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismissTapped)
