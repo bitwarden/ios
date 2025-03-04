@@ -4,7 +4,6 @@ import XCTest
 
 // MARK: - RootViewControllerTests
 
-@MainActor
 class RootViewControllerTests: AuthenticatorTestCase {
     // MARK: Properties
 
@@ -26,6 +25,7 @@ class RootViewControllerTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// `childViewController` swaps between different view controllers.
+    @MainActor
     func test_childViewController_withNewViewController() {
         let viewController1 = UIViewController()
         subject.childViewController = viewController1
@@ -38,6 +38,7 @@ class RootViewControllerTests: AuthenticatorTestCase {
     }
 
     /// `childViewController` removes the current view controller when set to `nil`.
+    @MainActor
     func test_childViewController_nil() {
         let viewController1 = UIViewController()
         subject.childViewController = viewController1
@@ -49,6 +50,7 @@ class RootViewControllerTests: AuthenticatorTestCase {
     }
 
     /// `rootViewController` returns itself, instead of the current `childViewController`.
+    @MainActor
     func test_rootViewController() {
         let viewController = UIViewController()
         subject.childViewController = viewController
@@ -56,6 +58,7 @@ class RootViewControllerTests: AuthenticatorTestCase {
     }
 
     /// `show(child:)` sets `childViewController` to the `rootViewController` on the child navigator.
+    @MainActor
     func test_show() {
         let navigator = MockStackNavigator()
         navigator.rootViewController = UIViewController()

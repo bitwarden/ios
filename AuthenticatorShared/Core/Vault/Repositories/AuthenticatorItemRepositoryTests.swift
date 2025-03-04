@@ -484,6 +484,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
 
     /// `itemListPublisher()` returns a favorites section and sections for each sync'd account when the
     /// feature flag is enabled and the user has turned on sync.
+    @MainActor
     func test_itemListPublisher_syncOn() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
@@ -525,6 +526,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
 
     /// `itemListPublisher()` correctly handles the empty/nil cases for different sections of the item list when
     /// the feature flag is enabled and the user has turned on Sync for multiple accounts.
+    @MainActor
     func test_itemListPublisher_withMultipleAccountSync() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true

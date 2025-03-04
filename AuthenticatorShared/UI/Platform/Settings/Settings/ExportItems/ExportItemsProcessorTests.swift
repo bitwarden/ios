@@ -46,6 +46,7 @@ class ExportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// `.receive()` with `.dismiss` dismisses the view and clears any files.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
 
@@ -54,6 +55,7 @@ class ExportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// `.receive()` with `.exportItemsTapped` shows the confirm alert for unencrypted formats.
+    @MainActor
     func test_receive_exportItemsTapped_unencrypted() {
         subject.state.fileFormat = .json
         subject.receive(.exportItemsTapped)
@@ -63,6 +65,7 @@ class ExportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// `.receive()` with  `.exportItemsTapped` logs an error on export failure.
+    @MainActor
     func test_receive_exportItemsTapped_unencrypted_error() throws {
         exportService.exportFileContentResult = .failure(AuthenticatorTestError.example)
         subject.state.fileFormat = .csv
@@ -79,6 +82,7 @@ class ExportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// `.receive()` with  `.exportItemsTapped` passes a file url to the coordinator on success.
+    @MainActor
     func test_receive_exportItemsTapped_unencrypted_success() throws {
         let testURL = URL(string: "www.bitwarden.com")!
         exportService.exportFileContentResult = .success("")
@@ -97,6 +101,7 @@ class ExportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// `.receive()` with `.fileFormatTypeChanged()` updates the file format.
+    @MainActor
     func test_receive_fileFormatTypeChanged() {
         subject.receive(.fileFormatTypeChanged(.csv))
 
