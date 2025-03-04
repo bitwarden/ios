@@ -4,7 +4,6 @@ import XCTest
 
 // MARK: - AppCoordinatorTests
 
-@MainActor
 class AppCoordinatorTests: AuthenticatorTestCase {
     // MARK: Properties
 

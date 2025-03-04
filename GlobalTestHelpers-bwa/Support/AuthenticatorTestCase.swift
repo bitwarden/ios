@@ -3,7 +3,6 @@ import SnapshotTesting
 import SwiftUI
 import XCTest
 
-@MainActor
 open class AuthenticatorTestCase: XCTestCase {
     /// The window being used for testing. Defaults to a new window with the same size as `UIScreen.main.bounds`.
     public var window: UIWindow!
