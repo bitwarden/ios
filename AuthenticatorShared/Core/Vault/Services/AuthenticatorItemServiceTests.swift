@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AuthenticatorItemServiceTests: AuthenticatorTestCase {
+class AuthenticatorItemServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var authenticatorItemDataStore: MockAuthenticatorItemDataStore!

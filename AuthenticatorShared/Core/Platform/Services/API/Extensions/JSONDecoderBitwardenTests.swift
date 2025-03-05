@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class JSONDecoderBitwardenTests: AuthenticatorTestCase {
+class JSONDecoderBitwardenTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `JSONDecoder.defaultDecoder` can decode ISO8601 dates with fractional seconds.

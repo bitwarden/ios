@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AppModuleTests: AuthenticatorTestCase {
+class AppModuleTests: BitwardenTestCase {
     // MARK: Properties
 
     var rootViewController: RootViewController!

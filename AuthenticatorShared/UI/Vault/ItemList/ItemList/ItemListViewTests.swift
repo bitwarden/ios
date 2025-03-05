@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - ItemListViewTests
 
-class ItemListViewTests: AuthenticatorTestCase {
+class ItemListViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ItemListState, ItemListAction, ItemListEffect>!

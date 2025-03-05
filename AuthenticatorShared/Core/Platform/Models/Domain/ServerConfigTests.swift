@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class ServerConfigTests: AuthenticatorTestCase {
+final class ServerConfigTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `init` properly converts feature flags

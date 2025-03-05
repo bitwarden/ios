@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class ExportItemsProcessorTests: AuthenticatorTestCase {
+class ExportItemsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!

@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AppSettingsStoreTests
 
-class AppSettingsStoreTests: AuthenticatorTestCase {
+class AppSettingsStoreTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: AppSettingsStore!

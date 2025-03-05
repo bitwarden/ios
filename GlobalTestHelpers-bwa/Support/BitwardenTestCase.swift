@@ -4,7 +4,7 @@ import SwiftUI
 import TestHelpers
 import XCTest
 
-open class AuthenticatorTestCase: BaseBitwardenTestCase {
+open class BitwardenTestCase: BaseBitwardenTestCase {
     @MainActor
     override open class func setUp() {
         // Apply default appearances for snapshot tests.

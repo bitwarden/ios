@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AlertErrorTests: AuthenticatorTestCase {
+class AlertErrorTests: BitwardenTestCase {
     /// `defaultAlert(title:message:)` constructs an `Alert` with the title, message, and an OK button.
     func test_defaultAlert() {
         let subject = Alert.defaultAlert(title: "title", message: "message")

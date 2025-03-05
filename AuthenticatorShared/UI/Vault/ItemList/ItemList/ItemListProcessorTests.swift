@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - ItemListProcessorTests
 
-class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this type_body_length
+class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var application: MockApplication!

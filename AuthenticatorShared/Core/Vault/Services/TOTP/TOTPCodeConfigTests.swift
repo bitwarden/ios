@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - TOTPCodeConfigTests
 
-final class TOTPCodeConfigTests: AuthenticatorTestCase {
+final class TOTPCodeConfigTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tests that a malformed string does not create a model.

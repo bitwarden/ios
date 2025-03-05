@@ -2,7 +2,7 @@
 
 import XCTest
 
-final class SequenceAsyncTests: AuthenticatorTestCase {
+final class SequenceAsyncTests: BitwardenTestCase {
     /// `asyncMap` correctly maps each element.
     func test_asyncMap_success() async {
         let input = [1, 2, 3]

@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - TutorialViewTests
 
-class TutorialViewTests: AuthenticatorTestCase {
+class TutorialViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<TutorialState, TutorialAction, TutorialEffect>!

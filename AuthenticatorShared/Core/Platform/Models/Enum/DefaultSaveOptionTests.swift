@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class DefaultSaveOptionTests: AuthenticatorTestCase {
+class DefaultSaveOptionTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `allCases` returns all of the cases in the correct order.

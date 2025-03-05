@@ -4,7 +4,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:disable:this type_body_length
+class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authItemService: MockAuthenticatorItemService!

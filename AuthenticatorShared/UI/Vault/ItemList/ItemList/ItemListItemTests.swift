@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - ItemListItemTests
 
-class ItemListItemTests: AuthenticatorTestCase {
+class ItemListItemTests: BitwardenTestCase {
     var subject: ItemListItem!
 
     func test_localizedNameComparator() {

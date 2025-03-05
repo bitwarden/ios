@@ -4,7 +4,7 @@ import XCTest
 @testable import AuthenticatorShared
 
 @MainActor
-class StoreTests: AuthenticatorTestCase {
+class StoreTests: BitwardenTestCase {
     var processor: MockProcessor<TestState, TestAction, TestEffect>!
     var subject: Store<TestState, TestAction, TestEffect>!
 

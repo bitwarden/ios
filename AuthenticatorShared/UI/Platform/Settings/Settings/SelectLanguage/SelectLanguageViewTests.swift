@@ -5,7 +5,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class SelectLanguageViewTests: AuthenticatorTestCase {
+class SelectLanguageViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<SelectLanguageState, SelectLanguageAction, Void>!

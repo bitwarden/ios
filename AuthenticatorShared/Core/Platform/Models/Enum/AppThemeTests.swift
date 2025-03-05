@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AppThemeTests: AuthenticatorTestCase {
+class AppThemeTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `init` returns the expected values.

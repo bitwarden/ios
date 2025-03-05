@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - TOTPServiceTests
 
-final class TOTPServiceTests: AuthenticatorTestCase {
+final class TOTPServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var clientService: MockClientService!

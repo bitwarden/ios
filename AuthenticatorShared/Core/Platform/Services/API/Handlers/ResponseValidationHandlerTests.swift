@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class ResponseValidationHandlerTests: AuthenticatorTestCase {
+class ResponseValidationHandlerTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: ResponseValidationHandler!

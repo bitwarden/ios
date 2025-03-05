@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class DebugMenuProcessorTests: AuthenticatorTestCase {
+class DebugMenuProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var configService: MockConfigService!

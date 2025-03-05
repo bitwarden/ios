@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - ExportItemsServiceTests
 
-final class ExportItemsServiceTests: AuthenticatorTestCase {
+final class ExportItemsServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var authItemRepository: MockAuthenticatorItemRepository!
