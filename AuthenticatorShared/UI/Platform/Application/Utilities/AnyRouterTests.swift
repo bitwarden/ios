@@ -4,7 +4,6 @@ import XCTest
 
 // MARK: - AnyRouterTests
 
-@MainActor
 class AnyRouterTests: AuthenticatorTestCase {
     // MARK: Properties
 
@@ -28,6 +27,7 @@ class AnyRouterTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// `handleAndRoute()` calls the `handleAndRoute()` method on the wrapped router.
+    @MainActor
     func test_handleAndRoute() async {
         var didStart = false
         router.routeForEvent = { event in

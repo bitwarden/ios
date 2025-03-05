@@ -41,6 +41,7 @@ class AlertSettingsTests: AuthenticatorTestCase {
     }
 
     /// `languageChanged(to:)` constructs an `Alert` with the title and ok buttons.
+    @MainActor
     func test_languageChanged() {
         let subject = Alert.languageChanged(to: "Thai") {}
 

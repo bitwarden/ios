@@ -40,6 +40,7 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
 
     /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to true when both
     /// the `.enablePasswordManagerSync` feature flag is enabled and sync is turned on.
+    @MainActor
     func test_perform_appeared_allActive() async {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         authItemRepository.pmSyncEnabled = true
@@ -50,6 +51,7 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
 
     /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to false when both
     /// the `.enablePasswordManagerSync` feature flag is disabled and sync is turned off.
+    @MainActor
     func test_perform_appeared_bothFalse() async {
         configService.featureFlagsBool[.enablePasswordManagerSync] = false
         authItemRepository.pmSyncEnabled = false
@@ -60,6 +62,7 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
 
     /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to false when
     /// the `.enablePasswordManagerSync` feature flag is disabled and sync is turned on.
+    @MainActor
     func test_perform_appeared_flagDisabled() async {
         configService.featureFlagsBool[.enablePasswordManagerSync] = false
         authItemRepository.pmSyncEnabled = true
@@ -70,6 +73,7 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
 
     /// `receive()` with `.appeared` sets the `isPasswordManagerSyncActive` to false when both
     /// the `.enablePasswordManagerSync` feature flag is enabled but sync is turned off.
+    @MainActor
     func test_perform_appeared_syncOff() async {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         authItemRepository.pmSyncEnabled = false
@@ -80,6 +84,7 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
 
     /// `receive()` with `.appeared` sets the `defaultSaveOption` in the state based on the user's
     /// stored default save option.
+    @MainActor
     func test_perform_appeared_defaultSaveOption() async {
         appSettingsStore.defaultSaveOption = .none
         await subject.perform(.appeared)
@@ -95,12 +100,14 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
     }
 
     /// `receive()` with `.scanCodePressed` navigates to `.scanCode`.
+    @MainActor
     func test_perform_scanCodePressed() async {
         await subject.perform(.scanCodePressed)
         XCTAssertEqual(coordinator.events, [.showScanCode])
     }
 
     /// `receive()` with `.addPressed(:)` navigates to `.addManual(:)`.
+    @MainActor
     func test_receive_addPressed() async {
         subject.state.authenticatorKey = "YouNeedUniqueNewYork"
         subject.state.name = "NewYork"
@@ -112,12 +119,14 @@ final class ManualEntryProcessorTests: AuthenticatorTestCase {
     }
 
     /// `receive()` with `.authenticatorKeyChanged(:)` updates the state.
+    @MainActor
     func test_receive_authenticatorKeyChanged() async {
         subject.receive(.authenticatorKeyChanged("YouNeedUniqueNewYork"))
         XCTAssertEqual(subject.state.authenticatorKey, "YouNeedUniqueNewYork")
     }
 
     /// `receive()` with `.dismissPressed` navigates to dismiss.
+    @MainActor
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes, [.dismiss()])

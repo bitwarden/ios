@@ -30,6 +30,7 @@ class ImportItemsViewTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -37,6 +38,7 @@ class ImportItemsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the import items button sends the `.importItemsTapped` action.
+    @MainActor
     func test_importItemsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.importItems)
         try button.tap()
@@ -45,6 +47,7 @@ class ImportItemsViewTests: AuthenticatorTestCase {
     }
 
     /// Updating the value of the file format sends the  `.fileFormatTypeChanged()` action.
+    @MainActor
     func test_fileFormatMenu_updateValue() throws {
         processor.state.fileFormat = .bitwardenJson
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.fileFormat)

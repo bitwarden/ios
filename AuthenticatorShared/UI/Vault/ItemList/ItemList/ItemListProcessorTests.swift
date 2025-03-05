@@ -75,6 +75,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     // MARK: Tests
 
     /// `itemDeleted()` delegate method shows the expected toast.
+    @MainActor
     func test_delegate_itemDeleted() {
         XCTAssertNil(subject.state.toast)
 
@@ -84,6 +85,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(_:)` with `.addItemPressed` and authorized camera
     /// navigates to `.showScanCode`
+    @MainActor
     func test_perform_addItemPressed_authorizedCamera() {
         cameraService.deviceHasCamera = true
         cameraService.cameraAuthorizationStatus = .authorized
@@ -97,6 +99,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(_:)` with `.addItemPressed` and denied camera
     /// navigates to `.setupTotpManual`
+    @MainActor
     func test_perform_addItemPressed_deniedCamera() {
         cameraService.deviceHasCamera = true
         cameraService.cameraAuthorizationStatus = .denied
@@ -110,6 +113,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(_:)` with `.addItemPressed` and no camera
     /// navigates to `.setupTotpManual`
+    @MainActor
     func test_perform_addItemPressed_noCamera() {
         cameraService.deviceHasCamera = false
         let task = Task {
@@ -121,6 +125,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `perform(_:)` with `.appeared` starts streaming vault items.
+    @MainActor
     func test_perform_appeared() {
         let result = ItemListItem.fixture(
             totp: .fixture(
@@ -163,6 +168,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(_:)` with `.appeared` handles TOTP Code expiration
     /// with updates the state's TOTP codes.
+    @MainActor
     func test_perform_appeared_totpExpired_single() throws { // swiftlint:disable:this function_body_length
         let firstItem = ItemListItem.fixture(
             totp: .fixture(
@@ -223,6 +229,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(:_)` with `.copyPressed()` with a local item copies the code to the pasteboard
     /// and updates the toast in the state.
+    @MainActor
     func test_perform_copyPressed_localItem() {
         let totpCode = "654321"
         let totpModel = TOTPCodeModel(code: totpCode,
@@ -247,6 +254,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(:_)` with `.copyPressed()` with a local item copies the code to the pasteboard
     /// and updates the toast in the state.
+    @MainActor
     func test_perform_copyPressed_error() {
         let localItem = ItemListItem.fixture()
         totpService.getTotpCodeResult = .failure(AuthenticatorTestError.example)
@@ -264,6 +272,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(:_)` with `.copyPressed()` with a shared item copies the code to the pasteboard
     /// and updates the toast in the state.
+    @MainActor
     func test_perform_copyPressed_sharedItem() {
         let totpCode = "654321"
         let totpModel = TOTPCodeModel(code: totpCode,
@@ -288,6 +297,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(:_)` with `.copyPressed()` with a `.syncError` item does not throw
     /// and produces no result.
+    @MainActor
     func test_perform_copyPressed_syncError() async {
         await assertAsyncDoesNotThrow {
             await subject.perform(.copyPressed(.syncError()))
@@ -298,6 +308,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(:_)` with `.moveToBitwardenPressed()` with a local item stores the item in the shared
     /// store and launches the Bitwarden app via the new item  deep link.
+    @MainActor
     func test_perform_moveToBitwardenPressed_localItem() async throws {
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
@@ -313,6 +324,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(:_)` with `.moveToBitwardenPressed()` captures any errors thrown, logs them, and shows an
     /// error alert.
+    @MainActor
     func test_perform_moveToBitwardenPressed_error() async throws {
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
@@ -329,6 +341,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the `enablePasswordManagerSync`
     /// feature flag is disabled.
+    @MainActor
     func test_perform_moveToBitwardenPressed_featureFlagDisabled() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = false
         application.canOpenUrlResponse = true
@@ -343,6 +356,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when the Password Manager app is not
     /// installed - i.e. the `bitwarden://` urls cannot be opened.
+    @MainActor
     func test_perform_moveToBitwardenPressed_passwordManagerAppNotInstalled() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = false
@@ -356,6 +370,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `perform(:_)` with `.moveToBitwardenPressed()` does nothing when called with a shared item.
+    @MainActor
     func test_perform_moveToBitwardenPressed_sharedItem() async throws {
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         application.canOpenUrlResponse = true
@@ -369,6 +384,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `perform(:_)` with `.search` updates search results in the state.
+    @MainActor
     func test_perform_search() {
         let result = ItemListItem.fixture(
             totp: .fixture(
@@ -395,6 +411,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `perform(:_)` with `.search` with an empty string gets empty search results
+    @MainActor
     func test_perform_search_emptyString() async {
         await subject.perform(.search("   "))
         XCTAssertEqual(subject.state.searchResults.count, 0)
@@ -405,6 +422,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `perform(.search)` throws error and error is logged.
+    @MainActor
     func test_perform_search_error() async {
         authItemRepository.searchItemListSubject.send(completion: .failure(AuthenticatorTestError.example))
         await subject.perform(.search("example"))
@@ -419,6 +437,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(.search)` handles TOTP Code expiration
     /// with updates the state's TOTP codes.
+    @MainActor
     func test_perform_search_totpExpired() throws {
         let firstItem = ItemListItem.fixture(
             totp: .fixture(
@@ -470,6 +489,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are no shared
     /// account items, does not show a toast.
+    @MainActor
     func test_perform_streamItemList() {
         let totpCode = TOTPCodeModel(code: "654321",
                                      codeGenerationDate: Date(year: 2023, month: 12, day: 31),
@@ -495,6 +515,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. Item List is sorted by name
+    @MainActor
     func test_perform_streamItemList_sorted() {
         let results = [
             ItemListItem.fixture(name: "Gamma"),
@@ -535,6 +556,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     /// from an account the user has not synced with previously, it should show a toast stating that the account
     /// was synced.
     ///
+    @MainActor
     func test_perform_streamItemList_withAccountSyncToast() {
         let accountName = "test@example.com | vault.example.com"
         let totpCode = TOTPCodeModel(code: "654321",
@@ -564,6 +586,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     /// `perform(_:)` with `.streamItemList` starts streaming vault items. When there are shared items
     /// from an account the user *has* synced with previously, it should *not* show a toast.
     ///
+    @MainActor
     func test_perform_streamItemList_withPreviouslySyncedAccount() {
         let accountName = "test@example.com | vault.example.com"
         let totpCode = TOTPCodeModel(code: "654321",
@@ -592,6 +615,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `false` when the feature flag is disabled
     /// or the user has not yet turned sync on for at least one account.
+    @MainActor
     func test_perform_streamItemList_showMoveToBitwarden_false() {
         authItemRepository.pmSyncEnabled = false
         let totpCode = TOTPCodeModel(code: "654321",
@@ -618,6 +642,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(_:)` with `.streamItemList` sets `showMoveToBitwarden` to `true` when the feature flag is enabled
     /// and the user has turned sync on for at least one account.
+    @MainActor
     func test_perform_appeared_showMoveToBitwarden_true() {
         authItemRepository.pmSyncEnabled = true
         let totpCode = TOTPCodeModel(code: "654321",
@@ -643,6 +668,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `.receive` with `.clearURL` sets the `state.url` to `nil`.
+    @MainActor
     func test_receive_clearURL() throws {
         subject.state.url = .example
         subject.receive(.clearURL)
@@ -651,6 +677,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `setupForegroundNotification()` is called as part of `init()` and subscribes to any
     ///  foreground notification, performing `.refresh` when it receives a notification.
+    @MainActor
     func test_setupForegroundNotification() async throws {
         let item = ItemListItem.fixture()
         let resultSection = ItemListSection(id: "", items: [item], name: "Items")
@@ -666,6 +693,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     // MARK: AuthenticatorKeyCaptureDelegate Tests
 
     /// `didCompleteAutomaticCapture` failure when the user has opted to save locally by default.
+    @MainActor
     func test_didCompleteAutomaticCapture_failure() {
         appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
         appSettingsStore.defaultSaveOption = .saveHere
@@ -696,6 +724,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `didCompleteAutomaticCapture` success when the user has opted to be asked by default and
     /// chooses the save locally option.
+    @MainActor
     func test_didCompleteAutomaticCapture_hasSeenPrompt_noneLocalSaveChosen() async throws {
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
@@ -731,6 +760,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `didCompleteAutomaticCapture` success when the user has opted to be asked by default and
     /// chooses the save locally option.
+    @MainActor
     func test_didCompleteAutomaticCapture_hasSeenPrompt_noneSaveToBitwardenChosen() async throws {
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
@@ -767,6 +797,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `didCompleteAutomaticCapture` success when the user has opted to save locally by default.
+    @MainActor
     func test_didCompleteAutomaticCapture_hasSeenPrompt_saveLocally() async throws {
         appSettingsStore.hasSeenDefaultSaveOptionPrompt = true
         appSettingsStore.defaultSaveOption = .saveHere
@@ -791,6 +822,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `didCompleteAutomaticCapture` success when the user has opted to save to Bitwarden by default.
+    @MainActor
     func test_didCompleteAutomaticCapture_hasSeenPrompt_saveToBitwarden() async throws {
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
@@ -819,6 +851,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
     /// to save locally and choose to not set that as their default.
+    @MainActor
     func test_didCompleteAutomaticCapture_noDefault_saveLocally_noToDefault() async throws {
         authItemRepository.pmSyncEnabled = true
         appSettingsStore.hasSeenDefaultSaveOptionPrompt = false
@@ -863,6 +896,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
     /// to save locally and choose to set that as their default.
+    @MainActor
     func test_didCompleteAutomaticCapture_noDefault_saveLocally_yesToDefault() async throws {
         authItemRepository.pmSyncEnabled = true
         appSettingsStore.hasSeenDefaultSaveOptionPrompt = false
@@ -907,6 +941,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
     /// to save to Bitwarden and choose to not set that as their default.
+    @MainActor
     func test_didCompleteAutomaticCapture_noDefault_saveToBitwarden_noToDefault() async throws {
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
@@ -951,6 +986,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `didCompleteAutomaticCapture` success when the user has no default save option set, chooses
     /// to save to Bitwarden and choose to set that as their default.
+    @MainActor
     func test_didCompleteAutomaticCapture_noDefault_saveToBitwarden_yesToDefault() async throws {
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
@@ -996,6 +1032,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     /// `didCompleteAutomaticCapture` should not show any prompts or look at the defaults when the sync
     /// is not active (either feature flag is disabled, or the user hasn't yet turned sync on). It should revert to the
     /// pre-existing behavior and save the code locally.
+    @MainActor
     func test_didCompleteAutomaticCapture_syncNotActive() async throws {
         authItemRepository.pmSyncEnabled = false
         let key = String.base32Key
@@ -1019,6 +1056,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `didCompleteManualCapture` failure
+    @MainActor
     func test_didCompleteManualCapture_failure() {
         totpService.getTOTPConfigResult = .failure(TOTPServiceError.invalidKeyFormat)
         let captureCoordinator = MockCoordinator<AuthenticatorKeyCaptureRoute, AuthenticatorKeyCaptureEvent>()
@@ -1048,6 +1086,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `didCompleteManualCapture` success with a locally saved item
+    @MainActor
     func test_didCompleteManualCapture_localSuccess() throws {
         let key = String.base32Key
         let keyConfig = try XCTUnwrap(TOTPKeyModel(authenticatorKey: key))
@@ -1072,6 +1111,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// `didCompleteManualCapture` success with `sendToBitwarden` item
+    @MainActor
     func test_didCompleteManualCapture_sendToBitwardenSuccess() throws {
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
@@ -1100,6 +1140,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// Tests that the `itemListCardState` is set to `none` if the download card has been closed.
+    @MainActor
     func test_determineItemListCardState_closed_download() async {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
@@ -1108,6 +1149,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// Tests that the `itemListCardState` is set to `none` if the sync card has been closed.
+    @MainActor
     func test_determineItemListCardState_closed_sync() async {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = true
@@ -1117,6 +1159,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// Tests that the `showPasswordManagerSyncCard` and `showPasswordManagerDownloadCard` are set
     /// to false if the feature flag is turned off.
+    @MainActor
     func test_determineItemListCardState_FeatureFlag_off() {
         subject.state.itemListCardState = .passwordManagerSync
         configService.featureFlagsBool = [.enablePasswordManagerSync: false]
@@ -1129,6 +1172,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// Tests that the `itemListCardState` is set to `passwordManagerDownload` if the feature flag is turned on.
+    @MainActor
     func test_determineItemListCardState_FeatureFlag_on_download() {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = false
@@ -1141,6 +1185,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     }
 
     /// Tests that the `itemListCardState` is set to `passwordManagerSync` if the feature flag is turned on.
+    @MainActor
     func test_determineItemListCardState_FeatureFlag_on_sync() {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         application.canOpenUrlResponse = true
@@ -1154,6 +1199,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the PM app
     /// (when the PM app is not installed).
+    @MainActor
     func test_determineItemListCardState_syncAlreadyOn_download() {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         authItemRepository.pmSyncEnabled = true
@@ -1169,6 +1215,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// Tests that the `itemListCardState` is set to `none` if the user has already enabled sync in the PM app
     /// (when the PM app is installed).
+    @MainActor
     func test_determineItemListCardState_syncAlreadyOn_sync() {
         configService.featureFlagsBool = [.enablePasswordManagerSync: true]
         authItemRepository.pmSyncEnabled = true
