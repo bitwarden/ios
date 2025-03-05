@@ -127,6 +127,7 @@ targets:
           - "**/TestHelpers/*"
     dependencies:
       - target: BitwardenKit
+      - target: TestHelpers
     randomExecutionOrder: true
   Networking:
     type: framework
