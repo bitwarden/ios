@@ -1,6 +1,7 @@
 import AuthenticationServices
 import AuthenticatorBridgeKit
 import Foundation
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared

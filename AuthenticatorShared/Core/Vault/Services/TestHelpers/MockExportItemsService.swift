@@ -1,4 +1,5 @@
 import Foundation
+import TestHelpers
 
 @testable import AuthenticatorShared
 
@@ -6,11 +7,11 @@ class MockExportItemsService: ExportItemsService {
     var didClearFiles = false
 
     var exportFileContentsFormat: ExportFileType?
-    var exportFileContentResult: Result<String, Error> = .failure(AuthenticatorTestError.example)
+    var exportFileContentResult: Result<String, Error> = .failure(BitwardenTestError.example)
 
     var mockFileName: String = "mockExport.json"
 
-    var writeToFileResult: Result<URL, Error> = .failure(AuthenticatorTestError.example)
+    var writeToFileResult: Result<URL, Error> = .failure(BitwardenTestError.example)
 
     func clearTemporaryFiles() {
         didClearFiles = true

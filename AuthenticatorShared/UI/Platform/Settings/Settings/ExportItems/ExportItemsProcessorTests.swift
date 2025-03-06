@@ -1,3 +1,4 @@
+import TestHelpers
 import XCTest
 
 @testable import AuthenticatorShared
@@ -67,7 +68,7 @@ class ExportItemsProcessorTests: BitwardenTestCase {
     /// `.receive()` with  `.exportItemsTapped` logs an error on export failure.
     @MainActor
     func test_receive_exportItemsTapped_unencrypted_error() throws {
-        exportService.exportFileContentResult = .failure(AuthenticatorTestError.example)
+        exportService.exportFileContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .csv
         subject.receive(.exportItemsTapped)
 
@@ -78,7 +79,7 @@ class ExportItemsProcessorTests: BitwardenTestCase {
         }
         waitFor(!errorReporter.errors.isEmpty)
         task.cancel()
-        XCTAssertEqual(errorReporter.errors.first as? AuthenticatorTestError, .example)
+        XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
     /// `.receive()` with  `.exportItemsTapped` passes a file url to the coordinator on success.

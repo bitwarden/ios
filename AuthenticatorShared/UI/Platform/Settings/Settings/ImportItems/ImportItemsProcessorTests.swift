@@ -1,4 +1,5 @@
 import Foundation
+import TestHelpers
 import XCTest
 
 @testable import AuthenticatorShared
@@ -168,12 +169,12 @@ class ImportItemsProcessorTests: BitwardenTestCase {
     /// When the import process throws an unexpected error, the processor logs the error..
     @MainActor
     func test_fileSelectionCompleted_unknownError() async throws {
-        importItemsService.errorToThrow = AuthenticatorTestError.example
+        importItemsService.errorToThrow = BitwardenTestError.example
         let data = "Test Data".data(using: .utf8)!
         subject.fileSelectionCompleted(fileName: "Filename", data: data)
 
         try await waitForAsync { !self.errorReporter.errors.isEmpty }
-        XCTAssertEqual(errorReporter.errors.last as? AuthenticatorTestError, AuthenticatorTestError.example)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, BitwardenTestError.example)
         XCTAssertTrue(coordinator.alertShown.isEmpty)
         XCTAssertNil(subject.state.toast)
     }
