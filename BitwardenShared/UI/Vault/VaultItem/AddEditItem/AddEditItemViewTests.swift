@@ -228,6 +228,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             CipherOwner.personal(email: "user@bitwarden.com"),
             organizationOwner,
         ]
+        processor.state.hasOrganizations = true
         let menu = try subject.inspect().find(bitwardenMenuField: Localizations.owner)
         try menu.select(newValue: organizationOwner)
         XCTAssertEqual(processor.dispatchedActions.last, .ownerChanged(organizationOwner))
@@ -681,6 +682,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
         processor.state.owner = .organization(id: "1", name: "Organization")
         processor.state.collectionIds = ["2"]
+        processor.state.hasOrganizations = true
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
@@ -689,6 +691,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_snapshot_add_login_collectionsNone() {
         processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
         processor.state.owner = .organization(id: "1", name: "Organization")
+        processor.state.hasOrganizations = true
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
@@ -723,7 +726,13 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     @MainActor
     func test_snapshot_add_personalOwnershipPolicy() {
+        processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
+        processor.state.owner = .organization(id: "1", name: "Organization")
+        processor.state.hasOrganizations = true
         processor.state.isPersonalOwnershipDisabled = true
+        processor.state.collections = [
+            .fixture(id: "1", name: "Default collection", organizationId: "1"),
+        ]
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
@@ -737,6 +746,41 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.notes = "Notes"
         processor.state.folderId = "1"
         processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
+
+        assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_edit_full_disabledOwnership() {
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(
+                organizationId: "1"
+            ),
+            hasPremium: true
+        )!
+        processor.state.loginState = .fixture(
+            canViewPassword: true,
+            fido2Credentials: [.fixture()],
+            isPasswordVisible: true,
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.notes = "Notes"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
+        processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
+        processor.state.owner = .organization(id: "1", name: "Organization")
+        processor.state.collections = [
+            .fixture(id: "1", name: "Default collection", organizationId: "1"),
+        ]
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
     }
