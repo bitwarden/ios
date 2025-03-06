@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class PublisherAsyncTests: AuthenticatorTestCase {
+class PublisherAsyncTests: BitwardenTestCase {
     // MARK: Properties
 
     var cancellable: AnyCancellable?

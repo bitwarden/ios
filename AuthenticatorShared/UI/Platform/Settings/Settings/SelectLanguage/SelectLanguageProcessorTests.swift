@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - SelectLanguageProcessorTests
 
-class SelectLanguageProcessorTests: AuthenticatorTestCase {
+class SelectLanguageProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!

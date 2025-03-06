@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class LoadingOverlayViewTests: AuthenticatorTestCase {
+class LoadingOverlayViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the loading overlay.

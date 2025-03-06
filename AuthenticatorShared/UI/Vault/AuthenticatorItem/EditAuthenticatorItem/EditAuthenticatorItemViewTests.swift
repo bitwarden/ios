@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - EditAuthenticatorItemViewTests
 
-class EditAuthenticatorItemViewTests: AuthenticatorTestCase {
+class EditAuthenticatorItemViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<

@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class ManagedObjectTests: AuthenticatorTestCase {
+class ManagedObjectTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `fetchRequest()` returns a `NSFetchRequest` for the entity.

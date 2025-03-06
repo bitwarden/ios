@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class NotificationCenterServiceTests: AuthenticatorTestCase {
+final class NotificationCenterServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var notificationCenter: NotificationCenter!

@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class LanguageOptionTests: AuthenticatorTestCase {
+class LanguageOptionTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `allCases` returns the expected result.

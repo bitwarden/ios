@@ -5,7 +5,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class SettingsViewTests: AuthenticatorTestCase {
+class SettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
     let copyrightText = "© Bitwarden Inc. 2015-2024"

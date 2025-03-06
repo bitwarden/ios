@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - FileSelectionCoordinatorTests
 
-class FileSelectionCoordinatorTests: AuthenticatorTestCase {
+class FileSelectionCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!

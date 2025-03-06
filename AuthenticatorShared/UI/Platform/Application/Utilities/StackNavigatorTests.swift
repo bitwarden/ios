@@ -4,7 +4,7 @@ import XCTest
 @testable import AuthenticatorShared
 
 @MainActor
-class StackNavigatorTests: AuthenticatorTestCase {
+class StackNavigatorTests: BitwardenTestCase {
     var subject: UINavigationController!
 
     override func setUp() {

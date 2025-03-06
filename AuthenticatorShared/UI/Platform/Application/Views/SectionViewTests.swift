@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class SectionViewTests: AuthenticatorTestCase {
+class SectionViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the sectionView.

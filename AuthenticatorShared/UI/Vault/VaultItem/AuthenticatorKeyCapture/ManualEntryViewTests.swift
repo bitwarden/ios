@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - ManualEntryViewTests
 
-class ManualEntryViewTests: AuthenticatorTestCase {
+class ManualEntryViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ManualEntryState, ManualEntryAction, ManualEntryEffect>!

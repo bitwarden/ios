@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class TOTPCountdownTimerTests: AuthenticatorTestCase {
+final class TOTPCountdownTimerTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: TOTPCountdownTimer!

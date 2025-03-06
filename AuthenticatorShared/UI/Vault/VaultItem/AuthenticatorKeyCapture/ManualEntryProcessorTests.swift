@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class ManualEntryProcessorTests: AuthenticatorTestCase {
+final class ManualEntryProcessorTests: BitwardenTestCase {
     var appSettingsStore: MockAppSettingsStore!
     var authItemRepository: MockAuthenticatorItemRepository!
     var configService: MockConfigService!

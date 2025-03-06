@@ -4,7 +4,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
+class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!

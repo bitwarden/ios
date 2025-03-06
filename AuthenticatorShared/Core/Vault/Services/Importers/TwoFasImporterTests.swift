@@ -3,7 +3,7 @@ import XCTest
 @testable import AuthenticatorShared
 
 // swiftlint:disable line_length
-final class TwoFasImporterTests: AuthenticatorTestCase {
+final class TwoFasImporterTests: BitwardenTestCase {
     /// Can import 2FAS JSON
     func test_twoFasImport() throws {
         let data = ImportTestData.twoFasJson.data

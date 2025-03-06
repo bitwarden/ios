@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - ScanCodeViewTests
 
-class ScanCodeViewTests: AuthenticatorTestCase {
+class ScanCodeViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ScanCodeState, ScanCodeAction, ScanCodeEffect>!

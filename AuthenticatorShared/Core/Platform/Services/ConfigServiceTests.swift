@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class ConfigServiceTests: AuthenticatorTestCase {
+final class ConfigServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!

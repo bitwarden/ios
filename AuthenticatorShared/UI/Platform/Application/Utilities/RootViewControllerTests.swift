@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - RootViewControllerTests
 
-class RootViewControllerTests: AuthenticatorTestCase {
+class RootViewControllerTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: RootViewController!

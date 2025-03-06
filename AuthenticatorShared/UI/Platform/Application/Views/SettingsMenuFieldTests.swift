@@ -4,7 +4,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class SettingsMenuFieldTests: AuthenticatorTestCase {
+class SettingsMenuFieldTests: BitwardenTestCase {
     // MARK: Types
 
     enum TestValue: String, CaseIterable, Menuable {

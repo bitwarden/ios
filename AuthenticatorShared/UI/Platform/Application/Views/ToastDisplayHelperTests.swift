@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class ToastDisplayHelperTests: AuthenticatorTestCase {
+class ToastDisplayHelperTests: BitwardenTestCase {
     /// `show(in:state:)` shows the toast in the parent view controller.
     func test_show() throws {
         let parentViewController = UIViewController()

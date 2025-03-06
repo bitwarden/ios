@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class SettingsCoordinatorTests: AuthenticatorTestCase {
+class SettingsCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var module: MockAppModule!
