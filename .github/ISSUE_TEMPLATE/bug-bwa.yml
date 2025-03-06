@@ -1,6 +1,6 @@
-name: Password Manager iOS Bug Report
+name: Authenticator iOS Bug Report
 description: File a bug report
-labels: [ "app:password-manager", "bug" ]
+labels: [ "app:authenticator", "bug" ]
 body:
   - type: markdown
     attributes:
