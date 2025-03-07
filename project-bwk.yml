@@ -169,3 +169,5 @@ targets:
           - "**/Info.plist"
     dependencies:
       - target: Networking
+      - package: SnapshotTesting
+
