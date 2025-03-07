@@ -27,7 +27,7 @@
 "Folder" = "文件夹";
 "FolderCreated" = "新文件夹已创建。";
 "FolderDeleted" = "文件夹已删除。";
-"FolderNone" = "无文件夹";
+"FolderNone" = "默认文件夹";
 "Folders" = "文件夹";
 "FolderUpdated" = "文件夹已保存";
 "GoToWebsite" = "前往网站";
@@ -541,7 +541,7 @@
 "PasskeyManagement" = "通行密钥管理";
 "AutofillServices" = "自动填充服务";
 "InlineAutofill" = "使用内嵌自动填充";
-"InlineAutofillDescription" = "如果您所选的 IME（键盘）支持，将使用内嵌方式的自动填充。如果您的配置不支持（或此选项被关闭），将使用默认的叠加层方式的自动填充。";
+"InlineAutofillDescription" = "如果您所选的 IME（键盘）支持，将使用内嵌自动填充。如果您的配置不支持（或此选项被关闭），将使用默认的叠加层自动填充。";
 "Accessibility" = "使用无障碍";
 "AccessibilityDescription" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。设置后，选中登录字段时将显示一个弹出窗口。";
 "AccessibilityDescription2" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。（需同时开启 Draw-Over）";
@@ -852,7 +852,7 @@
 "XHours" = "%1$@ 小时";
 "PasskeyManagementExplanationLong" = "使用 Bitwarden 保存新的通行密钥并使用存储在密码库中的通行密钥登录。";
 "AutofillServicesExplanationLong" = "Android 自动填充框架用于帮助将登录信息填充到您设备上的其他 App。";
-"UseInlineAutofillExplanationLong" = "如果您所选的键盘支持，请使用内联自动填充。否则，请使用默认叠加层。";
+"UseInlineAutofillExplanationLong" = "如果您所选的键盘支持，将使用内嵌自动填充。否则，将使用默认的叠加层自动填充。";
 "AdditionalOptions" = "附加选项";
 "ContinueToWebApp" = "前往网页 App 吗？";
 "ContinueToX" = "前往 %1$@ 吗？";
