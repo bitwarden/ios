@@ -1071,7 +1071,7 @@
 "AutofillPasswords" = "Passwörter automatisch ausfüllen";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Richte Auto-Ausfüllen auf all deinen Geräten ein, um dich mit einem einzigen Fingertipp überall anzumelden.";
 "GotIt" = "Verstanden";
-"GenerateCrash" = "Generate crash";
+"GenerateCrash" = "Absturz erzeugen";
 "GenerateErrorReport" = "Fehlerbericht generieren";
 "AllowAuthenticatorSyncing" = "Authenticator-Synchronisation zulassen";
 "AuthenticatorSync" = "Authenticator-Synchronisation";
@@ -1150,4 +1150,4 @@
 "ContactInfo" = "Kontaktinformation";
 "Identification" = "Identifikation";
 "Owner" = "Besitzer";
-"VerifyYourIdentity" = "Verify your identity";
+"VerifyYourIdentity" = "Deine Identität überprüfen";
