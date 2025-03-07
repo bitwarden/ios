@@ -1,7 +1,7 @@
 import SnapshotTesting
 import SwiftUI
 
-extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
+public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// The default precision for all view snapshots in this project. Defaults to `1`.
     private static var defaultPrecision: Float { 0.99 }
 
@@ -15,6 +15,31 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: .iPhone13(.landscape)),
             traits: UITraitCollection(userInterfaceStyle: .light)
+        )
+    }
+
+    /// A default snapshot in landscape on iPhone 13, with precision 1 and perceptual precision of 0.95.
+    /// This also sets the preferred content size category to AX5.
+    static var defaultLandscapeAX5: Snapshotting {
+        .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .device(config: .iPhone13(.landscape)),
+            traits: UITraitCollection(traitsFrom: [
+                UITraitCollection(userInterfaceStyle: .light),
+                UITraitCollection(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge),
+            ])
+        )
+    }
+
+    /// A default snapshot in landscape on iPhone 13, with precision 1 and perceptual precision of 0.95
+    /// and in dark mode.
+    static var defaultLandscapeDark: Snapshotting {
+        .image(
+            precision: defaultPrecision,
+            perceptualPrecision: defaultPerceptualPrecision,
+            layout: .device(config: .iPhone13(.landscape)),
+            traits: UITraitCollection(userInterfaceStyle: .dark)
         )
     }
 
@@ -163,7 +188,7 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     }
 }
 
-extension Snapshotting where Value == UIViewController, Format == UIImage {
+public extension Snapshotting where Value == UIViewController, Format == UIImage {
     /// The default precision for all view controller snapshots in this project. Defaults to `1`.
     private static var defaultPrecision: Float { 0.99 }
 
