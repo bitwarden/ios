@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AnyCoordinatorTests
 
-class AnyCoordinatorTests: AuthenticatorTestCase {
+class AnyCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<AppRoute, AppEvent>!

@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class TOTPExpirationCalculatorTests: AuthenticatorTestCase {
+final class TOTPExpirationCalculatorTests: BitwardenTestCase {
     // MARK: Tests
 
     func test_hasCodeExpired_codesOlderThanPeriod() {

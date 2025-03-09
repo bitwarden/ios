@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class ErrorNetworkingTests: AuthenticatorTestCase {
+class ErrorNetworkingTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `isNetworkingError` returns `false` for non-networking errors.

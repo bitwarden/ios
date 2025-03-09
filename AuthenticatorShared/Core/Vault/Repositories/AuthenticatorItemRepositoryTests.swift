@@ -1,10 +1,11 @@
 import AuthenticatorBridgeKit
 import InlineSnapshotTesting
+import TestHelpers
 import XCTest
 
 @testable import AuthenticatorShared
 
-class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:disable:this type_body_length
+class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authItemService: MockAuthenticatorItemService!
@@ -69,9 +70,9 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
 
     /// `addAuthenticatorItem()` throws an error if encrypting the item fails
     func test_addAuthenticatorItem_encryptError() async {
-        cryptographyService.encryptError = AuthenticatorTestError.example
+        cryptographyService.encryptError = BitwardenTestError.example
 
-        await assertAsyncThrows(error: AuthenticatorTestError.example) {
+        await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.addAuthenticatorItem(.fixture())
         }
     }
@@ -250,7 +251,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
     /// `saveTemporarySharedItem(_)` throws errors received from the `AuthenticatorBridgeItemService`.
     func test_saveTemporarySharedItem_throwsError() async throws {
         let item = AuthenticatorItemView.fixture()
-        let error = AuthenticatorTestError.example
+        let error = BitwardenTestError.example
 
         sharedItemService.errorToThrow = error
 
@@ -406,7 +407,7 @@ class AuthenticatorItemRepositoryTests: AuthenticatorTestCase { // swiftlint:dis
         let favoritedItem = itemListItem(from: items[1])
 
         authItemService.authenticatorItemsSubject.send(items)
-        sharedItemService.sharedItemsSubject.send(completion: .failure(AuthenticatorTestError.example))
+        sharedItemService.sharedItemsSubject.send(completion: .failure(BitwardenTestError.example))
 
         var iterator = try await subject.itemListPublisher().makeAsyncIterator()
         let sections = try await iterator.next()

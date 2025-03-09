@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - OTPAuthModelTests
 
-class OTPAuthModelTests: AuthenticatorTestCase {
+class OTPAuthModelTests: BitwardenTestCase {
     // MARK: Tests
 
     // MARK: Init Success

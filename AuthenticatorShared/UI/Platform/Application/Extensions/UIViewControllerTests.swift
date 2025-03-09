@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class UIViewControllerTests: AuthenticatorTestCase {
+class UIViewControllerTests: BitwardenTestCase {
     /// `topmostViewController` returns the top view controller for a view controller.
     func test_topmostViewController_isViewController() {
         let subject = UIViewController()

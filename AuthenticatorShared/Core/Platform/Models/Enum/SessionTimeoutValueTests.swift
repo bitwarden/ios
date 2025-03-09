@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class SessionTimeoutValueTests: AuthenticatorTestCase {
+final class SessionTimeoutValueTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `allCases` returns all of the cases in the correct order.

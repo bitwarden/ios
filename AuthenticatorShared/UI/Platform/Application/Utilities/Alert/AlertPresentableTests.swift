@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AlertPresentableTests
 
-class AlertPresentableTests: AuthenticatorTestCase {
+class AlertPresentableTests: BitwardenTestCase {
     // MARK: Properties
 
     var rootViewController: UIViewController!

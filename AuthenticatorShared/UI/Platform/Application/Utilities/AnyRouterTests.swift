@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AnyRouterTests
 
-class AnyRouterTests: AuthenticatorTestCase {
+class AnyRouterTests: BitwardenTestCase {
     // MARK: Properties
 
     var router: MockRouter<AuthEvent, AuthRoute>!

@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - CryptographyServiceTests
 
-class CryptographyServiceTests: AuthenticatorTestCase {
+class CryptographyServiceTests: BitwardenTestCase {
     // MARK: Properties
 
     var stateService: MockStateService!

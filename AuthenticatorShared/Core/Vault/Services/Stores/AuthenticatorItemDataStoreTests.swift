@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AuthenticatorItemDataStoreTests: AuthenticatorTestCase {
+class AuthenticatorItemDataStoreTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: DataStore!

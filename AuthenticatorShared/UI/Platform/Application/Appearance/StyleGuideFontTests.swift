@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class StyleGuideFontTests: AuthenticatorTestCase {
+final class StyleGuideFontTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the StyleGuideFonts.

@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - ErrorResponseModelTests
 
-class ErrorResponseModelTests: AuthenticatorTestCase {
+class ErrorResponseModelTests: BitwardenTestCase {
     /// Tests that `singleMessage()` returns the validation error's message.
     func testSingleMessage() throws {
         let json = APITestData.createAccountAccountAlreadyExists.data

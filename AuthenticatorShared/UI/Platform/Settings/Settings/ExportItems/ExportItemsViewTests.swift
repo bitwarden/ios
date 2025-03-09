@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class ExportItemsViewTests: AuthenticatorTestCase {
+class ExportItemsViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ExportItemsState, ExportItemsAction, ExportItemsEffect>!

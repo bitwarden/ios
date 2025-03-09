@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class ScanCodeProcessorTests: AuthenticatorTestCase {
+final class ScanCodeProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!

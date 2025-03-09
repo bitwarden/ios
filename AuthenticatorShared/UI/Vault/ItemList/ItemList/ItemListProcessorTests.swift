@@ -1,3 +1,4 @@
+import TestHelpers
 import XCTest
 
 // swiftlint:disable file_length
@@ -6,7 +7,7 @@ import XCTest
 
 // MARK: - ItemListProcessorTests
 
-class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this type_body_length
+class ItemListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var application: MockApplication!
@@ -154,7 +155,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
 
     /// `perform(_:)` with `.appeared` records any errors.
     func test_perform_appeared_error_vaultListGroupSubjectFail() {
-        authItemRepository.itemListSubject.send(completion: .failure(AuthenticatorTestError.example))
+        authItemRepository.itemListSubject.send(completion: .failure(BitwardenTestError.example))
 
         let task = Task {
             await subject.perform(.appeared)
@@ -163,7 +164,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         waitFor(!errorReporter.errors.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(errorReporter.errors.last as? AuthenticatorTestError, .example)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.appeared` handles TOTP Code expiration
@@ -257,7 +258,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     @MainActor
     func test_perform_copyPressed_error() {
         let localItem = ItemListItem.fixture()
-        totpService.getTotpCodeResult = .failure(AuthenticatorTestError.example)
+        totpService.getTotpCodeResult = .failure(BitwardenTestError.example)
 
         let task = Task {
             await subject.perform(.copyPressed(localItem))
@@ -329,7 +330,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
         authItemRepository.pmSyncEnabled = true
         application.canOpenUrlResponse = true
         let localItem = ItemListItem.fixture()
-        authItemRepository.tempItemErrorToThrow = AuthenticatorTestError.example
+        authItemRepository.tempItemErrorToThrow = BitwardenTestError.example
 
         await subject.perform(.moveToBitwardenPressed(localItem))
 
@@ -424,7 +425,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
     /// `perform(.search)` throws error and error is logged.
     @MainActor
     func test_perform_search_error() async {
-        authItemRepository.searchItemListSubject.send(completion: .failure(AuthenticatorTestError.example))
+        authItemRepository.searchItemListSubject.send(completion: .failure(BitwardenTestError.example))
         await subject.perform(.search("example"))
 
         XCTAssertEqual(subject.state.searchResults.count, 0)
@@ -432,7 +433,7 @@ class ItemListProcessorTests: AuthenticatorTestCase { // swiftlint:disable:this 
             subject.state.searchResults,
             []
         )
-        XCTAssertEqual(errorReporter.errors as? [AuthenticatorTestError], [.example])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `perform(.search)` handles TOTP Code expiration
