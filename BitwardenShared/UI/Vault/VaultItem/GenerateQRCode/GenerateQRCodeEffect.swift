@@ -1,7 +1,6 @@
-//
-//  GenerateQRCodeEffect.swift
-//  Bitwarden
-//
-//  Created by Katherine Bertelsen on 3/10/25.
-//
-
+/// Effects that can be processed by a `GenerateQRCodeProcessor`.
+///
+enum GenerateQRCodeEffect {
+    /// The screen appeared.
+    case appeared
+}

@@ -1,7 +1,5 @@
-//
-//  GenerateQRCodeState.swift
-//  Bitwarden
-//
-//  Created by Katherine Bertelsen on 3/10/25.
-//
-
+/// An object that defines the current state of a `GenerateQRCodeView`.
+///
+struct GenerateQRCodeState: Equatable {
+    var string: String
+}

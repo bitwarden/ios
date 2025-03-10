@@ -1,7 +1,5 @@
-//
-//  GenerateQRCodeAction.swift
-//  Bitwarden
-//
-//  Created by Katherine Bertelsen on 3/10/25.
-//
-
+/// Actions that can be processed by a `GenerateQRCodeProcessor`.
+///
+enum GenerateQRCodeAction: Equatable {
+    
+}
