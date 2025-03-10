@@ -35,6 +35,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         let expectedName = "CipherName"
         let expectedUri = "https://example.com"
         let expectedUsername = "test"
+        let displayName = Localizations.itemNameUserName(expectedName, expectedUsername)
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -64,7 +65,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             passwordIdentity.serviceIdentifier.type,
             ASCredentialServiceIdentifier.IdentifierType.URL
         )
-        XCTAssertEqual(passwordIdentity.user, expectedUsername)
+        XCTAssertEqual(passwordIdentity.user, displayName)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
     }
 
@@ -78,6 +79,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         let expectedName = "CipherName"
         let expectedUri = "https://example.com"
         let expectedUsername = "test"
+        let displayName = Localizations.itemNameUserName(expectedName, expectedUsername)
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -111,7 +113,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             passwordIdentity.serviceIdentifier.type,
             ASCredentialServiceIdentifier.IdentifierType.URL
         )
-        XCTAssertEqual(passwordIdentity.user, expectedUsername)
+        XCTAssertEqual(passwordIdentity.user, displayName)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
     }
 
@@ -155,6 +157,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
 
         let expectedUri = "https://example.com"
         let expectedUsername = "test"
+        let displayName = Localizations.itemNameUserName("Bitwarden", expectedUsername)
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -173,7 +176,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
             passwordIdentity.serviceIdentifier.type,
             ASCredentialServiceIdentifier.IdentifierType.URL
         )
-        XCTAssertEqual(passwordIdentity.user, expectedUsername)
+        XCTAssertEqual(passwordIdentity.user, displayName)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
     }
 
@@ -274,6 +277,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
     func test_tryCreatePasswordCredentialIdentity_success() throws {
         let expectedUri = "https://example.com"
         let expectedUsername = "test"
+        let displayName = Localizations.itemNameUserName("Bitwarden", expectedUsername)
         let cipher = CipherView.fixture(
             login: .fixture(
                 password: "1234",
@@ -288,7 +292,7 @@ class CredentialIdentityFactoryTests: BitwardenTestCase { // swiftlint:disable:t
         )
         XCTAssertEqual(passwordIdentity.serviceIdentifier.identifier, expectedUri)
         XCTAssertEqual(passwordIdentity.serviceIdentifier.type, ASCredentialServiceIdentifier.IdentifierType.URL)
-        XCTAssertEqual(passwordIdentity.user, expectedUsername)
+        XCTAssertEqual(passwordIdentity.user, displayName)
         XCTAssertEqual(passwordIdentity.recordIdentifier, cipher.id)
     }
 

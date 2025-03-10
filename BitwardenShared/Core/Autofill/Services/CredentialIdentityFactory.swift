@@ -46,7 +46,7 @@ struct DefaultCredentialIdentityFactory: CredentialIdentityFactory {
 
         return ASPasswordCredentialIdentity(
             serviceIdentifier: serviceIdentifier,
-            user: username,
+            user:  Localizations.itemNameUserName(cipher.name, username),
             recordIdentifier: cipher.id
         )
     }
