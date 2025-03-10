@@ -437,6 +437,7 @@
 "ThirtyMinutes" = "30 minutes";
 "SetPINDescription" = "Set your PIN code for unlocking Bitwarden. Your PIN settings will be reset if you ever fully log out of the application.";
 "LoggedInAsOn" = "Logged in as %1$@ on %2$@.";
+"ItemNameUserName" = "item name: %1$@, user name: %2$@";
 "VaultLockedMasterPassword" = "Your vault is locked. Verify your master password to continue.";
 "VaultLockedPIN" = "Your vault is locked. Verify your PIN code to continue.";
 "VaultLockedIdentity" = "Your vault is locked. Verify your identity to continue.";
