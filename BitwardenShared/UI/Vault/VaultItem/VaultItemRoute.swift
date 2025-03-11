@@ -62,6 +62,13 @@ enum VaultItemRoute: Equatable, Hashable {
     ///
     case fileSelection(_ route: FileSelectionRoute)
 
+    /// A route to the Generate QR Code screen.
+    ///
+    /// - Parameters:
+    ///   - cipher: The `CipherView` to generate a QR code for.
+    ///
+    case generateQRCode(_ cipher: CipherView)
+
     /// A route to the username/password generator screen.
     ///
     /// - Parameters:
