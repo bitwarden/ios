@@ -1,4 +1,5 @@
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -412,6 +413,59 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(generatorRepository.passwordGeneratorRequest != nil)
 
         XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.length, 50)
+    }
+
+    /// `perform(_:)` with `.appeared` calls `reloadGeneratorOptionsIfNeeded` and
+    ///  loads the generator options only if it's not the first load.
+    @MainActor
+    func test_perform_appeared_reloadGeneratorOptionsIfNeeded() {
+        waitFor(subject.didLoadGeneratorOptions)
+
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        generatorRepository.getPasswordGenerationOptionsCalled = false
+        subject.state.isFirstLoad = false
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(generatorRepository.passwordGeneratorRequest != nil)
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+    }
+
+    /// `perform(_:)` with `.appeared`  does not call `loadGeneratorOptions` on first load.
+    @MainActor
+    func test_perform_appear_reloadGeneratorOptionsIfNeeded_firstLoad() {
+        waitFor(subject.didLoadGeneratorOptions)
+
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        generatorRepository.getPasswordGenerationOptionsCalled = false
+        subject.state.isFirstLoad = true
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(generatorRepository.passwordGeneratorRequest != nil)
+        XCTAssertFalse(generatorRepository.getPasswordGenerationOptionsCalled)
+        XCTAssertFalse(subject.state.isFirstLoad)
+    }
+
+    /// `perform(_:)` with `.appeared` logs an error when `loadGeneratorOptions` throws an error.
+    @MainActor
+    func test_perform_appear_reloadGeneratorOptionsIfNeeded_logsError() {
+        waitFor(subject.didLoadGeneratorOptions)
+
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        generatorRepository.getPasswordGenerationOptionsCalled = false
+        generatorRepository.getPasswordGenerationOptionsResult = .failure(
+            BitwardenTestError.example
+        )
+        subject.state.isFirstLoad = false
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertEqual(
+            errorReporter.errors[0] as? BitwardenTestError,
+            BitwardenTestError.example
+        )
     }
 
     /// `perform(:)` with `.appeared` should set the `isLearnGeneratorActionCardEligible` to `true`
