@@ -423,7 +423,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
         generatorRepository.getPasswordGenerationOptionsCalled = false
-        subject.state.isFirstLoad = false
+        subject.state.isFirstLoadOfGeneratorOptions = false
         Task {
             await subject.perform(.appeared)
         }
@@ -438,13 +438,13 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
         generatorRepository.getPasswordGenerationOptionsCalled = false
-        subject.state.isFirstLoad = true
+        subject.state.isFirstLoadOfGeneratorOptions = true
         Task {
             await subject.perform(.appeared)
         }
         waitFor(generatorRepository.passwordGeneratorRequest != nil)
         XCTAssertFalse(generatorRepository.getPasswordGenerationOptionsCalled)
-        XCTAssertFalse(subject.state.isFirstLoad)
+        XCTAssertFalse(subject.state.isFirstLoadOfGeneratorOptions)
     }
 
     /// `perform(_:)` with `.appeared` logs an error when `loadGeneratorOptions` throws an error.
@@ -457,7 +457,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         generatorRepository.getPasswordGenerationOptionsResult = .failure(
             BitwardenTestError.example
         )
-        subject.state.isFirstLoad = false
+        subject.state.isFirstLoadOfGeneratorOptions = false
         Task {
             await subject.perform(.appeared)
         }

@@ -316,14 +316,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Re-loads generator options if needed, avoiding duplicate calls on first load.
     ///
     private func reloadGeneratorOptionsIfNeeded() async {
-        if state.isFirstLoad {
-            state.isFirstLoad = false
-        } else {
-            do {
-                try await loadGeneratorOptions()
-            } catch {
-                services.errorReporter.log(error: error)
-            }
+        guard !state.isFirstLoadOfGeneratorOptions else {
+            state.isFirstLoadOfGeneratorOptions = false
+            return
+        }
+
+        do {
+            try await loadGeneratorOptions()
+        } catch {
+            services.errorReporter.log(error: error)
         }
     }
 
