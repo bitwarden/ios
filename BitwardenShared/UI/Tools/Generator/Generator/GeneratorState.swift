@@ -93,9 +93,6 @@ struct GeneratorState: Equatable {
         ]
     )
 
-    /// A flag to track if it's the first time loading generator options.
-    var isFirstLoadOfGeneratorOptions = true
-
     /// If account is eligible for learn generator action card.
     var isLearnGeneratorActionCardEligible: Bool = false
 

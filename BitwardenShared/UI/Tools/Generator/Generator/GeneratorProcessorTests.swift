@@ -415,41 +415,25 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.length, 50)
     }
 
-    /// `perform(_:)` with `.appeared` calls `reloadGeneratorOptionsIfNeeded` and
-    ///  loads the generator options only if it's not the first load.
+    /// `perform(_:)` with `.appeared` calls `reloadGeneratorOptions` and
+    ///  loads the generator options.
     @MainActor
-    func test_perform_appeared_reloadGeneratorOptionsIfNeeded() {
+    func test_perform_appeared_reloadGeneratorOptions() {
         waitFor(subject.didLoadGeneratorOptions)
 
         XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
         generatorRepository.getPasswordGenerationOptionsCalled = false
-        subject.state.isFirstLoadOfGeneratorOptions = false
+
         Task {
             await subject.perform(.appeared)
         }
         waitFor(generatorRepository.passwordGeneratorRequest != nil)
         XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
-    }
-
-    /// `perform(_:)` with `.appeared`  does not call `loadGeneratorOptions` on first load.
-    @MainActor
-    func test_perform_appear_reloadGeneratorOptionsIfNeeded_firstLoad() {
-        waitFor(subject.didLoadGeneratorOptions)
-
-        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
-        generatorRepository.getPasswordGenerationOptionsCalled = false
-        subject.state.isFirstLoadOfGeneratorOptions = true
-        Task {
-            await subject.perform(.appeared)
-        }
-        waitFor(generatorRepository.passwordGeneratorRequest != nil)
-        XCTAssertFalse(generatorRepository.getPasswordGenerationOptionsCalled)
-        XCTAssertFalse(subject.state.isFirstLoadOfGeneratorOptions)
     }
 
     /// `perform(_:)` with `.appeared` logs an error when `loadGeneratorOptions` throws an error.
     @MainActor
-    func test_perform_appear_reloadGeneratorOptionsIfNeeded_logsError() {
+    func test_perform_appear_reloadGeneratorOptions_logsError() {
         waitFor(subject.didLoadGeneratorOptions)
 
         XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
@@ -457,7 +441,6 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         generatorRepository.getPasswordGenerationOptionsResult = .failure(
             BitwardenTestError.example
         )
-        subject.state.isFirstLoadOfGeneratorOptions = false
         Task {
             await subject.perform(.appeared)
         }

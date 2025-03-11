@@ -81,7 +81,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
-            await reloadGeneratorOptionsIfNeeded()
+            await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
         case .dismissLearnGeneratorActionCard:
@@ -313,14 +313,9 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         didLoadGeneratorOptions = true
     }
 
-    /// Re-loads generator options if needed, avoiding duplicate calls on first load.
+    /// Re-loads generator options.
     ///
-    private func reloadGeneratorOptionsIfNeeded() async {
-        guard !state.isFirstLoadOfGeneratorOptions else {
-            state.isFirstLoadOfGeneratorOptions = false
-            return
-        }
-
+    private func reloadGeneratorOptions() async {
         do {
             try await loadGeneratorOptions()
         } catch {
