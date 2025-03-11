@@ -301,7 +301,7 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             errorReporter.errors as? [StateServiceError],
             [
                 StateServiceError.noActiveAccount,
-                StateServiceError.noActiveAccount
+                StateServiceError.noActiveAccount,
             ]
         )
         XCTAssertNil(generatorRepository.passwordGeneratorRequest)
