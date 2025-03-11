@@ -4,8 +4,7 @@ import XCTest
 
 // MARK: - AnyCoordinatorTests
 
-@MainActor
-class AnyCoordinatorTests: AuthenticatorTestCase {
+class AnyCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<AppRoute, AppEvent>!
@@ -28,12 +27,14 @@ class AnyCoordinatorTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// `start()` calls the `start()` method on the wrapped coordinator.
+    @MainActor
     func test_start() {
         subject.start()
         XCTAssertTrue(coordinator.isStarted)
     }
 
     /// `navigate(to:context:)` calls the `navigate(to:context:)` method on the wrapped coordinator.
+    @MainActor
     func test_navigate_onboarding() {
         subject.navigate(to: .tab(.itemList(.list)), context: "🤖" as NSString)
         XCTAssertEqual(coordinator.contexts as? [NSString], ["🤖" as NSString])

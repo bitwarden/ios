@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - ManualEntryViewTests
 
-class ManualEntryViewTests: AuthenticatorTestCase {
+class ManualEntryViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ManualEntryState, ManualEntryAction, ManualEntryEffect>!
@@ -32,6 +32,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// Tapping the add local code button dispatches the `.addPressed(:)` action.
+    @MainActor
     func test_addButton_tap_empty() throws {
         let button = try subject.inspect().find(button: Localizations.addCode)
         try button.tap()
@@ -42,6 +43,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the add local code button dispatches the `.addPressed(:)` action.
+    @MainActor
     func test_addButton_tap_new() throws {
         processor.state.name = "wayne"
         processor.state.authenticatorKey = "pasta-batman"
@@ -54,6 +56,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the Save here button dispatches the `.addPressed(:)` action.
+    @MainActor
     func test_addLocallyButton_tap_empty() throws {
         processor.state.isPasswordManagerSyncActive = true
         let button = try subject.inspect().find(button: Localizations.saveHere)
@@ -65,6 +68,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the Save here button dispatches the `.addPressed(:)` action.
+    @MainActor
     func test_addLocallyButton_tap_textEntered() throws {
         processor.state.name = "wayne"
         processor.state.authenticatorKey = "pasta-batman"
@@ -78,6 +82,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the add to Bitwarden button dispatches the `.addPressed(:)` action.
+    @MainActor
     func test_addToBitwardenButton_tap_empty() throws {
         processor.state.isPasswordManagerSyncActive = true
         let button = try subject.inspect().find(button: Localizations.saveToBitwarden)
@@ -89,6 +94,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the add to Bitwarden button dispatches the `.addPressed(:)` action.
+    @MainActor
     func test_addToBitwardenButton_tap_textEntered() throws {
         processor.state.name = "wayne"
         processor.state.authenticatorKey = "pasta-batman"
@@ -102,6 +108,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_closeButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -109,6 +116,7 @@ class ManualEntryViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the scan code button dispatches the `.scanCodePressed` action.
+    @MainActor
     func test_scanCodeButton_tap() throws {
         let button = try subject.inspect().find(
             button: Localizations.cannotAddAuthenticatorKey + " " + Localizations.scanQRCode

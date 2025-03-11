@@ -4,8 +4,7 @@ import XCTest
 
 // MARK: - AppCoordinatorTests
 
-@MainActor
-class AppCoordinatorTests: AuthenticatorTestCase {
+class AppCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var module: MockAppModule!

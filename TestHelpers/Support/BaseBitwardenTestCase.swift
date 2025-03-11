@@ -1,10 +1,6 @@
-import AuthenticatorShared
-import SnapshotTesting
-import SwiftUI
 import XCTest
 
-@MainActor
-open class AuthenticatorTestCase: XCTestCase {
+open class BaseBitwardenTestCase: XCTestCase {
     /// The window being used for testing. Defaults to a new window with the same size as `UIScreen.main.bounds`.
     public var window: UIWindow!
 
@@ -18,9 +14,6 @@ open class AuthenticatorTestCase: XCTestCase {
                 """
             )
         }
-
-        // Apply default appearances for snapshot tests.
-        UI.applyDefaultAppearances()
     }
 
     /// Executes any logic that should be applied before each test runs.
@@ -28,8 +21,6 @@ open class AuthenticatorTestCase: XCTestCase {
     @MainActor
     override open func setUp() {
         super.setUp()
-        UI.animated = false
-        UI.sizeCategory = .large
         window = UIWindow(frame: UIScreen.main.bounds)
         window.layer.speed = 100
     }
@@ -38,7 +29,6 @@ open class AuthenticatorTestCase: XCTestCase {
     ///
     override open func tearDown() {
         super.tearDown()
-        UI.animated = false
         window = nil
     }
 
@@ -80,9 +70,9 @@ open class AuthenticatorTestCase: XCTestCase {
     ///
     open func assertAsyncThrows<E: Error & Equatable>(
         error: E,
-        _ block: () async throws -> Void,
         file: StaticString = #file,
-        line: UInt = #line
+        line: UInt = #line,
+        _ block: () async throws -> Void
     ) async {
         do {
             try await block()
@@ -132,20 +122,6 @@ open class AuthenticatorTestCase: XCTestCase {
         window.makeKeyAndVisible()
     }
 
-    /// Nests a `UIView` within a root view controller in the test window. Allows testing
-    /// changes to the view that require the view to exist within a window or are dependent on safe
-    /// area layouts.
-    ///
-    /// - Parameters:
-    ///     - view: The `UIView` to add to a root view controller.
-    ///
-    open func setKeyWindowRoot(view: UIView) {
-        let viewController = UIViewController()
-        viewController.view.addConstrained(subview: view)
-        window.rootViewController = viewController
-        window.makeKeyAndVisible()
-    }
-
     /// Wait for a condition to be true. The test will fail if the condition isn't met before the
     /// specified timeout.
     ///
@@ -173,16 +149,7 @@ open class AuthenticatorTestCase: XCTestCase {
             RunLoop.current.run(mode: RunLoop.Mode.default, before: next)
         }
 
-        // If the condition took more than 3 seconds to satisfy, add a warning to the logs to look into it.
-        let elapsed = Date().timeIntervalSince(start)
-        if elapsed > 3 {
-            let numberFormatter = NumberFormatter()
-            numberFormatter.maximumFractionDigits = 3
-            numberFormatter.minimumFractionDigits = 3
-            numberFormatter.minimumIntegerDigits = 1
-            let elapsedString: String = numberFormatter.string(from: NSNumber(value: elapsed)) ?? "nil"
-            print("warning: \(name) line \(line) `waitFor` took \(elapsedString) seconds")
-        }
+        warnIfNeeded(start: start, line: line)
 
         XCTAssert(condition(), failureMessage, file: file, line: line)
     }

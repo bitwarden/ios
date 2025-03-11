@@ -1,9 +1,10 @@
 import Foundation
+import TestHelpers
 import XCTest
 
 @testable import AuthenticatorShared
 
-class ImportItemsProcessorTests: AuthenticatorTestCase {
+class ImportItemsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var application: MockApplication!
@@ -44,6 +45,7 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// When the import process throws a `dataCorrupted` error, the processor shows an error alert.
+    @MainActor
     func test_fileSelectionCompleted_corruptedFile() async throws {
         importItemsService.errorToThrow = DecodingError.dataCorrupted(
             DecodingError.Context(codingPath: [], debugDescription: "Not valid JSON")
@@ -62,6 +64,7 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// When the import process throws a `keyNotFound` error, the processor shows an error alert.
+    @MainActor
     func test_fileSelectionCompleted_missingKey() async throws {
         importItemsService.errorToThrow = DecodingError.keyNotFound(
             AnyCodingKey(stringValue: "missingKey"),
@@ -87,6 +90,7 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// When the import process throws a `keyNotFound` error, the processor shows an error alert.
+    @MainActor
     func test_fileSelectionCompleted_missingValue() async throws {
         importItemsService.errorToThrow = DecodingError.valueNotFound(
             String.self,
@@ -113,6 +117,7 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
 
     /// The processor hands the data returned from the file selector to the `ImportItemsService`. Upon
     /// successful import, it shows a Toast.
+    @MainActor
     func test_fileSelectionCompleted_success() async throws {
         let data = "Test Data".data(using: .utf8)!
         subject.fileSelectionCompleted(fileName: "Filename", data: data)
@@ -124,6 +129,7 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
 
     /// When the import process throws a `TwoFasImporterError.passwordProtectedFile` error,
     /// the processor shows an error alert.
+    @MainActor
     func test_fileSelectionCompleted_twoFasPasswordProtected() async throws {
         importItemsService.errorToThrow = TwoFasImporterError.passwordProtectedFile
         let data = "Test Data".data(using: .utf8)!
@@ -135,6 +141,7 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// When the import process throws a `keyNotFound` error, the processor shows an error alert.
+    @MainActor
     func test_fileSelectionCompleted_typeMismatch() async throws {
         importItemsService.errorToThrow = DecodingError.typeMismatch(
             Int.self,
@@ -160,18 +167,20 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// When the import process throws an unexpected error, the processor logs the error..
+    @MainActor
     func test_fileSelectionCompleted_unknownError() async throws {
-        importItemsService.errorToThrow = AuthenticatorTestError.example
+        importItemsService.errorToThrow = BitwardenTestError.example
         let data = "Test Data".data(using: .utf8)!
         subject.fileSelectionCompleted(fileName: "Filename", data: data)
 
         try await waitForAsync { !self.errorReporter.errors.isEmpty }
-        XCTAssertEqual(errorReporter.errors.last as? AuthenticatorTestError, AuthenticatorTestError.example)
+        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, BitwardenTestError.example)
         XCTAssertTrue(coordinator.alertShown.isEmpty)
         XCTAssertNil(subject.state.toast)
     }
 
     /// When the Processor receives a `.clearURL` action, it clears the url in the state.
+    @MainActor
     func test_receive_clearURL() {
         subject.state.url = ExternalLinksConstants.helpAndFeedback
         subject.receive(.clearURL)
@@ -179,18 +188,21 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// When the Processor receives a `.dismiss` action, it navigates to `.dismiss`.
+    @MainActor
     func test_receive_dismiss() {
         subject.receive(.dismiss)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
     }
 
     /// When the Processor receives a `.fileFormatTypeChanged(_)` action, it sets the file format type in the state.
+    @MainActor
     func test_receive_fileFormatTypeChanged() {
         subject.receive(.fileFormatTypeChanged(.bitwardenJson))
         XCTAssertEqual(subject.state.fileFormat, .bitwardenJson)
     }
 
     /// When the Processor receives a `.importItemsTapped` action, it navigates to `.importItemsFileSelection`.
+    @MainActor
     func test_receive_importItemsTapped_fileImport() {
         subject.state.fileFormat = .bitwardenJson
         subject.receive(.importItemsTapped)
@@ -198,6 +210,7 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// When the Processor receives a `.importItemsTapped` action and a `nil` route, it sends the event
+    @MainActor
     func test_receive_importItemsTapped_qrScan() async throws {
         subject.state.fileFormat = .googleQr
         subject.receive(.importItemsTapped)
@@ -206,6 +219,7 @@ class ImportItemsProcessorTests: AuthenticatorTestCase {
     }
 
     /// When the Processor receives a `.toastShown(_)` action, it sets the toast in the state.
+    @MainActor
     func test_receive_toastShown() {
         let toast = Toast(text: "TOAST!")
 

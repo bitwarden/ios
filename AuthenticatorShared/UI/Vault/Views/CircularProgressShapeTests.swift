@@ -4,7 +4,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class CircularProgressShapeTests: AuthenticatorTestCase {
+final class CircularProgressShapeTests: BitwardenTestCase {
     // MARK: Tests
 
     func test_snapshot_progress() {

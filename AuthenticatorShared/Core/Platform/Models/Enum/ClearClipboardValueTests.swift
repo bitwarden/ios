@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class ClearClipboardValueTests: AuthenticatorTestCase {
+class ClearClipboardValueTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `localizedName` returns the correct values.

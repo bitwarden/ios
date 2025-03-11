@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class IconImageHelperTests: AuthenticatorTestCase {
+final class IconImageHelperTests: BitwardenTestCase {
     // MARK: Parameters
 
     let defaultURL = URL(string: "https://icons.bitwarden.net")!

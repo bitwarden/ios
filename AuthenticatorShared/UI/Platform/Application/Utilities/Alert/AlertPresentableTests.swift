@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - AlertPresentableTests
 
-class AlertPresentableTests: AuthenticatorTestCase {
+class AlertPresentableTests: BitwardenTestCase {
     // MARK: Properties
 
     var rootViewController: UIViewController!
@@ -29,6 +29,7 @@ class AlertPresentableTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// `present(_:)` presents a `UIAlertController` on the root view controller.
+    @MainActor
     func test_present() {
         subject.present(Alert(title: "🍎", message: "🥝", preferredStyle: .alert))
         XCTAssertNotNil(rootViewController.presentedViewController as? UIAlertController)

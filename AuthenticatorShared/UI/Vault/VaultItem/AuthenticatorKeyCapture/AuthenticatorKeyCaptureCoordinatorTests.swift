@@ -4,7 +4,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
+class AuthenticatorKeyCaptureCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var cameraService: MockCameraService!
@@ -48,6 +48,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
 
     /// `navigate(to:)` with `.addManual` instructs the delegate that the capture flow has
     /// completed. Passing `false` to `sendToBitwarden` passes `false` to the delegate.
+    @MainActor
     func test_navigateTo_addManual() {
         delegate.didCompleteManualCaptureSendToBitwarden = true
         let name = "manual name"
@@ -62,6 +63,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
 
     /// `navigate(to:)` with `.addManual` instructs the delegate that the capture flow has
     /// completed. Passing `true` to `sendToBitwarden` passes `true` to the delegate.
+    @MainActor
     func test_navigateTo_addManual_sendToBitwarden() {
         let name = "manual name"
         let entry = "manuallyManagedMagic"
@@ -75,6 +77,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
 
     /// `navigate(to:)` with `.complete` instructs the delegate that the capture flow has
     /// completed.
+    @MainActor
     func test_navigateTo_complete() {
         let result = ScanResult(content: "example.com", codeType: .qr)
         subject.navigate(to: .complete(value: result))
@@ -84,6 +87,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_navigateTo_dismiss_noAction() throws {
         subject.navigate(to: .dismiss())
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
@@ -91,6 +95,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.dismiss` dismisses the view.
+    @MainActor
     func test_navigateTo_dismiss_withAction() throws {
         var didRun = false
         subject.navigate(to: .dismiss(DismissAction(action: { didRun = true })))
@@ -101,6 +106,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view. When the camera is
     /// present but the user has denied access, it sets `deviceSupportsCamera` to `false`.
+    @MainActor
     func test_navigateTo_setupTotpManual_cameraNotAuthorized() throws {
         cameraService.deviceHasCamera = true
         cameraService.cameraAuthorizationStatus = .denied
@@ -114,6 +120,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view. When the camera is
     /// present and `.authorized`, it sets `deviceSupportsCamera` to `true`.
+    @MainActor
     func test_navigateTo_setupTotpManual_cameraPresentAndAuthorized() throws {
         cameraService.deviceHasCamera = true
         cameraService.cameraAuthorizationStatus = .authorized
@@ -127,6 +134,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view. When the camera is
     /// not present, it sets `deviceSupportsCamera` to `false`.
+    @MainActor
     func test_navigateTo_setupTotpManual_noCamera() throws {
         cameraService.deviceHasCamera = false
         subject.navigate(to: .manualKeyEntry)
@@ -138,6 +146,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.setupTotpManual` presents the manual entry view.
+    @MainActor
     func test_navigateTo_setupTotpManual_nonEmptyStack() throws {
         stackNavigator.isEmpty = false
         subject.navigate(to: .manualKeyEntry)
@@ -146,6 +155,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
+    @MainActor
     func test_navigateTo_scanCode() throws {
         cameraService.deviceHasCamera = true
         let task = Task {
@@ -161,6 +171,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
+    @MainActor
     func test_navigateTo_scanCode_nonEmptyStack() throws {
         stackNavigator.isEmpty = false
         cameraService.deviceHasCamera = true
@@ -173,6 +184,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `showLoadingOverlay()` and `hideLoadingOverlay()` can be used to show and hide the loading overlay.
+    @MainActor
     func test_show_hide_loadingOverlay() throws {
         stackNavigator.rootViewController = UIViewController()
         try setKeyWindowRoot(viewController: XCTUnwrap(stackNavigator.rootViewController))
@@ -188,6 +200,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
+    @MainActor
     func test_navigateAsyncTo_scanCode() throws {
         cameraService.deviceHasCamera = true
         let task = Task {
@@ -203,6 +216,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
+    @MainActor
     func test_navigateAsyncTo_scanCode_cameraSessionError() throws {
         cameraService.deviceHasCamera = true
         struct TestError: Error, Equatable {}
@@ -221,6 +235,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
+    @MainActor
     func test_navigateAsyncTo_scanCode_declineAuthorization() throws {
         cameraService.deviceHasCamera = true
         cameraService.cameraAuthorizationStatus = .denied
@@ -237,6 +252,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
+    @MainActor
     func test_navigateAsyncTo_scanCode_noCamera() throws {
         cameraService.deviceHasCamera = false
         let task = Task {
@@ -252,6 +268,7 @@ class AuthenticatorKeyCaptureCoordinatorTests: AuthenticatorTestCase {
     }
 
     /// `navigate(to:)` with `.scanCode` shows the scan view.
+    @MainActor
     func test_navigateAsyncTo_scanCode_nonEmptyStack() throws {
         stackNavigator.isEmpty = false
         cameraService.deviceHasCamera = true

@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - DebugMenuViewTests
 
-class DebugMenuViewTests: AuthenticatorTestCase {
+class DebugMenuViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<DebugMenuState, DebugMenuAction, DebugMenuEffect>!

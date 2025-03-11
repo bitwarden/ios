@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - AlertTests
 
-class AlertTests: AuthenticatorTestCase {
+class AlertTests: BitwardenTestCase {
     // MARK: Properties
 
     var subject: Alert!

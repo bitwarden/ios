@@ -8,7 +8,7 @@ import XCTest
 
 // MARK: - Alert+NetworkingTests
 
-class AlertNetworkingTests: AuthenticatorTestCase {
+class AlertNetworkingTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tests the `networkConnectionLostError` alert contains the correct properties.

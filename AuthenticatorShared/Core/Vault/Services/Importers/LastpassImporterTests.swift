@@ -3,7 +3,7 @@ import XCTest
 @testable import AuthenticatorShared
 
 // swiftlint:disable line_length
-final class LastpassImporterTests: AuthenticatorTestCase {
+final class LastpassImporterTests: BitwardenTestCase {
     /// Can import Raivo JSON
     func test_lastpassImport() throws {
         let data = ImportTestData.lastpassJson.data

@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 
-extension Data {
+public extension Data {
     /// Generates a hash value for the provided data.
     ///
     /// - Parameter using: The type of cryptographically secure hashing being performed.

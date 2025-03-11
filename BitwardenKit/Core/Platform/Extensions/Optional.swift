@@ -1,6 +1,6 @@
 // MARK: - Optional where Wrapped: Collection
 
-extension Optional where Wrapped: Collection {
+public extension Optional where Wrapped: Collection {
     // MARK: Properties
 
     /// Returns true if the value is `nil` or an empty collection.
@@ -11,7 +11,7 @@ extension Optional where Wrapped: Collection {
 
 // MARK: - Optional<String>
 
-extension String? {
+public extension String? {
     // MARK: Properties
 
     /// Returns true if the value is `nil`, an empty string or a string full of `.whitespacesAndNewlines`.

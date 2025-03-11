@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AlertSettingsTests: AuthenticatorTestCase {
+class AlertSettingsTests: BitwardenTestCase {
     /// `backupInformation(action:)` constructs an `Alert`
     /// with the correct title, message, and buttons.
     func test_backupInformationAlert() {
@@ -41,6 +41,7 @@ class AlertSettingsTests: AuthenticatorTestCase {
     }
 
     /// `languageChanged(to:)` constructs an `Alert` with the title and ok buttons.
+    @MainActor
     func test_languageChanged() {
         let subject = Alert.languageChanged(to: "Thai") {}
 

@@ -127,6 +127,7 @@ targets:
           - "**/TestHelpers/*"
     dependencies:
       - target: BitwardenKit
+      - target: TestHelpers
     randomExecutionOrder: true
   Networking:
     type: framework
@@ -141,8 +142,6 @@ targets:
     sources:
       - path: Networking
         excludes:
-          - Package.swift
-          - .swiftpm
           - "**/Tests/*"
   NetworkingTests:
     type: bundle.unit-test

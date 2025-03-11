@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class AnyCodableTests: AuthenticatorTestCase {
+class AnyCodableTests: BitwardenTestCase {
     // MARK: Properties
 
     /// `boolValue` returns the bool associated value if the type is a `bool`.

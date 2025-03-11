@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class BitwardenImporterTests: AuthenticatorTestCase {
+final class BitwardenImporterTests: BitwardenTestCase {
     /// Can import Bitwarden JSON
     func test_raivoImport() throws {
         let data = ImportTestData.bitwardenJson.data

@@ -4,8 +4,7 @@ import XCTest
 
 // MARK: - AnyRouterTests
 
-@MainActor
-class AnyRouterTests: AuthenticatorTestCase {
+class AnyRouterTests: BitwardenTestCase {
     // MARK: Properties
 
     var router: MockRouter<AuthEvent, AuthRoute>!
@@ -28,6 +27,7 @@ class AnyRouterTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// `handleAndRoute()` calls the `handleAndRoute()` method on the wrapped router.
+    @MainActor
     func test_handleAndRoute() async {
         var didStart = false
         router.routeForEvent = { event in
