@@ -284,9 +284,9 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 state.collections.contains(where: { $0.id == collectionId })
             }
 
-            state.hasOrganizations = try await services.vaultRepository.hasOrganizations()
             state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
             state.ownershipOptions = ownershipOptions
+            state.hasOrganizations = state.ownershipOptions.contains { !$0.isPersonal }
             if isPersonalOwnershipDisabled, state.organizationId == nil {
                 // Only set the owner if personal ownership is disabled and there isn't already an
                 // organization owner set. This prevents overwriting a preset owner when adding a

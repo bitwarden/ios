@@ -114,10 +114,6 @@ public protocol VaultRepository: AnyObject {
     /// - Returns: The TOTP if the user/org has the necessary permissions for it to be copied.
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String?
 
-    /// Returns whether the user has organizations.
-    ///  - Returns: Whether the user has organizations.
-    func hasOrganizations() async throws -> Bool
-
     /// Returns whether the user's vault is empty.
     ///
     /// - Returns: Whether the user's vault is empty.
@@ -1116,11 +1112,6 @@ extension DefaultVaultRepository: VaultRepository {
         }
 
         return totp
-    }
-
-    func hasOrganizations() async throws -> Bool {
-        let organizations = try await organizationService.fetchAllOrganizations()
-        return !organizations.isEmpty
     }
 
     func isVaultEmpty() async throws -> Bool {

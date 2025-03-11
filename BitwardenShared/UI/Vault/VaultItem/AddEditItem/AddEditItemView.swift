@@ -166,7 +166,7 @@ struct AddEditItemView: View {
                 )
                 .accessibilityIdentifier("FolderPicker")
 
-                if let owner = store.state.owner, store.state.hasOrganizations {
+                if store.state.configuration.isAdding, let owner = store.state.owner, store.state.hasOrganizations {
                     ContentBlock(dividerLeadingPadding: 16) {
                         BitwardenMenuField(
                             title: Localizations.owner,
@@ -176,7 +176,7 @@ struct AddEditItemView: View {
                                 get: { _ in owner },
                                 send: AddEditItemAction.ownerChanged
                             )
-                        ).disabled(!store.state.configuration.isAdding && !owner.isPersonal)
+                        )
 
                         ForEach(store.state.collectionsForOwner, id: \.id) { collection in
                             if let collectionId = collection.id {

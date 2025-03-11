@@ -59,9 +59,6 @@ class MockVaultRepository: VaultRepository {
 
     var getTOTPKeyIfAllowedToCopyResult: Result<String?, Error> = .success(nil)
 
-    var hasOrganizationsCalled = false
-    var hasOrganizationsResult: Result<Bool, Error> = .success(false)
-
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
 
@@ -225,11 +222,6 @@ class MockVaultRepository: VaultRepository {
     func isVaultEmpty() async throws -> Bool {
         isVaultEmptyCalled = true
         return try isVaultEmptyResult.get()
-    }
-
-    func hasOrganizations() async throws -> Bool {
-        hasOrganizationsCalled = true
-        return try hasOrganizationsResult.get()
     }
 
     func organizationsPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[Organization], Error>> {
