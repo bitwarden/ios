@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - ScanCodeViewTests
 
-class ScanCodeViewTests: AuthenticatorTestCase {
+class ScanCodeViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ScanCodeState, ScanCodeAction, ScanCodeEffect>!
@@ -34,6 +34,7 @@ class ScanCodeViewTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()

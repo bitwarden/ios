@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import TestHelpers
 
 @testable import AuthenticatorShared
 
@@ -107,7 +108,7 @@ class MockStateService: StateService {
         if let userId {
             return userId
         } else {
-            throw AuthenticatorTestError.example
+            throw BitwardenTestError.example
         }
     }
 }

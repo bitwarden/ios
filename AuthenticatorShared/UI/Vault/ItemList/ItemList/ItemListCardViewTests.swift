@@ -6,7 +6,7 @@ import XCTest
 
 // MARK: - ItemListCardViewTests
 
-class ItemListCardViewTests: AuthenticatorTestCase {
+class ItemListCardViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Test a snapshot of the ItemListView previews.

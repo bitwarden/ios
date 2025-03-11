@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class ToastViewTests: AuthenticatorTestCase {
+final class ToastViewTests: BitwardenTestCase {
     // MARK: Snapshots
 
     /// Tests all previews for the toast view.

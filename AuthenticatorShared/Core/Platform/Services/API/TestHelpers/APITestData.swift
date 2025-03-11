@@ -6,7 +6,7 @@ struct APITestData {
     let data: Data
 
     static func loadFromBundle(resource: String, extension: String) -> APITestData {
-        let bundle = Bundle(for: AuthenticatorTestCase.self)
+        let bundle = Bundle(for: BitwardenTestCase.self)
         guard let url = bundle.url(forResource: resource, withExtension: `extension`) else {
             fatalError("Unable to locate file \(resource).\(`extension`) in the bundle.")
         }

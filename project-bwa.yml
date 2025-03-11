@@ -58,6 +58,7 @@ schemes:
         - AuthenticatorTests
         - AuthenticatorSharedTests
         - BitwardenKit/AuthenticatorBridgeKitTests
+        - BitwardenKit/BitwardenKitTests
         - BitwardenKit/NetworkingTests
   AuthenticatorShared:
     build:

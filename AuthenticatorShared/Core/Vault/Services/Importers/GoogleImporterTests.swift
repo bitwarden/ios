@@ -3,7 +3,7 @@ import XCTest
 @testable import AuthenticatorShared
 
 // swiftlint:disable line_length
-final class GoogleImporterTests: AuthenticatorTestCase {
+final class GoogleImporterTests: BitwardenTestCase {
     /// Can import Google protobuf
     func test_googleImport() throws {
         let data = "otpauth-migration://offline?data=ChgKCkhlbGxvId6tvu8SBE5hbWUgASgBMAIKGwoMAESNbONNjj/vBKjSEgVOYW1lMiABKAEwAhACGAEgAA%3D%3D".data(using: .utf8)!

@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class FeatureFlagTests: AuthenticatorTestCase {
+final class FeatureFlagTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `debugMenuFeatureFlags` does not include any test flags

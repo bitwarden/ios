@@ -4,7 +4,7 @@ import XCTest
 
 // MARK: - ResponseValidationErrorModelTests
 
-class ResponseValidationErrorModelTests: AuthenticatorTestCase {
+class ResponseValidationErrorModelTests: BitwardenTestCase {
     // MARK: - Tests
 
     /// Tests that a response is initialized correctly.

@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - StringTests
 
-class StringTests: AuthenticatorTestCase {
+class StringTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `hashColor` returns a color generated from a hash of the string's characters.

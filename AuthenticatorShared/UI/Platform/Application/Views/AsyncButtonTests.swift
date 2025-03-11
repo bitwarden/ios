@@ -5,7 +5,7 @@ import XCTest
 
 // MARK: - AsyncButtonTests
 
-class AsyncButtonTests: AuthenticatorTestCase {
+class AsyncButtonTests: BitwardenTestCase {
     // MARK: Tests
 
     func test_button_tap() throws {

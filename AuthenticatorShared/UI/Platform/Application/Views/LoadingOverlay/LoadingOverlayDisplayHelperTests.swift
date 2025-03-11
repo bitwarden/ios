@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class LoadingOverlayDisplayHelperTests: AuthenticatorTestCase {
+class LoadingOverlayDisplayHelperTests: BitwardenTestCase {
     /// `show(in:state:)` shows the loading overlay in the parent view controller.
     func test_show() throws {
         let parentViewController = UIViewController()

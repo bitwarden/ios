@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - VaultUnlockViewTests
 
-class VaultUnlockViewTests: AuthenticatorTestCase {
+class VaultUnlockViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<VaultUnlockState, VaultUnlockAction, VaultUnlockEffect>!

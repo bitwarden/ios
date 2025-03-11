@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class DebugMenuCoordinatorTests: AuthenticatorTestCase {
+class DebugMenuCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appSettingsStore: MockAppSettingsStore!

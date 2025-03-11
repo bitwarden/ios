@@ -6,7 +6,7 @@ import XCTest
 // MARK: - UITests
 
 @MainActor
-class UITests: AuthenticatorTestCase {
+class UITests: BitwardenTestCase {
     // MARK: Tests
 
     func test_duration_animated() {

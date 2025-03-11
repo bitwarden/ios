@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-final class TOTPCodeModelTests: AuthenticatorTestCase {
+final class TOTPCodeModelTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `displayCode` groups digits correctly

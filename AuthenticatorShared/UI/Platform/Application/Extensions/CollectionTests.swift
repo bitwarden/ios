@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class CollectionTests: AuthenticatorTestCase {
+class CollectionTests: BitwardenTestCase {
     /// `nilIfEmpty` returns the array if it's not empty or `nil` if it's empty.
     func test_nilIfEmpty_array() {
         XCTAssertEqual([1].nilIfEmpty, [1])

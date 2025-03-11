@@ -2,7 +2,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class EmptyInputValidatorTests: AuthenticatorTestCase {
+class EmptyInputValidatorTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `validate(input:)` doesn't throw an error if the input is valid.

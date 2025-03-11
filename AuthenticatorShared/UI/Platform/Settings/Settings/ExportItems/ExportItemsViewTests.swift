@@ -3,7 +3,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class ExportItemsViewTests: AuthenticatorTestCase {
+class ExportItemsViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ExportItemsState, ExportItemsAction, ExportItemsEffect>!
@@ -30,6 +30,7 @@ class ExportItemsViewTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// Tapping the cancel button dispatches the `.dismiss` action.
+    @MainActor
     func test_cancelButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.cancel)
         try button.tap()
@@ -37,6 +38,7 @@ class ExportItemsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the export items button sends the `.exportItemsTapped` action.
+    @MainActor
     func test_exportItemsButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.exportItems)
         try button.tap()
@@ -45,6 +47,7 @@ class ExportItemsViewTests: AuthenticatorTestCase {
     }
 
     /// Updating the value of the file format sends the  `.fileFormatTypeChanged()` action.
+    @MainActor
     func test_fileFormatMenu_updateValue() throws {
         processor.state.fileFormat = .json
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.fileFormat)

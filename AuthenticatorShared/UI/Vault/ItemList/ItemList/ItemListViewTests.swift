@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - ItemListViewTests
 
-class ItemListViewTests: AuthenticatorTestCase {
+class ItemListViewTests: BitwardenTestCase {
     // MARK: Properties
 
     var processor: MockProcessor<ItemListState, ItemListAction, ItemListEffect>!
@@ -54,6 +54,7 @@ class ItemListViewTests: AuthenticatorTestCase {
     }
 
     /// Test a snapshot of the ItemListView showing the download card with an empty result.
+    @MainActor
     func test_snapshot_ItemListView_card_download_empty() {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
@@ -69,6 +70,7 @@ class ItemListViewTests: AuthenticatorTestCase {
     }
 
     /// Test a snapshot of the ItemListView showing the download card with results.
+    @MainActor
     func test_snapshot_ItemListView_card_download_with_items() {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
@@ -84,6 +86,7 @@ class ItemListViewTests: AuthenticatorTestCase {
     }
 
     /// Test a snapshot of the ItemListView showing the sync card with an empty result.
+    @MainActor
     func test_snapshot_ItemListView_card_sync_empty() {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
@@ -99,6 +102,7 @@ class ItemListViewTests: AuthenticatorTestCase {
     }
 
     /// Test a snapshot of the ItemListView showing the sync card with results.
+    @MainActor
     func test_snapshot_ItemListView_card_sync_with_items() {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,
@@ -114,6 +118,7 @@ class ItemListViewTests: AuthenticatorTestCase {
     }
 
     /// Test the close taps trigger the associated effect.
+    @MainActor
     func test_itemListCardView_close_download() throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerDownload,
@@ -133,6 +138,7 @@ class ItemListViewTests: AuthenticatorTestCase {
     }
 
     /// Test the close taps trigger the associated effect.
+    @MainActor
     func test_itemListCardView_close_sync() throws {
         let state = ItemListState(
             itemListCardState: .passwordManagerSync,

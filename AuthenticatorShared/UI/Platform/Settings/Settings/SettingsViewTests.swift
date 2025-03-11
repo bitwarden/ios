@@ -5,7 +5,7 @@ import XCTest
 
 @testable import AuthenticatorShared
 
-class SettingsViewTests: AuthenticatorTestCase {
+class SettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
     let copyrightText = "© Bitwarden Inc. 2015-2024"
@@ -35,6 +35,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     // MARK: Tests
 
     /// Updating the value of the app theme sends the  `.appThemeChanged()` action.
+    @MainActor
     func test_appThemeChanged_updateValue() throws {
         processor.state.appTheme = .light
         let menuField = try subject.inspect().find(settingsMenuField: Localizations.theme)
@@ -43,6 +44,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the backup button dispatches the `.backupTapped` action.
+    @MainActor
     func test_backupButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.backup)
         try button.tap()
@@ -50,6 +52,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Updating the value of the default save option sends the  `.defaultSaveOptionChanged()` action.
+    @MainActor
     func test_defaultSaveOptionChanged_updateValue() throws {
         processor.state.shouldShowDefaultSaveOption = true
         processor.state.shouldShowSyncButton = true
@@ -60,6 +63,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the export button dispatches the `.exportItemsTapped` action.
+    @MainActor
     func test_exportButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.export)
         try button.tap()
@@ -67,6 +71,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the help center button dispatches the `.helpCenterTapped` action.
+    @MainActor
     func test_helpCenterButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.bitwardenHelpCenter)
         try button.tap()
@@ -74,6 +79,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the privacy policy button dispatches the `.privacyPolicyTapped` action.
+    @MainActor
     func test_privacyPolicyButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.privacyPolicy)
         try button.tap()
@@ -81,6 +87,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Updating the value of the `sessionTimeoutValue` sends the  `.sessionTimeoutValueChanged()` action.
+    @MainActor
     func test_sessionTimeoutValue_updateValue() throws {
         processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
         processor.state.sessionTimeoutValue = .never
@@ -92,6 +99,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the sync with Bitwarden app button dispatches the `.syncWithBitwardenAppTapped` action.
+    @MainActor
     func test_syncWithBitwardenButton_tap() throws {
         processor.state.shouldShowSyncButton = true
         let button = try subject.inspect().find(button: Localizations.syncWithBitwardenApp)
@@ -100,6 +108,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the tutorial button dispatches the `.tutorialTapped` action.
+    @MainActor
     func test_tutorialButton_tap() throws {
         let button = try subject.inspect().find(button: Localizations.launchTutorial)
         try button.tap()
@@ -107,6 +116,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tapping the version button dispatches the `.versionTapped` action.
+    @MainActor
     func test_versionButton_tap() throws {
         let button = try subject.inspect().find(button: version)
         try button.tap()
@@ -122,6 +132,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tests the view renders correctly.
+    @MainActor
     func test_viewRenderWithBiometricsAvailable() {
         processor.state.biometricUnlockStatus = .available(.faceID, enabled: false, hasValidIntegrity: true)
         assertSnapshots(
@@ -131,6 +142,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tests the view renders correctly with the `shouldShowSyncButton` set to `true`.
+    @MainActor
     func test_viewRenderWithSyncRow() {
         processor.state.shouldShowSyncButton = true
         assertSnapshots(
@@ -140,6 +152,7 @@ class SettingsViewTests: AuthenticatorTestCase {
     }
 
     /// Tests the view renders correctly with `shouldShowDefaultSaveOption` and `shouldShowSyncButton` set to `true`.
+    @MainActor
     func test_viewRenderWithSyncRowAndDefaultSaveOption() {
         processor.state.shouldShowDefaultSaveOption = true
         processor.state.shouldShowSyncButton = true
