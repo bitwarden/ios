@@ -1151,4 +1151,13 @@
 "Identification" = "Identification";
 "Owner" = "Owner";
 "VerifyYourIdentity"="Verify your identity";
-"GenerateQRCode" = "Generate QR Code";
+"GenerateQRCode" = "Generate QR code";
+"ViewAsQRCode" = "View as QR code";
+"WifiLogin" = "Wi-Fi login";
+"DataToShare" = "Data to share";
+"QRCodeType" = "QR code type";
+"Wifi" = "Wi-Fi";
+"ItemFieldWithSSID" = "Item field with SSID";
+"ItemFieldWithPassword" = "Item field with password";
+"Contact" = "Contact";
+"URL" = "URL";

@@ -12,9 +12,10 @@ struct GenerateQRCodeView: View {
     var body: some View {
         VStack(spacing: 16) {
             qrCodeSection
+            optionsSection
         }
         .scrollView(padding: 12)
-        .navigationBar(title: "Placeholder", titleDisplayMode: .inline)
+        .navigationBar(title: Localizations.viewAsQRCode, titleDisplayMode: .inline)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .task {
             await store.perform(.appeared)
@@ -28,13 +29,28 @@ struct GenerateQRCodeView: View {
     private let filter = CIFilter.qrCodeGenerator()
 
     private var qrCodeSection: some View {
-        SectionView("Placeholder") {
+        SectionView(Localizations.wifiLogin) {
             ContentBlock {
                 HStack {
                     Spacer()
                     QRCodeView(encodedString: store.state.string)
                     Spacer()
                 }
+            }
+        }
+    }
+
+    private var optionsSection: some View {
+        SectionView(Localizations.dataToShare, contentSpacing: 8) {
+            ContentBlock {
+                BitwardenMenuField(
+                    title: Localizations.qrCodeType,
+                    accessibilityIdentifier: "QRCodeTypeChooser",
+                    options: store.state.availableCodeTypes,
+                    selection: store.binding(
+                        get: \.qrCodeType,
+                        send: GenerateQRCodeAction.qrCodeTypeChanged
+                    ))
             }
         }
     }
