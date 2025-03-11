@@ -299,7 +299,10 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(
             errorReporter.errors as? [StateServiceError],
-            [StateServiceError.noActiveAccount]
+            [
+                StateServiceError.noActiveAccount,
+                StateServiceError.noActiveAccount
+            ]
         )
         XCTAssertNil(generatorRepository.passwordGeneratorRequest)
         XCTAssertEqual(subject.state.generatedValue, "")
