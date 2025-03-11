@@ -22,17 +22,12 @@ struct QRCodeView: View {
     // MARK: View
 
     var body: some View {
-        HStack {
-            Spacer()
-
-            Image(uiImage: generateQRCode(from: encodedString))
-                .interpolation(.none)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 200, height: 200)
-
-            Spacer()
-        }
+        Image(uiImage: generateQRCode(from: encodedString))
+            .interpolation(.none)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 200, height: 200)
+            .padding(16)
     }
 
     // MARK: Private Functions
