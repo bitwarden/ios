@@ -11,8 +11,8 @@ enum VaultItemManagementMenuAction: Equatable {
     /// The collections option was pressed.
     case editCollections
 
-    /// The generate QR code option was tapped.
-    case generateQRCode
+    /// The view as QR code option was tapped.
+    case viewAsQRCode
 
     /// The move to organization option was pressed.
     case moveToOrganization

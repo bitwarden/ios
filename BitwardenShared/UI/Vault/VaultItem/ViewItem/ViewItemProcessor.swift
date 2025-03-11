@@ -394,8 +394,8 @@ private extension ViewItemProcessor {
             }
         case .editCollections:
             coordinator.navigate(to: .editCollections(cipher), context: self)
-        case .generateQRCode:
-            coordinator.navigate(to: .generateQRCode(cipher))
+        case .viewAsQRCode:
+            coordinator.navigate(to: .viewAsQRCode(cipher))
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(cipher), context: self)
         }

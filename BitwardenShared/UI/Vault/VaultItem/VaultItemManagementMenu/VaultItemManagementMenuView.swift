@@ -24,8 +24,8 @@ struct VaultItemManagementMenuView: View {
 
     var body: some View {
         Menu {
-            Button(Localizations.generateQRCode) {
-                store.send(.generateQRCode)
+            Button(Localizations.viewAsQRCode) {
+                store.send(.viewAsQRCode)
             }
 
             Button(Localizations.attachments) {

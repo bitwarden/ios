@@ -2,14 +2,14 @@ import BitwardenSdk
 import Foundation
 import OSLog
 
-// MARK: - GenerateQRCodeProcessor
+// MARK: - ViewAsQRCodeProcessor
 
-/// The processor used to manage state and handle actions for the generate QR code screen.
+/// The processor used to manage state and handle actions for the View as QR Code screen.
 ///
-final class GenerateQRCodeProcessor: StateProcessor<
-    GenerateQRCodeState,
-    GenerateQRCodeAction,
-    GenerateQRCodeEffect
+final class ViewAsQRCodeProcessor: StateProcessor<
+    ViewAsQRCodeState,
+    ViewAsQRCodeAction,
+    ViewAsQRCodeEffect
 > {
     // MARK: Types
 
@@ -28,7 +28,7 @@ final class GenerateQRCodeProcessor: StateProcessor<
 
     // MARK: Initialization
 
-    /// Creates a new `GenerateQRCodeProcessor`.
+    /// Creates a new `ViewAsQRCodeProcessor`.
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
@@ -40,7 +40,7 @@ final class GenerateQRCodeProcessor: StateProcessor<
         cipher: CipherView,
         coordinator: AnyCoordinator<VaultItemRoute, VaultItemEvent>,
         services: Services,
-        state: GenerateQRCodeState
+        state: ViewAsQRCodeState
     ) {
         self.cipher = cipher
         self.coordinator = coordinator
@@ -50,14 +50,14 @@ final class GenerateQRCodeProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_ effect: GenerateQRCodeEffect) async {
+    override func perform(_ effect: ViewAsQRCodeEffect) async {
         switch effect {
         case .appeared:
             break
         }
     }
 
-    override func receive(_ action: GenerateQRCodeAction) {
+    override func receive(_ action: ViewAsQRCodeAction) {
         switch action {
         case let .qrCodeTypeChanged(type):
             break

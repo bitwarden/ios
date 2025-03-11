@@ -114,8 +114,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         case let .fileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
             showFileSelection(route: route, delegate: delegate)
-        case let .generateQRCode(cipher):
-            showGenerateQRCode(cipher: cipher)
+        case let .viewAsQRCode(cipher):
+            showViewAsQRCode(cipher: cipher)
         case let .generator(type, emailWebsite):
             guard let delegate = context as? GeneratorCoordinatorDelegate else { return }
             showGenerator(for: type, emailWebsite: emailWebsite, delegate: delegate)
@@ -342,19 +342,19 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         fileSelectionCoordinator = coordinator
     }
 
-    /// Shows the Generate QR Code screen for the specified cipher.
+    /// Shows the View as QR Code screen for the specified cipher.
     ///
     /// - Parameters:
     ///   - cipher: The cipher to generate a QR code for.
     ///
-    private func showGenerateQRCode(
+    private func showViewAsQRCode(
         cipher: CipherView
     ) {
         guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
-            let state = GenerateQRCodeState(string: "placeholder")
+            let state = ViewAsQRCodeState(string: "placeholder")
 
-            let processor = GenerateQRCodeProcessor(
+            let processor = ViewAsQRCodeProcessor(
                 cipher: cipher,
                 coordinator: asAnyCoordinator(),
                 services: services,
@@ -362,10 +362,10 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             )
 
             let store = Store(processor: processor)
-            let view = GenerateQRCodeView(store: store)
+            let view = ViewAsQRCodeView(store: store)
             stackNavigator.replace(view)
         } else {
-            presentChildVaultItemCoordinator(route: .generateQRCode(cipher), context: nil)
+            presentChildVaultItemCoordinator(route: .viewAsQRCode(cipher), context: nil)
         }
     }
 

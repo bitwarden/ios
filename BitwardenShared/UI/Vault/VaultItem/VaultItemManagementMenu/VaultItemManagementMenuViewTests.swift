@@ -69,12 +69,12 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects.last, .deleteItem)
     }
 
-    /// Tapping the generate QR code option dispatches the `.generateQRCode` action.
+    /// Tapping the view as QR code option dispatches the `.viewAsQRCode` action.
     @MainActor
-    func test_generateQRCodeOption_tap() async throws {
-        let button = try subject.inspect().find(button: Localizations.generateQRCode)
+    func test_viewAsQRCodeOption_tap() async throws {
+        let button = try subject.inspect().find(button: Localizations.viewAsQRCode)
         try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .generateQRCode)
+        XCTAssertEqual(processor.dispatchedActions.last, .viewAsQRCode)
     }
 
     /// Tapping the move to organization option dispatches the `.moveToOrganization` action.

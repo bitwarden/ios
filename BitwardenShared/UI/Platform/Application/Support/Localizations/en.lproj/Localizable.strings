@@ -1151,7 +1151,6 @@
 "Identification" = "Identification";
 "Owner" = "Owner";
 "VerifyYourIdentity"="Verify your identity";
-"GenerateQRCode" = "Generate QR code";
 "ViewAsQRCode" = "View as QR code";
 "WifiLogin" = "Wi-Fi login";
 "DataToShare" = "Data to share";

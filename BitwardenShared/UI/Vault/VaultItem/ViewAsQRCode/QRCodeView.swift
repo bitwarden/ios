@@ -22,7 +22,7 @@ struct QRCodeView: View {
     // MARK: View
 
     var body: some View {
-        Image(uiImage: generateQRCode(from: encodedString))
+        Image(uiImage: viewAsQRCode(from: encodedString))
             .interpolation(.none)
             .resizable()
             .scaledToFit()
@@ -32,7 +32,7 @@ struct QRCodeView: View {
 
     // MARK: Private Functions
 
-    private func generateQRCode(from string: String) -> UIImage {
+    private func viewAsQRCode(from string: String) -> UIImage {
         filter.message = Data(string.utf8)
 
         if let outputImage = filter.outputImage {

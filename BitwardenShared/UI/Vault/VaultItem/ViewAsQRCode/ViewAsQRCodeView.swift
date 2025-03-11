@@ -3,11 +3,11 @@ import SwiftUI
 
 /// A view that displays a QR code generated from a cipher.
 ///
-struct GenerateQRCodeView: View {
+struct ViewAsQRCodeView: View {
     // MARK: Properties
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<GenerateQRCodeState, GenerateQRCodeAction, GenerateQRCodeEffect>
+    @ObservedObject var store: Store<ViewAsQRCodeState, ViewAsQRCodeAction, ViewAsQRCodeEffect>
 
     var body: some View {
         VStack(spacing: 16) {
@@ -49,13 +49,13 @@ struct GenerateQRCodeView: View {
                     options: store.state.availableCodeTypes,
                     selection: store.binding(
                         get: \.qrCodeType,
-                        send: GenerateQRCodeAction.qrCodeTypeChanged
+                        send: ViewAsQRCodeAction.qrCodeTypeChanged
                     ))
             }
         }
     }
 
-    private func generateQRCode(from string: String) -> UIImage {
+    private func viewAsQRCode(from string: String) -> UIImage {
         filter.message = Data(string.utf8)
 
         if let outputImage = filter.outputImage {
@@ -74,10 +74,10 @@ struct GenerateQRCodeView: View {
 
 #Preview {
     NavigationView {
-        GenerateQRCodeView(
+        ViewAsQRCodeView(
             store: Store(
                 processor: StateProcessor(
-                    state: GenerateQRCodeState(string: "https://www.google.com")
+                    state: ViewAsQRCodeState(string: "https://www.google.com")
                 )
             )
         )

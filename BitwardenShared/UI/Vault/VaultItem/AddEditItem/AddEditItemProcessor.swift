@@ -371,8 +371,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
             break
         case .editCollections:
             coordinator.navigate(to: .editCollections(state.cipher), context: self)
-        case .generateQRCode:
-            coordinator.navigate(to: .generateQRCode(state.cipher))
+        case .viewAsQRCode:
+            coordinator.navigate(to: .viewAsQRCode(state.cipher))
         case .moveToOrganization:
             coordinator.navigate(to: .moveToOrganization(state.cipher), context: self)
         }

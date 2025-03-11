@@ -1,6 +1,6 @@
-/// An object that defines the current state of a `GenerateQRCodeView`.
+/// An object that defines the current state of a `ViewAsQRCodeView`.
 ///
-struct GenerateQRCodeState: Equatable {
+struct ViewAsQRCodeState: Equatable {
     var availableCodeTypes: [QRCodeType] = QRCodeType.allCases
 
     var string: String
