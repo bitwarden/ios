@@ -87,6 +87,10 @@ extension Alert {
             alertActions: [
                 AlertAction(
                     title: Localizations.ok,
+                    shouldEnableAction: { textFields in
+                        guard let text = textFields.first(where: { $0.id == "name" })?.text else { return false }
+                        return !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                    },
                     style: .default,
                     handler: { _, alertTextFields in
                         guard let name = alertTextFields.first(where: { $0.id == "name" })?.text else { return }
