@@ -10,23 +10,14 @@ struct GenerateQRCodeView: View {
     @ObservedObject var store: Store<GenerateQRCodeState, GenerateQRCodeAction, GenerateQRCodeEffect>
 
     var body: some View {
-        VStack {
+        VStack(spacing: 16) {
             qrCodeSection
         }
+        .scrollView(padding: 12)
+        .navigationBar(title: "Placeholder", titleDisplayMode: .inline)
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
-        .navigationTitle("QR Code Placeholder")
-        .navigationBarTitleDisplayMode(.inline)
-//        .toast(
-//            store.binding(
-//                get: \.toast,
-//                send: ViewItemAction.toastShown
-//            ),
-//            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
-//        )
-        .onAppear {
-            Task {
-                await store.perform(.appeared)
-            }
+        .task {
+            await store.perform(.appeared)
         }
     }
 
@@ -38,11 +29,13 @@ struct GenerateQRCodeView: View {
 
     private var qrCodeSection: some View {
         SectionView("Placeholder") {
-            Image(uiImage: generateQRCode(from: store.state.string))
-                .interpolation(.none)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 200, height: 200)
+            ContentBlock {
+                HStack {
+                    Spacer()
+                    QRCodeView(encodedString: store.state.string)
+                    Spacer()
+                }
+            }
         }
     }
 
@@ -64,13 +57,15 @@ struct GenerateQRCodeView: View {
 #if DEBUG
 
 #Preview {
-    GenerateQRCodeView(
-        store: Store(
-            processor: StateProcessor(
-                state: GenerateQRCodeState(string: "https://www.google.com")
+    NavigationView {
+        GenerateQRCodeView(
+            store: Store(
+                processor: StateProcessor(
+                    state: GenerateQRCodeState(string: "https://www.google.com")
+                )
             )
         )
-    )
+    }
 }
 
 #endif
