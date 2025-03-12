@@ -280,6 +280,7 @@ struct GeneratorView: View {
                 openURL(ExternalLinksConstants.generatorUsernameTypes)
             } label: {
                 Asset.Images.questionCircle12.swiftUIImage
+                    .scaledFrame(width: 12, height: 12)
             }
             .buttonStyle(.fieldLabelIcon)
             .accessibilityLabel(Localizations.learnMore)
