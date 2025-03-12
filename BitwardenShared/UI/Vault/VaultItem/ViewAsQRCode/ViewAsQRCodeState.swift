@@ -86,6 +86,25 @@ struct ViewAsQRCodeState: Equatable {
         }
         return fieldBuffer
     }
+
+    func initialSelectedFieldForField(_ field: ExpectableField, available: [CipherFieldType]) -> CipherFieldType {
+        for potentialField in field.fieldPriority {
+            if available.contains(potentialField) {
+                return potentialField
+            }
+        }
+        if available.contains(.none) { return .none }
+        return available.first ?? .username
+    }
+
+    mutating func setUpInitialSelected() {
+        var buffer = [CipherFieldType]()
+        for field in qrCodeType.expectedFields {
+            let available = fieldsForField(field: field)
+            buffer.append(initialSelectedFieldForField(field, available: available))
+        }
+        selectedFields = buffer
+    }
 }
 
 struct ExpectableField: Equatable, Hashable, Sendable {
@@ -121,14 +140,14 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
                     isOptional: false,
                     fieldPriority: [
                         .username,
-                        .custom(name: "SSID")
+                        .custom(name: "SSID"),
                     ]
                 ),
                 ExpectableField(
                     name: "Password",
                     isOptional: true,
                     fieldPriority: [.password]
-                )
+                ),
             ]
         case .url:
             [
@@ -136,7 +155,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
                     name: "URL",
                     isOptional: false,
                     fieldPriority: [.uri(index: 0)]
-                )
+                ),
             ]
         }
     }
@@ -160,9 +179,9 @@ enum CipherFieldType: Equatable, Menuable, Sendable {
             Localizations.password
         case .notes:
             Localizations.notes
-        case .uri(let index):
+        case let .uri(index):
             Localizations.url
-        case .custom(let name):
+        case let .custom(name):
             "Custom field: \(name)"
         }
     }

@@ -60,7 +60,7 @@ final class ViewAsQRCodeProcessor: StateProcessor<
     override func receive(_ action: ViewAsQRCodeAction) {
         switch action {
         case let .qrCodeTypeChanged(type):
-            break
+            changeQrType(type)
         case let .additionalFieldChanged(fieldReference, index: index):
             foobar(fieldReference: fieldReference, index: index)
         default:
@@ -69,6 +69,11 @@ final class ViewAsQRCodeProcessor: StateProcessor<
     }
 
     // MARK: Private Methods
+
+    func changeQrType(_ type: QRCodeType) {
+        state.qrCodeType = type
+        state.setUpInitialSelected()
+    }
 
     func foobar(fieldReference: CipherFieldType, index: Int) {
         state.selectedFields[index] = fieldReference
