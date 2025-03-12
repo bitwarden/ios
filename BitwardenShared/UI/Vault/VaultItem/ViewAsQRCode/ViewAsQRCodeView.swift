@@ -54,32 +54,12 @@ struct ViewAsQRCodeView: View {
                         send: ViewAsQRCodeAction.qrCodeTypeChanged
                     )
                 )
-//                if store.state.qrCodeType == .wifi {
-//                    BitwardenMenuField(
-//                        title: "Field for SSID",
-//                        accessibilityIdentifier: "QRCodeWifiSSIDChooser",
-//                        options: store.state.ssidFieldOptions,
-//                        selection: store.binding(
-//                            get: \.ssidFieldSelection,
-//                            send: ViewAsQRCodeAction.wifiSsidFieldChanged
-//                        )
-//                    )
-//                    BitwardenMenuField(
-//                        title: "Field for password",
-//                        accessibilityIdentifier: "QRCodeWifiPasswordChooser",
-//                        options: store.state.wifiPasswordFieldOptions,
-//                        selection: store.binding(
-//                            get: \.wifiPasswordFieldSelection,
-//                            send: ViewAsQRCodeAction.wifiPasswordFieldChanged
-//                        )
-//                    )
-//                }
-                ForEachIndexed(store.state.additionalProperties, id: \.self) { index, additionalProperty in
+                ForEachIndexed(store.state.expectedFields, id: \.self) { index, expectedField in
                     BitwardenMenuField(
-                        title: additionalProperty.fieldTitle,
-                        options: additionalProperty.options,
+                        title: expectedField.fieldTitle,
+                        options: store.state.fieldsForField(field: expectedField),
                         selection: store.binding(
-                            get: { _ in additionalProperty.selected },
+                            get: { _ in store.state.selectedFields[index] },
                             send: { .additionalFieldChanged($0, index: index) }
                         )
                     )
@@ -110,7 +90,10 @@ struct ViewAsQRCodeView: View {
         ViewAsQRCodeView(
             store: Store(
                 processor: StateProcessor(
-                    state: ViewAsQRCodeState(string: "https://www.google.com")
+                    state: ViewAsQRCodeState(
+                        cipher: .fixture(),
+                        selectedFields: [.username, .password]
+                    )
                 )
             )
         )

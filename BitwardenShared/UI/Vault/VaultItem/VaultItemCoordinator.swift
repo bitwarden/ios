@@ -352,7 +352,11 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ) {
         guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
-            let state = ViewAsQRCodeState(string: "placeholder")
+//            let state = ViewAsQRCodeState(string: "placeholder")
+            let state = ViewAsQRCodeState(
+                cipher: cipher,
+                selectedFields: [.username, .password]
+            )
 
             let processor = ViewAsQRCodeProcessor(
                 cipher: cipher,

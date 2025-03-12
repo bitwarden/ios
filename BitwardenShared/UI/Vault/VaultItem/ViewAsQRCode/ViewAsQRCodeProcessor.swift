@@ -61,10 +61,6 @@ final class ViewAsQRCodeProcessor: StateProcessor<
         switch action {
         case let .qrCodeTypeChanged(type):
             break
-        case let .wifiSsidFieldChanged(value):
-            break
-        case let .wifiPasswordFieldChanged(value):
-            break
         case let .additionalFieldChanged(fieldReference, index: index):
             foobar(fieldReference: fieldReference, index: index)
         default:
@@ -74,12 +70,16 @@ final class ViewAsQRCodeProcessor: StateProcessor<
 
     // MARK: Private Methods
 
-    func foobar(fieldReference: QRCodeFieldReference, index: Int) {
-        state.additionalProperties[index].selected = fieldReference
-        let ssid = valueForField(cipher: cipher, field: state.additionalProperties[0].selected.cipherField) ?? "Error"
-        let password = valueForField(cipher: cipher, field: state.additionalProperties[1].selected.cipherField) ?? "Error"
-        state.string = "WIFI:T:WPA;S:\(ssid);P:\(password);;"
+    func foobar(fieldReference: CipherFieldType, index: Int) {
+        state.selectedFields[index] = fieldReference
     }
+
+//    func foobar(fieldReference: QRCodeFieldReference, index: Int) {
+//        state.additionalProperties[index].selected = fieldReference
+//        let ssid = valueForField(cipher: cipher, field: state.additionalProperties[0].selected.cipherField) ?? "Error"
+//        let password = valueForField(cipher: cipher, field: state.additionalProperties[1].selected.cipherField) ?? "Error"
+//        state.string = "WIFI:T:WPA;S:\(ssid);P:\(password);;"
+//    }
 
     func valueForField(cipher: CipherView, field: CipherFieldType) -> String? {
         switch field {
