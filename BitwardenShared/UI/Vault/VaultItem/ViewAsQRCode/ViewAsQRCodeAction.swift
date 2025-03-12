@@ -3,4 +3,10 @@
 enum ViewAsQRCodeAction: Equatable {
     /// The QR code type has changed.
     case qrCodeTypeChanged(QRCodeType)
+
+    case wifiSsidFieldChanged(QRCodeFieldReference)
+
+    case wifiPasswordFieldChanged(QRCodeFieldReference)
+
+    case additionalFieldChanged(QRCodeFieldReference, index: Int)
 }

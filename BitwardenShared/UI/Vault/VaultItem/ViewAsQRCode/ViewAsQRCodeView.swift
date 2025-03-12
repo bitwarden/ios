@@ -36,6 +36,8 @@ struct ViewAsQRCodeView: View {
                     QRCodeView(encodedString: store.state.string)
                     Spacer()
                 }
+                Text(store.state.string)
+                    .styleGuide(.bodyMonospaced)
             }
         }
     }
@@ -50,7 +52,38 @@ struct ViewAsQRCodeView: View {
                     selection: store.binding(
                         get: \.qrCodeType,
                         send: ViewAsQRCodeAction.qrCodeTypeChanged
-                    ))
+                    )
+                )
+//                if store.state.qrCodeType == .wifi {
+//                    BitwardenMenuField(
+//                        title: "Field for SSID",
+//                        accessibilityIdentifier: "QRCodeWifiSSIDChooser",
+//                        options: store.state.ssidFieldOptions,
+//                        selection: store.binding(
+//                            get: \.ssidFieldSelection,
+//                            send: ViewAsQRCodeAction.wifiSsidFieldChanged
+//                        )
+//                    )
+//                    BitwardenMenuField(
+//                        title: "Field for password",
+//                        accessibilityIdentifier: "QRCodeWifiPasswordChooser",
+//                        options: store.state.wifiPasswordFieldOptions,
+//                        selection: store.binding(
+//                            get: \.wifiPasswordFieldSelection,
+//                            send: ViewAsQRCodeAction.wifiPasswordFieldChanged
+//                        )
+//                    )
+//                }
+                ForEachIndexed(store.state.additionalProperties, id: \.self) { index, additionalProperty in
+                    BitwardenMenuField(
+                        title: additionalProperty.fieldTitle,
+                        options: additionalProperty.options,
+                        selection: store.binding(
+                            get: { _ in additionalProperty.selected },
+                            send: { .additionalFieldChanged($0, index: index) }
+                        )
+                    )
+                }
             }
         }
     }
