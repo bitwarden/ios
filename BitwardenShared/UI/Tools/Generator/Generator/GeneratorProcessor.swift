@@ -81,6 +81,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
+            await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
         case .dismissLearnGeneratorActionCard:
@@ -310,6 +311,16 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         let usernameOptions = try await services.generatorRepository.getUsernameGenerationOptions()
         state.usernameState.update(with: usernameOptions)
         didLoadGeneratorOptions = true
+    }
+
+    /// Re-loads generator options.
+    ///
+    private func reloadGeneratorOptions() async {
+        do {
+            try await loadGeneratorOptions()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Saves the existing generated value to the user's password history.
