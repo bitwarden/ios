@@ -31,7 +31,7 @@ public protocol BundleProtocol {
     var keychainAccessGroup: String { get }
 
     /// Return's the shared app group identifier. This App Group is shared between the
-    /// main Bitwarden app and the Authenticator app.
+    /// Password Manager app and the Authenticator app.
     var sharedAppGroupIdentifier: String { get }
 }
 
