@@ -1,3 +1,4 @@
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -25,6 +26,14 @@ class AnyCoordinatorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `showErrorAlert(error:services:)` calls the `showErrorAlert()` method on the wrapped coordinator.
+    @MainActor
+    func test_showErrorAlert() async {
+        let error = BitwardenTestError.example
+        await subject.showErrorAlert(error: error, services: ServiceContainer.withMocks())
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [error])
+    }
 
     /// `start()` calls the `start()` method on the wrapped coordinator.
     @MainActor

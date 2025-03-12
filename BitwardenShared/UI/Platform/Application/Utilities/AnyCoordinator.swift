@@ -19,6 +19,9 @@ open class AnyCoordinator<Route, Event>: Coordinator {
     /// A closure that wraps the `showAlert(_:)` method.
     private let doShowAlert: (Alert, (() -> Void)?) -> Void
 
+    /// A closure that wraps the `showErrorAlert(_:services:)` method.
+    private let doShowErrorAlert: (Error, Coordinator.ErrorAlertServices) async -> Void
+
     /// A closure that wraps the `showLoadingOverlay(_:)` method.
     private let doShowLoadingOverlay: (LoadingOverlayState) -> Void
 
@@ -34,7 +37,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
     ///
     /// - Parameter coordinator: The coordinator to wrap.
     ///
-    public init<C: Coordinator>(_ coordinator: C)
+    init<C: Coordinator>(_ coordinator: C)
         where C.Event == Event,
         C.Route == Route {
         doHideLoadingOverlay = { coordinator.hideLoadingOverlay() }
@@ -45,6 +48,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
             coordinator.navigate(to: route, context: context)
         }
         doShowAlert = { coordinator.showAlert($0, onDismissed: $1) }
+        doShowErrorAlert = { await coordinator.showErrorAlert(error: $0, services: $1) }
         doShowLoadingOverlay = { coordinator.showLoadingOverlay($0) }
         doShowToast = { coordinator.showToast($0, subtitle: $1, additionalBottomPadding: $2) }
         doStart = { coordinator.start() }
@@ -62,6 +66,10 @@ open class AnyCoordinator<Route, Event>: Coordinator {
 
     open func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
         doShowAlert(alert, onDismissed)
+    }
+
+    func showErrorAlert(error: Error, services: Coordinator.ErrorAlertServices) async {
+        await doShowErrorAlert(error, services)
     }
 
     open func showLoadingOverlay(_ state: LoadingOverlayState) {
@@ -87,7 +95,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
 
 // MARK: - Coordinator Extensions
 
-public extension Coordinator {
+extension Coordinator {
     /// Wraps this coordinator in an instance of `AnyCoordinator`.
     ///
     /// - Returns: An `AnyCoordinator` instance wrapping this coordinator.

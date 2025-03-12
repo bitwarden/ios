@@ -2,8 +2,10 @@ import Foundation
 
 /// A protocol for an object that performs navigation via routes.
 @MainActor
-public protocol Coordinator<Route, Event>: AnyObject {
+protocol Coordinator<Route, Event>: AnyObject {
     // MARK: Types
+
+    typealias ErrorAlertServices = HasConfigService & HasErrorReporter
 
     associatedtype Event
     associatedtype Route
@@ -43,6 +45,15 @@ public protocol Coordinator<Route, Event>: AnyObject {
     ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?)
+
+    /// Shows an alert for an error that occurred.
+    ///
+    /// - Parameters:
+    ///   - error: The error that occurred, used to customize the details of the alert.
+    ///   - services: A group of services used to gather additional information if the error details
+    ///     are shared.
+    ///
+    func showErrorAlert(error: Error, services: ErrorAlertServices) async
 
     /// Shows the loading overlay view.
     ///
@@ -114,7 +125,7 @@ protocol HasRouter<Event, Route> {
 
 // MARK: Extensions
 
-public extension Coordinator {
+extension Coordinator {
     /// Handles events that may require asynchronous management.
     ///
     /// - Parameter event: The event for which the coordinator handle.
@@ -143,7 +154,7 @@ public extension Coordinator {
 }
 
 extension Coordinator where Self.Event == Void {
-    /// Provide a default No-Op when a coodrinator does not use events.
+    /// Provide a default No-Op when a coordinator does not use events.
     ///
     func handleEvent(_ event: Void, context: AnyObject?) async {
         // No-Op
@@ -165,6 +176,24 @@ extension Coordinator where Self: HasNavigator {
     ///
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)? = nil) {
         navigator?.present(alert, onDismissed: onDismissed)
+    }
+
+    /// Shows an alert for an error that occurred.
+    ///
+    /// - Parameters:
+    ///   - error: The error that occurred, used to customize the details of the alert.
+    ///   - services: A group of services used to gather additional information if the error details
+    ///     are shared.
+    ///
+    func showErrorAlert(error: Error, services: ErrorAlertServices) async {
+        let alert = if await services.configService.getFeatureFlag(.mobileErrorReporting) {
+            Alert.networkResponseError(error, shareErrorDetails: {
+                // TODO: PM-18224 Show share sheet to export error details
+            })
+        } else {
+            Alert.networkResponseError(error)
+        }
+        showAlert(alert)
     }
 
     /// Shows the loading overlay view.
