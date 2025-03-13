@@ -17,18 +17,14 @@ struct ProfileSwitcherToolbarView: View {
         AsyncButton {
             await store.perform(.requestedProfileSwitcher(visible: !store.state.isVisible))
         } label: {
-            HStack {
-                profileSwitcherIcon(
-                    color: store.state.showPlaceholderToolbarIcon
-                        ? nil : store.state.activeAccountProfile?.color,
-                    initials: store.state.showPlaceholderToolbarIcon
-                        ? nil : store.state.activeAccountProfile?.userInitials,
-                    textColor: store.state.showPlaceholderToolbarIcon
-                        ? nil : store.state.activeAccountProfile?.profileIconTextColor
-                )
-                Spacer()
-            }
-            .frame(minWidth: 50)
+            profileSwitcherIcon(
+                color: store.state.showPlaceholderToolbarIcon
+                ? nil : store.state.activeAccountProfile?.color,
+                initials: store.state.showPlaceholderToolbarIcon
+                ? nil : store.state.activeAccountProfile?.userInitials,
+                textColor: store.state.showPlaceholderToolbarIcon
+                ? nil : store.state.activeAccountProfile?.profileIconTextColor
+            )
         }
         .accessibilityIdentifier("CurrentActiveAccount")
         .accessibilityLabel(Localizations.account)
