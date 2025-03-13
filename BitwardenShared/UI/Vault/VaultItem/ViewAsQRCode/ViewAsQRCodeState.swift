@@ -22,25 +22,6 @@ struct ViewAsQRCodeState: Equatable {
 
     var qrCodeType: QRCodeType = .wifi
 
-    var additionalProperties = [
-        QRCodeAdditionalProperty(
-            name: "SSID",
-            options: [
-                QRCodeFieldReference(qrCodeFieldName: "Username", cipherField: .username),
-                QRCodeFieldReference(qrCodeFieldName: "Password", cipherField: .password),
-            ],
-            selected: QRCodeFieldReference(qrCodeFieldName: "Username", cipherField: .username)
-        ),
-        QRCodeAdditionalProperty(
-            name: "Password",
-            options: [
-                QRCodeFieldReference(qrCodeFieldName: "Password", cipherField: .password),
-                QRCodeFieldReference(qrCodeFieldName: "Username", cipherField: .username),
-            ],
-            selected: QRCodeFieldReference(qrCodeFieldName: "Password", cipherField: .password)
-        ),
-    ]
-
     var expectedFields: [ExpectableField] {
         qrCodeType.expectedFields
     }
