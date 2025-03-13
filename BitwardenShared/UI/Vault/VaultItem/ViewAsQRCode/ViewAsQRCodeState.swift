@@ -90,7 +90,7 @@ struct ViewAsQRCodeState: Equatable {
 
 struct ExpectableField: Equatable, Hashable, Sendable {
     let name: String
-    var fieldTitle: String { "Field for \(name)" }
+    var fieldTitle: String { Localizations.fieldFor(name) }
 
     let isOptional: Bool
     let fieldPriority: [CipherFieldType]
@@ -117,7 +117,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
         case .wifi:
             [
                 ExpectableField(
-                    name: "SSID",
+                    name: Localizations.ssid,
                     isOptional: false,
                     fieldPriority: [
                         .username,
@@ -125,7 +125,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
                     ]
                 ),
                 ExpectableField(
-                    name: "Password",
+                    name: Localizations.password,
                     isOptional: true,
                     fieldPriority: [.password]
                 ),
@@ -133,7 +133,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
         case .url:
             [
                 ExpectableField(
-                    name: "URL",
+                    name: Localizations.url,
                     isOptional: false,
                     fieldPriority: [.uri(index: 0)]
                 ),
@@ -153,7 +153,7 @@ enum CipherFieldType: Equatable, Menuable, Sendable {
     var localizedName: String {
         switch self {
         case .none:
-            "-- Select --"
+            "--\(Localizations.select)--"
         case .username:
             Localizations.username
         case .password:
@@ -166,19 +166,4 @@ enum CipherFieldType: Equatable, Menuable, Sendable {
             "Custom field: \(name)"
         }
     }
-}
-
-struct QRCodeFieldReference: Equatable, Menuable, Sendable {
-    let qrCodeFieldName: String
-    let cipherField: CipherFieldType
-
-    var localizedName: String { qrCodeFieldName }
-}
-
-struct QRCodeAdditionalProperty: Equatable, Hashable, Sendable {
-    let name: String
-    var fieldTitle: String { "Field for \(name)" }
-
-    let options: [QRCodeFieldReference]
-    var selected: QRCodeFieldReference
 }

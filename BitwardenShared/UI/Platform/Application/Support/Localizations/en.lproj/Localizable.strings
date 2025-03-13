@@ -1160,3 +1160,5 @@
 "ItemFieldWithPassword" = "Item field with password";
 "Contact" = "Contact";
 "URL" = "URL";
+"SSID" = "SSID";
+"FieldFor" = "Field for %1$@";
