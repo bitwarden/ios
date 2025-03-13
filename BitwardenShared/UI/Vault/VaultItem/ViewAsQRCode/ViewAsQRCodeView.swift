@@ -20,6 +20,13 @@ struct ViewAsQRCodeView: View {
         .task {
             await store.perform(.appeared)
         }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                closeToolbarButton {
+                    store.send(.closeTapped)
+                }
+            }
+        }
     }
 
     // MARK: Private Properties

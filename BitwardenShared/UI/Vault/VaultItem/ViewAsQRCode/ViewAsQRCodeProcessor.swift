@@ -59,12 +59,12 @@ final class ViewAsQRCodeProcessor: StateProcessor<
 
     override func receive(_ action: ViewAsQRCodeAction) {
         switch action {
+        case .closeTapped:
+            coordinator.navigate(to: .dismiss())
         case let .qrCodeTypeChanged(type):
             changeQrType(type)
         case let .additionalFieldChanged(fieldReference, index: index):
             foobar(fieldReference: fieldReference, index: index)
-        default:
-            break
         }
     }
 
