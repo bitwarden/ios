@@ -22,7 +22,7 @@ struct ViewAsQRCodeState: Equatable {
 
     var qrCodeType: QRCodeType = .wifi
 
-    var expectedFields: [ExpectableField] {
+    var expectedFields: [QRCodeParameter] {
         qrCodeType.expectedFields
     }
 
@@ -43,7 +43,7 @@ struct ViewAsQRCodeState: Equatable {
         }
     }
 
-    func fieldsForField(field: ExpectableField) -> [CipherFieldType] {
+    func fieldsForField(field: QRCodeParameter) -> [CipherFieldType] {
         var fieldBuffer = [CipherFieldType]()
         if field.isOptional {
             fieldBuffer.append(.none)
@@ -68,7 +68,7 @@ struct ViewAsQRCodeState: Equatable {
         return fieldBuffer
     }
 
-    func initialSelectedFieldForField(_ field: ExpectableField, available: [CipherFieldType]) -> CipherFieldType {
+    func initialSelectedFieldForField(_ field: QRCodeParameter, available: [CipherFieldType]) -> CipherFieldType {
         for potentialField in field.fieldPriority {
             if available.contains(potentialField) {
                 return potentialField
