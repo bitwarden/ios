@@ -166,7 +166,7 @@ struct AddEditItemView: View {
                 )
                 .accessibilityIdentifier("FolderPicker")
 
-                if store.state.configuration.isAdding, let owner = store.state.owner {
+                if store.state.configuration.isAdding, let owner = store.state.owner, store.state.hasOrganizations {
                     ContentBlock(dividerLeadingPadding: 16) {
                         BitwardenMenuField(
                             title: Localizations.owner,

@@ -64,6 +64,9 @@ struct CipherItemState: Equatable {
         ]
     )
 
+    /// Whether the user has organizations.
+    var hasOrganizations: Bool
+
     /// The state for a identity type item.
     var identityState: IdentityItemState
 
@@ -195,6 +198,7 @@ struct CipherItemState: Equatable {
         configuration: Configuration,
         customFields: [CustomFieldState],
         folderId: String?,
+        hasOrganizations: Bool,
         identityState: IdentityItemState,
         isFavoriteOn: Bool,
         isMasterPasswordRePromptOn: Bool,
@@ -213,6 +217,7 @@ struct CipherItemState: Equatable {
         collections = []
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
+        self.hasOrganizations = hasOrganizations
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
@@ -235,6 +240,7 @@ struct CipherItemState: Equatable {
         collectionIds: [String] = [],
         customFields: [CustomFieldState] = [],
         folderId: String? = nil,
+        hasOrganizations: Bool = false,
         hasPremium: Bool,
         name: String? = nil,
         organizationId: String? = nil,
@@ -250,6 +256,7 @@ struct CipherItemState: Equatable {
             configuration: .add,
             customFields: customFields,
             folderId: folderId,
+            hasOrganizations: hasOrganizations,
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
@@ -278,6 +285,7 @@ struct CipherItemState: Equatable {
             configuration: .add,
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
+            hasOrganizations: cipherView.organizationId != nil,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
@@ -305,6 +313,7 @@ struct CipherItemState: Equatable {
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
+            hasOrganizations: cipherView.organizationId != nil,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
