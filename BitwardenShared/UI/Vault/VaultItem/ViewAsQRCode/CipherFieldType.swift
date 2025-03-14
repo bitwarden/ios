@@ -36,7 +36,7 @@ enum CipherFieldType: Equatable, Menuable, Sendable {
 // MARK: CipherView+CipherFieldType
 
 extension CipherView {
-    func value(field: CipherFieldType) -> String? {
+    func value(of field: CipherFieldType) -> String? {
         switch field {
         case let .custom(name):
             fields?.first(where: { $0.name == name })?.value

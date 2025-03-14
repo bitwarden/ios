@@ -63,4 +63,3 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
         }
     }
 }
-

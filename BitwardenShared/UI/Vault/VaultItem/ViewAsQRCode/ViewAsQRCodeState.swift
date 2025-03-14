@@ -12,10 +12,10 @@ struct ViewAsQRCodeState: Equatable {
     var string: String {
         switch qrCodeType {
         case .url:
-            return valueForField(cipher: cipher, field: selectedFields[0]) ?? ""
+            return cipher.value(of: selectedFields[0]) ?? ""
         case .wifi:
-            let ssid = valueForField(cipher: cipher, field: selectedFields[0]) ?? "Error"
-            let password = valueForField(cipher: cipher, field: selectedFields[1]) ?? "Error"
+            let ssid = cipher.value(of: selectedFields[0]) ?? "Error"
+            let password = cipher.value(of: selectedFields[1]) ?? "Error"
             return "WIFI:T:WPA;S:\(ssid);P:\(password);;"
         }
     }

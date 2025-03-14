@@ -62,6 +62,8 @@ class CipherFieldTypeTests: BitwardenTestCase {
 
         XCTAssertEqual(CipherFieldType.uri(index: 0).localizedName, Localizations.websiteURI)
         XCTAssertEqual(cipher.value(field: CipherFieldType.uri(index: 0)), "https://www.example.com/1")
+        XCTAssertEqual(cipher.value(field: CipherFieldType.uri(index: 1)), "https://www.example.com/2")
+        XCTAssertEqual(cipher.value(field: CipherFieldType.uri(index: 2)), nil)
     }
 
     /// `CipherView.value(.username)` returns the username.
