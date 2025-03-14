@@ -41,6 +41,14 @@ struct TwoFactorAuthState: Equatable, Sendable {
     /// User organization idenfier if came from SSO flow
     var orgIdentifier: String?
 
+    /// The text to display in the detailed instructions.
+    var titleText: String {
+        if deviceVerificationRequired {
+            return Localizations.verifyYourIdentity
+        }
+        return authMethod.title
+    }
+
     /// A toast message to show in the view.
     var toast: Toast?
 
@@ -54,6 +62,18 @@ struct TwoFactorAuthState: Equatable, Sendable {
     var verificationCode = ""
 
     // MARK: Computed Properties
+
+    /// The image asset to display for the selected authentication method.
+    var authMethodImageAsset: ImageAsset? {
+        switch authMethod {
+        case .email:
+            Asset.Images.Illustrations.emailOtp
+        case .authenticatorApp:
+            Asset.Images.Illustrations.authenticatorApp
+        default:
+            nil
+        }
+    }
 
     /// The image asset to display for the auth method.
     var detailImageAsset: ImageAsset? {

@@ -1,5 +1,6 @@
 import AuthenticationServices
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 // swiftlint:disable file_length
@@ -398,6 +399,24 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.continueTapped` handles identity device verification code error correctly.
+    @MainActor
+    func test_perform_continueTapped_deviceVerificationCode_error() async {
+        subject.state.authMethod = .email
+        subject.state.deviceVerificationRequired = true
+        subject.state.verificationCode = "123123123  "
+        authService.loginWithTwoFactorCodeResult = .failure(
+            IdentityTokenRequestError.newDeviceNotVerified
+        )
+
+        await subject.perform(.continueTapped)
+
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.verifying)])
+        XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "123123123")
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.invalidVerificationCode))
+    }
+
     /// `perform(_:)` with `.continueTapped` shows an alert for empty verification code text.
     @MainActor
     func test_perform_continueTapped_invalidInput() async throws {
@@ -727,6 +746,20 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
 
         subject.receive(.verificationCodeChanged("123456"))
         XCTAssertEqual(subject.state.verificationCode, "123456")
+        XCTAssertTrue(subject.state.continueEnabled)
+    }
+
+    /// `receive(_:)` with `.verificationCodeChanged` updates the value in the state and enables the button if
+    /// applicable if device needs verification and code length is at least 8 characters.
+    @MainActor
+    func test_receive_verificationCodeChanged_deviceNeedsVerification() {
+        subject.state.deviceVerificationRequired = true
+        subject.receive(.verificationCodeChanged("123456"))
+        XCTAssertEqual(subject.state.verificationCode, "123456")
+        XCTAssertFalse(subject.state.continueEnabled)
+
+        subject.receive(.verificationCodeChanged("12345678"))
+        XCTAssertEqual(subject.state.verificationCode, "12345678")
         XCTAssertTrue(subject.state.continueEnabled)
     }
 }

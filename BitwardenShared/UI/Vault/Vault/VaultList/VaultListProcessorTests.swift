@@ -1,4 +1,5 @@
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -828,6 +829,54 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(subject.state.showWebIcons == false)
 
         task.cancel()
+    }
+
+    /// `perform(_:)` with `.streamVaultList` dismisses the coach marks if the vault contains any
+    /// login items.
+    @MainActor
+    func test_perform_streamVaultList_coachMarkDismiss_vaultContainsLogins() async throws {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+        defer { task.cancel() }
+
+        let section = VaultListSection(
+            id: "1",
+            items: [.fixtureGroup(id: "1", group: .login, count: 1)],
+            name: "Section"
+        )
+        vaultRepository.vaultListSubject.send([section])
+
+        try await waitForAsync { self.subject.state.loadingState == .data([section]) }
+        XCTAssertEqual(stateService.learnGeneratorActionCardStatus, .complete)
+        XCTAssertEqual(stateService.learnNewLoginActionCardStatus, .complete)
+    }
+
+    /// `perform(_:)` with `.streamVaultList` doesn't dismiss the coach marks if the vault contains
+    /// no login items.
+    @MainActor
+    func test_perform_streamVaultList_coachMarkDismiss_vaultWithoutLogins() async throws {
+        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamVaultList)
+        }
+        defer { task.cancel() }
+
+        let section = VaultListSection(
+            id: "1",
+            items: [.fixtureGroup(id: "1", group: .card, count: 1)],
+            name: "Section"
+        )
+        vaultRepository.vaultListSubject.send([section])
+
+        try await waitForAsync { self.subject.state.loadingState == .data([section]) }
+        XCTAssertNil(stateService.learnGeneratorActionCardStatus)
+        XCTAssertNil(stateService.learnNewLoginActionCardStatus)
     }
 
     /// `perform(_:)` with `.streamVaultList` updates the state's vault list whenever it changes.

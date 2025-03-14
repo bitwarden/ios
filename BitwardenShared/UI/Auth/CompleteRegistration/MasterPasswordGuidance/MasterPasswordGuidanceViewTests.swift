@@ -29,19 +29,19 @@ class MasterPasswordGuidanceViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the cancel button dispatches the `.dismiss` action.
+    /// Tapping the close button dispatches the `.dismiss` action.
     @MainActor
-    func test_cancelButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.cancel)
+    func test_closeButton_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.close)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
     /// Tapping the password generator button dispatches the `.generatePasswordPressed` action.
     @MainActor
-    func test_passwordGeneratorButton_tap() throws {
-        let button = try subject.inspect().find(button: Localizations.tryItOut)
-        try button.tap()
+    func test_passwordGeneratorButton_tap() async throws {
+        let button = try subject.inspect().find(asyncButton: Localizations.checkOutThePassphraseGenerator)
+        try await button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .generatePasswordPressed)
     }
 

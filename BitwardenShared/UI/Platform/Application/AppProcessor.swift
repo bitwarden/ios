@@ -559,6 +559,25 @@ extension AppProcessor: NotificationServiceDelegate {
 // MARK: - SyncServiceDelegate
 
 extension AppProcessor: SyncServiceDelegate {
+    func onFetchSyncSucceeded(userId: String) async {
+        do {
+            let hasPerformedSyncAfterLogin = try await services.stateService.getHasPerformedSyncAfterLogin(
+                userId: userId
+            )
+            // Check so the next gets executed only once after login.
+            guard !hasPerformedSyncAfterLogin else {
+                return
+            }
+            try await services.stateService.setHasPerformedSyncAfterLogin(true, userId: userId)
+
+            if await services.policyService.policyAppliesToUser(.removeUnlockWithPin) {
+                try await services.stateService.clearPins()
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
     func removeMasterPassword(organizationName: String) {
         // Don't show the remove master password screen if running in an app extension.
         guard appExtensionDelegate?.isInAppExtension != true else { return }

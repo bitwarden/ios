@@ -58,6 +58,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & PasswordAutoFillModule
 
     typealias Services = HasAccountAPIService
+        & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
@@ -77,6 +78,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasTwoStepLoginService
         & HasVaultRepository
         & HasVaultTimeoutService
+        & HasWatchService
 
     // MARK: Private Properties
 
@@ -199,7 +201,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///
     private func showAbout() {
         let processor = AboutProcessor(
-            aboutAdditionalInfo: DefaultAboutAdditionalInfo(),
             coordinator: asAnyCoordinator(),
             services: services,
             state: AboutState()

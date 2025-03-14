@@ -7,10 +7,10 @@ final class NotificationCenterServiceTests: BitwardenTestCase {
 
     var notificationCenter: NotificationCenter!
     var subject: DefaultNotificationCenterService!
+    var didEnterBackgroundExpectation: XCTestExpectation?
     var didEnterBackgroundTask: Task<Void, Never>!
-    var didEnterBackgroundPublished: Bool = false
+    var willEnterForegroundExpectation: XCTestExpectation?
     var willEnterForegroundTask: Task<Void, Never>!
-    var willEnterBackgroundPublished: Bool = false
 
     // MARK: Setup & Teardown
 
@@ -18,25 +18,31 @@ final class NotificationCenterServiceTests: BitwardenTestCase {
         notificationCenter = NotificationCenter()
         subject = DefaultNotificationCenterService(notificationCenter: notificationCenter)
 
+        let didEnterBackgroundTaskStarted = expectation(description: "didEnterBackground")
         didEnterBackgroundTask = Task {
+            didEnterBackgroundTaskStarted.fulfill()
             for await _ in subject.didEnterBackgroundPublisher() {
-                didEnterBackgroundPublished = true
+                didEnterBackgroundExpectation?.fulfill()
             }
         }
 
+        let willEnterForegroundTaskStarted = expectation(description: "willEnterForeground")
         willEnterForegroundTask = Task {
+            willEnterForegroundTaskStarted.fulfill()
             for await _ in subject.willEnterForegroundPublisher() {
-                willEnterBackgroundPublished = true
+                willEnterForegroundExpectation?.fulfill()
             }
         }
+
+        wait(for: [didEnterBackgroundTaskStarted, willEnterForegroundTaskStarted])
     }
 
     override func tearDown() {
-        didEnterBackgroundPublished = false
+        didEnterBackgroundExpectation = nil
         didEnterBackgroundTask?.cancel()
         didEnterBackgroundTask = nil
 
-        willEnterBackgroundPublished = false
+        willEnterForegroundExpectation = nil
         willEnterForegroundTask?.cancel()
         willEnterForegroundTask = nil
 
@@ -47,30 +53,24 @@ final class NotificationCenterServiceTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `didEnterBackgroundPublisher` publishes a notification when the app enters the background.
+    @MainActor
     func test_didEnterBackgroundPublisher() async throws {
-        try await waitForAsync { [weak self] in
-            let task = Task {
-                self?.notificationCenter.post(
-                    name: UIApplication.didEnterBackgroundNotification,
-                    object: nil
-                )
-            }
-            defer { task.cancel() }
-            return self?.didEnterBackgroundPublished == true
-        }
+        let expectation = expectation(description: #function)
+        didEnterBackgroundExpectation = expectation
+
+        notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+
+        await fulfillment(of: [expectation], timeout: 1)
     }
 
     /// `willEnterForegroundPublisher` publishes a notification when the app will enter the foreground.
+    @MainActor
     func test_willEnterForegroundPublisher() async throws {
-        try await waitForAsync { [weak self] in
-            let task = Task {
-                self?.notificationCenter.post(
-                    name: UIApplication.willEnterForegroundNotification,
-                    object: nil
-                )
-            }
-            defer { task.cancel() }
-            return self?.willEnterBackgroundPublished == true
-        }
+        let expectation = expectation(description: #function)
+        willEnterForegroundExpectation = expectation
+
+        notificationCenter.post(name: UIApplication.willEnterForegroundNotification, object: nil)
+
+        await fulfillment(of: [expectation], timeout: 1)
     }
 }

@@ -26,7 +26,7 @@ struct VaultAutofillListView: View {
             profileSwitcher
         }
         .navigationBar(title: store.state.group?.navigationTitle ?? Localizations.items, titleDisplayMode: .inline)
-        .if(!store.state.excludedCredentialFound) { view in
+        .if(store.state.excludedCredentialIdFound == nil) { view in
             view.searchable(
                 text: store.binding(
                     get: \.searchText,
@@ -106,6 +106,9 @@ private struct VaultAutofillListSearchableView: View {
             }
             .task(id: store.state.searchText) {
                 await store.perform(.search(store.state.searchText))
+            }
+            .task(id: store.state.excludedCredentialIdFound) {
+                await store.perform(.excludedCredentialFoundChaged)
             }
             .toast(
                 store.binding(

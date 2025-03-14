@@ -1,3 +1,4 @@
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -187,6 +188,7 @@ class SyncServiceTests: BitwardenTestCase {
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].method, .get)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/sync")
+        XCTAssertEqual(syncServiceDelegate.onFetchSyncSucceededCalledWithuserId, "1")
 
         try XCTAssertEqual(
             XCTUnwrap(stateService.lastSyncTimeByUserId["1"]),
@@ -655,6 +657,7 @@ class SyncServiceTests: BitwardenTestCase {
         await assertAsyncThrows {
             try await subject.fetchSync(forceSync: false)
         }
+        XCTAssertNil(syncServiceDelegate.onFetchSyncSucceededCalledWithuserId)
     }
 
     func test_deleteCipher() async throws {
@@ -763,12 +766,17 @@ class SyncServiceTests: BitwardenTestCase {
 }
 
 class MockSyncServiceDelegate: SyncServiceDelegate {
+    var onFetchSyncSucceededCalledWithuserId: String?
     var removeMasterPasswordCalled = false
     var removeMasterPasswordOrganizationName: String?
     var securityStampChangedCalled = false
     var securityStampChangedUserId: String?
     var setMasterPasswordCalled = false
     var setMasterPasswordOrgId: String?
+
+    func onFetchSyncSucceeded(userId: String) async {
+        onFetchSyncSucceededCalledWithuserId = userId
+    }
 
     func removeMasterPassword(organizationName: String) {
         removeMasterPasswordOrganizationName = organizationName

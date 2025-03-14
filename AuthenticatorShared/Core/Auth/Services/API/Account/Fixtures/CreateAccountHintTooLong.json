@@ -1,0 +1,11 @@
+{
+    "message":"The model state is invalid.",
+    "validationErrors":{
+        "":["The field MasterPasswordHint must be a string with a maximum length of 50."]
+
+    },
+    "exceptionMessage":null,
+    "exceptionStackTrace":null,
+    "innerExceptionMessage":null,
+    "object":"error"
+}

@@ -2,6 +2,7 @@
 
 import AuthenticationServices
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -73,122 +74,12 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         vaultRepository = nil
     }
 
-    /// `informExcludedCredentialFound(cipherView:)` updates the state with the excluded credential
-    /// vault list section.
+    /// `informExcludedCredentialFound(cipherView:)` updates the state with the excluded credential.
     @MainActor
-    func test_informExcludedCredentialFound_succeeds() async throws {
+    func test_informExcludedCredentialFound() async throws {
         let cipher = CipherView.fixture()
-        vaultRepository.cipherDetailsSubject.send(cipher)
-        vaultRepository.createAutofillListExcludedCredentialSectionResult = .success(
-            VaultListSection(
-                id: "excludedCredentialsId",
-                items: [
-                    VaultListItem(
-                        cipherView: cipher,
-                        fido2CredentialAutofillView: .fixture()
-                    )!,
-                ],
-                name: "excludedCredentialsId"
-            )
-        )
-
-        let task = Task {
-            await subject.informExcludedCredentialFound(cipherView: cipher)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return !subject.state.vaultListSections.isEmpty
-        }
-
-        XCTAssertTrue(subject.state.excludedCredentialFound)
-        XCTAssertEqual(subject.state.vaultListSections.count, 1)
-        let firstSection = try XCTUnwrap(subject.state.vaultListSections.first)
-        XCTAssertEqual(firstSection.id, "excludedCredentialsId")
-        XCTAssertEqual(firstSection.name, "excludedCredentialsId")
-        XCTAssertEqual(firstSection.items.count, 1)
-        let firstItem = try XCTUnwrap(firstSection.items.first)
-        XCTAssertEqual(firstItem.id, cipher.id)
-    }
-
-    /// `informExcludedCredentialFound(cipherView:)` throws when getting the excluded credential cipher
-    /// from the publisher so it shows an error and cancels the extension flow.
-    @MainActor
-    func test_informExcludedCredentialFound_cipherPublisherThrows() async throws {
-        let cipher = CipherView.fixture()
-        vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
-
-        let task = Task {
-            await subject.informExcludedCredentialFound(cipherView: cipher)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return !coordinator.alertShown.isEmpty
-        }
-
-        XCTAssertTrue(subject.state.excludedCredentialFound)
-        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(
-            alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt
-            )
-        )
-
-        guard let onDismissed = coordinator.alertOnDismissed else {
-            XCTFail("Alert does nothing on dismiss when it should.")
-            return
-        }
-        onDismissed()
-
-        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
-    }
-
-    /// `informExcludedCredentialFound(cipherView:)` throws when creating the excluded credential cipher
-    /// section so it shows an error and cancels the extension flow.
-    @MainActor
-    func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
-        let cipher = CipherView.fixture()
-        vaultRepository.cipherDetailsSubject.send(cipher)
-        vaultRepository.createAutofillListExcludedCredentialSectionResult = .failure(BitwardenTestError.example)
-
-        let task = Task {
-            await subject.informExcludedCredentialFound(cipherView: cipher)
-        }
-        defer { task.cancel() }
-
-        try await waitForAsync { [weak self] in
-            guard let self else { return true }
-            return !coordinator.alertShown.isEmpty
-        }
-
-        XCTAssertTrue(subject.state.excludedCredentialFound)
-        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(
-            alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt
-            )
-        )
-
-        guard let onDismissed = coordinator.alertOnDismissed else {
-            XCTFail("Alert does nothing on dismiss when it should.")
-            return
-        }
-        onDismissed()
-
-        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+        await subject.informExcludedCredentialFound(cipherView: cipher)
+        XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
     }
 
     /// `getter:isAutofillingFromList` returns `true` when delegate is autofilling from list.
@@ -381,6 +272,174 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 title: Localizations.anErrorHasOccurred
             )
         )
+    }
+
+    /// `perform(_:)` with `.excludedCredentialFoundChaged` updates the state with the excluded credential
+    /// vault list section.
+    @MainActor
+    func test_perform_excludedCredentialFoundChaged() async throws {
+        let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
+        subject.state.excludedCredentialIdFound = cipher.id
+        vaultRepository.cipherDetailsSubject.send(cipher)
+        vaultRepository.createAutofillListExcludedCredentialSectionResult = .success(
+            VaultListSection(
+                id: "excludedCredentialsId",
+                items: [
+                    VaultListItem(
+                        cipherView: cipher,
+                        fido2CredentialAutofillView: .fixture()
+                    )!,
+                ],
+                name: "excludedCredentialsId"
+            )
+        )
+
+        let task = Task {
+            await subject.perform(.excludedCredentialFoundChaged)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !subject.state.vaultListSections.isEmpty
+        }
+
+        XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
+        XCTAssertEqual(subject.state.vaultListSections.count, 1)
+        let firstSection = try XCTUnwrap(subject.state.vaultListSections.first)
+        XCTAssertEqual(firstSection.id, "excludedCredentialsId")
+        XCTAssertEqual(firstSection.name, "excludedCredentialsId")
+        XCTAssertEqual(firstSection.items.count, 1)
+        let firstItem = try XCTUnwrap(firstSection.items.first)
+        XCTAssertEqual(firstItem.id, cipher.id)
+    }
+
+    /// `perform(_:)` with `.excludedCredentialFoundChaged` updates the state with the excluded credential
+    /// vault list section but then sets `excludedCredentialFound` to `nil` in state when cipher
+    /// has no Fido2 credentials.
+    @MainActor
+    func test_perform_excludedCredentialFoundChaged_cipherHasNoFido2Credentials() async throws {
+        let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
+        subject.state.excludedCredentialIdFound = cipher.id
+        vaultRepository.cipherDetailsSubject.send(cipher)
+        vaultRepository.createAutofillListExcludedCredentialSectionResult = .success(
+            VaultListSection(
+                id: "excludedCredentialsId",
+                items: [
+                    VaultListItem(
+                        cipherView: cipher,
+                        fido2CredentialAutofillView: .fixture()
+                    )!,
+                ],
+                name: "excludedCredentialsId"
+            )
+        )
+
+        let task = Task {
+            await subject.perform(.excludedCredentialFoundChaged)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !subject.state.vaultListSections.isEmpty
+        }
+
+        XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
+        XCTAssertEqual(subject.state.vaultListSections.count, 1)
+
+        vaultRepository.cipherDetailsSubject.send(
+            CipherView.fixture(
+                login: .fixture(
+                    fido2Credentials: []
+                )
+            )
+        )
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return subject.state.excludedCredentialIdFound == nil
+        }
+    }
+
+    /// `perform(_:)` with `.excludedCredentialFoundChaged` throws when getting the excluded credential cipher
+    /// from the publisher so it shows an error and cancels the extension flow.
+    @MainActor
+    func test_perform_excludedCredentialFoundChaged_cipherPublisherThrows() async throws {
+        let cipher = CipherView.fixture()
+        subject.state.excludedCredentialIdFound = cipher.id
+        vaultRepository.cipherDetailsSubject.send(completion: .failure(BitwardenTestError.example))
+
+        let task = Task {
+            await subject.perform(.excludedCredentialFoundChaged)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !coordinator.alertShown.isEmpty
+        }
+
+        XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
+        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt
+            )
+        )
+
+        guard let onDismissed = coordinator.alertOnDismissed else {
+            XCTFail("Alert does nothing on dismiss when it should.")
+            return
+        }
+        onDismissed()
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
+    }
+
+    /// `perform(_:)` with `.excludedCredentialFoundChaged` throws when creating the excluded credential cipher
+    /// section so it shows an error and cancels the extension flow.
+    @MainActor
+    func test_informExcludedCredentialFound_creatingExcludeCredentialSectionThrows() async throws {
+        let cipher = CipherView.fixture(login: .fixture(fido2Credentials: [.fixture()]))
+        subject.state.excludedCredentialIdFound = cipher.id
+        vaultRepository.cipherDetailsSubject.send(cipher)
+        vaultRepository.createAutofillListExcludedCredentialSectionResult = .failure(BitwardenTestError.example)
+
+        let task = Task {
+            await subject.perform(.excludedCredentialFoundChaged)
+        }
+        defer { task.cancel() }
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return true }
+            return !coordinator.alertShown.isEmpty
+        }
+
+        XCTAssertEqual(subject.state.excludedCredentialIdFound, "1")
+        XCTAssertTrue(subject.state.vaultListSections.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+
+        let alert = try XCTUnwrap(coordinator.alertShown.first)
+        XCTAssertEqual(
+            alert,
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.aPasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt
+            )
+        )
+
+        guard let onDismissed = coordinator.alertOnDismissed else {
+            XCTFail("Alert does nothing on dismiss when it should.")
+            return
+        }
+        onDismissed()
+
+        XCTAssertTrue(appExtensionDelegate.didCancelCalled)
     }
 
     /// `vaultItemTapped(_:)` with Fido2 credential signals the `Fido2UserInterfaceHelper`
@@ -814,6 +873,24 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
     }
 
+    /// `perform(_:)` with `.initFido2` doesn't call `makeCredential` from the Fido2 authenticator when
+    /// there is a create FIdo2 request but an excluded credential has been found.
+    @MainActor
+    func test_perform_initFido2_registerFido2CredentialExcludedCredential() async throws {
+        appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        subject.state.excludedCredentialIdFound = "1"
+
+        await subject.perform(.initFido2)
+
+        XCTAssertFalse(clientService.mockPlatform.fido2Mock
+            .clientFido2AuthenticatorMock
+            .makeCredentialMocker
+            .called)
+
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertFalse(appExtensionDelegate.completeRegistrationRequestMocker.called)
+    }
+
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results
     /// when on autofillFido2VaulltList
     @MainActor
@@ -913,7 +990,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @MainActor
     func test_perform_streamAutofillItems_excludedCredentials() {
         let rpId = "myApp.com"
-        subject.state.excludedCredentialFound = true
+        subject.state.excludedCredentialIdFound = "1"
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(
             credentialIdentity: .fixture(relyingPartyIdentifier: rpId)
         ))
