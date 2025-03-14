@@ -19,8 +19,8 @@ open class AnyCoordinator<Route, Event>: Coordinator {
     /// A closure that wraps the `showAlert(_:)` method.
     private let doShowAlert: (Alert, (() -> Void)?) -> Void
 
-    /// A closure that wraps the `showErrorAlert(_:services:)` method.
-    private let doShowErrorAlert: (Error, Coordinator.ErrorAlertServices) async -> Void
+    /// A closure that wraps the `showErrorAlert(error:services:tryAgain:)` method.
+    private let doShowErrorAlert: (Error, Coordinator.ErrorAlertServices, Coordinator.ErrorAlertTryAgain) async -> Void
 
     /// A closure that wraps the `showLoadingOverlay(_:)` method.
     private let doShowLoadingOverlay: (LoadingOverlayState) -> Void
@@ -48,7 +48,7 @@ open class AnyCoordinator<Route, Event>: Coordinator {
             coordinator.navigate(to: route, context: context)
         }
         doShowAlert = { coordinator.showAlert($0, onDismissed: $1) }
-        doShowErrorAlert = { await coordinator.showErrorAlert(error: $0, services: $1) }
+        doShowErrorAlert = { await coordinator.showErrorAlert(error: $0, services: $1, tryAgain: $2) }
         doShowLoadingOverlay = { coordinator.showLoadingOverlay($0) }
         doShowToast = { coordinator.showToast($0, subtitle: $1, additionalBottomPadding: $2) }
         doStart = { coordinator.start() }
@@ -69,7 +69,15 @@ open class AnyCoordinator<Route, Event>: Coordinator {
     }
 
     func showErrorAlert(error: Error, services: Coordinator.ErrorAlertServices) async {
-        await doShowErrorAlert(error, services)
+        await doShowErrorAlert(error, services, nil)
+    }
+
+    func showErrorAlert(
+        error: Error,
+        services: Coordinator.ErrorAlertServices,
+        tryAgain: Coordinator.ErrorAlertTryAgain
+    ) async {
+        await doShowErrorAlert(error, services, tryAgain)
     }
 
     open func showLoadingOverlay(_ state: LoadingOverlayState) {

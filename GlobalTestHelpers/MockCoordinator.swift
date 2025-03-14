@@ -11,6 +11,7 @@ class MockCoordinator<Route, Event>: Coordinator {
     var alertOnDismissed: (() -> Void)?
     var contexts: [AnyObject?] = []
     var errorAlertsShown = [Error]()
+    var errorAlertsWithRetryShown = [(error: Error, retry: () async -> Void)]()
     var events = [Event]()
     var isLoadingOverlayShowing = false
     var isStarted: Bool = false
@@ -39,6 +40,14 @@ class MockCoordinator<Route, Event>: Coordinator {
 
     func showErrorAlert(error: any Error, services: any ErrorAlertServices) async {
         errorAlertsShown.append(error)
+    }
+
+    func showErrorAlert(error: any Error, services: any ErrorAlertServices, tryAgain: (() async -> Void)?) async {
+        if let tryAgain  {
+            errorAlertsWithRetryShown.append((error, tryAgain))
+        } else {
+            errorAlertsShown.append(error)
+        }
     }
 
     func showLoadingOverlay(_ state: LoadingOverlayState) {

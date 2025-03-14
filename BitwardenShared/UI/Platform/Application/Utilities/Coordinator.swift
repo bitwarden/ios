@@ -6,6 +6,7 @@ protocol Coordinator<Route, Event>: AnyObject {
     // MARK: Types
 
     typealias ErrorAlertServices = HasConfigService & HasErrorReporter
+    typealias ErrorAlertTryAgain = (() async -> Void)?
 
     associatedtype Event
     associatedtype Route
@@ -52,8 +53,9 @@ protocol Coordinator<Route, Event>: AnyObject {
     ///   - error: The error that occurred, used to customize the details of the alert.
     ///   - services: A group of services used to gather additional information if the error details
     ///     are shared.
+    ///   - tryAgain: An optional closure allowing the user to retry whatever triggered the error.
     ///
-    func showErrorAlert(error: Error, services: ErrorAlertServices) async
+    func showErrorAlert(error: Error, services: ErrorAlertServices, tryAgain: (() async -> Void)?) async
 
     /// Shows the loading overlay view.
     ///
@@ -151,6 +153,17 @@ extension Coordinator {
     func showAlert(_ alert: Alert) {
         showAlert(alert, onDismissed: nil)
     }
+
+    /// Shows an alert for an error that occurred.
+    ///
+    /// - Parameters:
+    ///   - error: The error that occurred, used to customize the details of the alert.
+    ///   - services: A group of services used to gather additional information if the error details
+    ///     are shared.
+    ///
+    func showErrorAlert(error: Error, services: ErrorAlertServices) async {
+        await showErrorAlert(error: error, services: services, tryAgain: nil)
+    }
 }
 
 extension Coordinator where Self.Event == Void {
@@ -184,14 +197,15 @@ extension Coordinator where Self: HasNavigator {
     ///   - error: The error that occurred, used to customize the details of the alert.
     ///   - services: A group of services used to gather additional information if the error details
     ///     are shared.
+    ///   - tryAgain: An optional closure allowing the user to retry whatever triggered the error.
     ///
-    func showErrorAlert(error: Error, services: ErrorAlertServices) async {
+    func showErrorAlert(error: Error, services: ErrorAlertServices, tryAgain: (() async -> Void)?) async {
         let alert = if await services.configService.getFeatureFlag(.mobileErrorReporting) {
             Alert.networkResponseError(error, shareErrorDetails: {
                 // TODO: PM-18224 Show share sheet to export error details
-            })
+            }, tryAgain: tryAgain)
         } else {
-            Alert.networkResponseError(error)
+            Alert.networkResponseError(error, tryAgain: tryAgain)
         }
         showAlert(alert)
     }

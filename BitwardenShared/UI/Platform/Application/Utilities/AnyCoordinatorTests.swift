@@ -27,12 +27,29 @@ class AnyCoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `showErrorAlert(error:services:)` calls the `showErrorAlert()` method on the wrapped coordinator.
+    /// `showErrorAlert(error:services:)` calls the `showErrorAlert()` method on the wrapped
+    /// coordinator.
     @MainActor
     func test_showErrorAlert() async {
         let error = BitwardenTestError.example
         await subject.showErrorAlert(error: error, services: ServiceContainer.withMocks())
         XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [error])
+    }
+
+    /// `showErrorAlert(error:services:tryAgain:)` calls the `showErrorAlert()` method on the
+    /// wrapped coordinator.
+    @MainActor
+    func test_showErrorAlert_withTryAgain() async {
+        let error = BitwardenTestError.example
+        var tryAgainCalled = false
+        await subject.showErrorAlert(error: error, services: ServiceContainer.withMocks()) {
+            tryAgainCalled = true
+        }
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.map(\.error) as? [BitwardenTestError], [error])
+
+        let errorAlertWithRetry = coordinator.errorAlertsWithRetryShown[0]
+        await errorAlertWithRetry.retry()
+        XCTAssertTrue(tryAgainCalled)
     }
 
     /// `start()` calls the `start()` method on the wrapped coordinator.

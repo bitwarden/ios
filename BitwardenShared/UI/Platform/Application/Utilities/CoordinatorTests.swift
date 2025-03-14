@@ -58,7 +58,7 @@ class CoordinatorTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// `showErrorAlert(error:services)` builds an alert to show for an error when mobile error
+    /// `showErrorAlert(error:services:)` builds an alert to show for an error when mobile error
     /// reporting is disabled.
     func test_showErrorAlert_mobileErrorReportingDisabled() async {
         configService.featureFlagsBool[.mobileErrorReporting] = false
@@ -71,7 +71,7 @@ class CoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(stackNavigator.alerts, [Alert.networkResponseError(BitwardenTestError.example)])
     }
 
-    /// `showErrorAlert(error:services)` builds an alert to show for an error when mobile error
+    /// `showErrorAlert(error:services:)` builds an alert to show for an error when mobile error
     /// reporting is enabled, allowing the user to share the details of the error.
     func test_showErrorAlert_mobileErrorReportingEnabled() async throws {
         configService.featureFlagsBool[.mobileErrorReporting] = true
@@ -90,5 +90,26 @@ class CoordinatorTests: BitwardenTestCase {
         try await alert.tapAction(title: Localizations.shareErrorDetails)
 
         // TODO: PM-18224 Show share sheet to export error details
+    }
+
+    /// `showErrorAlert(error:services:tryAgain:)` builds an alert to show for an error with an
+    /// optional try again closure that allows trying again for certain types of errors.
+    func test_showErrorAlert_withTryAgain() async throws {
+        configService.featureFlagsBool[.mobileErrorReporting] = true
+
+        var tryAgainCalled = false
+        await subject.showErrorAlert(
+            error: URLError(.timedOut),
+            services: services,
+            tryAgain: { tryAgainCalled = true }
+        )
+
+        XCTAssertEqual(
+            stackNavigator.alerts,
+            [Alert.networkResponseError(URLError(.timedOut), shareErrorDetails: {})]
+        )
+        let alert = stackNavigator.alerts[0]
+        try await alert.tapAction(title: Localizations.tryAgain)
+        XCTAssertTrue(tryAgainCalled)
     }
 }
