@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Seyf kilidlənib";
 "GoToMyVault" = "Seyfimə get";
 "Collections" = "Kolleksiyalar";
-"NoItemsCollection" = "There are no items in this collection";
-"NoItemsFolder" = "There are no items in this folder";
+"NoItemsCollection" = "Bu kolleksiyada heç bir element yoxdur";
+"NoItemsFolder" = "Bu qovluqda heç bir element yoxdur";
 "NoItemsTrash" = "Tullantı qutusunda heç bir element yoxdur.";
 "AutofillAccessibilityService" = "Avto-doldurma Əlçatımlılıq Xidməti";
 "AutofillServiceDescription" = "Bitwarden avto-doldurma xidməti, cihazınızdakı digər tətbiqlərə giriş məlumatlarını doldurmağa kömək edən Android Avto-doldurma Çərçivəsini istifadə edir.";

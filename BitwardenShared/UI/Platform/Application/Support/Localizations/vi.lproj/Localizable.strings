@@ -73,7 +73,7 @@
 "PassphrasesAreOftenEasierToRememberDescriptionLong" = "Cụm mật khẩu là mật khẩu mạnh, thường dễ nhớ và dễ nhập hơn mật khẩu ngẫu nhiên. Rất hữu ích khi đăng nhập vào các tài khoản không có tính năng Tự động điền, như dịch vụ phát trực tuyến trên TV của bạn.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Tên người dùng độc nhất sẽ tăng thêm một lớp bảo mật và có thể giúp ngăn chặn tin tặc tìm thấy tài khoản của bạn.";
 "UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Sử dụng các tùy chọn này để điều chỉnh mật khẩu đáp ứng yêu cầu của tài khoản.";
-"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "After you save your new password to Bitwarden, don’t forget to update it on your account website.";
+"AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "Sau khi lưu mật khẩu mới vào Bitwarden, đừng quên cập nhật mật khẩu trên trang web tài khoản của bạn.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Bạn phải thêm địa chỉ web để sử dụng tính năng tự động điền khi truy cập tài khoản này.";
 "Username" = "Tên người dùng";
 "ValidationFieldRequired" = "Vui lòng nhập %1$@.";
@@ -143,7 +143,7 @@
 "Manage" = "Quản lý";
 "MasterPasswordConfirmationValMessage" = "Mật khẩu nhập lại không trùng khớp.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "Mật khẩu chính là mật khẩu bạn dùng để mở khóa kho.";
-"MasterPasswordHint" = "Master password hint";
+"MasterPasswordHint" = "Gợi ý mật khẩu chính";
 "NewMasterPasswordHint" = "Gợi ý mật khẩu chính mới";
 "MasterPasswordHintDescription" = "Một gợi ý mật khẩu có thể giúp bạn nhớ lại mật khẩu chính của bạn nếu bạn quên nó.";
 "MasterPasswordLengthValMessageX" = "Mật khẩu chính phải có tối thiểu %1$@ kí tự.";
@@ -180,7 +180,7 @@
 "Submitting" = "Đang gửi...";
 "Syncing" = "Đang đồng bộ...";
 "SyncingLogins" = "Đang đồng bộ...";
-"SyncingComplete" = "Đồng bộ hoàn tất";
+"SyncingComplete" = "Đồng bộ xong";
 "SyncingFailed" = "Đồng bộ thất bại";
 "SyncVaultNow" = "Đồng bộ kho mật khẩu ngay";
 "TouchID" = "Touch ID";
@@ -240,8 +240,8 @@
 "UnableToDownloadFile" = "Không thể tải về tập tin.";
 "UnableToOpenFile" = "Thiết bị của bạn không thể mở loại tập tin này.";
 "Downloading" = "Đang tải xuống...";
-"AttachmentLargeWarning" = "Tập tin đính kèm này có kích thước %1$@. Bạn có chắc chắn muốn tải nó xuống thiết bị của mình?";
-"AuthenticatorKey" = "Authenticator key";
+"AttachmentLargeWarning" = "Tệp tin đính kèm này có kích thước %1$@. Bạn có chắc muốn tải nó xuống thiết bị của mình?";
+"AuthenticatorKey" = "Khóa xác thực";
 "VerificationCodeTotp" = "Mã xác thực (TOTP)";
 "AuthenticatorKeyAdded" = "Đã thêm khóa xác thực.";
 "AuthenticatorKeyReadError" = "Không thể đọc khóa xác thực.";
@@ -306,7 +306,7 @@
 "June" = "Tháng 6";
 "LastName" = "Họ";
 "FullName" = "Họ tên đầy đủ";
-"LicenseNumber" = "Số giấy phép";
+"LicenseNumber" = "Biển số xe";
 "March" = "Tháng 3";
 "May" = "Tháng 5";
 "MiddleName" = "Tên lót";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Kho đã khóa";
 "GoToMyVault" = "Đến kho của tôi";
 "Collections" = "Các Bộ Sưu Tập";
-"NoItemsCollection" = "There are no items in this collection";
-"NoItemsFolder" = "There are no items in this folder";
+"NoItemsCollection" = "Không có mục nào trong bộ sưu tập này";
+"NoItemsFolder" = "Không có mục nào trong thư mục này";
 "NoItemsTrash" = "Không có gì trong thùng rác";
 "AutofillAccessibilityService" = "Tự động điền bằng trợ năng";
 "AutofillServiceDescription" = "Điền tự động của Bitwarden sử dụng Android Autofill Framework để điền thông tin đăng nhập vào các ứng dụng trên thiết bị của bạn.";
@@ -395,7 +395,7 @@
 "CheckPassword" = "Kiểm tra xem mật khẩu có bị lộ không.";
 "PasswordExposed" = "Mật khẩu này đã bị lộ %1$@ lần trong các vụ rò rỉ dữ liệu. Bạn nên đổi nó.";
 "PasswordSafe" = "Mật khẩu này không được tìm thấy trong lần rò rỉ dữ liệu nào trước đây. Nó an toàn để sử dụng.";
-"IdentityName" = "Tên danh tính";
+"IdentityName" = "Tên danh bạ";
 "Value" = "Giá trị";
 "PasswordHistory" = "Lịch sử mật khẩu";
 "Types" = "Loại";
@@ -817,13 +817,13 @@
 "LoggingInAsX" = "Đăng nhập như %1$@";
 "VaultTimeoutActionChangedToLogOut" = "Hành động sau khi hết thời gian mở kho đã thay đổi thành đăng xuất";
 "BlockAutoFill" = "Chặn tự động điền";
-"AutoFillWillNotBeOfferedForTheseURIs" = "Vô hiệu hóa tính năng tự động điền với các URI sau.";
+"AutoFillWillNotBeOfferedForTheseURIs" = "Không tự động điền với các URL này.";
 "NewBlockedURI" = "URI bị chặn mới";
 "URISaved" = "Đã lưu URI";
 "InvalidFormatUseHttpsHttpOrAndroidApp" = "Định dạng không hợp lệ. Dùng https://, http://, hoặc androidapp://";
 "EditURI" = "Sửa URI";
-"EnterURI" = "Nhập URI";
-"FormatXSeparateMultipleURIsWithAComma" = "Định dạng: %1$@. Phân tách nhiều URI bằng dấu phẩy.";
+"EnterURI" = "Nhập URL";
+"FormatXSeparateMultipleURIsWithAComma" = "Định dạng: %1$@. Dùng dấu phẩy để phân tách URL.";
 "FormatX" = "Định dạng: %1$@";
 "InvalidURI" = "URI không hợp lệ";
 "URIRemoved" = "Đã xóa URI";
@@ -841,7 +841,7 @@
 "ContactBitwardenSupport" = "Liên hệ với bộ phận hỗ trợ Bitwarden";
 "CopyAppInformation" = "Sao chép thông tin ứng dụng";
 "SyncNow" = "Đồng bộ ngay";
-"UnlockOptions" = "Tùy chọn mở khóa";
+"UnlockOptions" = "Mở khóa kho";
 "SessionTimeout" = "Thời gian chờ của phiên";
 "SessionTimeoutAction" = "Hành động sau khi hết phiên";
 "AccountFingerprintPhrase" = "Cụm vân tay tài khoản";
@@ -850,8 +850,8 @@
 "XHoursAndOneMinute" = "%1$@ giờ một phút";
 "XHoursAndYMinutes" = "%1$@ giờ %2$@ phút";
 "XHours" = "%1$@ giờ";
-"PasskeyManagementExplanationLong" = "Sử dụng Bitwarden để lưu các mã khoá mới và đăng nhập bằng các mã khoá được lưu trong kho của bạn.";
-"AutofillServicesExplanationLong" = "Dùng Android Autofill Framework để điền thông tin đăng nhập vào các ứng dụng khác trên thiết bị của bạn.";
+"PasskeyManagementExplanationLong" = "Dùng Bitwarden để lưu các mã khoá mới và đăng nhập bằng các mã khoá được lưu trong kho của bạn.";
+"AutofillServicesExplanationLong" = "Dùng Android Autofill Framework để điền thông tin đăng nhập vào các ứng dụng trên điện thoại.";
 "UseInlineAutofillExplanationLong" = "Dùng tính năng tự động điền nội tuyến nếu bàn phím hỗ trợ. Nếu không, sẽ dùng lớp phủ mặc định.";
 "AdditionalOptions" = "Tùy chọn bổ sung";
 "ContinueToWebApp" = "Tiếp tục tới ứng dụng web?";
@@ -919,9 +919,9 @@
 "ThereWasAnErrorStartingWebAuthnTwoFactorAuthentication" = "Xảy ra lỗi khi khởi động xác thực hai bước với WebAuthn";
 "LaunchWebAuthn" = "Khởi chạy WebAuthn";
 "Duo" = "Duo";
-"FilePassword" = "Mật khẩu tập tin";
-"ConfirmFilePassword" = "Nhập lại mật khẩu tập tin";
-"FilePasswordDescription" = "Mật khẩu này sẽ được sử dụng để xuất và nhập tập tin này";
+"FilePassword" = "Mật khẩu tệp tin";
+"ConfirmFilePassword" = "Nhập lại mật khẩu tệp tin";
+"FilePasswordDescription" = "Mật khẩu này sẽ được dùng để xuất và nhập tệp tin này";
 "CreatingOn" = "Đang tạo";
 "CheckYourEmail" = "Kiểm tra email của bạn";
 "WeSentAnEmailTo" = "Chúng tôi đã gửi một email tới %1$@";
@@ -942,7 +942,7 @@
 "NewItem" = "Mục mới";
 "ExploreTheGenerator" = "Khám phá trình tạo mật khẩu";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Tìm hiểu thêm về cách tạo thông tin đăng nhập an toàn thông qua hướng dẫn.";
-"ExportVaultFilePwProtectInfo" = "Tập tin xuất này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu để giải mã.";
+"ExportVaultFilePwProtectInfo" = "Tệp tin xuất này sẽ được bảo vệ bằng mật khẩu và yêu cầu mật khẩu để giải mã.";
 "IntroCarouselPage1Title" = "Ưu tiên bảo mật";
 "IntroCarouselPage1Message" = "Lưu thông tin đăng nhập, thẻ và danh bạ vào kho lưu trữ an toàn của bạn. Bitwarden sử dụng mã hóa đầu cuối không cần kiến ​​thức để bảo vệ những gì quan trọng với bạn.";
 "IntroCarouselPage2Title" = "Đăng nhập nhanh và dễ dàng";
@@ -1127,8 +1127,8 @@
 "ThisIsTakingLongerThanExpected" = "Quá trình này mất nhiều thời gian hơn dự kiến";
 "ItemsToExport" = "Những mục sẽ xuất";
 "TextToShare" = "Nội dung chia sẻ";
-"SendDetails" = "Gửi chi tiết";
-"SendNameRequired" = "Gửi tên (bắt buộc)";
+"SendDetails" = "Chi tiết gửi";
+"SendNameRequired" = "Tên người gửi (bắt buộc)";
 "CheckPasswordForDataBreaches" = "Kiểm tra mật khẩu để tránh lộ dữ liệu";
 "PrivateNote" = "Ghi chú riêng";
 "XItems" = "%1$@ mục";
@@ -1137,7 +1137,7 @@
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Ứng dụng này đã có mã khóa nhưng xảy ra lỗi khi tải.";
 "WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Không nhận ra thiết bị này. Nhập mã xác thực 8 số đã được gửi tới email %1$@.";
 "ItemNameRequired" = "Tên mục (bắt buộc)";
-"AutofillOptions" = "Tùy chọn tự động điền";
+"AutofillOptions" = "Tự động điền";
 "WebsiteURI" = "Website (URI)";
 "AddWebsite" = "Thêm website";
 "CannotDeleteAccount" = "Không thể xóa tài khoản";

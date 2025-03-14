@@ -27,7 +27,7 @@
 "Folder" = "文件夹";
 "FolderCreated" = "新文件夹已创建。";
 "FolderDeleted" = "文件夹已删除。";
-"FolderNone" = "无文件夹";
+"FolderNone" = "默认文件夹";
 "Folders" = "文件夹";
 "FolderUpdated" = "文件夹已保存";
 "GoToWebsite" = "前往网站";
@@ -239,7 +239,7 @@
 "Attachments" = "附件";
 "UnableToDownloadFile" = "无法下载文件。";
 "UnableToOpenFile" = "您的设备无法打开这种类型的文件。";
-"Downloading" = "正在下载……";
+"Downloading" = "正在下载…";
 "AttachmentLargeWarning" = "此附件大小为 %1$@ 。确定要将其下载到您的设备上吗？";
 "AuthenticatorKey" = "验证器密钥";
 "VerificationCodeTotp" = "验证码 (TOTP)";
@@ -352,7 +352,7 @@
 "FieldTypeLinked" = "链接型";
 "FieldTypeText" = "文本型";
 "NewCustomField" = "新增自定义字段";
-"SelectTypeField" = "您想添加的自定义字段的类型是？";
+"SelectTypeField" = "您想添加什么类型的自定义字段？";
 "Remove" = "移除";
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "基础域名";
@@ -391,7 +391,7 @@
 "Logins" = "登录项";
 "SecureNotes" = "安全笔记";
 "AllItems" = "所有项目";
-"CheckingPassword" = "正在检查密码......";
+"CheckingPassword" = "正在检查密码...";
 "CheckPassword" = "检查密码是否已经被公开。";
 "PasswordExposed" = "此密码在泄露数据中已被公开 %1$@ 次。请立即修改。";
 "PasswordSafe" = "没有在已知的数据泄露中发现此密码，它暂时比较安全。";
@@ -462,7 +462,7 @@
 "PINRequireBioOrMasterPasswordRestart" = "您希望当应用程序重启时，要求使用 %1$@ 或主密码解锁吗？";
 "PINRequireUnknownBiometricsOrMasterPasswordRestart" = "应用程序重新启动时，您想要求生物识别或主密码解锁吗？";
 "Black" = "黑色";
-"Nord" = "Nord";
+"Nord" = "冷色";
 "SolarizedDark" = "过曝暗";
 "AutofillBlockedUris" = "自动填充已屏蔽的 URI";
 "AskToAddLogin" = "询问添加登录";
@@ -541,8 +541,8 @@
 "PasskeyManagement" = "通行密钥管理";
 "AutofillServices" = "自动填充服务";
 "InlineAutofill" = "使用内嵌自动填充";
-"InlineAutofillDescription" = "如果您所选的 IME（键盘）支持，将使用内嵌方式的自动填充。如果您的配置不支持（或此选项被关闭），将使用默认的叠加层方式的自动填充。";
-"Accessibility" = "使用无障碍";
+"InlineAutofillDescription" = "如果您所选的 IME（键盘）支持，将使用内嵌自动填充。如果您的配置不支持（或此选项被关闭），将使用默认的叠加层自动填充。";
+"Accessibility" = "使用无障碍功能";
 "AccessibilityDescription" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。设置后，选中登录字段时将显示一个弹出窗口。";
 "AccessibilityDescription2" = "使用 Bitwarden 无障碍服务跨 App 和网站自动填充您的登录信息。（需同时开启 Draw-Over）";
 "AccessibilityDescription3" = "使用 Bitwarden 无障碍服务来使用自动填充快速操作磁贴，和/或使用 Draw-Over（若已开启）来显示弹出窗口。";
@@ -615,7 +615,7 @@
 "UpdatingPassword" = "正在更新密码";
 "UpdatePasswordError" = "当前无法更新密码";
 "RemoveMasterPassword" = "移除主密码";
-"RemoveMasterPasswordWarning" = "%1$@ 正在使用客户管理加密的 SSO。继续操作将删除您的账户主密码并要求 SSO 登录。";
+"RemoveMasterPasswordWarning" = "%1$@ 正在使用客户管理加密的 SSO。继续操作将移除您的账户主密码并要求 SSO 登录。";
 "RemoveMasterPasswordWarning2" = "如果您不想移除您的主密码，您可以退出该组织。";
 "LeaveOrganization" = "退出组织";
 "LeaveOrganizationName" = "退出 %1$@？";
@@ -852,7 +852,7 @@
 "XHours" = "%1$@ 小时";
 "PasskeyManagementExplanationLong" = "使用 Bitwarden 保存新的通行密钥并使用存储在密码库中的通行密钥登录。";
 "AutofillServicesExplanationLong" = "Android 自动填充框架用于帮助将登录信息填充到您设备上的其他 App。";
-"UseInlineAutofillExplanationLong" = "如果您所选的键盘支持，请使用内联自动填充。否则，请使用默认叠加层。";
+"UseInlineAutofillExplanationLong" = "如果您所选的键盘支持，将使用内嵌自动填充。否则，将使用默认的叠加层自动填充。";
 "AdditionalOptions" = "附加选项";
 "ContinueToWebApp" = "前往网页 App 吗？";
 "ContinueToX" = "前往 %1$@ 吗？";
@@ -998,7 +998,7 @@
 "PublicKey" = "公钥";
 "TheRegionForTheGivenEmailCouldNotBeLoaded" = "无法加载给定的电子邮箱的区域。";
 "SetUpLaterQuestion" = "稍后设置吗？";
-"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "您可以随时在「设置」下的「账户安全」中完成设置。在设置其他方法之前，您将使用主密码来解锁。";
+"YouCanFinishSetupUnlockAnytimeDescriptionLong" = "您可以随时在「设置」下的「账户安全」中完成设置。在设置其他方式之前，您将使用主密码来解锁。";
 "Confirm" = "确认";
 "ErrorConnectingWithTheDuoServiceUseADifferentTwoStepLoginMethodOrContactDuoForAssistance" = "与 Duo 服务连接时出错。请使用其他两步登录方式或联系 Duo 寻求帮助。";
 "ThePreAuthUrlsCouldNotBeLoadedToStartTheAccountCreation" = "无法加载预认证 URL 来启动账户创建。";
@@ -1018,7 +1018,7 @@
 "GetStarted" = "开始使用";
 "Dismiss" = "忽略";
 "SaveAndProtectYourData" = "保存和保护您的数据";
-"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "密码库不仅保护您的密码，还可以安全地存储登录信息、ID、支付卡和笔记。";
+"TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "密码库不仅保护您的密码。在这里可以安全地存储登录、ID、支付卡和笔记。";
 "SendSensitiveInformationSafely" = "安全地发送敏感信息";
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。";
 "NewLogin" = "新增登录";
