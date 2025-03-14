@@ -28,6 +28,8 @@ struct ViewAsQRCodeState: Equatable {
 
     func valueForField(cipher: CipherView, field: CipherFieldType) -> String? {
         switch field {
+        case .name:
+            return nil
         case .none:
             return nil
         case .username:

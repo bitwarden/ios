@@ -1,33 +1,3 @@
-// MARK: - CipherFieldType
-
-/// An enum of the different fields of a cipher that can be used as a parameter for constructing a string
-/// to be encoded in a QR code.
-enum CipherFieldType: Equatable, Menuable, Sendable {
-    case none
-    case username
-    case password
-    case notes
-    case uri(index: Int)
-    case custom(name: String)
-
-    var localizedName: String {
-        switch self {
-        case .none:
-            "--\(Localizations.select)--"
-        case .username:
-            Localizations.username
-        case .password:
-            Localizations.password
-        case .notes:
-            Localizations.notes
-        case let .uri(index):
-            Localizations.url
-        case let .custom(name):
-            "Custom field: \(name)"
-        }
-    }
-}
-
 // MARK: - QRCodeParameter
 
 /// An object that encapsulates the parameters necessary for a particular type of QR code.
