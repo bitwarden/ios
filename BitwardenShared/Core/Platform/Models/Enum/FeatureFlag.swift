@@ -55,8 +55,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// Overrides the temporary flag.
     case newDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss"
 
-    case sshKeyVaultItem = "ssh-key-vault-item"
-
     /// A feature flag for the refactor on the SSO details endpoint.
     case refactorSsoDetailsEndpoint = "pm-12337-refactor-sso-details-endpoint"
 
@@ -133,7 +131,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
-             .sshKeyVaultItem,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,
