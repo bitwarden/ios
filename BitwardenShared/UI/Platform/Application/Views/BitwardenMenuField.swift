@@ -103,6 +103,7 @@ struct BitwardenMenuField<
             } label: {
                 Text("")
             }
+            .pickerStyle(InlinePickerStyle())
 
             if let additionalMenu {
                 additionalMenu
