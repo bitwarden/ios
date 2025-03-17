@@ -21,6 +21,7 @@ struct LoadingOverlayView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .background(Asset.Colors.backgroundSecondary.swiftUIColor.opacity(0.9).ignoresSafeArea())
+        .accessibilityIdentifier("LoadingViewImage")
     }
 }
 
