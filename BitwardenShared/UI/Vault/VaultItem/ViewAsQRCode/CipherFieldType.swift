@@ -36,6 +36,28 @@ enum CipherFieldType: Equatable, Menuable, Sendable {
 // MARK: CipherView+CipherFieldType
 
 extension CipherView {
+    var availableFields: [CipherFieldType] {
+        var fieldBuffer: [CipherFieldType] = [.name]
+        if login?.username?.isEmpty == false {
+            fieldBuffer.append(.username)
+        }
+        if login?.password?.isEmpty == false {
+            fieldBuffer.append(.password)
+        }
+        if notes?.isEmpty == false {
+            fieldBuffer.append(.notes)
+        }
+        if let urls = login?.uris {
+            for index in 0 ..< urls.count {
+                fieldBuffer.append(.uri(index: index))
+            }
+        }
+        for customField in customFields {
+            fieldBuffer.append(.custom(name: customField.name ?? "Custom Field"))
+        }
+        return fieldBuffer
+    }
+
     func value(of field: CipherFieldType) -> String? {
         switch field {
         case let .custom(name):
