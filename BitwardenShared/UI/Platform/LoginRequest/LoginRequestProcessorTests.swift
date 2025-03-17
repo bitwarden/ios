@@ -75,7 +75,7 @@ class LoginRequestProcessorTests: BitwardenTestCase {
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.loading)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 

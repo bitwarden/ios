@@ -93,8 +93,8 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_captchaErrored() {
         subject.captchaErrored(error: BitwardenTestError.example)
 
-        waitFor(!coordinator.alertShown.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        waitFor(!coordinator.errorAlertsShown.isEmpty)
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -280,7 +280,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email has already been taken.
     @MainActor
-    func test_perform_createAccount_accountAlreadyExists() async {
+    func test_perform_createAccount_accountAlreadyExists() async throws {
         subject.state = .fixture()
 
         let response = HTTPResponse.failure(
@@ -289,21 +289,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "Email 'j@a.com' is already taken."
-            )
-        )
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -311,7 +304,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email exceeds the maximum length.
     @MainActor
-    func test_perform_createAccount_emailExceedsMaxLength() async {
+    func test_perform_createAccount_emailExceedsMaxLength() async throws {
         subject.state = .fixture(emailText: """
         eyrztwlvxqdksnmcbjgahfpouyqiwubfdzoxhjsrlnvgeatkcpimy\
         fqaxhztsowbmdkjlrpnuqvycigfexrvlosqtpnheujawzsdmkbfoy\
@@ -329,21 +322,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "The field Email must be a string with a maximum length of 256."
-            )
-        )
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -409,7 +395,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.createAccount)
 
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
@@ -418,7 +404,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the password hint is too long.
     @MainActor
-    func test_perform_createAccount_hintTooLong() async {
+    func test_perform_createAccount_hintTooLong() async throws {
         subject.state = .fixture(passwordHintText: """
         ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajajaj
         ajajajajajajajajajajajajajajajajajajajajajajajajajajajajajsjajajajajaj
@@ -430,21 +416,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "The field MasterPasswordHint must be a string with a maximum length of 50."
-            )
-        )
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -452,7 +431,7 @@ class CreateAccountProcessorTests: BitwardenTestCase {
 
     /// `perform(_:)` with `.createAccount` presents an alert when the email is in an invalid format.
     @MainActor
-    func test_perform_createAccount_invalidEmailFormat() async {
+    func test_perform_createAccount_invalidEmailFormat() async throws {
         subject.state = .fixture(emailText: "∫@ø.com")
 
         let response = HTTPResponse.failure(
@@ -461,21 +440,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.createAccount)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "The Email field is not a supported e-mail address format."
-            )
-        )
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -487,17 +459,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_perform_createAccount_noInternetConnection() async throws {
         subject.state = .fixture()
 
-        let urlError = URLError(.notConnectedToInternet) as Error
+        let urlError = URLError(.notConnectedToInternet)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
 
         await subject.perform(.createAccount)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
-            await self.subject.perform(.createAccount)
-        })
-
-        try await alert.tapAction(title: Localizations.tryAgain)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, urlError)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))
@@ -548,15 +517,14 @@ class CreateAccountProcessorTests: BitwardenTestCase {
     func test_perform_createAccount_timeout() async throws {
         subject.state = .fixture()
 
-        let urlError = URLError(.timedOut) as Error
+        let urlError = URLError(.timedOut)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
 
         await subject.perform(.createAccount)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.message, urlError.localizedDescription)
-
-        try await alert.tapAction(title: Localizations.tryAgain)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, urlError)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(client.requests[0].url, URL(string: "https://example.com/identity/accounts/register"))

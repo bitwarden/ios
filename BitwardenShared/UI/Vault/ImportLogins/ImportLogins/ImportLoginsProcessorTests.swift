@@ -155,7 +155,7 @@ class ImportLoginsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncingLogins)])
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertTrue(coordinator.routes.isEmpty)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [BitwardenTestError.example])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)

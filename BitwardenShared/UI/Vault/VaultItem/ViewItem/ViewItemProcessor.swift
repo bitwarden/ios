@@ -10,6 +10,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -307,7 +308,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -324,7 +325,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemSoftDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -461,7 +462,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemRestored()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
