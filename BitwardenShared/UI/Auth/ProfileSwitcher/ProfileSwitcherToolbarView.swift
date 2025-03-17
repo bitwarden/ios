@@ -19,11 +19,11 @@ struct ProfileSwitcherToolbarView: View {
         } label: {
             profileSwitcherIcon(
                 color: store.state.showPlaceholderToolbarIcon
-                ? nil : store.state.activeAccountProfile?.color,
+                    ? nil : store.state.activeAccountProfile?.color,
                 initials: store.state.showPlaceholderToolbarIcon
-                ? nil : store.state.activeAccountProfile?.userInitials,
+                    ? nil : store.state.activeAccountProfile?.userInitials,
                 textColor: store.state.showPlaceholderToolbarIcon
-                ? nil : store.state.activeAccountProfile?.profileIconTextColor
+                    ? nil : store.state.activeAccountProfile?.profileIconTextColor
             )
         }
         .accessibilityIdentifier("CurrentActiveAccount")
