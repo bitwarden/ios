@@ -1,4 +1,3 @@
-import CoreImage.CIFilterBuiltins
 import SwiftUI
 
 /// A view that displays a QR code generated from a cipher.
@@ -31,10 +30,6 @@ struct ViewAsQRCodeView: View {
 
     // MARK: Private Properties
 
-    private let context = CIContext()
-
-    private let filter = CIFilter.qrCodeGenerator()
-
     private var qrCodeSection: some View {
         SectionView(Localizations.wifiLogin) {
             ContentBlock {
@@ -61,40 +56,18 @@ struct ViewAsQRCodeView: View {
                         send: ViewAsQRCodeAction.qrCodeTypeChanged
                     )
                 )
-                ForEachIndexed(store.state.expectedFields, id: \.self) { index, expectedField in
+                ForEachIndexed(store.state.parameters, id: \.self) { index, parameter in
                     BitwardenMenuField(
-                        title: expectedField.fieldTitle,
-                        options: store.state.fieldsForField(field: expectedField),
+                        title: parameter.parameterTitle,
+                        options: parameter.options,
                         selection: store.binding(
-                            get: { _ in store.state.selectedFields[index] },
-                            send: { .additionalFieldChanged($0, index: index) }
-                        )
-                    )
-                }
-                ForEachIndexed(store.state.typeState.internalState.parameters, id: \.self) { index, expectedField in
-                    BitwardenMenuField(
-                        title: expectedField.parameterTitle,
-                        options: expectedField.options,
-                        selection: store.binding(
-                            get: { _ in expectedField.selected },
-                            send: { .additionalFieldChanged($0, index: index) }
+                            get: { _ in parameter.selected },
+                            send: { .parameterChanged($0, index: index) }
                         )
                     )
                 }
             }
         }
-    }
-
-    private func viewAsQRCode(from string: String) -> UIImage {
-        filter.message = Data(string.utf8)
-
-        if let outputImage = filter.outputImage {
-            if let cgImage = context.createCGImage(outputImage, from: outputImage.extent) {
-                return UIImage(cgImage: cgImage)
-            }
-        }
-
-        return UIImage(systemName: "xmark.circle") ?? UIImage()
     }
 }
 

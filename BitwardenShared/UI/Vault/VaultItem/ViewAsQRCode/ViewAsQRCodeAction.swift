@@ -6,5 +6,5 @@ enum ViewAsQRCodeAction: Equatable {
     /// The QR code type has changed.
     case qrCodeTypeChanged(QRCodeType)
 
-    case additionalFieldChanged(CipherFieldType, index: Int)
+    case parameterChanged(CipherFieldType, index: Int)
 }

@@ -35,6 +35,10 @@ struct ViewAsQRCodeState: Equatable {
 
     var typeState: TypeState2
 
+    var parameters: [QRCodeParameter] {
+        typeState.internalState.parameters
+    }
+
     var expectedFields: [QRCodeParameterOld] {
         qrCodeType.expectedFields
     }

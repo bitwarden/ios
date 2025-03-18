@@ -63,7 +63,7 @@ final class ViewAsQRCodeProcessor: StateProcessor<
             coordinator.navigate(to: .dismiss())
         case let .qrCodeTypeChanged(type):
             changeQrType(type)
-        case let .additionalFieldChanged(fieldReference, index: index):
+        case let .parameterChanged(fieldReference, index: index):
             updateField(fieldReference: fieldReference, index: index)
         }
     }
