@@ -3,7 +3,7 @@ import BitwardenSdk
 // MARK: - QRCodeParameter
 
 /// An object that encapsulates the parameters necessary for a particular type of QR code.
-struct QRCodeParameter: Equatable, Hashable, Sendable {
+struct QRCodeParameterOld: Equatable, Hashable, Sendable {
     /// The name of the parameter, e.g. "SSID".
     let name: String
 
@@ -36,11 +36,11 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
         }
     }
 
-    var expectedFields: [QRCodeParameter] {
+    var expectedFields: [QRCodeParameterOld] {
         switch self {
         case .wifi:
             [
-                QRCodeParameter(
+                QRCodeParameterOld(
                     name: Localizations.ssid,
                     isOptional: false,
                     fieldPriority: [
@@ -48,7 +48,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
                         .custom(name: "SSID"),
                     ]
                 ),
-                QRCodeParameter(
+                QRCodeParameterOld(
                     name: Localizations.password,
                     isOptional: true,
                     fieldPriority: [.password]
@@ -56,7 +56,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
             ]
         case .url:
             [
-                QRCodeParameter(
+                QRCodeParameterOld(
                     name: Localizations.url,
                     isOptional: false,
                     fieldPriority: [.uri(index: 0)]
@@ -66,7 +66,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
     }
 }
 
-struct QRCodeParameter2: Equatable, Hashable, Sendable {
+struct QRCodeParameter: Equatable, Hashable, Sendable {
     /// A localized string for how the parameter is asked for in the UI.
     var parameterTitle: String { Localizations.fieldFor(name) }
 
@@ -81,7 +81,7 @@ struct QRCodeParameter2: Equatable, Hashable, Sendable {
 }
 
 protocol QRCodeTypeState: Equatable {
-    var parameters: [QRCodeParameter2] { get set }
+    var parameters: [QRCodeParameter] { get set }
 
     var qrEncodableString: String { get }
 
@@ -103,13 +103,13 @@ struct WifiQRCodeState: QRCodeTypeState {
         "WIFI"
     }
 
-    var parameters: [QRCodeParameter2] = [
-        QRCodeParameter2(
+    var parameters: [QRCodeParameter] = [
+        QRCodeParameter(
             name: Localizations.ssid,
             options: [.username, .password],
             selected: .username
         ),
-        QRCodeParameter2(
+        QRCodeParameter(
             name: Localizations.password,
             options: [.username, .password],
             selected: .password
