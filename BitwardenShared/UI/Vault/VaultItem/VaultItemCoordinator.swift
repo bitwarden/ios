@@ -355,7 +355,8 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
 //            let state = ViewAsQRCodeState(string: "placeholder")
             var state = ViewAsQRCodeState(
                 cipher: cipher,
-                selectedFields: [.username, .password]
+                selectedFields: [.username, .password],
+                typeState: TypeState2(internalState: WifiQRCodeState(cipher: cipher))
             )
             state.setUpInitialSelected()
 

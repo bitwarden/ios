@@ -1,3 +1,5 @@
+import BitwardenSdk
+
 // MARK: - QRCodeParameter
 
 /// An object that encapsulates the parameters necessary for a particular type of QR code.
@@ -61,5 +63,60 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
                 ),
             ]
         }
+    }
+}
+
+struct QRCodeParameter2: Equatable, Hashable, Sendable {
+    /// A localized string for how the parameter is asked for in the UI.
+    var parameterTitle: String { Localizations.fieldFor(name) }
+
+    /// The name of the parameter, e.g. "SSID".
+    let name: String
+
+    /// A list of available cipher fields that can be used for this parameter.
+    let options: [CipherFieldType]
+
+    /// The currently selected cipher field for this parameter, by index in `options`.
+    let selectedIndex: Int
+}
+
+protocol QRCodeTypeState: Equatable {
+    var parameters: [QRCodeParameter2] { get }
+
+    var qrEncodableString: String { get }
+
+    init(cipher: CipherView)
+}
+
+struct TypeState2: Equatable {
+    static func == (lhs: TypeState2, rhs: TypeState2) -> Bool {
+        return lhs.internalState.parameters == rhs.internalState.parameters
+            && lhs.internalState.qrEncodableString == rhs.internalState.qrEncodableString
+        }
+    let internalState: any QRCodeTypeState
+}
+
+struct WifiQRCodeState: QRCodeTypeState {
+    let cipher: CipherView
+
+    var qrEncodableString: String {
+        "WIFI"
+    }
+
+    var parameters: [QRCodeParameter2] = [
+        QRCodeParameter2(
+            name: Localizations.ssid,
+            options: [.username, .password],
+            selectedIndex: 0
+        ),
+        QRCodeParameter2(
+            name: Localizations.password,
+            options: [.username, .password],
+            selectedIndex: 1
+        ),
+    ]
+
+    init(cipher: CipherView) {
+        self.cipher = cipher
     }
 }

@@ -77,5 +77,6 @@ final class ViewAsQRCodeProcessor: StateProcessor<
 
     func updateField(fieldReference: CipherFieldType, index: Int) {
         state.selectedFields[index] = fieldReference
+//        state.typeState.internalState.parameters[index].
     }
 }

@@ -71,6 +71,16 @@ struct ViewAsQRCodeView: View {
                         )
                     )
                 }
+                ForEachIndexed(store.state.typeState.internalState.parameters, id: \.self) { index, expectedField in
+                    BitwardenMenuField(
+                        title: expectedField.parameterTitle,
+                        options: expectedField.options,
+                        selection: store.binding(
+                            get: { _ in expectedField.options[expectedField.selectedIndex] },
+                            send: { .additionalFieldChanged($0, index: index) }
+                        )
+                    )
+                }   
             }
         }
     }
@@ -99,7 +109,10 @@ struct ViewAsQRCodeView: View {
                 processor: StateProcessor(
                     state: ViewAsQRCodeState(
                         cipher: .fixture(),
-                        selectedFields: [.username, .password]
+                        selectedFields: [.username, .password],
+                        typeState: TypeState2(
+                            internalState: WifiQRCodeState(cipher: .fixture())
+                        )
                     )
                 )
             )

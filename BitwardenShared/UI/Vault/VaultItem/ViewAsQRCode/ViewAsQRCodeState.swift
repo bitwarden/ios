@@ -22,27 +22,21 @@ struct ViewAsQRCodeState: Equatable {
 
     var qrCodeType: QRCodeType = .wifi
 
+//    var wifiState: WifiQRCodeState
+
+//    var parameters: [QRCodeParameter2] {
+//        switch qrCodeType {
+//        case .url:
+//            []
+//        case .wifi:
+//            wifiState.parameters
+//        }
+//    }
+
+    var typeState: TypeState2
+
     var expectedFields: [QRCodeParameter] {
         qrCodeType.expectedFields
-    }
-
-    func valueForField(cipher: CipherView, field: CipherFieldType) -> String? {
-        switch field {
-        case .name:
-            return nil
-        case .none:
-            return nil
-        case .username:
-            return cipher.login?.username
-        case .password:
-            return cipher.login?.password
-        case .notes:
-            return cipher.notes
-        case let .uri(index: uriIndex):
-            return cipher.login?.uris?[uriIndex].uri
-        case let .custom(name: name):
-            return cipher.customFields.first(where: {$0.name == name})?.value
-        }
     }
 
     func fieldsForField(field: QRCodeParameter) -> [CipherFieldType] {
