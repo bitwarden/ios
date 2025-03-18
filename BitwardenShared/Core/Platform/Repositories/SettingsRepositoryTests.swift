@@ -186,7 +186,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         }
     }
 
-    /// `foldersListPublisher()` returns a decrypted flow of the user's folders in sorted order.
+    /// `foldersListPublisher()` returns a decrypted flow of the user's folders in ascending alphabetically order.
     func test_foldersListPublisher_emitsDecryptedList() async throws {
         // Prepare the publisher.
         var iterator = try await subject.foldersListPublisher().makeAsyncIterator()
