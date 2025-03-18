@@ -1562,6 +1562,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let folders: [FolderView] = [
             .fixture(id: "1", name: "Social"),
             .fixture(id: "2", name: "Work"),
+            .fixture(id: "3", name: "Alpha"),
         ]
         settingsRepository.foldersListSubject.send(folders)
 
@@ -1569,7 +1570,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             subject.state.folders,
-            [.default] + folders.map { .custom($0) }
+            [.default] + folders.sorted(by: { $0.name < $1.name }).map { .custom($0) }
         )
     }
 

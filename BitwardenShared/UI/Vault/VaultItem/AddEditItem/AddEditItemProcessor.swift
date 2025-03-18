@@ -699,7 +699,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     private func streamFolders() async {
         do {
             for try await folders in try await services.settingsRepository.foldersListPublisher() {
-                state.folders = [.default] + folders.map { DefaultableType.custom($0) }
+                state.folders = [.default] + folders.sorted(by: { $0.name < $1.name })
+                    .map { DefaultableType.custom($0) }
             }
         } catch {
             services.errorReporter.log(error: error)
