@@ -64,6 +64,15 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
             ]
         }
     }
+
+    func newState(cipher: CipherView) -> any QRCodeTypeState {
+        switch self {
+        case .url:
+            UrlQRCodeState(cipher: cipher) as any QRCodeTypeState
+        case .wifi:
+            WifiQRCodeState(cipher: cipher) as any QRCodeTypeState
+        }
+    }
 }
 
 struct QRCodeParameter: Equatable, Hashable, Sendable {
@@ -166,6 +175,32 @@ struct WifiQRCodeState: QRCodeTypeState {
                 options: cipher.availableFields,
                 fieldPriority: [.password],
                 isOptional: true
+            ),
+        ]
+    }
+}
+
+struct UrlQRCodeState: QRCodeTypeState {
+    let cipher: CipherView
+
+    var qrEncodableString: String {
+        cipher.value(of: parameters[0].selected) ?? "Error"
+    }
+
+    var parameters: [QRCodeParameter]
+
+    init(cipher: CipherView) {
+        self.cipher = cipher
+
+        parameters = [
+            QRCodeParameter(
+                name: Localizations.url,
+                options: cipher.availableFields,
+                fieldPriority: [
+                    .uri(index: 0),
+                    .uri(index: 1),
+                    .uri(index: 2)
+                ]
             ),
         ]
     }
