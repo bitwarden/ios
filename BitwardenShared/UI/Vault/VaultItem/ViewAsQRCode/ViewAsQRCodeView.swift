@@ -81,8 +81,6 @@ struct ViewAsQRCodeView: View {
             store: Store(
                 processor: StateProcessor(
                     state: ViewAsQRCodeState(
-                        cipher: .fixture(),
-                        selectedFields: [.username, .password],
                         typeState: TypeState2(
                             internalState: WifiQRCodeState(cipher: .fixture())
                         )
