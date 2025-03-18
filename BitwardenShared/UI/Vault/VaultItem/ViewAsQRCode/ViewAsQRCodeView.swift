@@ -35,10 +35,10 @@ struct ViewAsQRCodeView: View {
             ContentBlock {
                 HStack {
                     Spacer()
-                    QRCodeView(encodedString: store.state.typeState.qrEncodableString)
+                    QRCodeView(encodedString: store.state.qrEncodableString)
                     Spacer()
                 }
-                Text(store.state.typeState.qrEncodableString)
+                Text(store.state.qrEncodableString)
                     .styleGuide(.bodyMonospaced)
             }
         }
@@ -81,7 +81,7 @@ struct ViewAsQRCodeView: View {
             store: Store(
                 processor: StateProcessor(
                     state: ViewAsQRCodeState(
-                        typeState: WifiQRCodeState(cipher: .fixture())
+                        typeState: QRCodeType.wifi.newState(cipher: .fixture())
                     )
                 )
             )

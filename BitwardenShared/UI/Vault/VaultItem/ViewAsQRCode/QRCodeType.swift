@@ -34,6 +34,8 @@ protocol QRCodeTypeState: Equatable {
 
     var qrEncodableString: String { get }
 
+    var type: QRCodeType { get }
+
     init(cipher: CipherView)
 }
 
@@ -51,6 +53,8 @@ struct WifiQRCodeState: QRCodeTypeState {
     }
 
     var parameters: [QRCodeParameter]
+
+    let type = QRCodeType.wifi
 
     init(cipher: CipherView) {
         self.cipher = cipher
@@ -83,6 +87,8 @@ struct UrlQRCodeState: QRCodeTypeState {
 
     var parameters: [QRCodeParameter]
 
+    let type = QRCodeType.url
+
     init(cipher: CipherView) {
         self.cipher = cipher
 
@@ -93,7 +99,7 @@ struct UrlQRCodeState: QRCodeTypeState {
                 fieldPriority: [
                     .uri(index: 0),
                     .uri(index: 1),
-                    .uri(index: 2)
+                    .uri(index: 2),
                 ]
             ),
         ]
