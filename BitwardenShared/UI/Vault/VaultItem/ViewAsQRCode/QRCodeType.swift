@@ -1,7 +1,5 @@
 import BitwardenSdk
 
-// MARK: - QRCodeParameter
-
 // MARK: - QRCodeType
 
 /// An enum encapsulating the different kinds of data we can encode in a QR code.
@@ -37,27 +35,6 @@ protocol QRCodeTypeState: Equatable {
     var qrEncodableString: String { get }
 
     init(cipher: CipherView)
-}
-
-extension QRCodeTypeState {
-    func initialSelectedFieldForParameter(available: [CipherFieldType], priority: [CipherFieldType]) -> CipherFieldType {
-        for potentialField in priority {
-            if available.contains(potentialField) {
-                return potentialField
-            }
-        }
-        if available.contains(.none) { return .none }
-        return available.first ?? .username
-    }
-}
-
-struct TypeState2: Equatable {
-    static func == (lhs: TypeState2, rhs: TypeState2) -> Bool {
-        return lhs.internalState.parameters == rhs.internalState.parameters
-        && lhs.internalState.qrEncodableString == rhs.internalState.qrEncodableString
-    }
-
-    var internalState: any QRCodeTypeState
 }
 
 struct WifiQRCodeState: QRCodeTypeState {

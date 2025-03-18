@@ -72,10 +72,10 @@ final class ViewAsQRCodeProcessor: StateProcessor<
 
     func changeQrType(_ type: QRCodeType) {
         state.qrCodeType = type
-        state.typeState = TypeState2(internalState: type.newState(cipher: cipher))
+        state.typeState = type.newState(cipher: cipher)
     }
 
     func updateField(fieldReference: CipherFieldType, index: Int) {
-        state.typeState.internalState.parameters[index].selected = fieldReference
+        state.typeState.parameters[index].selected = fieldReference
     }
 }

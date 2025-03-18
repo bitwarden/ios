@@ -7,9 +7,15 @@ struct ViewAsQRCodeState: Equatable {
 
     var qrCodeType: QRCodeType = .wifi
 
-    var typeState: TypeState2
+    var typeState: any QRCodeTypeState
 
     var parameters: [QRCodeParameter] {
-        typeState.internalState.parameters
+        typeState.parameters
+    }
+
+    static func == (lhs: ViewAsQRCodeState, rhs: ViewAsQRCodeState) -> Bool {
+        lhs.availableCodeTypes == rhs.availableCodeTypes
+            && lhs.qrCodeType == rhs.qrCodeType
+            && lhs.typeState.parameters == rhs.typeState.parameters
     }
 }
