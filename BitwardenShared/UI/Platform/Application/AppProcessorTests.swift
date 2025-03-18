@@ -11,6 +11,7 @@ import XCTest
 class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appIntentMediator: MockAppIntentMediator!
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
     var authenticatorSyncService: MockAuthenticatorSyncService!
@@ -42,6 +43,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.setUp()
 
         router = MockRouter(routeForEvent: { _ in .landing })
+        appIntentMediator = MockAppIntentMediator()
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
         authenticatorSyncService = MockAuthenticatorSyncService()
@@ -65,6 +67,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = AppProcessor(
+            appIntentMediator: appIntentMediator,
             appModule: appModule,
             debugDidEnterBackground: { [weak self] in self?.didEnterBackgroundCalled += 1 },
             debugWillEnterForeground: { [weak self] in self?.willEnterForegroundCalled += 1 },
@@ -169,6 +172,12 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_failedToRegister() {
         subject.failedToRegister(BitwardenTestError.example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+    }
+
+    @MainActor
+    func test_getAppIntentMediator() {
+        let mediator = subject.getAppIntentMediator()
+        XCTAssertTrue(mediator is MockAppIntentMediator)
     }
 
     /// `init()` subscribes to will enter foreground events and handles an active user timeout.

@@ -150,7 +150,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         self.context = context
 
         let errorReporter = OSLogErrorReporter()
-        let services = ServiceContainer(errorReporter: errorReporter)
+        let services = ServiceContainer(appContext: .appExtension, errorReporter: errorReporter)
         let appModule = DefaultAppModule(appExtensionDelegate: self, services: services)
         let appProcessor = AppProcessor(appExtensionDelegate: self, appModule: appModule, services: services)
         self.appProcessor = appProcessor

@@ -106,6 +106,10 @@ protocol AuthRepository: AnyObject {
     ///
     func isUserManagedByOrganization() async throws -> Bool
 
+    /// Locks all vaults and clears decrypted data from memory
+    /// - Parameter isManuallyLocking: Whether the user is manually locking the account.
+    func lockAllVaults(isManuallyLocking: Bool) async throws
+
     /// Locks the user's vault and clears decrypted data from memory
     /// - Parameters:
     ///   - userId: The userId of the account to lock. Defaults to active account if nil
@@ -402,6 +406,9 @@ class DefaultAuthRepository {
     /// The services used by the application to make account related API requests.
     private let accountAPIService: AccountAPIService
 
+    /// Helper to know about the app context.
+    private let appContextHelper: AppContextHelper
+
     /// The service used that handles some of the auth logic.
     private let authService: AuthService
 
@@ -472,6 +479,7 @@ class DefaultAuthRepository {
     ///
     init(
         accountAPIService: AccountAPIService,
+        appContextHelper: AppContextHelper,
         authService: AuthService,
         biometricsRepository: BiometricsRepository,
         clientService: ClientService,
@@ -489,6 +497,7 @@ class DefaultAuthRepository {
         vaultTimeoutService: VaultTimeoutService
     ) {
         self.accountAPIService = accountAPIService
+        self.appContextHelper = appContextHelper
         self.authService = authService
         self.biometricsRepository = biometricsRepository
         self.clientService = clientService
@@ -719,6 +728,21 @@ extension DefaultAuthRepository: AuthRepository {
         return orgs.contains { $0.userIsManagedByOrganization }
     }
 
+    func lockAllVaults(isManuallyLocking: Bool) async throws {
+        let accounts = try await stateService.getAccounts()
+        guard !accounts.isEmpty else {
+            return
+        }
+
+        for account in accounts {
+            await lockVault(userId: account.profile.userId, isManuallyLocking: isManuallyLocking)
+        }
+
+        if appContextHelper.appContext.isAppIntentAction(.lockAll) {
+            await stateService.addPendingAppIntentAction(.lockAll)
+        }
+    }
+
     func lockVault(userId: String?, isManuallyLocking: Bool) async {
         await vaultTimeoutService.lockVault(userId: userId)
         if isManuallyLocking {
@@ -727,6 +751,10 @@ extension DefaultAuthRepository: AuthRepository {
             } catch {
                 errorReporter.log(error: error)
             }
+        }
+
+        if appContextHelper.appContext.isAppIntentAction(.lockCurrentUser) {
+            await stateService.addPendingAppIntentAction(.lock(userId))
         }
     }
 

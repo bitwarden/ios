@@ -32,6 +32,9 @@ public class AppProcessor {
     /// A delegate used to communicate with the app extension.
     private(set) weak var appExtensionDelegate: AppExtensionDelegate?
 
+    /// The mediator to handle `AppIntent` actions.
+    private let appIntentMediator: AppIntentMediator?
+
     /// The root module to use to create sub-coordinators.
     let appModule: AppModule
 
@@ -53,6 +56,7 @@ public class AppProcessor {
     ///
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
+    ///   - appIntentMediator: The mediator to handle `AppIntent` actions.
     ///   - appModule: The root module to use to create sub-coordinators.
     ///   - debugDidEnterBackground: A closure that is called in debug builds for testing after the
     ///     processor finishes its work when the app enters the background.
@@ -62,22 +66,29 @@ public class AppProcessor {
     ///
     public init(
         appExtensionDelegate: AppExtensionDelegate? = nil,
+        appIntentMediator: AppIntentMediator? = nil,
         appModule: AppModule,
         debugDidEnterBackground: (() -> Void)? = nil,
         debugWillEnterForeground: (() -> Void)? = nil,
         services: ServiceContainer
     ) {
         self.appExtensionDelegate = appExtensionDelegate
+        self.appIntentMediator = appIntentMediator
         self.appModule = appModule
         self.services = services
 
         self.services.notificationService.setDelegate(self)
+        self.services.pendingAppIntentActionMediator.setDelegate(self)
         self.services.syncService.delegate = self
 
         startEventTimer()
 
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Bundle.main.preferredLocalizations.first
         UI.applyDefaultAppearances()
+
+        guard !services.appContextHelper.appContext.isAppIntent() else {
+            return
+        }
 
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
@@ -89,6 +100,7 @@ public class AppProcessor {
                     await self?.coordinator?.handleEvent(.didTimeout(userId: activeUserId))
                 }
                 await handleNeverTimeOutAccountBecameActive()
+                await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
                 debugWillEnterForeground?()
@@ -326,6 +338,15 @@ public class AppProcessor {
         services.errorReporter.log(error: error)
     }
 
+    /// Gets the `AppIntentMediator` to handle `AppIntent` actions.
+    public func getAppIntentMediator() -> AppIntentMediator {
+        appIntentMediator
+            ?? DefaultAppIntentMediator(
+                authRepository: services.authRepository,
+                configService: services.configService
+            )
+    }
+
     /// Called when the app has received data from a push notification.
     ///
     /// - Parameters:
@@ -349,6 +370,24 @@ public class AppProcessor {
 extension AppProcessor {
     // MARK: Private Methods
 
+    /// Whether there are pending `AppIntent` lock actions.
+    private func hasLockPendingAppIntentAction() async -> Bool {
+        guard let actions = await services.stateService.getPendingAppIntentActions(),
+              !actions.isEmpty else {
+            return false
+        }
+
+        return actions.contains(where: { action in
+            if action == .lockAll {
+                return true
+            }
+            if case .lock = action {
+                return true
+            }
+            return false
+        })
+    }
+
     /// Handles unlocking the vault for a manually locked account that uses never lock
     /// and was previously unlocked in an extension.
     ///
@@ -358,6 +397,7 @@ extension AppProcessor {
             await (try? services.authRepository.isLocked()) == true,
             await (try? services.authRepository.sessionTimeoutValue()) == .never,
             await (try? services.stateService.getManuallyLockedAccount(userId: nil)) == false,
+            await !hasLockPendingAppIntentAction(),
             let account = try? await services.stateService.getActiveAccount()
         else { return }
 
@@ -672,6 +712,29 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
 
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
         coordinator?.showAlert(alert, onDismissed: onDismissed)
+    }
+}
+
+// MARK: - PendingAppIntentActionMediatorDelegate
+
+extension AppProcessor: PendingAppIntentActionMediatorDelegate {
+    func onPendingAppIntentActionSuccess(
+        _ pendingAppIntentAction: PendingAppIntentAction,
+        data: Any?
+    ) async {
+        switch pendingAppIntentAction {
+        case .lock, .lockAll:
+            guard let account = data as? Account else {
+                return
+            }
+            await coordinator?.handleEvent(
+                .accountBecameActive(
+                    account,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
+                )
+            )
+        }
     }
 }
 

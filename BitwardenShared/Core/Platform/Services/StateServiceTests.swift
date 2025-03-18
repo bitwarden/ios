@@ -78,6 +78,29 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.appLocale, "th")
     }
 
+    /// `addPendingAppIntentAction(_:)` adds the pending app intent actions to the current collection of actions.
+    func test_addPendingAppIntentAction() async {
+        appSettingsStore.pendingAppIntentActions = [.lockAll]
+        await subject.addPendingAppIntentAction(.lock("1"))
+        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lockAll, .lock("1")])
+    }
+
+    /// `addPendingAppIntentAction(_:)` adds the pending app intent actions to a non-existing colleciton of actions
+    /// so it first creates the collecton and it gets added to it.
+    func test_addPendingAppIntentAction_currentNil() async {
+        appSettingsStore.pendingAppIntentActions = nil
+        await subject.addPendingAppIntentAction(.lock("1"))
+        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lock("1")])
+    }
+
+    /// `addPendingAppIntentAction(_:)` doesn't add an action when the current collection of pending actions
+    /// already has the same pending action.
+    func test_addPendingAppIntentAction_alreadyContaining() async {
+        appSettingsStore.pendingAppIntentActions = [.lockAll, .lock("1"), .lock("3")]
+        await subject.addPendingAppIntentAction(.lock("1"))
+        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lockAll, .lock("1"), .lock("3")])
+    }
+
     /// `appTheme` gets and sets the value as expected.
     func test_appTheme() async {
         // Getting the value should get the value from the app settings store.
@@ -831,6 +854,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let fetchedOptionsNoAccount = try await subject.getPasswordGenerationOptions(userId: "-1")
         XCTAssertNil(fetchedOptionsNoAccount)
+    }
+
+    /// `getPendingAppIntentActions` gets the saved pending app intent actions.
+    func test_getPendingAppIntentActions() async {
+        appSettingsStore.pendingAppIntentActions = [.lockAll, .lock("1")]
+        let actions = await subject.getPendingAppIntentActions()
+        XCTAssertEqual(actions, [.lockAll, .lock("1")])
     }
 
     /// `getPreAuthEnvironmentURLs` returns the saved pre-auth URLs.
@@ -1876,6 +1906,28 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["1"], options1)
         XCTAssertEqual(appSettingsStore.passwordGenerationOptions["2"], options2)
+    }
+
+    /// `setPendingAppIntentActions(actions:)` sets the pending app intent actions.
+    func test_setPendingAppIntentActions() async {
+        await subject.setPendingAppIntentActions(actions: [.lock("3"), .lockAll])
+        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lock("3"), .lockAll])
+    }
+
+    /// `setPendingAppIntentActions(actions:)` sets the pending app intent actions to `nil`
+    /// when passing an empty collection of actions.
+    func test_setPendingAppIntentActions_empty() async {
+        appSettingsStore.pendingAppIntentActions = [.lockAll]
+        await subject.setPendingAppIntentActions(actions: [])
+        XCTAssertNil(appSettingsStore.pendingAppIntentActions)
+    }
+
+    /// `setPendingAppIntentActions(actions:)` sets the pending app intent actions to `nil`
+    /// when passing `nil` collection of actions.
+    func test_setPendingAppIntentActions_nil() async {
+        appSettingsStore.pendingAppIntentActions = [.lockAll]
+        await subject.setPendingAppIntentActions(actions: nil)
+        XCTAssertNil(appSettingsStore.pendingAppIntentActions)
     }
 
     /// `setPinKeys(encryptedPin:pinProtectedUserKey:requirePasswordAfterRestart:)` sets pin keys for an account.

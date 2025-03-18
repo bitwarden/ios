@@ -7,6 +7,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag to enable/disable account deprovisioning.
     case accountDeprovisioning = "pm-10308-account-deprovisioning"
 
+    /// A feature flag to enable/disable `AppIntent` execution.
+    case appIntents = "app-intents"
+
     /// A feature flag to enable/disable the app review prompt.
     case appReviewPrompt = "app-review-prompt"
 
@@ -123,6 +126,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .testLocalInitialStringFlag:
             false
         case .accountDeprovisioning,
+             .appIntents,
              .appReviewPrompt,
              .cipherKeyEncryption,
              .cxpExportMobile,
