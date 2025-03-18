@@ -75,45 +75,6 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
     }
 }
 
-struct QRCodeParameter: Equatable, Hashable, Sendable {
-    /// A localized string for how the parameter is asked for in the UI.
-    var parameterTitle: String { Localizations.fieldFor(name) }
-
-    /// The name of the parameter, e.g. "SSID".
-    let name: String
-
-    /// A list of available cipher fields that can be used for this parameter.
-    let options: [CipherFieldType]
-
-    /// The currently selected cipher field for this parameter.
-    var selected: CipherFieldType
-
-    init(
-        name: String,
-        options: [CipherFieldType],
-        fieldPriority: [CipherFieldType],
-        isOptional: Bool = false
-    ) {
-        self.name = name
-//        self.options = options
-        self.options = isOptional ? [.none] + options : options
-        self.selected = QRCodeParameter.initialSelectedField(
-            available: options,
-            priority: fieldPriority
-        )
-    }
-
-    static func initialSelectedField(available: [CipherFieldType], priority: [CipherFieldType]) -> CipherFieldType {
-        for potentialField in priority {
-            if available.contains(potentialField) {
-                return potentialField
-            }
-        }
-        if available.contains(.none) { return .none }
-        return available.first ?? .username
-    }
-}
-
 protocol QRCodeTypeState: Equatable {
     var parameters: [QRCodeParameter] { get set }
 
