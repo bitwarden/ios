@@ -1562,7 +1562,6 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         let folders: [FolderView] = [
             .fixture(id: "1", name: "Social"),
             .fixture(id: "2", name: "Work"),
-            .fixture(id: "3", name: "Alpha"),
         ]
         settingsRepository.foldersListSubject.send(folders)
 

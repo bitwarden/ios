@@ -186,7 +186,7 @@ class SettingsRepositoryTests: BitwardenTestCase {
         }
     }
 
-    /// `foldersListPublisher()` returns a decrypted flow of the user's folders.
+    /// `foldersListPublisher()` returns a decrypted flow of the user's folders in sorted order.
     func test_foldersListPublisher_emitsDecryptedList() async throws {
         // Prepare the publisher.
         var iterator = try await subject.foldersListPublisher().makeAsyncIterator()
@@ -194,17 +194,20 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
         // Prepare the sample data.
         let date = Date(year: 2023, month: 12, day: 25)
-        let folder = Folder.fixture(revisionDate: date)
-        let folderView = FolderView.fixture(revisionDate: date)
+        let folder = Folder.fixture(name: "ZZ", revisionDate: date)
+        let folderView = FolderView.fixture(name: "ZZ", revisionDate: date)
+
+        let folder2 = Folder.fixture(name: "AA", revisionDate: date)
+        let folderView2 = FolderView.fixture(name: "AA", revisionDate: date)
 
         // Ensure the list of folders is updated as expected.
-        folderService.foldersSubject.value = [folder]
+        folderService.foldersSubject.value = [folder, folder2]
         let publisherValue = try await iterator.next()
         try XCTAssertNotNil(XCTUnwrap(publisherValue))
-        try XCTAssertEqual(XCTUnwrap(publisherValue), [folderView])
+        try XCTAssertEqual(XCTUnwrap(publisherValue), [folderView2, folderView])
 
         // Ensure the folders were decrypted by the client vault.
-        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, [folder])
+        XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, [folder, folder2])
     }
 
     /// `lastSyncTimePublisher` returns a publisher of the user's last sync time.
