@@ -76,12 +76,12 @@ struct QRCodeParameter2: Equatable, Hashable, Sendable {
     /// A list of available cipher fields that can be used for this parameter.
     let options: [CipherFieldType]
 
-    /// The currently selected cipher field for this parameter, by index in `options`.
-    let selectedIndex: Int
+    /// The currently selected cipher field for this parameter.
+    var selected: CipherFieldType
 }
 
 protocol QRCodeTypeState: Equatable {
-    var parameters: [QRCodeParameter2] { get }
+    var parameters: [QRCodeParameter2] { get set }
 
     var qrEncodableString: String { get }
 
@@ -93,7 +93,7 @@ struct TypeState2: Equatable {
         return lhs.internalState.parameters == rhs.internalState.parameters
             && lhs.internalState.qrEncodableString == rhs.internalState.qrEncodableString
         }
-    let internalState: any QRCodeTypeState
+    var internalState: any QRCodeTypeState
 }
 
 struct WifiQRCodeState: QRCodeTypeState {
@@ -107,12 +107,12 @@ struct WifiQRCodeState: QRCodeTypeState {
         QRCodeParameter2(
             name: Localizations.ssid,
             options: [.username, .password],
-            selectedIndex: 0
+            selected: .username
         ),
         QRCodeParameter2(
             name: Localizations.password,
             options: [.username, .password],
-            selectedIndex: 1
+            selected: .password
         ),
     ]
 

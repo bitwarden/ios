@@ -76,11 +76,11 @@ struct ViewAsQRCodeView: View {
                         title: expectedField.parameterTitle,
                         options: expectedField.options,
                         selection: store.binding(
-                            get: { _ in expectedField.options[expectedField.selectedIndex] },
+                            get: { _ in expectedField.selected },
                             send: { .additionalFieldChanged($0, index: index) }
                         )
                     )
-                }   
+                }
             }
         }
     }
