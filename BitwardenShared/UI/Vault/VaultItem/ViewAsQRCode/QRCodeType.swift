@@ -78,6 +78,31 @@ struct QRCodeParameter: Equatable, Hashable, Sendable {
 
     /// The currently selected cipher field for this parameter.
     var selected: CipherFieldType
+
+    init(
+        name: String,
+        options: [CipherFieldType],
+        fieldPriority: [CipherFieldType],
+        isOptional: Bool = false
+    ) {
+        self.name = name
+//        self.options = options
+        self.options = isOptional ? [.none] + options : options
+        self.selected = QRCodeParameter.initialSelectedField(
+            available: options,
+            priority: fieldPriority
+        )
+    }
+
+    static func initialSelectedField(available: [CipherFieldType], priority: [CipherFieldType]) -> CipherFieldType {
+        for potentialField in priority {
+            if available.contains(potentialField) {
+                return potentialField
+            }
+        }
+        if available.contains(.none) { return .none }
+        return available.first ?? .username
+    }
 }
 
 protocol QRCodeTypeState: Equatable {
@@ -88,11 +113,24 @@ protocol QRCodeTypeState: Equatable {
     init(cipher: CipherView)
 }
 
+extension QRCodeTypeState {
+    func initialSelectedFieldForParameter(available: [CipherFieldType], priority: [CipherFieldType]) -> CipherFieldType {
+        for potentialField in priority {
+            if available.contains(potentialField) {
+                return potentialField
+            }
+        }
+        if available.contains(.none) { return .none }
+        return available.first ?? .username
+    }
+}
+
 struct TypeState2: Equatable {
     static func == (lhs: TypeState2, rhs: TypeState2) -> Bool {
         return lhs.internalState.parameters == rhs.internalState.parameters
-            && lhs.internalState.qrEncodableString == rhs.internalState.qrEncodableString
-        }
+        && lhs.internalState.qrEncodableString == rhs.internalState.qrEncodableString
+    }
+
     var internalState: any QRCodeTypeState
 }
 
@@ -100,23 +138,35 @@ struct WifiQRCodeState: QRCodeTypeState {
     let cipher: CipherView
 
     var qrEncodableString: String {
-        "WIFI"
+        let ssid = cipher.value(of: parameters[0].selected) ?? "Error"
+        let password = cipher.value(of: parameters[1].selected)
+        var passwordPart: String?
+        if let password {
+            passwordPart = "P:\(password);"
+        }
+        return "WIFI:T:WPA;S:\(ssid);\(passwordPart ?? "");"
     }
 
-    var parameters: [QRCodeParameter] = [
-        QRCodeParameter(
-            name: Localizations.ssid,
-            options: [.username, .password],
-            selected: .username
-        ),
-        QRCodeParameter(
-            name: Localizations.password,
-            options: [.username, .password],
-            selected: .password
-        ),
-    ]
+    var parameters: [QRCodeParameter]
 
     init(cipher: CipherView) {
         self.cipher = cipher
+
+        parameters = [
+            QRCodeParameter(
+                name: Localizations.ssid,
+                options: cipher.availableFields,
+                fieldPriority: [
+                    .username,
+                    .custom(name: "SSID"),
+                ]
+            ),
+            QRCodeParameter(
+                name: Localizations.password,
+                options: cipher.availableFields,
+                fieldPriority: [.password],
+                isOptional: true
+            ),
+        ]
     }
 }

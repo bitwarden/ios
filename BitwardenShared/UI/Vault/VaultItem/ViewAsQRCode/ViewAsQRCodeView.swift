@@ -40,10 +40,10 @@ struct ViewAsQRCodeView: View {
             ContentBlock {
                 HStack {
                     Spacer()
-                    QRCodeView(encodedString: store.state.string)
+                    QRCodeView(encodedString: store.state.typeState.internalState.qrEncodableString)
                     Spacer()
                 }
-                Text(store.state.string)
+                Text(store.state.typeState.internalState.qrEncodableString)
                     .styleGuide(.bodyMonospaced)
             }
         }
