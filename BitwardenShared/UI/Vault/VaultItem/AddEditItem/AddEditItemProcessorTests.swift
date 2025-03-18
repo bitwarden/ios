@@ -1570,7 +1570,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(
             subject.state.folders,
-            [.default] + folders.sorted(by: { $0.name < $1.name }).map { .custom($0) }
+            [.default] + folders.map { .custom($0) }
         )
     }
 
