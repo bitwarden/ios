@@ -60,6 +60,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag for the refactor on the SSO details endpoint.
     case refactorSsoDetailsEndpoint = "pm-12337-refactor-sso-details-endpoint"
 
+    /// A feature flag that determines whether View as QR Code is enabled.
+    case visualizeVaultItems = "visualize-vault-items"
+
     // MARK: Test Flags
 
     /// A test feature flag that isn't remotely configured and has no initial value.
@@ -99,6 +102,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// but if `isRemotelyConfigured` is false for the flag, then the value here will be used.
     /// This is a helpful way to manage local feature flags.
     static let initialValues: [FeatureFlag: AnyCodable] = [
+        .visualizeVaultItems: .bool(true),
         .testLocalInitialBoolFlag: .bool(true),
         .testLocalInitialIntFlag: .int(42),
         .testLocalInitialStringFlag: .string("Test String"),
@@ -134,6 +138,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
              .sshKeyVaultItem,
+             .visualizeVaultItems,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,

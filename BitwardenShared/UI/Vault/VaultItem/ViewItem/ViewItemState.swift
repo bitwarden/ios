@@ -17,6 +17,8 @@ struct ViewItemState: Equatable, Sendable {
         }
     }
 
+    var canViewAsQRCode: Bool
+
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading(nil)
@@ -73,14 +75,15 @@ extension ViewItemState {
     init?(
         cipherView: CipherView,
         hasMasterPassword: Bool,
-        hasPremium: Bool
+        hasPremium: Bool,
+        canViewAsQRCode: Bool
     ) {
         guard let cipherItemState = CipherItemState(
             existing: cipherView,
             hasMasterPassword: hasMasterPassword,
             hasPremium: hasPremium
         ) else { return nil }
-        self.init(loadingState: .data(cipherItemState))
+        self.init(canViewAsQRCode: canViewAsQRCode, loadingState: .data(cipherItemState))
         self.hasMasterPassword = hasMasterPassword
         hasPremiumFeatures = cipherItemState.accountHasPremium
         passwordHistory = cipherView.passwordHistory

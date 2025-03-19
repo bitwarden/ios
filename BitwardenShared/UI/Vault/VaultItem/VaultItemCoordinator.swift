@@ -460,7 +460,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             delegate: delegate,
             itemId: id,
             services: services,
-            state: ViewItemState()
+            state: ViewItemState(canViewAsQRCode: false)
         )
         let store = Store(processor: processor)
         let view = ViewItemView(

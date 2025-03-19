@@ -10,6 +10,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -528,10 +529,17 @@ private extension ViewItemProcessor {
                     totpState = updatedState
                 }
 
+                let canViewAsQRCode = await services.configService.getFeatureFlag(
+                    .visualizeVaultItems,
+                    defaultValue: false,
+                    isPreAuth: false
+                )
+
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasMasterPassword: hasMasterPassword,
-                    hasPremium: hasPremium
+                    hasPremium: hasPremium,
+                    canViewAsQRCode: canViewAsQRCode
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {

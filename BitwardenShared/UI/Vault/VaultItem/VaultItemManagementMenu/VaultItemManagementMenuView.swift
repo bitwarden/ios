@@ -19,13 +19,18 @@ struct VaultItemManagementMenuView: View {
     /// The flag for whether to show the move to organization options.
     let isMoveToOrganizationEnabled: Bool
 
+    /// The flag for whether to show the view as QR code option.
+    let isViewAsQRCodeEnabled: Bool
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<Void, VaultItemManagementMenuAction, VaultItemManagementMenuEffect>
 
     var body: some View {
         Menu {
-            Button(Localizations.viewAsQRCode) {
-                store.send(.viewAsQRCode)
+            if isViewAsQRCodeEnabled {
+                Button(Localizations.viewAsQRCode) {
+                    store.send(.viewAsQRCode)
+                }
             }
 
             Button(Localizations.attachments) {
@@ -70,6 +75,7 @@ struct VaultItemManagementMenuView: View {
         isCollectionsEnabled: true,
         isDeleteEnabled: true,
         isMoveToOrganizationEnabled: true,
+        isViewAsQRCodeEnabled: true,
         store: Store(
             processor: StateProcessor(
                 state: ()

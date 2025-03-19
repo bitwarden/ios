@@ -29,6 +29,11 @@ struct ViewItemView: View {
         return cipher.organizationId == nil
     }
 
+    /// Whether to show the view as QR code option.
+    var isViewAsQRCodeEnabled: Bool {
+        return store.state.canViewAsQRCode
+    }
+
     /// The `Store` for this view.
     @ObservedObject var store: Store<ViewItemState, ViewItemAction, ViewItemEffect>
 
@@ -79,6 +84,7 @@ struct ViewItemView: View {
                     isCollectionsEnabled: isCollectionsEnabled,
                     isDeleteEnabled: isDeleteEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
+                    isViewAsQRCodeEnabled: isViewAsQRCodeEnabled,
                     store: store.child(
                         state: { _ in },
                         mapAction: { .morePressed($0) },
@@ -258,7 +264,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .loading(nil)
+                            canViewAsQRCode: false, loadingState: .loading(nil)
                         )
                     )
                 ),
@@ -288,7 +294,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(cardState)
+                            canViewAsQRCode: false, loadingState: .data(cardState)
                         )
                     )
                 ),
@@ -310,7 +316,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(loginState)
+                            canViewAsQRCode: false, loadingState: .data(loginState)
                         )
                     )
                 ),
@@ -332,7 +338,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(secureNoteState)
+                            canViewAsQRCode: false, loadingState: .data(secureNoteState)
                         )
                     )
                 ),
@@ -354,7 +360,7 @@ struct ViewItemView_Previews: PreviewProvider {
                 store: Store(
                     processor: StateProcessor(
                         state: ViewItemState(
-                            loadingState: .data(sshKeyState)
+                            canViewAsQRCode: false, loadingState: .data(sshKeyState)
                         )
                     )
                 ),
