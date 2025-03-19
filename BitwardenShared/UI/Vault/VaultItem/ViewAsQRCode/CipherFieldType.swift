@@ -38,20 +38,23 @@ enum CipherFieldType: Equatable, Menuable, Sendable {
 extension CipherView {
     var availableFields: [CipherFieldType] {
         var fieldBuffer: [CipherFieldType] = [.name]
-        if login?.username?.isEmpty == false {
-            fieldBuffer.append(.username)
+
+        let possibleFields: [CipherFieldType] = [
+            .username,
+            .password,
+            .notes
+        ]
+
+        for field in possibleFields where value(of: field)?.isEmpty == false {
+            fieldBuffer.append(field)
         }
-        if login?.password?.isEmpty == false {
-            fieldBuffer.append(.password)
-        }
-        if notes?.isEmpty == false {
-            fieldBuffer.append(.notes)
-        }
+
         if let urls = login?.uris {
             for index in 0 ..< urls.count {
                 fieldBuffer.append(.uri(index: index))
             }
         }
+
         for customField in customFields {
             fieldBuffer.append(.custom(name: customField.name ?? "Custom Field"))
         }
