@@ -13,12 +13,14 @@ class CoordinatorTests: BitwardenTestCase {
         case test
     }
 
-    class TestCoordinator: Coordinator, HasStackNavigator {
+    class TestCoordinator: Coordinator, HasErrorAlertServices, HasStackNavigator {
         typealias Event = Void // swiftlint:disable:this nesting
 
+        var errorAlertServices: ErrorAlertServices
         var stackNavigator: StackNavigator?
 
-        init(mockStackNavigator: MockStackNavigator) {
+        init(mockStackNavigator: MockStackNavigator, services: ErrorAlertServices) {
+            errorAlertServices = services
             stackNavigator = mockStackNavigator
         }
 
@@ -30,7 +32,6 @@ class CoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var configService: MockConfigService!
-    var services: Services!
     var stackNavigator: MockStackNavigator!
     var subject: TestCoordinator!
 
@@ -42,16 +43,16 @@ class CoordinatorTests: BitwardenTestCase {
         configService = MockConfigService()
         stackNavigator = MockStackNavigator()
 
-        services = ServiceContainer.withMocks(configService: configService)
-
-        subject = TestCoordinator(mockStackNavigator: stackNavigator)
+        subject = TestCoordinator(
+            mockStackNavigator: stackNavigator,
+            services: ServiceContainer.withMocks(configService: configService)
+        )
     }
 
     override func tearDown() async throws {
         try await super.tearDown()
 
         configService = nil
-        services = nil
         stackNavigator = nil
         subject = nil
     }
@@ -63,23 +64,17 @@ class CoordinatorTests: BitwardenTestCase {
     func test_showErrorAlert_mobileErrorReportingDisabled() async {
         configService.featureFlagsBool[.mobileErrorReporting] = false
 
-        await subject.showErrorAlert(
-            error: BitwardenTestError.example,
-            services: services
-        )
+        await subject.showErrorAlert(error: BitwardenTestError.example)
 
         XCTAssertEqual(stackNavigator.alerts, [Alert.networkResponseError(BitwardenTestError.example)])
     }
 
-    /// `showErrorAlert(error:services:)` builds an alert to show for an error when mobile error
+    /// `showErrorAlert(error:)` builds an alert to show for an error when mobile error
     /// reporting is enabled, allowing the user to share the details of the error.
     func test_showErrorAlert_mobileErrorReportingEnabled() async throws {
         configService.featureFlagsBool[.mobileErrorReporting] = true
 
-        await subject.showErrorAlert(
-            error: BitwardenTestError.example,
-            services: services
-        )
+        await subject.showErrorAlert(error: BitwardenTestError.example)
 
         XCTAssertEqual(
             stackNavigator.alerts,
@@ -92,7 +87,7 @@ class CoordinatorTests: BitwardenTestCase {
         // TODO: PM-18224 Show share sheet to export error details
     }
 
-    /// `showErrorAlert(error:services:tryAgain:)` builds an alert to show for an error with an
+    /// `showErrorAlert(error:tryAgain:)` builds an alert to show for an error with an
     /// optional try again closure that allows trying again for certain types of errors.
     func test_showErrorAlert_withTryAgain() async throws {
         configService.featureFlagsBool[.mobileErrorReporting] = true
@@ -100,7 +95,6 @@ class CoordinatorTests: BitwardenTestCase {
         var tryAgainCalled = false
         await subject.showErrorAlert(
             error: URLError(.timedOut),
-            services: services,
             tryAgain: { tryAgainCalled = true }
         )
 

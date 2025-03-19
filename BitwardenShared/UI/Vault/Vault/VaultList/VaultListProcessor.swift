@@ -272,7 +272,7 @@ extension VaultListProcessor {
                 // If the vault needs a sync and there are cached items,
                 // display the cached data and show an error alert.
                 if let sections = state.loadingState.data, !sections.isEmpty {
-                    await coordinator.showErrorAlert(error: error, services: services)
+                    await coordinator.showErrorAlert(error: error)
                 } else {
                     // If the vault needs a sync and there were no cached items,
                     // show the full screen error view.
@@ -281,7 +281,7 @@ extension VaultListProcessor {
                     )
                 }
             } else {
-                await coordinator.showErrorAlert(error: error, services: services)
+                await coordinator.showErrorAlert(error: error)
             }
             services.errorReporter.log(error: error)
         }

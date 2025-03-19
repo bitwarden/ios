@@ -67,3 +67,9 @@ class ImportCXFCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.replace(view)
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension ImportCXFCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}

@@ -130,3 +130,9 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.present(navigationController)
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension GeneratorCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}

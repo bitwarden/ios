@@ -38,12 +38,12 @@ class MockCoordinator<Route, Event>: Coordinator {
         alertOnDismissed = onDismissed
     }
 
-    func showErrorAlert(error: any Error, services: any ErrorAlertServices) async {
+    func showErrorAlert(error: any Error) async {
         errorAlertsShown.append(error)
     }
 
-    func showErrorAlert(error: any Error, services: any ErrorAlertServices, tryAgain: (() async -> Void)?) async {
-        if let tryAgain  {
+    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?) async {
+        if let tryAgain {
             errorAlertsWithRetryShown.append((error, tryAgain))
         } else {
             errorAlertsShown.append(error)

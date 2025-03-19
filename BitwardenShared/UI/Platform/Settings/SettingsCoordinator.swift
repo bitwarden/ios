@@ -509,6 +509,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     }
 }
 
+// MARK: - HasErrorAlertServices
+
+extension SettingsCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+
 // MARK: - ImportLoginsCoordinatorDelegate
 
 extension SettingsCoordinator: ImportLoginsCoordinatorDelegate {
