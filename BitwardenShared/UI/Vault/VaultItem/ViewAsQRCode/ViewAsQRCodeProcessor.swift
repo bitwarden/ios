@@ -71,7 +71,6 @@ final class ViewAsQRCodeProcessor: StateProcessor<
     // MARK: Private Methods
 
     func changeQrType(_ type: QRCodeType) {
-        state.qrCodeType = type
         state.typeState = type.newState(cipher: cipher)
     }
 

@@ -92,15 +92,21 @@ struct UrlQRCodeState: QRCodeTypeState {
     init(cipher: CipherView) {
         self.cipher = cipher
 
+        let priorities: [CipherFieldType]
+        switch cipher.type {
+        case .login:
+            priorities = [.uri(index: 0)]
+        case .secureNote:
+            priorities = [.notes]
+        default:
+            priorities = []
+        }
+
         parameters = [
             QRCodeParameter(
                 name: Localizations.url,
                 options: cipher.availableFields,
-                fieldPriority: [
-                    .uri(index: 0),
-                    .uri(index: 1),
-                    .uri(index: 2),
-                ]
+                fieldPriority: priorities
             ),
         ]
     }
