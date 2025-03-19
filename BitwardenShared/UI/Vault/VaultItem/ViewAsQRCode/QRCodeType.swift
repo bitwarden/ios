@@ -29,6 +29,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
     }
 }
 
+/// A protocol that encapsulates the logic for generating a QR code.
 protocol QRCodeTypeState: Equatable {
     var parameters: [QRCodeParameter] { get set }
 
@@ -38,6 +39,44 @@ protocol QRCodeTypeState: Equatable {
 
     init(cipher: CipherView)
 }
+
+// MARK: - URLQRCodeState
+
+struct URLQRCodeState: QRCodeTypeState {
+    let cipher: CipherView
+
+    var qrEncodableString: String {
+        cipher.value(of: parameters[0].selected) ?? "Error"
+    }
+
+    var parameters: [QRCodeParameter]
+
+    let type = QRCodeType.url
+
+    init(cipher: CipherView) {
+        self.cipher = cipher
+
+        let priorities: [CipherFieldType]
+        switch cipher.type {
+        case .login:
+            priorities = [.uri(index: 0)]
+        case .secureNote:
+            priorities = [.notes]
+        default:
+            priorities = []
+        }
+
+        parameters = [
+            QRCodeParameter(
+                name: Localizations.url,
+                options: cipher.availableFields,
+                fieldPriority: priorities
+            ),
+        ]
+    }
+}
+
+// MARK: - WifiQRCodeState
 
 struct WifiQRCodeState: QRCodeTypeState {
     let cipher: CipherView
@@ -78,36 +117,3 @@ struct WifiQRCodeState: QRCodeTypeState {
     }
 }
 
-struct URLQRCodeState: QRCodeTypeState {
-    let cipher: CipherView
-
-    var qrEncodableString: String {
-        cipher.value(of: parameters[0].selected) ?? "Error"
-    }
-
-    var parameters: [QRCodeParameter]
-
-    let type = QRCodeType.url
-
-    init(cipher: CipherView) {
-        self.cipher = cipher
-
-        let priorities: [CipherFieldType]
-        switch cipher.type {
-        case .login:
-            priorities = [.uri(index: 0)]
-        case .secureNote:
-            priorities = [.notes]
-        default:
-            priorities = []
-        }
-
-        parameters = [
-            QRCodeParameter(
-                name: Localizations.url,
-                options: cipher.availableFields,
-                fieldPriority: priorities
-            ),
-        ]
-    }
-}
