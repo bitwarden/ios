@@ -4,16 +4,19 @@ import BitwardenSdk
 
 /// An enum encapsulating the different kinds of data we can encode in a QR code.
 enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
+    case plaintext
     case url
     case wifi
 
     static var allCases: [QRCodeType] = [
+        .plaintext,
         .wifi,
         .url,
     ]
 
     var localizedName: String {
         switch self {
+        case .plaintext: Localizations.plaintext
         case .wifi: Localizations.wifi
         case .url: Localizations.url
         }
@@ -21,6 +24,8 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
 
     func newState(cipher: CipherView) -> any QRCodeTypeState {
         switch self {
+        case .plaintext:
+            PlaintextQRCodeState(cipher: cipher) as any QRCodeTypeState
         case .url:
             URLQRCodeState(cipher: cipher) as any QRCodeTypeState
         case .wifi:
@@ -38,6 +43,32 @@ protocol QRCodeTypeState: Equatable {
     var type: QRCodeType { get }
 
     init(cipher: CipherView)
+}
+
+// MARK: - PlaintextQRCodeState
+
+struct PlaintextQRCodeState: QRCodeTypeState {
+    let cipher: CipherView
+
+    var qrEncodableString: String {
+        cipher.value(of: parameters[0].selected) ?? ""
+    }
+
+    var parameters: [QRCodeParameter]
+
+    let type = QRCodeType.plaintext
+
+    init(cipher: CipherView) {
+        self.cipher = cipher
+
+        parameters = [
+            QRCodeParameter(
+                name: Localizations.url,
+                options: cipher.availableFields,
+                fieldPriority: [.notes]
+            ),
+        ]
+    }
 }
 
 // MARK: - URLQRCodeState
@@ -116,4 +147,3 @@ struct WifiQRCodeState: QRCodeTypeState {
         ]
     }
 }
-

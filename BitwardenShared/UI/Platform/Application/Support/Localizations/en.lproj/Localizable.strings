@@ -1156,6 +1156,7 @@
 "DataToShare" = "Data to share";
 "QRCodeType" = "QR code type";
 "Wifi" = "Wi-Fi";
+"Plaintext" = "Plaintext";
 "ItemFieldWithSSID" = "Item field with SSID";
 "ItemFieldWithPassword" = "Item field with password";
 "Contact" = "Contact";
