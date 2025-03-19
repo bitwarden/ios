@@ -13,5 +13,13 @@ struct ShortcutsProvider: AppShortcutsProvider {
             shortTitle: "LockAllAccounts",
             systemImageName: "lock.circle.dotted"
         )
+        AppShortcut(
+            intent: LogoutAllAccountsIntent(),
+            phrases: [
+                "Log out all \(.applicationName) accounts",
+            ],
+            shortTitle: "LogOutAllAccounts",
+            systemImageName: "person.crop.circle.badge.xmark"
+        )
     }
 }
