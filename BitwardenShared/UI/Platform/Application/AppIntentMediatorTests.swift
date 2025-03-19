@@ -115,4 +115,44 @@ class AppIntentMediatorTests: BitwardenTestCase {
         XCTAssertTrue(authRepository.logoutUserIds.isEmpty)
         XCTAssertFalse(authRepository.logoutCalled)
     }
+
+    /// `logoutAllUsers()` logs out all accounts.
+    func test_logoutAllUsers() async throws {
+        stateService.accounts = [
+            .fixture(profile: .fixture(userId: "1")),
+            .fixture(profile: .fixture(userId: "2")),
+            .fixture(profile: .fixture(userId: "3")),
+        ]
+        try await subject.logoutAllUsers()
+        XCTAssertEqual(authRepository.logoutUserIds, ["1", "2", "3"])
+    }
+
+    /// `logoutAllUsers()` logs out some accounts because one of them throws.
+    func test_logoutAllUsers_someThrows() async throws {
+        stateService.accounts = [
+            .fixture(profile: .fixture(userId: "1")),
+            .fixture(profile: .fixture(userId: "2")),
+            .fixture(profile: .fixture(userId: "3")),
+        ]
+        authRepository.logoutErrorByUserId = ["2": BitwardenTestError.example]
+        try await subject.logoutAllUsers()
+        XCTAssertEqual(authRepository.logoutUserIds, ["1", "3"])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `logoutAllUsers()` does nothing when there are no accounts.
+    func test_logoutAllUsers_noAccounts() async throws {
+        stateService.accounts = []
+        try await subject.logoutAllUsers()
+        XCTAssertTrue(authRepository.logoutUserIds.isEmpty)
+        XCTAssertFalse(authRepository.logoutCalled)
+    }
+
+    /// `logoutAllUsers()` does nothing when getting accounts throw.
+    func test_logoutAllUsers_throwGettingAccounts() async throws {
+        stateService.accounts = nil
+        try await subject.logoutAllUsers()
+        XCTAssertTrue(authRepository.logoutUserIds.isEmpty)
+        XCTAssertFalse(authRepository.logoutCalled)
+    }
 }
