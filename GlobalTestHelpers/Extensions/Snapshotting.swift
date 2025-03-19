@@ -112,12 +112,15 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// A default snapshot in portrait on iPhone 13, with precision 1, perceptual precision of 0.95
     /// and in light mode.
     ///
-    ///  - Parameter heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///  - Parameters:
+    ///     - heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///     - drawHierarchyInKeyWindow: If `true`, the snapshot will be taken from the key window.
     ///
-    static func portrait(heightMultiple: CGFloat = 1) -> Snapshotting {
+    static func portrait(heightMultiple: CGFloat = 1, drawHierarchyInKeyWindow: Bool = false) -> Snapshotting {
         var viewImageConfig = ViewImageConfig.iPhone13(.portrait)
         viewImageConfig.size?.height *= heightMultiple
         return .image(
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: viewImageConfig),
@@ -128,12 +131,15 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// A default snapshot in portrait on iPhone 13, with precision 1, perceptual precision of 0.95
     /// and in dark mode.
     ///
-    ///  - Parameter heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///  - Parameters:
+    ///     - heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///     - drawHierarchyInKeyWindow: If `true`, the snapshot will be taken from the key window.
     ///
-    static func portraitDark(heightMultiple: CGFloat = 1) -> Snapshotting {
+    static func portraitDark(heightMultiple: CGFloat = 1, drawHierarchyInKeyWindow: Bool = false) -> Snapshotting {
         var viewImageConfig = ViewImageConfig.iPhone13(.portrait)
         viewImageConfig.size?.height *= heightMultiple
         return .image(
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: viewImageConfig),
@@ -146,12 +152,15 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     ///
     /// This also sets the preferred content size category to AX5.
     ///
-    ///  - Parameter heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///  - Parameters:
+    ///     - heightMultiple: Sets the height multiple of the snapshot relative to the iPhone 13 height.
+    ///     - drawHierarchyInKeyWindow: If `true`, the snapshot will be taken from the key window.
     ///
-    static func tallPortraitAX5(heightMultiple: CGFloat = 4) -> Snapshotting {
+    static func tallPortraitAX5(heightMultiple: CGFloat = 4, drawHierarchyInKeyWindow: Bool = false) -> Snapshotting {
         var viewImageConfig = ViewImageConfig.iPhone13(.portrait)
         viewImageConfig.size?.height *= heightMultiple
         return .image(
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
             precision: defaultPrecision,
             perceptualPrecision: defaultPerceptualPrecision,
             layout: .device(config: viewImageConfig),

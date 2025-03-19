@@ -275,13 +275,14 @@ struct GeneratorView: View {
     ) -> some View {
         FormMenuFieldView(field: field) { newValue in
             store.send(.usernameGeneratorTypeChanged(newValue))
-        } trailingContent: {
+        } titleAccessoryContent: {
             Button {
                 openURL(ExternalLinksConstants.generatorUsernameTypes)
             } label: {
-                Asset.Images.questionCircle16.swiftUIImage
+                Asset.Images.questionCircle12.swiftUIImage
+                    .scaledFrame(width: 12, height: 12)
             }
-            .buttonStyle(.accessory)
+            .buttonStyle(.fieldLabelIcon)
             .accessibilityLabel(Localizations.learnMore)
         }
     }

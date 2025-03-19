@@ -286,7 +286,11 @@ class GeneratorViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.usernameState.usernameGeneratorType = .catchAllEmail
         assertSnapshots(
             of: snapshotView,
-            as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
+            as: [
+                Snapshotting.portrait(drawHierarchyInKeyWindow: true),
+                Snapshotting.portraitDark(drawHierarchyInKeyWindow: true),
+                Snapshotting.tallPortraitAX5(heightMultiple: 1.5, drawHierarchyInKeyWindow: true),
+            ]
         )
     }
 
