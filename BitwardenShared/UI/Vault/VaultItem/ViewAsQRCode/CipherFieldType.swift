@@ -42,7 +42,7 @@ extension CipherView {
         let possibleFields: [CipherFieldType] = [
             .username,
             .password,
-            .notes
+            .notes,
         ]
 
         for field in possibleFields where value(of: field)?.isEmpty == false {
