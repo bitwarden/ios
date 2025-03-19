@@ -50,7 +50,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             delegate: delegate,
             itemId: "id",
             services: services,
-            state: ViewItemState()
+            state: ViewItemState(canViewAsQRCode: true)
         )
     }
 
@@ -114,7 +114,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             delegate: delegate,
             itemId: "id",
             services: services,
-            state: ViewItemState()
+            state: ViewItemState(canViewAsQRCode: true)
         )
         waitFor(
             !rehydrationHelper.rehydratableTargets.isEmpty
@@ -531,6 +531,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             customField3,
         ]
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -584,6 +585,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -617,6 +619,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -648,7 +651,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             ViewItemState(
                 cipherView: .fixture(reprompt: .password),
                 hasMasterPassword: true,
-                hasPremium: false
+                hasPremium: false,
+                canViewAsQRCode: true
             )
         )
         await subject.perform(.deletePressed)
@@ -675,6 +679,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -694,6 +699,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -714,6 +720,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -749,6 +756,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -784,6 +792,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -818,6 +827,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state
@@ -860,6 +870,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )!
 
         let state = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(cipherState)
         )
         subject.state = state

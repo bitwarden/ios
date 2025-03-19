@@ -25,6 +25,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
             isCollectionsEnabled: true,
             isDeleteEnabled: true,
             isMoveToOrganizationEnabled: true,
+            isViewAsQRCodeEnabled: true,
             store: store
         )
     }

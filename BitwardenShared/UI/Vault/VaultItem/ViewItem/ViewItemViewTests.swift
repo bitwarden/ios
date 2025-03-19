@@ -22,7 +22,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     override func setUp() {
         super.setUp()
-        let state = ViewItemState()
+        let state = ViewItemState(canViewAsQRCode: true)
         processor = MockProcessor(state: state)
         let store = Store(processor: processor)
         timeProvider = MockTimeProvider(.mockTime(mockPresentTime))

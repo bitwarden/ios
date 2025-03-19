@@ -10,6 +10,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// `canClone` is true when the cipher belongs to user but not organization.
     func test_canClone() {
         let subject = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(
                 CipherItemState(
                     existing: .fixture(
@@ -27,6 +28,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// `canClone` is false when the cipher belongs to an organization.
     func test_canClone_cipher_belongToOrg() {
         let subject = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(
                 CipherItemState(
                     existing: .fixture(
@@ -45,6 +47,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// `isMasterPasswordRequired` is false when the user has no password.
     func test_isMasterPasswordRequired_repromptOff_noPassword() {
         let subject = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(
                 CipherItemState(
                     existing: .fixture(
@@ -64,6 +67,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// been verified yet.
     func test_isMasterPasswordRequired_repromptOn_unverifiedPassword() {
         let subject = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(
                 CipherItemState(
                     existing: .fixture(
@@ -82,6 +86,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// verified.
     func test_isMasterPasswordRequired_repromptOn_verifiedPassword() {
         let subject = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(
                 CipherItemState(
                     existing: .fixture(
@@ -100,6 +105,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// been verified yet.
     func test_isMasterPasswordRequired_repromptOff_unverifiedPassword() {
         let subject = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(
                 CipherItemState(
                     existing: .fixture(
@@ -118,6 +124,7 @@ class ViewItemStateTests: BitwardenTestCase {
     /// been verified.
     func test_isMasterPasswordRequired_repromptOff_verifiedPassword() {
         let subject = ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(
                 CipherItemState(
                     existing: .fixture(
@@ -135,26 +142,31 @@ class ViewItemStateTests: BitwardenTestCase {
     /// `navigationTitle` returns the navigation title for the view based on the cipher type.
     func test_navigationTitle_loaded() throws {
         let subjectCard = try ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .card), hasPremium: false)))
         )
         XCTAssertEqual(subjectCard.navigationTitle, Localizations.viewCard)
 
         let subjectIdentity = try ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .identity), hasPremium: false)))
         )
         XCTAssertEqual(subjectIdentity.navigationTitle, Localizations.viewIdentity)
 
         let subjectLogin = try ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .login), hasPremium: false)))
         )
         XCTAssertEqual(subjectLogin.navigationTitle, Localizations.viewLogin)
 
         let subjectSecureNote = try ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .secureNote), hasPremium: false)))
         )
         XCTAssertEqual(subjectSecureNote.navigationTitle, Localizations.viewNote)
 
         let subjectSSHKey = try ViewItemState(
+            canViewAsQRCode: true,
             loadingState: .data(XCTUnwrap(CipherItemState(existing: .fixture(type: .sshKey), hasPremium: false)))
         )
         XCTAssertEqual(subjectSSHKey.navigationTitle, Localizations.viewSSHKey)
@@ -162,7 +174,7 @@ class ViewItemStateTests: BitwardenTestCase {
 
     /// `navigationTitle` returns an empty navigation title for the view before the item is loaded.
     func test_navigationTitle_loading() {
-        let subject = ViewItemState()
+        let subject = ViewItemState(canViewAsQRCode: true)
         XCTAssertEqual(subject.navigationTitle, "")
     }
 }

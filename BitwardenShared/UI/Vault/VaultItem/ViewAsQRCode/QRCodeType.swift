@@ -22,7 +22,7 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
     func newState(cipher: CipherView) -> any QRCodeTypeState {
         switch self {
         case .url:
-            UrlQRCodeState(cipher: cipher) as any QRCodeTypeState
+            URLQRCodeState(cipher: cipher) as any QRCodeTypeState
         case .wifi:
             WifiQRCodeState(cipher: cipher) as any QRCodeTypeState
         }
@@ -78,7 +78,7 @@ struct WifiQRCodeState: QRCodeTypeState {
     }
 }
 
-struct UrlQRCodeState: QRCodeTypeState {
+struct URLQRCodeState: QRCodeTypeState {
     let cipher: CipherView
 
     var qrEncodableString: String {
