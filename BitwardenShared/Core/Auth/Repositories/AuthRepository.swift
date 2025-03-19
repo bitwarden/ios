@@ -108,12 +108,14 @@ protocol AuthRepository: AnyObject {
 
     /// Locks all vaults and clears decrypted data from memory
     /// - Parameter isManuallyLocking: Whether the user is manually locking the account.
+    ///
     func lockAllVaults(isManuallyLocking: Bool) async throws
 
     /// Locks the user's vault and clears decrypted data from memory
     /// - Parameters:
     ///   - userId: The userId of the account to lock. Defaults to active account if nil
     ///   - isManuallyLocking: Whether the user is manually locking the account.
+    ///
     func lockVault(userId: String?, isManuallyLocking: Bool) async
 
     /// Logs the user out of the specified account.
@@ -460,6 +462,7 @@ class DefaultAuthRepository {
     ///
     /// - Parameters:
     ///   - accountAPIService: The services used by the application to make account related API requests.
+    ///   - appContextHelper: The helper to know about the app context.
     ///   - authService: The service used that handles some of the auth logic.
     ///   - biometricsRepository: The service to use system Biometrics for vault unlock.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
