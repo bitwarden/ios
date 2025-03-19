@@ -36,6 +36,8 @@ enum QRCodeType: CaseIterable, Equatable, Menuable, Sendable {
 
 /// A protocol that encapsulates the logic for generating a QR code.
 protocol QRCodeTypeState: Equatable {
+    var itemName: String { get }
+
     var parameters: [QRCodeParameter] { get set }
 
     var qrEncodableString: String { get }
@@ -50,6 +52,10 @@ protocol QRCodeTypeState: Equatable {
 struct PlaintextQRCodeState: QRCodeTypeState {
     let cipher: CipherView
 
+    var itemName: String {
+        cipher.name
+    }
+
     var qrEncodableString: String {
         cipher.value(of: parameters[0].selected) ?? ""
     }
@@ -63,7 +69,7 @@ struct PlaintextQRCodeState: QRCodeTypeState {
 
         parameters = [
             QRCodeParameter(
-                name: Localizations.url,
+                name: Localizations.content,
                 options: cipher.availableFields,
                 fieldPriority: [.notes]
             ),
@@ -75,6 +81,10 @@ struct PlaintextQRCodeState: QRCodeTypeState {
 
 struct URLQRCodeState: QRCodeTypeState {
     let cipher: CipherView
+
+    var itemName: String {
+        cipher.name
+    }
 
     var qrEncodableString: String {
         cipher.value(of: parameters[0].selected) ?? "Error"
@@ -111,6 +121,10 @@ struct URLQRCodeState: QRCodeTypeState {
 
 struct WifiQRCodeState: QRCodeTypeState {
     let cipher: CipherView
+
+    var itemName: String {
+        cipher.name
+    }
 
     var qrEncodableString: String {
         let ssid = cipher.value(of: parameters[0].selected) ?? "Error"

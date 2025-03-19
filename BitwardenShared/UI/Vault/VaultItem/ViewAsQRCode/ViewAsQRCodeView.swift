@@ -31,15 +31,13 @@ struct ViewAsQRCodeView: View {
     // MARK: Private Properties
 
     private var qrCodeSection: some View {
-        SectionView(Localizations.wifiLogin) {
+        SectionView(store.state.itemName) {
             ContentBlock {
                 HStack {
                     Spacer()
                     QRCodeView(encodedString: store.state.qrEncodableString)
                     Spacer()
                 }
-                Text(store.state.qrEncodableString)
-                    .styleGuide(.bodyMonospaced)
             }
         }
     }

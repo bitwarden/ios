@@ -5,6 +5,10 @@ import BitwardenSdk
 struct ViewAsQRCodeState: Equatable {
     var availableCodeTypes: [QRCodeType] = QRCodeType.allCases
 
+    var itemName: String {
+        typeState.itemName
+    }
+
     var parameters: [QRCodeParameter] {
         typeState.parameters
     }
