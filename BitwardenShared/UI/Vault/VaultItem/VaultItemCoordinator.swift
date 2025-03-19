@@ -352,8 +352,22 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ) {
         guard let stackNavigator else { return }
         if stackNavigator.isEmpty {
+            let defaultQRType: QRCodeType
+            switch cipher.type {
+            case .login:
+                defaultQRType = .wifi
+            case .secureNote:
+                defaultQRType = .plaintext
+            case .card:
+                defaultQRType = .plaintext
+            case .identity:
+                defaultQRType = .plaintext
+            case .sshKey:
+                defaultQRType = .plaintext
+            }
+
             let state = ViewAsQRCodeState(
-                typeState: QRCodeType.wifi.newState(cipher: cipher)
+                typeState: defaultQRType.newState(cipher: cipher)
             )
 
             let processor = ViewAsQRCodeProcessor(
