@@ -14,7 +14,7 @@ struct LockCurrentAccountIntent: AppIntent {
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let services = ServiceContainer(
             appContext: .appIntent(.lockCurrentUser),
-            errorReporter: ServiceContainer.createDefaultErrorReporter()
+            errorReporter: ErrorReporterFactory.createDefaultErrorReporter()
         )
         let appProcessor = AppProcessor(appModule: DefaultAppModule(services: services), services: services)
         let appIntentMediator = appProcessor.getAppIntentMediator()

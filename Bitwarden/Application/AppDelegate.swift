@@ -39,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         let services = ServiceContainer(
             application: UIApplication.shared,
-            errorReporter: ServiceContainer.createDefaultErrorReporter(),
+            errorReporter: ErrorReporterFactory.createDefaultErrorReporter(),
             nfcReaderService: DefaultNFCReaderService()
         )
         let appModule = DefaultAppModule(services: services)

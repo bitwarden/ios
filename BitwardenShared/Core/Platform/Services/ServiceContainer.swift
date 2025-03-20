@@ -828,17 +828,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             watchService: watchService
         )
     }
-
-    // MARK: Static Functions
-
-    /// Creates the default error reporter.
-    public static func createDefaultErrorReporter() -> ErrorReporter {
-        #if DEBUG
-        OSLogErrorReporter()
-        #else
-        CrashlyticsErrorReporter()
-        #endif
-    }
 }
 
 extension ServiceContainer {

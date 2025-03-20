@@ -12,7 +12,7 @@ struct LockAllAccountsIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let errorReporter = ServiceContainer.createDefaultErrorReporter()
+        let errorReporter = ErrorReporterFactory.createDefaultErrorReporter()
         do {
             let services = ServiceContainer(
                 appContext: .appIntent(.lockAll),
