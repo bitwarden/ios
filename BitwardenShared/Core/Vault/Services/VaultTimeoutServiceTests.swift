@@ -5,6 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
+@MainActor
 final class VaultTimeoutServiceTests: BitwardenTestCase {
     // MARK: Properties
 
@@ -37,8 +38,8 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         cancellables = nil
         clientService = nil
