@@ -267,6 +267,8 @@ extension VaultListProcessor {
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {
+            services.errorReporter.log(error: error)
+
             let needsSync = try? await services.vaultRepository.needsSync()
             if needsSync == true {
                 // If the vault needs a sync and there are cached items,
@@ -283,7 +285,6 @@ extension VaultListProcessor {
             } else {
                 await coordinator.showErrorAlert(error: error)
             }
-            services.errorReporter.log(error: error)
         }
     }
 
