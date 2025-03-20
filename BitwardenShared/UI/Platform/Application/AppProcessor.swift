@@ -343,7 +343,9 @@ public class AppProcessor {
         appIntentMediator
             ?? DefaultAppIntentMediator(
                 authRepository: services.authRepository,
-                configService: services.configService
+                configService: services.configService,
+                errorReporter: services.errorReporter,
+                stateService: services.stateService
             )
     }
 
