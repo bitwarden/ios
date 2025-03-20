@@ -71,6 +71,7 @@ struct BitwardenMenuField<T, TrailingContent: View>: View where T: Menuable {
                 Text("")
             }
             .accessibilityIdentifier(accessibilityIdentifier ?? "")
+            .pickerStyle(InlinePickerStyle())
         } label: {
             HStack {
                 Text(selection.localizedName)

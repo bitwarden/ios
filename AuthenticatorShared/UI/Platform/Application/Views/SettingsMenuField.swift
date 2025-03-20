@@ -38,6 +38,7 @@ struct SettingsMenuField<T>: View where T: Menuable {
                 } label: {
                     Text("")
                 }
+                .pickerStyle(InlinePickerStyle())
             } label: {
                 HStack {
                     Text(title)
