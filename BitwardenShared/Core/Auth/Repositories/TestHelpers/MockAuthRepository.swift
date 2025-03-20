@@ -28,13 +28,16 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var getAccountError: Error?
     var getSSOOrganizationIdentifierByResult: Result<String?, Error> = .success(nil)
     var handleActiveUserClosure: ((String) async -> Void)?
+    var hasLockedAllVaults = false
     var hasManuallyLocked = false
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
     var isUserManagedByOrganizationResult: Result<Bool, Error> = .success(false)
     var pinUnlockAvailabilityResult: Result<[String: Bool], Error> = .success([:])
+    var lockAllVaultsError: Error?
     var lockVaultUserId: String?
+    var lockVaultUserIds: [String?] = []
     var logoutCalled = false
     var logoutUserId: String?
     var logoutUserInitiated = false
@@ -231,8 +234,17 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         return try passwordStrengthResult.get()
     }
 
+    func lockAllVaults(isManuallyLocking: Bool) async throws {
+        if let lockAllVaultsError {
+            throw lockAllVaultsError
+        }
+        hasLockedAllVaults = true
+        hasManuallyLocked = isManuallyLocking
+    }
+
     func lockVault(userId: String?, isManuallyLocking: Bool) async {
         lockVaultUserId = userId
+        lockVaultUserIds.append(userId)
         hasManuallyLocked = isManuallyLocking
     }
 
@@ -397,4 +409,4 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         verifyOtpOpt = otp
         try verifyOtpResult.get()
     }
-}
+} // swiftlint:disable:this file_length

@@ -9,6 +9,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     // MARK: Properties
 
     var accountAPIService: APIService!
+    var appContextHelper: MockAppContextHelper!
     var authService: MockAuthService!
     var biometricsRepository: MockBiometricsRepository!
     var client: MockHTTPClient!
@@ -86,6 +87,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     override func setUp() {
         super.setUp()
 
+        appContextHelper = MockAppContextHelper()
         client = MockHTTPClient()
         clientService = MockClientService()
         accountAPIService = APIService(client: client)
@@ -104,6 +106,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         subject = DefaultAuthRepository(
             accountAPIService: accountAPIService,
+            appContextHelper: appContextHelper,
             authService: authService,
             biometricsRepository: biometricsRepository,
             clientService: clientService,
@@ -126,6 +129,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         super.tearDown()
 
         accountAPIService = nil
+        appContextHelper = nil
         authService = nil
         biometricsRepository = nil
         client = nil
@@ -1540,17 +1544,120 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `lockAllVaults(isManuallyLocking:)` locks all available vaults.
+    func test_lockAllVaults() async throws {
+        appContextHelper.appContext = .appIntent(.lockAll)
+        stateService.accounts = [
+            .fixture(profile: .fixture(userId: "1")),
+            .fixture(profile: .fixture(userId: "2")),
+            .fixture(profile: .fixture(userId: "3")),
+        ]
+
+        try await subject.lockAllVaults(isManuallyLocking: false)
+
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "2"))
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "3"))
+        XCTAssertTrue(stateService.manuallyLockedAccounts.isEmpty)
+        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.lockAll) == true)
+    }
+
+    /// `lockAllVaults(isManuallyLocking:)` manually locks all available vaults.
+    func test_lockAllVaults_manuallyLocking() async throws {
+        appContextHelper.appContext = .appIntent(.lockAll)
+        stateService.accounts = [
+            .fixture(profile: .fixture(userId: "1")),
+            .fixture(profile: .fixture(userId: "2")),
+            .fixture(profile: .fixture(userId: "3")),
+        ]
+
+        try await subject.lockAllVaults(isManuallyLocking: true)
+
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "2"))
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "3"))
+        XCTAssertEqual(stateService.manuallyLockedAccounts["1"], true)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["2"], true)
+        XCTAssertEqual(stateService.manuallyLockedAccounts["3"], true)
+        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.lockAll) == true)
+    }
+
+    /// `lockAllVaults(isManuallyLocking:)` does nothing when there are no accounts.
+    func test_lockAllVaults_noAccounts() async throws {
+        appContextHelper.appContext = .appIntent(.lockAll)
+        stateService.accounts = []
+
+        try await subject.lockAllVaults(isManuallyLocking: false)
+
+        XCTAssertTrue(vaultTimeoutService.isClientLocked.isEmpty)
+        XCTAssertTrue(stateService.manuallyLockedAccounts.isEmpty)
+        XCTAssertTrue(stateService.pendingAppIntentActions.isEmptyOrNil)
+    }
+
+    /// `lockAllVaults(isManuallyLocking:)` throws when accounts has no value.
+    func test_lockAllVaults_throwsNilAccounts() async throws {
+        stateService.accounts = nil
+
+        await assertAsyncThrows(error: StateServiceError.noAccounts) {
+            try await subject.lockAllVaults(isManuallyLocking: false)
+        }
+    }
+
+    /// `lockAllVaults(isManuallyLocking:)` locks all accounts but logs error because it throws at the moment
+    /// of updating that the account has been manually locked.
+    func test_lockAllVaults_succeedsButLogsErrorWhenUpdatingManuallyLockAccount() async throws {
+        appContextHelper.appContext = .appIntent(.lockAll)
+        stateService.accounts = [
+            .fixture(profile: .fixture(userId: "1")),
+            .fixture(profile: .fixture(userId: "2")),
+            .fixture(profile: .fixture(userId: "3")),
+        ]
+        stateService.setManuallyLockedAccountError = BitwardenTestError.example
+
+        try await subject.lockAllVaults(isManuallyLocking: true)
+
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "2"))
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "3"))
+        XCTAssertTrue(stateService.manuallyLockedAccounts.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example, .example, .example])
+        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.lockAll) == true)
+    }
+
+    /// `lockAllVaults(isManuallyLocking:)` locks all available vaults but doesn't update pending actions when
+    /// context is not `.appIntent`.
+    func test_lockAllVaults_appContextNotAppIntent() async throws {
+        appContextHelper.appContext = .mainApp
+        stateService.accounts = [
+            .fixture(profile: .fixture(userId: "1")),
+            .fixture(profile: .fixture(userId: "2")),
+            .fixture(profile: .fixture(userId: "3")),
+        ]
+
+        try await subject.lockAllVaults(isManuallyLocking: false)
+
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "2"))
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "3"))
+        XCTAssertTrue(stateService.manuallyLockedAccounts.isEmpty)
+        XCTAssertTrue(stateService.pendingAppIntentActions.isEmptyOrNil)
+    }
+
     /// `lockVault(userId:)` locks the vault for the specified user id.
     func test_lockVault() async {
+        appContextHelper.appContext = .appIntent(.lockCurrentUser)
         await subject.lockVault(userId: "10")
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: "10"))
+        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.lock("10")) == true)
     }
 
     /// `lockVault(userId:)` manually locks the vault for the specified user id.
     func test_lockVault_manuallyLocking() async {
+        appContextHelper.appContext = .appIntent(.lockCurrentUser)
         await subject.lockVault(userId: "10", isManuallyLocking: true)
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: "10"))
         XCTAssertEqual(stateService.manuallyLockedAccounts["10"], true)
+        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.lock("10")) == true)
     }
 
     /// `lockVault(userId:)` logs error when manually locks the vault for the specified user id.
@@ -1559,6 +1666,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.lockVault(userId: nil, isManuallyLocking: true)
         XCTAssertTrue(stateService.manuallyLockedAccounts.isEmpty)
         XCTAssertEqual(errorReporter.errors.last as? StateServiceError, .noActiveAccount)
+    }
+
+    /// `lockVault(userId:)` locks the vault for the specified user id but doesn't update the pending actions
+    /// when context is not `.appIntent`.
+    func test_lockVault_appContextNotAppIntent() async throws {
+        appContextHelper.appContext = .mainApp
+        await subject.lockVault(userId: "10")
+        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "10"))
+        XCTAssertTrue(stateService.pendingAppIntentActions.isEmptyOrNil)
     }
 
     /// `passwordStrength(email:password)` returns the calculated password strength.

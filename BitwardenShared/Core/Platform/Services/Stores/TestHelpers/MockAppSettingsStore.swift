@@ -22,6 +22,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var loginRequest: LoginRequestNotification?
     var migrationVersion = 0
     var overrideDebugFeatureFlagCalled = false
+    var pendingAppIntentActions: [PendingAppIntentAction]?
     var preAuthEnvironmentURLs: EnvironmentURLData?
     var preAuthServerConfig: BitwardenShared.ServerConfig?
     var rememberedEmail: String?
