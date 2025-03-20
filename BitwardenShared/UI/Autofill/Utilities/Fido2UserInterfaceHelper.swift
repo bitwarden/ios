@@ -24,6 +24,7 @@ protocol Fido2UserInterfaceHelperDelegate: Fido2UserVerificationMediatorDelegate
 
 /// A helper to extend `Fido2UserInterface` protocol capabilities for Fido2 flows
 /// depending on user interaction.
+@MainActor
 protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     /// The `BitwardenSdk.CheckUserOptions` the SDK provides while in Fido2 creation flow.
     var fido2CreationOptions: BitwardenSdk.CheckUserOptions? { get }
@@ -74,7 +75,7 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
 
 // MARK: - DefaultFido2UserInterfaceHelper
 
-/// Default implemenation of `Fido2UserInterfaceHelper`.
+/// Default implementation of `Fido2UserInterfaceHelper`.
 class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     /// Mediator which manages user verification on Fido2 flows.
     private var fido2UserVerificationMediator: Fido2UserVerificationMediator
@@ -155,7 +156,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
             throw Fido2Error.noDelegateSetup
         }
 
-        guard await fido2UserInterfaceHelperDelegate.isAutofillingFromList else {
+        guard fido2UserInterfaceHelperDelegate.isAutofillingFromList else {
             guard availableCredentials.count == 1 else {
                 throw Fido2Error.invalidOperationError
             }

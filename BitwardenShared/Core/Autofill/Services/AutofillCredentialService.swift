@@ -456,10 +456,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         rpId: String,
         clientDataHash: Data
     ) async throws -> ASPasskeyAssertionCredential {
-        fido2UserInterfaceHelper.setupDelegate(
+        await fido2UserInterfaceHelper.setupDelegate(
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
-        fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
+        await fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
             userVerificationPreference: request.options.uv
         )
 
