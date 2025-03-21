@@ -226,7 +226,11 @@ extension DefaultSettingsRepository: SettingsRepository {
     func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>> {
         try await folderService.foldersPublisher()
             .asyncTryMap { folders in
-                try await self.clientService.vault().folders().decryptList(folders: folders)
+                try await self.clientService
+                    .vault()
+                    .folders()
+                    .decryptList(folders: folders)
+                    .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             }
             .eraseToAnyPublisher()
             .values

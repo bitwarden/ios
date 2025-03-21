@@ -24,6 +24,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage the app's ID.
     let appIdService: AppIdService
 
+    /// The service used by the application to get info about the app and device it's running on.
+    let appInfoService: AppInfoService
+
     /// The application instance (i.e. `UIApplication`), if the app isn't running in an extension.
     let application: Application?
 
@@ -176,6 +179,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
     ///   - appIdService: The service used by the application to manage the app's ID.
+    ///   - appInfoService: The service used by the application to get info about the app and device
+    ///     it's running on.
     ///   - application: The application instance.
     ///   - appSettingsStore: The service used by the application to persist app setting values.
     ///   - authRepository: The repository used by the application to manage auth data for the UI layer.
@@ -228,9 +233,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///   - watchService: The service used by the application to connect to and communicate with the watch app.
     ///
-    init(
+    init( // swiftlint:disable:this function_body_length
         apiService: APIService,
         appIdService: AppIdService,
+        appInfoService: AppInfoService,
         application: Application?,
         appSettingsStore: AppSettingsStore,
         authRepository: AuthRepository,
@@ -282,6 +288,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ) {
         self.apiService = apiService
         self.appIdService = appIdService
+        self.appInfoService = appInfoService
         self.application = application
         self.appSettingsStore = appSettingsStore
         self.authRepository = authRepository
@@ -348,6 +355,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
+        let appInfoService = DefaultAppInfoService()
 
         let dataStore = DataStore(errorReporter: errorReporter)
 
@@ -745,6 +753,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.init(
             apiService: apiService,
             appIdService: appIdService,
+            appInfoService: appInfoService,
             application: application,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,

@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Trezor je uzamknutý";
 "GoToMyVault" = "Ísť do trezoru";
 "Collections" = "Zbierky";
-"NoItemsCollection" = "There are no items in this collection";
-"NoItemsFolder" = "There are no items in this folder";
+"NoItemsCollection" = "V zbierke sa nenachádzajú žiadne položky";
+"NoItemsFolder" = "V tomto priečinku sa nenachádzajú žiadne položky";
 "NoItemsTrash" = "V koši nie sú žiadne položky";
 "AutofillAccessibilityService" = "Služba uľahčenia prístupu automatického vypĺňania";
 "AutofillServiceDescription" = "Služba automatického vypĺňania Bitwarden využíva Android Austrofil Framework na zjednodušenie vypĺňania prihlasovacích údajov, kreditných kariet a identít v aplikáciách vo vašom zariadení.";

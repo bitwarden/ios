@@ -1,4 +1,4 @@
-name: Scan
+name: Scan - Authenticator
 
 on:
   workflow_dispatch:
@@ -49,6 +49,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@17a820bf2e43b47be2c72b39cc905417bc1ab6d0 # v3.28.6
         with:
           sarif_file: cx_result.sarif
+          sha: ${{ contains(github.event_name, 'pull_request') && github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ contains(github.event_name, 'pull_request') && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
 
   quality:
     name: Quality scan
