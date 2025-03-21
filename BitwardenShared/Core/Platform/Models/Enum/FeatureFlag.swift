@@ -40,6 +40,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag for the import logins flow for new accounts.
     case importLoginsFlow = "import-logins-flow"
 
+    /// A feature flag to enable/disable ciphers archive option.
+    case innovationArchive = "pm-19148-innovation-archive"
+
     /// A feature flag for the intro carousel flow.
     case nativeCarouselFlow = "native-carousel-flow"
 
@@ -128,6 +131,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .emailVerification,
              .enableAuthenticatorSync,
              .importLoginsFlow,
+             .innovationArchive,
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
