@@ -36,6 +36,11 @@ public enum VaultListGroup: Equatable, Hashable, Sendable {
     /// A group of ciphers without a folder
     case noFolder
 
+    // MARK: Archive
+
+    /// A group of archived ciphers.
+    case archive
+
     // MARK: Trash
 
     /// A group of ciphers in the trash.
@@ -84,6 +89,8 @@ extension VaultListGroup {
             return Localizations.trash
         case .noFolder:
             return Localizations.folderNone
+        case .archive:
+            return Localizations.archive
         }
     }
 
@@ -110,6 +117,8 @@ extension VaultListGroup {
             return Localizations.trash
         case .noFolder:
             return Localizations.folderNone
+        case .archive:
+            return Localizations.archive
         }
     }
 

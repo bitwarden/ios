@@ -117,6 +117,8 @@ extension VaultListItem {
                 Asset.Images.clock24
             case .trash:
                 Asset.Images.trash24
+            case .archive:
+                Asset.Images.archive24
             }
         case .totp:
             Asset.Images.clock24

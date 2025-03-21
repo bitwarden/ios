@@ -1,32 +1,46 @@
-import BitwardenSdk
-import Networking
+import InlineSnapshotTesting
+import XCTest
 
-/// Data model for performing an archive cipher request.
-///
-struct ArchiveCipherRequest: Request {
-    typealias Response = EmptyResponse
+@testable import BitwardenShared
 
+class ArchiveCipherRequestTests: BitwardenTestCase {
     // MARK: Properties
 
-    /// The id of the Cipher
-    var id: String
+    var subject: ArchiveCipherRequest?
 
-    /// The HTTP method for this request.
-    let method = HTTPMethod.put
+    override func tearDown() {
+        super.tearDown()
 
-    /// The URL path for this request.
-    var path: String {
-        "/ciphers/\(id)/archive/"
+        subject = nil
     }
 
-    // MARK: Initialization
+    // MARK: Tests
 
-    /// Initialize an `ArchiveCipherRequest` for a `Cipher`.
-    ///
-    /// - Parameter id: The id of `Cipher` to be archived in the user's vault.
-    ///
-    init(id: String) throws {
-        guard !id.isEmpty else { throw CipherAPIServiceError.updateMissingId }
-        self.id = id
+    /// `init` fails if the cipher has an empty id.
+    func test_init_fail_empty() throws {
+        XCTAssertThrowsError(
+            try ArchiveCipherRequest(id: "")
+        ) { error in
+            XCTAssertEqual(error as? CipherAPIServiceError, .updateMissingId)
+        }
+    }
+
+    /// `body` returns nil.
+    func test_body() throws {
+        subject = try ArchiveCipherRequest(id: "123")
+        XCTAssertNotNil(subject)
+        XCTAssertNil(subject?.body)
+    }
+
+    /// `method` returns the method of the request.
+    func test_method() throws {
+        subject = try ArchiveCipherRequest(id: "123")
+        XCTAssertEqual(subject?.method, .put)
+    }
+
+    /// `path` returns the path of the request.
+    func test_path() throws {
+        subject = try ArchiveCipherRequest(id: "123")
+        XCTAssertEqual(subject?.path, "/ciphers/123/archive/")
     }
 }
