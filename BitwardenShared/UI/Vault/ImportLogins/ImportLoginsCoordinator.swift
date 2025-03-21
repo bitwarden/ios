@@ -17,7 +17,8 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     typealias Module = ImportLoginsModule
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasSettingsRepository
         & HasStateService
         & HasVaultRepository
@@ -105,4 +106,10 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
         navigationController.isModalInPresentation = true
         stackNavigator?.present(navigationController)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension ImportLoginsCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

@@ -1045,6 +1045,12 @@ extension AuthCoordinator: ASAuthorizationControllerDelegate {
     }
 }
 
+// MARK: - HasErrorAlertServices
+
+extension AuthCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+
 // MARK: PasswordAutoFillCoordinatorDelegate
 
 extension AuthCoordinator: PasswordAutoFillCoordinatorDelegate {

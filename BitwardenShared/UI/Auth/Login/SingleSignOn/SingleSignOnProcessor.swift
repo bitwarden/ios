@@ -100,7 +100,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
                 organizationIdentifier: state.identifierText
             ))
         default:
-            coordinator.showAlert(.networkResponseError(error, tryAgain))
+            coordinator.showAlert(.networkResponseError(error, tryAgain: tryAgain))
             services.errorReporter.log(error: error)
         }
     }

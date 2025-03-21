@@ -82,3 +82,9 @@ final class DebugMenuCoordinator: Coordinator, HasStackNavigator {
         stackNavigator?.replace(view)
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension DebugMenuCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}

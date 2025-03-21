@@ -88,3 +88,9 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
         stackNavigator?.push(view)
     }
 }
+
+// MARK: - HasErrorAlertServices
+
+extension PasswordAutoFillCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}

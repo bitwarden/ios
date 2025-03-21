@@ -2,7 +2,7 @@ import Foundation
 
 /// A protocol for an object that performs navigation via routes.
 @MainActor
-public protocol Coordinator<Route, Event>: AnyObject {
+protocol Coordinator<Route, Event>: AnyObject {
     // MARK: Types
 
     associatedtype Event
@@ -43,6 +43,14 @@ public protocol Coordinator<Route, Event>: AnyObject {
     ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?)
+
+    /// Shows an alert for an error that occurred.
+    ///
+    /// - Parameters:
+    ///   - error: The error that occurred, used to customize the details of the alert.
+    ///   - tryAgain: An optional closure allowing the user to retry whatever triggered the error.
+    ///
+    func showErrorAlert(error: Error, tryAgain: (() async -> Void)?) async
 
     /// Shows the loading overlay view.
     ///
@@ -112,9 +120,24 @@ protocol HasRouter<Event, Route> {
     var router: AnyRouter<Event, Route> { get }
 }
 
+/// A protocol for a `Coordinator` which has the necessary services to support showing an alert for
+/// an error when one occurs.
+///
+/// If a `Coordinator` conforms to this protocol, this will implement the
+/// `showErrorAlert(error:tryAgain:)` method for the coordinator via an extension so it doesn't
+/// need to be implemented in each coordinator across the app.
+///
+@MainActor
+protocol HasErrorAlertServices: Coordinator, HasNavigator {
+    typealias ErrorAlertServices = HasConfigService & HasErrorReporter
+
+    /// The services needed to build an alert for an error that occurred.
+    var errorAlertServices: ErrorAlertServices { get }
+}
+
 // MARK: Extensions
 
-public extension Coordinator {
+extension Coordinator {
     /// Handles events that may require asynchronous management.
     ///
     /// - Parameter event: The event for which the coordinator handle.
@@ -140,13 +163,41 @@ public extension Coordinator {
     func showAlert(_ alert: Alert) {
         showAlert(alert, onDismissed: nil)
     }
+
+    /// Shows an alert for an error that occurred.
+    ///
+    /// - Parameters:
+    ///   - error: The error that occurred, used to customize the details of the alert.
+    ///
+    func showErrorAlert(error: Error) async {
+        await showErrorAlert(error: error, tryAgain: nil)
+    }
 }
 
 extension Coordinator where Self.Event == Void {
-    /// Provide a default No-Op when a coodrinator does not use events.
+    /// Provide a default No-Op when a coordinator does not use events.
     ///
     func handleEvent(_ event: Void, context: AnyObject?) async {
         // No-Op
+    }
+}
+
+extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
+    /// Shows an alert for an error that occurred.
+    ///
+    /// - Parameters:
+    ///   - error: The error that occurred, used to customize the details of the alert.
+    ///   - tryAgain: An optional closure allowing the user to retry whatever triggered the error.
+    ///
+    func showErrorAlert(error: Error, tryAgain: (() async -> Void)?) async {
+        let alert = if await errorAlertServices.configService.getFeatureFlag(.mobileErrorReporting) {
+            Alert.networkResponseError(error, shareErrorDetails: {
+                // TODO: PM-18224 Show share sheet to export error details
+            }, tryAgain: tryAgain)
+        } else {
+            Alert.networkResponseError(error, tryAgain: tryAgain)
+        }
+        showAlert(alert)
     }
 }
 

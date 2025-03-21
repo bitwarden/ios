@@ -376,6 +376,12 @@ extension AppCoordinator: DebugMenuCoordinatorDelegate {
     }
 }
 
+// MARK: - HasErrorAlertServices
+
+extension AppCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+
 // MARK: - LoginRequestDelegate
 
 extension AppCoordinator: LoginRequestDelegate {

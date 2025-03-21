@@ -9,6 +9,7 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasApplication
         & HasAuthRepository
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -104,4 +105,10 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
         )
         stackNavigator?.push(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension TwoFactorNoticeCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

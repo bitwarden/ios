@@ -440,6 +440,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     }
 }
 
+// MARK: - HasErrorAlertServices
+
+extension VaultItemCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+
 // MARK: - View Extension
 
 extension View {

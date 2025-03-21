@@ -534,7 +534,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertEqual(subject.state.loadingState, .data([section]))
     }
@@ -549,7 +549,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.refreshVault)
 
         XCTAssertTrue(vaultRepository.fetchSyncCalled)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertEqual(subject.state.loadingState, .data([section]))
     }

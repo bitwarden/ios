@@ -8,7 +8,8 @@ import SwiftUI
 class AddEditFolderCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasSettingsRepository
 
     // MARK: Properties
@@ -65,4 +66,10 @@ class AddEditFolderCoordinator: Coordinator, HasStackNavigator {
         let view = AddEditFolderView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AddEditFolderCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

@@ -7,7 +7,8 @@ import BitwardenSdk
 class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
 
@@ -63,4 +64,10 @@ class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
         let view = PasswordHistoryListView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension PasswordHistoryCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

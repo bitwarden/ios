@@ -112,6 +112,13 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         vaultCoordinator?.navigate(to: vaultRoute, context: context)
     }
 
+    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?) async {
+        errorReporter.log(error: BitwardenError.generalError(
+            type: "TabCoordinator: `showErrorAlert` Not Supported",
+            message: "`showErrorAlert(error:tryAgain:)` is not supported from TabCoordinator."
+        ))
+    }
+
     func start() {
         guard let rootNavigator, let tabNavigator, let settingsDelegate, let vaultDelegate else { return }
 
