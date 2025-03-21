@@ -2033,7 +2033,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `logout` successfully logs out a user.
-    func test_logout_success() {
+    func test_logout_success() async throws {
         let account = Account.fixture()
         stateService.accounts = [account]
         stateService.activeAccount = account
@@ -2042,11 +2042,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository.setBiometricUnlockKeyError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
-        let task = Task {
-            try await subject.logout(userInitiated: true)
-        }
-        waitFor(!vaultTimeoutService.removedIds.isEmpty)
-        task.cancel()
+
+        try await subject.logout(userInitiated: true)
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)
