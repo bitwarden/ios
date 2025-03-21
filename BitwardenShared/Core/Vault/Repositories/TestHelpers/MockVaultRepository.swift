@@ -11,6 +11,9 @@ class MockVaultRepository: VaultRepository {
     var addCipherCiphers = [CipherView]()
     var addCipherResult: Result<Void, Error> = .success(())
 
+    var archiveCipher = [CipherView]()
+    var archiveCipherResult: Result<Void, Error> = .success(())
+
     var canShowVaultFilter = true
 
     var ciphersAutofillPublisherUriCalled: String?
@@ -103,6 +106,9 @@ class MockVaultRepository: VaultRepository {
 
     var timeProvider: TimeProvider = MockTimeProvider(.currentTime)
 
+    var unarchiveCipher = [CipherView]()
+    var unarchiveCipherResult: Result<Void, Error> = .success(())
+
     var updateCipherCiphers = [BitwardenSdk.CipherView]()
     var updateCipherResult: Result<Void, Error> = .success(())
 
@@ -128,6 +134,11 @@ class MockVaultRepository: VaultRepository {
 
     func canShowVaultFilter() async -> Bool {
         canShowVaultFilter
+    }
+
+    func archiveCipher(_ cipher: CipherView) async throws {
+        archiveCipher.append(cipher)
+        try unarchiveCipherResult.get()
     }
 
     func cipherPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[CipherListView], Error>> {
@@ -292,6 +303,11 @@ class MockVaultRepository: VaultRepository {
     func softDeleteCipher(_ cipher: CipherView) async throws {
         softDeletedCipher.append(cipher)
         try softDeleteCipherResult.get()
+    }
+
+    func unarchiveCipher(_ cipher: CipherView) async throws {
+        unarchiveCipher.append(cipher)
+        try unarchiveCipherResult.get()
     }
 
     func updateCipher(_ cipher: BitwardenSdk.CipherView) async throws {
