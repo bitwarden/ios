@@ -15,6 +15,9 @@ protocol AddEditItemState: Sendable {
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
 
+    /// Whether the cipher is read-only.
+    var isReadOnly: Bool { get }
+
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 

@@ -84,7 +84,9 @@ struct AddEditItemView: View {
 
                 itemDetailsSection
                 itemTypeSection
+                    .disabled(store.state.isReadOnly)
                 additionalOptions
+                    .disabled(store.state.isReadOnly)
             }
             .padding(12)
         }
@@ -134,7 +136,8 @@ struct AddEditItemView: View {
                     get: \.name,
                     send: AddEditItemAction.nameChanged
                 ),
-                accessibilityIdentifier: "ItemNameEntry"
+                accessibilityIdentifier: "ItemNameEntry",
+                isTextFieldDisabled: store.state.isReadOnly
             ) {
                 Button {
                     store.send(.favoriteChanged(!store.state.isFavoriteOn))
@@ -259,6 +262,7 @@ private extension AddEditItemView {
                 send: AddEditItemAction.notesChanged
             )
         )
+        .disabled(store.state.isReadOnly)
     }
 }
 

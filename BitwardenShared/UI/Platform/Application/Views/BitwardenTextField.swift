@@ -13,6 +13,9 @@ import SwiftUIIntrospect
 struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     // MARK: Private Properties
 
+    /// A value indicating whether the textfield is currently enabled or disabled.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
     /// A flag indicating if this field is currently focused.
     private var isFocused: Bool { isTextFieldFocused || isSecureFieldFocused }
 
@@ -47,6 +50,9 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     /// If the keyboard should be presented immediately when the view appears.
     let isPasswordAutoFocused: Bool
 
+    /// If the text field should be disabled.
+    let isTextFieldDisabled: Bool
+
     /// The accessibility identifier for the button to toggle password visibility.
     let passwordVisibilityAccessibilityId: String?
 
@@ -68,7 +74,10 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
             footerView
         }
         .padding(.leading, 16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(
+            isEnabled ? Asset.Colors.backgroundSecondary.swiftUIColor :
+                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8))
         .accessibilityElement(children: .contain)
         .onTapGesture {
@@ -86,7 +95,11 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
 
     /// The main content for the view, containing the title label and text field.
     @ViewBuilder private var contentView: some View {
-        BitwardenFloatingTextLabel(title: title, showPlaceholder: showPlaceholder) {
+        BitwardenFloatingTextLabel(
+            title: title,
+            isTextFieldDisabled: isTextFieldDisabled,
+            showPlaceholder: showPlaceholder
+        ) {
             textField
         } trailingContent: {
             HStack(spacing: 16) {
@@ -155,6 +168,11 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                         textField.smartDashesType = isPassword ? .no : .default
                     }
                     .accessibilityLabel(title ?? "")
+                    .foregroundStyle(
+                        isEnabled && !isTextFieldDisabled ? Asset.Colors.textPrimary.swiftUIColor :
+                            Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                    )
+                    .disabled(isTextFieldDisabled)
                 if isPassword, !isPasswordVisible {
                     SecureField("", text: $text)
                         .focused($isSecureFieldFocused)
@@ -162,6 +180,10 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                         .styleGuide(.bodyMonospaced, includeLineSpacing: false)
                         .id(title)
                         .accessibilityLabel(title ?? "")
+                        .foregroundStyle(
+                            isEnabled && !isTextFieldDisabled ? Asset.Colors.textPrimary.swiftUIColor :
+                                Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                        )
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 28)
@@ -185,6 +207,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
+    ///   - isTextFieldDisabled: Whether the text field is disabled.
     ///   - trailingContent: Optional content view that is displayed on the trailing edge of the field.
     ///
     init(
@@ -196,11 +219,13 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         canViewPassword: Bool = true,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
+        isTextFieldDisabled: Bool = false,
         @ViewBuilder trailingContent: () -> TrailingContent
     ) where FooterContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
+        self.isTextFieldDisabled = isTextFieldDisabled
         self.footer = footer
         footerContent = nil
         self.canViewPassword = canViewPassword
@@ -220,6 +245,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
+    ///   - isTextFieldDisabled: Whether the text field is disabled.
     ///   - trailingContent: Optional content view that is displayed on the trailing edge of the field.
     ///   - footerContent: The (optional) footer content to display underneath the field.
     ///
@@ -231,12 +257,14 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         canViewPassword: Bool = true,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
+        isTextFieldDisabled: Bool = false,
         @ViewBuilder trailingContent: () -> TrailingContent,
         @ViewBuilder footerContent: () -> FooterContent
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
+        self.isTextFieldDisabled = isTextFieldDisabled
         footer = nil
         self.footerContent = footerContent()
         self.canViewPassword = canViewPassword
@@ -259,6 +287,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
+    ///   - isTextFieldDisabled: Whether the text field is disabled.
     ///   - footerContent: The (optional) footer content to display underneath the field.
     ///
     @_disfavoredOverload
@@ -270,6 +299,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         canViewPassword: Bool = true,
         isPasswordAutoFocused: Bool = false,
         isPasswordVisible: Binding<Bool>? = nil,
+        isTextFieldDisabled: Bool = false,
         @ViewBuilder footerContent: () -> FooterContent
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
@@ -278,6 +308,7 @@ extension BitwardenTextField where TrailingContent == EmptyView {
         self.footerContent = footerContent()
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
+        self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
         self.title = title
@@ -297,7 +328,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
     ///   - canViewPassword: Whether the password can be viewed.
     ///   - isPasswordAutoFocused: Whether the password field shows the keyboard initially.
     ///   - isPasswordVisible: Whether the password is visible.
-    ///   - placeholder: An optional placeholder to display in the text field.
+    ///   - isTextFieldDisabled: Whether the text field is disabled.
     ///
     init(
         title: String? = nil,
@@ -307,7 +338,8 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
         passwordVisibilityAccessibilityId: String? = nil,
         canViewPassword: Bool = true,
         isPasswordAutoFocused: Bool = false,
-        isPasswordVisible: Binding<Bool>? = nil
+        isPasswordVisible: Binding<Bool>? = nil,
+        isTextFieldDisabled: Bool = false
     ) {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.canViewPassword = canViewPassword
@@ -315,6 +347,7 @@ extension BitwardenTextField where FooterContent == EmptyView, TrailingContent =
         footerContent = nil
         self.isPasswordAutoFocused = isPasswordAutoFocused
         self.isPasswordVisible = isPasswordVisible
+        self.isTextFieldDisabled = isTextFieldDisabled
         self.passwordVisibilityAccessibilityId = passwordVisibilityAccessibilityId
         _text = text
         self.title = title
