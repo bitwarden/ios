@@ -31,16 +31,15 @@ struct UpdateCipherPreferenceRequest: Request {
 
     /// Initializes a new instance of the request.
     ///
-    /// - Parameters:
-    ///   - cipherId: The id of the cipher to update.
-    ///   - folderId: The id of the folder to move the cipher to.
-    ///   - isFavorite: The new favorite status of the cipher.
+    /// - Parameter cipher: The `Cipher` to update in the user's vault.
     ///
-    init(cipherId: String, folderId: String?, isFavorite: Bool) {
-        id = cipherId
+    init(cipher: Cipher) throws {
+        guard let id = cipher.id,
+              !id.isEmpty else { throw CipherAPIServiceError.updateMissingId }
+        self.id = id
         requestModel = UpdateCipherPreferenceRequestModel(
-            folderId: folderId,
-            favorite: isFavorite
+            folderId: cipher.folderId,
+            favorite: cipher.favorite
         )
     }
 }
