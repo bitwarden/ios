@@ -91,7 +91,7 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.autocapitalizationType = .sentences
         textView.delegate = context.coordinator
         textView.textColor = isEditable ? Asset.Colors.textPrimary.color :
-        Asset.Colors.buttonFilledDisabledForeground.color
+            Asset.Colors.buttonFilledDisabledForeground.color
         textView.isScrollEnabled = false
         textView.isEditable = isEditable
         textView.isUserInteractionEnabled = true

@@ -750,7 +750,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
             of: subject.navStackWrapped,
             as: [
                 .tallPortrait,
-                .portraitDark(heightMultiple: 2)
+                .portraitDark(heightMultiple: 2),
             ]
         )
     }
