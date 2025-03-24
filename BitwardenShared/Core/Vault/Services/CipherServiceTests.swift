@@ -307,24 +307,57 @@ class CipherServiceTests: BitwardenTestCase {
     /// `updateCipherWithServer(_:)` updates the cipher in the backend and local storage.
     func test_updateCipherWithServer() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
-        client.result = .httpSuccess(testData: .cipherResponse)
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .cipherResponse),
+        ]
 
-        try await subject.updateCipherWithServer(.fixture(id: "123"))
+        // Test with editable cipher
+        var cipher = Cipher.fixture(edit: true, id: "123")
+        try await subject.updateCipherWithServer(cipher)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+
+        // Test with non-editable cipher
+        cipher = Cipher.fixture(edit: false, id: "123")
+        try await subject.updateCipherWithServer(cipher)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(
+            client.requests[1].url.absoluteString,
+            "https://example.com/api/ciphers/123/partial"
+        )
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
     /// `updateCipherWithServer(_:)` updates the cipher with collections in the backend and local storage.
     func test_updateCipherWithServer_withCollections() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
-        client.result = .httpSuccess(testData: .cipherResponse)
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+            .httpSuccess(testData: .cipherResponse),
+        ]
 
-        try await subject.updateCipherWithServer(.fixture(collectionIds: ["1", "2"], id: "123"))
+        // Test with editable cipher
+        var cipher = Cipher.fixture(collectionIds: ["1", "2"], edit: true, id: "123")
+        try await subject.updateCipherWithServer(cipher)
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertEqual(client.requests[0].url.absoluteString, "https://example.com/api/ciphers/123")
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, ["1", "2"])
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+
+        // Test with non-editable cipher
+        cipher = Cipher.fixture(collectionIds: ["1", "2"], edit: false, id: "123")
+        try await subject.updateCipherWithServer(cipher)
+
+        XCTAssertEqual(client.requests.count, 2)
+        XCTAssertEqual(
+            client.requests[1].url.absoluteString,
+            "https://example.com/api/ciphers/123/partial"
+        )
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.collectionIds, ["1", "2"])
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
