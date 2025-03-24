@@ -42,9 +42,9 @@ class AnyCoordinatorTests: BitwardenTestCase {
     func test_showErrorAlert_withTryAgain() async {
         let error = BitwardenTestError.example
         var tryAgainCalled = false
-        await subject.showErrorAlert(error: error) {
+        await subject.showErrorAlert(error: error, tryAgain: {
             tryAgainCalled = true
-        }
+        })
         XCTAssertEqual(coordinator.errorAlertsWithRetryShown.map(\.error) as? [BitwardenTestError], [error])
 
         let errorAlertWithRetry = coordinator.errorAlertsWithRetryShown[0]
