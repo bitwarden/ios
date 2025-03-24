@@ -260,7 +260,8 @@ private extension AddEditItemView {
             text: store.binding(
                 get: \.notes,
                 send: AddEditItemAction.notesChanged
-            )
+            ),
+            isEditable: !store.state.isReadOnly
         )
         .disabled(store.state.isReadOnly)
     }

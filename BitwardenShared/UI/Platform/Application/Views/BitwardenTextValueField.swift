@@ -29,6 +29,9 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
     /// content automatically has the `AccessoryButtonStyle` applied to it.
     var accessoryContent: AccessoryContent?
 
+    /// A value indicating whether the textfield is currently enabled or disabled.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
     /// A state variable that holds the dynamic height of the text view.
     /// This value is updated based on the content size of the text view,
     /// allowing for automatic resizing to fit the text content.
@@ -54,7 +57,10 @@ struct BitwardenTextValueField<AccessoryContent>: View where AccessoryContent: V
                 Text(value)
                     .styleGuide(.body, includeLinePadding: false, includeLineSpacing: false)
                     .multilineTextAlignment(.leading)
-                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .foregroundColor(
+                        isEnabled ? Asset.Colors.textPrimary.swiftUIColor :
+                            Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                    )
                     .accessibilityIdentifier(valueAccessibilityIdentifier ?? value)
                     .if(textSelectionEnabled) { textView in
                         textView
