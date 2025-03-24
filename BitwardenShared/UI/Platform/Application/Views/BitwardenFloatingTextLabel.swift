@@ -127,7 +127,7 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
                 )
                 .foregroundStyle(
                     isEnabled && !isTextFieldDisabled ? Asset.Colors.textSecondary.swiftUIColor :
-                        Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                        Asset.Colors.textDisabled.swiftUIColor
                 )
         }
     }

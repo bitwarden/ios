@@ -15,9 +15,6 @@ protocol AddEditItemState: Sendable {
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
 
-    /// Whether the cipher is read-only.
-    var isReadOnly: Bool { get }
-
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 
@@ -65,6 +62,9 @@ protocol AddEditItemState: Sendable {
 
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool { get set }
+
+    /// Whether the cipher is read-only.
+    var isReadOnly: Bool { get }
 
     /// The state for a login type item.
     var loginState: LoginItemState { get set }

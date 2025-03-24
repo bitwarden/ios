@@ -43,16 +43,14 @@ class UpdateCipherPreferenceRequestTests: BitwardenTestCase {
 
     /// `body` returns the JSON encoded cipher.
     func test_body() throws {
-        subject = try UpdateCipherPreferenceRequest(
+        subject = try XCTUnwrap(UpdateCipherPreferenceRequest(
             cipher: .fixture(
                 folderId: "folderId",
                 id: "123",
                 revisionDate: Date(year: 2023, month: 10, day: 31)
             )
-        )
-        XCTAssertNotNil(subject)
-        guard let subject else { return }
-        assertInlineSnapshot(of: subject.body as UpdateCipherPreferenceRequestModel?, as: .json) {
+        ))
+        assertInlineSnapshot(of: subject?.body as UpdateCipherPreferenceRequestModel?, as: .json) {
             """
             {
               "favorite" : false,

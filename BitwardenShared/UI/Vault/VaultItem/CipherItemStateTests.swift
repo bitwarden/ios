@@ -29,14 +29,14 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertEqual(state.updatedDate, cipher.revisionDate)
     }
 
-    /// `init(existing:hasPremium:)` sets `loginState.isReadOnly` to false if the user does have permission to edit.
+    /// `init(existing:hasPremium:)` sets `isReadOnly` to false if the user does have permission to edit.
     func test_init_existing_isReadOnly() throws {
         let cipher = CipherView.loginFixture(edit: true)
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertFalse(state.isReadOnly)
     }
 
-    /// `init(existing:hasPremium:)` sets `loginState.isReadOnly` to true if the user does not have permission to edit.
+    /// `init(existing:hasPremium:)` sets `isReadOnly` to true if the user does not have permission to edit.
     func test_init_existing_isReadOnly_true() throws {
         let cipher = CipherView.loginFixture(edit: false)
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))

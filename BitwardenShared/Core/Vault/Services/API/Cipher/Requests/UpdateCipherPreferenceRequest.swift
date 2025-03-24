@@ -38,8 +38,8 @@ struct UpdateCipherPreferenceRequest: Request {
               !id.isEmpty else { throw CipherAPIServiceError.updateMissingId }
         self.id = id
         requestModel = UpdateCipherPreferenceRequestModel(
-            folderId: cipher.folderId,
-            favorite: cipher.favorite
+            favorite: cipher.favorite,
+            folderId: cipher.folderId
         )
     }
 }

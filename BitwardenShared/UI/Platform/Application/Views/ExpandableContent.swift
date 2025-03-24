@@ -54,7 +54,7 @@ struct ExpandableContent<Content: View>: View {
             .multilineTextAlignment(.leading)
             .foregroundStyle(
                 isEnabled ? Asset.Colors.textInteraction.swiftUIColor :
-                    Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                    Asset.Colors.textDisabled.swiftUIColor
             )
         }
         .accessibilityAddTraits(.isHeader)

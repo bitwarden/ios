@@ -86,7 +86,7 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                         )
                         .foregroundColor(
                             isEnabled ? Asset.Colors.textSecondary.swiftUIColor :
-                                Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+                                Asset.Colors.textDisabled.swiftUIColor
                         )
                         .accessibilityIdentifier(titleAccessibilityIdentifier ?? title)
                 }
