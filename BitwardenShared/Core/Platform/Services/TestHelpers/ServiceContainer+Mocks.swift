@@ -6,6 +6,7 @@ import Networking
 extension ServiceContainer {
     static func withMocks( // swiftlint:disable:this function_body_length
         application: Application? = nil,
+        appInfoService: AppInfoService = MockAppInfoService(),
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
         authService: AuthService = MockAuthService(),
@@ -61,6 +62,7 @@ extension ServiceContainer {
                 environmentService: environmentService
             ),
             appIdService: AppIdService(appSettingStore: appSettingsStore),
+            appInfoService: appInfoService,
             application: application,
             appSettingsStore: appSettingsStore,
             authRepository: authRepository,

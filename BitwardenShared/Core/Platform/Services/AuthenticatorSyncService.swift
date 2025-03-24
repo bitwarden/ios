@@ -143,11 +143,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         guard !started else { return }
         started = true
 
-        guard await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync,
-                                                 defaultValue: false) else {
-            return
-        }
-
         syncSubscriber = Task {
             for await (userId, _) in await self.stateService.syncToAuthenticatorPublisher().values {
                 guard let userId else { continue }
@@ -253,6 +248,13 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
+        guard
+            await configService.getFeatureFlag(
+                FeatureFlag.enableAuthenticatorSync,
+                defaultValue: false
+            )
+        else { return }
+
         if try await stateService.getSyncToAuthenticator(userId: userId) {
             enableSyncForUserId(userId)
         } else {

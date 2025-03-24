@@ -1,4 +1,5 @@
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -298,7 +299,10 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(
             errorReporter.errors as? [StateServiceError],
-            [StateServiceError.noActiveAccount]
+            [
+                StateServiceError.noActiveAccount,
+                StateServiceError.noActiveAccount,
+            ]
         )
         XCTAssertNil(generatorRepository.passwordGeneratorRequest)
         XCTAssertEqual(subject.state.generatedValue, "")
@@ -412,6 +416,42 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(generatorRepository.passwordGeneratorRequest != nil)
 
         XCTAssertEqual(generatorRepository.passwordGeneratorRequest?.length, 50)
+    }
+
+    /// `perform(_:)` with `.appeared` calls `reloadGeneratorOptions` and
+    ///  loads the generator options.
+    @MainActor
+    func test_perform_appeared_reloadGeneratorOptions() {
+        waitFor(subject.didLoadGeneratorOptions)
+
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        generatorRepository.getPasswordGenerationOptionsCalled = false
+
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(generatorRepository.passwordGeneratorRequest != nil)
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` logs an error when `loadGeneratorOptions` throws an error.
+    @MainActor
+    func test_perform_appear_reloadGeneratorOptions_logsError() {
+        waitFor(subject.didLoadGeneratorOptions)
+
+        XCTAssertTrue(generatorRepository.getPasswordGenerationOptionsCalled)
+        generatorRepository.getPasswordGenerationOptionsCalled = false
+        generatorRepository.getPasswordGenerationOptionsResult = .failure(
+            BitwardenTestError.example
+        )
+        Task {
+            await subject.perform(.appeared)
+        }
+        waitFor { !errorReporter.errors.isEmpty }
+        XCTAssertEqual(
+            errorReporter.errors[0] as? BitwardenTestError,
+            BitwardenTestError.example
+        )
     }
 
     /// `perform(:)` with `.appeared` should set the `isLearnGeneratorActionCardEligible` to `true`

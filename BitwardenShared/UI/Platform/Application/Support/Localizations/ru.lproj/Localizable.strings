@@ -70,9 +70,9 @@
 "UseThisButtonToGenerateANewUniquePassword" = "Используйте эту кнопку для генерации нового уникального пароля.";
 "YouWillOnlyNeedToSetUpAnAuthenticatorKeyDescriptionLong" = "Вам нужно настроить ключ аутентификатора только для логинов, которые требуют двухфакторной аутентификации с помощью кода. Ключ будет постоянно генерировать шестизначные коды, которые можно использовать для авторизации.";
 "UseTheGeneratorToCreateASecurePasswordPassphrasesAndUsernames" = "Используйте генератор для создания надежных паролей, парольных фраз и имен пользователей.";
-"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Парольные фразы - это надёжные пароли, которые зачастую легче запомнить и ввести, чем случайные пароли. Они полезны для входа в аккаунты, в которых автозаполнение недоступно, например в стриминговых сервисах на телевизоре.";
+"PassphrasesAreOftenEasierToRememberDescriptionLong" = "Парольные фразы зачастую легче запомнить и ввести, чем случайные пароли. Они могут пригодиться, если вам нужно войти в аккаунт, для которого недоступно автозаполнение, например в стриминговый сервис на телевизоре.";
 "UniqueUsernamesAddAnExtraLayerOfSecurityAndCanHelpPreventHackersFromFindingYourAccounts" = "Уникальные имена пользователей обеспечивают дополнительный уровень безопасности и могут предотвратить поиск ваших аккаунтов хакерами.";
-"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Используйте эти параметры, чтобы настроить пароль в соответствии с требованиями вашего аккаунта.";
+"UseTheseOptionsToAdjustYourPasswordToMeetYourAccountWebsitesRequirements" = "Используйте эти параметры, чтобы настроить пароль в соответствии с требованиями сайтов для вашего аккаунта.";
 "AfterYouSaveYourNewPasswordToBitwardenDontForgetToUpdateItOnYourAccountWebsite" = "После того как вы сохраните новый пароль в Bitwarden, не забудьте обновить его на сайте вашего аккаунта.";
 "YouMustAddAWebAddressToUseAutofillToAccessThisAccount" = "Вы должны добавить веб-адрес, чтобы использовать автозаполнение для доступа к этому аккаунту.";
 "Username" = "Имя пользователя";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "Устройство не может открыть файл этого типа.";
 "Downloading" = "Загрузка...";
 "AttachmentLargeWarning" = "Размер этого вложения - %1$@. Вы действительно хотите загрузить его на устройство?";
-"AuthenticatorKey" = "Authenticator key";
+"AuthenticatorKey" = "Ключ аутентификатора";
 "VerificationCodeTotp" = "Код подтверждения (TOTP)";
 "AuthenticatorKeyAdded" = "Ключ аутентификатора добавлен.";
 "AuthenticatorKeyReadError" = "Не удается прочитать ключ аутентификатора.";
@@ -282,7 +282,7 @@
 "Number" = "Номер";
 "SecurityCode" = "Код безопасности";
 "TypeCard" = "Карта";
-"TypeIdentity" = "Личная информация";
+"TypeIdentity" = "Личность";
 "TypeLogin" = "Логин";
 "TypeSecureNote" = "Защищенная заметка";
 "Address1" = "Строка адреса 1";
@@ -332,8 +332,8 @@
 "VaultIsLocked" = "Хранилище заблокировано";
 "GoToMyVault" = "Перейти в мое хранилище";
 "Collections" = "Коллекции";
-"NoItemsCollection" = "There are no items in this collection";
-"NoItemsFolder" = "There are no items in this folder";
+"NoItemsCollection" = "В этой коллекции нет элементов";
+"NoItemsFolder" = "В этой папке нет элементов";
 "NoItemsTrash" = "В корзине нет элементов.";
 "AutofillAccessibilityService" = "Служба специальных возможностей автозаполнения";
 "AutofillServiceDescription" = "Служба автозаполнения Bitwarden использует фреймворк автозаполнения Android для заполнения логинов в других приложениях на устройстве.";
@@ -679,8 +679,7 @@
 "CannotScanQRCode" = "Не удается сосканировать QR-код?";
 "EnterKeyManually" = "Ввести ключ вручную";
 "AddTotp" = "Добавить TOTP";
-"OnceTheKeyIsSuccessfullyEntered" = "После успешного ввода ключа
- выберите Добавить Totp, чтобы безопасно сохранить ключ.";
+"OnceTheKeyIsSuccessfullyEntered" = "После ввода ключа выберите Сохранить для надежного хранения ключа.";
 "NeverLockWarning" = "При установке опции блокировки на \"Никогда\" хранилище будет доступно любому, кто имеет доступ к вашему устройству, поэтому убедитесь, что устройство защищено должным образом.";
 "EnvironmentPageUrlsError" = "Один или несколько введенных URL неверны. Пожалуйста, проверьте их и попробуйте сохранить снова.";
 "GenericErrorMessage" = "Нам не удалось обработать ваш запрос. Пожалуйста, попробуйте снова или свяжитесь с нами.";
@@ -780,10 +779,10 @@
 "ThereAreNoItemsInYourVaultThatMatchX" = "В вашем хранилище нет элементов, соответствующих \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Поиск или добавление нового элемента";
 "ThereAreNoItemsThatMatchTheSearch" = "Нет элементов, соответствующих запросу";
-"ThereAreNoLoginsInYourVault" = "В вашем хранилище нет логинов.";
-"ThereAreNoCardsInYourVault" = "В вашем хранилище нет карт.";
-"ThereAreNoNotesInYourVault" = "В вашем хранилище нет заметок.";
-"ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личных данных.";
+"ThereAreNoLoginsInYourVault" = "В вашем хранилище нет логинов";
+"ThereAreNoCardsInYourVault" = "В вашем хранилище нет карт";
+"ThereAreNoNotesInYourVault" = "В вашем хранилище нет заметок";
+"ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личностей";
 "ThereAreNoSSHKeysInYourVault" = "В вашем хранилище нет ключей SSH";
 "US" = "США";
 "EU" = "Европа";
@@ -1026,17 +1025,17 @@
 "ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Безопасно обменивайтесь файлами и данными с кем угодно на любой платформе. Ваша информация надежно шифруется и доступ к ней ограничен.";
 "NewLogin" = "Новый логин";
 "NewCard" = "Новая карта";
-"NewIdentity" = "New identity";
+"NewIdentity" = "Новая личность";
 "NewNote" = "Новая заметка";
 "NewSSHKey" = "Новый ключ SSH";
 "EditLogin" = "Изменить логин";
 "EditCard" = "Редактировать карту";
-"EditIdentity" = "Edit identity";
+"EditIdentity" = "Редактировать личность";
 "EditNote" = "Редактировать заметку";
 "EditSSHKey" = "Редактировать ключ SSH";
 "ViewLogin" = "Просмотр логина";
 "ViewCard" = "Просмотр карты";
-"ViewIdentity" = "View identity";
+"ViewIdentity" = "Просмотр личности";
 "ViewNote" = "Просмотр заметки";
 "ViewSSHKey" = "Просмотр ключа SSH";
 "ImportSavedLogins" = "Импортировать сохраненные логины";
@@ -1074,7 +1073,7 @@
 "AutofillPasswords" = "Автозаполнение паролей";
 "SetUpAutofillOnAllYourDevicesToLoginWithASingleTapAnywhere" = "Настройте автозаполнение на всех своих устройствах, чтобы авторизоваться одним кликом везде.";
 "GotIt" = "Понятно";
-"GenerateCrash" = "Сгенерировать отчёт об ошибке";
+"GenerateCrash" = "Сгенерировать отчет об ошибке";
 "GenerateErrorReport" = "Создать отчет об ошибке";
 "AllowAuthenticatorSyncing" = "Разрешить синхронизацию аутентификатора";
 "AuthenticatorSync" = "Синхронизация аутентификатора";

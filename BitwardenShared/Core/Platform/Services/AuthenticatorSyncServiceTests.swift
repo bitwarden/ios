@@ -78,7 +78,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         try sharedKeychainRepository.deleteAuthenticatorKey()
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+        try await waitForAsync {
+            self.sharedKeychainRepository.authenticatorKey != nil
+        }
     }
 
     /// When the user has subscribed to sync and has an unlocked vault, the
@@ -94,7 +96,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+        try await waitForAsync {
+            self.sharedKeychainRepository.authenticatorKey != nil
+        }
         XCTAssertEqual(sharedKeychainRepository.authenticatorKey, key)
     }
 
@@ -109,7 +113,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         try await keychainRepository.deleteAuthenticatorVaultKey(userId: "1")
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
     }
 
     /// When the user has subscribed to sync and has an unlocked vault, the
@@ -123,7 +129,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         clientService.mockCrypto.getUserEncryptionKeyResult = .failure(BitwardenTestError.example)
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// When the user has subscribed to sync and has an unlocked vault, the
@@ -155,7 +163,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         keychainRepository.setAuthenticatorVaultKeyResult = .failure(BitwardenTestError.example)
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// When the user has subscribed to sync and has an unlocked vault, but is **not** the active user,
@@ -196,7 +206,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
@@ -225,7 +237,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
@@ -248,7 +262,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
         XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
@@ -277,7 +293,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
         XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
@@ -298,13 +316,17 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+        try await waitForAsync {
+            self.sharedKeychainRepository.authenticatorKey != nil
+        }
 
         stateService.accounts = nil
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
 
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// Verifies that the AuthSyncService handles a keychain error when attempting to remove the Authenticator key.
@@ -315,13 +337,17 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+        try await waitForAsync {
+            self.sharedKeychainRepository.authenticatorKey != nil
+        }
 
         sharedKeychainRepository.errorToThrow = BitwardenTestError.example
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
 
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// Verifies that the AuthSyncService removes the Authenticator key when the last account to sync is turned off.
@@ -332,11 +358,15 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+        try await waitForAsync {
+            self.sharedKeychainRepository.authenticatorKey != nil
+        }
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
 
-        waitFor(sharedKeychainRepository.authenticatorKey == nil)
+        try await waitForAsync {
+            self.sharedKeychainRepository.authenticatorKey == nil
+        }
     }
 
     /// Verifies that the AuthSyncService does not removes the Authenticator key there are still
@@ -349,7 +379,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         stateService.syncToAuthenticatorByUserId["2"] = true
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(sharedKeychainRepository.authenticatorKey != nil)
+        try await waitForAsync {
+            self.sharedKeychainRepository.authenticatorKey != nil
+        }
 
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
@@ -367,11 +399,15 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
 
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
 
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] == nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] == nil
+        }
     }
 
     /// Verifies that the AuthSyncService handles and reports errors when sync is turned off and the
@@ -385,7 +421,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         authBridgeItemService.errorToThrow = BitwardenTestError.example
         stateService.syncToAuthenticatorByUserId["1"] = false
         stateService.syncToAuthenticatorSubject.send(("1", false))
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// Verifies that the AuthSyncService handles and reports errors when and there is an error
@@ -398,7 +436,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         stateService.syncToAuthenticatorResult = .failure(BitwardenTestError.example)
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// Verifies that the AuthSyncService handles and reports errors when sync is turned On and the
@@ -411,7 +451,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         keychainRepository.setAuthenticatorVaultKeyResult = .failure(BitwardenTestError.example)
 
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// Verifies that the AuthSyncService handles and reports errors when sync is turned On and the
@@ -424,7 +466,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         sharedKeychainRepository.errorToThrow = BitwardenTestError.example
 
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// Verifies that the AuthSyncService handles and reports errors when vault is unlocked
@@ -438,7 +482,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         vaultTimeoutService.vaultLockStatusSubject.send(
             VaultLockStatus(isVaultLocked: false, userId: "1")
         )
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// Verifies that the AuthSyncService stops listening for Cipher updates and removes all data in the shared store
@@ -460,7 +506,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 )
             ),
         ])
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         // Unsubscribe from sync, wait for items to be deleted
         stateService.syncToAuthenticatorByUserId["1"] = false
@@ -552,7 +600,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         cipherDataStore.cipherSubjectByUserId["2"] = CurrentValueSubject<[Cipher], Error>([])
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
             .fixture(
                 id: "1234",
@@ -562,7 +609,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 )
             ),
         ])
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+
+        try await waitForAsync { self.authBridgeItemService.storedItems["1"]?.first != nil }
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
         XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
@@ -572,7 +620,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.name, "Bitwarden")
         XCTAssertEqual(item.totpKey, "totp")
         XCTAssertEqual(item.username, "masked@example.com")
-
         await stateService.addAccount(.fixture(
             profile: .fixture(email: "different@bitwarden.com", userId: "2"),
             settings: .fixture(environmentURLs: .fixture(webVault: URL(string: "https://vault.example.com")))
@@ -580,7 +627,6 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         stateService.syncToAuthenticatorByUserId["2"] = true
         vaultTimeoutService.isClientLocked["2"] = false
         stateService.syncToAuthenticatorSubject.send(("2", true))
-
         cipherDataStore.cipherSubjectByUserId["2"]?.send([
             .fixture(
                 id: "4321",
@@ -590,7 +636,8 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 )
             ),
         ])
-        waitFor(authBridgeItemService.storedItems["2"]?.first != nil)
+
+        try await waitForAsync { self.authBridgeItemService.storedItems["2"]?.first != nil }
 
         let otherItem = try XCTUnwrap(authBridgeItemService.storedItems["2"]?.first)
         XCTAssertEqual(otherItem.accountDomain, "vault.example.com")
@@ -626,7 +673,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
         XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
@@ -646,7 +695,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         setupInitialState()
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
 
         vaultTimeoutService.isClientLocked["1"] = true
         vaultTimeoutService.vaultLockStatusSubject.send(
@@ -664,7 +715,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
         XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
@@ -684,7 +737,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         setupInitialState()
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
 
         await stateService.addAccount(.fixtureAccountLogin())
         vaultTimeoutService.isClientLocked["1"] = true
@@ -703,7 +758,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
         XCTAssertEqual(item.id, "1234")
@@ -731,7 +788,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
 
         let item = try XCTUnwrap(authBridgeItemService.storedItems["1"]?.first)
         XCTAssertEqual(item.accountDomain, "vault.bitwarden.com")
@@ -741,6 +800,27 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         XCTAssertEqual(item.name, "Bitwarden")
         XCTAssertEqual(item.totpKey, "totp")
         XCTAssertEqual(item.username, "masked@example.com")
+    }
+
+    /// When the feature flag is off, determineSyncForUserId should return early and do nothing.
+    /// 
+    @MainActor
+    func test_determineSyncForUserId_featureFlagOff_doesNothing() async throws {
+        setupInitialState()
+        configService.featureFlagsBool[.enableAuthenticatorSync] = false
+        await subject.start()
+
+        // Send a sync update (would normally trigger determineSyncForUserId)
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        // Give the task some time to potentially process
+        try await Task.sleep(nanoseconds: 10_000_000)
+
+        // Assert that nothing happened
+        XCTAssertNil(sharedKeychainRepository.authenticatorKey)
+        XCTAssertNil(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"])
+        XCTAssertFalse(authBridgeItemService.replaceAllCalled)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
     }
 
     /// When the `AuthenticatorBridgeItemService` throws an error , `getTemporaryTotpItem()`  returns `nil`.
@@ -835,7 +915,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(items.first?.id, "1234")
@@ -851,7 +933,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
 
         cipherDataStore.cipherSubjectByUserId["1"]?.send(completion: .failure(BitwardenTestError.example))
 
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
     }
 
     /// The AuthService may not get notified about Vault locking if the user has switched accounts. Verify
@@ -863,7 +947,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         setupInitialState()
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
 
         vaultTimeoutService.isClientLocked["1"] = true
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
@@ -892,7 +978,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         setupInitialState()
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
 
         authRepository.unlockVaultWithAuthVaultKeyResult = .failure(BitwardenTestError.example)
         vaultTimeoutService.isClientLocked["1"] = true
@@ -918,7 +1006,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         setupInitialState()
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
 
         clientService.mockVault.clientCiphers.decryptResult = { _ in
             throw BitwardenTestError.example
@@ -934,7 +1024,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
     }
 
@@ -946,7 +1038,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         setupInitialState()
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
 
         authBridgeItemService.errorToThrow = BitwardenTestError.example
         vaultTimeoutService.isClientLocked["1"] = true
@@ -960,7 +1054,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync {
+            !self.errorReporter.errors.isEmpty
+        }
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
     }
 
@@ -972,7 +1068,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         setupInitialState()
         await subject.start()
         stateService.syncToAuthenticatorSubject.send(("1", true))
-        waitFor(keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil)
+        try await waitForAsync {
+            self.keychainRepository.mockStorage["bwKeyChainStorage:mockAppId:authenticatorVaultKey_1"] != nil
+        }
 
         cipherDataStore.cipherSubjectByUserId["1"]?.send([
             .fixture(
@@ -983,7 +1081,9 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
                 )
             ),
         ])
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync {
+            self.authBridgeItemService.storedItems["1"]?.first != nil
+        }
         XCTAssertFalse(vaultTimeoutService.isClientLocked["1"] ?? true)
         XCTAssertFalse(authRepository.unlockVaultWithAuthVaultKeyCalled)
     }

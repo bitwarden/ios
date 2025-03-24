@@ -9,7 +9,7 @@ struct AboutState {
     var appReviewUrl: URL?
 
     /// The copyright text.
-    var copyrightText = "© Bitwarden Inc. 2015\(String.enDash)\(Calendar.current.component(.year, from: Date.now))"
+    var copyrightText = ""
 
     /// Whether the submit crash logs toggle is on.
     var isSubmitCrashLogsToggleOn: Bool = false
@@ -21,5 +21,5 @@ struct AboutState {
     var url: URL?
 
     /// The version of the app.
-    var version: String = "\(Localizations.version): \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))"
+    var version = ""
 }

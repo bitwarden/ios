@@ -1,9 +1,12 @@
 import BitwardenSdk
 
+// swiftlint:disable file_length
+
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAPIService
     & HasAccountAPIService
     & HasAppIdService
+    & HasAppInfoService
     & HasAppSettingsStore
     & HasApplication
     & HasAuthAPIService
@@ -70,6 +73,13 @@ protocol HasAPIService {
 protocol HasAppIdService {
     /// The service used by the application to manage the app's ID.
     var appIdService: AppIdService { get }
+}
+
+/// Protocol for an object that provides an `AppInfoService`.
+///
+protocol HasAppInfoService {
+    /// The service used by the application to get info about the app and device it's running on.
+    var appInfoService: AppInfoService { get }
 }
 
 /// Protocol for an object that provides an `AppSettingsStore`.
