@@ -1,6 +1,6 @@
 import Foundation
 
-extension Data {
+public extension Data {
     /// Returns a `String` of the data decoded to JSON and pretty printed.
     ///
     var prettyPrintedJson: String? {
@@ -13,7 +13,7 @@ extension Data {
     }
 }
 
-extension String {
+public extension String {
     /// Returns a pretty printed JSON string.
     ///
     var prettyPrintedJson: String? {

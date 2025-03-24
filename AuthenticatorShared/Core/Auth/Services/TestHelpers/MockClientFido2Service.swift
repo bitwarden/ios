@@ -1,4 +1,5 @@
 import BitwardenSdk
+import TestHelpers
 
 @testable import AuthenticatorShared
 

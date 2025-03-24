@@ -167,3 +167,7 @@ targets:
       - path: TestHelpers
         excludes:
           - "**/Info.plist"
+    dependencies:
+      - target: Networking
+      - package: SnapshotTesting
+
