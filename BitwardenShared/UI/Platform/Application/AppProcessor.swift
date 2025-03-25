@@ -345,6 +345,7 @@ public class AppProcessor {
                 authRepository: services.authRepository,
                 configService: services.configService,
                 errorReporter: services.errorReporter,
+                generatorRepository: services.generatorRepository,
                 stateService: services.stateService
             )
     }
@@ -728,6 +729,8 @@ extension AppProcessor: PendingAppIntentActionMediatorDelegate {
                     didSwitchAccountAutomatically: false
                 )
             )
+        case .openGenerator:
+            await checkIfLockedAndPerformNavigation(route: .tab(.generator(.generator())))
         }
     }
 }

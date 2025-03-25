@@ -69,6 +69,13 @@ class DefaultPendingAppIntentActionMediator: PendingAppIntentActionMediator {
         if actions.contains(.lockAll) {
             await executeLockAll(currentActions: &actions)
             await stateService.setPendingAppIntentActions(actions: actions)
+            return
+        }
+
+        if actions.contains(.openGenerator) {
+            actions.removeAll(where: { $0 == .openGenerator })
+            await stateService.setPendingAppIntentActions(actions: actions)
+            await delegate?.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
         }
     }
 
