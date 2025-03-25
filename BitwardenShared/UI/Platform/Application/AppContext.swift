@@ -35,6 +35,8 @@ public enum AppContext: Equatable {
 
 /// Actions that the `AppIntent` is intended for. Used in the `AppContext`.
 public enum AppIntentAction {
+    /// Generates a passphrase
+    case generatePassphrase
     /// Locks the current user.
     case lockCurrentUser
     /// Locks all users.

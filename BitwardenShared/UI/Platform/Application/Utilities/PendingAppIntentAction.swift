@@ -9,6 +9,9 @@ public enum PendingAppIntentAction: Codable, Equatable {
     /// Lock all accounts.
     case lockAll
 
+    /// Opens the generator view.
+    case openGenerator
+
     /// Whether or not the current action is `.lock`.
     func isLock() -> Bool {
         guard case .lock = self else {

@@ -1,7 +1,12 @@
+import BitwardenSdk
+
 /// A mediator to process `AppIntent` actions.
 public protocol AppIntentMediator {
     /// Whether app intents can be run.
     func canRunAppIntents() async -> Bool
+
+    /// Generates a passphrase.
+    func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String
 
     /// Locks all available users.
     func lockAllUsers() async throws
@@ -11,6 +16,9 @@ public protocol AppIntentMediator {
 
     /// Logs out all users.
     func logoutAllUsers() async throws
+
+    /// Opens the generator view.
+    func openGenerator() async
 }
 
 /// The default implementation of the `AppIntentMediator`.
@@ -21,6 +29,8 @@ struct DefaultAppIntentMediator: AppIntentMediator {
     let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
+    ///
+    let generatorRepository: GeneratorRepository
     /// The service used by the application to manage account state.
     let stateService: StateService
 
@@ -34,16 +44,25 @@ struct DefaultAppIntentMediator: AppIntentMediator {
         authRepository: AuthRepository,
         configService: ConfigService,
         errorReporter: ErrorReporter,
+        generatorRepository: GeneratorRepository,
         stateService: StateService
     ) {
         self.authRepository = authRepository
         self.configService = configService
         self.errorReporter = errorReporter
+        self.generatorRepository = generatorRepository
         self.stateService = stateService
     }
 
     func canRunAppIntents() async -> Bool {
         await configService.getFeatureFlag(.appIntents)
+    }
+
+    func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
+        try await generatorRepository.generatePassphrase(
+            settings: settings,
+            isPreAuth: true
+        )
     }
 
     func lockAllUsers() async throws {
@@ -66,5 +85,9 @@ struct DefaultAppIntentMediator: AppIntentMediator {
                 errorReporter.log(error: error)
             }
         }
+    }
+
+    func openGenerator() async {
+        await stateService.addPendingAppIntentAction(.openGenerator)
     }
 }

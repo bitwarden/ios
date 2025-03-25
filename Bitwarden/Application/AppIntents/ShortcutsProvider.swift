@@ -29,5 +29,21 @@ struct ShortcutsProvider: AppShortcutsProvider {
             shortTitle: "LogOutAllAccounts",
             systemImageName: "person.crop.circle.badge.xmark"
         )
+        AppShortcut(
+            intent: OpenGeneratorIntent(),
+            phrases: [
+                "Open password generator using \(.applicationName)",
+            ],
+            shortTitle: "OpenPasswordGenerator",
+            systemImageName: "arrow.clockwise.square"
+        )
+        AppShortcut(
+            intent: GeneratePassphraseIntent(),
+            phrases: [
+                "Generate passphrase using \(.applicationName)",
+            ],
+            shortTitle: "GeneratePassphrase",
+            systemImageName: "arrow.clockwise"
+        )
     }
 }
