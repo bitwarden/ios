@@ -12,6 +12,9 @@ protocol AddEditItemState: Sendable {
     /// Whether or not this item can be assigned to collections.
     var canAssignToCollection: Bool { get }
 
+    /// Whether the user is able to archive the item.
+    var canBeArchived: Bool { get }
+
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
 

@@ -111,6 +111,7 @@ struct AddEditItemView: View {
                     }
 
                     VaultItemManagementMenuView(
+                        isArchiveEnabled: store.state.canBeArchived,
                         isCloneEnabled: false,
                         isCollectionsEnabled: store.state.canAssignToCollection,
                         isDeleteEnabled: store.state.canBeDeleted,

@@ -119,6 +119,11 @@ struct CipherItemState: Equatable {
         self
     }
 
+    /// Whether or not this item can be archived by the user.
+    var canBeArchived: Bool {
+        collectionIds.isEmpty && cipher.archivedDate == nil && cipher.deletedDate == nil
+    }
+
     /// Whether or not this item can be assigned to collections.
     var canAssignToCollection: Bool {
         guard !collectionIds.isEmpty else { return true }
@@ -379,6 +384,10 @@ extension CipherItemState: ViewVaultItemState {
 
     var isSoftDeleted: Bool {
         cipher.deletedDate != nil
+    }
+
+    var isArchived: Bool {
+        cipher.archivedDate != nil && cipher.deletedDate == nil
     }
 
     var cardItemViewState: any ViewCardItemState {
