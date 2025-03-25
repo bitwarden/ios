@@ -27,6 +27,12 @@ public protocol VaultRepository: AnyObject {
     ///
     func addCipher(_ cipher: CipherView) async throws
 
+    /// Archives a cipher from the user's
+    ///
+    /// - Parameter cipher: The cipher that the user is archiving.
+    ///
+    func archiveCipher(_ cipher: CipherView) async throws
+
     /// Whether the vault filter can be shown to the user. It might not be shown to the user if the
     /// policies are set up to disable personal vault ownership and only allow the user to be in a
     /// single organization.
@@ -146,6 +152,12 @@ public protocol VaultRepository: AnyObject {
     /// - Parameter cipher: The cipher that the user is restoring.
     ///
     func restoreCipher(_ cipher: CipherView) async throws
+
+    /// Unarchives a cipher from the vault.
+    ///
+    /// - Parameter cipher: The cipher that the user is unarchiving.
+    ///
+    func unarchiveCipher(_ cipher: CipherView) async throws
 
     /// Save an attachment to a cipher.
     ///
@@ -523,9 +535,12 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             .lowercased()
             .folding(options: .diacriticInsensitive, locale: .current)
 
-        let isMatchingCipher: (CipherView) -> Bool = isActive
-            ? { $0.deletedDate == nil }
-            : { $0.deletedDate != nil }
+        let isMatchingCipher: (CipherView) -> Bool
+        if isActive {
+            isMatchingCipher = { $0.deletedDate == nil && $0.archivedDate == nil }
+        } else {
+            isMatchingCipher = { $0.deletedDate != nil }
+        }
 
         return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherView] in
             // Convert the Ciphers to CipherViews and filter appropriately.
@@ -580,6 +595,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             .filter(filter?.cipherFilter(_:) ?? { _ in true })
             .filter { cipher in
                 cipher.deletedDate == nil
+                    && cipher.archivedDate == nil
                     && cipher.type == .login
                     && cipher.login?.totp != nil
                     && (hasPremiumFeaturesAccess || cipher.organizationUseTotp)
@@ -732,6 +748,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///
     private func vaultListItemsSection(
         activeCiphers: [CipherView],
+        archivedCiphers: [CipherView],
         deletedCiphers: [CipherView],
         group: VaultListGroup,
         filter: VaultFilterType
@@ -758,6 +775,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             items = try await totpListItems(from: activeCiphers, filter: filter)
         case .trash:
             items = deletedCiphers.compactMap(VaultListItem.init)
+        case .archive:
+            items = archivedCiphers.compactMap(VaultListItem.init)
         }
 
         return VaultListSection(id: "Items", items: items, name: Localizations.items)
@@ -787,8 +806,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         .filter(filter.filterType.cipherFilter)
         .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
-        let activeCiphers = ciphers.filter { $0.deletedDate == nil }
+        let activeCiphers = ciphers.filter { $0.archivedDate == nil && $0.deletedDate == nil }
         let deletedCiphers = ciphers.filter { $0.deletedDate != nil }
+        let archivedCiphers = ciphers.filter { $0.archivedDate != nil && $0.deletedDate == nil }
 
         let folderSection = try await vaultListFolderSection(
             activeCiphers: activeCiphers,
@@ -810,6 +830,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         let itemsSection = try await vaultListItemsSection(
             activeCiphers: activeCiphers,
+            archivedCiphers: archivedCiphers,
             deletedCiphers: deletedCiphers,
             group: group,
             filter: filter.filterType
@@ -847,6 +868,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         let activeCiphers = ciphers.filter { cipher in
             cipher.deletedDate == nil
+                && cipher.archivedDate == nil
         }
 
         let folders = try await clientService.vault().folders()
@@ -924,9 +946,21 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             sections.append(collectionSection)
         }
         if filter.addTrashGroup {
+            let isInnovationArchiveEnabled: Bool = await configService.getFeatureFlag(
+                .innovationArchive, defaultValue: true
+            )
+            let ciphersArchiveCount = ciphers.lazy.filter { $0.archivedDate != nil && $0.deletedDate == nil }.count
             let ciphersTrashCount = ciphers.lazy.filter { $0.deletedDate != nil }.count
+            let ciphersArchiveItem = VaultListItem(id: "Archive", itemType: .group(.archive, ciphersArchiveCount))
             let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, ciphersTrashCount))
-            sections.append(VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash))
+            let hiddenItems = isInnovationArchiveEnabled ? [ciphersArchiveItem, ciphersTrashItem] : [ciphersTrashItem]
+            sections.append(
+                VaultListSection(
+                    id: "Hidden Items",
+                    items: hiddenItems,
+                    name: Localizations.hiddenItems
+                )
+            )
         }
 
         return sections.filter { !$0.items.isEmpty }
@@ -957,6 +991,13 @@ extension DefaultVaultRepository: VaultRepository {
     func addCipher(_ cipher: CipherView) async throws {
         let cipher = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
         try await cipherService.addCipherWithServer(cipher)
+    }
+
+    func archiveCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        let restoredCipher = cipher.update(archivedDate: timeProvider.presentTime)
+        let encryptCipher = try await encryptAndUpdateCipher(restoredCipher)
+        try await cipherService.archiveCipherWithServer(id: id, encryptCipher)
     }
 
     func canShowVaultFilter() async -> Bool {
@@ -1354,7 +1395,7 @@ extension DefaultVaultRepository: VaultRepository {
         try await searchPublisher(
             searchText: searchText,
             filter: filter,
-            isActive: group != .trash
+            isActive: group != .trash && group != .archive
         ) { cipher in
             guard let group else { return true }
             return cipher.belongsToGroup(group)
@@ -1367,6 +1408,13 @@ extension DefaultVaultRepository: VaultRepository {
         }
         .eraseToAnyPublisher()
         .values
+    }
+
+    func unarchiveCipher(_ cipher: BitwardenSdk.CipherView) async throws {
+        guard let id = cipher.id else { throw CipherAPIServiceError.updateMissingId }
+        let restoredCipher = cipher.update(archivedDate: nil)
+        let encryptCipher = try await encryptAndUpdateCipher(restoredCipher)
+        try await cipherService.unarchiveCipherWithServer(id: id, encryptCipher)
     }
 
     func vaultListPublisher(
@@ -1610,7 +1658,7 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.ciphersPublisher()
             .asyncTryMap { ciphers in
                 try await ciphers.filter { cipher in
-                    cipher.deletedDate == nil && cipher.login?.totp != nil
+                    cipher.deletedDate == nil && cipher.archivedDate == nil && cipher.login?.totp != nil
                 }
                 .asyncMap { cipher in
                     try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
@@ -1662,6 +1710,8 @@ private extension CipherView {
             type == .login && login?.totp != nil
         case .trash:
             deletedDate != nil
+        case .archive:
+            archivedDate != nil && deletedDate == nil
         }
     }
 }
