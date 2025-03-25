@@ -14,7 +14,8 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     typealias Module = SendItemCoordinator.Module
         & SendItemModule
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
@@ -168,4 +169,10 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         )
         stackNavigator?.present(viewController)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension SendCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

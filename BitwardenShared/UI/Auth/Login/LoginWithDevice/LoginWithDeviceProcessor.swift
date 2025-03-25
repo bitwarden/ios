@@ -199,7 +199,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
             return
         }
 
-        coordinator.showAlert(.networkResponseError(error, tryAgain))
+        coordinator.showAlert(.networkResponseError(error, tryAgain: tryAgain))
         services.errorReporter.log(error: error)
     }
 
