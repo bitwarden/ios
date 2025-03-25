@@ -1,7 +1,7 @@
 import Foundation
 import Networking
 
-extension HTTPResponse {
+public extension HTTPResponse {
     /// Creates a successful `HTTPResponse` for testing purposes.
     ///
     /// - Parameters:

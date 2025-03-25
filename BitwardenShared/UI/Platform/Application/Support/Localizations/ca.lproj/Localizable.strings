@@ -38,8 +38,8 @@
 "InvalidMasterPassword" = "La contrasenya mestra no és vàlida. Torneu-ho a provar.";
 "InvalidPIN" = "El PIN no és vàlid. Torna-ho a provar.";
 "Launch" = "Inicia";
-"LogIn" = "Log in";
-"LoginCredentials" = "Login credentials";
+"LogIn" = "Inicia la sessió";
+"LoginCredentials" = "Credencials d'inici de sessió";
 "LogInNoun" = "Inici de sessió";
 "LogOut" = "Tanca la sessió";
 "LogoutConfirmation" = "Segur que voleu tancar la sessió?";
@@ -87,7 +87,7 @@
 "Website" = "Lloc web";
 "Yes" = "Sí";
 "Account" = "Compte";
-"StepOfStep" = "%1$d OF %2$d";
+"StepOfStep" = "%1$d DE %2$d";
 "AccountCreated" = "El vostre compte s'ha creat correctament. Ara ja podeu iniciar sessió.";
 "AddAnItem" = "Afegeix un element nou";
 "AppExtension" = "Extensió de l'aplicació";
@@ -139,7 +139,7 @@
 "VaultTimeoutAction" = "Acció quan acabe el temps d'espera de la caixa forta";
 "VaultTimeoutLogOutConfirmation" = "En tancar la sessió s'eliminarà tot l'accés a la vostra caixa forta i es requerirà una autenticació en línia després del període de temps d'espera. Esteu segur que voleu utilitzar aquesta configuració?";
 "LoggingIn" = "S'està iniciant sessió...";
-"LogInToBitwarden" = "Log in to Bitwarden";
+"LogInToBitwarden" = "Inicia sessió a Bitwarden";
 "Manage" = "Administra";
 "MasterPasswordConfirmationValMessage" = "La confirmació de la contrasenya no és correcta.";
 "TheMasterPasswordIsThePasswordYouUseToAccessYourVault" = "The master password is the password you use to access your vault.";
@@ -210,8 +210,8 @@
 "On" = "Sí";
 "Status" = "Estat";
 "BitwardenAutofillServiceAlert2" = "The easiest way to add new logins to your vault is from the Bitwarden Autofill Service. Learn more about using the Bitwarden Autofill Service by navigating to the \"Settings\" screen.";
-"Autofill" = "Autofill";
-"AutofillOrView" = "Do you want to autofill or view this item?";
+"Autofill" = "Emplenament automàtic";
+"AutofillOrView" = "Voleu emplenar automàticament o visualitzar aquest element?";
 "BitwardenAutofillServiceMatchConfirm" = "Esteu segur que voleu omplir aquest element automàticament? No coincideix completament amb \"%1$@\".";
 "MatchingItems" = "Elements coincidents";
 "PossibleMatchingItems" = "Possibles elements coincidents";
@@ -241,7 +241,7 @@
 "UnableToOpenFile" = "El dispositiu no pot obrir aquest tipus de fitxer.";
 "Downloading" = "S'està baixant...";
 "AttachmentLargeWarning" = "Aquest fitxer adjunt ocupa %1$@. Esteu segur que voleu descarregar-lo al vostre dispositiu?";
-"AuthenticatorKey" = "Authenticator key";
+"AuthenticatorKey" = "Clau autenticadora";
 "VerificationCodeTotp" = "Codi de verificació (TOTP)";
 "AuthenticatorKeyAdded" = "S'ha afegit la clau d'autenticació.";
 "AuthenticatorKeyReadError" = "No es pot llegir la clau d'autenticació.";
@@ -1027,10 +1027,10 @@
 "NewNote" = "New note";
 "NewSSHKey" = "New SSH key";
 "EditLogin" = "Edit login";
-"EditCard" = "Edit card";
-"EditIdentity" = "Edit identity";
-"EditNote" = "Edit note";
-"EditSSHKey" = "Edit SSH key";
+"EditCard" = "Edita la tarjeta";
+"EditIdentity" = "Edita la identitat";
+"EditNote" = "Edita la nota";
+"EditSSHKey" = "Editar la clau SSH";
 "ViewLogin" = "View login";
 "ViewCard" = "View card";
 "ViewIdentity" = "View identity";
@@ -1053,7 +1053,7 @@
 "SaveTheExportedFileSomewhereOnYourComputerYouCanFindEasily" = "**Save the exported file** somewhere on your computer you can find easily.";
 "YoullDeleteThisFileAfterImportIsComplete" = "You’ll delete this file after import is complete.";
 "NeedHelpCheckOutImportHelp" = "Need help? Check out **[import help](%1$@)**";
-"LogInToBitwarden" = "Log in to Bitwarden";
+"LogInToBitwarden" = "Inicia sessió a Bitwarden";
 "OnYourComputerOpenANewBrowserTabAndGoTo" = "On your computer, open a new browser tab and **go to %1$@**.";
 "LogInToTheBitwardenWebApp" = "**Log in to the Bitwarden web app.**";
 "ImportLoginsToBitwarden" = "Import logins to Bitwarden";
