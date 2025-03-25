@@ -32,11 +32,12 @@ protocol GeneratorRepository: AnyObject {
     func generateMasterPassword() async throws -> String
 
     /// Generates a passphrase based on the passphrase settings.
-    ///
+    /// 
     /// - Parameter settings: The settings used to generate the passphrase.
+    /// - Parameter isPreAuth: Whether this is called without authentication.
     /// - Returns: The generated passphrase.
-    ///
-    func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String
+    /// 
+    func generatePassphrase(settings: PassphraseGeneratorRequest, isPreAuth: Bool) async throws -> String
 
     /// Generates a password based on the password settings.
     ///
@@ -75,6 +76,17 @@ protocol GeneratorRepository: AnyObject {
     /// - Parameter options: The user's username generation options.
     ///
     func setUsernameGenerationOptions(_ options: UsernameGenerationOptions) async throws
+}
+
+extension GeneratorRepository {
+    /// Generates a passphrase based on the passphrase settings.
+    ///
+    /// - Parameter settings: The settings used to generate the passphrase.
+    /// - Returns: The generated passphrase.
+    ///
+    func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
+        try await generatePassphrase(settings: settings, isPreAuth: false)
+    }
 }
 
 // MARK: - DefaultGeneratorRepository
@@ -181,8 +193,8 @@ extension DefaultGeneratorRepository: GeneratorRepository {
         )
     }
 
-    func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
-        try await clientService.generators(isPreAuth: false).passphrase(settings: settings)
+    func generatePassphrase(settings: PassphraseGeneratorRequest, isPreAuth: Bool) async throws -> String {
+        try await clientService.generators(isPreAuth: isPreAuth).passphrase(settings: settings)
     }
 
     func generatePassword(settings: PasswordGeneratorRequest) async throws -> String {
