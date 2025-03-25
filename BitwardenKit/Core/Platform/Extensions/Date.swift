@@ -2,7 +2,6 @@ import Foundation
 
 public extension Date {
     /// A convenience initializer for `Date` to specify a specific point in time.
-    /// Useful in tests and previews.
     init(
         year: Int,
         month: Int,
@@ -26,5 +25,16 @@ public extension Date {
             nanosecond: nanosecond
         )
         self = dateComponents.date!
+    }
+
+    // MARK: Methods
+
+    /// Returns a date that is set to midnight on the day that is seven days in the future.
+    ///
+    static func midnightOneWeekFromToday() -> Date? {
+        let calendar = Calendar.current
+        guard let date = calendar.date(byAdding: .day, value: 7, to: Date()) else { return nil }
+        guard let date = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: date) else { return nil }
+        return date
     }
 }
