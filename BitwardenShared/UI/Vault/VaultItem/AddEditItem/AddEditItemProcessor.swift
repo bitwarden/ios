@@ -15,6 +15,9 @@ protocol CipherItemOperationDelegate: AnyObject {
     ///
     func itemAdded() -> Bool
 
+    /// Called when the cipher item has been successfully archived.
+    func itemArchived()
+
     /// Called when the cipher item has been successfully permanently deleted.
     func itemDeleted()
 
@@ -23,6 +26,9 @@ protocol CipherItemOperationDelegate: AnyObject {
 
     /// Called when the cipher item has been successfully soft deleted.
     func itemSoftDeleted()
+
+    /// Called when the cipher item has been successfully unarchived.
+    func itemUnarchived()
 
     /// Called when a cipher item has been successfully updated.
     ///
@@ -35,11 +41,15 @@ protocol CipherItemOperationDelegate: AnyObject {
 extension CipherItemOperationDelegate {
     func itemAdded() -> Bool { true }
 
+    func itemArchived() {}
+
     func itemDeleted() {}
 
     func itemRestored() {}
 
     func itemSoftDeleted() {}
+
+    func itemUnarchived() {}
 
     func itemUpdated() -> Bool { true }
 }

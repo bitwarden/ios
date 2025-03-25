@@ -449,6 +449,10 @@ extension VaultListProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension VaultListProcessor: CipherItemOperationDelegate {
+    func itemArchived() {
+        state.toast = Toast(title: Localizations.itemArchived)
+    }
+
     func itemDeleted() {
         state.toast = Toast(title: Localizations.itemDeleted)
     }
@@ -459,6 +463,10 @@ extension VaultListProcessor: CipherItemOperationDelegate {
 
     func itemRestored() {
         state.toast = Toast(title: Localizations.itemRestored)
+    }
+
+    func itemUnarchived() {
+        state.toast = Toast(title: Localizations.itemUnarchived)
     }
 }
 

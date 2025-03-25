@@ -580,6 +580,16 @@ private extension ViewItemProcessor {
 // MARK: - CipherItemOperationDelegate
 
 extension ViewItemProcessor: CipherItemOperationDelegate {
+    func itemArchived() {
+        coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
+            self?.delegate?.itemArchived()
+        })))
+    }
+
+    func itemUnarchived() {
+        delegate?.itemUnarchived()
+    }
+
     func itemDeleted() {
         coordinator.navigate(to: .dismiss(DismissAction(action: { [weak self] in
             self?.delegate?.itemDeleted()
