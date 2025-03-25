@@ -70,6 +70,12 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
     }
 }
 
+// MARK: - HasErrorAlertServices
+
+extension ExportCXFCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+
 // MARK: - ExportCXFProcessorDelegate
 
 extension ExportCXFCoordinator: ExportCXFProcessorDelegate {

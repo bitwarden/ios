@@ -440,6 +440,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     }
 }
 
+// MARK: - HasErrorAlertServices
+
+extension VaultCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
+}
+
 // MARK: - ImportLoginsCoordinatorDelegate
 
 extension VaultCoordinator: ImportLoginsCoordinatorDelegate {
