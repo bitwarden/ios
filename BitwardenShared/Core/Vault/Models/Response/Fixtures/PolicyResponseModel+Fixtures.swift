@@ -1,3 +1,4 @@
+import BitwardenKit
 @testable import BitwardenShared
 
 extension PolicyResponseModel {

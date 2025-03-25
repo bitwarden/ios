@@ -1,7 +1,6 @@
-import BitwardenSdk
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class AnyCodableTests: BitwardenTestCase {
     // MARK: Properties
