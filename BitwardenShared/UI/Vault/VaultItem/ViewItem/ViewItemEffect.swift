@@ -2,6 +2,9 @@
 
 /// Effects that can be processed by a `ViewItemProcessor`.
 enum ViewItemEffect: Equatable {
+    /// The archived button was pressed.
+    case archivedPressed
+
     /// The view item screen appeared.
     case appeared
 
@@ -16,4 +19,7 @@ enum ViewItemEffect: Equatable {
 
     /// The TOTP code for the view expired.
     case totpCodeExpired
+
+    /// The unarchive button was pressed.
+    case unarchivePressed
 }

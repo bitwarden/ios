@@ -12,6 +12,11 @@ struct ViewItemView: View {
 
     // MARK: Properties
 
+    /// Whether to show the archive option in the toolbar menu.
+    var isArchiveEnabled: Bool {
+        store.state.loadingState.data?.canBeArchived ?? false
+    }
+
     /// Whether to show the collections option in the toolbar menu.
     var isCollectionsEnabled: Bool {
         guard let data = store.state.loadingState.data else { return false }
@@ -67,6 +72,11 @@ struct ViewItemView: View {
                             await store.perform(.restorePressed)
                         }
                         .accessibilityIdentifier("RestoreButton")
+                    } else if state.isArchived {
+                        toolbarButton(Localizations.unarchive) {
+                            await store.perform(.unarchivePressed)
+                        }
+                        .accessibilityIdentifier("RestoreButton")
                     } else {
                         editToolbarButton {
                             store.send(.editPressed)
@@ -75,6 +85,7 @@ struct ViewItemView: View {
                 }
 
                 VaultItemManagementMenuView(
+                    isArchiveEnabled: isArchiveEnabled,
                     isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
                     isDeleteEnabled: isDeleteEnabled,
@@ -82,7 +93,13 @@ struct ViewItemView: View {
                     store: store.child(
                         state: { _ in },
                         mapAction: { .morePressed($0) },
-                        mapEffect: { _ in .deletePressed }
+                        mapEffect: {
+                            if $0 == .deleteItem {
+                                return .deletePressed
+                            } else {
+                                return .archivedPressed
+                            }
+                        }
                     )
                 )
             }

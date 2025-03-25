@@ -21,6 +21,7 @@ class VaultItemManagementMenuViewTests: BitwardenTestCase {
         processor = MockProcessor(state: ())
         let store = Store(processor: processor)
         subject = VaultItemManagementMenuView(
+            isArchiveEnabled: true,
             isCloneEnabled: true,
             isCollectionsEnabled: true,
             isDeleteEnabled: true,

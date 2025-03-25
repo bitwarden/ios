@@ -7,6 +7,9 @@ import SwiftUI
 struct VaultItemManagementMenuView: View {
     // MARK: Properties
 
+    /// The flag for whether to show the delete option.
+    let isArchiveEnabled: Bool
+
     /// The flag for showing/hiding clone option.
     let isCloneEnabled: Bool
 
@@ -46,6 +49,12 @@ struct VaultItemManagementMenuView: View {
                 }
             }
 
+            if isArchiveEnabled {
+                AsyncButton(Localizations.archive) {
+                    await store.perform(.archiveItem)
+                }
+            }
+
             if isDeleteEnabled {
                 AsyncButton(Localizations.delete, role: .destructive) {
                     await store.perform(.deleteItem)
@@ -62,6 +71,7 @@ struct VaultItemManagementMenuView: View {
 
 #Preview {
     VaultItemManagementMenuView(
+        isArchiveEnabled: true,
         isCloneEnabled: true,
         isCollectionsEnabled: true,
         isDeleteEnabled: true,
