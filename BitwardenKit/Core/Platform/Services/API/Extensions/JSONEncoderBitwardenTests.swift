@@ -1,9 +1,36 @@
+import TestHelpers
 import XCTest
 
-@testable import AuthenticatorShared
+@testable import BitwardenKit
 
 class JSONEncoderBitwardenTests: BitwardenTestCase {
     // MARK: Tests
+
+    /// `JSONEncoder.cxfEncoder` encodes for Credential Exchange Format.
+    func test_cxfpEncoder_encodesISO8601DateWithFractionalSeconds() throws {
+        let subject = JSONEncoder.cxfEncoder
+        subject.outputFormatting = .sortedKeys // added for test consistency so output is ordered.
+
+        struct JSONBody: Codable {
+            let credentialID: String
+            let date: Date
+            let otherKey: String
+            let rpID: String
+        }
+
+        let body = JSONBody(
+            credentialID: "credential",
+            date: Date(year: 2023, month: 10, day: 20, hour: 8, minute: 26, second: 54),
+            otherKey: "other",
+            rpID: "rp"
+        )
+        let encodedData = try subject.encode(body)
+        let encodedString = String(data: encodedData, encoding: .utf8)
+        XCTAssertEqual(
+            encodedString,
+            #"{"credentialId":"credential","date":1697790414,"otherKey":"other","rpId":"rp"}"#
+        )
+    }
 
     /// `JSONEncoder.defaultEncoder` can encode ISO8601 dates without fractional seconds.
     func test_defaultEncoder_encodesISO8601DateWithoutFractionalSeconds() throws {
