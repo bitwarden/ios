@@ -569,7 +569,7 @@ extension PasswordHistoryView {
     }
 }
 
-extension Date {
+fileprivate extension Date {
     init(
         year: Int,
         month: Int,

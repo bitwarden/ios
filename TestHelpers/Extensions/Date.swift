@@ -1,6 +1,8 @@
 import Foundation
 
-extension Date {
+public extension Date {
+    /// A convenience initializer for `Date` to specify a specific point in time.
+    /// Useful in tests and previews.
     init(
         year: Int,
         month: Int,
