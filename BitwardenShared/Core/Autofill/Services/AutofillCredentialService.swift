@@ -239,7 +239,7 @@ class DefaultAutofillCredentialService {
             Logger.application.info("AutofillCredentialService: replacing all credential identities")
 
             let decryptedCiphers = try await cipherService.fetchAllCiphers()
-                .filter { $0.type == .login && $0.deletedDate == nil }
+                .filter { $0.type == .login && $0.deletedDate == nil && $0.archivedDate == nil }
                 .asyncMap { cipher in
                     try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
                 }

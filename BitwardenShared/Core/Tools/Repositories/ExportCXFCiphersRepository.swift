@@ -102,7 +102,7 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
 
     func getAllCiphersToExportCXF() async throws -> [Cipher] {
         try await cipherService.fetchAllCiphers()
-            .filter { $0.deletedDate == nil && $0.organizationId == nil }
+            .filter { $0.deletedDate == nil && $0.archivedDate == nil && $0.organizationId == nil }
     }
 
     #if SUPPORTS_CXP

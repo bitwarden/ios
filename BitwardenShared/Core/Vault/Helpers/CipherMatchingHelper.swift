@@ -148,7 +148,9 @@ class CipherMatchingHelper {
         guard cipher.type == .login,
               let login = cipher.login,
               let loginUris = login.uris,
-              cipher.deletedDate == nil else {
+              cipher.deletedDate == nil,
+              cipher.archivedDate == nil
+        else {
             return .none
         }
 

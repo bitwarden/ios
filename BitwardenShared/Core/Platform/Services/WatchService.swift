@@ -101,6 +101,7 @@ class DefaultWatchService: NSObject, WatchService {
 
         return decryptedCiphers.filter { cipher in
             cipher.deletedDate == nil
+                && cipher.archivedDate == nil
                 && cipher.type == .login
                 && cipher.login?.totp != nil
         }

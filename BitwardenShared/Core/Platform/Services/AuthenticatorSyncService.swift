@@ -214,6 +214,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                               account: Account) async throws -> [AuthenticatorBridgeItemDataView] {
         let totpCiphers = ciphers.filter { cipher in
             cipher.deletedDate == nil
+                && cipher.archivedDate == nil
                 && cipher.type == .login
                 && cipher.login?.totp != nil
         }

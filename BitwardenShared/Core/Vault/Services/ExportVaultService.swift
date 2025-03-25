@@ -164,7 +164,7 @@ class DefultExportVaultService: ExportVaultService {
         var exportFormat: BitwardenSdk.ExportFormat
         let folders = try await folderService.fetchAllFolders()
         var ciphers = try await cipherService.fetchAllCiphers()
-            .filter { $0.deletedDate == nil }
+            .filter { $0.deletedDate == nil && $0.archivedDate == nil }
             .filter { $0.organizationId == nil }
         switch format {
         case .csv:

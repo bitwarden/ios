@@ -100,6 +100,7 @@ private extension Cipher {
     /// Whether the cipher is active, is a login and has Fido2 credentials.
     var isActiveWithFido2Credentials: Bool {
         deletedDate == nil
+            && archivedDate == nil
             && type == .login
             && login?.fido2Credentials?.isEmpty == false
     }
