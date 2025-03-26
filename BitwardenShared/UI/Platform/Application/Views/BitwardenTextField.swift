@@ -75,7 +75,8 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
         }
         .padding(.leading, 16)
         .background(
-            isEnabled ? Asset.Colors.backgroundSecondary.swiftUIColor :
+            isEnabled ?
+                Asset.Colors.backgroundSecondary.swiftUIColor :
                 Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
         )
         .clipShape(RoundedRectangle(cornerRadius: 8))
