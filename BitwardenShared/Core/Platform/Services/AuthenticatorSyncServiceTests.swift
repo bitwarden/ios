@@ -803,7 +803,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     }
 
     /// When the feature flag is off, determineSyncForUserId should return early and do nothing.
-    /// 
+    ///
     @MainActor
     func test_determineSyncForUserId_featureFlagOff_doesNothing() async throws {
         setupInitialState()
@@ -962,7 +962,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(authBridgeItemService.storedItems["1"]?.first != nil)
+        try await waitForAsync { self.authBridgeItemService.storedItems["1"]?.first != nil }
         let items = try XCTUnwrap(authBridgeItemService.storedItems["1"])
         XCTAssertEqual(items.count, 1)
         XCTAssertEqual(items.first?.id, "1234")
@@ -994,7 +994,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
             ),
         ])
 
-        waitFor(!errorReporter.errors.isEmpty)
+        try await waitForAsync { !self.errorReporter.errors.isEmpty }
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: "1"))
     }
 
