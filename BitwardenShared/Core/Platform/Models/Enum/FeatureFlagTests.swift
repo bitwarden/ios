@@ -36,6 +36,7 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertFalse(FeatureFlag.enableDebugAppReviewPrompt.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.enableCipherKeyEncryption.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.ignore2FANoticeEnvironmentCheck.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.mobileErrorReporting.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalFeatureFlag.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalInitialBoolFlag.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalInitialIntFlag.isRemotelyConfigured)

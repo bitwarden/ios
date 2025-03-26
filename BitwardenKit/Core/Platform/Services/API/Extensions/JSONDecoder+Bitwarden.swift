@@ -1,7 +1,7 @@
 import Foundation
 
 /// Extensions for `JSONDecoder`.
-extension JSONDecoder {
+public extension JSONDecoder {
     // MARK: Static Properties
 
     /// The default `JSONDecoder` used to decode JSON payloads throughout the app.
