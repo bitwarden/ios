@@ -1,6 +1,6 @@
 import Foundation
 
-// Extensions for `JSONDecoder`.
+/// Extensions for `JSONDecoder`.
 extension JSONDecoder {
     // MARK: Static Properties
 
