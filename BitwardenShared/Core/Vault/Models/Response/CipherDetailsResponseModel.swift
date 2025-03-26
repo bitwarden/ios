@@ -60,6 +60,9 @@ struct CipherDetailsResponseModel: JSONResponse, Equatable {
     /// The password history for this cipher.
     let passwordHistory: [CipherPasswordHistoryModel]?
 
+    /// The permissions of the cipher.
+    let permissions: CipherPermissionsModel?
+
     /// Whether the user needs to be re-prompted for their master password prior to autofilling the
     /// cipher's password.
     @DefaultValue var reprompt: CipherRepromptType
