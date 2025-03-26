@@ -85,7 +85,8 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                             includeLineSpacing: false
                         )
                         .foregroundColor(
-                            isEnabled ? Asset.Colors.textSecondary.swiftUIColor :
+                            isEnabled
+                                ? Asset.Colors.textSecondary.swiftUIColor :
                                 Asset.Colors.textDisabled.swiftUIColor
                         )
                         .accessibilityIdentifier(titleAccessibilityIdentifier ?? title)
