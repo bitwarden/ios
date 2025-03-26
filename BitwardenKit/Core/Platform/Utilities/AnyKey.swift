@@ -1,15 +1,15 @@
 /// `AnyKey` is a `CodingKey` type that can be used for encoding and decoding keys for custom
 /// key decoding strategies.
-struct AnyKey: CodingKey {
-    let stringValue: String
-    let intValue: Int?
+public struct AnyKey: CodingKey {
+    public let stringValue: String
+    public let intValue: Int?
 
-    init(stringValue: String) {
+    public init(stringValue: String) {
         self.stringValue = stringValue
         intValue = nil
     }
 
-    init(intValue: Int) {
+    public init(intValue: Int) {
         stringValue = String(intValue)
         self.intValue = intValue
     }

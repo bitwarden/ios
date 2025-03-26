@@ -114,6 +114,8 @@ targets:
           - "**/__Snapshots__/*"
           - "**/GoogleService-Info.*.plist"
         buildPhase: none
+    dependencies:
+      - target: Networking
   BitwardenKitTests:
     type: bundle.unit-test
     platform: iOS
