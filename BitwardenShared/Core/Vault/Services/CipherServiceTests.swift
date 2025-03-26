@@ -316,7 +316,7 @@ class CipherServiceTests: BitwardenTestCase {
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
-    /// `updateCipherWithServer(_:)` partial updates the cipher in the backend and local storage if the cipher is read only.
+    /// `updateCipherWithServer(_:)` partial updates the read-only cipher in the backend and local storage.
     func test_updateCipherWithServer_partial() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
         client.results = [
