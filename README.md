@@ -1,17 +1,15 @@
 <p align="center">
+    <a href="https://github.com/bitwarden/ios/actions/workflows/ci-main.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/CI-main.yml/badge.svg?branch=main" alt="GitHub Workflow iOS CI build on main" /></a>
+    <a href="https://github.com/bitwarden/ios/actions/workflows/test.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/test.yml/badge.svg?branch=main" alt="GitHub Workflow iOS Password Manager Test on main" /></a>
+    <a href="https://github.com/bitwarden/ios/actions/workflows/test-bwa.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/test-bwa.yml/badge.svg?branch=main" alt="GitHub Workflow iOS Authenticator Test on main" /></a>
+    <a href="https://gitter.im/bitwarden/Lobby" target="_blank"><img src="https://badges.gitter.im/bitwarden/Lobby.svg" alt="gitter chat" /></a>
+</p>
+<p align="center">
     <picture>
         <source media="(prefers-color-scheme: dark)" srcset=".github/images/ios-dark.png">
         <source media="(prefers-color-scheme: light)" srcset=".github/images/ios-light.png">
         <img alt="Bitwarden iOS apps screenshots." src=".github/images/ios-light.png">
     </picture>
-</p>
-<p align="center">
-    <a href="https://github.com/bitwarden/ios/actions/workflows/ci-main.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/CI-main.yml/badge.svg?branch=main" alt="GitHub Workflow iOS CI build on main" /></a>
-    <a href="https://github.com/bitwarden/ios/actions/workflows/test.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/test.yml/badge.svg?branch=main" alt="GitHub Workflow iOS Password Manager Test on main" /></a>
-    <a href="https://github.com/bitwarden/ios/actions/workflows/test-bwa.yml?query=branch:main" target="_blank"><img src="https://github.com/bitwarden/ios/actions/workflows/test-bwa.yml/badge.svg?branch=main" alt="GitHub Workflow iOS Authenticator Test on main" /></a>
-</p>
-<p align="center">
-    <a href="https://gitter.im/bitwarden/Lobby" target="_blank"><img src="https://badges.gitter.im/bitwarden/Lobby.svg" alt="gitter chat" /></a>
 </p>
 
 ---
