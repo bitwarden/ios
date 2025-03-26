@@ -1,0 +1,67 @@
+import Foundation
+import MachO // dyld
+
+/// A helper object to build error reports to provide detailed error information to share about the
+/// error that occurred.
+///
+struct ErrorReportBuilder {
+    // MARK: Properties
+
+    /// The service used by the application to get info about the app and device it's running on.
+    private let appInfoService: AppInfoService
+
+    // MARK: Initialization
+
+    /// Initialize an `ErrorReportBuilder`.
+    ///
+    /// - Parameter appInfoService: The service used by the application to get info about the app
+    ///     and device it's running on.
+    ///
+    init(appInfoService: AppInfoService) {
+        self.appInfoService = appInfoService
+    }
+
+    // MARK: Methods
+
+    func buildShareErrorLog(for error: Error, callStack: String) -> String {
+        """
+        \(error as NSError)
+        \(error.localizedDescription)
+
+        Stack trace:
+        \(callStack)
+
+        Binary images:
+        \(binaryImageAddresses())
+
+        \(appInfoService.appInfoWithoutCopyrightString)
+        """
+    }
+
+    // MARK: Private
+
+    /// Returns a string containing a list of binary images in the app and their start address.
+    /// This is needed to symbolicate symbols in the stack trace.
+    ///
+    private func binaryImageAddresses() -> String {
+        // A list of images to match against to filter out of the full list of images.
+        let matchingImageNames = [
+            "Bitwarden",
+        ]
+
+        let imagesCount = _dyld_image_count()
+        return (0 ..< imagesCount)
+            .compactMap { index in
+                guard let header = _dyld_get_image_header(index),
+                      let name = _dyld_get_image_name(index),
+                      let lastNameComponent = String(cString: name).split(separator: "/").last,
+                      matchingImageNames.contains(where: { lastNameComponent.contains($0) })
+                else { return nil }
+
+                // Calculate a variable number of spaces to vertically align the header addresses in the output.
+                let spaces = String(repeating: " ", count: max(24 - lastNameComponent.count, 1))
+                return "\(lastNameComponent):\(spaces)\(header)"
+            }
+            .joined(separator: "\n")
+    }
+}

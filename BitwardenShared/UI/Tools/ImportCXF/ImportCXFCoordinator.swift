@@ -6,6 +6,7 @@ class ImportCXFCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasImportCiphersRepository
         & HasPolicyService

@@ -71,8 +71,12 @@ class CoordinatorTests: BitwardenTestCase {
 
     /// `showErrorAlert(error:)` builds an alert to show for an error when mobile error
     /// reporting is enabled, allowing the user to share the details of the error.
+    @MainActor
     func test_showErrorAlert_mobileErrorReportingEnabled() async throws {
+        let rootViewController = UIViewController()
         configService.featureFlagsBool[.mobileErrorReporting] = true
+        stackNavigator.rootViewController = rootViewController
+        setKeyWindowRoot(viewController: rootViewController)
 
         await subject.showErrorAlert(error: BitwardenTestError.example)
 
@@ -84,7 +88,9 @@ class CoordinatorTests: BitwardenTestCase {
         let alert = try XCTUnwrap(stackNavigator.alerts.first)
         try await alert.tapAction(title: Localizations.shareErrorDetails)
 
-        // TODO: PM-18224 Show share sheet to export error details
+        try await waitForAsync { rootViewController.presentedViewController != nil }
+        let viewController = rootViewController.presentedViewController
+        XCTAssertTrue(viewController is UIActivityViewController)
     }
 
     /// `showErrorAlert(error:tryAgain:)` builds an alert to show for an error with an

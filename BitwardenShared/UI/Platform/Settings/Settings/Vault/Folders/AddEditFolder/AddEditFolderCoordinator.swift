@@ -8,7 +8,7 @@ import SwiftUI
 class AddEditFolderCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasSettingsRepository
 

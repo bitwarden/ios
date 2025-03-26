@@ -17,7 +17,7 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     typealias Module = ImportLoginsModule
 
-    typealias Services = HasConfigService
+    typealias Services = HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasSettingsRepository
         & HasStateService

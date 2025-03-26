@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 /// A protocol for an object that performs navigation via routes.
 @MainActor
@@ -129,7 +130,7 @@ protocol HasRouter<Event, Route> {
 ///
 @MainActor
 protocol HasErrorAlertServices: Coordinator, HasNavigator {
-    typealias ErrorAlertServices = HasConfigService & HasErrorReporter
+    typealias ErrorAlertServices = HasAppInfoService & HasConfigService
 
     /// The services needed to build an alert for an error that occurred.
     var errorAlertServices: ErrorAlertServices { get }
@@ -190,10 +191,22 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
     ///   - tryAgain: An optional closure allowing the user to retry whatever triggered the error.
     ///
     func showErrorAlert(error: Error, tryAgain: (() async -> Void)?) async {
+        let callStack = Thread.callStackSymbols.joined(separator: "\n")
         let alert = if await errorAlertServices.configService.getFeatureFlag(.mobileErrorReporting) {
-            Alert.networkResponseError(error, shareErrorDetails: {
-                // TODO: PM-18224 Show share sheet to export error details
-            }, tryAgain: tryAgain)
+            Alert.networkResponseError(
+                error,
+                shareErrorDetails: {
+                    let errorReportBuilder = ErrorReportBuilder(appInfoService: self.errorAlertServices.appInfoService)
+                    let errorReport = errorReportBuilder.buildShareErrorLog(for: error, callStack: callStack)
+
+                    let viewController = UIActivityViewController(
+                        activityItems: [errorReport],
+                        applicationActivities: nil
+                    )
+                    self.navigator?.rootViewController?.present(viewController, animated: UI.animated)
+                },
+                tryAgain: tryAgain
+            )
         } else {
             Alert.networkResponseError(error, tryAgain: tryAgain)
         }

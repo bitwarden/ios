@@ -10,7 +10,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasCameraService
-        & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
     // MARK: Properties
