@@ -70,6 +70,9 @@ struct BitwardenUITextView: UIViewRepresentable {
     /// A binding for whether the text view has focus.
     @Binding var isFocused: Bool
 
+    /// Indicates whether the text view is being used in a view item screen.
+    var isViewItemScreen: Bool = false
+
     /// Creates and returns the coordinator for the `UITextView`.
     ///
     /// - Returns: A `Coordinator` instance to manage the `UITextView`'s events.
@@ -90,8 +93,8 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.adjustsFontForContentSizeCategory = true
         textView.autocapitalizationType = .sentences
         textView.delegate = context.coordinator
-        textView.textColor = isEditable ? Asset.Colors.textPrimary.color :
-        Asset.Colors.textDisabled.color
+        textView.textColor = (isEditable || isViewItemScreen) ? Asset.Colors.textPrimary.color :
+            Asset.Colors.textDisabled.color
         textView.isScrollEnabled = false
         textView.isEditable = isEditable
         textView.isUserInteractionEnabled = true
