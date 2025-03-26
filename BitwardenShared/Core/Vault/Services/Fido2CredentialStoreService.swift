@@ -41,14 +41,8 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
     /// Gets all the active login ciphers that have Fido2 credentials.
     /// - Returns: Array of active login ciphers that have Fido2 credentials.
     func allCredentials() async throws -> [BitwardenSdk.CipherListView] {
-        do {
-            try await syncService.fetchSync(forceSync: false)
-        } catch {
-            errorReporter.log(error: error)
-        }
-
-        return try await clientService.vault().ciphers().decryptList(
-            ciphers: try await cipherService.fetchAllCiphers().filter(\.isActiveWithFido2Credentials)
+        try await clientService.vault().ciphers().decryptList(
+            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveWithFido2Credentials)
         )
     }
 
@@ -60,6 +54,12 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
     /// - Returns: All the ciphers that matches the filter.
     func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
+        do {
+            try await syncService.fetchSync(forceSync: false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
         let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
             .filter(\.isActiveWithFido2Credentials)
             .asyncMap { cipher in
