@@ -70,6 +70,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenShared:         0x0000000000000000
             BitwardenKit:            0x0000000000000000
             BitwardenSharedTests:    0x0000000000000000
+            BitwardenKitMocks:       0x0000000000000000
 
             Version: 1.0 (1)
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
@@ -101,6 +102,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenShared:         0x0000000000000000
             BitwardenKit:            0x0000000000000000
             BitwardenSharedTests:    0x0000000000000000
+            BitwardenKitMocks:       0x0000000000000000
 
             Version: 1.0 (1)
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
