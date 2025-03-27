@@ -275,7 +275,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             _ = await enableSyncTask?.result
 
             do {
-                guard !vaultTimeoutService.isLocked(userId: userId) else {
+                guard await !vaultTimeoutService.isLocked(userId: userId) else {
                     let authVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
                     if authVaultKey != nil {
                         subscribeToCipherUpdates(userId: userId)
@@ -318,7 +318,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
         let account = try await stateService.getAccount(userId: userId)
-        let useKey = vaultTimeoutService.isLocked(userId: userId)
+        let useKey = await vaultTimeoutService.isLocked(userId: userId)
 
         do {
             if useKey {

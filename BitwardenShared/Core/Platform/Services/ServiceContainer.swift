@@ -233,6 +233,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - vaultTimeoutService: The service used by the application to manage vault access.
     ///   - watchService: The service used by the application to connect to and communicate with the watch app.
     ///
+    @MainActor
     init( // swiftlint:disable:this function_body_length
         apiService: APIService,
         appIdService: AppIdService,
@@ -346,6 +347,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
     ///
+    @MainActor
     public convenience init( // swiftlint:disable:this function_body_length
         application: Application? = nil,
         errorReporter: ErrorReporter,

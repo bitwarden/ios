@@ -337,7 +337,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
         ]
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send(expectedCiphersInFido2Section)
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send(expectedCiphersInFido2Section)
 
         let expectedRpID = "myApp.com"
         var iterator = try await subject.ciphersAutofillPublisher(
@@ -1352,7 +1352,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.value = ciphers
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
@@ -1405,7 +1405,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
         cipherService.ciphersSubject.value = []
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
@@ -1440,7 +1440,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.value = ciphers
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([])
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([])
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
@@ -1480,7 +1480,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
         cipherService.ciphersSubject.value = ciphers
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),

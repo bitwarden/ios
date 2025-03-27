@@ -1,3 +1,4 @@
+import BitwardenKit
 import Networking
 
 /// A protocol for an API service used to make config requests.

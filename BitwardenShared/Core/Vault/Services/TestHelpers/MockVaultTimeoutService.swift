@@ -21,6 +21,8 @@ class MockVaultTimeoutService: VaultTimeoutService {
     /// Whether or not a user's client is locked.
     var isClientLocked = [String: Bool]()
 
+    nonisolated init() {}
+
     func isLocked(userId: String) -> Bool {
         isClientLocked[userId] == true
     }

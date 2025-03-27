@@ -4,6 +4,7 @@ import Networking
 @testable import BitwardenShared
 
 extension ServiceContainer {
+    @MainActor
     static func withMocks( // swiftlint:disable:this function_body_length
         application: Application? = nil,
         appInfoService: AppInfoService = MockAppInfoService(),
