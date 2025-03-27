@@ -1,10 +1,10 @@
 @testable import BitwardenKit
 
 public class MockSystemDevice: SystemDevice {
-    public var model = "iPhone"
-    public var modelIdentifier = "iPhone14,2"
-    public var systemName = "iOS"
-    public var systemVersion = "16.4"
+    public var model: String
+    public var modelIdentifier: String
+    public var systemName: String
+    public var systemVersion: String
 
     public init(
         model: String = "iPhone",
