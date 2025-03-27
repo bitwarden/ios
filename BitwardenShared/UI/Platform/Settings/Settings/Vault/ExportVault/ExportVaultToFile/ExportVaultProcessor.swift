@@ -8,6 +8,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasExportVaultService
         & HasPolicyService
@@ -47,6 +48,8 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
     override func perform(_ effect: ExportVaultEffect) async {
         switch effect {
+        case .exportVaultTapped:
+            await validateFieldsAndExportVault()
         case .loadData:
             await loadData()
         case .sendCodeTapped:
@@ -59,8 +62,6 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         case .dismiss:
             services.exportVaultService.clearTemporaryFiles()
             coordinator.navigate(to: .dismiss)
-        case .exportVaultTapped:
-            validateFieldsAndExportVault()
         case let .fileFormatTypeChanged(fileFormat):
             state.fileFormat = fileFormat
         case let .filePasswordTextChanged(newValue):
@@ -157,7 +158,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             state.isSendCodeButtonDisabled = true
             state.toast = Toast(title: Localizations.codeSent)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -184,7 +185,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
 
     /// Validates the input fields and if they are valid, shows the alert to confirm the vault export.
     ///
-    private func validateFieldsAndExportVault() {
+    private func validateFieldsAndExportVault() async {
         let isEncryptedExport = state.fileFormat == .jsonEncrypted
 
         do {
@@ -207,7 +208,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -233,7 +234,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
             coordinator.showAlert(.defaultAlert(title: Localizations.invalidVerificationCode))
             return false
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
             return false
         }

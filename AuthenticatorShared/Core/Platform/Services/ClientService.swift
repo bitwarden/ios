@@ -224,7 +224,7 @@ actor DefaultClientService: ClientService {
     /// - Returns: A user's client.
     ///
     private func client(for userId: String?, isPreAuth: Bool = false) async throws -> BitwardenSdkClient {
-        return clientBuilder.buildClient()
+        clientBuilder.buildClient()
     }
 
     /// Creates a new client and maps it to an ID.

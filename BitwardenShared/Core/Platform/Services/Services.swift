@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 // swiftlint:disable file_length

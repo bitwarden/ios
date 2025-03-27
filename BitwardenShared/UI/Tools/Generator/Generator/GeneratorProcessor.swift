@@ -234,7 +234,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         } catch is CancellationError {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating password: \(error)")
         }
     }
@@ -256,7 +256,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         } catch is CancellationError {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating username: \(error)")
         }
     }
@@ -334,7 +334,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         do {
             try await saveGeneratedValue(state.generatedValue)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating username: \(error)")
         }
     }

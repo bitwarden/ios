@@ -12,6 +12,7 @@ final class PendingRequestsProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthService
+        & HasConfigService
         & HasErrorReporter
 
     // MARK: Properties
@@ -94,7 +95,7 @@ final class PendingRequestsProcessor: StateProcessor<
             // Show the success toast.
             state.toast = Toast(title: Localizations.requestsDeclined)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -110,7 +111,7 @@ final class PendingRequestsProcessor: StateProcessor<
             setUpdateTimer()
         } catch {
             state.loadingState = .data([])
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

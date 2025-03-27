@@ -160,6 +160,11 @@ struct CipherItemState: Equatable {
         }
     }
 
+    /// Whether the cipher is read-only.
+    var isReadOnly: Bool {
+        cipher.edit == false
+    }
+
     /// The owner of the cipher.
     var owner: CipherOwner? {
         get {
@@ -416,6 +421,7 @@ extension CipherItemState {
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
             edit: true,
+            permissions: nil,
             viewPassword: true,
             localData: nil,
             attachments: nil,

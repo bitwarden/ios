@@ -102,7 +102,7 @@ class CoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(errorReportBuilder.buildShareErrorLogCallStack?.isEmpty, false)
     }
 
-    /// `showErrorAlert(error:tryAgain:)` builds an alert to show for an error with an
+    /// `showErrorAlert(error:tryAgain:onDismissed:)` builds an alert to show for an error with an
     /// optional try again closure that allows trying again for certain types of errors.
     func test_showErrorAlert_withTryAgain() async throws {
         configService.featureFlagsBool[.mobileErrorReporting] = true
@@ -110,7 +110,8 @@ class CoordinatorTests: BitwardenTestCase {
         var tryAgainCalled = false
         await subject.showErrorAlert(
             error: URLError(.timedOut),
-            tryAgain: { tryAgainCalled = true }
+            tryAgain: { tryAgainCalled = true },
+            onDismissed: nil
         )
 
         XCTAssertEqual(
@@ -120,5 +121,27 @@ class CoordinatorTests: BitwardenTestCase {
         let alert = stackNavigator.alerts[0]
         try await alert.tapAction(title: Localizations.tryAgain)
         XCTAssertTrue(tryAgainCalled)
+    }
+
+    /// `showErrorAlert(error:tryAgain:onDismissed:)` builds an alert to show for an error with an
+    /// optional on dismissed closure that allows triggering an action after the alert was dismissed.
+    func test_showErrorAlert_withOnDismissed() async throws {
+        configService.featureFlagsBool[.mobileErrorReporting] = true
+
+        var onDismissedCalled = false
+        await subject.showErrorAlert(
+            error: URLError(.timedOut),
+            tryAgain: nil,
+            onDismissed: { onDismissedCalled = true }
+        )
+
+        XCTAssertEqual(
+            stackNavigator.alerts,
+            [Alert.networkResponseError(URLError(.timedOut), shareErrorDetails: {})]
+        )
+        XCTAssertNotNil(stackNavigator.alertOnDismissed)
+
+        stackNavigator.alertOnDismissed?()
+        XCTAssertTrue(onDismissedCalled)
     }
 }

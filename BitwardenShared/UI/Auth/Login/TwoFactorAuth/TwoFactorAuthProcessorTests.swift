@@ -80,8 +80,8 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
     func test_captchaErrored() {
         subject.captchaErrored(error: BitwardenTestError.example)
 
-        waitFor(!coordinator.alertShown.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        waitFor(!coordinator.errorAlertsShown.isEmpty)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -379,7 +379,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "Test")
         XCTAssertEqual(captchaService.generateCaptchaSiteKey, "token")
 
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -395,7 +395,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [.init(title: Localizations.verifying)])
         XCTAssertEqual(authService.loginWithTwoFactorCodeCode, "Test")
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -502,7 +502,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(authRepository.unlockVaultWithKeyConnectorKeyCalled)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(TwoFactorAuthError.missingOrgIdentifier))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? TwoFactorAuthError, .missingOrgIdentifier)
         XCTAssertEqual(coordinator.routes, [])
         XCTAssertEqual(errorReporter.errors as? [TwoFactorAuthError], [.missingOrgIdentifier])
     }
@@ -517,7 +517,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.continueTapped)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(error))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? IdentityTokenRequestError, error)
     }
 
     /// `perform(_:)` with `.listenForNFC` starts listening for NFC tags and attempts login if one is read.
@@ -550,7 +550,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.listenForNFC)
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.receivedDuoToken` handles an error correctly.
@@ -563,7 +563,7 @@ class TwoFactorAuthProcessorTests: BitwardenTestCase { // swiftlint:disable:this
         await subject.perform(.receivedDuoToken("DuoToken"))
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
     }
 
     /// `perform(_:)` with `.receivedDuoToken` handles a two-factor error correctly.

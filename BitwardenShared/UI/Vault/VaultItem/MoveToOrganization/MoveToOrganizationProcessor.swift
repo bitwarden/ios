@@ -23,7 +23,8 @@ class MoveToOrganizationProcessor: StateProcessor<
 > {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -122,7 +123,7 @@ class MoveToOrganizationProcessor: StateProcessor<
                 self.delegate?.didMoveCipher(self.state.cipher, to: owner)
             }))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

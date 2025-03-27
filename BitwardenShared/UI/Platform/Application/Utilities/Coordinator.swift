@@ -50,8 +50,13 @@ protocol Coordinator<Route, Event>: AnyObject {
     /// - Parameters:
     ///   - error: The error that occurred, used to customize the details of the alert.
     ///   - tryAgain: An optional closure allowing the user to retry whatever triggered the error.
+    ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
-    func showErrorAlert(error: Error, tryAgain: (() async -> Void)?) async
+    func showErrorAlert(
+        error: Error,
+        tryAgain: (() async -> Void)?,
+        onDismissed: (() -> Void)?
+    ) async
 
     /// Shows the loading overlay view.
     ///
@@ -171,7 +176,7 @@ extension Coordinator {
     ///   - error: The error that occurred, used to customize the details of the alert.
     ///
     func showErrorAlert(error: Error) async {
-        await showErrorAlert(error: error, tryAgain: nil)
+        await showErrorAlert(error: error, tryAgain: nil, onDismissed: nil)
     }
 }
 
@@ -189,8 +194,9 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
     /// - Parameters:
     ///   - error: The error that occurred, used to customize the details of the alert.
     ///   - tryAgain: An optional closure allowing the user to retry whatever triggered the error.
+    ///   - onDismissed: An optional closure that is called when the alert is dismissed.
     ///
-    func showErrorAlert(error: Error, tryAgain: (() async -> Void)?) async {
+    func showErrorAlert(error: Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
         let callStack = Thread.callStackSymbols.joined(separator: "\n")
         let alert = if await errorAlertServices.configService.getFeatureFlag(.mobileErrorReporting) {
             Alert.networkResponseError(
@@ -212,7 +218,7 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
         } else {
             Alert.networkResponseError(error, tryAgain: tryAgain)
         }
-        showAlert(alert)
+        showAlert(alert, onDismissed: onDismissed)
     }
 }
 

@@ -126,7 +126,7 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
 
         await subject.perform(.appeared)
 
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [BitwardenTestError.example])
     }
 
@@ -150,7 +150,7 @@ class SetMasterPasswordProcessorTests: BitwardenTestCase {
 
         await subject.perform(.saveTapped)
 
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
