@@ -15,9 +15,29 @@ public enum AuthenticatorBridgeStoreType {
 
 // MARK: - AuthenticatorDataStore
 
+/// The CoreData model name used within `AuthenticatorBridgeDataStore`.
+private let authenticatorBridgeModelName = "Bitwarden-Authenticator"
+
 /// A data store that manages persisting data across app launches in Core Data.
 ///
 public class AuthenticatorBridgeDataStore {
+    // MARK: Type Properties
+
+    /// The managed object model representing the entities in the database schema. CoreData throws
+    /// warnings if this is instantiated multiple times (e.g. in tests), which is fixed by making
+    /// it static.
+    private static let managedObjectModel: NSManagedObjectModel = {
+        #if SWIFT_PACKAGE
+        let bundle = Bundle.module
+        #else
+        let bundle = Bundle(for: AuthenticatorBridgeDataStore.self)
+        #endif
+
+        let modelURL = bundle.url(forResource: authenticatorBridgeModelName, withExtension: "momd")!
+        let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
+        return managedObjectModel
+    }()
+
     // MARK: Properties
 
     /// A managed object context which executes on a background queue.
@@ -29,9 +49,6 @@ public class AuthenticatorBridgeDataStore {
 
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
-
-    /// The CoreData model name.
-    private let modelName = "Bitwarden-Authenticator"
 
     /// The Core Data persistent container.
     public let persistentContainer: NSPersistentContainer
@@ -52,17 +69,9 @@ public class AuthenticatorBridgeDataStore {
     ) {
         self.errorReporter = errorReporter
 
-        #if SWIFT_PACKAGE
-        let bundle = Bundle.module
-        #else
-        let bundle = Bundle(for: type(of: self))
-        #endif
-
-        let modelURL = bundle.url(forResource: modelName, withExtension: "momd")!
-        let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)!
         persistentContainer = NSPersistentContainer(
-            name: modelName,
-            managedObjectModel: managedObjectModel
+            name: authenticatorBridgeModelName,
+            managedObjectModel: Self.managedObjectModel
         )
         let storeDescription: NSPersistentStoreDescription
         switch storeType {
@@ -71,7 +80,7 @@ public class AuthenticatorBridgeDataStore {
         case .persisted:
             let storeURL = FileManager.default
                 .containerURL(forSecurityApplicationGroupIdentifier: groupIdentifier)!
-                .appendingPathComponent("\(modelName).sqlite")
+                .appendingPathComponent("\(authenticatorBridgeModelName).sqlite")
             storeDescription = NSPersistentStoreDescription(url: storeURL)
         }
         persistentContainer.persistentStoreDescriptions = [storeDescription]
