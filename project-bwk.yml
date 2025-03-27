@@ -106,6 +106,7 @@ targets:
     sources:
       - path: BitwardenKit
         excludes:
+          - "**/Mocks/*"
           - "**/*Tests.*"
           - "**/TestHelpers/*"
           - "**/__Snapshots__/*"
@@ -116,6 +117,19 @@ targets:
         buildPhase: none
     dependencies:
       - target: Networking
+  BitwardenKitMocks:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        ENABLE_TESTING_SEARCH_PATHS: YES
+        INFOPLIST_FILE: BitwardenKit/Application/Mocks/Support/Info.plist
+    sources:
+      - path: BitwardenKit
+        includes:
+          - "**/Mocks/*"
+    dependencies:
+      - target: BitwardenKit
   BitwardenKitTests:
     type: bundle.unit-test
     platform: iOS
@@ -129,6 +143,7 @@ targets:
           - "**/TestHelpers/*"
     dependencies:
       - target: BitwardenKit
+      - target: BitwardenKitMocks
       - target: TestHelpers
     randomExecutionOrder: true
   Networking:
