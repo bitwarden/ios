@@ -591,7 +591,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         vaultRepository.softDeleteCipherResult = .failure(TestError())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
         // Tap the "Yes" button on the alert.
@@ -599,11 +599,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await action.handler?(action, [])
 
         // Ensure the generic error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(
-            alert,
-            .networkResponseError(TestError())
-        )
+        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
+        XCTAssertEqual(errorAlert as? TestError, TestError())
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
@@ -624,7 +621,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         vaultRepository.deleteCipherResult = .failure(TestError())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: false) {})
 
         // Tap the "Yes" button on the alert.
@@ -632,11 +629,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await action.handler?(action, [])
 
         // Ensure the generic error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(
-            alert,
-            .networkResponseError(TestError())
-        )
+        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
+        XCTAssertEqual(errorAlert as? TestError, TestError())
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
@@ -791,7 +785,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         vaultRepository.restoreCipherResult = .failure(TestError())
         await subject.perform(.restorePressed)
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = coordinator.alertShown.last
         XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
         XCTAssertNil(alert?.message)
 
@@ -800,11 +794,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await action.handler?(action, [])
 
         // Ensure the generic error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(
-            alert,
-            .networkResponseError(TestError())
-        )
+        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
+        XCTAssertEqual(errorAlert as? TestError, TestError())
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 

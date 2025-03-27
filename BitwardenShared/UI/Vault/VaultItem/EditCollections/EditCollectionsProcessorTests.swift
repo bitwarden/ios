@@ -103,12 +103,7 @@ class EditCollectionsProcessorTests: BitwardenTestCase {
 
         await subject.perform(.save)
 
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsShown as? [UpdateCipherError], [UpdateCipherError()])
         XCTAssertEqual(errorReporter.errors.last as? UpdateCipherError, UpdateCipherError())
     }
 

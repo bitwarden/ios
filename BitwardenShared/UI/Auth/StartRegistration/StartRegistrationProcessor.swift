@@ -189,9 +189,9 @@ class StartRegistrationProcessor: StateProcessor<
         } catch let error as StartRegistrationError {
             showStartRegistrationErrorAlert(error)
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.startRegistration()
-            })
+            }
         }
     }
 

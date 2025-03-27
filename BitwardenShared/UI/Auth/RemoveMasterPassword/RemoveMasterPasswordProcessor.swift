@@ -12,6 +12,7 @@ class RemoveMasterPasswordProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -84,7 +85,7 @@ class RemoveMasterPasswordProcessor: StateProcessor<
             ))
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }

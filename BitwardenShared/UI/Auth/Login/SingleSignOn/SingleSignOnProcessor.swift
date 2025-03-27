@@ -29,6 +29,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
 
     typealias Services = HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasOrganizationAPIService
         & HasStateService
@@ -84,7 +85,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
     // MARK: Private Methods
 
     /// Generically handle an error on the view.
-    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
+    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) async {
         coordinator.hideLoadingOverlay()
         switch error {
         case ASWebAuthenticationSessionError.canceledLogin:
@@ -100,7 +101,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
                 organizationIdentifier: state.identifierText
             ))
         default:
-            coordinator.showAlert(.networkResponseError(error, tryAgain: tryAgain))
+            await coordinator.showErrorAlert(error: error, tryAgain: tryAgain)
             services.errorReporter.log(error: error)
         }
     }
@@ -126,7 +127,7 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
             coordinator.hideLoadingOverlay()
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch {
-            handleError(error) { await self.handleLoginTapped() }
+            await handleError(error) { await self.handleLoginTapped() }
         }
     }
 
@@ -213,8 +214,9 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                 coordinator.navigate(to: .dismiss)
             } catch {
                 // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-                DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
-                    self.handleError(error)
+                Task { @MainActor in
+                    try await Task.sleep(forSeconds: UI.duration(0.5))
+                    await self.handleError(error)
                 }
             }
         }
@@ -222,8 +224,9 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
 
     func singleSignOnErrored(error: Error) {
         // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.5)) {
-            self.handleError(error)
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.5))
+            await self.handleError(error)
         }
     }
 }

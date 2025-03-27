@@ -621,7 +621,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
         } catch UserVerificationError.cancelled {
             return
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -675,7 +675,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
                 self?.delegate?.itemSoftDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
