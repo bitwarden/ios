@@ -32,11 +32,19 @@ extension Menuable {
 /// options. This view is identical to `BitwardenTextField`, but uses a `Menu`
 /// instead of a `TextField` as the input mechanism.
 ///
-struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View where T: Menuable {
+struct BitwardenMenuField<
+    T,
+    AdditionalMenu: View,
+    TitleAccessory: View,
+    TrailingContent: View
+>: View where T: Menuable {
     // MARK: Properties
 
     /// The selection chosen from the menu.
     @Binding var selection: T
+
+    /// The width of the title label.
+    @SwiftUI.State var titleWidth: CGFloat = 0
 
     /// The accessibility identifier for the view.
     let accessibilityIdentifier: String?
@@ -55,6 +63,9 @@ struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View 
 
     /// The title of the menu field.
     let title: String?
+
+    /// Optional title accessory content view that is displayed on the trailing edge of the title.
+    let titleAccessoryContent: TitleAccessory?
 
     /// Optional content view that is displayed on the trailing edge of the menu value.
     let trailingContent: TrailingContent?
@@ -76,7 +87,10 @@ struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View 
             }
         }
         .padding(.horizontal, 16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(
+            isEnabled ? Asset.Colors.backgroundSecondary.swiftUIColor :
+                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -111,6 +125,9 @@ struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View 
                                 Asset.Colors.textSecondary.swiftUIColor :
                                 Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
                             )
+                            .onSizeChanged { size in
+                                titleWidth = size.width
+                            }
                     }
 
                     Text(selection.localizedName)
@@ -141,6 +158,17 @@ struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View 
         )
         .frame(minHeight: 64)
         .accessibilityIdentifier(accessibilityIdentifier ?? "")
+        .overlay {
+            if let titleAccessoryContent {
+                titleAccessoryContent
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .topLeading
+                    )
+                    .offset(x: titleWidth + 4, y: 12)
+            }
+        }
     }
 
     // MARK: Initialization
@@ -160,7 +188,7 @@ struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View 
         accessibilityIdentifier: String? = nil,
         options: [T],
         selection: Binding<T>
-    ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView {
+    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView, TrailingContent == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
@@ -168,6 +196,37 @@ struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View 
         _selection = selection
         self.title = title
         trailingContent = nil
+        titleAccessoryContent = nil
+    }
+
+    /// Initializes a new `BitwardenMenuField`.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the menu field.
+    ///   - accessibilityIdentifier: The accessibility identifier for the view.
+    ///   - options: The options that the user can choose between.
+    ///   - selection: A `Binding` for the currently selected option.
+    ///   - titleAccessoryContent: Optional title accessory view that is displayed on the trailing edge of the title.
+    ///   - trailingContent: Optional content view that is displayed to the right of the menu value.
+    ///
+    init(
+        title: String? = nil,
+        footer: String? = nil,
+        accessibilityIdentifier: String? = nil,
+        options: [T],
+        selection: Binding<T>,
+        titleAccessoryContent: () -> TitleAccessory,
+        trailingContent: () -> TrailingContent
+    ) where AdditionalMenu == EmptyView {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        additionalMenu = nil
+        self.footer = footer
+        self.options = options
+        _selection = selection
+        self.title = title
+        self.titleAccessoryContent = titleAccessoryContent()
+        self.trailingContent = trailingContent()
     }
 
     /// Initializes a new `BitwardenMenuField`.
@@ -187,14 +246,43 @@ struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View 
         options: [T],
         selection: Binding<T>,
         trailingContent: () -> TrailingContent
-    ) where AdditionalMenu == EmptyView {
+    ) where AdditionalMenu == EmptyView, TitleAccessory == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         additionalMenu = nil
         self.footer = footer
         self.options = options
         _selection = selection
         self.title = title
+        titleAccessoryContent = nil
         self.trailingContent = trailingContent()
+    }
+
+    /// Initializes a new `BitwardenMenuField`.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the text field.
+    ///   - footer: The footer text displayed below the menu field.
+    ///   - accessibilityIdentifier: The accessibility identifier for the view.
+    ///   - options: The options that the user can choose between.
+    ///   - selection: A `Binding` for the currently selected option.
+    ///   - titleAccessoryContent: Optional title accessory view that is displayed on the trailing edge of the title.
+    ///
+    init(
+        title: String? = nil,
+        footer: String? = nil,
+        accessibilityIdentifier: String? = nil,
+        options: [T],
+        selection: Binding<T>,
+        titleAccessoryContent: () -> TitleAccessory
+    ) where AdditionalMenu == EmptyView, TrailingContent == EmptyView {
+        self.accessibilityIdentifier = accessibilityIdentifier
+        additionalMenu = nil
+        self.footer = footer
+        self.options = options
+        _selection = selection
+        self.title = title
+        self.titleAccessoryContent = titleAccessoryContent()
+        trailingContent = nil
     }
 
     /// Initializes a new `BitwardenMenuField`.
@@ -215,13 +303,14 @@ struct BitwardenMenuField<T, AdditionalMenu: View, TrailingContent: View>: View 
         options: [T],
         selection: Binding<T>,
         @ViewBuilder additionalMenu: () -> AdditionalMenu
-    ) where TrailingContent == EmptyView {
+    ) where TrailingContent == EmptyView, TitleAccessory == EmptyView {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.additionalMenu = additionalMenu()
         self.footer = footer
         self.options = options
         _selection = selection
         self.title = title
+        titleAccessoryContent = nil
         trailingContent = nil
     }
 }
@@ -266,13 +355,14 @@ private enum MenuPreviewOptions: CaseIterable, Menuable {
         BitwardenMenuField(
             title: "Animals",
             options: MenuPreviewOptions.allCases,
-            selection: .constant(.dog)
-        ) {
-            Button {} label: {
-                Asset.Images.camera16.swiftUIImage
+            selection: .constant(.dog),
+            trailingContent: {
+                Button {} label: {
+                    Asset.Images.camera16.swiftUIImage
+                }
+                .buttonStyle(.accessory)
             }
-            .buttonStyle(.accessory)
-        }
+        )
         .padding()
     }
     .background(Color(.systemGroupedBackground))

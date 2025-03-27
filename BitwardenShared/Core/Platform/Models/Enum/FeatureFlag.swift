@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - FeatureFlag
@@ -40,6 +41,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag for the import logins flow for new accounts.
     case importLoginsFlow = "import-logins-flow"
 
+    /// A feature flag to enable additional error reporting.
+    case mobileErrorReporting = "mobile-error-reporting"
+
     /// A feature flag for the intro carousel flow.
     case nativeCarouselFlow = "native-carousel-flow"
 
@@ -54,8 +58,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// If true, the user can not dismiss the notice, and must set up two-factor authentication.
     /// Overrides the temporary flag.
     case newDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss"
-
-    case sshKeyVaultItem = "ssh-key-vault-item"
 
     /// A feature flag for the refactor on the SSO details endpoint.
     case refactorSsoDetailsEndpoint = "pm-12337-refactor-sso-details-endpoint"
@@ -115,6 +117,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
         case .enableCipherKeyEncryption,
              .enableDebugAppReviewPrompt,
              .ignore2FANoticeEnvironmentCheck,
+             .mobileErrorReporting,
              .newDeviceVerificationPermanentDismiss,
              .newDeviceVerificationTemporaryDismiss,
              .testLocalFeatureFlag,
@@ -133,7 +136,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
-             .sshKeyVaultItem,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,

@@ -143,11 +143,6 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
         guard !started else { return }
         started = true
 
-        guard await configService.getFeatureFlag(FeatureFlag.enableAuthenticatorSync,
-                                                 defaultValue: false) else {
-            return
-        }
-
         syncSubscriber = Task {
             for await (userId, _) in await self.stateService.syncToAuthenticatorPublisher().values {
                 guard let userId else { continue }
@@ -253,6 +248,13 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
+        guard
+            await configService.getFeatureFlag(
+                FeatureFlag.enableAuthenticatorSync,
+                defaultValue: false
+            )
+        else { return }
+
         if try await stateService.getSyncToAuthenticator(userId: userId) {
             enableSyncForUserId(userId)
         } else {
@@ -273,7 +275,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             _ = await enableSyncTask?.result
 
             do {
-                guard !vaultTimeoutService.isLocked(userId: userId) else {
+                guard await !vaultTimeoutService.isLocked(userId: userId) else {
                     let authVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
                     if authVaultKey != nil {
                         subscribeToCipherUpdates(userId: userId)
@@ -316,7 +318,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     ///
     private func writeCiphers(ciphers: [Cipher], userId: String) async throws {
         let account = try await stateService.getAccount(userId: userId)
-        let useKey = vaultTimeoutService.isLocked(userId: userId)
+        let useKey = await vaultTimeoutService.isLocked(userId: userId)
 
         do {
             if useKey {

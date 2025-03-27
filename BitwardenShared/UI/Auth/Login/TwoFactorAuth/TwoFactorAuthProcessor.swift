@@ -395,7 +395,7 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
         if case ASWebAuthenticationSessionError.canceledLogin = error { return }
 
         // Otherwise, show the alert and log the error.
-        coordinator.showAlert(.networkResponseError(error, tryAgain))
+        coordinator.showAlert(.networkResponseError(error, tryAgain: tryAgain))
         services.errorReporter.log(error: error)
     }
 }

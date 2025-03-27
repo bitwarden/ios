@@ -58,6 +58,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & PasswordAutoFillModule
 
     typealias Services = HasAccountAPIService
+        & HasAppInfoService
         & HasAuthRepository
         & HasAuthService
         & HasAutofillCredentialService
@@ -200,7 +201,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///
     private func showAbout() {
         let processor = AboutProcessor(
-            aboutAdditionalInfo: DefaultAboutAdditionalInfo(),
             coordinator: asAnyCoordinator(),
             services: services,
             state: AboutState()
@@ -507,6 +507,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator?.push(viewController, navigationTitle: Localizations.vault)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension SettingsCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - ImportLoginsCoordinatorDelegate

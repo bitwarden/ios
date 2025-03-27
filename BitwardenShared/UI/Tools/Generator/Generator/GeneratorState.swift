@@ -92,6 +92,7 @@ struct GeneratorState: Equatable {
             .generatorStep6,
         ]
     )
+
     /// If account is eligible for learn generator action card.
     var isLearnGeneratorActionCardEligible: Bool = false
 

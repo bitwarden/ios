@@ -67,6 +67,9 @@ struct BitwardenUITextView: UIViewRepresentable {
     /// text. If `false`, the text view is read-only.
     var isEditable: Bool = true
 
+    /// Whether the view allows user interaction.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
     /// A binding for whether the text view has focus.
     @Binding var isFocused: Bool
 
@@ -90,7 +93,8 @@ struct BitwardenUITextView: UIViewRepresentable {
         textView.adjustsFontForContentSizeCategory = true
         textView.autocapitalizationType = .sentences
         textView.delegate = context.coordinator
-        textView.textColor = Asset.Colors.textPrimary.color
+        textView.textColor = isEnabled ? Asset.Colors.textPrimary.color :
+            Asset.Colors.textDisabled.color
         textView.isScrollEnabled = false
         textView.isEditable = isEditable
         textView.isUserInteractionEnabled = true
