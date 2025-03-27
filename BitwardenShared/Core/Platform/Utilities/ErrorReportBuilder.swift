@@ -1,10 +1,28 @@
 import Foundation
 import MachO // dyld
 
+// MARK: - ErrorReportBuilder
+
 /// A helper object to build error reports to provide detailed error information to share about the
 /// error that occurred.
 ///
-struct ErrorReportBuilder {
+protocol ErrorReportBuilder {
+    /// Returns a string containing detailed error information to share about an error that occurred.
+    ///
+    /// - Parameters:
+    ///   - error: The error that occurred to build the error report for.
+    ///   - callStack: The call stack to include in the error report.
+    /// - Returns: A string containing the details of the error and call stack from where the error
+    ///     occurred.
+    ///
+    func buildShareErrorLog(for error: Error, callStack: String) -> String
+}
+
+// MARK: - DefaultErrorReportBuilder
+
+/// A default implementation of `ErrorReportBuilder` which provides detailed information about an error.
+///
+struct DefaultErrorReportBuilder {
     // MARK: Properties
 
     /// The service used by the application to get info about the app and device it's running on.
@@ -19,23 +37,6 @@ struct ErrorReportBuilder {
     ///
     init(appInfoService: AppInfoService) {
         self.appInfoService = appInfoService
-    }
-
-    // MARK: Methods
-
-    func buildShareErrorLog(for error: Error, callStack: String) -> String {
-        """
-        \(error as NSError)
-        \(error.localizedDescription)
-
-        Stack trace:
-        \(callStack)
-
-        Binary images:
-        \(binaryImageAddresses())
-
-        \(appInfoService.appInfoWithoutCopyrightString)
-        """
     }
 
     // MARK: Private
@@ -63,5 +64,24 @@ struct ErrorReportBuilder {
                 return "\(lastNameComponent):\(spaces)\(header)"
             }
             .joined(separator: "\n")
+    }
+}
+
+// MARK: DefaultErrorReportBuilder + ErrorReportBuilder
+
+extension DefaultErrorReportBuilder: ErrorReportBuilder {
+    func buildShareErrorLog(for error: Error, callStack: String) -> String {
+        """
+        \(error as NSError)
+        \(error.localizedDescription)
+
+        Stack trace:
+        \(callStack)
+
+        Binary images:
+        \(binaryImageAddresses())
+
+        \(appInfoService.appInfoWithoutCopyrightString)
+        """
     }
 }

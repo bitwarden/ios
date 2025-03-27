@@ -32,6 +32,7 @@ class CoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var configService: MockConfigService!
+    var errorReportBuilder: MockErrorReportBuilder!
     var stackNavigator: MockStackNavigator!
     var subject: TestCoordinator!
 
@@ -41,11 +42,15 @@ class CoordinatorTests: BitwardenTestCase {
         super.setUp()
 
         configService = MockConfigService()
+        errorReportBuilder = MockErrorReportBuilder()
         stackNavigator = MockStackNavigator()
 
         subject = TestCoordinator(
             mockStackNavigator: stackNavigator,
-            services: ServiceContainer.withMocks(configService: configService)
+            services: ServiceContainer.withMocks(
+                configService: configService,
+                errorReportBuilder: errorReportBuilder
+            )
         )
     }
 
@@ -53,6 +58,7 @@ class CoordinatorTests: BitwardenTestCase {
         try await super.tearDown()
 
         configService = nil
+        errorReportBuilder = nil
         stackNavigator = nil
         subject = nil
     }
@@ -91,6 +97,9 @@ class CoordinatorTests: BitwardenTestCase {
         try await waitForAsync { rootViewController.presentedViewController != nil }
         let viewController = rootViewController.presentedViewController
         XCTAssertTrue(viewController is UIActivityViewController)
+
+        XCTAssertEqual(errorReportBuilder.buildShareErrorLogError as? BitwardenTestError, .example)
+        XCTAssertEqual(errorReportBuilder.buildShareErrorLogCallStack?.isEmpty, false)
     }
 
     /// `showErrorAlert(error:tryAgain:)` builds an alert to show for an error with an

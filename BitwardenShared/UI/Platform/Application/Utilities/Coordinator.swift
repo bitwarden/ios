@@ -130,7 +130,7 @@ protocol HasRouter<Event, Route> {
 ///
 @MainActor
 protocol HasErrorAlertServices: Coordinator, HasNavigator {
-    typealias ErrorAlertServices = HasAppInfoService & HasConfigService
+    typealias ErrorAlertServices = HasConfigService & HasErrorReportBuilder
 
     /// The services needed to build an alert for an error that occurred.
     var errorAlertServices: ErrorAlertServices { get }
@@ -196,8 +196,10 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
             Alert.networkResponseError(
                 error,
                 shareErrorDetails: {
-                    let errorReportBuilder = ErrorReportBuilder(appInfoService: self.errorAlertServices.appInfoService)
-                    let errorReport = errorReportBuilder.buildShareErrorLog(for: error, callStack: callStack)
+                    let errorReport = self.errorAlertServices.errorReportBuilder.buildShareErrorLog(
+                        for: error,
+                        callStack: callStack
+                    )
 
                     let viewController = UIActivityViewController(
                         activityItems: [errorReport],
