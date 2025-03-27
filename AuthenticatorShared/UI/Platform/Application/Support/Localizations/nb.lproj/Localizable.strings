@@ -115,7 +115,7 @@
 "OtpType" = "OTP-type";
 "CreateVerificationCode" = "Create verification code";
 "ItemsExported" = "Verification codes exported";
-"ItemsImported" = "Verification codes imported";
+"ItemsImported" = "Vertification codes imported";
 "VerificationCodeAdded" = "Verification code added";
 "Data" = "Data";
 "Backup" = "Sikkerhetskopi";
