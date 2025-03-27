@@ -1,129 +1,129 @@
 import Foundation
 
-typealias ClientType = String
-typealias DeviceType = Int
+public typealias ClientType = String
+public typealias DeviceType = Int
 
 // MARK: - Constants
 
 /// Constant values reused throughout the app.
 ///
-enum Constants {
+public enum Constants {
     // MARK: Static Properties
 
     /// The app review prompt delay in nanoseconds.
-    static let appReviewPromptDelay: UInt64 = 3_000_000_000
+    public static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
     /// The debug toast message for when the user is eligible for an app review prompt.
-    static let appReviewPromptEligibleDebugMessage = "User is eligible for app review prompt."
+    public static let appReviewPromptEligibleDebugMessage = "User is eligible for app review prompt."
 
     /// The minimum server version required to have cipher key encryption on.
-    static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
+    public static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
 
     /// The client type corresponding to the app.
-    static let clientType: ClientType = "mobile"
+    public static let clientType: ClientType = "mobile"
 
     /// The default type for a Fido2 public key credential.
-    static let defaultFido2PublicKeyCredentialType = "public-key"
+    public static let defaultFido2PublicKeyCredentialType = "public-key"
 
     /// The default generated username if there isn't enough information to generate a username.
-    static let defaultGeneratedUsername = "-"
+    public static let defaultGeneratedUsername = "-"
 
     /// The URL for the web vault if the user account doesn't have one specified.
-    static let defaultWebVaultHost = "bitwarden.com"
+    public static let defaultWebVaultHost = "bitwarden.com"
 
     /// The device type, iOS = 1.
-    static let deviceType: DeviceType = 1
+    public static let deviceType: DeviceType = 1
 
     /// The length of a masked password.
-    static let hiddenPasswordLength = 8
+    public static let hiddenPasswordLength = 8
 
     /// A custom URL scheme to support action extension autofill from other apps.
-    static let iOSAppProtocol = "iosapp://"
+    public static let iOSAppProtocol = "iosapp://"
 
     /// A default value for the argon memory argument in the KDF algorithm.
-    static let kdfArgonMemory = 64
+    public static let kdfArgonMemory = 64
 
     /// A default value for the argon parallelism argument in the KDF algorithm.
-    static let kdfArgonParallelism = 4
+    public static let kdfArgonParallelism = 4
 
     /// The value representing 10 MB of data.
-    static let largeFileSize = 10_485_760
+    public static let largeFileSize = 10_485_760
 
     /// The number of minutes until a login request expires.
-    static let loginRequestTimeoutMinutes = 15
+    public static let loginRequestTimeoutMinutes = 15
 
     /// The maximum number of accounts permitted for a user.
-    static let maxAccounts = 5
+    public static let maxAccounts = 5
 
     /// The maximum amount of KDF memory that can be used to unlock the user's vault in an app
     /// extension before the app should warn the user that the extension may hit its memory limit.
-    static let maxArgon2IdMemoryBeforeExtensionCrashing = 64
+    public static let maxArgon2IdMemoryBeforeExtensionCrashing = 64
 
     /// The value representing 100 MB of data.
-    static let maxFileSize = 104_857_600
+    public static let maxFileSize = 104_857_600
 
     /// The maximum number of passwords stored in history.
-    static let maxPasswordsInHistory = 100
+    public static let maxPasswordsInHistory = 100
 
     /// The maximum size of files for upload.
-    static let maxFileSizeBytes = 104_857_600
+    public static let maxFileSizeBytes = 104_857_600
 
     /// The maximum number of unsuccessful attempts the user can make to unlock
-    static let maxUnlockUnsuccessfulAttempts = 5
+    public static let maxUnlockUnsuccessfulAttempts = 5
 
     /// The minimum number of minutes before attempting a server config sync again.
-    static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
+    public static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
 
     /// A default value for the minimum number of characters required when creating a password.
-    static let minimumPasswordCharacters = 12
+    public static let minimumPasswordCharacters = 12
 
     /// The minimum number of minutes before allowing the vault to sync again.
-    static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes
+    public static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes
 
     /// The minimum number of user actions required to show the app review prompt.
-    static let minimumUserActions = 3
+    public static let minimumUserActions = 3
 
     /// The minimum number of cipher items without folder
-    static let noFolderListSize = 100
+    public static let noFolderListSize = 100
 
     /// The default number of KDF iterations to perform.
-    static let pbkdf2Iterations = 600_000
+    public static let pbkdf2Iterations = 600_000
 
     /// The minimum number of seconds an account must have existed for before
     /// we display the two-factor notice.
-    static let twoFactorNoticeMinimumAccountAgeInterval: TimeInterval = 86400 * 7 // Seven days
+    public static let twoFactorNoticeMinimumAccountAgeInterval: TimeInterval = 86400 * 7 // Seven days
 
     /// The minimum number of seconds after a user delays the two-factor notice
     /// before we display the notice again.
-    static let twoFactorNoticeDelayInterval: TimeInterval = 86400 * 7 // Seven days
+    public static let twoFactorNoticeDelayInterval: TimeInterval = 86400 * 7 // Seven days
 
     /// The default file name when the file name cannot be determined.
-    static let unknownFileName = "unknown_file_name"
+    public static let unknownFileName = "unknown_file_name"
 }
 
 // MARK: Extension Constants
 
-extension Constants {
+public extension Constants {
     /// Uniform type identifier constants used by the app.
     ///
     enum UTType {
         /// A type identifier for the app extension change password action.
-        static let appExtensionChangePasswordAction = "org.appextension.change-password-action"
+        public static let appExtensionChangePasswordAction = "org.appextension.change-password-action"
 
         /// A type identifier for the app extension fill browser action.
-        static let appExtensionFillBrowserAction = "org.appextension.fill-browser-action"
+        public static let appExtensionFillBrowserAction = "org.appextension.fill-browser-action"
 
         /// A type identifier for the app extension fill webview action.
-        static let appExtensionFillWebViewAction = "org.appextension.fill-webview-action"
+        public static let appExtensionFillWebViewAction = "org.appextension.fill-webview-action"
 
         /// A type identifier for the app extension find login action.
-        static let appExtensionFindLoginAction = "org.appextension.find-login-action"
+        public static let appExtensionFindLoginAction = "org.appextension.find-login-action"
 
         /// A type identifier for the app extension save login action.
-        static let appExtensionSaveLogin = "org.appextension.save-login-action"
+        public static let appExtensionSaveLogin = "org.appextension.save-login-action"
 
         /// A type identifier for the app extension setup.
-        static let appExtensionSetup = "com.8bit.bitwarden.extension-setup"
+        public static let appExtensionSetup = "com.8bit.bitwarden.extension-setup"
     }
 
     /// An app extension key for notes for a login.

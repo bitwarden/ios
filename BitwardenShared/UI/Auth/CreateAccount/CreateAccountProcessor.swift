@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Combine
 import Foundation
