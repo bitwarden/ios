@@ -63,6 +63,9 @@ protocol AddEditItemState: Sendable {
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool { get set }
 
+    /// Whether the cipher is read-only.
+    var isReadOnly: Bool { get }
+
     /// The state for a login type item.
     var loginState: LoginItemState { get set }
 

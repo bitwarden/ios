@@ -316,6 +316,34 @@ class CipherServiceTests: BitwardenTestCase {
         XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
     }
 
+    /// `updateCipherWithServer(_:)` partial updates the read-only cipher in the backend and local storage.
+    func test_updateCipherWithServer_partial() async throws {
+        stateService.activeAccount = .fixtureAccountLogin()
+        client.results = [
+            .httpSuccess(testData: .cipherResponse),
+        ]
+
+        // Test with non-editable cipher
+        try await subject.updateCipherWithServer(
+            .fixture(
+                edit: false,
+                favorite: true,
+                folderId: "folderId",
+                id: "123"
+            )
+        )
+
+        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(
+            client.requests[0].url.absoluteString,
+            "https://example.com/api/ciphers/123/partial"
+        )
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.id, "3792af7a-4441-11ee-be56-0242ac120002")
+        let favorite = try XCTUnwrap(cipherDataStore.upsertCipherValue?.favorite)
+        XCTAssertTrue(favorite)
+        XCTAssertEqual(cipherDataStore.upsertCipherValue?.folderId, "folderId")
+    }
+
     /// `updateCipherWithServer(_:)` updates the cipher with collections in the backend and local storage.
     func test_updateCipherWithServer_withCollections() async throws {
         stateService.activeAccount = .fixtureAccountLogin()
