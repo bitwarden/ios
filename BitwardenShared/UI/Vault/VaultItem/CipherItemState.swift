@@ -421,6 +421,7 @@ extension CipherItemState {
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
             edit: true,
+            permissions: nil,
             viewPassword: true,
             localData: nil,
             attachments: nil,
