@@ -143,6 +143,7 @@ targets:
           - "**/TestHelpers/*"
     dependencies:
       - target: BitwardenKit
+      - target: BitwardenKitMocks
       - target: TestHelpers
     randomExecutionOrder: true
   Networking:

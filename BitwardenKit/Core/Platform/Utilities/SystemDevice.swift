@@ -2,7 +2,7 @@ import UIKit
 
 /// A protocol for an object that can provide information for the current device.
 ///
-protocol SystemDevice {
+public protocol SystemDevice {
     /// The model of the device, e.g. "iPhone" or "iPad".
     var model: String { get }
 
@@ -17,7 +17,7 @@ protocol SystemDevice {
 }
 
 extension UIDevice: SystemDevice {
-    var modelIdentifier: String {
+    public var modelIdentifier: String {
         #if targetEnvironment(simulator)
         return ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"]!
         #else
