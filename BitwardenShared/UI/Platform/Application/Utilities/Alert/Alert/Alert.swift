@@ -26,6 +26,9 @@ public class Alert {
     /// The title of the message that is displayed at the top of the alert.
     let title: String?
 
+    /// The current alert shown.
+    private weak var currentAlertController: UIAlertController?
+
     // MARK: Initialization
 
     /// Initializes an `Alert`.
@@ -52,6 +55,25 @@ public class Alert {
     }
 
     // MARK: Methods
+
+    @objc
+    private func textFieldDidChange(_ sender: UITextField) {
+        guard let alertController = currentAlertController else { return }
+
+        // Find the corresponding AlertTextField instance and update it
+        for alertTextField in alertTextFields {
+            if let matchingTextField =
+                alertController.textFields?.first(where: { $0.placeholder == alertTextField.placeholder }) {
+                alertTextField.textChanged(in: matchingTextField)
+            }
+        }
+
+        // Now update action enable states
+        for (index, alertAction) in alertActions.enumerated() {
+            guard let shouldEnable = alertAction.shouldEnableAction else { continue }
+            alertController.actions[index].isEnabled = shouldEnable(alertTextFields)
+        }
+    }
 
     /// Adds an `AlertAction` to the `Alert`.
     ///
@@ -102,18 +124,14 @@ public class Alert {
         let alert = AlertController(title: title, message: message, preferredStyle: preferredStyle)
         alert.onDismissed = onDismissed
         alertTextFields.forEach { alertTextField in
-            alert.addTextField { textField in
+            alert.addTextField { [self] textField in
                 textField.placeholder = alertTextField.placeholder
                 textField.keyboardType = alertTextField.keyboardType
                 textField.isSecureTextEntry = alertTextField.isSecureTextEntry
                 textField.autocapitalizationType = alertTextField.autocapitalizationType
                 textField.autocorrectionType = alertTextField.autocorrectionType
                 textField.text = alertTextField.text
-                textField.addTarget(
-                    alertTextField,
-                    action: #selector(AlertTextField.textChanged(in:)),
-                    for: .editingChanged
-                )
+                textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
             }
         }
 
@@ -124,12 +142,16 @@ public class Alert {
                 }
             }
 
+            // Set initial enabled state based on shouldEnableAction
+            action.isEnabled = alertAction.shouldEnableAction?(alertTextFields) ?? true
             alert.addAction(action)
 
             if let preferredAction, preferredAction === alertAction {
                 alert.preferredAction = action
             }
         }
+
+        currentAlertController = alert
 
         return alert
     }
