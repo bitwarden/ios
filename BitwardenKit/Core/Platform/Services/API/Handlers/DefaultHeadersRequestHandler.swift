@@ -3,7 +3,7 @@ import UIKit
 
 /// A `RequestHandler` that applies default headers (user agent, client type & name, etc) to requests.
 ///
-public class DefaultHeadersRequestHandler: RequestHandler {
+public final class DefaultHeadersRequestHandler: RequestHandler {
     // MARK: Properties
 
     /// The app's name.

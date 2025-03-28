@@ -17,7 +17,7 @@ struct ResponseValidationError: Error, Equatable {
 /// A `ResponseHandler` that validates that HTTP responses contain successful (2XX) HTTP status
 /// codes or tries to parse the error otherwise.
 ///
-class ResponseValidationHandler: ResponseHandler {
+final class ResponseValidationHandler: ResponseHandler {
     func handle(_ response: inout HTTPResponse) async throws -> HTTPResponse {
         guard (200 ..< 300).contains(response.statusCode) else {
             // If the response can be parsed, throw an error containing the response message.

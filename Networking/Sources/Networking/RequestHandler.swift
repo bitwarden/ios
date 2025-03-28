@@ -1,7 +1,7 @@
 /// A protocol for an object that can view or modify `HTTPRequest` objects before they are sent by
 /// the `HTTPClient`.
 ///
-public protocol RequestHandler {
+public protocol RequestHandler: Sendable {
     /// Handles receiving a `HTTPRequest`. The handler can view or modify the request before
     /// returning it to continue to handler chain.
     ///

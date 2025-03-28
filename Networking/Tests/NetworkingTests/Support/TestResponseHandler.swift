@@ -1,5 +1,6 @@
 import Networking
 
+@MainActor
 class TestResponseHandler: ResponseHandler {
     var handledResponse: HTTPResponse?
     var responseHandler: ((inout HTTPResponse) -> Void)?
