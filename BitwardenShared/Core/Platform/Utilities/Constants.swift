@@ -1,9 +1,6 @@
 import BitwardenKit
 import Foundation
 
-typealias ClientType = String
-typealias DeviceType = Int
-
 // MARK: - Constants
 
 /// Constant values reused throughout the app.
@@ -20,9 +17,6 @@ extension Constants {
     /// The minimum server version required to have cipher key encryption on.
     static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
 
-    /// The client type corresponding to the app.
-    static let clientType: ClientType = "mobile"
-
     /// The default type for a Fido2 public key credential.
     static let defaultFido2PublicKeyCredentialType = "public-key"
 
@@ -31,9 +25,6 @@ extension Constants {
 
     /// The URL for the web vault if the user account doesn't have one specified.
     static let defaultWebVaultHost = "bitwarden.com"
-
-    /// The device type, iOS = 1.
-    static let deviceType: DeviceType = 1
 
     /// The length of a masked password.
     static let hiddenPasswordLength = 8
