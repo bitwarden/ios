@@ -8,6 +8,7 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasExportCXFCiphersRepository
         & HasPolicyService

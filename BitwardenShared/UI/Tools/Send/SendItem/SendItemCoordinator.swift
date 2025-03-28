@@ -14,7 +14,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     typealias Module = FileSelectionModule
 
     typealias Services = HasAuthRepository
-        & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
