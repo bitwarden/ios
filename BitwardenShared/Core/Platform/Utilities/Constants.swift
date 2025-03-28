@@ -1,6 +1,9 @@
 import BitwardenKit
 import Foundation
 
+typealias ClientType = String
+typealias DeviceType = Int
+
 // MARK: - Constants
 
 /// Constant values reused throughout the app.
