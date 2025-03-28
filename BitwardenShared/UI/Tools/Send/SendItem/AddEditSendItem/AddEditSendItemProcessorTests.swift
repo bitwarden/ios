@@ -29,7 +29,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         reviewPromptService = MockReviewPromptService()
         sendRepository = MockSendRepository()
         subject = AddEditSendItemProcessor(
-            coordinator: coordinator,
+            coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -92,7 +92,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_deletePressed_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
-        sendRepository.deleteSendResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        sendRepository.deleteSendResult = .failure(error)
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -101,8 +102,9 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
         sendRepository.deleteSendResult = .success(())
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try await errorAlert.tapAction(title: Localizations.tryAgain)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
@@ -168,7 +170,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     func test_perform_sendListItemRow_removePassword_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
         subject.state.originalSendView = sendView
-        sendRepository.removePasswordFromSendResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        sendRepository.removePasswordFromSendResult = .failure(error)
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -177,8 +180,9 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 
         sendRepository.removePasswordFromSendResult = .success(sendView)
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try await errorAlert.tapAction(title: Localizations.tryAgain)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
@@ -242,7 +246,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.text = "Text"
         subject.state.deletionDate = .custom(deletionDate)
         subject.state.customDeletionDate = deletionDate
-        sendRepository.addTextSendResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        sendRepository.addTextSendResult = .failure(error)
 
         await subject.perform(.savePressed)
 
@@ -255,12 +260,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
-
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.addTextSendResult = .success(sendView)
-        try await alert.tapAction(title: Localizations.tryAgain)
+
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
+
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 
@@ -447,7 +453,8 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.text = "Text"
         subject.state.deletionDate = .custom(deletionDate)
         subject.state.customDeletionDate = deletionDate
-        sendRepository.updateSendResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        sendRepository.updateSendResult = .failure(error)
 
         await subject.perform(.savePressed)
 
@@ -460,12 +467,13 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
-
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
         sendRepository.updateSendResult = .success(sendView)
-        try await alert.tapAction(title: Localizations.tryAgain)
+
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
+
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
     }
 

@@ -259,9 +259,9 @@ class CompleteRegistrationProcessor: StateProcessor<
                 return
             }
 
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.completeRegistration(captchaToken: captchaToken)
-            })
+            }
         }
     }
 
@@ -352,9 +352,9 @@ class CompleteRegistrationProcessor: StateProcessor<
             } catch VerifyEmailTokenRequestError.tokenExpired {
                 coordinator.navigate(to: .expiredLink)
             } catch {
-                coordinator.showAlert(.networkResponseError(error) {
+                await coordinator.showErrorAlert(error: error) {
                     await self.verifyUserEmail()
-                })
+                }
             }
         }
     }

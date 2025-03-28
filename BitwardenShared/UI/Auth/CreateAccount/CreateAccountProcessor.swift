@@ -40,6 +40,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
         & HasAuthRepository
         & HasCaptchaService
         & HasClientService
+        & HasConfigService
         & HasErrorReporter
         & HasStateService
 
@@ -222,13 +223,13 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
             )
             coordinator.navigate(to: .login(username: email))
         } catch let CreateAccountRequestError.captchaRequired(hCaptchaSiteCode: siteCode) {
-            launchCaptchaFlow(with: siteCode)
+            await launchCaptchaFlow(with: siteCode)
         } catch let error as CreateAccountError {
             showCreateAccountErrorAlert(error)
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.createAccount(captchaToken: captchaToken)
-            })
+            }
         }
     }
 
@@ -237,7 +238,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
     /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
     ///   with hCaptcha.
     ///
-    private func launchCaptchaFlow(with siteKey: String) {
+    private func launchCaptchaFlow(with siteKey: String) async {
         do {
             let callbackUrlScheme = services.captchaService.callbackUrlScheme
             let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
@@ -249,7 +250,7 @@ class CreateAccountProcessor: StateProcessor<CreateAccountState, CreateAccountAc
                 context: self
             )
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -312,8 +313,9 @@ extension CreateAccountProcessor: CaptchaFlowDelegate {
 
         // Show the alert after a delay to ensure it doesn't try to display over the
         // closing captcha view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            self.coordinator.showAlert(.networkResponseError(error))
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.6))
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }
