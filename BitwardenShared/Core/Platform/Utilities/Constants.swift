@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 typealias ClientType = String
@@ -7,7 +8,7 @@ typealias DeviceType = Int
 
 /// Constant values reused throughout the app.
 ///
-enum Constants {
+extension Constants {
     // MARK: Static Properties
 
     /// The app review prompt delay in nanoseconds.
@@ -96,9 +97,6 @@ enum Constants {
     /// The minimum number of seconds after a user delays the two-factor notice
     /// before we display the notice again.
     static let twoFactorNoticeDelayInterval: TimeInterval = 86400 * 7 // Seven days
-
-    /// The default file name when the file name cannot be determined.
-    static let unknownFileName = "unknown_file_name"
 }
 
 // MARK: Extension Constants

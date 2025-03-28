@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportLoginsState
 
 /// An object that defines the current state of a `ImportLoginsView`.

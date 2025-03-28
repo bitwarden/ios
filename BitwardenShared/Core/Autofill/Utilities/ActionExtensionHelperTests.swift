@@ -1,3 +1,4 @@
+import BitwardenKit
 import InlineSnapshotTesting
 import UniformTypeIdentifiers
 import XCTest
