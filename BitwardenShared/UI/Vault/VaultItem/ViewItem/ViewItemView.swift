@@ -77,7 +77,7 @@ struct ViewItemView: View {
                     let restoreButtonVisible = store.state.restrictItemDeletionFlagEnabled
                         ? isRestoredPermissionEnabled
                         : state.isSoftDeleted
-                    if  restoreButtonVisible {
+                    if restoreButtonVisible {
                         toolbarButton(Localizations.restore) {
                             await store.perform(.restorePressed)
                         }
