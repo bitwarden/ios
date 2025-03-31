@@ -146,11 +146,21 @@ struct CipherItemState: Equatable {
     /// Whether or not this item can be deleted by the user.
     /// New permission model from PM-18091
     var canBeDeletedPermission: Bool {
-        // backwards capability for old server versions
+        // backwards compatibility for old server versions
         guard let cipherPermissions = cipher.permissions else {
             return canBeDeleted
         }
         return cipherPermissions.delete
+    }
+
+    /// Whether or not this item can be restored by the user.
+    /// New permission model from PM-18091
+    var canBeRestoredPermission: Bool {
+        // backwards compatibility for old server versions
+        guard let cipherPermissions = cipher.permissions else {
+            return isSoftDeleted
+        }
+        return cipherPermissions.restore && isSoftDeleted
     }
 
     /// The list of collections that can be selected from for the current owner.
