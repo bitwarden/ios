@@ -29,6 +29,7 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertTrue(FeatureFlag.nativeCarouselFlow.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.nativeCreateAccountFlow.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.refactorSsoDetailsEndpoint.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.restrictItemDeletion.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialBoolFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialIntFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialStringFlag.isRemotelyConfigured)

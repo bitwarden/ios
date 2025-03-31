@@ -97,6 +97,9 @@ struct CipherItemState: Equatable {
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions: [CipherOwner]
 
+    /// A flag indicating if cipher permissions should be used.
+    var restrictItemDeletionFlag: Bool = false
+
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
 
@@ -140,6 +143,16 @@ struct CipherItemState: Equatable {
         }
     }
 
+    /// Whether or not this item can be deleted by the user.
+    /// New permission model from PM-18091
+    var canBeDeletedPermission: Bool {
+        // backwards capability for old server versions
+        guard let cipherPermissions = cipher.permissions else {
+            return canBeDeleted
+        }
+        return cipherPermissions.delete
+    }
+
     /// The list of collections that can be selected from for the current owner.
     /// These are collections that the user can add items to, so they are non-read-only collections.
     var collectionsForOwner: [CollectionView] {
@@ -175,6 +188,11 @@ struct CipherItemState: Equatable {
             organizationId = newValue?.organizationId
             collectionIds = []
         }
+    }
+
+    var restrictItemDeletionFlagEnabled: Bool {
+        get { restrictItemDeletionFlag }
+        set { restrictItemDeletionFlag = newValue }
     }
 
     /// The flag indicating if we should show the learn new login action card.

@@ -79,7 +79,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         self.itemId = itemId
         self.services = services
         super.init(state: state)
-
         Task {
             await self.services.rehydrationHelper.addRehydratableTarget(self)
         }
@@ -521,7 +520,9 @@ private extension ViewItemProcessor {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
                 let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
                 let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
-
+                let restrictItemDeletionFlagEnabled: Bool = await services.configService.getFeatureFlag(
+                    FeatureFlag.restrictItemDeletion
+                )
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
                    let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
@@ -531,7 +532,8 @@ private extension ViewItemProcessor {
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasMasterPassword: hasMasterPassword,
-                    hasPremium: hasPremium
+                    hasPremium: hasPremium,
+                    restrictItemDeletionFlagEnabled: restrictItemDeletionFlagEnabled
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {

@@ -23,6 +23,12 @@ struct ViewItemView: View {
         store.state.loadingState.data?.canBeDeleted ?? false
     }
 
+    /// Whether to show the delete option in the toolbar menu.
+    /// New permission model from PM-18091
+    var isDeletePermissionEnabled: Bool {
+        store.state.loadingState.data?.canBeDeletedPermission ?? false
+    }
+
     /// Whether to show the move to organization option in the toolbar menu.
     var isMoveToOrganizationEnabled: Bool {
         guard let cipher = store.state.loadingState.data?.cipher else { return false }
@@ -77,7 +83,9 @@ struct ViewItemView: View {
                 VaultItemManagementMenuView(
                     isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
-                    isDeleteEnabled: isDeleteEnabled,
+                    isDeleteEnabled: store.state.restrictItemDeletionFlagEnabled
+                        ? isDeletePermissionEnabled
+                        : isDeleteEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
                     store: store.child(
                         state: { _ in },

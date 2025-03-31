@@ -15,6 +15,10 @@ protocol AddEditItemState: Sendable {
     /// Whether the user is able to delete the item.
     var canBeDeleted: Bool { get }
 
+    /// Whether or not this item can be deleted by the user.
+    /// New permission model from PM-18091
+    var canBeDeletedPermission: Bool { get }
+
     /// The Cipher underpinning the state
     var cipher: CipherView { get }
 
@@ -92,6 +96,9 @@ protocol AddEditItemState: Sendable {
 
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }
+
+    /// A flag indicating if cipher permissions should be used.
+    var restrictItemDeletionFlagEnabled: Bool { get set }
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
