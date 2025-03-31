@@ -12,10 +12,36 @@
 
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
+#fastlane_require 'dotenv'
 
 default_platform(:ios)
 
+require_relative 'build_utils'
+
 platform :ios do |options|
+    lane :update_plists do |options|
+        update_plist(
+            plist_path: "Bitwarden/Application/Support/Info.plist",
+            block: proc do |plist|
+                plist[:BUNDLE_ID] = ENV["BUNDLE_ID"]
+                plist[:ITSEncryptionExportComplianceCode] = ENV["PLIST_EXPORT_COMPLIANCE_CODE"]
+              end
+        )
+        # TODO Simulator builds should use development instead of production APS env
+        update_plist(
+            plist_path: "Bitwarden/Application/Support/Bitwarden.entitlements",
+            block: proc do |plist|
+                plist[:aps-environment] = ENV["APS_ENVIRONMENT"]
+              end
+        )
+        update_plist(
+            plist_path: "BitwardenWatchApp/GoogleService-Info.plist",
+            block: proc do |plist|
+                plist[:BUNDLE_ID] = ENV["BUNDLE_ID"] + ".watchkitapp"
+              end
+        )
+    end
+
     desc "Push a new build to TestFlight"
     lane :upload_build do |options|
     upload_to_testflight(
@@ -30,5 +56,35 @@ platform :ios do |options|
             }
         }
     )
+    end
+
+    desc "Update version numbers in project yaml file"
+    lane :update_version do |options|
+      require 'yaml'
+
+      # Check required parameters
+      version_name = options[:version_name]
+      version_number = options[:version_number]
+      project_filepath = options[:project_filepath]
+
+      UI.user_error!("Missing version_name parameter") unless version_name
+      UI.user_error!("Missing version_number parameter") unless version_number
+      UI.user_error!("Missing project_filepath parameter") unless project_filepath
+
+      UI.message("Updating #{project_filepath} with version name: #{version_name} and version number: #{version_number}")
+
+      # Read the YAML file
+      project_yaml = YAML.load_file(project_filepath)
+
+      # Update the version values
+      project_yaml['settings']['MARKETING_VERSION'] = version_name
+      project_yaml['settings']['CURRENT_PROJECT_VERSION'] = version_number
+
+      # Write the updated YAML back to the file
+      File.open(project_filepath, 'w') do |file|
+        file.write(project_yaml.to_yaml)
+      end
+
+      UI.success("Updated version information in #{project_filepath}")
     end
 end
