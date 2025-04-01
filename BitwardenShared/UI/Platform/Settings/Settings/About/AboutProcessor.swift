@@ -78,7 +78,12 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleFlightRecorder(isOn):
-            state.isFlightRecorderToggleOn = isOn
+            if isOn {
+                coordinator.navigate(to: .enableFlightRecorder)
+            } else {
+                // TODO: PM-19577 Turn logging off
+                state.isFlightRecorderToggleOn = isOn
+            }
         case let .toggleSubmitCrashLogs(isOn):
             state.isSubmitCrashLogsToggleOn = isOn
             services.errorReporter.isEnabled = isOn

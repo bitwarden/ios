@@ -157,14 +157,25 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.toast)
     }
 
-    /// `receive(_:)` with action `.isFlightRecorderToggleOn` updates the toggle value in the state.
+    /// `receive(_:)` with action `.isFlightRecorderToggleOn` disables the flight recorder when toggled off.
     @MainActor
-    func test_receive_toggleFlightRecorder() {
+    func test_receive_toggleFlightRecorder_off() {
+        subject.state.isFlightRecorderToggleOn = true
+
+        subject.receive(.toggleFlightRecorder(false))
+
+        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+    }
+
+    /// `receive(_:)` with action `.isFlightRecorderToggleOn` navigates to the enable flight
+    /// recorder screen when toggled on.
+    @MainActor
+    func test_receive_toggleFlightRecorder_on() {
         XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
 
         subject.receive(.toggleFlightRecorder(true))
 
-        XCTAssertTrue(subject.state.isFlightRecorderToggleOn)
+        XCTAssertEqual(coordinator.routes, [.enableFlightRecorder])
     }
 
     /// `receive(_:)` with action `.isSubmitCrashLogsToggleOn` updates the toggle value in the state.
