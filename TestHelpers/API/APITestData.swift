@@ -3,28 +3,27 @@ import Foundation
 /// A type that wraps fixture data for use in mocking API responses during tests.
 ///
 public struct APITestData {
-    /// Fill me
+    /// The fixture data for the API response.
     public let data: Data
 
-    /// Fill me
+    /// Initializer for APITestData with test-provided data.
+    public init(data: Data) {
+        self.data = data
+    }
+
+    /// Loads test data from a provided file in the test class's bundle.
     public static func loadFromBundle(resource: String, extension: String) -> APITestData {
         let data = TestDataHelpers.loadFromBundle(resource: resource, extension: `extension`)
         return APITestData(data: data)
     }
 
-    /// Fill me
+    /// Loads test data from a provided JSON file in the test class's bundle.
     public static func loadFromJsonBundle(resource: String) -> APITestData {
         loadFromBundle(resource: resource, extension: "json")
     }
-
-    /// Fill me
-    public init(data: Data) {
-        self.data = data
-    }
 }
 
-/// Fill me
 public extension APITestData {
-    /// Fill me
+    /// A standard Bitwarden error message of "You do not have permissions to edit this."
     static let bitwardenErrorMessage = loadFromJsonBundle(resource: "BitwardenErrorMessage")
 }
