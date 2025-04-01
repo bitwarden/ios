@@ -1,5 +1,6 @@
 import BitwardenKit
 import InlineSnapshotTesting
+import TestHelpers
 import UniformTypeIdentifiers
 import XCTest
 
