@@ -69,6 +69,10 @@ struct AboutView: View {
                     ),
                     accessibilityIdentifier: "FlightRecorderSwitch"
                 )
+
+                SettingsListItem(Localizations.viewRecordedLogs, hasDivider: false) {
+                    store.send(.viewFlightRecorderLogsTapped)
+                }
             }
         }
     }

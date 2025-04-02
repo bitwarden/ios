@@ -1161,3 +1161,8 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logs will be automatically deleted after 30 days. Bitwarden is only able to access your log data when you share it.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "For details on what is and isn’t logged, visit the **[Bitwarden help center](%1$@)**.";
 "OneWeek" = "1 week";
+"ViewRecordedLogs" = "View recorded logs";
+"RecordedLogs" = "Recorded logs";
+"NoLogsRecorded" = "No logs recorded";
+"ExpiresToday" = "Expires today";
+"ExpiresInXDays" = "Expires in %1$@ days";
