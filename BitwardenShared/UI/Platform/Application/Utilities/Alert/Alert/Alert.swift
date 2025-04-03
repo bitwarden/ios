@@ -121,17 +121,33 @@ public class Alert {
     ///
     @MainActor
     func createAlertController(onDismissed: (() -> Void)? = nil) -> UIAlertController {
-        let alert = AlertController(title: title, message: message, preferredStyle: preferredStyle)
-        alert.onDismissed = onDismissed
-        alertTextFields.forEach { alertTextField in
-            alert.addTextField { [self] textField in
-                textField.placeholder = alertTextField.placeholder
-                textField.keyboardType = alertTextField.keyboardType
-                textField.isSecureTextEntry = alertTextField.isSecureTextEntry
-                textField.autocapitalizationType = alertTextField.autocapitalizationType
-                textField.autocorrectionType = alertTextField.autocorrectionType
-                textField.text = alertTextField.text
-                textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        let alertController = AlertController(title: title, message: message, preferredStyle: preferredStyle)
+        alertController.onDismissed = onDismissed
+
+        let shouldUpdateActions = alertActions.contains { $0.shouldEnableAction != nil }
+
+        for alertTextField in alertTextFields {
+            alertController.addTextField { textField in
+                self.configure(textField, with: alertTextField)
+
+                textField.addTarget(
+                    alertTextField,
+                    action: #selector(AlertTextField.textChanged(in:)),
+                    for: .editingChanged
+                )
+            }
+
+            if shouldUpdateActions {
+                alertTextField.onTextChanged = { [weak self, weak alertController] in
+                    guard let self, let alert = alertController else { return }
+
+                    for (index, alertAction) in alertActions.enumerated() {
+                        guard let shouldEnable = alertAction.shouldEnableAction else { continue }
+                        if index < alert.actions.count {
+                            alert.actions[index].isEnabled = shouldEnable(alertTextFields)
+                        }
+                    }
+                }
             }
         }
 
@@ -151,9 +167,16 @@ public class Alert {
             }
         }
 
-        currentAlertController = alert
+        return alertController
+    }
 
-        return alert
+    private func configure(_ textField: UITextField, with model: AlertTextField) {
+        textField.placeholder = model.placeholder
+        textField.keyboardType = model.keyboardType
+        textField.isSecureTextEntry = model.isSecureTextEntry
+        textField.autocapitalizationType = model.autocapitalizationType
+        textField.autocorrectionType = model.autocorrectionType
+        textField.text = model.text
     }
 }
 
