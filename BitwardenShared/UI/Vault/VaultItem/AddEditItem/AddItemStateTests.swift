@@ -44,6 +44,7 @@ class AddItemStateTests: XCTestCase {
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
+              - permissions: Optional<CipherPermissions>.none
               - reprompt: CipherRepromptType.none
               - revisionDate: 2023-10-20T00:00:00Z
               - secureNote: Optional<SecureNoteView>.none
@@ -105,6 +106,7 @@ class AddItemStateTests: XCTestCase {
               - organizationId: Optional<String>.none
               - organizationUseTotp: false
               - passwordHistory: Optional<Array<PasswordHistoryView>>.none
+              - permissions: Optional<CipherPermissions>.none
               - reprompt: CipherRepromptType.password
               - revisionDate: 2023-09-01T00:00:00Z
               - secureNote: Optional<SecureNoteView>.none

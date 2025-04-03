@@ -8,7 +8,8 @@ import WatchConnectivity
 final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSettingsAction, OtherSettingsEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasSettingsRepository
         & HasSystemDevice
         & HasWatchService
@@ -103,9 +104,9 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             try await services.settingsRepository.fetchSync()
             state.toast = Toast(title: Localizations.syncingComplete)
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.syncVault()
-            })
+            }
             services.errorReporter.log(error: error)
         }
     }

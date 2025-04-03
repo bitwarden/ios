@@ -3,7 +3,7 @@ import UIKit
 
 /// A `RequestHandler` that applies default headers (user agent, client type & name, etc) to requests.
 ///
-class DefaultHeadersRequestHandler: RequestHandler {
+public class DefaultHeadersRequestHandler: RequestHandler {
     // MARK: Properties
 
     /// The app's name.
@@ -28,7 +28,7 @@ class DefaultHeadersRequestHandler: RequestHandler {
     ///   - buildNumber: The app's build number.
     ///   - systemDevice: A `SystemDevice` instance used to get device details.
     ///
-    init(
+    public init(
         appName: String,
         appVersion: String,
         buildNumber: String,
@@ -42,7 +42,7 @@ class DefaultHeadersRequestHandler: RequestHandler {
 
     // MARK: Request Handler
 
-    func handle(_ request: inout HTTPRequest) async throws -> HTTPRequest {
+    public func handle(_ request: inout HTTPRequest) async throws -> HTTPRequest {
         let osVersion = systemDevice.systemVersion
         let systemName = systemDevice.systemName
         let model = systemDevice.model

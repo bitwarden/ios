@@ -1,7 +1,8 @@
+import BitwardenKitMocks
 import Networking
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 class DefaultHeadersRequestHandlerTests: BitwardenTestCase {
     // MARK: Properties
