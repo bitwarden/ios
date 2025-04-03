@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenShared
 import TestHelpers
 import XCTest
@@ -8,7 +9,7 @@ open class BitwardenTestCase: BaseBitwardenTestCase {
         // Apply default appearances for snapshot tests.
         UI.applyDefaultAppearances()
 
-        TestDataHelpers.bundleClass = Self.self
+        TestDataHelpers.bundleClass = MockSystemDevice.self
     }
 
     /// Executes any logic that should be applied before each test runs.

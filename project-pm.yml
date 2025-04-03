@@ -411,6 +411,7 @@ targets:
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: SnapshotTesting

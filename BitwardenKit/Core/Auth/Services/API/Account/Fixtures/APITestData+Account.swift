@@ -1,7 +1,7 @@
 import Foundation
 import TestHelpers
 
-extension APITestData {
+public extension APITestData {
     // MARK: Account Revision Date
 
     static func accountRevisionDate( // swiftlint:disable:this type_contents_order
