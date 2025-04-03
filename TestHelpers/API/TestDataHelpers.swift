@@ -19,11 +19,13 @@ public enum TestDataHelpers {
             bundle = Bundle(for: bundleClass.self)
         }
         guard let url = bundle.url(forResource: resource, withExtension: `extension`) else {
+            // swiftlint:disable:next line_length
             fatalError("Unable to locate file \(resource).\(`extension`) in the bundle \(bundle.bundleURL.lastPathComponent).")
         }
         do {
             return try Data(contentsOf: url)
         } catch {
+            // swiftlint:disable:next line_length
             fatalError("Unable to load data from \(resource).\(`extension`) in the bundle \(bundle.bundleURL.lastPathComponent). Error: \(error)")
         }
     }
