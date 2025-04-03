@@ -74,7 +74,7 @@ struct EnableFlightRecorderView: View {
         BitwardenMenuField(
             title: Localizations.loggingDuration,
             accessibilityIdentifier: "LoggingDurationChooser",
-            options: LoggingDuration.allCases,
+            options: FlightRecorderLoggingDuration.allCases,
             selection: store.binding(
                 get: \.loggingDuration,
                 send: EnableFlightRecorderAction.loggingDurationChanged

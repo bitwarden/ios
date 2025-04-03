@@ -6,5 +6,5 @@ struct EnableFlightRecorderState {
     // MARK: Properties
 
     /// The selected logging duration value.
-    var loggingDuration = LoggingDuration.twentyFourHours
+    var loggingDuration = FlightRecorderLoggingDuration.twentyFourHours
 }

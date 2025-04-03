@@ -1,6 +1,6 @@
 /// An enum that represents how long to enable the flight recorder.
 ///
-enum LoggingDuration: CaseIterable, Menuable {
+enum FlightRecorderLoggingDuration: CaseIterable, Menuable {
     /// The flight recorder is enabled for one hour.
     case oneHour
 

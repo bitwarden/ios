@@ -42,7 +42,7 @@ class EnableFlightRecorderViewTests: BitwardenTestCase {
     func test_loggingDurationMenu_updateValue() throws {
         processor.state.loggingDuration = .twentyFourHours
         let menuField = try subject.inspect().find(bitwardenMenuField: Localizations.loggingDuration)
-        try menuField.select(newValue: LoggingDuration.oneHour)
+        try menuField.select(newValue: FlightRecorderLoggingDuration.oneHour)
         XCTAssertEqual(processor.dispatchedActions.last, .loggingDurationChanged(.oneHour))
     }
 

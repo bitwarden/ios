@@ -7,5 +7,5 @@ enum EnableFlightRecorderAction: Equatable {
     case dismiss
 
     /// The logging duration value has changed.
-    case loggingDurationChanged(LoggingDuration)
+    case loggingDurationChanged(FlightRecorderLoggingDuration)
 }
