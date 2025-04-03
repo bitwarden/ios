@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ServerError
 
 /// An enumeration of server errors.
