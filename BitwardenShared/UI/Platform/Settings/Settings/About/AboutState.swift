@@ -11,6 +11,12 @@ struct AboutState {
     /// The copyright text.
     var copyrightText = ""
 
+    /// Whether the flight recorder feature is enabled.
+    var isFlightRecorderFeatureFlagEnabled = false
+
+    /// Whether the toggle for enabling flight recorder is on.
+    var isFlightRecorderToggleOn = false
+
     /// Whether the submit crash logs toggle is on.
     var isSubmitCrashLogsToggleOn: Bool = false
 

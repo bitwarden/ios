@@ -9,7 +9,7 @@ class AboutViewTests: BitwardenTestCase {
     let copyrightText = "© Bitwarden Inc. 2015-2023"
     let version = "Version: 1.0.0 (1)"
 
-    var processor: MockProcessor<AboutState, AboutAction, Void>!
+    var processor: MockProcessor<AboutState, AboutAction, AboutEffect>!
     var subject: AboutView!
 
     // MARK: Setup & Teardown
@@ -38,6 +38,32 @@ class AboutViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.bitwardenHelpCenter)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .helpCenterTapped)
+    }
+
+    /// The flight recorder toggle doesn't exist in the view when the feature flag is disabled.
+    @MainActor
+    func test_flightRecorderToggle_hiddenWithFeatureFlagDisabled() {
+        processor.state.isFlightRecorderFeatureFlagEnabled = false
+        XCTAssertThrowsError(
+            try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.flightRecorder)
+        )
+    }
+
+    /// The flight recorder toggle exists in the view when the feature flag is enabled.
+    @MainActor
+    func test_flightRecorderToggle_visibleWithFeatureFlagEnabled() throws {
+        processor.state.isFlightRecorderFeatureFlagEnabled = true
+        let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.flightRecorder)
+
+        try toggle.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.toggleFlightRecorder(true)])
+
+        processor.state.isFlightRecorderToggleOn = true
+        try toggle.tap()
+        XCTAssertEqual(
+            processor.dispatchedActions,
+            [.toggleFlightRecorder(true), .toggleFlightRecorder(false)]
+        )
     }
 
     /// Tapping the privacy policy button dispatches the `.privacyPolicyTapped` action.
@@ -77,6 +103,7 @@ class AboutViewTests: BitwardenTestCase {
     /// The default view renders correctly.
     @MainActor
     func test_snapshot_default() {
+        processor.state.isFlightRecorderFeatureFlagEnabled = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5])
     }
 }

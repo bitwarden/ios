@@ -11,18 +11,25 @@ struct AboutView: View {
     @Environment(\.openURL) private var openURL
 
     /// The `Store` for this view.
-    @ObservedObject var store: Store<AboutState, AboutAction, Void>
+    @ObservedObject var store: Store<AboutState, AboutAction, AboutEffect>
 
     // MARK: View
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 8) {
+            submitCrashLogs
+
+            flightRecorderSection
+
             miscSection
 
             copyrightNotice
         }
         .scrollView(padding: 12)
         .navigationBar(title: Localizations.about, titleDisplayMode: .inline)
+        .task {
+            await store.perform(.loadData)
+        }
         .toast(store.binding(
             get: \.toast,
             send: AboutAction.toastShown
@@ -50,11 +57,25 @@ struct AboutView: View {
             .frame(maxWidth: .infinity)
     }
 
+    /// The section for the flight recorder.
+    @ViewBuilder private var flightRecorderSection: some View {
+        if store.state.isFlightRecorderFeatureFlagEnabled {
+            ContentBlock(dividerLeadingPadding: 16) {
+                BitwardenToggle(
+                    Localizations.flightRecorder,
+                    isOn: store.binding(
+                        get: \.isFlightRecorderToggleOn,
+                        send: AboutAction.toggleFlightRecorder
+                    ),
+                    accessibilityIdentifier: "FlightRecorderSwitch"
+                )
+            }
+        }
+    }
+
     /// The section of miscellaneous about items.
     private var miscSection: some View {
         ContentBlock(dividerLeadingPadding: 16) {
-            submitCrashLogs
-
             externalLinkRow(Localizations.bitwardenHelpCenter, action: .helpCenterTapped)
 
             externalLinkRow(Localizations.privacyPolicy, action: .privacyPolicyTapped)
@@ -74,14 +95,16 @@ struct AboutView: View {
 
     /// The submit crash logs toggle.
     private var submitCrashLogs: some View {
-        BitwardenToggle(
-            Localizations.submitCrashLogs,
-            isOn: store.binding(
-                get: \.isSubmitCrashLogsToggleOn,
-                send: AboutAction.toggleSubmitCrashLogs
-            ),
-            accessibilityIdentifier: "SubmitCrashLogsSwitch"
-        )
+        ContentBlock {
+            BitwardenToggle(
+                Localizations.submitCrashLogs,
+                isOn: store.binding(
+                    get: \.isSubmitCrashLogsToggleOn,
+                    send: AboutAction.toggleSubmitCrashLogs
+                ),
+                accessibilityIdentifier: "SubmitCrashLogsSwitch"
+            )
+        }
     }
 
     /// Returns a `SettingsListItem` configured for an external web link.
