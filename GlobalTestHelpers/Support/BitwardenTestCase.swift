@@ -1,4 +1,3 @@
-import BitwardenKitMocks
 import BitwardenShared
 import TestHelpers
 import XCTest
