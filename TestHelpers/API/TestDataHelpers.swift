@@ -3,41 +3,41 @@ import Foundation
 /// A type that wraps fixture data for use in mocking responses during tests.
 ///
 public enum TestDataHelpers {
-    /// The default class used to determine the bundle to load files from.
-    public static var defaultBundleClass: AnyClass?
+    /// The default bundle to try loading files from.
+    public static var defaultBundle: Bundle?
 
     /// Loads the data from the provided file.
-    public static func loadFromBundle(resource: String, extension: String, bundleClass: AnyClass? = nil) -> Data {
-        let bundle: Bundle
-        switch bundleClass {
+    public static func loadFromBundle(resource: String, extension: String, bundle: Bundle? = nil) -> Data {
+        let resolvedBundle: Bundle
+        switch bundle {
         case .none:
-            guard let defaultBundleClass else {
-                fatalError("Class to determine test bundle from not set properly in the test case.")
+            guard let defaultBundle else {
+                fatalError("Default test data bundle from not set properly in the test case.")
             }
-            bundle = Bundle(for: defaultBundleClass)
-        case let .some(bundleClass):
-            bundle = Bundle(for: bundleClass.self)
+            resolvedBundle = defaultBundle
+        case let .some(bundle):
+            resolvedBundle = bundle
         }
-        guard let url = bundle.url(forResource: resource, withExtension: `extension`) else {
+        guard let url = resolvedBundle.url(forResource: resource, withExtension: `extension`) else {
             // swiftlint:disable:next line_length
-            fatalError("Unable to locate file \(resource).\(`extension`) in the bundle \(bundle.bundleURL.lastPathComponent).")
+            fatalError("Unable to locate file \(resource).\(`extension`) in the bundle \(resolvedBundle.bundleURL.lastPathComponent).")
         }
         do {
             return try Data(contentsOf: url)
         } catch {
             // swiftlint:disable:next line_length
-            fatalError("Unable to load data from \(resource).\(`extension`) in the bundle \(bundle.bundleURL.lastPathComponent). Error: \(error)")
+            fatalError("Unable to load data from \(resource).\(`extension`) in the bundle \(resolvedBundle.bundleURL.lastPathComponent). Error: \(error)")
         }
     }
 
     /// Convenience function for loading data from a JSON file.
-    public static func loadFromJsonBundle(resource: String, bundleClass: AnyClass? = nil) -> Data {
-        loadFromBundle(resource: resource, extension: "json", bundleClass: bundleClass)
+    public static func loadFromJsonBundle(resource: String, bundle: Bundle? = nil) -> Data {
+        loadFromBundle(resource: resource, extension: "json", bundle: bundle)
     }
 
     /// Convenience function for loading a JSON file into a UTF-8 string.
-    public static func loadUTFStringFromJsonBundle(resource: String, bundleClass: AnyClass? = nil) -> String? {
-        let data = loadFromJsonBundle(resource: resource, bundleClass: bundleClass)
+    public static func loadUTFStringFromJsonBundle(resource: String, bundle: Bundle? = nil) -> String? {
+        let data = loadFromJsonBundle(resource: resource, bundle: bundle)
         return String(data: data, encoding: .utf8)
     }
 }

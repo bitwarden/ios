@@ -2,9 +2,11 @@ import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
+let bundle = Bundle(for: BitwardenTestCase.self)
+
 open class BitwardenTestCase: BaseBitwardenTestCase {
     @MainActor
     override open class func setUp() {
-        TestDataHelpers.defaultBundleClass = MockSystemDevice.self
+        TestDataHelpers.defaultBundle = BitwardenKitTests.bundle
     }
 }
