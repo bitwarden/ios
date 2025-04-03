@@ -9,7 +9,7 @@ open class BitwardenTestCase: BaseBitwardenTestCase {
         // Apply default appearances for snapshot tests.
         UI.applyDefaultAppearances()
 
-        TestDataHelpers.bundleClass = MockSystemDevice.self
+        TestDataHelpers.defaultBundleClass = MockSystemDevice.self
     }
 
     /// Executes any logic that should be applied before each test runs.
