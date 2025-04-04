@@ -161,7 +161,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         var expectedState = CipherItemState(
             existing: cipherItem,
-            hasPremium: true
+            hasPremium: true,
+            iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
         expectedState.collections = collections
@@ -228,7 +229,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let expectedState = CipherItemState(
             existing: cipherItem,
-            hasPremium: false
+            hasPremium: false,
+            iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
         XCTAssertFalse(subject.state.hasMasterPassword)
@@ -258,7 +260,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let expectedState = CipherItemState(
             existing: cipherItem,
-            hasPremium: false
+            hasPremium: false,
+            iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
         XCTAssertTrue(subject.state.hasMasterPassword)
@@ -288,9 +291,178 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let expectedState = CipherItemState(
             existing: cipherItem,
-            hasPremium: false
+            hasPremium: false,
+            iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
+        XCTAssertTrue(subject.state.hasMasterPassword)
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository when
+    /// cipher belongs to a folder fetching such folder to set the folder name to the state.
+    @MainActor
+    func test_perform_appearedWithFolder() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        let collections = [
+            CollectionView.fixture(id: "1"),
+            CollectionView.fixture(id: "2"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        let cipherItem = CipherView.fixture(
+            folderId: "1",
+            id: "id",
+            login: LoginView(
+                username: "username",
+                password: "password",
+                passwordRevisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
+            ),
+            name: "Name",
+            notes: "Notes",
+            viewPassword: true
+        )
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+        vaultRepository.fetchFolderResult = .success(.fixture(id: "1", name: "FolderTest"))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        var expectedState = CipherItemState(
+            existing: cipherItem,
+            hasPremium: true,
+            iconBaseURL: URL(string: "https://example.com/icons")!
+        )!
+
+        expectedState.collections = collections
+        expectedState.folderName = "FolderTest"
+
+        XCTAssertTrue(subject.state.hasPremiumFeatures)
+        XCTAssertTrue(subject.state.hasMasterPassword)
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository when
+    /// cipher belongs to an organization fetching such organization to set the organization name to the state.
+    @MainActor
+    func test_perform_appearedWithOrganization() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        let collections = [
+            CollectionView.fixture(id: "1"),
+            CollectionView.fixture(id: "2"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        let cipherItem = CipherView.fixture(
+            id: "id",
+            login: LoginView(
+                username: "username",
+                password: "password",
+                passwordRevisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
+            ),
+            name: "Name",
+            notes: "Notes",
+            organizationId: "1",
+            viewPassword: true
+        )
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+        vaultRepository.fetchOrganizationResult = .success(.fixture(name: "OrgTest"))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        var expectedState = CipherItemState(
+            existing: cipherItem,
+            hasPremium: true,
+            iconBaseURL: URL(string: "https://example.com/icons")!
+        )!
+
+        expectedState.collections = collections
+        expectedState.organizationName = "OrgTest"
+
+        XCTAssertTrue(subject.state.hasPremiumFeatures)
+        XCTAssertTrue(subject.state.hasMasterPassword)
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` starts listening for updates with the vault repository when
+    /// cipher belongs to an organization and to collections which update the ones to display
+    @MainActor
+    func test_perform_appearedWithOrganizationAndCollectionsDisplay() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        let collections = [
+            CollectionView.fixture(id: "1"),
+            CollectionView.fixture(id: "2"),
+            CollectionView.fixture(id: "3"),
+        ]
+        vaultRepository.fetchCollectionsResult = .success(collections)
+
+        let cipherItem = CipherView.fixture(
+            collectionIds: ["2", "3"],
+            id: "id",
+            login: LoginView(
+                username: "username",
+                password: "password",
+                passwordRevisionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+                uris: nil,
+                totp: nil,
+                autofillOnPageLoad: nil,
+                fido2Credentials: nil
+            ),
+            name: "Name",
+            notes: "Notes",
+            organizationId: "1",
+            viewPassword: true
+        )
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+        vaultRepository.fetchOrganizationResult = .success(.fixture(name: "OrgTest"))
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        var expectedState = CipherItemState(
+            existing: cipherItem,
+            hasPremium: true,
+            iconBaseURL: URL(string: "https://example.com/icons")!
+        )!
+
+        expectedState.collections = collections
+        expectedState.cipherCollectionsToDisplay = [collections[1]]
+        expectedState.organizationName = "OrgTest"
+
+        XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
@@ -642,7 +814,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             ViewItemState(
                 cipherView: .fixture(reprompt: .password),
                 hasMasterPassword: true,
-                hasPremium: false
+                hasPremium: false,
+                iconBaseURL: nil
             )
         )
         await subject.perform(.deletePressed)
@@ -875,6 +1048,168 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertTrue(delegate.itemRestoredCalled)
+    }
+
+    /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
+    /// web icons parameter from the state service and updates state.
+    @MainActor
+    func test_perform_streamShowWebIcons() async throws {
+        var cipherState = CipherItemState(
+            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
+            hasPremium: false
+        )!
+        cipherState.showWebIcons = true
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+        let task = Task {
+            await subject.perform(.streamShowWebIcons)
+        }
+        defer { task.cancel() }
+
+        stateService.showWebIconsSubject.send(false)
+        try await waitForAsync { [weak self] in
+            guard case let .data(cipherState) = self?.subject.state.loadingState else {
+                return false
+            }
+            return !cipherState.showWebIcons
+        }
+    }
+
+    /// `perform(_:)` with `.toggleDisplayMultipleCollections` doesn't update the state if
+    /// loadingState is not `.data(:)`
+    @MainActor
+    func test_perform_toggleDisplayMultipleCollectionsNoAction() async throws {
+        let state = ViewItemState(
+            loadingState: .loading(nil)
+        )
+        subject.state = state
+
+        await subject.perform(.toggleDisplayMultipleCollections)
+
+        XCTAssertTrue(subject.state.loadingState == .loading(nil))
+    }
+
+    /// `perform(_:)` with `.toggleDisplayMultipleCollections` doesn't update the state if
+    /// there are no collection ids in cipher state.
+    @MainActor
+    func test_perform_toggleDisplayMultipleCollectionsNoCollectionIds() async throws {
+        var cipherState = CipherItemState(
+            existing: .fixture(),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+
+        await subject.perform(.toggleDisplayMultipleCollections)
+
+        guard case let .data(cipherState) = subject.state.loadingState else {
+            XCTFail("There should be data in the loadingState.")
+            return
+        }
+        XCTAssertTrue(cipherState.cipherCollectionsToDisplay.isEmpty)
+    }
+
+    /// `perform(_:)` with `.toggleDisplayMultipleCollections` doesn't update the state if
+    /// there are collection ids in cipher state but no cipher collections to display.
+    @MainActor
+    func test_perform_toggleDisplayMultipleCollectionsNoCollectionToDisplay() async throws {
+        var cipherState = CipherItemState(
+            existing: .fixture(collectionIds: ["1", "2"]),
+            hasPremium: false
+        )!
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+
+        await subject.perform(.toggleDisplayMultipleCollections)
+
+        guard case let .data(cipherState) = subject.state.loadingState else {
+            XCTFail("There should be data in the loadingState.")
+            return
+        }
+        XCTAssertTrue(cipherState.cipherCollectionsToDisplay.isEmpty)
+    }
+
+    /// `perform(_:)` with `.toggleDisplayMultipleCollections` updates the state when
+    /// there are collection ids in cipher state and one cipher collections to display to many
+    /// collections to display.
+    @MainActor
+    func test_perform_toggleDisplayMultipleCollectionsFromOneToMany() async throws {
+        var cipherState = CipherItemState(
+            existing: .fixture(collectionIds: ["1", "2", "4"]),
+            hasPremium: false
+        )!
+        cipherState.collections = [
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+            .fixture(id: "4"),
+            .fixture(id: "5"),
+        ]
+        cipherState.cipherCollectionsToDisplay = [
+            .fixture(id: "1"),
+        ]
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+
+        await subject.perform(.toggleDisplayMultipleCollections)
+
+        guard case let .data(cipherState) = subject.state.loadingState else {
+            XCTFail("There should be data in the loadingState.")
+            return
+        }
+        XCTAssertEqual(cipherState.cipherCollectionsToDisplay.count, 3)
+        XCTAssertEqual(cipherState.cipherCollectionsToDisplay[0].id, "1")
+        XCTAssertEqual(cipherState.cipherCollectionsToDisplay[1].id, "2")
+        XCTAssertEqual(cipherState.cipherCollectionsToDisplay[2].id, "4")
+    }
+
+    /// `perform(_:)` with `.toggleDisplayMultipleCollections` updates the state when
+    /// there are collection ids in cipher state and many cipher collections to display to one
+    /// collection to display.
+    @MainActor
+    func test_perform_toggleDisplayMultipleCollectionsFromManyToOne() async throws {
+        var cipherState = CipherItemState(
+            existing: .fixture(collectionIds: ["2", "3", "5"]),
+            hasPremium: false
+        )!
+        cipherState.collections = [
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+            .fixture(id: "4"),
+            .fixture(id: "5"),
+        ]
+        cipherState.cipherCollectionsToDisplay = [
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+            .fixture(id: "5"),
+        ]
+
+        let state = ViewItemState(
+            loadingState: .data(cipherState)
+        )
+        subject.state = state
+
+        await subject.perform(.toggleDisplayMultipleCollections)
+
+        guard case let .data(cipherState) = subject.state.loadingState else {
+            XCTFail("There should be data in the loadingState.")
+            return
+        }
+        XCTAssertEqual(cipherState.cipherCollectionsToDisplay.count, 1)
+        XCTAssertEqual(cipherState.cipherCollectionsToDisplay[0].id, "2")
     }
 
     /// `.receive(_:)` with `.downloadAttachment(_)` shows an alert and downloads the attachment for large attachments.

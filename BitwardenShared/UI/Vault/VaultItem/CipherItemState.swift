@@ -5,7 +5,7 @@ import Foundation
 
 /// An object that defines the current state of any view interacting with a cipher item.
 ///
-struct CipherItemState: Equatable {
+struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// An enum defining if the state is a new or existing cipher.
@@ -37,6 +37,12 @@ struct CipherItemState: Equatable {
     /// The card item state.
     var cardItemState: CardItemState
 
+    /// The collections the cipher belongs to to display.
+    /// When there are collections, this depends on whether the user selects
+    /// show more/less for this to have one or more collecitons the cipher
+    /// belongs to.
+    var cipherCollectionsToDisplay: [CollectionView]
+
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
 
@@ -52,6 +58,9 @@ struct CipherItemState: Equatable {
     /// The identifier of the folder for this item.
     var folderId: String?
 
+    /// The folder name this item belongs to, if any.
+    var folderName: String?
+
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>]
 
@@ -63,6 +72,9 @@ struct CipherItemState: Equatable {
             .loginStep3,
         ]
     )
+
+    /// The base url used to fetch icons.
+    var iconBaseURL: URL?
 
     /// The state for a identity type item.
     var identityState: IdentityItemState
@@ -94,11 +106,17 @@ struct CipherItemState: Equatable {
     /// The organization ID of the cipher, if the cipher is owned by an organization.
     var organizationId: String?
 
+    /// The name of the organization the cipher belongs to, if any.
+    var organizationName: String?
+
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions: [CipherOwner]
 
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
+
+    /// Whether the web icons should be shown.
+    var showWebIcons: Bool
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState
@@ -200,6 +218,7 @@ struct CipherItemState: Equatable {
         configuration: Configuration,
         customFields: [CustomFieldState],
         folderId: String?,
+        iconBaseURL: URL?,
         identityState: IdentityItemState,
         isFavoriteOn: Bool,
         isMasterPasswordRePromptOn: Bool,
@@ -208,6 +227,7 @@ struct CipherItemState: Equatable {
         name: String,
         notes: String,
         organizationId: String?,
+        showWebIcons: Bool,
         sshKeyState: SSHKeyItemState,
         type: CipherType,
         updatedDate: Date
@@ -216,8 +236,10 @@ struct CipherItemState: Equatable {
         cardItemState = cardState
         self.collectionIds = collectionIds
         collections = []
+        cipherCollectionsToDisplay = []
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
+        self.iconBaseURL = iconBaseURL
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
@@ -229,6 +251,7 @@ struct CipherItemState: Equatable {
         self.organizationId = organizationId
         ownershipOptions = []
         showMasterPasswordReprompt = true
+        self.showWebIcons = showWebIcons
         self.sshKeyState = sshKeyState
         self.type = type
         self.updatedDate = updatedDate
@@ -255,6 +278,7 @@ struct CipherItemState: Equatable {
             configuration: .add,
             customFields: customFields,
             folderId: folderId,
+            iconBaseURL: nil,
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
@@ -269,6 +293,7 @@ struct CipherItemState: Equatable {
             name: name ?? uri.flatMap(URL.init)?.host ?? "",
             notes: "",
             organizationId: organizationId,
+            showWebIcons: false,
             sshKeyState: .init(),
             type: type,
             updatedDate: .now
@@ -283,6 +308,7 @@ struct CipherItemState: Equatable {
             configuration: .add,
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
+            iconBaseURL: nil,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
@@ -291,6 +317,7 @@ struct CipherItemState: Equatable {
             name: "\(cipherView.name) - \(Localizations.clone)",
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,
+            showWebIcons: false,
             sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
@@ -300,7 +327,9 @@ struct CipherItemState: Equatable {
     init?(
         existing cipherView: CipherView,
         hasMasterPassword: Bool = true,
-        hasPremium: Bool
+        hasPremium: Bool,
+        iconBaseURL: URL? = nil,
+        showWebIcons: Bool = true
     ) {
         guard cipherView.id != nil else { return nil }
         self.init(
@@ -310,6 +339,7 @@ struct CipherItemState: Equatable {
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
+            iconBaseURL: iconBaseURL,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
@@ -321,6 +351,7 @@ struct CipherItemState: Equatable {
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,
+            showWebIcons: showWebIcons,
             sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
@@ -382,8 +413,8 @@ extension CipherItemState: ViewVaultItemState {
         cipher.attachments
     }
 
-    var isSoftDeleted: Bool {
-        cipher.deletedDate != nil
+    var belongsToMultipleCollections: Bool {
+        cipher.collectionIds.count > 1
     }
 
     var cardItemViewState: any ViewCardItemState {
@@ -397,6 +428,83 @@ extension CipherItemState: ViewVaultItemState {
         case .add:
             return newCipherView()
         }
+    }
+
+    var icon: ImageAsset {
+        switch cipher.type {
+        case .card:
+            guard case let .custom(brand) = cardItemState.brand else {
+                return Asset.Images.card24
+            }
+            return brand.icon
+        case .identity:
+            return Asset.Images.idCard24
+        case .login:
+            return Asset.Images.globe24
+        case .secureNote:
+            return Asset.Images.stickyNote24
+        case .sshKey:
+            return Asset.Images.key24
+        }
+    }
+
+    var iconAccessibilityId: String {
+        "CipherIcon"
+    }
+
+    var isShowingMultipleCollections: Bool {
+        cipherCollectionsToDisplay.count > 1
+    }
+
+    var isSoftDeleted: Bool {
+        cipher.deletedDate != nil
+    }
+
+    var loginView: BitwardenSdk.LoginView? {
+        cipher.login
+    }
+
+    var multipleCollectionsDisplayButtonTitle: String {
+        guard !cipherCollectionsToDisplay.isEmpty else {
+            return ""
+        }
+        if isShowingMultipleCollections {
+            return Localizations.showLess
+        }
+        return Localizations.showMore
+    }
+
+    var shouldDisplayFolder: Bool {
+        !folderName.isEmptyOrNil
+            && (!belongsToMultipleCollections || isShowingMultipleCollections)
+    }
+
+    var shouldDisplayNoFolder: Bool {
+        organizationId == nil
+            && folderId == nil
+            && collectionIds.isEmpty
+    }
+
+    var shouldUseCustomPlaceholderContent: Bool {
+        guard cipher.type == .card,
+              case let .custom(brand) = cardItemState.brand,
+              brand != .other else {
+            return true
+        }
+        return false
+    }
+
+    var totalHeaderAdditionalItems: Int {
+        // Accessibility only uses this when there's an organization.
+        guard organizationId != nil else {
+            return 0
+        }
+        var total = 1
+        total += cipher.collectionIds.count
+        if !cipher.folderId.isEmptyOrNil {
+            total += 1
+        }
+        return total
     }
 }
 

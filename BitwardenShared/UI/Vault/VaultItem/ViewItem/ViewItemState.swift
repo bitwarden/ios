@@ -69,16 +69,19 @@ extension ViewItemState {
     ///   - cipherView: The `CipherView` to create this state with.
     ///   - hasMasterPassword: Whether the account has a master password.
     ///   - hasPremium: Does the account have premium features.
+    ///   - iconBaseURL: The base url used to fetch icons.
     ///
     init?(
         cipherView: CipherView,
         hasMasterPassword: Bool,
-        hasPremium: Bool
+        hasPremium: Bool,
+        iconBaseURL: URL?
     ) {
         guard let cipherItemState = CipherItemState(
             existing: cipherView,
             hasMasterPassword: hasMasterPassword,
-            hasPremium: hasPremium
+            hasPremium: hasPremium,
+            iconBaseURL: iconBaseURL
         ) else { return nil }
         self.init(loadingState: .data(cipherItemState))
         self.hasMasterPassword = hasMasterPassword

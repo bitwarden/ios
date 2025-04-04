@@ -7,7 +7,13 @@ import SwiftUI
 struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     // MARK: Private Properties
 
+    /// Whether the second item in the collections list is focused. This is used alongside the Show more/less button.
+    @AccessibilityFocusState private var isSecondCollectionFocused: Bool
+
     @Environment(\.openURL) private var openURL
+
+    /// The top padding to use in the `belongingView` image.
+    @ScaledMetric(relativeTo: .body) private var paddingTopBelongingViewImage = 4
 
     // MARK: Properties
 
@@ -20,7 +26,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     // MARK: View
 
     var body: some View {
-        itemDetailsSection
+        itemHeaderSection
 
         itemInformationSection
 
@@ -143,19 +149,137 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         }
     }
 
-    /// The item details section.
-    private var itemDetailsSection: some View {
-        SectionView(Localizations.itemDetails, contentSpacing: 8) {
-            BitwardenTextValueField(title: Localizations.itemNameRequired, value: store.state.name) {
-                let image = store.state.isFavoriteOn
-                    ? Asset.Images.starFilled24.swiftUIImage
-                    : Asset.Images.star24.swiftUIImage
-                image
-                    .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
-                    .accessibilityLabel(Localizations.favorite)
-                    .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
+    /// A section with additional details to display on the header details.
+    @ViewBuilder private var itemHeaderAdditionalDetails: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if store.state.shouldDisplayNoFolder {
+                belongingView(
+                    icon: Asset.Images.folder16,
+                    name: Localizations.folderNone
+                )
+                .padding(.leading, 8)
+                .accessibilityLabel(Localizations.folderX(Localizations.folderNone))
+            } else {
+                itemHeaderBelongingToSection
+                    .padding(.leading, 8)
+
+                if store.state.belongsToMultipleCollections {
+                    AsyncButton(store.state.multipleCollectionsDisplayButtonTitle) {
+                        await store.perform(.toggleDisplayMultipleCollections)
+                    }
+                    .buttonStyle(.bitwardenBorderless)
+                    .padding(.top, 6)
+                    .padding(.bottom, 4)
+                    .accessibilityLabel(store.state.multipleCollectionsDisplayButtonTitle)
+                    .accessibilityIdentifier("ToggleDisplayMultipleCollectionsButton")
+                }
             }
-            .accessibilityElement(children: .contain)
+        }
+        .padding(12)
+    }
+
+    /// A section displaying where the item belongs to, i.e. organization, collections and folder.
+    @ViewBuilder private var itemHeaderBelongingToSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let organizationName = store.state.organizationName {
+                belongingView(
+                    icon: Asset.Images.business16,
+                    name: organizationName
+                )
+                .accessibilityLabel(Localizations.ownerX(organizationName))
+                .accessibilityHint(Localizations.itemXOfY(1, store.state.totalHeaderAdditionalItems))
+            }
+
+            if !store.state.cipherCollectionsToDisplay.isEmpty {
+                ForEachIndexed(store.state.cipherCollectionsToDisplay) { index, collection in
+                    VStack(alignment: .leading, spacing: 0) {
+                        belongingView(
+                            icon: Asset.Images.collections16,
+                            name: collection.name
+                        )
+                        .accessibilityLabel(Localizations.collectionX(collection.name))
+                        .accessibilityHint(Localizations.itemXOfY(index + 2, store.state.totalHeaderAdditionalItems))
+                        .if(index == 1) { view in
+                            view.accessibilityFocused($isSecondCollectionFocused)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+
+            if store.state.shouldDisplayFolder, let folderName = store.state.folderName {
+                belongingView(
+                    icon: Asset.Images.folder16,
+                    name: folderName
+                )
+                .accessibilityLabel(Localizations.folderX(folderName))
+                .accessibilityHint(
+                    Localizations.itemXOfY(
+                        store.state.totalHeaderAdditionalItems,
+                        store.state.totalHeaderAdditionalItems
+                    )
+                )
+            }
+        }
+    }
+
+    /// The main details header section.
+    private var itemHeaderMainDetails: some View {
+        HStack(spacing: 12) {
+            VaultItemDecorativeImageView(
+                item: store.state,
+                iconBaseURL: store.state.iconBaseURL,
+                showWebIcons: store.state.showWebIcons
+            ) { placeholderIconAsset in
+                Image(decorative: placeholderIconAsset)
+                    .resizable()
+                    .scaledToFit()
+                    .accessibilityHidden(true)
+                    .imageStyle(.viewIcon(size: 24))
+                    .withCircularBackground(
+                        color: Asset.Colors.illustrationBgPrimary.swiftUIColor,
+                        width: 36,
+                        height: 36
+                    )
+            }
+            .imageStyle(.viewIcon())
+            .accessibilityHidden(true)
+            .padding(.vertical, 5)
+
+            Text(store.state.name)
+                .styleGuide(.title2, weight: .semibold, includeLinePadding: false, includeLineSpacing: false)
+                .multilineTextAlignment(.leading)
+                .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                .accessibilityIdentifier(store.state.name)
+                .accessibilityLabel(Localizations.itemNameX(store.state.name))
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            let image = store.state.isFavoriteOn
+                ? Asset.Images.starFilled24.swiftUIImage
+                : Asset.Images.star24.swiftUIImage
+            image
+                .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
+                .accessibilityLabel(Localizations.favorite)
+                .accessibilityValue(store.state.isFavoriteOn ? Localizations.on : Localizations.off)
+                .buttonStyle(.accessory)
+        }
+        .padding(.leading, 16)
+        .padding(.trailing, 16)
+        .frame(minHeight: 64)
+        .accessibilityElement(children: .contain)
+    }
+
+    /// The item header section.
+    private var itemHeaderSection: some View {
+        ContentBlock(dividerLeadingPadding: 12) {
+            itemHeaderMainDetails
+
+            itemHeaderAdditionalDetails
+        }
+        .onChange(of: store.state.isShowingMultipleCollections) { value in
+            if value {
+                isSecondCollectionFocused = true
+            }
         }
     }
 
@@ -302,6 +426,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         }
     }
 
+    // MARK: Private methods
+
     /// A row to display an existing attachment.
     ///
     /// - Parameters:
@@ -337,4 +463,24 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("CipherAttachment")
     }
-}
+
+    /// Returns a view used to display where the item belongs to information.
+    /// - Parameters:
+    ///   - icon: The icon to display.
+    ///   - name: The name to display.
+    /// - Returns: A view with an icon and a name stating where the item belongs to.
+    @ViewBuilder
+    private func belongingView(icon: ImageAsset, name: String) -> some View {
+        HStack(alignment: .top) {
+            Image(decorative: icon)
+                .resizable()
+                .scaledToFit()
+                .imageStyle(.accessoryIcon16(scaleWithFont: true))
+                .padding(.top, paddingTopBelongingViewImage)
+
+            Text(name)
+                .styleGuide(.body)
+        }
+        .accessibilityElement(children: .combine)
+    }
+} // swiftlint:disable:this file_length
