@@ -65,6 +65,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag for the refactor on the SSO details endpoint.
     case refactorSsoDetailsEndpoint = "pm-12337-refactor-sso-details-endpoint"
 
+    /// A feature flag for the use of new cipher permission properties.
+    case restrictItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission"
+
     // MARK: Test Flags
 
     /// A test feature flag that isn't remotely configured and has no initial value.
@@ -140,6 +143,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
+             .restrictItemDeletion,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,
