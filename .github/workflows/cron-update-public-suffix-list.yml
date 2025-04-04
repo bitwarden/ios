@@ -8,7 +8,7 @@ on:
 
 env:
   SOURCE_URL: https://publicsuffix.org/list/public_suffix_list.dat
-  PSL_FILE: BitwardenShared/Core/Platform/Utilities/Resources/public_suffix_list.dat
+  PSL_FILE: BitwardeKit/Core/Platform/Utilities/Resources/public_suffix_list.dat
 
 jobs:
   update-psl:
@@ -24,7 +24,7 @@ jobs:
 
       - name: Download latest PSL list
         run: | 
-          curl -s $SOURCE_URL -o $PSL_FILE
+          curl $SOURCE_URL -o $PSL_FILE
 
       - name: Check for changes
         id: check-changes
