@@ -1,6 +1,5 @@
 name: Cron / Update public suffix list
 on:
-  push:
   schedule:
     # Run weekly on Monday at 00:00 UTC
     - cron: '0 0 * * 1'
@@ -8,46 +7,65 @@ on:
 
 env:
   SOURCE_URL: https://publicsuffix.org/list/public_suffix_list.dat
-  GOOGLE_FILE: app/src/main/assets/fido2_privileged_google.json
-  COMMUNITY_FILE: app/src/main/assets/fido2_privileged_community.json
+  PSL_FILE: BitwardenShared/Core/Platform/Utilities/Resources/public_suffix_list.dat
 
 jobs:
-  psl-update:
-    name: Update PSL
+  update-psl:
+    name: Update Public Suffix List
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+
     steps:
-      - name: Check out repo
-        uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4.2.0
-
-      - name: Login to Azure - CI Subscription
-        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
-        with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
 
       - name: Download latest PSL list
         run: | 
-          curl https://publicsuffix.org/list/public_suffix_list.dat \
-          -o BitwardenShared/Core/Platform/Utilities/Resources/public_suffix_list.dat
+          curl -s $SOURCE_URL -o $PSL_FILE
 
-      - name: Create pull-request
-        id: cpr
-        uses: peter-evans/create-pull-request@v4
-        with:
-          commit-message: "Update public suffix list"
-          title: "Update public suffix list"
-          body: "Update the public suffix list"
-          branch: update-public-suffix-list
-          sign-commits: true
-          delete-branch: true
-
-      - name: Check outputs
+      - name: Check for changes
+        id: check-changes
         run: |
-          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+          if git diff --quiet -- $PSL_FILE; then
+            echo "👀 No changes detected, skipping..."
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "👀 Changes detected"
+
+      - name: Create branch and commit
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "👀 Committing public_suffix_list.dat..."
+
+          BRANCH_NAME="cron-sync-public-suffix-list/$GITHUB_RUN_NUMBER-sync"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git checkout -b $BRANCH_NAME
+          git add $PSL_FILE
+          git commit -m "Update public suffix list"
+          git push origin $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "🌱 Branch created: $BRANCH_NAME"
+
+      - name: Create Pull Request
+        if: steps.check-changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DUPLICATES_FOUND: ${{ steps.check-changes.outputs.duplicates_found }}
+          BASE_PR_URL: ${{ github.server_url }}/${{ github.repository }}/pull/
+        run: |
+          PR_BODY="Updates the public suffix list with the latest data from $SOURCE_URL"
+
+          # Use echo -e to interpret escape sequences and pipe to gh pr create
+          PR_URL=$(echo -e "$PR_BODY" | gh pr create \
+            --title "Update public suffix list" \
+            --body-file - \
+            --base main \
+            --head $BRANCH_NAME \
+            --label "automated-pr" \
+            --label "t:ci")
