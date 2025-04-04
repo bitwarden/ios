@@ -106,6 +106,7 @@ targets:
     sources:
       - path: BitwardenKit
         excludes:
+          - "**/Fixtures/*"
           - "**/Mocks/*"
           - "**/*Tests.*"
           - "**/TestHelpers/*"
@@ -127,6 +128,7 @@ targets:
     sources:
       - path: BitwardenKit
         includes:
+          - "**/Fixtures/*"
           - "**/Mocks/*"
     dependencies:
       - target: BitwardenKit

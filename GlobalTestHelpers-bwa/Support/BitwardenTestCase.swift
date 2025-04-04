@@ -10,7 +10,7 @@ open class BitwardenTestCase: BaseBitwardenTestCase {
         // Apply default appearances for snapshot tests.
         UI.applyDefaultAppearances()
 
-        TestDataHelpers.bundleClass = Self.self
+        TestDataHelpers.defaultBundle = Bundle(for: Self.self)
     }
 
     /// Executes any logic that should be applied before each test runs.
