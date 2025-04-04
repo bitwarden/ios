@@ -10,6 +10,9 @@ public class AlertAction {
 
     /// An optional handler that is called when the user taps on the action from the alert.
     let handler: ((AlertAction, [AlertTextField]) async -> Void)?
+    
+    /// Condition that determines if the action should be enabled. Defaults to always enabled.
+    var shouldEnableAction: (([AlertTextField]) -> Bool)? = nil
 
     /// The style of the action.
     let style: UIAlertAction.Style
@@ -28,10 +31,12 @@ public class AlertAction {
     ///
     public init(
         title: String,
+        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil,
         style: UIAlertAction.Style,
         handler: ((AlertAction, [AlertTextField]) async -> Void)? = nil
     ) {
         self.title = title
+        self.shouldEnableAction = shouldEnableAction
         self.style = style
         self.handler = handler
     }
@@ -45,10 +50,12 @@ public class AlertAction {
     ///
     public init(
         title: String,
+        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil,
         style: UIAlertAction.Style,
         handler: @escaping (AlertAction) async -> Void
     ) {
         self.title = title
+        self.shouldEnableAction = shouldEnableAction
         self.style = style
         self.handler = { action, _ in
             await handler(action)
