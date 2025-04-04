@@ -10,4 +10,13 @@ protocol VaultItemWithDecorativeIcon {
 
     /// The login view containing the uri's to download the special decorative icon, if applicable.
     var loginView: BitwardenSdk.LoginView? { get }
+
+    /// Whether the placeholder needs a custom content view to be shown.
+    var shouldUseCustomPlaceholderContent: Bool { get }
+}
+
+extension VaultItemWithDecorativeIcon {
+    var shouldUseCustomPlaceholderContent: Bool {
+        false
+    }
 }

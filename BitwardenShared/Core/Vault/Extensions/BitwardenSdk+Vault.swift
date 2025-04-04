@@ -629,7 +629,7 @@ extension BitwardenSdk.Collection {
     }
 }
 
-extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, TreeNodeModel {}
+extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, @retroactive Identifiable, TreeNodeModel {}
 
 // MARK: - Folders (BitwardenSdk)
 

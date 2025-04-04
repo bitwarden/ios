@@ -12,6 +12,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     typealias Services = HasAPIService
         & HasAuthRepository
         & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -121,6 +122,14 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 return
             }
             await showRestoreItemConfirmation()
+        case .streamShowWebIcons:
+            for await value in await services.stateService.showWebIconsPublisher().values {
+                guard case var .data(cipherState) = state.loadingState else { continue }
+                cipherState.showWebIcons = value
+                state.loadingState = .data(cipherState)
+            }
+        case .toggleDisplayMultipleCollections:
+            toggleDisplayMultipleCollections()
         case .totpCodeExpired:
             await updateTOTPCode()
         }
@@ -521,6 +530,14 @@ private extension ViewItemProcessor {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
                 let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
                 let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
+                var folder: FolderView?
+                if let folderId = cipher.folderId {
+                    folder = try await services.vaultRepository.fetchFolder(withId: folderId)
+                }
+                var organization: Organization?
+                if let orgId = cipher.organizationId {
+                    organization = try await services.vaultRepository.fetchOrganization(withId: orgId)
+                }
 
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
@@ -531,12 +548,25 @@ private extension ViewItemProcessor {
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasMasterPassword: hasMasterPassword,
-                    hasPremium: hasPremium
+                    hasPremium: hasPremium,
+                    iconBaseURL: services.environmentService.iconsURL
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
                     itemState.collections = collections
+                    if !itemState.collectionIds.isEmpty {
+                        itemState.cipherCollectionsToDisplay = Array(collections
+                            .filter { collection in
+                                guard let id = collection.id else {
+                                    return false
+                                }
+                                return cipher.collectionIds.contains(id)
+                            }
+                            .prefix(1))
+                    }
+                    itemState.folderName = folder?.name
+                    itemState.organizationName = organization?.name
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
@@ -545,6 +575,28 @@ private extension ViewItemProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Toggles whether to show one or multiple collections the cipher belongs to, if any.
+    private func toggleDisplayMultipleCollections() {
+        guard case var .data(cipherState) = state.loadingState,
+              !cipherState.collectionIds.isEmpty,
+              !cipherState.cipherCollectionsToDisplay.isEmpty else {
+            return
+        }
+
+        if cipherState.cipherCollectionsToDisplay.count == 1 {
+            cipherState.cipherCollectionsToDisplay = cipherState.collections.filter { collection in
+                guard let collectionId = collection.id else {
+                    return false
+                }
+                return cipherState.cipher.collectionIds.contains(collectionId)
+            }
+        } else if cipherState.cipherCollectionsToDisplay.count > 1 {
+            cipherState.cipherCollectionsToDisplay = [cipherState.cipherCollectionsToDisplay[0]]
+        }
+
+        state.loadingState = .data(cipherState)
     }
 }
 
