@@ -44,7 +44,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasCameraService
-        & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
     // MARK: Private Properties

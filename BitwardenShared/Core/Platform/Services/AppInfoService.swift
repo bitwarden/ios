@@ -29,6 +29,9 @@ protocol AppInfoService {
     /// A formatted string containing detailed information about the app and device.
     var appInfoString: String { get }
 
+    /// The `appInfoString` without copyright information.
+    var appInfoWithoutCopyrightString: String { get }
+
     /// The app's formatted copyright string.
     var copyrightString: String { get }
 
@@ -82,31 +85,25 @@ class DefaultAppInfoService: AppInfoService {
 
 extension DefaultAppInfoService {
     var appInfoString: String {
-        var buildVariant = switch bundle.bundleIdentifier {
-        case "com.8bit.bitwarden.beta": "Beta"
-        case "com.8bit.bitwarden": "Production"
-        default: "Unknown"
-        }
-        buildVariant = "📦 \(buildVariant)"
-        let hardwareInfo = "📱 \(systemDevice.modelIdentifier)"
-        let osInfo = "🍏 \(systemDevice.systemName) \(systemDevice.systemVersion)"
-        let deviceInfo = "\(hardwareInfo) \(osInfo) \(buildVariant)"
-        var infoParts = [
+        [
             copyrightString,
             "",
             versionString,
-            deviceInfo,
+            deviceInfoString,
+            additionalInfoString,
         ]
-        if !appAdditionalInfo.ciBuildInfo.isEmpty {
-            infoParts.append(
-                contentsOf: appAdditionalInfo.ciBuildInfo
-                    .filter { !$0.value.isEmpty }
-                    .map { key, value in
-                        "\(key) \(value)"
-                    }
-            )
-        }
-        return infoParts.joined(separator: "\n")
+        .compactMap { $0 }
+        .joined(separator: "\n")
+    }
+
+    var appInfoWithoutCopyrightString: String {
+        [
+            versionString,
+            deviceInfoString,
+            additionalInfoString,
+        ]
+        .compactMap { $0 }
+        .joined(separator: "\n")
     }
 
     var copyrightString: String {
@@ -115,5 +112,31 @@ extension DefaultAppInfoService {
 
     var versionString: String {
         "\(Localizations.version): \(bundle.appVersion) (\(bundle.buildNumber))"
+    }
+
+    // MARK: Private
+
+    /// A string containing any additional build info.
+    private var additionalInfoString: String? {
+        guard !appAdditionalInfo.ciBuildInfo.isEmpty else { return nil }
+        return appAdditionalInfo.ciBuildInfo
+            .filter { !$0.value.isEmpty }
+            .map { key, value in
+                "\(key) \(value)"
+            }
+            .joined(separator: "\n")
+    }
+
+    /// A string containing the device and build variant info.
+    private var deviceInfoString: String {
+        var buildVariant = switch bundle.bundleIdentifier {
+        case "com.8bit.bitwarden.beta": "Beta"
+        case "com.8bit.bitwarden": "Production"
+        default: "Unknown"
+        }
+        buildVariant = "📦 \(buildVariant)"
+        let hardwareInfo = "📱 \(systemDevice.modelIdentifier)"
+        let osInfo = "🍏 \(systemDevice.systemName) \(systemDevice.systemVersion)"
+        return "\(hardwareInfo) \(osInfo) \(buildVariant)"
     }
 }

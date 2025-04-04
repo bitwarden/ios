@@ -99,7 +99,7 @@ class AppInfoServiceTests: BitwardenTestCase {
     /// `appInfoString` returns a formatted string containing detailed information about the app and
     /// device, without including keys with empty values in the additional information.
     @MainActor
-    func test_receive_versionTapped_withAdditionalInfoFiltersEmptyValues() {
+    func test_appInfoString_withAdditionalInfoFiltersEmptyValues() {
         appAdditionalInfo.ciBuildInfo = [
             "🧱 commit:": "bitwarden/ios/main@abc123",
             "💻 build source:": "bitwarden/ios/actions/runs/123/attempts/123",
@@ -115,6 +115,26 @@ class AppInfoServiceTests: BitwardenTestCase {
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
             🧱 commit: bitwarden/ios/main@abc123
             💻 build source: bitwarden/ios/actions/runs/123/attempts/123
+            """
+        )
+    }
+
+    /// `debugAppInfoString` returns the app info string without copyright info.
+    func test_appInfoWithoutCopyrightString() {
+        appAdditionalInfo.ciBuildInfo = [
+            "🧱 commit:": "bitwarden/ios/main@abc123",
+            "💻 build source:": "bitwarden/ios/actions/runs/123/attempts/123",
+            "🛠️ compiler flags:": "DEBUG_MENU",
+        ]
+
+        XCTAssertEqual(
+            subject.appInfoWithoutCopyrightString,
+            """
+            Version: 1.0 (1)
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            🧱 commit: bitwarden/ios/main@abc123
+            💻 build source: bitwarden/ios/actions/runs/123/attempts/123
+            🛠️ compiler flags: DEBUG_MENU
             """
         )
     }
