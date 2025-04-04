@@ -1,5 +1,6 @@
 name: Cron / Update public suffix list
 on:
+  push:
   schedule:
     # Run weekly on Monday at 00:00 UTC
     - cron: '0 0 * * 1'
