@@ -1,12 +1,15 @@
-name: Update public suffix list
+name: Cron / Update public suffix list
 on:
   push:
-  workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 5'
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
 
-permissions:
-  contents: read
+env:
+  SOURCE_URL: https://publicsuffix.org/list/public_suffix_list.dat
+  GOOGLE_FILE: app/src/main/assets/fido2_privileged_google.json
+  COMMUNITY_FILE: app/src/main/assets/fido2_privileged_community.json
 
 jobs:
   psl-update:
