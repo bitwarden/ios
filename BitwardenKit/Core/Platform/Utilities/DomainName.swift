@@ -4,7 +4,7 @@ import Foundation
 
 /// Errors thrown by `DomainName`.
 ///
-enum DomainNameError: Error {
+public enum DomainNameError: Error {
     /// The data file containing the list of URL suffixes wasn't able to be loaded.
     case unableToLoadDataFile
 }
@@ -21,7 +21,7 @@ enum DomainNameError: Error {
 ///     - Subdomain: sub
 ///     - Base domain: example.co.uk
 ///
-class DomainName {
+public class DomainName {
     // MARK: Types
 
     /// A data model containing the data loaded from the suffix list.
@@ -121,7 +121,7 @@ class DomainName {
     /// - Parameter url: The URL to parse.
     /// - Returns: The URL's base domain.
     ///
-    static func parseBaseDomain(url: URL) -> String? {
+    public static func parseBaseDomain(url: URL) -> String? {
         parseURL(url)?.domain
     }
 
