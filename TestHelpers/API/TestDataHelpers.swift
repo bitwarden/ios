@@ -8,15 +8,9 @@ public enum TestDataHelpers {
 
     /// Loads the data from the provided file.
     public static func loadFromBundle(resource: String, extension: String, bundle: Bundle? = nil) -> Data {
-        let resolvedBundle: Bundle
-        switch bundle {
-        case .none:
-            guard let defaultBundle else {
-                fatalError("Default test data bundle from not set properly in the test case.")
-            }
-            resolvedBundle = defaultBundle
-        case let .some(bundle):
-            resolvedBundle = bundle
+        let resolvedBundle = bundle ?? defaultBundle
+        guard let resolvedBundle else {
+            fatalError("Default test data bundle from not set properly in the test case.")
         }
         guard let url = resolvedBundle.url(forResource: resource, withExtension: `extension`) else {
             // swiftlint:disable:next line_length
