@@ -169,6 +169,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportVaultToApp()
         case .exportVaultToFile:
             showExportVaultToFile()
+        case .flightRecorderLogs:
+            showFlightRecorderLogs()
         case .folders:
             showFolders()
         case .importLogins:
@@ -399,6 +401,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         )
         coordinator.start()
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the flight recorder logs screen.
+    ///
+    private func showFlightRecorderLogs() {
+        let processor = FlightRecorderLogsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: FlightRecorderLogsState()
+        )
+        let view = FlightRecorderLogsView(store: Store(processor: processor), timeProvider: services.timeProvider)
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.present(UINavigationController(rootViewController: viewController))
     }
 
     /// Shows the folders screen.

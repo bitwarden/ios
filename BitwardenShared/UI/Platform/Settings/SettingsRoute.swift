@@ -46,6 +46,9 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the export vault to file view.
     case exportVaultToFile
 
+    /// A route to the flight recorder logs screen.
+    case flightRecorderLogs
+
     /// A route to view the folders in the vault.
     case folders
 

@@ -89,6 +89,8 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
             services.errorReporter.isEnabled = isOn
         case .versionTapped:
             handleVersionTapped()
+        case .viewFlightRecorderLogsTapped:
+            coordinator.navigate(to: .flightRecorderLogs)
         case .webVaultTapped:
             coordinator.showAlert(.webVaultAlert {
                 self.state.url = self.services.environmentService.webVaultURL
