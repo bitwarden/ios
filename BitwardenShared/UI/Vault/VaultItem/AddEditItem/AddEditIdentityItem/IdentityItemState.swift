@@ -28,6 +28,9 @@ struct IdentityItemState: Equatable {
     /// The social security number for this item.
     var socialSecurityNumber: String = ""
 
+    /// A flag indicating if the social security number field is visible.
+    var showSocialSecurityNumber: Bool = false
+
     /// The passport number for this item.
     var passportNumber: String = ""
 
