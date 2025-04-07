@@ -5,14 +5,22 @@ import Networking
 
 /// An error response returned from an API request.
 ///
-struct ErrorResponseModel: Codable, Equatable {
+public struct ErrorResponseModel: Codable, Equatable {
     // MARK: Properties
 
     /// Validation errors returned from the API request.
-    let validationErrors: [String: [String]]?
+    public let validationErrors: [String: [String]]?
 
     /// The error message.
-    let message: String
+    public let message: String
+
+    // MARK: Initializers
+
+    /// Public version of synthesized initializer.
+    public init(validationErrors: [String : [String]]?, message: String) {
+        self.validationErrors = validationErrors
+        self.message = message
+    }
 
     // MARK: Methods
 
@@ -20,7 +28,7 @@ struct ErrorResponseModel: Codable, Equatable {
     ///
     /// - Returns: The validation error or an error message.
     ///
-    func singleMessage() -> String {
+    public func singleMessage() -> String {
         guard let validationErrors, !validationErrors.isEmpty else { return message }
 
         return validationErrors.values.first { values in
@@ -32,5 +40,5 @@ struct ErrorResponseModel: Codable, Equatable {
 // MARK: JSONResponse
 
 extension ErrorResponseModel: JSONResponse {
-    static var decoder = JSONDecoder.pascalOrSnakeCaseDecoder
+    public static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 }

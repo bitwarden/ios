@@ -12,14 +12,14 @@ public struct APITestData {
     }
 
     /// Loads test data from a provided file in the test class's bundle.
-    public static func loadFromBundle(resource: String, extension: String) -> APITestData {
-        let data = TestDataHelpers.loadFromBundle(resource: resource, extension: `extension`)
+    public static func loadFromBundle(resource: String, extension: String, bundle: Bundle? = nil) -> APITestData {
+        let data = TestDataHelpers.loadFromBundle(resource: resource, extension: `extension`, bundle: bundle)
         return APITestData(data: data)
     }
 
     /// Loads test data from a provided JSON file in the test class's bundle.
-    public static func loadFromJsonBundle(resource: String) -> APITestData {
-        loadFromBundle(resource: resource, extension: "json")
+    public static func loadFromJsonBundle(resource: String, bundle: Bundle? = nil) -> APITestData {
+        loadFromBundle(resource: resource, extension: "json", bundle: bundle)
     }
 }
 
