@@ -57,7 +57,7 @@ struct ViewItemState: Equatable, Sendable {
     var passwordHistory: [PasswordHistoryView]?
 
     /// A flag indicating if cipher permissions should be used.
-    var restrictItemDeletionFlagEnabled = false
+    var restrictCipherItemDeletionFlagEnabled = false
 
     /// A toast message to show in the view.
     var toast: Toast?
@@ -77,7 +77,7 @@ extension ViewItemState {
         cipherView: CipherView,
         hasMasterPassword: Bool,
         hasPremium: Bool,
-        restrictItemDeletionFlagEnabled: Bool
+        restrictCipherItemDeletionFlagEnabled: Bool
     ) {
         guard let cipherItemState = CipherItemState(
             existing: cipherView,
@@ -88,6 +88,6 @@ extension ViewItemState {
         self.hasMasterPassword = hasMasterPassword
         hasPremiumFeatures = cipherItemState.accountHasPremium
         passwordHistory = cipherView.passwordHistory
-        self.restrictItemDeletionFlagEnabled = restrictItemDeletionFlagEnabled
+        self.restrictCipherItemDeletionFlagEnabled = restrictCipherItemDeletionFlagEnabled
     }
 }

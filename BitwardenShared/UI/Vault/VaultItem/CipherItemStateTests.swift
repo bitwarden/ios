@@ -128,24 +128,7 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertTrue(state.canBeDeleted)
     }
 
-    /// `canBeDeletedPermission` cipher permissions is nil fallback to canBeDeleted
-    func test_canBeDeletedPermission_permissions_nil() throws {
-        let cipher = CipherView.loginFixture(
-            collectionIds: ["1", "2"],
-            login: .fixture(),
-            permissions: nil
-        )
-        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertFalse(state.canBeDeletedPermission)
-
-        state.collections = [
-            CollectionView.fixture(id: "1", manage: true),
-            CollectionView.fixture(id: "2", manage: false),
-        ]
-        XCTAssertTrue(state.canBeDeletedPermission)
-    }
-
-    /// `canBeDeletedPermission` returns value from cipher permissions if not nil
+    /// `canBeDeleted` returns value from cipher permissions if not nil
     /// delete value true
     func test_canBeDeletedPermission_true() throws {
         let cipher = CipherView.loginFixture(
@@ -156,10 +139,10 @@ class CipherItemStateTests: BitwardenTestCase {
             )
         )
         let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertTrue(state.canBeDeletedPermission)
+        XCTAssertTrue(state.canBeDeleted)
     }
 
-    /// `canBeDeletedPermission` returns value from cipher permissions if not nil
+    /// `canBeDeleted` returns value from cipher permissions if not nil
     /// delete value false
     func test_canBeDeletedPermission_false() throws {
         let cipher = CipherView.loginFixture(
@@ -169,8 +152,9 @@ class CipherItemStateTests: BitwardenTestCase {
                 restore: true
             )
         )
-        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertFalse(state.canBeDeletedPermission)
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.restrictCipherItemDeletionFlagEnabled = true
+        XCTAssertFalse(state.canBeDeleted)
     }
 
     /// `canBeRestoredPermission` cipher permissions is nil fallback to isSoftDeleted
@@ -182,6 +166,7 @@ class CipherItemStateTests: BitwardenTestCase {
             permissions: nil
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.restrictCipherItemDeletionFlagEnabled = true
         XCTAssertFalse(state.canBeRestoredPermission)
 
         cipher = CipherView.loginFixture(
@@ -205,7 +190,8 @@ class CipherItemStateTests: BitwardenTestCase {
                 restore: true
             )
         )
-        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.restrictCipherItemDeletionFlagEnabled = true
         XCTAssertTrue(state.canBeRestoredPermission)
     }
 
@@ -220,12 +206,13 @@ class CipherItemStateTests: BitwardenTestCase {
                 restore: false
             )
         )
-        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.restrictCipherItemDeletionFlagEnabled = true
         XCTAssertFalse(state.canBeRestoredPermission)
     }
 
-    /// `restrictItemDeletionFlagEnable` default value is false
-    func test_restrictItemDeletionFlagValue() throws {
+    /// `restrictCipherItemDeletionFlagEnable` default value is false
+    func test_restrictCipherItemDeletionFlagValue() throws {
         let cipher = CipherView.loginFixture(
             login: .fixture(),
             permissions: CipherPermissions(
@@ -235,9 +222,9 @@ class CipherItemStateTests: BitwardenTestCase {
         )
 
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertFalse(state.restrictItemDeletionFlagEnabled)
-        state.restrictItemDeletionFlagEnabled = true
-        XCTAssertTrue(state.restrictItemDeletionFlagEnabled)
+        XCTAssertFalse(state.restrictCipherItemDeletionFlagEnabled)
+        state.restrictCipherItemDeletionFlagEnabled = true
+        XCTAssertTrue(state.restrictCipherItemDeletionFlagEnabled)
     }
 
     /// `collectionsForOwner` contains collections that are not read-only

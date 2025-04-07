@@ -520,8 +520,8 @@ private extension ViewItemProcessor {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
                 let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
                 let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
-                let restrictItemDeletionFlagEnabled: Bool = await services.configService.getFeatureFlag(
-                    FeatureFlag.restrictItemDeletion
+                let restrictCipherItemDeletionFlagEnabled: Bool = await services.configService.getFeatureFlag(
+                    .restrictCipherItemDeletion
                 )
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
@@ -533,7 +533,7 @@ private extension ViewItemProcessor {
                     cipherView: cipher,
                     hasMasterPassword: hasMasterPassword,
                     hasPremium: hasPremium,
-                    restrictItemDeletionFlagEnabled: restrictItemDeletionFlagEnabled
+                    restrictCipherItemDeletionFlagEnabled: restrictCipherItemDeletionFlagEnabled
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {

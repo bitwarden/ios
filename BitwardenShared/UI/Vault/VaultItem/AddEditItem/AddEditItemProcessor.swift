@@ -684,8 +684,8 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Load the restrict item deletion flag from the config service to state.
     ///
     func loadRestrictItemDeletionFlag() async {
-        state.restrictItemDeletionFlagEnabled = await services.configService.getFeatureFlag(
-            FeatureFlag.restrictItemDeletion
+        state.restrictCipherItemDeletionFlagEnabled = await services.configService.getFeatureFlag(
+            .restrictCipherItemDeletion
         )
     }
 

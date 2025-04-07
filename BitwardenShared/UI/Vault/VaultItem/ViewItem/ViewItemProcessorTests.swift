@@ -171,7 +171,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertTrue(subject.state.hasMasterPassword)
-        XCTAssertFalse(subject.state.restrictItemDeletionFlagEnabled)
+        XCTAssertFalse(subject.state.restrictCipherItemDeletionFlagEnabled)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -300,13 +300,13 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
-    /// `perform(_:)` with `.appeared` loads feature flag value for .restrictItemDeletion.
+    /// `perform(_:)` with `.appeared` loads feature flag value for .restrictCipherItemDeletion.
     @MainActor
     func test_perform_appeared_restrictItemDeletion() {
         let account = Account.fixture()
         stateService.activeAccount = account
         configService.featureFlagsBool = [
-            .restrictItemDeletion: true,
+            .restrictCipherItemDeletion: true,
         ]
 
         let cipherItem = CipherView.loginFixture(
@@ -325,7 +325,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             hasPremium: false
         )!
 
-        XCTAssertTrue(subject.state.restrictItemDeletionFlagEnabled)
+        XCTAssertTrue(subject.state.restrictCipherItemDeletionFlagEnabled)
     }
 
     /// `perform` with `.checkPasswordPressed` records any errors.
@@ -675,7 +675,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
                 cipherView: .fixture(reprompt: .password),
                 hasMasterPassword: true,
                 hasPremium: false,
-                restrictItemDeletionFlagEnabled: true
+                restrictCipherItemDeletionFlagEnabled: true
             )
         )
         await subject.perform(.deletePressed)

@@ -23,12 +23,6 @@ struct ViewItemView: View {
         store.state.loadingState.data?.canBeDeleted ?? false
     }
 
-    /// Whether to show the delete option in the toolbar menu.
-    /// New permission model from PM-18091
-    var isDeletePermissionEnabled: Bool {
-        store.state.loadingState.data?.canBeDeletedPermission ?? false
-    }
-
     /// Whether the restore option is available.
     /// New permission model from PM-18091
     var isRestoredPermissionEnabled: Bool {
@@ -74,7 +68,7 @@ struct ViewItemView: View {
 
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 if let state = store.state.loadingState.data {
-                    let restoreButtonVisible = store.state.restrictItemDeletionFlagEnabled
+                    let restoreButtonVisible = store.state.restrictCipherItemDeletionFlagEnabled
                         ? isRestoredPermissionEnabled
                         : state.isSoftDeleted
                     if restoreButtonVisible {
@@ -92,9 +86,7 @@ struct ViewItemView: View {
                 VaultItemManagementMenuView(
                     isCloneEnabled: store.state.canClone,
                     isCollectionsEnabled: isCollectionsEnabled,
-                    isDeleteEnabled: store.state.restrictItemDeletionFlagEnabled
-                        ? isDeletePermissionEnabled
-                        : isDeleteEnabled,
+                    isDeleteEnabled: isDeleteEnabled,
                     isMoveToOrganizationEnabled: isMoveToOrganizationEnabled,
                     store: store.child(
                         state: { _ in },

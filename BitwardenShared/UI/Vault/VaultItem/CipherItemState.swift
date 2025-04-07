@@ -98,7 +98,7 @@ struct CipherItemState: Equatable {
     var ownershipOptions: [CipherOwner]
 
     /// A flag indicating if cipher permissions should be used.
-    var restrictItemDeletionFlag: Bool = false
+    var restrictCipherItemDeletionFlag: Bool = false
 
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
@@ -136,21 +136,16 @@ struct CipherItemState: Equatable {
 
     /// Whether or not this item can be deleted by the user.
     var canBeDeleted: Bool {
+        // New permission model from PM-18091
+        if restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions {
+            return cipherPermissions.delete
+        }
+
         guard !collectionIds.isEmpty else { return true }
         return collections.contains { collection in
             guard let id = collection.id else { return false }
             return collection.manage && collectionIds.contains(id)
         }
-    }
-
-    /// Whether or not this item can be deleted by the user.
-    /// New permission model from PM-18091
-    var canBeDeletedPermission: Bool {
-        // backwards compatibility for old server versions
-        guard let cipherPermissions = cipher.permissions else {
-            return canBeDeleted
-        }
-        return cipherPermissions.delete
     }
 
     /// Whether or not this item can be restored by the user.
@@ -200,9 +195,9 @@ struct CipherItemState: Equatable {
         }
     }
 
-    var restrictItemDeletionFlagEnabled: Bool {
-        get { restrictItemDeletionFlag }
-        set { restrictItemDeletionFlag = newValue }
+    var restrictCipherItemDeletionFlagEnabled: Bool {
+        get { restrictCipherItemDeletionFlag }
+        set { restrictCipherItemDeletionFlag = newValue }
     }
 
     /// The flag indicating if we should show the learn new login action card.
