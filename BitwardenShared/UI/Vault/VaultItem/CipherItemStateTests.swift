@@ -128,6 +128,105 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertTrue(state.canBeDeleted)
     }
 
+    /// `canBeDeleted` returns value from cipher permissions if not nil
+    /// delete value true
+    func test_canBeDeletedPermission_true() throws {
+        let cipher = CipherView.loginFixture(
+            login: .fixture(),
+            permissions: CipherPermissions(
+                delete: true,
+                restore: true
+            )
+        )
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertTrue(state.canBeDeleted)
+    }
+
+    /// `canBeDeleted` returns value from cipher permissions if not nil
+    /// delete value false
+    func test_canBeDeletedPermission_false() throws {
+        let cipher = CipherView.loginFixture(
+            login: .fixture(),
+            permissions: CipherPermissions(
+                delete: false,
+                restore: true
+            )
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.restrictCipherItemDeletionFlagEnabled = true
+        XCTAssertFalse(state.canBeDeleted)
+    }
+
+    /// `canBeRestoredPermission` cipher permissions is nil fallback to isSoftDeleted
+    func test_canBeRestoredPermission_permissions_nil() throws {
+        var cipher = CipherView.loginFixture(
+            collectionIds: ["1", "2"],
+            deletedDate: nil,
+            login: .fixture(),
+            permissions: nil
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.restrictCipherItemDeletionFlagEnabled = true
+        XCTAssertFalse(state.canBeRestoredPermission)
+
+        cipher = CipherView.loginFixture(
+            collectionIds: ["1", "2"],
+            deletedDate: Date(),
+            login: .fixture(),
+            permissions: nil
+        )
+        state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertTrue(state.canBeRestoredPermission)
+    }
+
+    /// `canBeRestoredPermission` returns value from cipher permissions if not nil
+    /// restore value true
+    func test_canBeRestoredPermission_true() throws {
+        let cipher = CipherView.loginFixture(
+            deletedDate: Date(),
+            login: .fixture(),
+            permissions: CipherPermissions(
+                delete: true,
+                restore: true
+            )
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.restrictCipherItemDeletionFlagEnabled = true
+        XCTAssertTrue(state.canBeRestoredPermission)
+    }
+
+    /// `canBeRestoredPermission` returns value from cipher permissions if not nil
+    /// restore value false
+    func test_canBeRestoredPermission_false() throws {
+        let cipher = CipherView.loginFixture(
+            deletedDate: Date(),
+            login: .fixture(),
+            permissions: CipherPermissions(
+                delete: true,
+                restore: false
+            )
+        )
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.restrictCipherItemDeletionFlagEnabled = true
+        XCTAssertFalse(state.canBeRestoredPermission)
+    }
+
+    /// `restrictCipherItemDeletionFlagEnable` default value is false
+    func test_restrictCipherItemDeletionFlagValue() throws {
+        let cipher = CipherView.loginFixture(
+            login: .fixture(),
+            permissions: CipherPermissions(
+                delete: false,
+                restore: true
+            )
+        )
+
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertFalse(state.restrictCipherItemDeletionFlagEnabled)
+        state.restrictCipherItemDeletionFlagEnabled = true
+        XCTAssertTrue(state.restrictCipherItemDeletionFlagEnabled)
+    }
+
     /// `collectionsForOwner` contains collections that are not read-only
     func test_collectionsForOwner() throws {
         let cipher = CipherView.loginFixture(

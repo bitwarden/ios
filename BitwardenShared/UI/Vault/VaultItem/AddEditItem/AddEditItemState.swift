@@ -93,6 +93,9 @@ protocol AddEditItemState: Sendable {
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }
 
+    /// A flag indicating if cipher permissions should be used.
+    var restrictCipherItemDeletionFlagEnabled: Bool { get set }
+
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }
 
