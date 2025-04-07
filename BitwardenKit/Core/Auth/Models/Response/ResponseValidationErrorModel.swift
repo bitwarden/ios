@@ -5,31 +5,44 @@ import Networking
 
 /// An Response validation error returned from an API request.
 ///
-struct ResponseValidationErrorModel: Codable, Equatable {
+public struct ResponseValidationErrorModel: Codable, Equatable {
     // MARK: Properties
 
     /// A string that represents the error code.
-    let error: String
+    public let error: String
 
     /// A string that provides a description of the error.
-    let errorDescription: String?
+    public let errorDescription: String?
 
     /// An `ErrorModel` object that provides more details about the error.
-    let errorModel: ErrorModel
+    public let errorModel: ErrorModel
+
+    /// Public instance of synthesized initializer.
+    public init(error: String, errorDescription: String?, errorModel: ErrorModel) {
+        self.error = error
+        self.errorDescription = errorDescription
+        self.errorModel = errorModel
+    }
 }
 
-struct ErrorModel: Codable, Equatable {
+public struct ErrorModel: Codable, Equatable {
     // MARK: Properties
 
     /// A string that provides a message about the error.
-    let message: String
+    public let message: String
 
     /// A string that represents an object associated with the error.
-    let object: String
+    public let object: String
+
+    /// Public instance of synthesized initializer.
+    public init(message: String, object: String) {
+        self.message = message
+        self.object = object
+    }
 }
 
 // MARK: JSONResponse
 
 extension ResponseValidationErrorModel: JSONResponse {
-    static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
+    public static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
 }

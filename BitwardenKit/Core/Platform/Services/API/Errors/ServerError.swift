@@ -4,7 +4,7 @@ import Foundation
 
 /// An enumeration of server errors.
 ///
-enum ServerError: Error, Equatable, CustomNSError {
+public enum ServerError: Error, Equatable, CustomNSError {
     /// A generic error.
     ///
     /// - Parameter errorResponse: The error response returned from the API request.
@@ -18,7 +18,7 @@ enum ServerError: Error, Equatable, CustomNSError {
     case validationError(validationErrorResponse: ResponseValidationErrorModel)
 
     /// A computed property that returns an error message based on the case.
-    var message: String {
+    public var message: String {
         switch self {
         case let .error(errorResponse):
             errorResponse.singleMessage()

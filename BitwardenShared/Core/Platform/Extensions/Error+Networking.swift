@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 public extension Error {
