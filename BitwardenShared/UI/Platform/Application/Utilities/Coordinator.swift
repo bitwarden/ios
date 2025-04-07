@@ -202,7 +202,7 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
             Alert.networkResponseError(
                 error,
                 shareErrorDetails: {
-                    let errorReport = self.errorAlertServices.errorReportBuilder.buildShareErrorLog(
+                    let errorReport = await self.errorAlertServices.errorReportBuilder.buildShareErrorLog(
                         for: error,
                         callStack: callStack
                     )

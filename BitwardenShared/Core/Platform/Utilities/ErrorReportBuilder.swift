@@ -15,7 +15,7 @@ protocol ErrorReportBuilder {
     /// - Returns: A string containing the details of the error and call stack from where the error
     ///     occurred.
     ///
-    func buildShareErrorLog(for error: Error, callStack: String) -> String
+    func buildShareErrorLog(for error: Error, callStack: String) async -> String
 }
 
 // MARK: - DefaultErrorReportBuilder
@@ -28,15 +28,21 @@ struct DefaultErrorReportBuilder {
     /// The service used by the application to get info about the app and device it's running on.
     private let appInfoService: AppInfoService
 
+    /// The service used by the application to manage account state.
+    private let stateService: StateService
+
     // MARK: Initialization
 
     /// Initialize an `ErrorReportBuilder`.
     ///
-    /// - Parameter appInfoService: The service used by the application to get info about the app
+    /// - Parameters:
+    ///   - appInfoService: The service used by the application to get info about the app
     ///     and device it's running on.
+    ///   - stateService: The service used by the application to manage account state.
     ///
-    init(appInfoService: AppInfoService) {
+    init(appInfoService: AppInfoService, stateService: StateService) {
         self.appInfoService = appInfoService
+        self.stateService = stateService
     }
 
     // MARK: Private
@@ -70,8 +76,9 @@ struct DefaultErrorReportBuilder {
 // MARK: DefaultErrorReportBuilder + ErrorReportBuilder
 
 extension DefaultErrorReportBuilder: ErrorReportBuilder {
-    func buildShareErrorLog(for error: Error, callStack: String) -> String {
-        """
+    func buildShareErrorLog(for error: Error, callStack: String) async -> String {
+        let userId = await (try? stateService.getActiveAccountId()) ?? "n/a"
+        return """
         \(error as NSError)
         \(error.localizedDescription)
 
@@ -81,6 +88,7 @@ extension DefaultErrorReportBuilder: ErrorReportBuilder {
         Binary images:
         \(binaryImageAddresses())
 
+        User ID: \(userId)
         \(appInfoService.appInfoWithoutCopyrightString)
         """
     }

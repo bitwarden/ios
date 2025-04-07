@@ -7,6 +7,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
     // MARK: Properties
 
     var appInfoService: MockAppInfoService!
+    var stateService: MockStateService!
     var subject: ErrorReportBuilder!
 
     let exampleCallStack: String = """
@@ -22,26 +23,30 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         super.setUp()
 
         appInfoService = MockAppInfoService()
+        stateService = MockStateService()
 
-        subject = DefaultErrorReportBuilder(appInfoService: appInfoService)
+        subject = DefaultErrorReportBuilder(appInfoService: appInfoService, stateService: stateService)
     }
 
     override func tearDown() {
         super.tearDown()
 
         appInfoService = nil
+        stateService = nil
         subject = nil
     }
 
     // MARK: Tests
 
     /// `buildShareErrorLog(for:callStack:)` builds an error report to share for a `DecodingError`.
-    func test_buildShareErrorLog_decodingError() {
+    func test_buildShareErrorLog_decodingError() async {
         enum TestKeys: CodingKey {
             case ciphers
         }
 
-        let errorReport = subject.buildShareErrorLog(
+        stateService.activeAccount = .fixture()
+
+        let errorReport = await subject.buildShareErrorLog(
             for: DecodingError.keyNotFound(
                 TestKeys.ciphers,
                 DecodingError.Context(
@@ -72,6 +77,7 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenSharedTests:    0x0000000000000000
             BitwardenKitMocks:       0x0000000000000000
 
+            User ID: 1
             Version: 1.0 (1)
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
             """#
@@ -79,9 +85,10 @@ class ErrorReportBuilderTests: BitwardenTestCase {
         // swiftlint:enable line_length
     }
 
-    /// `buildShareErrorLog(for:callStack:)` builds an error report to share for a `StateServiceError`.
-    func test_buildShareErrorLog_stateServiceError() {
-        let errorReport = subject.buildShareErrorLog(
+    /// `buildShareErrorLog(for:callStack:)` builds an error report to share and handles there being
+    /// no active account.
+    func test_buildShareErrorLog_noActiveUser() async {
+        let errorReport = await subject.buildShareErrorLog(
             for: StateServiceError.noActiveAccount,
             callStack: exampleCallStack
         )
@@ -104,6 +111,40 @@ class ErrorReportBuilderTests: BitwardenTestCase {
             BitwardenSharedTests:    0x0000000000000000
             BitwardenKitMocks:       0x0000000000000000
 
+            User ID: n/a
+            Version: 1.0 (1)
+            📱 iPhone14,2 🍏 iOS 16.4 📦 Production
+            """
+        }
+    }
+
+    /// `buildShareErrorLog(for:callStack:)` builds an error report to share for a `StateServiceError`.
+    func test_buildShareErrorLog_stateServiceError() async {
+        stateService.activeAccount = .fixture()
+        let errorReport = await subject.buildShareErrorLog(
+            for: StateServiceError.noActiveAccount,
+            callStack: exampleCallStack
+        )
+        assertInlineSnapshot(of: errorReport.replacingHexAddresses(), as: .lines) {
+            """
+            BitwardenShared.StateServiceError.noActiveAccount
+            No account found. Please log in again if you continue to see this error.
+
+            Stack trace:
+            0   BitwardenShared    0x00000000 AnyCoordinator.showErrorAlert(error:)
+            1   BitwardenShared    0x00000000 VaultListProcessor.refreshVault()
+            2   BitwardenShared    0x00000000 VaultListProcessor.perform(_:)
+            3   BitwardenShared    0x00000000 StateProcessor<A, B, C>.perform(_:)
+
+            Binary images:
+            Bitwarden:               0x0000000000000000
+            Bitwarden.debug.dylib:   0x0000000000000000
+            BitwardenShared:         0x0000000000000000
+            BitwardenKit:            0x0000000000000000
+            BitwardenSharedTests:    0x0000000000000000
+            BitwardenKitMocks:       0x0000000000000000
+
+            User ID: 1
             Version: 1.0 (1)
             📱 iPhone14,2 🍏 iOS 16.4 📦 Production
             """

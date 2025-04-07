@@ -366,7 +366,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
         let appIdService = AppIdService(appSettingStore: appSettingsStore)
         let appInfoService = DefaultAppInfoService()
-        let errorReportBuilder = DefaultErrorReportBuilder(appInfoService: appInfoService)
 
         let dataStore = DataStore(errorReporter: errorReporter)
 
@@ -401,6 +400,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             stateService: stateService,
             tokenService: tokenService
+        )
+        let errorReportBuilder = DefaultErrorReportBuilder(
+            appInfoService: appInfoService,
+            stateService: stateService
         )
 
         let configService = DefaultConfigService(
