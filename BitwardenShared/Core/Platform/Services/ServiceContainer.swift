@@ -67,6 +67,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to manage the environment settings.
     let environmentService: EnvironmentService
 
+    /// A helper for building an error report containing the details of an error that occurred.
+    let errorReportBuilder: ErrorReportBuilder
+
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
 
@@ -197,6 +200,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - clientService: The service used by the application to handle encryption and decryption tasks.
     ///   - configService: The service to get server-specified configuration.
     ///   - environmentService: The service used by the application to manage the environment settings.
+    ///   - errorReportBuilder: A helper for building an error report containing the details of an
+    ///     error that occurred.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - eventService: The service used to record and send events.
     ///   - exportCXFCiphersRepository: The repository to handle exporting ciphers in Credential Exchange Format.
@@ -252,6 +257,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         clientService: ClientService,
         configService: ConfigService,
         environmentService: EnvironmentService,
+        errorReportBuilder: ErrorReportBuilder,
         errorReporter: ErrorReporter,
         eventService: EventService,
         exportCXFCiphersRepository: ExportCXFCiphersRepository,
@@ -304,6 +310,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.clientService = clientService
         self.configService = configService
         self.environmentService = environmentService
+        self.errorReportBuilder = errorReportBuilder
         self.errorReporter = errorReporter
         self.eventService = eventService
         self.exportCXFCiphersRepository = exportCXFCiphersRepository
@@ -393,6 +400,10 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             environmentService: environmentService,
             stateService: stateService,
             tokenService: tokenService
+        )
+        let errorReportBuilder = DefaultErrorReportBuilder(
+            appInfoService: appInfoService,
+            stateService: stateService
         )
 
         let configService = DefaultConfigService(
@@ -770,6 +781,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             eventService: eventService,
             exportCXFCiphersRepository: exportCXFCiphersRepository,

@@ -4,7 +4,7 @@ final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasAuthService
-        & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasStateService
 
