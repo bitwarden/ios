@@ -3,7 +3,7 @@ import Networking
 
 /// An `HTTPClient` that can be used to return mocked responses.
 ///
-class MockHTTPClient: HTTPClient {
+final class MockHTTPClient: HTTPClient {
     // MARK: Properties
 
     /// A list of download requests that have been received by the HTTP client.

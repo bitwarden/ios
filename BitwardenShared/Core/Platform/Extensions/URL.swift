@@ -12,33 +12,6 @@ extension URL {
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
     }
 
-    /// Valid top-level domain values.
-    private var validTlds: [String] {
-        [
-            ".com",
-            ".net",
-            ".org",
-            ".edu",
-            ".uk",
-            ".gov",
-            ".ca",
-            ".de",
-            ".jp",
-            ".fr",
-            ".au",
-            ".ru",
-            ".ch",
-            ".io",
-            ".es",
-            ".us",
-            ".co",
-            ".xyz",
-            ".info",
-            ".ly",
-            ".mil",
-        ]
-    }
-
     // MARK: Properties
 
     /// If the URL is for an app using the Bitwarden `iosapp://` URL scheme, this returns the web
@@ -58,19 +31,9 @@ extension URL {
         return DomainName.parseBaseDomain(url: self) ?? host
     }
 
-    /// Whether the URL's domain ends in an accepted top-level domain value.
-    var hasValidTld: Bool {
-        guard let host else { return false }
-
-        for tld in validTlds where host.hasSuffix(tld) {
-            return true
-        }
-        return false
-    }
-
     /// Whether the URL has valid components that are in the correct order.
     var hasValidURLComponents: Bool {
-        guard absoluteString.isValidURL, hasValidTld else { return false }
+        guard absoluteString.isValidURL else { return false }
         let scheme = scheme ?? ""
         let host = host ?? ""
 
