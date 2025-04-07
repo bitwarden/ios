@@ -158,12 +158,11 @@ public class Alert {
                 }
             }
 
-            // Set initial enabled state based on shouldEnableAction
             action.isEnabled = alertAction.shouldEnableAction?(alertTextFields) ?? true
-            alert.addAction(action)
+            alertController.addAction(action)
 
             if let preferredAction, preferredAction === alertAction {
-                alert.preferredAction = action
+                alertController.preferredAction = action
             }
         }
 

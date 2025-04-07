@@ -62,6 +62,7 @@ public class AlertTextField {
     @objc
     func textChanged(in textField: UITextField) {
         text = textField.text ?? ""
+        onTextChanged?()
     }
 }
 
