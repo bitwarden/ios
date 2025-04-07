@@ -1,5 +1,6 @@
 @testable import Networking
 
+@MainActor
 class MockTokenProvider: TokenProvider {
     enum TokenProviderError: Error {
         case noTokenResults

@@ -158,6 +158,7 @@ targets:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: Networking/Info.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: Networking
         excludes:

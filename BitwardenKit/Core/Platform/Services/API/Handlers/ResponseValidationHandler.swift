@@ -23,7 +23,7 @@ public struct ResponseValidationError: Error, Equatable {
 /// A `ResponseHandler` that validates that HTTP responses contain successful (2XX) HTTP status
 /// codes or tries to parse the error otherwise.
 ///
-public class ResponseValidationHandler: ResponseHandler {
+public final class ResponseValidationHandler: ResponseHandler {
     /// Public version of synthesized initializer.
     public init() {}
 
