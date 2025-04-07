@@ -1,7 +1,9 @@
 // swiftlint:disable:this file_name
 
+import BitwardenKit
 import Foundation
 import Networking
+import TestHelpers
 import XCTest
 
 @testable import AuthenticatorShared

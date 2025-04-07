@@ -1,3 +1,4 @@
+import BitwardenKit
 import TestHelpers
 import XCTest
 

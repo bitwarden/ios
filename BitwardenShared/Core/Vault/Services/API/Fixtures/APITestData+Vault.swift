@@ -1,3 +1,5 @@
+import TestHelpers
+
 extension APITestData {
     static let cipherResponse = loadFromJsonBundle(resource: "cipherResponse")
     static let downloadAttachment = loadFromJsonBundle(resource: "downloadAttachment")

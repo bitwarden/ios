@@ -1,6 +1,7 @@
+import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import BitwardenKit
 
 // MARK: - ErrorResponseModelTests
 

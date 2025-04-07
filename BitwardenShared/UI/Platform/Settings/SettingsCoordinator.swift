@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -139,7 +140,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         }
     }
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) {
+    func navigate(to route: SettingsRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .about:
             showAbout()
@@ -147,6 +148,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
+        case .enableFlightRecorder:
+            showEnableFlightRecorder()
         case .appearance:
             showAppearance()
         case .appExtension:
@@ -332,6 +335,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let view = DeleteAccountView(store: Store(processor: processor))
         let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
         stackNavigator?.present(navController)
+    }
+
+    /// Shows the enable flight recorder screen.
+    ///
+    private func showEnableFlightRecorder() {
+        let processor = EnableFlightRecorderProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: EnableFlightRecorderState()
+        )
+        let view = EnableFlightRecorderView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.present(UINavigationController(rootViewController: viewController))
     }
 
     /// Presents an activity controller for an exported vault file URL.

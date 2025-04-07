@@ -33,6 +33,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// An SDK flag that enables individual cipher encryption.
     case enableCipherKeyEncryption
 
+    /// A feature flag for the flight recorder, which can be enabled to collect app logs.
+    case flightRecorder = "enable-pm-flight-recorder"
+
     /// A flag to ignore the environment check for the two-factor authentication
     /// notice. If this is on, then it will display even on self-hosted servers,
     /// which means it's easier to dev/QA the feature.
@@ -116,6 +119,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
         switch self {
         case .enableCipherKeyEncryption,
              .enableDebugAppReviewPrompt,
+             .flightRecorder,
              .ignore2FANoticeEnvironmentCheck,
              .mobileErrorReporting,
              .newDeviceVerificationPermanentDismiss,

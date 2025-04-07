@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - ImportLoginsProcessor
 
 /// The processor used to manage state and handle actions for the import logins screen.

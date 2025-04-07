@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import Networking
 import TestHelpers
 import XCTest
