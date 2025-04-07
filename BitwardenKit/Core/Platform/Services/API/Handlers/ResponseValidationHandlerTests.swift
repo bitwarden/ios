@@ -1,9 +1,8 @@
-import BitwardenKit
 import Networking
 import TestHelpers
 import XCTest
 
-@testable import AuthenticatorShared
+@testable import BitwardenKit
 
 class ResponseValidationHandlerTests: BitwardenTestCase {
     // MARK: Properties
