@@ -1,10 +1,10 @@
-import BitwardenKit
+import Foundation
 
 // MARK: - ServerError
 
 /// An enumeration of server errors.
 ///
-enum ServerError: Error, Equatable {
+enum ServerError: Error, Equatable, CustomNSError {
     /// A generic error.
     ///
     /// - Parameter errorResponse: The error response returned from the API request.
@@ -25,5 +25,10 @@ enum ServerError: Error, Equatable {
         case let .validationError(validationErrorResponse):
             validationErrorResponse.errorModel.message
         }
+    }
+
+    /// The user-info dictionary.
+    public var errorUserInfo: [String: Any] {
+        ["Message": message]
     }
 }

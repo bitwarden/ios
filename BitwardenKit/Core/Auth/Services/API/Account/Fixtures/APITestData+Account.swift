@@ -137,7 +137,3 @@ public extension APITestData {
         bundle: BitwardenKitMocksBundleFinder.bundle
     )
 }
-
-class BitwardenKitMocksBundleFinder {
-    static let bundle = Bundle(for: BitwardenKitMocksBundleFinder.self)
-}
