@@ -1,10 +1,9 @@
-import BitwardenKit
 import BitwardenKitMocks
 import Networking
 import TestHelpers
 import XCTest
 
-@testable import AuthenticatorShared
+@testable import BitwardenKit
 
 class ErrorNetworkingTests: BitwardenTestCase {
     // MARK: Tests
