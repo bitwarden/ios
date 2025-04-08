@@ -9,8 +9,8 @@ final class TwoFactorNoticeCoordinator: Coordinator, HasStackNavigator {
 
     typealias Services = HasApplication
         & HasAuthRepository
-        & HasConfigService
         & HasEnvironmentService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasStateService
         & HasTimeProvider

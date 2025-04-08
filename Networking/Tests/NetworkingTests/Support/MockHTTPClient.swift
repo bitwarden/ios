@@ -2,6 +2,7 @@ import Foundation
 
 @testable import Networking
 
+@MainActor
 class MockHTTPClient: HTTPClient {
     var downloadRequests = [URLRequest]()
     var downloadResults = [Result<URL, Error>]()
