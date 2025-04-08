@@ -44,6 +44,14 @@ struct FlightRecorderLogMetadata: Equatable, Identifiable {
         return "\(dateFormatter.string(from: startDate)) - \(dateFormatter.string(from: endDate))"
     }
 
+    /// The accessibility label for the logging date range.
+    var loggingDateRangeAccessibilityLabel: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
+        return Localizations.dateXToY(dateFormatter.string(from: startDate), dateFormatter.string(from: endDate))
+    }
+
     // MARK: Methods
 
     /// The formatted date for when the log expires.

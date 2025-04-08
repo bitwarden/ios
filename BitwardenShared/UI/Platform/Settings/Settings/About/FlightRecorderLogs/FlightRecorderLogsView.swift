@@ -51,6 +51,7 @@ struct FlightRecorderLogsView: View {
                     Text(log.formattedLoggingDateRange)
                         .styleGuide(.body)
                         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                        .accessibilityLabel(log.loggingDateRangeAccessibilityLabel)
 
                     HStack(spacing: 16) {
                         Text(log.fileSize)
@@ -62,6 +63,7 @@ struct FlightRecorderLogsView: View {
                     .styleGuide(.subheadline)
                     .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                 }
+                .accessibilityElement(children: .combine)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
             }

@@ -76,4 +76,16 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
             Localizations.expiresToday
         )
     }
+
+    /// `loggingDateRangeAccessibilityLabel` returns the accessibility label for the logging date range.
+    func test_loggingDateRangeAccessibilityLabel() {
+        XCTAssertEqual(
+            logOneHour.loggingDateRangeAccessibilityLabel,
+            "Apr 3, 2025 at 10:30 AM to Apr 3, 2025 at 11:30 AM"
+        )
+        XCTAssertEqual(
+            logEightHours.loggingDateRangeAccessibilityLabel,
+            "Apr 3, 2025 at 10:30 AM to Apr 3, 2025 at 6:30 PM"
+        )
+    }
 }
