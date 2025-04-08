@@ -200,6 +200,8 @@ jobs:
           brew update
           brew install fastlane
           brew install mint
+          brew install yq
+          brew install swift-protobuf
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
