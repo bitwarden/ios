@@ -1,15 +1,21 @@
-import BitwardenKit
 import Networking
 
 // MARK: - ResponseValidationError
 
 /// An error indicating that the response was invalid and didn't contain a successful HTTP status code.
 ///
-struct ResponseValidationError: Error, Equatable {
+public struct ResponseValidationError: Error, Equatable {
     // MARK: Properties
 
     /// The received HTTP response.
-    let response: HTTPResponse
+    public let response: HTTPResponse
+
+    // MARK: Initializers
+
+    /// Public version of synthesized initializer.
+    public init(response: HTTPResponse) {
+        self.response = response
+    }
 }
 
 // MARK: - ResponseValidationHandler
@@ -17,8 +23,17 @@ struct ResponseValidationError: Error, Equatable {
 /// A `ResponseHandler` that validates that HTTP responses contain successful (2XX) HTTP status
 /// codes or tries to parse the error otherwise.
 ///
-final class ResponseValidationHandler: ResponseHandler {
-    func handle(_ response: inout HTTPResponse) async throws -> HTTPResponse {
+public final class ResponseValidationHandler: ResponseHandler {
+    /// Public version of synthesized initializer.
+    public init() {}
+
+    /// Handles receiving a `HTTPResponse`. The handler can view or modify the response before
+    /// returning it to continue to handler chain.
+    ///
+    /// - Parameter response: The `HTTPResponse` that was received by the `HTTPClient`.
+    /// - Returns: The original or modified `HTTPResponse`.
+    ///
+    public func handle(_ response: inout HTTPResponse) async throws -> HTTPResponse {
         guard (200 ..< 300).contains(response.statusCode) else {
             // If the response can be parsed, throw an error containing the response message.
             if let errorResponse = try? ErrorResponseModel(response: response) {
