@@ -71,6 +71,17 @@ public extension EnvironmentURLData {
         subpageURL(additionalPath: "tools/import")
     }
 
+    /// Whether all of the environment URLs are not set.
+    var isEmpty: Bool {
+        api == nil
+            && base == nil
+            && events == nil
+            && icons == nil
+            && identity == nil
+            && notifications == nil
+            && webVault == nil
+    }
+
     /// The URL for the recovery code help page.
     var recoveryCodeURL: URL? {
         subpageURL(additionalPath: "recover-2fa")
@@ -121,6 +132,12 @@ public extension EnvironmentURLData {
             return url
         }
         return nil
+    }
+
+    /// The host of URL to the user's web vault.
+    var webVaultHost: String? {
+        let url = webVault ?? base
+        return url?.host
     }
 }
 
