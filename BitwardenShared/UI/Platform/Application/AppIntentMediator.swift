@@ -5,9 +5,6 @@ public protocol AppIntentMediator {
 
     /// Locks all available users.
     func lockAllUsers() async throws
-
-    /// Locks the current user.
-    func lockCurrentUser() async
 }
 
 /// The default implementation of the `AppIntentMediator`.
@@ -32,9 +29,5 @@ struct DefaultAppIntentMediator: AppIntentMediator {
 
     func lockAllUsers() async throws {
         try await authRepository.lockAllVaults(isManuallyLocking: true)
-    }
-
-    func lockCurrentUser() async {
-        await authRepository.lockVault(userId: nil, isManuallyLocking: true)
     }
 }

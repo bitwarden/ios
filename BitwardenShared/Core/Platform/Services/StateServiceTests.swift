@@ -81,25 +81,25 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `addPendingAppIntentAction(_:)` adds the pending app intent actions to the current collection of actions.
     func test_addPendingAppIntentAction() async {
-        appSettingsStore.pendingAppIntentActions = [.lockAll]
-        await subject.addPendingAppIntentAction(.lock("1"))
-        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lockAll, .lock("1")])
+        appSettingsStore.pendingAppIntentActions = []
+        await subject.addPendingAppIntentAction(.lockAll)
+        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lockAll])
     }
 
-    /// `addPendingAppIntentAction(_:)` adds the pending app intent actions to a non-existing colleciton of actions
+    /// `addPendingAppIntentAction(_:)` adds the pending app intent actions to a non-existing collection of actions
     /// so it first creates the collecton and it gets added to it.
     func test_addPendingAppIntentAction_currentNil() async {
         appSettingsStore.pendingAppIntentActions = nil
-        await subject.addPendingAppIntentAction(.lock("1"))
-        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lock("1")])
+        await subject.addPendingAppIntentAction(.lockAll)
+        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lockAll])
     }
 
     /// `addPendingAppIntentAction(_:)` doesn't add an action when the current collection of pending actions
     /// already has the same pending action.
     func test_addPendingAppIntentAction_alreadyContaining() async {
-        appSettingsStore.pendingAppIntentActions = [.lockAll, .lock("1"), .lock("3")]
-        await subject.addPendingAppIntentAction(.lock("1"))
-        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lockAll, .lock("1"), .lock("3")])
+        appSettingsStore.pendingAppIntentActions = [.lockAll]
+        await subject.addPendingAppIntentAction(.lockAll)
+        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lockAll])
     }
 
     /// `appTheme` gets and sets the value as expected.
@@ -859,9 +859,9 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `getPendingAppIntentActions` gets the saved pending app intent actions.
     func test_getPendingAppIntentActions() async {
-        appSettingsStore.pendingAppIntentActions = [.lockAll, .lock("1")]
+        appSettingsStore.pendingAppIntentActions = [.lockAll]
         let actions = await subject.getPendingAppIntentActions()
-        XCTAssertEqual(actions, [.lockAll, .lock("1")])
+        XCTAssertEqual(actions, [.lockAll])
     }
 
     /// `getPreAuthEnvironmentURLs` returns the saved pre-auth URLs.
@@ -1911,8 +1911,8 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `setPendingAppIntentActions(actions:)` sets the pending app intent actions.
     func test_setPendingAppIntentActions() async {
-        await subject.setPendingAppIntentActions(actions: [.lock("3"), .lockAll])
-        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lock("3"), .lockAll])
+        await subject.setPendingAppIntentActions(actions: [.lockAll])
+        XCTAssertEqual(appSettingsStore.pendingAppIntentActions, [.lockAll])
     }
 
     /// `setPendingAppIntentActions(actions:)` sets the pending app intent actions to `nil`

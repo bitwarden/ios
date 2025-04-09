@@ -314,36 +314,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )
     }
 
-    /// `init()` subscribes to will enter foreground events and doesn't handle accountBecameActive if the
-    /// never timeout account is unlocked in extension but there's a pending `.lock` `AppIntent`.
-    @MainActor
-    func test_init_appForeground_checkAccountBecomeActiveEventDoesntHappenWhenPendingLockAppIntent() async throws {
-        // The processor checks for switched accounts when entering the foreground. Wait for the
-        // initial check to finish when the test starts before continuing.
-        try await waitForAsync { self.willEnterForegroundCalled == 1 }
-        let account: Account = .fixture(profile: .fixture(userId: "2"))
-        let userId = account.profile.userId
-        stateService.activeAccount = account
-        authRepository.activeAccount = account
-        stateService.didAccountSwitchInExtensionResult = .success(true)
-        authRepository.vaultTimeout = [userId: .never]
-        authRepository.isLockedResult = .success(true)
-        stateService.manuallyLockedAccounts = [userId: false]
-        stateService.pendingAppIntentActions = [.lock("2")]
-
-        notificationCenterService.willEnterForegroundSubject.send()
-        try await waitForAsync { self.willEnterForegroundCalled == 2 }
-
-        XCTAssertNotEqual(
-            coordinator.events.last,
-            AppEvent.accountBecameActive(
-                account,
-                attemptAutomaticBiometricUnlock: true,
-                didSwitchAccountAutomatically: false
-            )
-        )
-    }
-
     /// `init()` subscribes to will enter foreground events and logs an error if one occurs while
     /// checking if the active account was changed in an extension.
     @MainActor
@@ -564,24 +534,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `onPendingAppIntentActionSuccess(_:data:)` handles event `.accountBecameActive` when
-    /// pending app intent action is `.lock` and `data` is an account.
-    @MainActor
-    func test_onPendingAppIntentActionSuccess_lock() async {
-        let account = Account.fixture()
-        await subject.onPendingAppIntentActionSuccess(.lock("1"), data: account)
-        XCTAssertEqual(
-            coordinator.events,
-            [
-                .accountBecameActive(
-                    account,
-                    attemptAutomaticBiometricUnlock: true,
-                    didSwitchAccountAutomatically: false
-                ),
-            ]
-        )
-    }
-
-    /// `onPendingAppIntentActionSuccess(_:data:)` handles event `.accountBecameActive` when
     /// pending app intent action is `.lockAll` and `data` is an account.
     @MainActor
     func test_onPendingAppIntentActionSuccess_lockAll() async {
@@ -600,26 +552,10 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `onPendingAppIntentActionSuccess(_:data:)` doesn't handle event `.accountBecameActive` when
-    /// pending app intent action is `.lock` and `data` is `nil`.
-    @MainActor
-    func test_onPendingAppIntentActionSuccess_lockNoData() async {
-        await subject.onPendingAppIntentActionSuccess(.lock("1"), data: nil)
-        XCTAssertTrue(coordinator.events.isEmpty)
-    }
-
-    /// `onPendingAppIntentActionSuccess(_:data:)` doesn't handle event `.accountBecameActive` when
     /// pending app intent action is `.lockAll` and `data` is `nil`.
     @MainActor
     func test_onPendingAppIntentActionSuccess_lockAllNoData() async {
         await subject.onPendingAppIntentActionSuccess(.lockAll, data: nil)
-        XCTAssertTrue(coordinator.events.isEmpty)
-    }
-
-    /// `onPendingAppIntentActionSuccess(_:data:)` doesn't handle event `.accountBecameActive` when
-    /// pending app intent action is `.lock` and `data` is not an `Account`.
-    @MainActor
-    func test_onPendingAppIntentActionSuccess_lockDataNoAccount() async {
-        await subject.onPendingAppIntentActionSuccess(.lock("1"), data: "noAccount")
         XCTAssertTrue(coordinator.events.isEmpty)
     }
 

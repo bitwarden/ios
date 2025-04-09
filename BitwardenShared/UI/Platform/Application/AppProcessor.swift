@@ -377,15 +377,7 @@ extension AppProcessor {
             return false
         }
 
-        return actions.contains(where: { action in
-            if action == .lockAll {
-                return true
-            }
-            if case .lock = action {
-                return true
-            }
-            return false
-        })
+        return actions.contains(where: { $0 == .lockAll })
     }
 
     /// Handles unlocking the vault for a manually locked account that uses never lock
@@ -723,7 +715,7 @@ extension AppProcessor: PendingAppIntentActionMediatorDelegate {
         data: Any?
     ) async {
         switch pendingAppIntentAction {
-        case .lock, .lockAll:
+        case .lockAll:
             guard let account = data as? Account else {
                 return
             }

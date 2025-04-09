@@ -68,12 +68,6 @@ class DefaultPendingAppIntentActionMediator: PendingAppIntentActionMediator {
             await executeLockAll(currentActions: &actions)
             await stateService.setPendingAppIntentActions(actions: actions)
         }
-
-        let lockActions = actions.filter { $0.isLock() }
-        if !lockActions.isEmpty {
-            await executeLock(for: lockActions, currentActions: &actions)
-            await stateService.setPendingAppIntentActions(actions: actions)
-        }
     }
 
     func setDelegate(_ delegate: PendingAppIntentActionMediatorDelegate) {
@@ -94,41 +88,9 @@ class DefaultPendingAppIntentActionMediator: PendingAppIntentActionMediator {
 
             await delegate?.onPendingAppIntentActionSuccess(.lockAll, data: account)
 
-            currentActions.removeAll(where: { act in
-                if act == .lockAll {
-                    return true
-                }
-                if case .lock = act {
-                    return true
-                }
-                return false
-            })
+            currentActions.removeAll(where: { $0 == .lockAll })
         } catch {
             errorReporter.log(error: error)
         }
-    }
-
-    /// Executes the `.lock` pending actions.
-    /// - Parameters:
-    ///   - lockActions: The lock pending actions.
-    ///   - currentActions: The current pending actions to update if necessary.
-    func executeLock(
-        for lockActions: [PendingAppIntentAction],
-        currentActions: inout [PendingAppIntentAction]
-    ) async {
-        guard let account = try? await stateService.getActiveAccount() else {
-            return
-        }
-
-        for action in lockActions {
-            guard case let .lock(userId) = action else {
-                continue
-            }
-
-            await authRepository.lockVault(userId: userId, isManuallyLocking: true)
-        }
-
-        await delegate?.onPendingAppIntentActionSuccess(.lock(account.profile.userId), data: account)
-        currentActions.removeAll(where: { $0.isLock()} )
     }
 }

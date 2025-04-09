@@ -62,12 +62,4 @@ class AppIntentMediatorTests: BitwardenTestCase {
             try await subject.lockAllUsers()
         }
     }
-
-    /// `lockCurrentUser()` locks the current user vault.
-    func test_lockCurrentUser() async throws {
-        authRepository.lockVaultUserId = "someValueToVerifyThenNilIsSet"
-        await subject.lockCurrentUser()
-        XCTAssertNil(authRepository.lockVaultUserId)
-        XCTAssertTrue(authRepository.hasManuallyLocked)
-    }
 }

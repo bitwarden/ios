@@ -18,7 +18,6 @@ class AppContextTests: BitwardenTestCase {
     func test_isAppIntentAction() {
         XCTAssertFalse(AppContext.mainApp.isAppIntentAction(.lockAll))
         XCTAssertFalse(AppContext.appExtension.isAppIntentAction(.lockAll))
-        XCTAssertFalse(AppContext.appIntent(.lockAll).isAppIntentAction(.lockCurrentUser))
         XCTAssertTrue(AppContext.appIntent(.lockAll).isAppIntentAction(.lockAll))
     }
 }

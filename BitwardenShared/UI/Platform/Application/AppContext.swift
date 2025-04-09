@@ -35,8 +35,6 @@ public enum AppContext: Equatable {
 
 /// Actions that the `AppIntent` is intended for. Used in the `AppContext`.
 public enum AppIntentAction {
-    /// Locks the current user.
-    case lockCurrentUser
     /// Locks all users.
     case lockAll
 }

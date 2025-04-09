@@ -12,8 +12,4 @@ class MockAppIntentMediator: AppIntentMediator {
     func lockAllUsers() async throws {
         lockAllUsersCalled = true
     }
-
-    func lockCurrentUser() async {
-        lockCurrentUserCalled = true
-    }
 }

@@ -1634,21 +1634,11 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(stateService.pendingAppIntentActions.isEmptyOrNil)
     }
 
-    /// `lockVault(userId:)` locks the vault for the specified user id.
-    func test_lockVault() async {
-        appContextHelper.appContext = .appIntent(.lockCurrentUser)
-        await subject.lockVault(userId: "10")
-        XCTAssertTrue(vaultTimeoutService.isLocked(userId: "10"))
-        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.lock("10")) == true)
-    }
-
     /// `lockVault(userId:)` manually locks the vault for the specified user id.
     func test_lockVault_manuallyLocking() async {
-        appContextHelper.appContext = .appIntent(.lockCurrentUser)
         await subject.lockVault(userId: "10", isManuallyLocking: true)
         XCTAssertTrue(vaultTimeoutService.isLocked(userId: "10"))
         XCTAssertEqual(stateService.manuallyLockedAccounts["10"], true)
-        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.lock("10")) == true)
     }
 
     /// `lockVault(userId:)` logs error when manually locks the vault for the specified user id.

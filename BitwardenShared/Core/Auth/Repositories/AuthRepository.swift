@@ -755,10 +755,6 @@ extension DefaultAuthRepository: AuthRepository {
                 errorReporter.log(error: error)
             }
         }
-
-        if appContextHelper.appContext.isAppIntentAction(.lockCurrentUser) {
-            await stateService.addPendingAppIntentAction(.lock(userId))
-        }
     }
 
     func migrateUserToKeyConnector(password: String) async throws {

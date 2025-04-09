@@ -91,55 +91,11 @@ class PendingAppIntentActionMediatorTests: BitwardenTestCase {
     /// to the delegate.
     func test_executePendingAppIntentActions_lockAllNoDelegate() async throws {
         stateService.activeAccount = .fixture()
-        stateService.pendingAppIntentActions = [.lockAll, .lock("1")]
+        stateService.pendingAppIntentActions = [.lockAll]
 
         await subject.executePendingAppIntentActions()
 
         XCTAssertTrue(authRepository.hasLockedAllVaults)
-        XCTAssertTrue(authRepository.hasManuallyLocked)
-        XCTAssertNil(delegate.onPendingAppIntentActionSuccessAction)
-        XCTAssertNil(delegate.onPendingAppIntentActionSuccessData)
-        XCTAssertEqual(stateService.pendingAppIntentActions, [])
-    }
-
-    /// `executePendingAppIntentActions()` with `.lock` actions locks the specified vaults,
-    /// calls the delegate informing that and updates the actions
-    func test_executePendingAppIntentActions_lock() async throws {
-        stateService.activeAccount = .fixture()
-        stateService.pendingAppIntentActions = [.lock("1"), .lock("2")]
-        subject.setDelegate(delegate)
-
-        await subject.executePendingAppIntentActions()
-
-        XCTAssertEqual(authRepository.lockVaultUserIds, ["1", "2"])
-        XCTAssertTrue(authRepository.hasManuallyLocked)
-        XCTAssertEqual(delegate.onPendingAppIntentActionSuccessAction, .lock("1"))
-        let accountData = try XCTUnwrap(delegate.onPendingAppIntentActionSuccessData as? Account)
-        XCTAssertEqual(accountData, stateService.activeAccount)
-        XCTAssertEqual(stateService.pendingAppIntentActions, [])
-    }
-
-    /// `executePendingAppIntentActions()` with `.lock` with no active account does nothing.
-    func test_executePendingAppIntentActions_lockNoActiveAccount() async throws {
-        stateService.activeAccount = nil
-        stateService.pendingAppIntentActions = [.lock("1"), .lock("2")]
-        subject.setDelegate(delegate)
-
-        await subject.executePendingAppIntentActions()
-
-        XCTAssertEqual(authRepository.lockVaultUserIds, [])
-        XCTAssertFalse(authRepository.hasManuallyLocked)
-    }
-
-    /// `executePendingAppIntentActions()` with `.lock` with no delegate locks the vault but doens't
-    /// inform to the delegate.
-    func test_executePendingAppIntentActions_lockNoDelegate() async throws {
-        stateService.activeAccount = .fixture()
-        stateService.pendingAppIntentActions = [.lock("1"), .lock("2")]
-
-        await subject.executePendingAppIntentActions()
-
-        XCTAssertEqual(authRepository.lockVaultUserIds, ["1", "2"])
         XCTAssertTrue(authRepository.hasManuallyLocked)
         XCTAssertNil(delegate.onPendingAppIntentActionSuccessAction)
         XCTAssertNil(delegate.onPendingAppIntentActionSuccessData)
