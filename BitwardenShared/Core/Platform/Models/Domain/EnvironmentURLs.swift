@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// A wrapper around non-optional URLs that the app uses in its environment.

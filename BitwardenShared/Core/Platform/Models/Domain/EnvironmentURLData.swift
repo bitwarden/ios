@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// Domain model containing the environment URLs for an account.
