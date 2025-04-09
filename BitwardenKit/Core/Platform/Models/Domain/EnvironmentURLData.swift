@@ -117,6 +117,12 @@ public extension EnvironmentURLData {
         subpageURL(additionalPath: "settings/security/two-factor")
     }
 
+    /// The host of URL to the user's web vault.
+    var webVaultHost: String? {
+        let url = webVault ?? base
+        return url?.host
+    }
+
     // MARK: Methods
 
     /// The URL for a given subpage of the vault webpage.
@@ -132,12 +138,6 @@ public extension EnvironmentURLData {
             return url
         }
         return nil
-    }
-
-    /// The host of URL to the user's web vault.
-    var webVaultHost: String? {
-        let url = webVault ?? base
-        return url?.host
     }
 }
 

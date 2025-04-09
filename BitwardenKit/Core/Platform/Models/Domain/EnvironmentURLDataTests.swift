@@ -25,6 +25,40 @@ class EnvironmentURLDataTests: XCTestCase {
         XCTAssertEqual(subject.changeEmailURL?.absoluteString, "https://web.vault.example.com/#/settings/account")
     }
 
+    /// `defaultUS` returns the properly configured `EnvironmentURLData`
+    /// with the deafult Urls for united states region.
+    func test_defaultUS() {
+        XCTAssertEqual(
+            EnvironmentURLData.defaultUS,
+            EnvironmentURLData(
+                api: URL(string: "https://api.bitwarden.com")!,
+                base: URL(string: "https://vault.bitwarden.com")!,
+                events: URL(string: "https://events.bitwarden.com")!,
+                icons: URL(string: "https://icons.bitwarden.net")!,
+                identity: URL(string: "https://identity.bitwarden.com")!,
+                notifications: URL(string: "https://notifications.bitwarden.com")!,
+                webVault: URL(string: "https://vault.bitwarden.com")!
+            )
+        )
+    }
+
+    /// `defaultEU` returns the properly configured `EnvironmentURLData`
+    /// with the deafult Urls for europe region.
+    func test_defaultEU() {
+        XCTAssertEqual(
+            EnvironmentURLData.defaultEU,
+            EnvironmentURLData(
+                api: URL(string: "https://api.bitwarden.eu")!,
+                base: URL(string: "https://vault.bitwarden.eu")!,
+                events: URL(string: "https://events.bitwarden.eu")!,
+                icons: URL(string: "https://icons.bitwarden.eu")!,
+                identity: URL(string: "https://identity.bitwarden.eu")!,
+                notifications: URL(string: "https://notifications.bitwarden.eu")!,
+                webVault: URL(string: "https://vault.bitwarden.eu")!
+            )
+        )
+    }
+
     /// `importItemsURL` returns the import items URL for the base URL.
     func test_importItemsURL_baseURL() {
         let subject = EnvironmentURLData(base: URL(string: "https://vault.example.com"))
@@ -83,6 +117,23 @@ class EnvironmentURLDataTests: XCTestCase {
         XCTAssertEqual(subject.recoveryCodeURL?.absoluteString, "https://web.vault.example.com/#/recover-2fa")
     }
 
+    /// `region` returns `.unitedStates` if base URL is the same as the default for US.
+    func test_region_unitedStates() {
+        let subject = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com")!)
+        XCTAssertTrue(subject.region == .unitedStates)
+    }
+
+    /// `region` returns `.europe` if base URL is the same as the default for EU.
+    func test_region_europe() {
+        let subject = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.eu")!)
+        XCTAssertTrue(subject.region == .europe)
+    }
+
+    /// `region` returns `.selfHosted` if base URL is neither the default for US nor for EU.
+    func test_region_selfHost() {
+        let subject = EnvironmentURLData(base: URL(string: "https://example.com")!)
+        XCTAssertTrue(subject.region == .selfHosted)
+    }
     /// `sendShareURL` returns the send URL for the united states region.
     func test_sendShareURL_unitedStates() {
         let subject = EnvironmentURLData.defaultUS
