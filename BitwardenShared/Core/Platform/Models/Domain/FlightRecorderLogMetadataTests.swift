@@ -38,7 +38,7 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
     /// `formattedExpiration(currentDate:)` returns the formatted date for when the log expires
     /// when the log expires for a while from now.
     func test_formattedExpiration_long() {
-        var currentDate = Date(year: 2025, month: 4, day: 3, hour: 8)
+        let currentDate = Date(year: 2025, month: 4, day: 3, hour: 8)
         XCTAssertEqual(
             logOneHour.formattedExpiration(currentDate: currentDate),
             Localizations.expiresInXDays(30)
@@ -52,7 +52,7 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
     /// `formattedExpiration(currentDate:)` returns the formatted date for when the log expires
     /// when the log expires within a few days.
     func test_formattedExpiration_short() {
-        var currentDate = Date(year: 2025, month: 5, day: 1, hour: 8)
+        let currentDate = Date(year: 2025, month: 5, day: 1, hour: 8)
         XCTAssertEqual(
             logOneHour.formattedExpiration(currentDate: currentDate),
             Localizations.expiresInXDays(2)
@@ -66,7 +66,7 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
     /// `formattedExpiration(currentDate:)` returns the formatted date for when the log expires
     /// when the log expires today.
     func test_formattedExpiration_today() {
-        var currentDate = Date(year: 2025, month: 5, day: 3, hour: 8)
+        let currentDate = Date(year: 2025, month: 5, day: 3, hour: 8)
         XCTAssertEqual(
             logOneHour.formattedExpiration(currentDate: currentDate),
             Localizations.expiresToday

@@ -1166,4 +1166,4 @@
 "NoLogsRecorded" = "No logs recorded";
 "ExpiresToday" = "Expires today";
 "ExpiresInXDays" = "Expires in %1$@ days";
-"DateXToY" = "%1$@ to %2$@";
+"XToY" = "%1$@ to %2$@";
