@@ -1168,3 +1168,9 @@
 "CollectionX" = "Collection, %1$@";
 "FolderX" = "Folder, %1$@";
 "ItemXOfY" = "Item %1$@ of %2$@";
+"ViewRecordedLogs" = "View recorded logs";
+"RecordedLogs" = "Recorded logs";
+"NoLogsRecorded" = "No logs recorded";
+"ExpiresToday" = "Expires today";
+"ExpiresInXDays" = "Expires in %1$@ days";
+"DateRangeXToY" = "%1$@ to %2$@";
