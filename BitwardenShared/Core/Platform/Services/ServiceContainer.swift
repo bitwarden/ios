@@ -22,6 +22,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application to make API requests.
     let apiService: APIService
 
+    /// Helper used to know app context.
+    let appContextHelper: AppContextHelper
+
     /// The service used by the application to manage the app's ID.
     let appIdService: AppIdService
 
@@ -119,6 +122,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// The service used by the application for sharing data with other apps.
     let pasteboardService: PasteboardService
 
+    /// The mediator to execute pending `AppIntent` actions.
+    let pendingAppIntentActionMediator: PendingAppIntentActionMediator
+
     /// The service for managing the polices for the user.
     let policyService: PolicyService
 
@@ -182,6 +188,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///
     /// - Parameters:
     ///   - apiService: The service used by the application to make API requests.
+    ///   - appContextHelper: The helper used to know app context.
     ///   - appIdService: The service used by the application to manage the app's ID.
     ///   - appInfoService: The service used by the application to get info about the app and device
     ///     it's running on.
@@ -222,6 +229,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - pasteboardService: The service used by the application for sharing data with other apps.
     ///   - rehydrationHelper: The helper used for app rehydration.
     ///   - reviewPromptService: The service used by the application to manage app review prompts related data.
+    ///   - pendingAppIntentActionMediator: The mediator to execute pending `AppIntent` actions.
     ///   - policyService: The service for managing the polices for the user.
     ///   - sendRepository: The repository used by the application to manage send data for the UI layer.
     ///   - settingsRepository: The repository used by the application to manage data for the UI layer.
@@ -242,6 +250,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     @MainActor
     init( // swiftlint:disable:this function_body_length
         apiService: APIService,
+        appContextHelper: AppContextHelper,
         appIdService: AppIdService,
         appInfoService: AppInfoService,
         application: Application?,
@@ -274,6 +283,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         notificationCenterService: NotificationCenterService,
         notificationService: NotificationService,
         pasteboardService: PasteboardService,
+        pendingAppIntentActionMediator: PendingAppIntentActionMediator,
         policyService: PolicyService,
         rehydrationHelper: RehydrationHelper,
         reviewPromptService: ReviewPromptService,
@@ -295,6 +305,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         watchService: WatchService
     ) {
         self.apiService = apiService
+        self.appContextHelper = appContextHelper
         self.appIdService = appIdService
         self.appInfoService = appInfoService
         self.application = application
@@ -327,6 +338,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.notificationCenterService = notificationCenterService
         self.notificationService = notificationService
         self.pasteboardService = pasteboardService
+        self.pendingAppIntentActionMediator = pendingAppIntentActionMediator
         self.policyService = policyService
         self.rehydrationHelper = rehydrationHelper
         self.reviewPromptService = reviewPromptService
@@ -351,16 +363,19 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// A convenience initializer to initialize the `ServiceContainer` with the default services.
     ///
     /// - Parameters:
+    ///   - appContext: The context in which the app is running.
     ///   - application: The application instance.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - nfcReaderService: The service used by the application to read NFC tags.
     ///
     @MainActor
     public convenience init( // swiftlint:disable:this function_body_length
+        appContext: AppContext = .mainApp,
         application: Application? = nil,
         errorReporter: ErrorReporter,
         nfcReaderService: NFCReaderService? = nil
     ) {
+        let appContextHelper = DefaultAppContextHelper(appContext: appContext)
         let appSettingsStore = DefaultAppSettingsStore(
             userDefaults: UserDefaults(suiteName: Bundle.main.groupIdentifier)!
         )
@@ -570,6 +585,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         let authRepository = DefaultAuthRepository(
             accountAPIService: apiService,
+            appContextHelper: appContextHelper,
             authService: authService,
             biometricsRepository: biometricsRepository,
             clientService: clientService,
@@ -585,6 +601,12 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             trustDeviceService: trustDeviceService,
             vaultTimeoutService: vaultTimeoutService
+        )
+
+        let pendingAppIntentActionMediator = DefaultPendingAppIntentActionMediator(
+            authRepository: authRepository,
+            errorReporter: errorReporter,
+            stateService: stateService
         )
 
         let migrationService = DefaultMigrationService(
@@ -766,6 +788,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 
         self.init(
             apiService: apiService,
+            appContextHelper: appContextHelper,
             appIdService: appIdService,
             appInfoService: appInfoService,
             application: application,
@@ -798,6 +821,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
+            pendingAppIntentActionMediator: pendingAppIntentActionMediator,
             policyService: policyService,
             rehydrationHelper: rehydrationHelper,
             reviewPromptService: reviewPromptService,
@@ -818,17 +842,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService
         )
-    }
-
-    // MARK: Static Functions
-
-    /// Creates the default error reporter.
-    public static func createDefaultErrorReporter() -> ErrorReporter {
-        #if DEBUG
-        OSLogErrorReporter()
-        #else
-        CrashlyticsErrorReporter()
-        #endif
     }
 }
 

@@ -1150,7 +1150,13 @@
 "ContactInfo" = "Contact info";
 "Identification" = "Identification";
 "Owner" = "Owner";
-"VerifyYourIdentity"="Verify your identity";
+"VerifyYourIdentity" = "Verify your identity";
+"LockCurrentAccount" = "Lock current account";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
+"AnErrorOccurredWhileTryingToLockAllAccounts" = "An error occurred while trying to lock all accounts";
 "ShareErrorDetails" = "Share error details";
 "FlightRecorder" = "Flight recorder";
 "EnableFlightRecorder" = "Enable flight recorder";

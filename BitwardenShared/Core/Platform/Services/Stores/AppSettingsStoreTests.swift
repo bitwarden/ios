@@ -734,6 +734,32 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
     }
 
+    /// `pendingAppIntentActions`is initially `nil`.
+    func test_pendingAppIntentActions_isInitiallyNil() {
+        XCTAssertNil(subject.pendingAppIntentActions)
+    }
+
+    /// `pendingAppIntentActions` can be used to get and set the persisted pending app intent actions in user defaults.
+    func test_pendingAppIntentActions_withValue() throws {
+        subject.pendingAppIntentActions = [.lockAll]
+        XCTAssertEqual(subject.pendingAppIntentActions, [.lockAll])
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                [PendingAppIntentAction].self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:pendingAppIntentActions")?
+                        .data(using: .utf8)
+                )
+            ),
+            [.lockAll]
+        )
+
+        subject.pendingAppIntentActions = nil
+        XCTAssertNil(subject.pendingAppIntentActions)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:pendingAppIntentActions"))
+    }
+
     /// `.pinProtectedUserKey(userId:)` can be used to get the pin protected user key for a user.
     func test_pinProtectedUserKey() {
         let userId = Account.fixture().profile.userId

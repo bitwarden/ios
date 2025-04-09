@@ -9,6 +9,7 @@ extension ServiceContainer {
     @MainActor
     static func withMocks( // swiftlint:disable:this function_body_length
         application: Application? = nil,
+        appContextHelper: AppContextHelper = MockAppContextHelper(),
         appInfoService: AppInfoService = MockAppInfoService(),
         appSettingsStore: AppSettingsStore = MockAppSettingsStore(),
         authRepository: AuthRepository = MockAuthRepository(),
@@ -39,6 +40,7 @@ extension ServiceContainer {
         nfcReaderService: NFCReaderService = MockNFCReaderService(),
         notificationService: NotificationService = MockNotificationService(),
         pasteboardService: PasteboardService = MockPasteboardService(),
+        pendingAppIntentActionMediator: PendingAppIntentActionMediator = MockPendingAppIntentActionMediator(),
         policyService: PolicyService = MockPolicyService(),
         notificationCenterService: NotificationCenterService = MockNotificationCenterService(),
         rehydrationHelper: RehydrationHelper = MockRehydrationHelper(),
@@ -65,6 +67,7 @@ extension ServiceContainer {
                 client: httpClient,
                 environmentService: environmentService
             ),
+            appContextHelper: appContextHelper,
             appIdService: AppIdService(appSettingStore: appSettingsStore),
             appInfoService: appInfoService,
             application: application,
@@ -97,6 +100,7 @@ extension ServiceContainer {
             notificationCenterService: notificationCenterService,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
+            pendingAppIntentActionMediator: pendingAppIntentActionMediator,
             policyService: policyService,
             rehydrationHelper: rehydrationHelper,
             reviewPromptService: reviewPromptService,
