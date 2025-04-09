@@ -33,6 +33,9 @@ enum AboutAction: Equatable {
     /// The version was tapped.
     case versionTapped
 
+    /// The view flight recorder logs button was tapped.
+    case viewFlightRecorderLogsTapped
+
     /// The web vault button was tapped.
     case webVaultTapped
 }
