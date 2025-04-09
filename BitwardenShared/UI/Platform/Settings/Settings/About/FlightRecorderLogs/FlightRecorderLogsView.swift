@@ -74,6 +74,7 @@ struct FlightRecorderLogsView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 #Preview("Empty") {
     FlightRecorderLogsView(
         store: Store(processor: StateProcessor(state: FlightRecorderLogsState())),
@@ -112,3 +113,4 @@ struct FlightRecorderLogsView: View {
     )
     .navStackWrapped
 }
+#endif
