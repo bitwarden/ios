@@ -30,6 +30,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     typealias Module = PasswordHistoryModule
 
     typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService
@@ -129,4 +130,10 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
 
         stackNavigator?.present(navigationController)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension GeneratorCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

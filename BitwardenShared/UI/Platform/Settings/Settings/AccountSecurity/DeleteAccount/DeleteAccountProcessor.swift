@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 // MARK: - DeleteAccountProcessor
@@ -9,6 +10,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
 
     typealias Services = HasAccountAPIService
         & HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasStateService
 
@@ -104,9 +106,9 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
             }
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.deleteAccount(otp: otp, passwordText: passwordText)
-            })
+            }
         }
     }
 
@@ -143,7 +145,7 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
                 })
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -154,10 +156,9 @@ final class DeleteAccountProcessor: StateProcessor<DeleteAccountState, DeleteAcc
             state.shouldPreventUserFromDeletingAccount =
                 try await services.authRepository.isUserManagedByOrganization()
         } catch {
-            coordinator.showAlert(.networkResponseError(error)) { [weak self] in
-                guard let self else { return }
-                coordinator.navigate(to: .dismiss)
-            }
+            await coordinator.showErrorAlert(error: error, onDismissed: {
+                self.coordinator.navigate(to: .dismiss)
+            })
             services.errorReporter.log(error: error)
         }
     }

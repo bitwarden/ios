@@ -63,6 +63,9 @@ protocol AddEditItemState: Sendable {
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool { get set }
 
+    /// Whether the cipher is read-only.
+    var isReadOnly: Bool { get }
+
     /// The state for a login type item.
     var loginState: LoginItemState { get set }
 
@@ -89,6 +92,9 @@ protocol AddEditItemState: Sendable {
 
     /// A computed property that indicates if we should show the learn new login action card.
     var shouldShowLearnNewLoginActionCard: Bool { get }
+
+    /// A flag indicating if cipher permissions should be used.
+    var restrictCipherItemDeletionFlagEnabled: Bool { get set }
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState { get set }

@@ -1,3 +1,4 @@
+import BitwardenKit
 import TestHelpers
 import XCTest
 
@@ -64,7 +65,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
     /// error with deleting the account, an alert is shown and the error is logged.
     @MainActor
     func test_perform_deleteAccount_error() async throws {
-        authRepository.deleteAccountResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        authRepository.deleteAccountResult = .failure(error)
 
         await subject.perform(.deleteAccount)
 
@@ -74,15 +76,14 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(authRepository.deleteAccountCalled)
 
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(errorAlert, .networkResponseError(URLError(.timedOut)))
-        XCTAssertEqual(errorReporter.errors as? [URLError], [URLError(.timedOut)])
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
 
         authRepository.deleteAccountCalled = false
         errorReporter.errors.removeAll()
 
         authRepository.deleteAccountResult = .success(())
-        try await errorAlert.tapAction(title: Localizations.tryAgain)
+        await errorAlertWithRetry.retry()
         XCTAssertTrue(authRepository.deleteAccountCalled)
         XCTAssertTrue(errorReporter.errors.isEmpty)
     }
@@ -270,7 +271,7 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
 
         await subject.perform(.deleteAccount)
 
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
@@ -299,10 +300,8 @@ class DeleteAccountProcessorTests: BitwardenTestCase {
         await subject.perform(.loadData)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.alertActions.count, 1)
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
 
-        try await alert.tapAction(title: Localizations.ok)
         coordinator.alertOnDismissed?()
 
         XCTAssertEqual(coordinator.routes.last, .dismiss)

@@ -1,5 +1,6 @@
 import Foundation
 import Networking
+import TestHelpers
 
 extension Result where Success == HTTPResponse, Error: Error {
     static func httpSuccess(testData: APITestData) -> Result<HTTPResponse, Error> {

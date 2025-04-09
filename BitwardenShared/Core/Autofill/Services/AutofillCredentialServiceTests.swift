@@ -5,6 +5,7 @@ import XCTest
 
 @testable import BitwardenShared
 
+@MainActor
 class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -69,8 +70,8 @@ class AutofillCredentialServiceTests: BitwardenTestCase { // swiftlint:disable:t
         identityStore.removeAllCredentialIdentitiesCalled = false
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         autofillCredentialServiceDelegate = nil
         cipherService = nil

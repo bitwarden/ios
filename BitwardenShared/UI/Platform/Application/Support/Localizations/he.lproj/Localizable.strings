@@ -755,7 +755,7 @@
 "ViewAllLoginOptions" = "הצג את כל אפשרויות הכניסה";
 "ThisRequestIsNoLongerValid" = "בקשה זו אינה תקפה עוד";
 "PendingLogInRequests" = "בקשות כניסה ממתינות";
-"DeclineAllRequests" = "דחה את כל הבקשות";
+"DeclineAllRequests" = "סרב לכל הבקשות";
 "AreYouSureYouWantToDeclineAllPendingLogInRequests" = "האם אתה בטוח שברצונך לדחות את כל בקשות הכניסה הממתינות?";
 "RequestsDeclined" = "הבקשות נדחו";
 "NoPendingRequests" = "אין בקשות ממתינות";
@@ -1153,3 +1153,4 @@
 "Identification" = "הזדהות";
 "Owner" = "בעלים";
 "VerifyYourIdentity" = "אמת את זהותך";
+"ShareErrorDetails" = "Share error details";

@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - FeatureFlag
@@ -32,6 +33,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// An SDK flag that enables individual cipher encryption.
     case enableCipherKeyEncryption
 
+    /// A feature flag for the flight recorder, which can be enabled to collect app logs.
+    case flightRecorder = "enable-pm-flight-recorder"
+
     /// A flag to ignore the environment check for the two-factor authentication
     /// notice. If this is on, then it will display even on self-hosted servers,
     /// which means it's easier to dev/QA the feature.
@@ -39,6 +43,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
 
     /// A feature flag for the import logins flow for new accounts.
     case importLoginsFlow = "import-logins-flow"
+
+    /// A feature flag to enable additional error reporting.
+    case mobileErrorReporting = "mobile-error-reporting"
 
     /// A feature flag for the intro carousel flow.
     case nativeCarouselFlow = "native-carousel-flow"
@@ -57,6 +64,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
 
     /// A feature flag for the refactor on the SSO details endpoint.
     case refactorSsoDetailsEndpoint = "pm-12337-refactor-sso-details-endpoint"
+
+    /// A feature flag for the use of new cipher permission properties.
+    case restrictCipherItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission"
 
     // MARK: Test Flags
 
@@ -112,7 +122,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
         switch self {
         case .enableCipherKeyEncryption,
              .enableDebugAppReviewPrompt,
+             .flightRecorder,
              .ignore2FANoticeEnvironmentCheck,
+             .mobileErrorReporting,
              .newDeviceVerificationPermanentDismiss,
              .newDeviceVerificationTemporaryDismiss,
              .testLocalFeatureFlag,
@@ -131,6 +143,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
+             .restrictCipherItemDeletion,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,

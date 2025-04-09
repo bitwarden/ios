@@ -1,3 +1,4 @@
+import BitwardenKit
 import TestHelpers
 import XCTest
 
@@ -588,6 +589,7 @@ class SyncServiceTests: BitwardenTestCase {
 
     /// `fetchSync()` replaces the list of the user's organizations but doesn't initialize
     /// organization crypto if the user's vault is locked.
+    @MainActor
     func test_fetchSync_organizations_vaultLocked() async throws {
         client.result = .httpSuccess(testData: .syncWithProfileOrganizations)
         stateService.activeAccount = .fixture()

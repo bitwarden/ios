@@ -24,11 +24,17 @@ enum AboutAction: Equatable {
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 
+    /// The flight recorder toggle value changed.
+    case toggleFlightRecorder(Bool)
+
     /// The submit crash logs toggle value changed.
     case toggleSubmitCrashLogs(Bool)
 
     /// The version was tapped.
     case versionTapped
+
+    /// The view flight recorder logs button was tapped.
+    case viewFlightRecorderLogsTapped
 
     /// The web vault button was tapped.
     case webVaultTapped

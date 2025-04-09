@@ -10,6 +10,8 @@ class MockCoordinator<Route, Event>: Coordinator {
     var alertShown = [Alert]()
     var alertOnDismissed: (() -> Void)?
     var contexts: [AnyObject?] = []
+    var errorAlertsShown = [Error]()
+    var errorAlertsWithRetryShown = [(error: Error, retry: () async -> Void)]()
     var events = [Event]()
     var isLoadingOverlayShowing = false
     var isStarted: Bool = false
@@ -33,6 +35,23 @@ class MockCoordinator<Route, Event>: Coordinator {
 
     func showAlert(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
         alertShown.append(alert)
+        alertOnDismissed = onDismissed
+    }
+
+    func showErrorAlert(error: any Error) async {
+        errorAlertsShown.append(error)
+    }
+
+    func showErrorAlert(
+        error: any Error,
+        tryAgain: (() async -> Void)?,
+        onDismissed: (() -> Void)?
+    ) async {
+        if let tryAgain {
+            errorAlertsWithRetryShown.append((error, tryAgain))
+        } else {
+            errorAlertsShown.append(error)
+        }
         alertOnDismissed = onDismissed
     }
 

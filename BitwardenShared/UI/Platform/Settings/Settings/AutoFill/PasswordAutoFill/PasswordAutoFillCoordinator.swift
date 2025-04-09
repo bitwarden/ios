@@ -20,6 +20,7 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
 
     typealias Services = HasAutofillCredentialService
         & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasNotificationCenterService
         & HasStateService
@@ -87,4 +88,10 @@ class PasswordAutoFillCoordinator: NSObject, Coordinator, HasStackNavigator {
         let view = PasswordAutoFillView(store: Store(processor: processor))
         stackNavigator?.push(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension PasswordAutoFillCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

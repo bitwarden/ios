@@ -16,6 +16,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     typealias Services = HasAuthRepository
         & HasAuthService
         & HasCaptchaService
+        & HasConfigService
         & HasErrorReporter
 
     // MARK: Properties
@@ -95,7 +96,9 @@ final class LoginWithDeviceProcessor: StateProcessor<
             // Start checking for a response every few seconds.
             setCheckTimer()
         } catch {
-            coordinator.showAlert(.networkResponseError(error) { await self.sendLoginWithDeviceRequest() })
+            await coordinator.showErrorAlert(error: error) {
+                await self.sendLoginWithDeviceRequest()
+            }
             services.errorReporter.log(error: error)
         }
     }
@@ -127,59 +130,57 @@ final class LoginWithDeviceProcessor: StateProcessor<
             coordinator.hideLoadingOverlay()
             await coordinator.handleEvent(.didCompleteAuth)
         } catch {
-            handleError(error) { await self.attemptLogin(with: request) }
+            await handleError(error) { await self.attemptLogin(with: request) }
         }
     }
 
     /// Check for a response to the login request.
-    private func checkForResponse() {
-        Task {
-            do {
-                // Get the updated request.
-                guard let requestId = self.state.requestId else { throw AuthError.missingData }
-                let request = try await self.services.authService.checkPendingLoginRequest(withId: requestId)
+    private func checkForResponse() async {
+        do {
+            // Get the updated request.
+            guard let requestId = state.requestId else { throw AuthError.missingData }
+            let request = try await services.authService.checkPendingLoginRequest(withId: requestId)
 
-                guard request.requestApproved == true else {
-                    if !request.isAnswered {
-                        // Keep waiting and schedule the next timer if the request hasn't been
-                        // answered and approved yet.
-                        setCheckTimer()
-                    }
-                    return
+            guard request.requestApproved == true else {
+                if !request.isAnswered {
+                    // Keep waiting and schedule the next timer if the request hasn't been
+                    // answered and approved yet.
+                    setCheckTimer()
                 }
-
-                // Remove admin pending login request if exists
-                try? await services.authService.setPendingAdminLoginRequest(nil, userId: nil)
-
-                // Otherwise, if the request has been approved, stop the update timer
-                // and attempt to authenticate.
-                self.checkTimer?.invalidate()
-                await self.attemptLogin(with: request)
-            } catch CheckLoginRequestError.expired {
-                // If the request has expired, stop the timer but don't alert the user and remain
-                // on the view.
-                self.checkTimer?.invalidate()
-            } catch {
-                // For any other errors, stop the timer while the alert is being shown and resume it
-                // when it's dismissed.
-                self.checkTimer?.invalidate()
-                self.coordinator.showAlert(.networkResponseError(error)) {
-                    self.setCheckTimer()
-                }
-                self.services.errorReporter.log(error: error)
+                return
             }
+
+            // Remove admin pending login request if exists
+            try? await services.authService.setPendingAdminLoginRequest(nil, userId: nil)
+
+            // Otherwise, if the request has been approved, stop the update timer
+            // and attempt to authenticate.
+            checkTimer?.invalidate()
+            await attemptLogin(with: request)
+        } catch CheckLoginRequestError.expired {
+            // If the request has expired, stop the timer but don't alert the user and remain
+            // on the view.
+            checkTimer?.invalidate()
+        } catch {
+            // For any other errors, stop the timer while the alert is being shown and resume it
+            // when it's dismissed.
+            checkTimer?.invalidate()
+            await coordinator.showErrorAlert(error: error, onDismissed: {
+                self.setCheckTimer()
+            })
+            services.errorReporter.log(error: error)
         }
     }
 
     /// Generically handle an error on the view.
-    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
+    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) async {
         coordinator.hideLoadingOverlay()
 
         // Handle a captcha or two-factor error.
         if let identityTokenError = error as? IdentityTokenRequestError {
             switch identityTokenError {
             case let .captchaRequired(token):
-                launchCaptchaFlow(with: token)
+                await launchCaptchaFlow(with: token)
             case let .twoFactorRequired(authMethodsData, _, _, _):
                 let unlockMethod: TwoFactorUnlockMethod? = if let key = approvedRequest?.key, let authRequestResponse {
                     TwoFactorUnlockMethod.loginWithDevice(
@@ -199,7 +200,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
             return
         }
 
-        coordinator.showAlert(.networkResponseError(error, tryAgain))
+        await coordinator.showErrorAlert(error: error, tryAgain: tryAgain)
         services.errorReporter.log(error: error)
     }
 
@@ -208,7 +209,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
     /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
     ///   with hCaptcha.
     ///
-    private func launchCaptchaFlow(with siteKey: String) {
+    private func launchCaptchaFlow(with siteKey: String) async {
         do {
             let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
             coordinator.navigate(
@@ -219,7 +220,7 @@ final class LoginWithDeviceProcessor: StateProcessor<
                 context: self
             )
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -230,7 +231,9 @@ final class LoginWithDeviceProcessor: StateProcessor<
 
         // Set the timer to auto-check for a response every four seconds.
         checkTimer = Timer.scheduledTimer(withTimeInterval: UI.duration(4), repeats: false) { [weak self] _ in
-            self?.checkForResponse()
+            Task { @MainActor [weak self] in
+                await self?.checkForResponse()
+            }
         }
     }
 }
@@ -251,8 +254,9 @@ extension LoginWithDeviceProcessor: CaptchaFlowDelegate {
 
         // Show the alert after a delay to ensure it doesn't try to display over the
         // closing captcha view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            self.coordinator.showAlert(.networkResponseError(error))
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.6))
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }

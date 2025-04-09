@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Networking
 import TestHelpers
@@ -839,6 +840,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.showMasterPasswordReprompt)
     }
 
+    /// `perform(_:)` with `.appeared` checks restrictCipherItemDeletionFlag and sets value to state.
+    @MainActor
+    func test_perform_appeared_loadRestrictItemDeletionFlag() async {
+        configService.featureFlagsBool[.restrictCipherItemDeletion] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.restrictCipherItemDeletionFlagEnabled)
+    }
+
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
     @MainActor
     func test_perform_checkPasswordPressed_exposedPassword() async throws {
@@ -898,7 +907,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         vaultRepository.softDeleteCipherResult = .failure(TestError())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
         // Tap the "Yes" button on the alert.
@@ -906,11 +915,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await action.handler?(action, [])
 
         // Ensure the generic error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(
-            alert,
-            .networkResponseError(TestError())
-        )
+        XCTAssertEqual(coordinator.errorAlertsShown as? [TestError], [TestError()])
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
@@ -1176,11 +1181,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         await subject.perform(.savePressed)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(
-            alert,
-            Alert.defaultAlert(title: Localizations.anErrorHasOccurred)
-        )
+        XCTAssertEqual(coordinator.errorAlertsShown as? [EncryptError], [EncryptError()])
     }
 
     /// `perform(_:)` with `.savePressed` shows an error if an organization but no collections have been selected.
@@ -1219,20 +1220,12 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_savePressed_serverErrorAlert() async throws {
         let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
-        try vaultRepository.addCipherResult = .failure(
-            ServerError.error(errorResponse: ErrorResponseModel(response: response))
-        )
+        let error = try ServerError.error(errorResponse: ErrorResponseModel(response: response))
+        vaultRepository.addCipherResult = .failure(error)
         subject.state.name = "vault item"
         await subject.perform(.savePressed)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(
-            alert,
-            Alert.defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "You do not have permissions to edit this."
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsShown as? [ServerError], [error])
     }
 
     /// `perform(_:)` with `.savePressed` saves the item.

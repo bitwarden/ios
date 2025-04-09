@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Combine
 import Foundation
@@ -267,7 +268,7 @@ extension DefaultSyncService {
         }
 
         if let organizations = response.profile?.organizations {
-            if !vaultTimeoutService.isLocked(userId: userId) {
+            if await !vaultTimeoutService.isLocked(userId: userId) {
                 try await organizationService.initializeOrganizationCrypto(
                     organizations: organizations.compactMap(Organization.init)
                 )

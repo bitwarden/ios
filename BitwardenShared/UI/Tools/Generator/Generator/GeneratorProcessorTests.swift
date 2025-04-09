@@ -199,13 +199,13 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_generatePassword_error() {
         subject.state.generatorType = .password
 
-        struct PasswordGeneratorError: Error {}
+        struct PasswordGeneratorError: Error, Equatable {}
         generatorRepository.passwordResult = .failure(PasswordGeneratorError())
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !coordinator.alertShown.isEmpty }
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        waitFor { !coordinator.errorAlertsShown.isEmpty }
+        XCTAssertEqual(coordinator.errorAlertsShown as? [PasswordGeneratorError], [PasswordGeneratorError()])
     }
 
     /// Generating a new password validates the password options before generating the value.
@@ -279,13 +279,13 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.state.generatorType = .username
         subject.state.usernameState.usernameGeneratorType = .plusAddressedEmail
 
-        struct UsernameGeneratorError: Error {}
+        struct UsernameGeneratorError: Error, Equatable {}
         generatorRepository.usernameResult = .failure(UsernameGeneratorError())
 
         subject.receive(.refreshGeneratedValue)
 
-        waitFor { !coordinator.alertShown.isEmpty }
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        waitFor { !coordinator.errorAlertsShown.isEmpty }
+        XCTAssertEqual(coordinator.errorAlertsShown as? [UsernameGeneratorError], [UsernameGeneratorError()])
     }
 
     /// If an error occurs loading the generator options, an alert is shown and a new value isn't generated.

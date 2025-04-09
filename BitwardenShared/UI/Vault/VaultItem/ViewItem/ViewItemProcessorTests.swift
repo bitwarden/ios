@@ -11,6 +11,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     var authRepository: MockAuthRepository!
     var client: MockHTTPClient!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultItemRoute, VaultItemEvent>!
     var delegate: MockCipherItemOperationDelegate!
     var errorReporter: MockErrorReporter!
@@ -27,6 +28,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         super.setUp()
         authRepository = MockAuthRepository()
         client = MockHTTPClient()
+        configService = MockConfigService()
         coordinator = MockCoordinator<VaultItemRoute, VaultItemEvent>()
         delegate = MockCipherItemOperationDelegate()
         errorReporter = MockErrorReporter()
@@ -37,6 +39,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
             authRepository: authRepository,
+            configService: configService,
             errorReporter: errorReporter,
             eventService: eventService,
             httpClient: client,
@@ -168,6 +171,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertTrue(subject.state.hasMasterPassword)
+        XCTAssertFalse(subject.state.restrictCipherItemDeletionFlagEnabled)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
@@ -294,6 +298,34 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
+    /// `perform(_:)` with `.appeared` loads feature flag value for .restrictCipherItemDeletion.
+    @MainActor
+    func test_perform_appeared_restrictItemDeletion() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        configService.featureFlagsBool = [
+            .restrictCipherItemDeletion: true,
+        ]
+
+        let cipherItem = CipherView.loginFixture(
+            id: "id"
+        )
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        let expectedState = CipherItemState(
+            existing: cipherItem,
+            hasPremium: false
+        )!
+
+        XCTAssertTrue(subject.state.restrictCipherItemDeletionFlagEnabled)
     }
 
     /// `perform` with `.checkPasswordPressed` records any errors.
@@ -591,7 +623,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         vaultRepository.softDeleteCipherResult = .failure(TestError())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: true) {})
 
         // Tap the "Yes" button on the alert.
@@ -599,11 +631,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await action.handler?(action, [])
 
         // Ensure the generic error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(
-            alert,
-            .networkResponseError(TestError())
-        )
+        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
+        XCTAssertEqual(errorAlert as? TestError, TestError())
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
@@ -624,7 +653,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         vaultRepository.deleteCipherResult = .failure(TestError())
         await subject.perform(.deletePressed)
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = coordinator.alertShown.last
         XCTAssertEqual(alert, .deleteCipherConfirmation(isSoftDelete: false) {})
 
         // Tap the "Yes" button on the alert.
@@ -632,11 +661,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await action.handler?(action, [])
 
         // Ensure the generic error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(
-            alert,
-            .networkResponseError(TestError())
-        )
+        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
+        XCTAssertEqual(errorAlert as? TestError, TestError())
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 
@@ -648,7 +674,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             ViewItemState(
                 cipherView: .fixture(reprompt: .password),
                 hasMasterPassword: true,
-                hasPremium: false
+                hasPremium: false,
+                restrictCipherItemDeletionFlagEnabled: true
             )
         )
         await subject.perform(.deletePressed)
@@ -791,7 +818,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         vaultRepository.restoreCipherResult = .failure(TestError())
         await subject.perform(.restorePressed)
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = coordinator.alertShown.last
         XCTAssertEqual(alert?.title, Localizations.doYouReallyWantToRestoreCipher)
         XCTAssertNil(alert?.message)
 
@@ -800,11 +827,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await action.handler?(action, [])
 
         // Ensure the generic error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(
-            alert,
-            .networkResponseError(TestError())
-        )
+        let errorAlert = try XCTUnwrap(coordinator.errorAlertsShown.last)
+        XCTAssertEqual(errorAlert as? TestError, TestError())
         XCTAssertEqual(errorReporter.errors.first as? TestError, TestError())
     }
 

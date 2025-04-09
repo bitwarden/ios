@@ -195,7 +195,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(authService.generateSingleSignOnOrgIdentifier, "BestOrganization")
         XCTAssertEqual(coordinator.loadingOverlaysShown.last, LoadingOverlayState(title: Localizations.loggingIn))
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(URLError(.timedOut)) {})
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? URLError, URLError(.timedOut))
         XCTAssertEqual(errorReporter.errors.last as? URLError, URLError(.timedOut))
     }
 
@@ -247,7 +247,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         // Verify the results.
         XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
         XCTAssertNil(stateService.rememberedOrgIdentifier)
     }
@@ -391,7 +391,7 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         waitFor(!errorReporter.errors.isEmpty)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 }

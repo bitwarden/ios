@@ -40,7 +40,7 @@ struct ExportVaultView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 primaryActionToolbarButton(Localizations.export) {
-                    store.send(.exportVaultTapped)
+                    Task { await store.perform(.exportVaultTapped) }
                 }
                 .accessibilityIdentifier("ExportVaultButton")
                 .disabled(store.state.disableIndividualVaultExport)

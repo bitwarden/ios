@@ -87,7 +87,10 @@ struct BitwardenMenuField<
             }
         }
         .padding(.horizontal, 16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(
+            isEnabled ? Asset.Colors.backgroundSecondary.swiftUIColor :
+                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 

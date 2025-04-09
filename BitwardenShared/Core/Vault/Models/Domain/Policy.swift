@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A domain model containing the details of a policy.
 ///
 struct Policy: Equatable {

@@ -2,7 +2,7 @@ import OSLog
 
 /// An object that handles logging HTTP requests and responses.
 ///
-class HTTPLogger {
+final class HTTPLogger: Sendable {
     /// Logs the details of a `HTTPRequest`.
     ///
     /// - Parameter httpRequest: The `HTTPRequest` to log the details of.

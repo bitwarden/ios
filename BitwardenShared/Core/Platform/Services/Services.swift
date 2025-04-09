@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 // swiftlint:disable file_length
@@ -20,6 +21,7 @@ typealias Services = HasAPIService
     & HasConfigService
     & HasDeviceAPIService
     & HasEnvironmentService
+    & HasErrorReportBuilder
     & HasErrorReporter
     & HasEventService
     & HasExportCXFCiphersRepository
@@ -171,6 +173,13 @@ protocol HasDeviceAPIService {
 protocol HasEnvironmentService {
     /// The service used by the application to manage the environment settings.
     var environmentService: EnvironmentService { get }
+}
+
+/// Protocol for an object that provides an `ErrorReportBuilder`.
+///
+protocol HasErrorReportBuilder {
+    /// A helper for building an error report containing the details of an error that occurred.
+    var errorReportBuilder: ErrorReportBuilder { get }
 }
 
 /// Protocol for an object that provides an `ErrorReporter`.
