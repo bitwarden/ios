@@ -121,12 +121,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 return
             }
             await showRestoreItemConfirmation()
-        case .streamShowWebIcons:
-            for await value in await services.stateService.showWebIconsPublisher().values {
-                guard case var .data(cipherState) = state.loadingState else { continue }
-                cipherState.showWebIcons = value
-                state.loadingState = .data(cipherState)
-            }
         case .toggleDisplayMultipleCollections:
             toggleDisplayMultipleCollections()
         case .totpCodeExpired:
@@ -537,6 +531,7 @@ private extension ViewItemProcessor {
                 if let orgId = cipher.organizationId {
                     organization = try await services.vaultRepository.fetchOrganization(withId: orgId)
                 }
+                let showWebIcons = await services.stateService.getShowWebIcons()
 
                 let restrictCipherItemDeletionFlagEnabled: Bool = await services.configService.getFeatureFlag(
                     .restrictCipherItemDeletion
@@ -560,6 +555,7 @@ private extension ViewItemProcessor {
                     itemState.allUserCollections = collections
                     itemState.folderName = folder?.name
                     itemState.organizationName = organization?.name
+                    itemState.showWebIcons = showWebIcons
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword

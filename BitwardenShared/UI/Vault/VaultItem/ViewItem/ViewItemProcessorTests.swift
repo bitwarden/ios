@@ -131,6 +131,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.userHasMasterPassword = [account.profile.userId: true]
+        stateService.showWebIcons = true
         vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
         let collections = [
             CollectionView.fixture(id: "1"),
@@ -173,8 +174,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertFalse(subject.state.restrictCipherItemDeletionFlagEnabled)
-        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+
+        guard case let .data(currentState) = subject.state.loadingState else {
+            XCTFail("State doesn't have data")
+            return
+        }
+        XCTAssertTrue(currentState.showWebIcons)
     }
 
     /// `perform(_:)` with `.appeared` records any errors.
@@ -1081,34 +1088,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertNotNil(dismissAction)
         dismissAction?.action()
         XCTAssertTrue(delegate.itemRestoredCalled)
-    }
-
-    /// `perform(_:)` with `.streamShowWebIcons` requests the value of the show
-    /// web icons parameter from the state service and updates state.
-    @MainActor
-    func test_perform_streamShowWebIcons() async throws {
-        var cipherState = CipherItemState(
-            existing: CipherView.loginFixture(deletedDate: .now, id: "123"),
-            hasPremium: false
-        )!
-        cipherState.showWebIcons = true
-
-        let state = ViewItemState(
-            loadingState: .data(cipherState)
-        )
-        subject.state = state
-        let task = Task {
-            await subject.perform(.streamShowWebIcons)
-        }
-        defer { task.cancel() }
-
-        stateService.showWebIconsSubject.send(false)
-        try await waitForAsync { [weak self] in
-            guard case let .data(cipherState) = self?.subject.state.loadingState else {
-                return false
-            }
-            return !cipherState.showWebIcons
-        }
     }
 
     /// `perform(_:)` with `.toggleDisplayMultipleCollections` doesn't update the state if

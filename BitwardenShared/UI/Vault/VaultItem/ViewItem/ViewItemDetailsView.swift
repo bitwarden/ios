@@ -13,7 +13,8 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
     @Environment(\.openURL) private var openURL
 
     /// The top padding to use in the `belongingView` image.
-    @ScaledMetric(relativeTo: .body) private var paddingTopBelongingViewImage = 4
+    @ScaledMetric(relativeTo: .body)
+    private var paddingTopBelongingViewImage = 4
 
     // MARK: Properties
 

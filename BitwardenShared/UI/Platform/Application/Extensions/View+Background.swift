@@ -5,7 +5,7 @@ import SwiftUI
 ///
 extension View {
     /// Wraps the view in a circular colored background.
-    /// 
+    ///
     /// - Parameters:
     ///   - color: Color of the background.
     ///   - width: Width of the circular background.

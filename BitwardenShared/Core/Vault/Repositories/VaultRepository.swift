@@ -913,7 +913,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
         let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
 
-        var types = [
+        let types = [
             VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount)),
             VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)),
             VaultListItem(id: "Types.Identities", itemType: .group(.identity, typesIdentityCount)),

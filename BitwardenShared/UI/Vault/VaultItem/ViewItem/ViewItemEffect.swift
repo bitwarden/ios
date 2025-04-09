@@ -14,9 +14,6 @@ enum ViewItemEffect: Equatable {
     /// The restore button was pressed.
     case restorePressed
 
-    /// Stream the show web icons setting.
-    case streamShowWebIcons
-
     /// Toggles displaying one or multiple collections.
     case toggleDisplayMultipleCollections
 
