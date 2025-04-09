@@ -135,7 +135,7 @@ class EnvironmentURLDataTests: XCTestCase {
         let subject = EnvironmentURLData(base: URL(string: "https://example.com")!)
         XCTAssertTrue(subject.region == .selfHosted)
     }
-    
+
     /// `sendShareURL` returns the send URL for the united states region.
     func test_sendShareURL_unitedStates() {
         let subject = EnvironmentURLData.defaultUS
