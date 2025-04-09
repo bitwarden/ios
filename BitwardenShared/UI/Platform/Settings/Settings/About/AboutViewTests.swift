@@ -90,6 +90,16 @@ class AboutViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .versionTapped)
     }
 
+    /// Tapping the view recorded logs button dispatches the `.viewFlightRecorderLogsTapped` action.
+    @MainActor
+    func test_viewRecordedLogsButton_tap() throws {
+        processor.state.isFlightRecorderFeatureFlagEnabled = true
+
+        let button = try subject.inspect().find(button: Localizations.viewRecordedLogs)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .viewFlightRecorderLogsTapped)
+    }
+
     /// Tapping the web vault button dispatches the `.webVaultTapped` action.
     @MainActor
     func test_webVaultButton_tap() throws {

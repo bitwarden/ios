@@ -207,6 +207,15 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
     }
 
+    /// `receive(_:)` with action `.isFlightRecorderToggleOn` navigates to the view flight recorder
+    /// logs screen.
+    @MainActor
+    func test_receive_viewFlightRecorderLogsTapped() {
+        subject.receive(.viewFlightRecorderLogsTapped)
+
+        XCTAssertEqual(coordinator.routes, [.flightRecorderLogs])
+    }
+
     /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the web vault
     /// When `Continue` is tapped on the alert, sets the URL to open in the state.
     @MainActor
