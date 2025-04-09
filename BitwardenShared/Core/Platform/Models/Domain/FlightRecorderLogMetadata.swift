@@ -49,7 +49,7 @@ struct FlightRecorderLogMetadata: Equatable, Identifiable {
         let dateFormatter = DateFormatter()
         dateFormatter.dateStyle = .medium
         dateFormatter.timeStyle = .short
-        return Localizations.xToY(dateFormatter.string(from: startDate), dateFormatter.string(from: endDate))
+        return Localizations.dateRangeXToY(dateFormatter.string(from: startDate), dateFormatter.string(from: endDate))
     }
 
     // MARK: Methods
