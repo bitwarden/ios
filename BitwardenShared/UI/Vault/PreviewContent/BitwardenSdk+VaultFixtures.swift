@@ -46,6 +46,7 @@ extension Cipher {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistory]? = nil,
+        permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         secureNote: SecureNote? = nil,
@@ -71,6 +72,7 @@ extension Cipher {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
@@ -104,6 +106,7 @@ extension CipherView {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistoryView]? = nil,
+        permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         secureNote: SecureNoteView? = nil,
@@ -129,6 +132,7 @@ extension CipherView {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
@@ -158,6 +162,7 @@ extension CipherView {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistoryView]? = nil,
+        permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         viewPassword: Bool = true
@@ -180,6 +185,7 @@ extension CipherView {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
@@ -209,6 +215,7 @@ extension CipherView {
         organizationId: String? = nil,
         organizationUseTotp: Bool = false,
         passwordHistory: [PasswordHistoryView]? = nil,
+        permissions: CipherPermissions? = nil,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         revisionDate: Date = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         viewPassword: Bool = true
@@ -231,6 +238,7 @@ extension CipherView {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             localData: localData,
             attachments: attachments,
@@ -566,33 +574,6 @@ extension PasswordHistoryView {
             password: password,
             lastUsedDate: lastUsedDate
         )
-    }
-}
-
-extension Date {
-    init(
-        year: Int,
-        month: Int,
-        day: Int,
-        hour: Int = 0,
-        minute: Int = 0,
-        second: Int = 0,
-        nanosecond: Int = 0,
-        timeZone: TimeZone = TimeZone(secondsFromGMT: 0)!
-    ) {
-        let calendar = Calendar(identifier: .gregorian)
-        let dateComponents = DateComponents(
-            calendar: calendar,
-            timeZone: timeZone,
-            year: year,
-            month: month,
-            day: day,
-            hour: hour,
-            minute: minute,
-            second: second,
-            nanosecond: nanosecond
-        )
-        self = dateComponents.date!
     }
 }
 #endif

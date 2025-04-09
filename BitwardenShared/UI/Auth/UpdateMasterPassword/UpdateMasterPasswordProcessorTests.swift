@@ -163,7 +163,7 @@ class UpdateMasterPasswordProcessorTests: BitwardenTestCase {
 
         await subject.perform(.saveTapped)
 
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 

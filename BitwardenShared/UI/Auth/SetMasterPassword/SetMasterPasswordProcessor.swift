@@ -1,3 +1,4 @@
+import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -14,6 +15,7 @@ class SetMasterPasswordProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasOrganizationAPIService
         & HasPolicyService
@@ -101,7 +103,7 @@ class SetMasterPasswordProcessor: StateProcessor<
                 state.masterPasswordPolicy = policy
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -156,7 +158,7 @@ class SetMasterPasswordProcessor: StateProcessor<
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

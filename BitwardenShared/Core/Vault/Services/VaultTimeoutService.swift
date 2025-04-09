@@ -15,6 +15,7 @@ enum VaultTimeoutServiceError: Error {
 
 /// A protocol for handling vault access.
 ///
+@MainActor
 protocol VaultTimeoutService: AnyObject {
     // MARK: Methods
 

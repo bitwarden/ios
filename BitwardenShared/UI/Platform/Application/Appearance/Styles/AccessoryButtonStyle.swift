@@ -5,10 +5,16 @@ import SwiftUI
 /// The style for an accessory button.
 ///
 struct AccessoryButtonStyle: ButtonStyle {
+    /// A value indicating whether the button is currently enabled or disabled.
+    @Environment(\.isEnabled) var isEnabled
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .frame(width: 24, height: 24)
-            .foregroundColor(Asset.Colors.iconPrimary.swiftUIColor)
+            .foregroundColor(
+                isEnabled ? Asset.Colors.iconPrimary.swiftUIColor :
+                    Asset.Colors.buttonFilledDisabledForeground.swiftUIColor
+            )
             .opacity(configuration.isPressed ? 0.5 : 1)
             .contentShape(Rectangle())
     }

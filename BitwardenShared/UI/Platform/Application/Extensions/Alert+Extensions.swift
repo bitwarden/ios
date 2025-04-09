@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - Alert
 
 extension Alert {

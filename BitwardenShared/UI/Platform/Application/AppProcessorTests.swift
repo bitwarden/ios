@@ -122,6 +122,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     /// `init()` subscribes to app background events and logs an error if one occurs when
     /// setting the last active time.
+    @MainActor
     func test_appBackgrounded_error() {
         stateService.activeAccount = .fixture()
         vaultTimeoutService.setLastActiveTimeError = BitwardenTestError.example
@@ -133,6 +134,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// The user's last active time is updated when the app is backgrounded.
+    @MainActor
     func test_appBackgrounded_setLastActiveTime() {
         let account: Account = .fixture()
         stateService.activeAccount = account

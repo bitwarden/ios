@@ -107,8 +107,8 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     func test_captchaErrored() {
         subject.captchaErrored(error: BitwardenTestError.example)
 
-        waitFor(!coordinator.alertShown.isEmpty)
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        waitFor(!coordinator.errorAlertsShown.isEmpty)
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -140,16 +140,16 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
     /// `checkForResponse()` stops the request timer if the request returns an error. Once the error
     /// alert has been dismissed, requests resume again.
     @MainActor
-    func test_checkForResponse_error() throws {
+    func test_checkForResponse_error() {
         authService.checkPendingLoginRequestResult = .failure(BitwardenTestError.example)
 
-        let task = Task {
-            await self.subject.perform(.appeared)
+        let task = Task { @MainActor in
+            await subject.perform(.appeared)
         }
-        waitFor(!coordinator.alertShown.isEmpty)
+        waitFor(!coordinator.errorAlertsShown.isEmpty)
         task.cancel()
 
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
 
         authService.checkPendingLoginRequestResult = .success(.fixture(requestApproved: true))
         coordinator.alertOnDismissed?()
@@ -226,7 +226,7 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
 
         await subject.perform(.appeared)
 
-        XCTAssertEqual(coordinator.alertShown.last, Alert.defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 

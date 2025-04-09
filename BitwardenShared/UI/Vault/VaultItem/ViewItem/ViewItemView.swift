@@ -23,6 +23,12 @@ struct ViewItemView: View {
         store.state.loadingState.data?.canBeDeleted ?? false
     }
 
+    /// Whether the restore option is available.
+    /// New permission model from PM-18091
+    var isRestoredPermissionEnabled: Bool {
+        store.state.loadingState.data?.canBeRestoredPermission ?? false
+    }
+
     /// Whether to show the move to organization option in the toolbar menu.
     var isMoveToOrganizationEnabled: Bool {
         guard let cipher = store.state.loadingState.data?.cipher else { return false }
@@ -62,7 +68,10 @@ struct ViewItemView: View {
 
             ToolbarItemGroup(placement: .navigationBarTrailing) {
                 if let state = store.state.loadingState.data {
-                    if state.isSoftDeleted {
+                    let restoreButtonVisible = store.state.restrictCipherItemDeletionFlagEnabled
+                        ? isRestoredPermissionEnabled
+                        : state.isSoftDeleted
+                    if restoreButtonVisible {
                         toolbarButton(Localizations.restore) {
                             await store.perform(.restorePressed)
                         }

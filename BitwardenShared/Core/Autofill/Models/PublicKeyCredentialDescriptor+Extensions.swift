@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import BitwardenSdk
 
 /// Extension with helpers for `PublicKeyCredentialDescriptor`.

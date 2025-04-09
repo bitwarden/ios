@@ -4,6 +4,7 @@ final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasAuthService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasStateService
 
@@ -66,4 +67,10 @@ final class LoginRequestCoordinator: Coordinator, HasStackNavigator {
         let view = LoginRequestView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension LoginRequestCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

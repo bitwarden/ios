@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A protocol to manage user verification execution
 ///
 protocol UserVerificationRunner {

@@ -6,6 +6,8 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
+        & HasErrorReporter
 
     // MARK: Private Properties
 
@@ -65,4 +67,10 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
         let view = ExtensionActivationView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension ExtensionSetupCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

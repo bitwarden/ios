@@ -1,9 +1,12 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import Networking
 
 @testable import BitwardenShared
 
 extension ServiceContainer {
+    @MainActor
     static func withMocks( // swiftlint:disable:this function_body_length
         application: Application? = nil,
         appContextHelper: AppContextHelper = MockAppContextHelper(),
@@ -20,6 +23,7 @@ extension ServiceContainer {
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
+        errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         eventService: EventService = MockEventService(),
         exportCXFCiphersRepository: ExportCXFCiphersRepository = MockExportCXFCiphersRepository(),
@@ -79,6 +83,7 @@ extension ServiceContainer {
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             eventService: eventService,
             exportCXFCiphersRepository: exportCXFCiphersRepository,

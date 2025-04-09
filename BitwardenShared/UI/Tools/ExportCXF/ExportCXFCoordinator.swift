@@ -8,6 +8,7 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasExportCXFCiphersRepository
         & HasPolicyService
@@ -68,6 +69,12 @@ class ExportCXFCoordinator: Coordinator, HasStackNavigator {
         let view = ExportCXFView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension ExportCXFCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - ExportCXFProcessorDelegate

@@ -65,7 +65,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
-    lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
+    var activeIdSubject = CurrentValueSubject<String?, Never>(nil)
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
         accountSetupAutofill[userId]

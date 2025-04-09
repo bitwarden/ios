@@ -117,7 +117,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     /// - Parameter siteKey: The site key that was returned with a captcha error. The token used to authenticate
     ///   with hCaptcha.
     ///
-    private func launchCaptchaFlow(with siteKey: String) {
+    private func launchCaptchaFlow(with siteKey: String) async {
         do {
             let url = try services.captchaService.generateCaptchaUrl(with: siteKey)
             coordinator.navigate(
@@ -128,7 +128,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 context: self
             )
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -145,7 +145,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
             }
         } catch {
             services.errorReporter.log(error: error)
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
         }
     }
 
@@ -178,7 +178,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch let IdentityTokenRequestError.captchaRequired(hCaptchaSiteCode) {
-            launchCaptchaFlow(with: hCaptchaSiteCode)
+            await launchCaptchaFlow(with: hCaptchaSiteCode)
         } catch IdentityTokenRequestError.newDeviceNotVerified {
             coordinator.showAlert(.defaultAlert(title: Localizations.invalidVerificationCode))
         } catch let authError as AuthError {
@@ -194,7 +194,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
                 coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -314,8 +314,9 @@ extension TwoFactorAuthProcessor: CaptchaFlowDelegate {
 
         // Show the alert after a delay to ensure it doesn't try to display over the
         // closing captcha view.
-        DispatchQueue.main.asyncAfter(deadline: UI.after(0.6)) {
-            self.coordinator.showAlert(.networkResponseError(error))
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.6))
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }
@@ -348,8 +349,9 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
 
     func duoErrored(error: Error) {
         // The delay is necessary in order to ensure the alert displays over the WebAuth view.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.handleError(error) {
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.5))
+            await self.handleError(error) {
                 self.authenticateWithDuo()
             }
         }
@@ -387,7 +389,7 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
     }
 
     /// Generically handle an error on the view.
-    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) {
+    private func handleError(_ error: Error, _ tryAgain: (() async -> Void)? = nil) async {
         // First, hide the loading overlay.
         coordinator.hideLoadingOverlay()
 
@@ -395,7 +397,7 @@ extension TwoFactorAuthProcessor: DuoAuthenticationFlowDelegate {
         if case ASWebAuthenticationSessionError.canceledLogin = error { return }
 
         // Otherwise, show the alert and log the error.
-        coordinator.showAlert(.networkResponseError(error, tryAgain))
+        await coordinator.showErrorAlert(error: error, tryAgain: tryAgain)
         services.errorReporter.log(error: error)
     }
 }
@@ -456,8 +458,9 @@ extension TwoFactorAuthProcessor: WebAuthnFlowDelegate {
 
     func webAuthnErrored(error: Error) {
         // The delay is necessary in order to ensure the alert displays over the WebAuthn view.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.handleError(error) {
+        Task { @MainActor in
+            try await Task.sleep(forSeconds: UI.duration(0.5))
+            await self.handleError(error) {
                 self.authenticateWithWebAuthn()
             }
         }

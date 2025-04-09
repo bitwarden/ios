@@ -21,6 +21,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         & HasAPIService
         & HasAuthRepository
         & HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasEventService
         & HasFido2UserInterfaceHelper
         & HasRehydrationHelper
@@ -438,6 +439,12 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         )
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension VaultItemCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - View Extension

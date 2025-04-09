@@ -1,3 +1,4 @@
+import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -10,6 +11,7 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -77,7 +79,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         self.itemId = itemId
         self.services = services
         super.init(state: state)
-
         Task {
             await self.services.rehydrationHelper.addRehydratableTarget(self)
         }
@@ -307,7 +308,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -324,7 +325,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemSoftDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -461,7 +462,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemRestored()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -519,7 +520,9 @@ private extension ViewItemProcessor {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
                 let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
                 let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
-
+                let restrictCipherItemDeletionFlagEnabled: Bool = await services.configService.getFeatureFlag(
+                    .restrictCipherItemDeletion
+                )
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
                    let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
@@ -529,7 +532,8 @@ private extension ViewItemProcessor {
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasMasterPassword: hasMasterPassword,
-                    hasPremium: hasPremium
+                    hasPremium: hasPremium,
+                    restrictCipherItemDeletionFlagEnabled: restrictCipherItemDeletionFlagEnabled
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {

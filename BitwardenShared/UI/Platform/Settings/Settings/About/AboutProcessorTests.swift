@@ -1,4 +1,6 @@
+import BitwardenKitMocks
 import InlineSnapshotTesting
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -7,6 +9,7 @@ class AboutProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var appInfoService: MockAppInfoService!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
@@ -19,6 +22,7 @@ class AboutProcessorTests: BitwardenTestCase {
         super.setUp()
 
         appInfoService = MockAppInfoService()
+        configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
@@ -28,6 +32,7 @@ class AboutProcessorTests: BitwardenTestCase {
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
                 appInfoService: appInfoService,
+                configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -41,6 +46,7 @@ class AboutProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        configService = nil
         environmentService = nil
         errorReporter = nil
         pasteboardService = nil
@@ -67,6 +73,18 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.copyrightText, "© Bitwarden Inc. 2015–2025")
         XCTAssertTrue(subject.state.isSubmitCrashLogsToggleOn)
         XCTAssertEqual(subject.state.version, "1.0 (1)")
+    }
+
+    /// `perform(_:)` with `.loadData` loads the flight recorder feature flag.
+    @MainActor
+    func test_perform_loadData_flightRecorderFeatureFlag() async {
+        configService.featureFlagsBool[.flightRecorder] = true
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.isFlightRecorderFeatureFlagEnabled)
+
+        configService.featureFlagsBool[.flightRecorder] = false
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.isFlightRecorderFeatureFlagEnabled)
     }
 
     /// `receive(_:)` with `.clearAppReviewURL` clears the app review URL in the state.
@@ -139,6 +157,27 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertNil(subject.state.toast)
     }
 
+    /// `receive(_:)` with action `.isFlightRecorderToggleOn` disables the flight recorder when toggled off.
+    @MainActor
+    func test_receive_toggleFlightRecorder_off() {
+        subject.state.isFlightRecorderToggleOn = true
+
+        subject.receive(.toggleFlightRecorder(false))
+
+        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+    }
+
+    /// `receive(_:)` with action `.isFlightRecorderToggleOn` navigates to the enable flight
+    /// recorder screen when toggled on.
+    @MainActor
+    func test_receive_toggleFlightRecorder_on() {
+        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+
+        subject.receive(.toggleFlightRecorder(true))
+
+        XCTAssertEqual(coordinator.routes, [.enableFlightRecorder])
+    }
+
     /// `receive(_:)` with action `.isSubmitCrashLogsToggleOn` updates the toggle value in the state.
     @MainActor
     func test_receive_toggleSubmitCrashLogs() {
@@ -166,6 +205,15 @@ class AboutProcessorTests: BitwardenTestCase {
             """
         )
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo)))
+    }
+
+    /// `receive(_:)` with action `.isFlightRecorderToggleOn` navigates to the view flight recorder
+    /// logs screen.
+    @MainActor
+    func test_receive_viewFlightRecorderLogsTapped() {
+        subject.receive(.viewFlightRecorderLogsTapped)
+
+        XCTAssertEqual(coordinator.routes, [.flightRecorderLogs])
     }
 
     /// `receive(_:)` with `.webVaultTapped` shows an alert for navigating to the web vault

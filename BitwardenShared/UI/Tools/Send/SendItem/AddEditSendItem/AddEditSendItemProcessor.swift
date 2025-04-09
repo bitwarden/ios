@@ -1,3 +1,4 @@
+import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -12,6 +13,7 @@ class AddEditSendItemProcessor:
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
@@ -27,7 +29,7 @@ class AddEditSendItemProcessor:
     // MARK: Properties
 
     /// The `Coordinator` that handles navigation for this processor.
-    let coordinator: any Coordinator<SendItemRoute, AuthAction>
+    let coordinator: AnyCoordinator<SendItemRoute, AuthAction>
 
     /// The services required by this processor.
     let services: Services
@@ -42,7 +44,7 @@ class AddEditSendItemProcessor:
     ///   - state: The initial state of this processor.
     ///
     init(
-        coordinator: any Coordinator<SendItemRoute, AuthAction>,
+        coordinator: AnyCoordinator<SendItemRoute, AuthAction>,
         services: Services,
         state: AddEditSendItemState
     ) {
@@ -146,11 +148,10 @@ class AddEditSendItemProcessor:
             coordinator.hideLoadingOverlay()
             coordinator.navigate(to: .deleted)
         } catch {
-            let alert = Alert.networkResponseError(error) { [weak self] in
-                await self?.deleteSend(sendView)
-            }
             coordinator.hideLoadingOverlay()
-            coordinator.showAlert(alert)
+            await coordinator.showErrorAlert(error: error) {
+                await self.deleteSend(sendView)
+            }
         }
     }
 
@@ -218,11 +219,10 @@ class AddEditSendItemProcessor:
             coordinator.hideLoadingOverlay()
             state.toast = Toast(title: Localizations.sendPasswordRemoved)
         } catch {
-            let alert = Alert.networkResponseError(error) { [weak self] in
-                await self?.removePassword(sendView)
-            }
             coordinator.hideLoadingOverlay()
-            coordinator.showAlert(alert)
+            await coordinator.showErrorAlert(error: error) {
+                await self.removePassword(sendView)
+            }
         }
     }
 
@@ -261,9 +261,9 @@ class AddEditSendItemProcessor:
                 await copyLink(to: newSendView)
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error) { [weak self] in
-                await self?.saveSendItem()
-            })
+            await coordinator.showErrorAlert(error: error) {
+                await self.saveSendItem()
+            }
         }
     }
 

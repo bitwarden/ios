@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - KdfConfig
 
 /// A model for configuring KDF options.

@@ -72,6 +72,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasClientService
         & HasConfigService
         & HasEnvironmentService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
@@ -438,6 +439,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.present(UINavigationController(rootViewController: viewController))
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension VaultCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - ImportLoginsCoordinatorDelegate

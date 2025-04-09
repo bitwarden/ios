@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import Networking
 import TestHelpers
 import XCTest
@@ -160,17 +161,15 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         subject.state = .fixture()
         subject.state.fromEmail = true
 
-        let urlError = URLError(.notConnectedToInternet) as Error
+        let urlError = URLError(.notConnectedToInternet)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .emptyResponse)]
 
         await subject.perform(.appeared)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
-            await self.subject.perform(.appeared)
-        })
+        let alertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(alertWithRetry.error as? URLError, urlError)
 
-        try await alert.tapAction(title: Localizations.tryAgain)
+        await alertWithRetry.retry()
 
         XCTAssertEqual(subject.state.toast, Toast(title: Localizations.emailVerified))
         XCTAssertEqual(client.requests.count, 2)
@@ -412,21 +411,13 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.completeRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "Email 'j@a.com' is already taken."
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -460,21 +451,13 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.completeRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "The field MasterPasswordHint must be a string with a maximum length of 50."
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -491,21 +474,13 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.completeRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "The Email field is not a supported e-mail address format."
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -580,17 +555,15 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture()
 
-        let urlError = URLError(.notConnectedToInternet) as Error
+        let urlError = URLError(.notConnectedToInternet)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
 
         await subject.perform(.completeRegistration)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
-            await self.subject.perform(.completeRegistration)
-        })
+        let alertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(alertWithRetry.error as? URLError, urlError)
 
-        try await alert.tapAction(title: Localizations.tryAgain)
+        await alertWithRetry.retry()
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
         XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
@@ -646,15 +619,15 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         authService.loginWithMasterPasswordResult = .success(())
         subject.state = .fixture()
 
-        let urlError = URLError(.timedOut) as Error
+        let urlError = URLError(.timedOut)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .createAccountRequest)]
 
         await subject.perform(.completeRegistration)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.message, urlError.localizedDescription)
+        let alertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(alertWithRetry.error as? URLError, urlError)
 
-        try await alert.tapAction(title: Localizations.tryAgain)
+        await alertWithRetry.retry()
 
         XCTAssertEqual(authService.loginWithMasterPasswordPassword, "password1234")
         XCTAssertNil(authService.loginWithMasterPasswordCaptchaToken)
