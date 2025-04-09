@@ -37,17 +37,11 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The card item state.
     var cardItemState: CardItemState
 
-    /// The collections the cipher belongs to to display.
-    /// When there are collections, this depends on whether the user selects
-    /// show more/less for this to have one or more collecitons the cipher
-    /// belongs to.
-    var cipherCollectionsToDisplay: [CollectionView]
-
     /// The list of collection IDs that the cipher is included in.
     var collectionIds: [String]
 
     /// The full list of collections for the user, across all organizations.
-    var collections: [CollectionView]
+    var allUserCollections: [CollectionView]
 
     /// The Add or Existing Configuration.
     let configuration: Configuration
@@ -93,6 +87,9 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool
+
+    /// Whether it's showing multiple collections or not.
+    var isShowingMultipleCollections: Bool = false
 
     /// The state for a login type item.
     var loginState: LoginItemState
@@ -144,7 +141,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     var canAssignToCollection: Bool {
         guard !collectionIds.isEmpty else { return true }
 
-        return collections.contains { collection in
+        return allUserCollections.contains { collection in
             guard let id = collection.id else { return false }
             guard collection.manage || (!collection.readOnly && !collection.hidePasswords) else { return false }
 
@@ -160,7 +157,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         }
 
         guard !collectionIds.isEmpty else { return true }
-        return collections.contains { collection in
+        return allUserCollections.contains { collection in
             guard let id = collection.id else { return false }
             return collection.manage && collectionIds.contains(id)
         }
@@ -176,11 +173,39 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         return cipherPermissions.restore && isSoftDeleted
     }
 
+    /// The collections that the cipher belongs to.
+    var cipherCollections: [CollectionView] {
+        guard !collectionIds.isEmpty else {
+            return []
+        }
+        return allUserCollections.filter { collection in
+            guard let id = collection.id else {
+                return false
+            }
+            return collectionIds.contains(id)
+        }
+    }
+
+    /// The collections the cipher belongs to to display.
+    /// When there are collections, this depends on whether the user selects
+    /// show more/less for this to have one or more collections the cipher
+    /// belongs to.
+    var cipherCollectionsToDisplay: [CollectionView] {
+        guard !cipherCollections.isEmpty else {
+            return []
+        }
+
+        guard isShowingMultipleCollections else {
+            return [cipherCollections[0]]
+        }
+        return cipherCollections
+    }
+
     /// The list of collections that can be selected from for the current owner.
     /// These are collections that the user can add items to, so they are non-read-only collections.
     var collectionsForOwner: [CollectionView] {
         guard let owner, !owner.isPersonal else { return [] }
-        return collections.filter { $0.organizationId == owner.organizationId && !$0.readOnly }
+        return allUserCollections.filter { $0.organizationId == owner.organizationId && !$0.readOnly }
     }
 
     /// The folder this item should be added to.
@@ -258,8 +283,7 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         self.accountHasPremium = accountHasPremium
         cardItemState = cardState
         self.collectionIds = collectionIds
-        collections = []
-        cipherCollectionsToDisplay = []
+        allUserCollections = []
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
         self.iconBaseURL = iconBaseURL
@@ -473,10 +497,6 @@ extension CipherItemState: ViewVaultItemState {
 
     var iconAccessibilityId: String {
         "CipherIcon"
-    }
-
-    var isShowingMultipleCollections: Bool {
-        cipherCollectionsToDisplay.count > 1
     }
 
     var isSoftDeleted: Bool {

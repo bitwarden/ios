@@ -557,17 +557,7 @@ private extension ViewItemProcessor {
 
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
-                    itemState.collections = collections
-                    if !itemState.collectionIds.isEmpty {
-                        itemState.cipherCollectionsToDisplay = Array(collections
-                            .filter { collection in
-                                guard let id = collection.id else {
-                                    return false
-                                }
-                                return cipher.collectionIds.contains(id)
-                            }
-                            .prefix(1))
-                    }
+                    itemState.allUserCollections = collections
                     itemState.folderName = folder?.name
                     itemState.organizationName = organization?.name
                     newState.loadingState = .data(itemState)
@@ -583,21 +573,11 @@ private extension ViewItemProcessor {
     /// Toggles whether to show one or multiple collections the cipher belongs to, if any.
     private func toggleDisplayMultipleCollections() {
         guard case var .data(cipherState) = state.loadingState,
-              !cipherState.collectionIds.isEmpty,
-              !cipherState.cipherCollectionsToDisplay.isEmpty else {
+              !cipherState.cipherCollections.isEmpty else {
             return
         }
 
-        if cipherState.cipherCollectionsToDisplay.count == 1 {
-            cipherState.cipherCollectionsToDisplay = cipherState.collections.filter { collection in
-                guard let collectionId = collection.id else {
-                    return false
-                }
-                return cipherState.cipher.collectionIds.contains(collectionId)
-            }
-        } else if cipherState.cipherCollectionsToDisplay.count > 1 {
-            cipherState.cipherCollectionsToDisplay = [cipherState.cipherCollectionsToDisplay[0]]
-        }
+        cipherState.isShowingMultipleCollections.toggle()
 
         state.loadingState = .data(cipherState)
     }

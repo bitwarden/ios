@@ -298,7 +298,14 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     /// Tapping the toggle to display multiple collections dispatches the `.toggleDisplayMultipleCollections` effect.
     @MainActor
     func test_toggleDisplayMultipleCollectionsButton_tap() async throws {
-        processor.state.loadingState = .data(loginState())
+        var cipherState = loginState(collectionIds: ["1", "2"])
+        cipherState.allUserCollections = [
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+        ]
+        cipherState.isShowingMultipleCollections = true
+        processor.state.loadingState = .data(cipherState)
         let button = try subject.inspect().find(
             asyncButton: Localizations.showLess
         )
@@ -369,11 +376,11 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
             hasPremium: hasPremium
         )!
         cipherState.accountHasPremium = hasPremium
-        cipherState.collectionIds = collectionIds
-        cipherState.cipherCollectionsToDisplay = [
+        cipherState.allUserCollections = [
             .fixture(id: "1", name: "Collection 1"),
             .fixture(id: "2", name: "Collection 2"),
         ]
+        cipherState.collectionIds = collectionIds
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
         cipherState.folderName = "Folder"
@@ -542,15 +549,14 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         state.organizationId = nil
         state.organizationName = nil
         state.collectionIds = []
-        state.cipherCollectionsToDisplay = []
+        state.allUserCollections = []
         processor.state.loadingState = .data(state)
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor
     func test_snapshot_login_withAllValuesShowMore() {
-        var state = loginState(isFavorite: true)
-        state.cipherCollectionsToDisplay = [state.cipherCollectionsToDisplay[0]]
+        let state = loginState(isFavorite: true)
         processor.state.loadingState = .data(state)
         assertSnapshot(of: subject, as: .tallPortrait)
     }

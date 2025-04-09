@@ -21,7 +21,7 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
 
     /// The collections the cipher belongs to to display.
     /// When there are collections, this depends on whether the user selects
-    /// show more/less for this to have one or more collecitons the cipher
+    /// show more/less for this to have one or more collections the cipher
     /// belongs to.
     var cipherCollectionsToDisplay: [CollectionView] { get }
 
@@ -38,7 +38,7 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     var isFavoriteOn: Bool { get }
 
     /// Whether it's showing multiple collections or not.
-    var isShowingMultipleCollections: Bool { get }
+    var isShowingMultipleCollections: Bool { get set }
 
     /// A flag indicating if item was soft deleted.
     var isSoftDeleted: Bool { get }

@@ -113,7 +113,7 @@ public protocol VaultRepository: AnyObject {
 
     /// Fetches an organization with the specified id.
     /// - Parameter id: The id of the organization to fetch.
-    /// - Returns:The organization with such id or `nil` if not found.
+    /// - Returns: The organization with such id or `nil` if not found.
     func fetchOrganization(withId id: String) async throws -> Organization?
 
     /// Get the value of the disable auto-copy TOTP setting for the current user.

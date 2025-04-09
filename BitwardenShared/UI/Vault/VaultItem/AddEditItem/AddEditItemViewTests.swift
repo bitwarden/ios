@@ -674,7 +674,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     @MainActor
     func test_snapshot_add_login_collections() {
-        processor.state.collections = [
+        processor.state.allUserCollections = [
             .fixture(id: "1", name: "Design", organizationId: "1"),
             .fixture(id: "2", name: "Engineering", organizationId: "1"),
         ]

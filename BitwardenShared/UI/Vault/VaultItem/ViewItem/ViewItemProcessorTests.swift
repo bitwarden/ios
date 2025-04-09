@@ -168,7 +168,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
-        expectedState.collections = collections
+        expectedState.allUserCollections = collections
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertTrue(subject.state.hasMasterPassword)
@@ -350,7 +350,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
-        expectedState.collections = collections
+        expectedState.allUserCollections = collections
         expectedState.folderName = "FolderTest"
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
@@ -405,7 +405,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
-        expectedState.collections = collections
+        expectedState.allUserCollections = collections
         expectedState.organizationName = "OrgTest"
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
@@ -462,8 +462,8 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             iconBaseURL: URL(string: "https://example.com/icons")!
         )!
 
-        expectedState.collections = collections
-        expectedState.cipherCollectionsToDisplay = [collections[1]]
+        expectedState.allUserCollections = collections
+        expectedState.isShowingMultipleCollections = false
         expectedState.organizationName = "OrgTest"
 
         XCTAssertTrue(subject.state.hasPremiumFeatures)
@@ -1129,7 +1129,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// there are no collection ids in cipher state.
     @MainActor
     func test_perform_toggleDisplayMultipleCollectionsNoCollectionIds() async throws {
-        var cipherState = CipherItemState(
+        let cipherState = CipherItemState(
             existing: .fixture(),
             hasPremium: false
         )!
@@ -1152,7 +1152,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     /// there are collection ids in cipher state but no cipher collections to display.
     @MainActor
     func test_perform_toggleDisplayMultipleCollectionsNoCollectionToDisplay() async throws {
-        var cipherState = CipherItemState(
+        let cipherState = CipherItemState(
             existing: .fixture(collectionIds: ["1", "2"]),
             hasPremium: false
         )!
@@ -1180,15 +1180,12 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             existing: .fixture(collectionIds: ["1", "2", "4"]),
             hasPremium: false
         )!
-        cipherState.collections = [
+        cipherState.allUserCollections = [
             .fixture(id: "1"),
             .fixture(id: "2"),
             .fixture(id: "3"),
             .fixture(id: "4"),
             .fixture(id: "5"),
-        ]
-        cipherState.cipherCollectionsToDisplay = [
-            .fixture(id: "1"),
         ]
 
         let state = ViewItemState(
@@ -1217,18 +1214,14 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             existing: .fixture(collectionIds: ["2", "3", "5"]),
             hasPremium: false
         )!
-        cipherState.collections = [
+        cipherState.allUserCollections = [
             .fixture(id: "1"),
             .fixture(id: "2"),
             .fixture(id: "3"),
             .fixture(id: "4"),
             .fixture(id: "5"),
         ]
-        cipherState.cipherCollectionsToDisplay = [
-            .fixture(id: "2"),
-            .fixture(id: "3"),
-            .fixture(id: "5"),
-        ]
+        cipherState.isShowingMultipleCollections = true
 
         let state = ViewItemState(
             loadingState: .data(cipherState)

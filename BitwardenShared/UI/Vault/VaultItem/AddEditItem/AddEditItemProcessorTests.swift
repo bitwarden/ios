@@ -980,7 +980,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         await subject.perform(.fetchCipherOptions)
 
-        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(subject.state.allUserCollections, collections)
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
@@ -997,7 +997,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         await subject.perform(.fetchCipherOptions)
 
-        XCTAssertEqual(subject.state.collections, [])
+        XCTAssertEqual(subject.state.allUserCollections, [])
         XCTAssertEqual(subject.state.folders, [])
         XCTAssertEqual(subject.state.ownershipOptions, [])
 
@@ -1038,7 +1038,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
 
         await subject.perform(.fetchCipherOptions)
 
-        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(subject.state.allUserCollections, collections)
         XCTAssertEqual(subject.state.ownershipOptions, [.personal(email: "user@bitwarden.com")])
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
 
@@ -1087,7 +1087,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.fetchCipherOptions)
 
         XCTAssertEqual(subject.state.collectionIds, [])
-        XCTAssertEqual(subject.state.collections, collections)
+        XCTAssertEqual(subject.state.allUserCollections, collections)
         XCTAssertEqual(subject.state.organizationId, "123")
         XCTAssertEqual(subject.state.ownershipOptions, [
             .organization(id: "123", name: "Test Org 1"),
@@ -1147,7 +1147,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         await subject.perform(.fetchCipherOptions)
 
         try XCTAssertTrue(XCTUnwrap(vaultRepository.fetchCollectionsIncludeReadOnly))
-        XCTAssertEqual(subject.state.collections.map(\.id), ["1"])
+        XCTAssertEqual(subject.state.allUserCollections.map(\.id), ["1"])
         XCTAssertEqual(subject.state.collectionIds, ["1"])
         XCTAssertEqual(subject.state.owner, owner)
         XCTAssertFalse(subject.state.canBeDeleted)
@@ -1629,7 +1629,7 @@ class AddEditItemProcessorTests: BitwardenTestCase {
     /// `receive(_:)` with `.collectionToggleChanged` updates the selected collection IDs for the cipher.
     @MainActor
     func test_receive_collectionToggleChanged() {
-        subject.state.collections = [
+        subject.state.allUserCollections = [
             .fixture(id: "1", name: "Design"),
             .fixture(id: "2", name: "Engineering"),
         ]
