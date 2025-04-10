@@ -30,4 +30,19 @@ extension FileManager {
         )
         .appendingPathComponent("Exports", isDirectory: true)
     }
+
+    /// Returns a URL for the directory containing flight recorder logs.
+    ///
+    /// - Returns: A URL for a directory to store flight recorder logs.
+    ///
+    func flightRecorderLogURL() throws -> URL {
+        let url = try url(
+            for: .documentDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: true
+        )
+        .appendingPathComponent("FlightRecorderLogs", isDirectory: true)
+        return url
+    }
 }

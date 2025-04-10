@@ -7,7 +7,9 @@ final class MockFlightRecorder: FlightRecorder {
     var disableFlightRecorderCalled = false
     var enableFlightRecorderCalled = false
     var enableFlightRecorderDuration: FlightRecorderLoggingDuration?
+    var enableFlightRecorderResult: Result<Void, Error> = .success(())
     var isEnabledSubject = CurrentValueSubject<Bool, Never>(false)
+    var logMessages = [String]()
 
     nonisolated init() {}
 
@@ -15,12 +17,17 @@ final class MockFlightRecorder: FlightRecorder {
         disableFlightRecorderCalled = true
     }
 
-    func enableFlightRecorder(duration: FlightRecorderLoggingDuration) async {
+    func enableFlightRecorder(duration: FlightRecorderLoggingDuration) async throws {
         enableFlightRecorderCalled = true
         enableFlightRecorderDuration = duration
+        try enableFlightRecorderResult.get()
     }
 
     func isEnabledPublisher() async -> AnyPublisher<Bool, Never> {
         isEnabledSubject.eraseToAnyPublisher()
+    }
+
+    func log(_ message: String) async {
+        logMessages.append(message)
     }
 }
