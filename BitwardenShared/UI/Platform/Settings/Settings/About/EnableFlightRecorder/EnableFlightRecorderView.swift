@@ -85,7 +85,9 @@ struct EnableFlightRecorderView: View {
 
 // MARK: - Previews
 
+#if DEBUG
 #Preview {
     EnableFlightRecorderView(store: Store(processor: StateProcessor(state: EnableFlightRecorderState())))
         .navStackWrapped
 }
+#endif
