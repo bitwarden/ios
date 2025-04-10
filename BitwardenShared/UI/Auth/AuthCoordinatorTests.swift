@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import SwiftUI
 import TestHelpers
 import XCTest
