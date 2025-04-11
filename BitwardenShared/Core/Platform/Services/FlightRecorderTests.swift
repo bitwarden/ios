@@ -6,6 +6,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -68,6 +70,117 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     // MARK: Tests
+
+    /// `deleteArchivedLogs()` deletes all of the archived logs and associated metadata.
+    func test_deleteArchivedLogs() async throws {
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+            archivedLogs: [archivedLog1, archivedLog2]
+        )
+
+        try await subject.deleteArchivedLogs()
+
+        try XCTAssertEqual(
+            fileManager.removeItemURLs,
+            [
+                FileManager.default.flightRecorderLogURL().appendingPathComponent(archivedLog1.fileName),
+                FileManager.default.flightRecorderLogURL().appendingPathComponent(archivedLog2.fileName),
+            ]
+        )
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(activeLog: activeLog))
+    }
+
+    /// `deleteArchivedLogs()` throws an error if removing the file results in an error.
+    func test_deleteArchivedLogs_error() async throws {
+        fileManager.removeItemResult = .failure(BitwardenTestError.example)
+        stateService.flightRecorderData = FlightRecorderData(archivedLogs: [archivedLog1])
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.deleteArchivedLogs()
+        }
+
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(archivedLogs: [archivedLog1]))
+    }
+
+    /// `deleteArchivedLogs()` handles a file not existing and removes the metadata associated with it.
+    func test_deleteArchivedLogs_errorNoSuchFile() async throws {
+        fileManager.removeItemResult = .failure(NSError(domain: NSCocoaErrorDomain, code: NSFileNoSuchFileError))
+        stateService.flightRecorderData = FlightRecorderData(archivedLogs: [archivedLog1])
+
+        try await subject.deleteArchivedLogs()
+
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(archivedLogs: []))
+    }
+
+    /// `deleteArchivedLogs()` throws an error if there's no stored flight recorder data.
+    func test_deleteArchivedLogs_noData() async {
+        stateService.flightRecorderData = nil
+        await assertAsyncThrows(error: FlightRecorderError.dataUnavailable) {
+            try await subject.deleteArchivedLogs()
+        }
+    }
+
+    /// `deleteLog(_:)` deletes the log and its metadata.
+    func test_deleteLog() async throws {
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+            archivedLogs: [archivedLog1, archivedLog2]
+        )
+
+        try await subject.deleteLog(.fixture(id: archivedLog1.id, url: logURL))
+
+        XCTAssertEqual(fileManager.removeItemURLs, [logURL])
+        XCTAssertEqual(
+            stateService.flightRecorderData,
+            FlightRecorderData(activeLog: activeLog, archivedLogs: [archivedLog2])
+        )
+    }
+
+    /// `deleteLog(_:)` throws an error if the log is the active log.
+    func test_deleteLog_activeLog() async {
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+        await assertAsyncThrows(error: FlightRecorderError.deletionNotPermitted) {
+            try await subject.deleteLog(.fixture(id: activeLog.id))
+        }
+    }
+
+    /// `deleteLog(_:)` throws an error if removing the file results in an error.
+    func test_deleteLog_error() async throws {
+        fileManager.removeItemResult = .failure(BitwardenTestError.example)
+        stateService.flightRecorderData = FlightRecorderData(archivedLogs: [archivedLog1])
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.deleteLog(.fixture(id: archivedLog1.id))
+        }
+
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(archivedLogs: [archivedLog1]))
+    }
+
+    /// `deleteLog(_:)` handles the file not existing and removes the metadata associated with it.
+    func test_deleteLog_errorNoSuchFile() async throws {
+        fileManager.removeItemResult = .failure(NSError(domain: NSCocoaErrorDomain, code: NSFileNoSuchFileError))
+        stateService.flightRecorderData = FlightRecorderData(archivedLogs: [archivedLog1])
+
+        try await subject.deleteLog(.fixture(id: archivedLog1.id))
+
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(archivedLogs: []))
+    }
+
+    /// `deleteLog(_:)` throws an error if the log isn't in the flight recorder data.
+    func test_deleteLog_logNotFound() async {
+        stateService.flightRecorderData = FlightRecorderData()
+        await assertAsyncThrows(error: FlightRecorderError.logNotFound) {
+            try await subject.deleteLog(.fixture())
+        }
+    }
+
+    /// `deleteLog(_:)` throws an error if there's no stored flight recorder data.
+    func test_deleteLog_noData() async {
+        stateService.flightRecorderData = nil
+        await assertAsyncThrows(error: FlightRecorderError.dataUnavailable) {
+            try await subject.deleteLog(.fixture())
+        }
+    }
 
     /// `disableFlightRecorder()` disables the flight recorder.
     func test_disableFlightRecorder() async throws {
