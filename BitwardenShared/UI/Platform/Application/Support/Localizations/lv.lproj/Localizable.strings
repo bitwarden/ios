@@ -329,7 +329,7 @@
 "ShowWebsiteIconsDescription" = "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma.";
 "IconsUrl" = "Ikonu servera URL";
 "AutofillWithBitwarden" = "Autofill with Bitwarden";
-"VaultIsLocked" = "Glabātava ir slēgta";
+"VaultIsLocked" = "Glabātava ir aizslēgta";
 "GoToMyVault" = "Doties uz manu glabātavu";
 "Collections" = "Krājumi";
 "NoItemsCollection" = "There are no items in this collection";
@@ -1152,3 +1152,18 @@
 "Owner" = "Īpašnieks";
 "VerifyYourIdentity" = "Apliecināt savu identitāti";
 "ShareErrorDetails" = "Kopīgot informāciju par kļūdu";
+"FlightRecorder" = "Melnā kaste";
+"EnableFlightRecorder" = "Iespējot melno kasti";
+"ExperiencingAnIssue" = "Ir kādas nebūšanas?";
+"EnableTemporaryLoggingDescriptionLong" = "Iespējot pagaidu žurnalēšanu, lai vietēji savāktu un izpētītu žurnālus. Kad iespējota, var tik žurnalēti lietotnes stāvokļi un tīkla izsaukumi, nekad jūtīga glabātavas informācija.";
+"ToGetStartedSetALoggingDurationDescriptionLong" = "Lai uzsāktu, jāiestata žunalēšanas ilgums. Žurnalēšana automātiski izslēsies pēc šī laika posma, dodot laiku tvert darbības, kamēr tiek atkārtotas jebkādas nebūšanas.";
+"LoggingDuration" = "Žurnalēšanas ilgums";
+"LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Žurnāli tiks automātiski izdzēsti pēc 30 dienām. Bitwarden var piekļūt žurnālu datiem tikai tad, kad tos kopīgo.";
+"ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Lai uzzinātu vairāk par to, kas tiek un netiek žurnalēts, jāapmeklē **[Bitwarden palīdzības centrs](%1$@)**.";
+"OneWeek" = "1 nedēļa";
+"ViewRecordedLogs" = "Apskatīt ierakstītos žurnālus";
+"RecordedLogs" = "Ierakstītie žurnāli";
+"NoLogsRecorded" = "Nav ierakstītu žurnālu";
+"ExpiresToday" = "Beigsies šodien";
+"ExpiresInXDays" = "Beigsies pēc %1$@ dienām";
+"DateRangeXToY" = "%1$@ - %2$@";
