@@ -1,20 +1,22 @@
 @testable import BitwardenKit
 
-class MockErrorReporter: ErrorReporter {
-    var currentUserId: String?
-    var errors = [Error]()
-    var isEnabled = false
-    var region: (region: String, isPreAuth: Bool)?
+public class MockErrorReporter: ErrorReporter {
+    public var currentUserId: String?
+    public var errors = [Error]()
+    public var isEnabled = false
+    public var region: (region: String, isPreAuth: Bool)?
 
-    func log(error: Error) {
+    public init() {}
+
+    public func log(error: Error) {
         errors.append(error)
     }
 
-    func setRegion(_ region: String, isPreAuth: Bool) {
+    public func setRegion(_ region: String, isPreAuth: Bool) {
         self.region = (region, isPreAuth)
     }
 
-    func setUserId(_ userId: String?) {
+    public func setUserId(_ userId: String?) {
         currentUserId = userId
     }
 }
