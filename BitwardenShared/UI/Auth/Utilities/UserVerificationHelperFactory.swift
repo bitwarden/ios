@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A factory protocol to create `UserVerificationHelper`s.
 protocol UserVerificationHelperFactory {
     func create() -> UserVerificationHelper
