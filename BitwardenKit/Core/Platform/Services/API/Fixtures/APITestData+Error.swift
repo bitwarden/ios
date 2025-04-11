@@ -8,4 +8,3 @@ public extension APITestData {
         bundle: BitwardenKitMocksBundleFinder.bundle
     )
 }
-

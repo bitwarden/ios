@@ -100,11 +100,21 @@ public protocol VaultRepository: AnyObject {
     ///
     func fetchCollections(includeReadOnly: Bool) async throws -> [CollectionView]
 
+    /// Fetches the folder with the specified id.
+    /// - Parameter id: The id of the folder to fetch.
+    /// - Returns: The folder with such id or `nil` if not found.
+    func fetchFolder(withId id: String) async throws -> FolderView?
+
     /// Fetches the folders that are available to the user.
     ///
     /// - Returns: The folders that are available to the user.
     ///
     func fetchFolders() async throws -> [FolderView]
+
+    /// Fetches an organization with the specified id.
+    /// - Parameter id: The id of the organization to fetch.
+    /// - Returns: The organization with such id or `nil` if not found.
+    func fetchOrganization(withId id: String) async throws -> Organization?
 
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
@@ -903,7 +913,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
         let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
 
-        var types = [
+        let types = [
             VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount)),
             VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)),
             VaultListItem(id: "Types.Identities", itemType: .group(.identity, typesIdentityCount)),
@@ -1023,6 +1033,13 @@ extension DefaultVaultRepository: VaultRepository {
         try await cipherService.deleteCipherWithServer(id: id)
     }
 
+    func fetchFolder(withId id: String) async throws -> FolderView? {
+        guard let folder = try await folderService.fetchFolder(id: id) else {
+            return nil
+        }
+        return try await clientService.vault().folders().decrypt(folder: folder)
+    }
+
     func fetchFolders() async throws -> [FolderView] {
         let folders = try await folderService.fetchAllFolders()
         return try await clientService.vault().folders()
@@ -1081,6 +1098,11 @@ extension DefaultVaultRepository: VaultRepository {
 
         // Return the temporary location where the downloaded data is located.
         return temporaryUrl
+    }
+
+    func fetchOrganization(withId id: String) async throws -> Organization? {
+        let organizations = try await organizationService.fetchAllOrganizations()
+        return organizations.first(where: { $0.id == id })
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

@@ -407,4 +407,4 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         // before the value is generated.
         return (state.generatorType, state.passwordState)
     }
-}
+} // swiftlint:disable:this file_length

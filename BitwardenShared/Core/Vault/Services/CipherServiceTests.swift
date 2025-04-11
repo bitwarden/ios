@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class CipherServiceTests: BitwardenTestCase {
+class CipherServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var cipherAPIService: CipherAPIService!

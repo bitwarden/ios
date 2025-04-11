@@ -279,10 +279,10 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
 
             // We need read-only collections so that we can include them in the state
             // to correctly calculate if the item can be deleted
-            state.collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
+            state.allUserCollections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
             // Filter out any collection IDs that aren't included in the fetched collections.
             state.collectionIds = state.collectionIds.filter { collectionId in
-                state.collections.contains(where: { $0.id == collectionId })
+                state.allUserCollections.contains(where: { $0.id == collectionId })
             }
 
             state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled

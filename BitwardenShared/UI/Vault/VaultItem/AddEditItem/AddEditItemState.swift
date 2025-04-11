@@ -22,7 +22,7 @@ protocol AddEditItemState: Sendable {
     var collectionIds: [String] { get set }
 
     /// The full list of collections for the user, across all organizations.
-    var collections: [CollectionView] { get set }
+    var allUserCollections: [CollectionView] { get set }
 
     /// The list of collections that can be selected from for the current owner.
     var collectionsForOwner: [CollectionView] { get }
