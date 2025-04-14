@@ -1,8 +1,7 @@
 import Foundation
 import TestHelpers
 
-extension APITestData {
-    // MARK: Server Configuration
-
+public extension APITestData {
+    /// A valid server configuration to produce a `ConfigResponseModel`.
     static let validServerConfig = loadFromJsonBundle(resource: "ValidServerConfig")
 }
