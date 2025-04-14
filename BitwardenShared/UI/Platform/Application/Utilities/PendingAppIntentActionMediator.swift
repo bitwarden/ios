@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - PendingAppIntentActionMediator
 
 /// A mediator to execute pending `AppIntent` actions.
