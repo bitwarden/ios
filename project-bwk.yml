@@ -80,6 +80,8 @@ targets:
       - path: AuthenticatorBridgeKit
         excludes:
           - "**/Tests/*"
+    dependencies:
+      - target: BitwardenKit
   AuthenticatorBridgeKitTests:
     type: bundle.unit-test
     platform: iOS
@@ -92,6 +94,8 @@ targets:
           - "**/Tests/*"
     dependencies:
       - target: AuthenticatorBridgeKit
+      - target: BitwardenKitMocks
+      - target: TestHelpers
     randomExecutionOrder: true
   BitwardenKit:
     type: framework
@@ -158,6 +162,7 @@ targets:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
         INFOPLIST_FILE: Networking/Info.plist
+        SWIFT_STRICT_CONCURRENCY: complete
     sources:
       - path: Networking
         excludes:

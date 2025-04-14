@@ -6,6 +6,7 @@ final class ExtensionSetupCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
     // MARK: Private Properties

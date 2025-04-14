@@ -2,6 +2,7 @@ import XCTest
 
 @testable import Networking
 
+@MainActor
 class HTTPServiceTests: XCTestCase {
     // MARK: Properties
 

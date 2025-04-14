@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKitMocks
 import XCTest
 
 @testable import BitwardenShared

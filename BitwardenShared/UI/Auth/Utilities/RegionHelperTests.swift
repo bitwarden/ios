@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import XCTest
 
@@ -142,7 +143,7 @@ class MockRegionDelegate: RegionDelegate {
     var setRegionType: RegionType?
     var setRegionUrls: EnvironmentURLData?
 
-    func setRegion(_ region: BitwardenShared.RegionType, _ urls: BitwardenShared.EnvironmentURLData) async {
+    func setRegion(_ region: RegionType, _ urls: EnvironmentURLData) async {
         setRegionCalled = true
         setRegionType = region
         setRegionUrls = urls

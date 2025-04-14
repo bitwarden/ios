@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import Foundation
 import XCTest
 

@@ -232,8 +232,8 @@ targets:
     type: app-extension
     platform: iOS
     configFiles:
-      Debug: Configs/BitwardenActionExtension.xcconfig
-      Release: Configs/BitwardenActionExtension.xcconfig
+      Debug: Configs/BitwardenActionExtension-Debug.xcconfig
+      Release: Configs/BitwardenActionExtension-Release.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements

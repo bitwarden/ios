@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import Networking
 import TestHelpers
@@ -838,6 +839,14 @@ class AddEditItemProcessorTests: BitwardenTestCase {
         authRepository.hasMasterPasswordResult = .success(false)
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.showMasterPasswordReprompt)
+    }
+
+    /// `perform(_:)` with `.appeared` checks restrictCipherItemDeletionFlag and sets value to state.
+    @MainActor
+    func test_perform_appeared_loadRestrictItemDeletionFlag() async {
+        configService.featureFlagsBool[.restrictCipherItemDeletion] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.restrictCipherItemDeletionFlagEnabled)
     }
 
     /// `perform` with `.checkPasswordPressed` checks the password with the HIBP service.
