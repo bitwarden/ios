@@ -11,6 +11,7 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
         {
           "anonAddyApiAccessToken": "ADDYIO_API_TOKEN",
           "anonAddyDomainName": "bitwarden.com",
+          "anonAddyBaseUrl": "bitwarden.com",
           "capitalizeRandomWordUsername": true,
           "catchAllEmailDomain": "bitwarden.com",
           "catchAllEmailType": 0,
@@ -34,6 +35,7 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
             UsernameGenerationOptions(
                 anonAddyApiAccessToken: "ADDYIO_API_TOKEN",
                 anonAddyDomainName: "bitwarden.com",
+                anonAddyBaseUrl: "bitwarden.com",
                 capitalizeRandomWordUsername: true,
                 catchAllEmailDomain: "bitwarden.com",
                 catchAllEmailType: .random,

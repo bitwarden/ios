@@ -100,6 +100,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .addyIO
+        subject.usernameState.addyIOSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -115,6 +116,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API access token Value: (empty)
               Text: Domain name (required) Value: (empty)
+              Text: Self-host server URL Value: (empty)
             """
         }
     }
