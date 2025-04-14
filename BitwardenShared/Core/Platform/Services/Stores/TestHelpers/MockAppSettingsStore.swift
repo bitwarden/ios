@@ -1,3 +1,4 @@
+import BitwardenKit
 import Combine
 import Foundation
 
@@ -159,7 +160,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId]
     }
 
-    func accountCreationEnvironmentURLs(email: String) -> BitwardenShared.EnvironmentURLData? {
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         accountCreationEnvironmentURLs[email]
     }
 
@@ -275,7 +276,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId] = key
     }
 
-    func setAccountCreationEnvironmentURLs(environmentURLData: BitwardenShared.EnvironmentURLData, email: String) {
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
         accountCreationEnvironmentURLs[email] = environmentURLData
     }
 
