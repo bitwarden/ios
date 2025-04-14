@@ -8,6 +8,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag to enable/disable account deprovisioning.
     case accountDeprovisioning = "pm-10308-account-deprovisioning"
 
+    /// A feature flag to enable/disable the ability to add a custom domain for anonAddy users.
+    case anonAddySelfHostAlias = "anon-addy-self-host-alias"
+
     /// A feature flag to enable/disable the app review prompt.
     case appReviewPrompt = "app-review-prompt"
 
@@ -133,6 +136,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .testLocalInitialStringFlag:
             false
         case .accountDeprovisioning,
+             .anonAddySelfHostAlias,
              .appReviewPrompt,
              .cipherKeyEncryption,
              .cxpExportMobile,
