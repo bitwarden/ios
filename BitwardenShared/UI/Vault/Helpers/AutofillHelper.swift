@@ -160,17 +160,17 @@ class AutofillHelper {
         let alert = Alert(title: cipherView.name, message: nil, preferredStyle: .actionSheet)
 
         if let username = login.username, !username.isEmpty {
-            alert.add(AlertAction(title: Localizations.copyUsername, style: .default) { _ in
+            alert.add(AlertAction(title: Localizations.copyUsername, style: .default, handler: { _ in
                 self.services.pasteboardService.copy(username)
                 showToast(Localizations.valueHasBeenCopied(Localizations.username))
-            })
+            }))
         }
 
         if let password = login.password, !password.isEmpty {
-            alert.add(AlertAction(title: Localizations.copyPassword, style: .default) { _ in
+            alert.add(AlertAction(title: Localizations.copyPassword, style: .default, handler: { _ in
                 self.services.pasteboardService.copy(password)
                 showToast(Localizations.valueHasBeenCopied(Localizations.password))
-            })
+            }))
         }
 
         if let totp = login.totp, !totp.isEmpty {

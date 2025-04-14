@@ -28,12 +28,13 @@ public class AlertAction {
     ///   - title: The title of the alert action.
     ///   - style: The style of the alert action to use when creating a `UIAlertAction`.
     ///   - handler: The handler that is called when the user taps on the action in the alert.
+    ///   - shouldEnableAction: Condition that determines if the action should be enabled. Defaults to always enabled.
     ///
     public init(
         title: String,
-        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil,
         style: UIAlertAction.Style,
-        handler: ((AlertAction, [AlertTextField]) async -> Void)? = nil
+        handler: ((AlertAction, [AlertTextField]) async -> Void)? = nil,
+        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil
     ) {
         self.title = title
         self.shouldEnableAction = shouldEnableAction
@@ -47,12 +48,14 @@ public class AlertAction {
     ///   - title: The title of the alert action.
     ///   - style: The style of the alert action to use when creating a `UIAlertAction`.
     ///   - handler: The handler that is called when the user taps on the action in the alert.
+    ///   - shouldEnableAction: Condition that determines if the action should be enabled.
+    ///   Defaults to always enabled.
     ///
     public init(
         title: String,
-        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil,
         style: UIAlertAction.Style,
-        handler: @escaping (AlertAction) async -> Void
+        handler: @escaping (AlertAction) async -> Void,
+        shouldEnableAction: (([AlertTextField]) -> Bool)? = nil
     ) {
         self.title = title
         self.shouldEnableAction = shouldEnableAction

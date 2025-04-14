@@ -56,25 +56,6 @@ public class Alert {
 
     // MARK: Methods
 
-    @objc
-    private func textFieldDidChange(_ sender: UITextField) {
-        guard let alertController = currentAlertController else { return }
-
-        // Find the corresponding AlertTextField instance and update it
-        for alertTextField in alertTextFields {
-            if let matchingTextField =
-                alertController.textFields?.first(where: { $0.placeholder == alertTextField.placeholder }) {
-                alertTextField.textChanged(in: matchingTextField)
-            }
-        }
-
-        // Now update action enable states
-        for (index, alertAction) in alertActions.enumerated() {
-            guard let shouldEnable = alertAction.shouldEnableAction else { continue }
-            alertController.actions[index].isEnabled = shouldEnable(alertTextFields)
-        }
-    }
-
     /// Adds an `AlertAction` to the `Alert`.
     ///
     /// - Parameter action: The `AlertAction` to add to the `Alert`.
@@ -126,6 +107,13 @@ public class Alert {
 
         let shouldUpdateActions = alertActions.contains { $0.shouldEnableAction != nil }
 
+        addTextFields(to: alertController, updateActionsIfNeeded: shouldUpdateActions)
+        addActions(to: alertController)
+
+        return alertController
+    }
+
+    private func addTextFields(to alertController: UIAlertController, updateActionsIfNeeded: Bool) {
         for alertTextField in alertTextFields {
             alertController.addTextField { textField in
                 self.configure(textField, with: alertTextField)
@@ -137,7 +125,7 @@ public class Alert {
                 )
             }
 
-            if shouldUpdateActions {
+            if updateActionsIfNeeded {
                 alertTextField.onTextChanged = { [weak self, weak alertController] in
                     guard let self, let alert = alertController else { return }
 
@@ -150,8 +138,10 @@ public class Alert {
                 }
             }
         }
+    }
 
-        alertActions.forEach { alertAction in
+    private func addActions(to alertController: UIAlertController) {
+        for alertAction in alertActions {
             let action = UIAlertAction(title: alertAction.title, style: alertAction.style) { _ in
                 Task {
                     await alertAction.handler?(alertAction, self.alertTextFields)
@@ -165,8 +155,6 @@ public class Alert {
                 alertController.preferredAction = action
             }
         }
-
-        return alertController
     }
 
     private func configure(_ textField: UITextField, with model: AlertTextField) {
