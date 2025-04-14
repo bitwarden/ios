@@ -2,29 +2,29 @@ import Foundation
 
 /// Domain model containing the environment URLs for an account.
 ///
-struct EnvironmentURLData: Codable, Equatable, Hashable {
+public struct EnvironmentURLData: Codable, Equatable, Hashable {
     // MARK: Properties
 
     /// The URL for the API.
-    let api: URL?
+    public let api: URL?
 
     /// The base URL.
-    let base: URL?
+    public let base: URL?
 
     /// The URL for the events API.
-    let events: URL?
+    public let events: URL?
 
     /// The URL for the icons API.
-    let icons: URL?
+    public let icons: URL?
 
     /// The URL for the identity API.
-    let identity: URL?
+    public let identity: URL?
 
     /// The URL for the notifications API.
-    let notifications: URL?
+    public let notifications: URL?
 
     /// The URL for the web vault.
-    let webVault: URL?
+    public let webVault: URL?
 
     // MARK: Initialization
 
@@ -39,7 +39,7 @@ struct EnvironmentURLData: Codable, Equatable, Hashable {
     ///   - notifications: The URL for the notifications API.
     ///   - webVault: The URL for the web vault.
     ///
-    init(
+    public init(
         api: URL? = nil,
         base: URL? = nil,
         events: URL? = nil,
@@ -58,7 +58,7 @@ struct EnvironmentURLData: Codable, Equatable, Hashable {
     }
 }
 
-extension EnvironmentURLData {
+public extension EnvironmentURLData {
     // MARK: Properties
 
     /// The URL for the user to change their email.
@@ -141,7 +141,7 @@ extension EnvironmentURLData {
     }
 }
 
-extension EnvironmentURLData {
+public extension EnvironmentURLData {
     /// The default URLs for the US region.
     static let defaultUS = EnvironmentURLData(
         api: URL(string: "https://api.bitwarden.com")!,

@@ -2,47 +2,76 @@ import Foundation
 
 /// A wrapper around non-optional URLs that the app uses in its environment.
 ///
-struct EnvironmentURLs: Equatable {
+public struct EnvironmentURLs: Equatable {
     // MARK: Properties
 
     /// The URL for the API.
-    let apiURL: URL
+    public let apiURL: URL
 
     /// The base URL.
-    let baseURL: URL
+    public let baseURL: URL
 
     /// The URL for changing email address.
-    let changeEmailURL: URL
+    public let changeEmailURL: URL
 
     /// The URL for the events API.
-    let eventsURL: URL
+    public let eventsURL: URL
 
     /// The URL for the icons API.
-    let iconsURL: URL
+    public let iconsURL: URL
 
     /// The URL for the identity API.
-    let identityURL: URL
+    public let identityURL: URL
 
     /// The URL for importing items.
-    let importItemsURL: URL
+    public let importItemsURL: URL
 
     /// The URL for the recovery code help page.
-    let recoveryCodeURL: URL
+    public let recoveryCodeURL: URL
 
     /// The URL for sharing a send.
-    let sendShareURL: URL
+    public let sendShareURL: URL
 
     /// The URL for vault settings.
-    let settingsURL: URL
+    public let settingsURL: URL
 
     /// The URL for setting up two-factor login.
-    let setUpTwoFactorURL: URL
+    public let setUpTwoFactorURL: URL
 
     /// The URL for the web vault.
-    let webVaultURL: URL
+    public let webVaultURL: URL
+
+    /// Public version of synthesized initializer.
+    public init(
+        apiURL: URL,
+        baseURL: URL,
+        changeEmailURL: URL,
+        eventsURL: URL,
+        iconsURL: URL,
+        identityURL: URL,
+        importItemsURL: URL,
+        recoveryCodeURL: URL,
+        sendShareURL: URL,
+        settingsURL: URL,
+        setUpTwoFactorURL: URL,
+        webVaultURL: URL
+    ) {
+        self.apiURL = apiURL
+        self.baseURL = baseURL
+        self.changeEmailURL = changeEmailURL
+        self.eventsURL = eventsURL
+        self.iconsURL = iconsURL
+        self.identityURL = identityURL
+        self.importItemsURL = importItemsURL
+        self.recoveryCodeURL = recoveryCodeURL
+        self.sendShareURL = sendShareURL
+        self.settingsURL = settingsURL
+        self.setUpTwoFactorURL = setUpTwoFactorURL
+        self.webVaultURL = webVaultURL
+    }
 }
 
-extension EnvironmentURLs {
+public extension EnvironmentURLs {
     /// Initialize `EnvironmentURLs` from `EnvironmentURLData`.
     ///
     /// - Parameter environmentURLData: The environment URLs used to initialize `EnvironmentURLs`.

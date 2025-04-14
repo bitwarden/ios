@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// Protocol to provide a factory to create `TextAutofillHelperFactory`.
 protocol TextAutofillHelperFactory {
     /// Creates an instance of `TextAutofillHelperFactory`.

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 /// Protocol for a factory to create `TextAutofillOptionsHelper` for each cipher type.

@@ -80,6 +80,8 @@ targets:
       - path: AuthenticatorBridgeKit
         excludes:
           - "**/Tests/*"
+    dependencies:
+      - target: BitwardenKit
   AuthenticatorBridgeKitTests:
     type: bundle.unit-test
     platform: iOS
@@ -92,6 +94,8 @@ targets:
           - "**/Tests/*"
     dependencies:
       - target: AuthenticatorBridgeKit
+      - target: BitwardenKitMocks
+      - target: TestHelpers
     randomExecutionOrder: true
   BitwardenKit:
     type: framework

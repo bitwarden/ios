@@ -1,3 +1,4 @@
+import BitwardenKit
 import Combine
 import Foundation
 
@@ -619,11 +620,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         ].pinProtectedUserKey = pin
     }
 
-    func setPreAuthEnvironmentURLs(_ urls: BitwardenShared.EnvironmentURLData) async {
+    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async {
         preAuthEnvironmentURLs = urls
     }
 
-    func setAccountCreationEnvironmentURLs(urls: BitwardenShared.EnvironmentURLData, email: String) async {
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
         accountCreationEnvironmentURLs[email] = urls
     }
 
