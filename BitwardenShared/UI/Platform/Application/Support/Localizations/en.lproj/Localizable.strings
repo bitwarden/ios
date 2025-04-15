@@ -1173,3 +1173,6 @@
 "ExpiresToday" = "Expires today";
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";

@@ -37,4 +37,7 @@ public enum AppContext: Equatable {
 public enum AppIntentAction {
     /// Locks all users.
     case lockAll
+
+    /// Logs out all users.
+    case logOutAll
 }
