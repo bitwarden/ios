@@ -10,6 +10,9 @@ struct UsernameGenerationOptions: Codable, Equatable {
     /// The domain name used to generate a forwarded email alias with addy.io.
     var anonAddyDomainName: String?
 
+    /// The base URL for the addy.io api.
+    var anonAddyBaseUrl: String?
+
     /// Whether to capitalize the random word.
     var capitalizeRandomWordUsername: Bool?
 

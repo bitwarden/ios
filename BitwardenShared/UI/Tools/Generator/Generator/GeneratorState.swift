@@ -413,6 +413,15 @@ extension GeneratorState {
                         title: Localizations.domainNameRequiredParenthesis
                     ),
                 ])
+                if usernameState.addyIOSelfHostServerUrlEnabled {
+                    fields.append(contentsOf: [
+                        textField(
+                            accessibilityId: "AnonAddySelfHosteUrlEntry",
+                            keyPath: \.usernameState.addyIOSelfHostServerUrl,
+                            title: Localizations.selfHostServerURL
+                        ),
+                    ])
+                }
             case .duckDuckGo:
                 fields.append(
                     textField(
