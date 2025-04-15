@@ -1176,3 +1176,4 @@
 "LogOutAllAccounts" = "Log out all accounts";
 "AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
 "AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
+"SelfHostServerURL" = "Self-host server URL";

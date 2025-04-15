@@ -485,6 +485,15 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
     }
 
+    /// `perform(:)` with `.appeared` should set the `addyIOSelfHostServerUrlEnabled` to
+    /// feature flag `anonAddySelfHostAlias` value.
+    @MainActor
+    func test_perform_checkAddyIOFeatureFlag_true() async {
+        configService.featureFlagsBool[.anonAddySelfHostAlias] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.usernameState.addyIOSelfHostServerUrlEnabled)
+    }
+
     /// `receive(_:)` with `.copyGeneratedValØue` copies the generated password to the system
     /// pasteboard and shows a toast.
     @MainActor
