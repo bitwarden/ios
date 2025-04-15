@@ -553,6 +553,9 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.addyIOAPIAccessToken = "token"
         XCTAssertTrue(subject.canGenerateUsername)
 
+        subject.addyIOSelfHostServerUrl = "bitwarden.com"
+        XCTAssertTrue(subject.canGenerateUsername)
+
         subject.forwardedEmailService = .duckDuckGo
         XCTAssertFalse(subject.canGenerateUsername)
         subject.duckDuckGoAPIKey = "apiKey"
@@ -587,6 +590,19 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(subject.catchAllEmailType, .random)
         XCTAssertEqual(subject.plusAddressedEmailType, .random)
+    }
+
+    /// `usernameState.update(with:)` sets addy io base url if exists.
+    func test_usernameState_updateWithOptions_addyIOBaseUrl() {
+        var subject = GeneratorState().usernameState
+        subject.update(with: UsernameGenerationOptions(anonAddyBaseUrl: "bitwarden.com"))
+
+        XCTAssertEqual(subject.usernameGenerationOptions.anonAddyBaseUrl, "bitwarden.com")
+
+        subject.addyIOSelfHostServerUrl = "bitwarden2.com"
+        subject.update(with: UsernameGenerationOptions())
+
+        XCTAssertEqual(subject.usernameGenerationOptions.anonAddyBaseUrl, "bitwarden2.com")
     }
 
     /// `usernameState.update(with:)` sets the email type to website if an email website exists.
