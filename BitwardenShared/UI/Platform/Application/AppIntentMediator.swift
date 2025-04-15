@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A mediator to process `AppIntent` actions.
 public protocol AppIntentMediator {
     /// Whether app intents can be run.

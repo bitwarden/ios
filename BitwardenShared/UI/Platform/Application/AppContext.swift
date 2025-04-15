@@ -39,5 +39,5 @@ public enum AppIntentAction {
     case lockAll
 
     /// Logs out all users.
-    case logoutAll
+    case logOutAll
 }

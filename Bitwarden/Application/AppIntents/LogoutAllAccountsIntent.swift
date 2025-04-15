@@ -12,10 +12,10 @@ struct LogoutAllAccountsIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let errorReporter = ErrorReporterFactory.createDefaultErrorReporter()
+        let errorReporter = ErrorReporterFactory.makeDefaultErrorReporter()
         do {
             let services = ServiceContainer(
-                appContext: .appIntent(.logoutAll),
+                appContext: .appIntent(.logOutAll),
                 errorReporter: errorReporter
             )
             let appProcessor = AppProcessor(appModule: DefaultAppModule(services: services), services: services)
