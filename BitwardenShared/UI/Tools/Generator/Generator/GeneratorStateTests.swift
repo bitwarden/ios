@@ -224,6 +224,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .simpleLogin
+        subject.usernameState.simpleLoginSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -238,6 +239,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Selection: SimpleLogin
                 Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API key (required) Value: (empty)
+              Text: Self-host server URL Value: (empty)
             """
         }
     }
@@ -603,6 +605,19 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.update(with: UsernameGenerationOptions())
 
         XCTAssertEqual(subject.usernameGenerationOptions.anonAddyBaseUrl, "bitwarden2.com")
+    }
+
+    /// `usernameState.update(with:)` sets SimpleLogin base url if exists.
+    func test_usernameState_updateWithOptions_simpleLoginBaseUrl() {
+        var subject = GeneratorState().usernameState
+        subject.update(with: UsernameGenerationOptions(simpleLoginBaseUrl: "bitwarden.com"))
+
+        XCTAssertEqual(subject.usernameGenerationOptions.simpleLoginBaseUrl, "bitwarden.com")
+
+        subject.simpleLoginSelfHostServerUrl = "bitwarden2.com"
+        subject.update(with: UsernameGenerationOptions())
+
+        XCTAssertEqual(subject.usernameGenerationOptions.simpleLoginBaseUrl, "bitwarden2.com")
     }
 
     /// `usernameState.update(with:)` sets the email type to website if an email website exists.

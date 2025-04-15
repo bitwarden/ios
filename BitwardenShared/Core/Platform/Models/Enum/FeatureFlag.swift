@@ -71,6 +71,9 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag for the use of new cipher permission properties.
     case restrictCipherItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission"
 
+    /// A feature flag to enable SimpleLogin self-host alias generation
+    case simpleLoginSelfHostAlias = "simple-login-self-host-alias"
+
     // MARK: Test Flags
 
     /// A test feature flag that isn't remotely configured and has no initial value.
@@ -148,6 +151,7 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
              .restrictCipherItemDeletion,
+             .simpleLoginSelfHostAlias,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,

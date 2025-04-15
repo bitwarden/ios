@@ -1,6 +1,16 @@
 /// The service used to generate a forwarded email alias.
 ///
 enum ForwardedEmailServiceType: Int, CaseIterable, Codable, Equatable, Menuable {
+    // MARK: Static properties
+
+    /// The default base URL for addy.io.
+    static let defaultAddyIOBaseUrl = "https://app.addy.io"
+
+    /// The default base URL for SimpleLogin.
+    static let defaultSimpleLoginBaseUrl = "https://app.simplelogin.io"
+
+    // MARK: Cases
+
     /// Generate a forwarded email using addy.io.
     case addyIO = 0
 

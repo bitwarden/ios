@@ -486,12 +486,15 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(:)` with `.appeared` should set the `addyIOSelfHostServerUrlEnabled` to
-    /// feature flag `anonAddySelfHostAlias` value.
+    /// feature flag `anonAddySelfHostAlias` value and `simpleLoginSelfHostServerUrlEnabled`
+    /// to feature flag `simpleLoginSelfHostAlias` value.
     @MainActor
-    func test_perform_checkAddyIOFeatureFlag_true() async {
+    func test_perform_loadFlags() async {
         configService.featureFlagsBool[.anonAddySelfHostAlias] = true
+        configService.featureFlagsBool[.simpleLoginSelfHostAlias] = true
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.usernameState.addyIOSelfHostServerUrlEnabled)
+        XCTAssertTrue(subject.state.usernameState.simpleLoginSelfHostServerUrlEnabled)
     }
 
     /// `receive(_:)` with `.copyGeneratedValØue` copies the generated password to the system
