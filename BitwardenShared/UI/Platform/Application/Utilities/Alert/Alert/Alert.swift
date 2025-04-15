@@ -26,9 +26,6 @@ public class Alert {
     /// The title of the message that is displayed at the top of the alert.
     let title: String?
 
-    /// The current alert shown.
-    private weak var currentAlertController: UIAlertController?
-
     // MARK: Initialization
 
     /// Initializes an `Alert`.
