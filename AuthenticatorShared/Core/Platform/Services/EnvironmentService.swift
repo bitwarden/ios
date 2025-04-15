@@ -17,11 +17,6 @@ class DefaultEnvironmentService: EnvironmentService {
 
     /// Initialize a `DefaultEnvironmentService`.
     ///
-    /// - Parameters:
-    ///   - errorReporter: The service used by the application to report non-fatal errors
-    ///   - stateService: The service used by the application to manage account state.
-    ///   - standardUserDefaults: The shared UserDefaults instance.
-    ///
     init() {
         environmentURLs = EnvironmentURLs(environmentURLData: .defaultUS)
     }
