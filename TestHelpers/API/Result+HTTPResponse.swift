@@ -1,8 +1,8 @@
 import Foundation
 import Networking
-import TestHelpers
 
-extension Result where Success == HTTPResponse, Error: Error {
+public extension Result where Success == HTTPResponse, Error: Error {
+    /// Convenience method to get a successful HTTPResponse result with APITestData.
     static func httpSuccess(testData: APITestData) -> Result<HTTPResponse, Error> {
         let response = HTTPResponse.success(
             body: testData.data
@@ -10,6 +10,7 @@ extension Result where Success == HTTPResponse, Error: Error {
         return .success(response)
     }
 
+    /// Convenience method to get a successful result with a failed HTTPResponse.
     static func httpFailure(
         statusCode: Int = 500,
         headers: [String: String] = [:],
@@ -23,6 +24,7 @@ extension Result where Success == HTTPResponse, Error: Error {
         return .success(response)
     }
 
+    /// Convenience method to get a failed HTTPResponse result.
     static func httpFailure(_ error: Error) -> Result<HTTPResponse, Error> {
         .failure(error)
     }
