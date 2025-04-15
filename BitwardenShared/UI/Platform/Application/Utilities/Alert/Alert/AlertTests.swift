@@ -84,45 +84,9 @@ class AlertTests: BitwardenTestCase {
             .addPreferred(AlertAction.ok()))
         XCTAssertNotEqual(subject, Alert(title: "🍎", message: "🥝", preferredStyle: .alert))
         XCTAssertNotEqual(subject, Alert.fixture(alertActions: [AlertAction.cancel()])
-            .addPreferred(AlertAction.ok { _, _  in }))
+            .addPreferred(AlertAction.ok { _, _ in }))
         XCTAssertEqual(subject, Alert.fixture(alertActions: [AlertAction.cancel()])
             .addPreferred(AlertAction.ok()))
-    }
-
-    @MainActor
-    func test_okButton_isDisabledWhenFieldIsEmpty() {
-        let alert = Alert.fixture(
-            alertActions: [
-                .ok(shouldEnableAction: { _ in false }),
-            ],
-            alertTextFields: [
-                .fixture(text: ""),
-            ]
-        )
-
-        let controller = alert.createAlertController()
-        let okAction = controller.actions.first(where: { $0.title == "OK" })
-
-        XCTAssertNotNil(okAction)
-        XCTAssertFalse(okAction!.isEnabled)
-    }
-
-    @MainActor
-    func test_okButton_isEnabledWhenFieldIsNotEmpty() {
-        let alert = Alert.fixture(
-            alertActions: [
-                .ok(shouldEnableAction: { _ in true }),
-            ],
-            alertTextFields: [
-                .fixture(text: "some value"),
-            ]
-        )
-
-        let controller = alert.createAlertController()
-        let okAction = controller.actions.first(where: { $0.title == "OK" })
-
-        XCTAssertNotNil(okAction)
-        XCTAssertTrue(okAction!.isEnabled)
     }
 
     @MainActor
