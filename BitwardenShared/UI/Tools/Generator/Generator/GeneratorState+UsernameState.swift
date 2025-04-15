@@ -99,6 +99,7 @@ extension GeneratorState {
             // Forwarded Email Properties
             addyIOAPIAccessToken = options.anonAddyApiAccessToken ?? addyIOAPIAccessToken
             addyIODomainName = options.anonAddyDomainName ?? addyIODomainName
+            addyIOSelfHostServerUrl = options.anonAddyBaseUrl ?? addyIOSelfHostServerUrl
             duckDuckGoAPIKey = options.duckDuckGoApiKey ?? duckDuckGoAPIKey
             fastmailAPIKey = options.fastMailApiKey ?? fastmailAPIKey
             firefoxRelayAPIAccessToken = options.firefoxRelayApiAccessToken ?? firefoxRelayAPIAccessToken
