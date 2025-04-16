@@ -38,7 +38,7 @@ class APIService {
         self.client = client
 
         defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
-            appName: "Bitwarden_Mobile",
+            appName: "Bitwarden_Authenticator_Mobile",
             appVersion: Bundle.main.appVersion,
             buildNumber: Bundle.main.buildNumber,
             systemDevice: UIDevice.current
