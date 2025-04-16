@@ -7,6 +7,7 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var flightRecorder: MockFlightRecorder!
     var subject: EnableFlightRecorderProcessor!
 
     // MARK: Setup & Teardown
@@ -15,10 +16,13 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator()
+        flightRecorder = MockFlightRecorder()
 
         subject = EnableFlightRecorderProcessor(
             coordinator: coordinator.asAnyCoordinator(),
-            services: ServiceContainer.withMocks(),
+            services: ServiceContainer.withMocks(
+                flightRecorder: flightRecorder
+            ),
             state: EnableFlightRecorderState()
         )
     }
@@ -27,6 +31,7 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        flightRecorder = nil
         subject = nil
     }
 
@@ -37,6 +42,20 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
     func test_perform_save() async {
         await subject.perform(.save)
         XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertTrue(flightRecorder.enableFlightRecorderCalled)
+        XCTAssertEqual(flightRecorder.enableFlightRecorderDuration, .twentyFourHours)
+    }
+
+    /// `perform(_:)` with `.save` dismisses the view with a modified duration.
+    @MainActor
+    func test_perform_save_eightHourDuration() async {
+        subject.state.loggingDuration = .eightHours
+
+        await subject.perform(.save)
+
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+        XCTAssertTrue(flightRecorder.enableFlightRecorderCalled)
+        XCTAssertEqual(flightRecorder.enableFlightRecorderDuration, .eightHours)
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.

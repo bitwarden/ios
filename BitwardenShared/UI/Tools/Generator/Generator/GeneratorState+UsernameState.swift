@@ -15,6 +15,9 @@ extension GeneratorState {
 
         // MARK: Properties
 
+        /// A flag indicating if the addy IO selfhost is enabled.
+        var addyIOSelfHostServerUrlEnabled = false
+
         /// An optional website host used to generate usernames (either plus addressed or catch all).
         var emailWebsite: String?
 
@@ -36,6 +39,9 @@ extension GeneratorState {
 
         /// The domain name used to generate a forwarded email alias with addy.io.
         var addyIODomainName: String = ""
+
+        /// The base URL for the addy.io api.
+        var addyIOSelfHostServerUrl: String = ""
 
         /// The DuckDuckGo API key used to generate a forwarded email alias.
         var duckDuckGoAPIKey: String = ""
@@ -93,6 +99,7 @@ extension GeneratorState {
             // Forwarded Email Properties
             addyIOAPIAccessToken = options.anonAddyApiAccessToken ?? addyIOAPIAccessToken
             addyIODomainName = options.anonAddyDomainName ?? addyIODomainName
+            addyIOSelfHostServerUrl = options.anonAddyBaseUrl ?? addyIOSelfHostServerUrl
             duckDuckGoAPIKey = options.duckDuckGoApiKey ?? duckDuckGoAPIKey
             fastmailAPIKey = options.fastMailApiKey ?? fastmailAPIKey
             firefoxRelayAPIAccessToken = options.firefoxRelayApiAccessToken ?? firefoxRelayAPIAccessToken
@@ -162,6 +169,7 @@ extension GeneratorState.UsernameState {
         UsernameGenerationOptions(
             anonAddyApiAccessToken: addyIOAPIAccessToken.nilIfEmpty,
             anonAddyDomainName: addyIODomainName.nilIfEmpty,
+            anonAddyBaseUrl: addyIOSelfHostServerUrl.nilIfEmpty,
             capitalizeRandomWordUsername: capitalize,
             catchAllEmailDomain: domain.nilIfEmpty,
             catchAllEmailType: catchAllEmailType,
@@ -221,7 +229,7 @@ extension GeneratorState.UsernameState {
             ForwarderServiceType.addyIo(
                 apiToken: addyIOAPIAccessToken,
                 domain: addyIODomainName,
-                baseUrl: "https://app.addy.io"
+                baseUrl: addyIOSelfHostServerUrl.nilIfEmpty ?? "https://app.addy.io"
             )
         case .duckDuckGo:
             ForwarderServiceType.duckDuckGo(token: duckDuckGoAPIKey)

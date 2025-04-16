@@ -82,6 +82,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
+            await loadAddyIOFeatureFlag()
             await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
@@ -191,6 +192,13 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     }
 
     // MARK: Private
+
+    /// Checks if the Addy.io feature flag is enabled and updates the state accordingly.
+    ///
+    private func loadAddyIOFeatureFlag() async {
+        state.usernameState.addyIOSelfHostServerUrlEnabled = await services.configService
+            .getFeatureFlag(.anonAddySelfHostAlias)
+    }
 
     /// Checks the eligibility of the generator Login action card.
     ///

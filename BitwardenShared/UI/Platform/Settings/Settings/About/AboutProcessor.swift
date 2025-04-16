@@ -11,6 +11,7 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
         & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasFlightRecorder
         & HasPasteboardService
 
     // MARK: Properties
@@ -52,6 +53,14 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
         switch effect {
         case .loadData:
             await loadData()
+        case .streamFlightRecorderEnabled:
+            await streamFlightRecorderEnabled()
+        case let .toggleFlightRecorder(isOn):
+            if isOn {
+                coordinator.navigate(to: .enableFlightRecorder)
+            } else {
+                await services.flightRecorder.disableFlightRecorder()
+            }
         }
     }
 
@@ -77,13 +86,6 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
             })
         case let .toastShown(newValue):
             state.toast = newValue
-        case let .toggleFlightRecorder(isOn):
-            if isOn {
-                coordinator.navigate(to: .enableFlightRecorder)
-            } else {
-                // TODO: PM-19577 Turn logging off
-                state.isFlightRecorderToggleOn = isOn
-            }
         case let .toggleSubmitCrashLogs(isOn):
             state.isSubmitCrashLogsToggleOn = isOn
             services.errorReporter.isEnabled = isOn
@@ -109,5 +111,12 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
     /// Load any initial data for the view.
     private func loadData() async {
         state.isFlightRecorderFeatureFlagEnabled = await services.configService.getFeatureFlag(.flightRecorder)
+    }
+
+    /// Streams the enabled status of the flight recorder.
+    private func streamFlightRecorderEnabled() async {
+        for await isEnabled in await services.flightRecorder.isEnabledPublisher().values {
+            state.isFlightRecorderToggleOn = isEnabled
+        }
     }
 }
