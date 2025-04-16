@@ -3,7 +3,7 @@ import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import AuthenticatorShared
 
 @MainActor
 final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length

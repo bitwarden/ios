@@ -3,7 +3,7 @@ import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
-@testable import BitwardenShared
+@testable import AuthenticatorShared
 
 class ConfigAPIServiceTests: BitwardenTestCase {
     // MARK: Properties
