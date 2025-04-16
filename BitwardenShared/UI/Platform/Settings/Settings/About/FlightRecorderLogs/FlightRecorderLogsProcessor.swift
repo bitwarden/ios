@@ -12,6 +12,7 @@ final class FlightRecorderLogsProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasFlightRecorder
 
     // MARK: Private Properties
 
@@ -19,7 +20,7 @@ final class FlightRecorderLogsProcessor: StateProcessor<
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services used by this processor.
-    private var services: Services
+    private let services: Services
 
     // MARK: Initialization
 
@@ -42,12 +43,30 @@ final class FlightRecorderLogsProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_ effect: FlightRecorderLogsEffect) async {}
+    override func perform(_ effect: FlightRecorderLogsEffect) async {
+        switch effect {
+        case .loadData:
+            await loadData()
+        }
+    }
 
     override func receive(_ action: FlightRecorderLogsAction) {
         switch action {
         case .dismiss:
             coordinator.navigate(to: .dismiss)
+        }
+    }
+
+    // MARK: Private
+
+    /// Loads the data for the view.
+    ///
+    private func loadData() async {
+        do {
+            state.logs = try await services.flightRecorder.fetchLogs()
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }

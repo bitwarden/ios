@@ -18,6 +18,12 @@ protocol FlightRecorder: Sendable {
     ///
     func enableFlightRecorder(duration: FlightRecorderLoggingDuration) async throws
 
+    /// Fetches the list of flight recorder logs currently stored on the device.
+    ///
+    /// - Returns: The list of logs currently stored on the device.
+    ///
+    func fetchLogs() async throws -> [FlightRecorderLogMetadata]
+
     /// A publisher which publishes the enabled status of the flight recorder.
     ///
     /// - Returns: A publisher for the enabled status of the flight recorder.
@@ -149,6 +155,34 @@ actor DefaultFlightRecorder {
         }
     }
 
+    /// Returns the file size for a log file.
+    ///
+    /// - Parameter log: The log metadata for determining the log file to get the file size for.
+    /// - Returns: The file size of the log.
+    ///
+    private func fileSize(for log: FlightRecorderData.LogMetadata) -> String {
+        do {
+            let url = try fileURL(for: log)
+            let attributes = try fileManager.attributesOfItem(atPath: url.path)
+            let size = attributes[.size] as? Int64 ?? 0
+
+            let formatter = ByteCountFormatter()
+            formatter.allowsNonnumericFormatting = false
+            formatter.countStyle = .binary
+            return formatter.string(fromByteCount: size)
+        } catch let error as NSError where error.domain == NSCocoaErrorDomain &&
+            error.code == NSFileReadNoSuchFileError {
+            return ""
+        } catch {
+            errorReporter.log(error: BitwardenError.generalError(
+                type: "Flight Recorder File Size Error",
+                message: "Unable to determine the log's file size",
+                error: error
+            ))
+            return ""
+        }
+    }
+
     /// Returns a URL for a log file.
     ///
     /// - Parameter log: The log metadata for determining the log file's URL.
@@ -179,6 +213,21 @@ extension DefaultFlightRecorder: FlightRecorder {
         await stateService.setFlightRecorderData(data)
 
         activeLogSubject.send(log)
+    }
+
+    func fetchLogs() async throws -> [FlightRecorderLogMetadata] {
+        guard let data = await stateService.getFlightRecorderData() else { return [] }
+        return try data.allLogs.map { log in
+            try FlightRecorderLogMetadata(
+                duration: log.duration,
+                endDate: log.endDate,
+                fileSize: fileSize(for: log),
+                id: log.fileName,
+                isActiveLog: log.id == data.activeLog?.id,
+                startDate: log.startDate,
+                url: fileURL(for: log)
+            )
+        }
     }
 
     func isEnabledPublisher() async -> AnyPublisher<Bool, Never> {
