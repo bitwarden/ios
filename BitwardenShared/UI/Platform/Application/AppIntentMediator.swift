@@ -27,7 +27,7 @@ struct DefaultAppIntentMediator: AppIntentMediator {
     let configService: ConfigService
     /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
-    ///
+    /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
     /// The service used by the application to manage account state.
     let stateService: StateService
