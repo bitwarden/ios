@@ -10,4 +10,6 @@ public struct ConfigRequest: Request {
     public let method = HTTPMethod.get
 
     public let path = "/config"
+
+    public init() {}
 }
