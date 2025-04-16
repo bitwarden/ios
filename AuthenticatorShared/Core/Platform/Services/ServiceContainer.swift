@@ -174,8 +174,11 @@ public class ServiceContainer: Services {
             stateService: stateService
         )
 
+        let apiService = APIService()
+
         let configService = DefaultConfigService(
             appSettingsStore: appSettingsStore,
+            configApiService: apiService,
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider

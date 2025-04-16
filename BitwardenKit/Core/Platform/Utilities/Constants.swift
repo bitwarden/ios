@@ -19,4 +19,7 @@ public enum Constants {
 
     /// The default file name when the file name cannot be determined.
     public static let unknownFileName = "unknown_file_name"
+    
+    /// The minimum number of minutes before attempting a server config sync again.
+    public static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
 }
