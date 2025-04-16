@@ -33,11 +33,11 @@ protocol GeneratorRepository: AnyObject {
     func generateMasterPassword() async throws -> String
 
     /// Generates a passphrase based on the passphrase settings.
-    /// 
+    ///
     /// - Parameter settings: The settings used to generate the passphrase.
     /// - Parameter isPreAuth: Whether this is called without authentication.
     /// - Returns: The generated passphrase.
-    /// 
+    ///
     func generatePassphrase(settings: PassphraseGeneratorRequest, isPreAuth: Bool) async throws -> String
 
     /// Generates a password based on the password settings.

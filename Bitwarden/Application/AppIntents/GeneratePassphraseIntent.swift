@@ -35,7 +35,7 @@ struct GeneratePassphraseIntent: AppIntent {
     func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
         let services = ServiceContainer(
             appContext: .appIntent(.generatePassphrase),
-            errorReporter: ErrorReporterFactory.createDefaultErrorReporter()
+            errorReporter: ErrorReporterFactory.makeDefaultErrorReporter()
         )
         let appProcessor = AppProcessor(appModule: DefaultAppModule(services: services), services: services)
         let appIntentMediator = appProcessor.getAppIntentMediator()

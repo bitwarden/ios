@@ -5,7 +5,7 @@ import Foundation
 
 /// An object that defines the current state of any view interacting with a cipher item.
 ///
-struct CipherItemState: Equatable {
+struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// An enum defining if the state is a new or existing cipher.
