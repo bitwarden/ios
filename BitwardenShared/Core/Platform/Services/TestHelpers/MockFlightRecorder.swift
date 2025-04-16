@@ -27,7 +27,7 @@ final class MockFlightRecorder: FlightRecorder {
         isEnabledSubject.eraseToAnyPublisher()
     }
 
-    func log(_ message: String) async {
+    func log(_ message: String, file: String, line: UInt) async {
         logMessages.append(message)
     }
 }

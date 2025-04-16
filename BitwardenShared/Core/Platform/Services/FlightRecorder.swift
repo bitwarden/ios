@@ -26,9 +26,18 @@ protocol FlightRecorder: Sendable {
 
     /// Appends a message to the active log, if logging is currently enabled.
     ///
-    /// - Parameter message: The message to append to the active log.
+    /// - Parameters:
+    ///   - message: The message to append to the active log.
+    ///   - file: The file that called the log method.
+    ///   - line: The line number in the file that called the log method.
     ///
-    func log(_ message: String) async
+    func log(_ message: String, file: String, line: UInt) async
+}
+
+extension FlightRecorder {
+    func log(_ message: String, file: String = #file, line: UInt = #line) async {
+        await log(message, file: file, line: line)
+    }
 }
 
 // MARK: - DefaultFlightRecorder
@@ -177,15 +186,16 @@ extension DefaultFlightRecorder: FlightRecorder {
         return activeLogSubject.map { $0 != nil }.eraseToAnyPublisher()
     }
 
-    func log(_ message: String) async {
+    func log(_ message: String, file: String, line: UInt) async {
         guard let log = await fetchActiveLog() else { return }
         do {
             let timestampedMessage = "\(dateFormatter.string(from: timeProvider.presentTime)): \(message)\n"
             try await append(message: timestampedMessage, to: log)
         } catch {
+            let fileName = URL(fileURLWithPath: file).lastPathComponent
             errorReporter.log(error: BitwardenError.generalError(
                 type: "Flight Recorder Log Error",
-                message: "Unable to write message to log: \(message)",
+                message: "\(fileName):\(line) Unable to write message to log: \(message)",
                 error: error
             ))
         }
