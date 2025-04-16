@@ -19,6 +19,7 @@ struct FlightRecorderLogsView: View {
     var body: some View {
         content
             .navigationBar(title: Localizations.recordedLogs, titleDisplayMode: .inline)
+            .task { await store.perform(.loadData) }
             .toolbar {
                 closeToolbarItem {
                     store.send(.dismiss)
@@ -56,9 +57,11 @@ struct FlightRecorderLogsView: View {
                     HStack(spacing: 16) {
                         Text(log.fileSize)
 
-                        Text(log.formattedExpiration(currentDate: timeProvider.presentTime))
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .multilineTextAlignment(.trailing)
+                        if let formattedExpiration = log.formattedExpiration(currentDate: timeProvider.presentTime) {
+                            Text(formattedExpiration)
+                                .frame(maxWidth: .infinity, alignment: .trailing)
+                                .multilineTextAlignment(.trailing)
+                        }
                     }
                     .styleGuide(.subheadline)
                     .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
@@ -90,26 +93,44 @@ struct FlightRecorderLogsView: View {
                 logs: [
                     FlightRecorderLogMetadata(
                         duration: .eightHours,
-                        fileSize: "12KB",
+                        endDate: Date(year: 2025, month: 4, day: 1, hour: 8),
+                        fileSize: "2 KB",
                         id: "1",
-                        startDate: .now
+                        isActiveLog: true,
+                        startDate: Date(year: 2025, month: 4, day: 1),
+                        url: URL(string: "https://example.com")!
                     ),
                     FlightRecorderLogMetadata(
-                        duration: .eightHours,
-                        fileSize: "12KB",
+                        duration: .oneWeek,
+                        endDate: Date(year: 2025, month: 3, day: 7),
+                        fileSize: "12 KB",
                         id: "2",
-                        startDate: .now
+                        isActiveLog: false,
+                        startDate: Date(year: 2025, month: 3, day: 7),
+                        url: URL(string: "https://example.com")!
                     ),
                     FlightRecorderLogMetadata(
-                        duration: .eightHours,
-                        fileSize: "12KB",
+                        duration: .oneHour,
+                        endDate: Date(year: 2025, month: 3, day: 3, hour: 13),
+                        fileSize: "1.5 MB",
                         id: "3",
-                        startDate: .now
+                        isActiveLog: false,
+                        startDate: Date(year: 2025, month: 3, day: 3, hour: 12),
+                        url: URL(string: "https://example.com")!
+                    ),
+                    FlightRecorderLogMetadata(
+                        duration: .twentyFourHours,
+                        endDate: Date(year: 2025, month: 3, day: 2),
+                        fileSize: "50 KB",
+                        id: "4",
+                        isActiveLog: false,
+                        startDate: Date(year: 2025, month: 3, day: 1),
+                        url: URL(string: "https://example.com")!
                     ),
                 ]
             )
         )),
-        timeProvider: PreviewTimeProvider()
+        timeProvider: PreviewTimeProvider(fixedDate: Date(year: 2025, month: 4, day: 1))
     )
     .navStackWrapped
 }

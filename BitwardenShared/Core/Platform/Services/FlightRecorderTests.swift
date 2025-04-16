@@ -6,7 +6,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class FlightRecorderTests: BitwardenTestCase {
+class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var appInfoService: MockAppInfoService!
@@ -16,6 +16,21 @@ class FlightRecorderTests: BitwardenTestCase {
     var stateService: MockStateService!
     var subject: FlightRecorder!
     var timeProvider: MockTimeProvider!
+
+    let activeLog = FlightRecorderData.LogMetadata(
+        duration: .eightHours,
+        startDate: Date(year: 2025, month: 1, day: 1)
+    )
+
+    let archivedLog1 = FlightRecorderData.LogMetadata(
+        duration: .oneHour,
+        startDate: Date(year: 2025, month: 1, day: 2)
+    )
+
+    let archivedLog2 = FlightRecorderData.LogMetadata(
+        duration: .oneWeek,
+        startDate: Date(year: 2025, month: 1, day: 3)
+    )
 
     // MARK: Setup & Teardown
 
@@ -148,10 +163,141 @@ class FlightRecorderTests: BitwardenTestCase {
         XCTAssertFalse(isEnabled)
     }
 
+    /// `fetchLogs()` returns the list of flight recorder logs on the device.
+    func test_fetchLogs() async throws {
+        fileManager.attributesOfItemResult = .success([.size: Int64(123_000)])
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+            archivedLogs: [archivedLog1, archivedLog2]
+        )
+        let flightRecorderLogURL = try FileManager.default.flightRecorderLogURL()
+
+        let logs = try await subject.fetchLogs()
+
+        XCTAssertEqual(
+            logs,
+            [
+                FlightRecorderLogMetadata.fixture(
+                    duration: .eightHours,
+                    endDate: Date(year: 2025, month: 1, day: 1, hour: 8),
+                    fileSize: "120 KB",
+                    id: activeLog.id,
+                    isActiveLog: true,
+                    startDate: Date(year: 2025, month: 1, day: 1),
+                    url: flightRecorderLogURL.appendingPathComponent(activeLog.fileName)
+                ),
+                FlightRecorderLogMetadata.fixture(
+                    duration: .oneHour,
+                    endDate: Date(year: 2025, month: 1, day: 2, hour: 1),
+                    fileSize: "120 KB",
+                    id: archivedLog1.id,
+                    isActiveLog: false,
+                    startDate: Date(year: 2025, month: 1, day: 2),
+                    url: flightRecorderLogURL.appendingPathComponent(archivedLog1.fileName)
+                ),
+                FlightRecorderLogMetadata.fixture(
+                    duration: .oneWeek,
+                    endDate: Date(year: 2025, month: 1, day: 10),
+                    fileSize: "120 KB",
+                    id: archivedLog2.id,
+                    isActiveLog: false,
+                    startDate: Date(year: 2025, month: 1, day: 3),
+                    url: flightRecorderLogURL.appendingPathComponent(archivedLog2.fileName)
+                ),
+            ]
+        )
+    }
+
+    /// `fetchLogs()` returns an empty list if there's no flight recorder logs on the device.
+    func test_fetchLogs_empty() async throws {
+        stateService.flightRecorderData = FlightRecorderData()
+        let logs = try await subject.fetchLogs()
+        XCTAssertTrue(logs.isEmpty)
+    }
+
+    /// `fetchLogs()` calculates a default file size if a file size attribute isn't returned.
+    func test_fetchLogs_fileSize_nil() async throws {
+        fileManager.attributesOfItemResult = .success([:])
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+
+        let logs = try await subject.fetchLogs()
+
+        XCTAssertEqual(logs[0].fileSize, "0 bytes")
+    }
+
+    /// `fetchLogs()` calculates the file size of the log for various file sizes.
+    func test_fetchLogs_fileSizes() async throws {
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+            archivedLogs: [archivedLog1, archivedLog2]
+        )
+
+        fileManager.attributesOfItemResult = .success([.size: Int64(0)])
+        var logs = try await subject.fetchLogs()
+        XCTAssertEqual(logs[0].fileSize, "0 bytes")
+
+        fileManager.attributesOfItemResult = .success([.size: Int64(1000)])
+        logs = try await subject.fetchLogs()
+        XCTAssertEqual(logs[0].fileSize, "1,000 bytes")
+
+        fileManager.attributesOfItemResult = .success([.size: Int64(1024)])
+        logs = try await subject.fetchLogs()
+        XCTAssertEqual(logs[0].fileSize, "1 KB")
+
+        fileManager.attributesOfItemResult = .success([.size: Int64(80000)])
+        logs = try await subject.fetchLogs()
+        XCTAssertEqual(logs[0].fileSize, "78 KB")
+
+        fileManager.attributesOfItemResult = .success([.size: Int64(1024 * 1024)])
+        logs = try await subject.fetchLogs()
+        XCTAssertEqual(logs[0].fileSize, "1 MB")
+
+        fileManager.attributesOfItemResult = .success([.size: Int64(123_000_000)])
+        logs = try await subject.fetchLogs()
+        XCTAssertEqual(logs[0].fileSize, "117.3 MB")
+
+        fileManager.attributesOfItemResult = .success([.size: Int64(1024 * 1024 * 1024)])
+        logs = try await subject.fetchLogs()
+        XCTAssertEqual(logs[0].fileSize, "1 GB")
+    }
+
+    /// `fetchLogs()` returns an empty file size if the file wasn't found.
+    func test_fetchLogs_fileSize_fileNotFound() async throws {
+        fileManager.attributesOfItemResult = .failure(
+            NSError(domain: NSCocoaErrorDomain, code: NSFileReadNoSuchFileError)
+        )
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+
+        let logs = try await subject.fetchLogs()
+
+        XCTAssertEqual(logs[0].fileSize, "")
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+    }
+
+    /// `fetchLogs()` returns an empty file size and logs an error if determining the file size fails.
+    func test_fetchLogs_fileSize_error() async throws {
+        fileManager.attributesOfItemResult = .failure(BitwardenTestError.example)
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+
+        let logs = try await subject.fetchLogs()
+
+        XCTAssertEqual(logs[0].fileSize, "")
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let error = try XCTUnwrap(errorReporter.errors.first as? NSError)
+        XCTAssertEqual(error.domain, "General Error: Flight Recorder File Size Error")
+        XCTAssertEqual(error.code, BitwardenError.Code.generalError.rawValue)
+    }
+
+    /// `fetchLogs()` return an empty list if there's no flight recorder data on the device.
+    func test_fetchLogs_noData() async throws {
+        stateService.flightRecorderData = nil
+        let logs = try await subject.fetchLogs()
+        XCTAssertTrue(logs.isEmpty)
+    }
+
     /// `isEnabledPublisher()` publishes the enabled status of the flight recorder when there's an
     /// existing active log.
     func test_isEnabledPublisher_existingActiveLog() async throws {
-        let activeLog = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
 
         var initialPublisher = await subject.isEnabledPublisher().values.makeAsyncIterator()
@@ -171,7 +317,6 @@ class FlightRecorderTests: BitwardenTestCase {
     /// `isEnabledPublisher()` publishes the enabled status of the flight recorder where there's an
     /// existing active log.
     func test_isEnabledPublisher_existingFlightRecorderData() async throws {
-        let activeLog = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
 
         var isEnabled = false
@@ -197,7 +342,6 @@ class FlightRecorderTests: BitwardenTestCase {
 
     /// `log(_:)` appends the timestamped message to the active log.
     func test_log() async throws {
-        let activeLog = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
 
         await subject.log("Hello world!")
@@ -209,7 +353,6 @@ class FlightRecorderTests: BitwardenTestCase {
 
     /// `log(_:)` logs an error if appending the log to the file fails.
     func test_log_error() async throws {
-        let activeLog = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
         fileManager.appendDataResult = .failure(BitwardenTestError.example)
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
 
