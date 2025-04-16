@@ -37,8 +37,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             stateService: stateService,
             timeProvider: timeProvider
         )
-//        let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
-//        stateService.activeAccount = account
+        stateService.activeAccountId = "1"
     }
 
     override func tearDown() async throws {
@@ -535,15 +534,15 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["email-verification": .bool(true)],
+                featureStates: ["enable-pm-bwa-sync": .bool(true)],
                 gitHash: "75238191",
                 server: nil,
                 version: "2024.4.0"
             )
         )
-        appSettingsStore.overrideDebugFeatureFlag(name: "email-verification", value: false)
+        appSettingsStore.overrideDebugFeatureFlag(name: "enable-pm-bwa-sync", value: false)
         let flags = await subject.getDebugFeatureFlags()
-        let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "email-verification" })
+        let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "enable-pm-bwa-sync" })
         XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
     }
 
