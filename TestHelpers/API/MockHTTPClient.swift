@@ -3,20 +3,21 @@ import Networking
 
 /// An `HTTPClient` that can be used to return mocked responses.
 ///
-final class MockHTTPClient: HTTPClient {
+@MainActor
+public final class MockHTTPClient: HTTPClient {
     // MARK: Properties
 
     /// A list of download requests that have been received by the HTTP client.
-    var downloadRequests: [URLRequest] = []
+    public var downloadRequests: [URLRequest] = []
 
     /// A list of download results that will be returned in order for future requests.
-    var downloadResults: [Result<URL, Error>] = []
+    public var downloadResults: [Result<URL, Error>] = []
 
     /// A list of requests that have been received by the HTTP client.
-    var requests: [HTTPRequest] = []
+    public var requests: [HTTPRequest] = []
 
     /// Gets the next result or sets a single result for the HTTP client to return for the next request.
-    var result: Result<HTTPResponse, Error>? {
+    public var result: Result<HTTPResponse, Error>? {
         get {
             results.first
         }
@@ -30,7 +31,12 @@ final class MockHTTPClient: HTTPClient {
     }
 
     /// A list of results that will be returned in order for future requests.
-    var results: [Result<HTTPResponse, Error>] = []
+    public var results: [Result<HTTPResponse, Error>] = []
+
+    // MARK: Initializer
+
+    /// Public version of synthesized initializer.
+    public init() {}
 
     // MARK: Methods
 
@@ -39,7 +45,7 @@ final class MockHTTPClient: HTTPClient {
     /// - Parameter urlRequest: The url request to make on the client.
     /// - Returns: A mock download response for the request, if one exists.
     ///
-    func download(from urlRequest: URLRequest) async throws -> URL {
+    public func download(from urlRequest: URLRequest) async throws -> URL {
         downloadRequests.append(urlRequest)
 
         guard !downloadResults.isEmpty else { throw MockHTTPClientError.noResultForDownloadRequest }
@@ -53,7 +59,7 @@ final class MockHTTPClient: HTTPClient {
     /// - Parameter request: The request to make on the client.
     /// - Returns: A mock response for the request, if one exists.
     ///
-    func send(_ request: HTTPRequest) async throws -> HTTPResponse {
+    public func send(_ request: HTTPRequest) async throws -> HTTPResponse {
         requests.append(request)
 
         guard !results.isEmpty else { throw MockHTTPClientError.noResultForRequest }
@@ -64,7 +70,7 @@ final class MockHTTPClient: HTTPClient {
 }
 
 /// Errors thrown by `MockHTTPClient`.
-enum MockHTTPClientError: Error {
+public enum MockHTTPClientError: Error {
     /// There's no results set for the download request.
     case noResultForDownloadRequest
 
