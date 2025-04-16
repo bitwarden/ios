@@ -69,11 +69,11 @@ class FileManagerTests: BitwardenTestCase {
     func test_setIsExcludedFromBackup() throws {
         try Data().write(to: tempFileURL)
 
-        try tempFileURL.setIsExcludedFromBackup(true)
+        try subject.setIsExcludedFromBackup(true, to: tempFileURL)
         var values = try tempFileURL.resourceValues(forKeys: [.isExcludedFromBackupKey])
         XCTAssertEqual(values.isExcludedFromBackup, true)
 
-        try tempFileURL.setIsExcludedFromBackup(false)
+        try subject.setIsExcludedFromBackup(false, to: tempFileURL)
         values = try tempFileURL.resourceValues(forKeys: [.isExcludedFromBackupKey])
         XCTAssertEqual(values.isExcludedFromBackup, false)
     }
