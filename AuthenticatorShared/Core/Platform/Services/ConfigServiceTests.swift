@@ -37,8 +37,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             stateService: stateService,
             timeProvider: timeProvider
         )
-        let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
-        stateService.activeAccount = account
+//        let account = Account.fixture(profile: Account.AccountProfile.fixture(userId: "1"))
+//        stateService.activeAccount = account
     }
 
     override func tearDown() async throws {
@@ -552,11 +552,11 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
     func test_toggleDebugFeatureFlag() async throws {
         let flags = await subject.toggleDebugFeatureFlag(
-            name: FeatureFlag.emailVerification.rawValue,
+            name: FeatureFlag.enablePasswordManagerSync.rawValue,
             newValue: true
         )
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-        let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
+        let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
         XCTAssertTrue(flag.isEnabled)
     }
 
@@ -564,7 +564,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_refreshDebugFeatureFlags() async throws {
         let flags = await subject.refreshDebugFeatureFlags()
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-        let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
+        let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
         XCTAssertFalse(flag.isEnabled)
     }
 
