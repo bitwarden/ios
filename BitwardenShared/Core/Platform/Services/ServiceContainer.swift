@@ -485,6 +485,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let flightRecorder = DefaultFlightRecorder(
+            appInfoService: appInfoService,
+            errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider
         )

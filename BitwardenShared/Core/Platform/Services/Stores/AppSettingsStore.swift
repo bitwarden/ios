@@ -30,6 +30,9 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// The data used by the flight recorder for the current and any archived logs.
+    var flightRecorderData: FlightRecorderData? { get set }
+
     /// Whether the intro carousel screen has been shown.
     var introCarouselShown: Bool { get set }
 
@@ -731,6 +734,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
+        case flightRecorderData
         case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
@@ -807,6 +811,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .events(userId):
                 key = "events_\(userId)"
+            case .flightRecorderData:
+                key = "flightRecorderData"
             case let .hasPerformedSyncAfterLogin(userId):
                 key = "hasPerformedSyncAfterLogin_\(userId)"
             case .introCarouselShown:
@@ -901,6 +907,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
+    }
+
+    var flightRecorderData: FlightRecorderData? {
+        get { fetch(for: .flightRecorderData) }
+        set { store(newValue, for: .flightRecorderData) }
     }
 
     var introCarouselShown: Bool {

@@ -428,6 +428,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertNil(subject.debugFeatureFlag(name: ""))
     }
 
+    /// `flightRecorderData` returns `nil` if there isn't any previously stored flight recorder data.
+    func test_flightRecorderData_isInitiallyNil() {
+        XCTAssertNil(subject.flightRecorderData)
+    }
+
+    /// `flightRecorderData` can be used to get and set the flight recorder data.
+    func test_flightRecorderData_withValue() throws {
+        let flightRecorderData = FlightRecorderData(
+            activeLog: FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now),
+            archivedLogs: []
+        )
+        subject.flightRecorderData = flightRecorderData
+
+        let data = try XCTUnwrap(
+            userDefaults.string(forKey: "bwPreferencesStorage:flightRecorderData")?
+                .data(using: .utf8)
+        )
+        let decodedData = try JSONDecoder().decode(FlightRecorderData.self, from: data)
+        XCTAssertEqual(decodedData, flightRecorderData)
+
+        subject.flightRecorderData = nil
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:flightRecorderData"))
+    }
+
     /// `hasPerformedSyncAfterLogin(userId:)` returns `false` if there isn't a previously stored value.
     func test_hasPerformedSyncAfterLogin_initialValue() {
         XCTAssertFalse(subject.hasPerformedSyncAfterLogin(userId: "0"))
