@@ -1,15 +1,134 @@
 name: CI / Password Manager
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
+    inputs:
+      build-variant:
+        description: "Build Variant"
+        required: true
+        default: "Beta"
+        type: choice
+        options:
+          - Beta
+          - Production
+      build-mode:
+        description: "Build Mode"
+        required: true
+        default: "Device"
+        type: choice
+        options:
+          - Device
+          - Simulator
+      version-name:
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      version-number:
+        description: "Version Number Override - e.g. '1021'"
+        type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
+      patch_version: #TODO: remove or replace with boolean to control
+        description: "Patch Version Override - e.g. '999'"
+        type: string
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+        default: true
+      xcode-version:
+          description: "Xcode Version Override - e.g. '15.2'"
+          type: string
 
 jobs:
+  version:
+    name: Calculate Version Name and Number
+    uses: ${{ github.server_url }}/${{ github.repository }}/.github/workflows/_version.yml@main
+    with:
+      base_version_number: 2000
+      version_name: ${{ inputs.version-name }}
+      version_number: ${{ inputs.version-number }}
+      patch_version: ${{ inputs.patch_version }}
+    secrets: inherit
+  resolve-values:
+    name: "Resolve values"
+    runs-on: ubuntu-22.04
+    outputs:
+      version_name: ${{ steps.version_info.outputs.version_name }}
+      version_number: ${{ steps.version_info.outputs.version_number }}
+      xcode_version: ${{ steps.xcode_version.outputs.xcode_version }}
+      distribute_to_testflight: ${{ env.DISTRIBUTE_TO_TESTFLIGHT }}
+      internal_beta_version_name: ${{ steps.internal_versions.outputs.internal_beta_version_name}}
+    steps:
+      - name: Log inputs to job summary
+        run: |
+          echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+      - name: Calculate version
+        if: ${{ inputs.version-name == '' || inputs.version-number == '' }}
+        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
+        id: dispatch-version
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: ios
+          owner: bitwarden
+          workflow: _version.yml
+          workflow_inputs: '{"base_version_number": "1500", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
+
+      - name: Read version info
+        id: version_info
+        run: |
+          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
+          if [ ! -f version-info/version_info.json ]; then
+            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
+            json='{
+              "version_number": "${{ inputs.build-number }}",
+              "version_name": "${{ inputs.build-version }}"
+            }'
+
+            # file will be used by the upload step
+            mkdir version-info
+            echo "$json" > version-info/version_info.json
+          else
+              echo "::notice::version-version.json found!"
+          fi
+
+          content=$(cat version-info/version_info.json)
+          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
+          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
+
+      - name: Upload version info artifact
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: version-info
+          path: version-info/version_info.json
+
   build-manual:
     name: Build Manual
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: ${{ github.server_url }}/${{ github.repository }}/.github/workflows/_build-any.yml@main
+    with:
+      environment: ${{ inputs.environment }}
+      version-name: ${{ inputs.version-name }}
+      version-number: ${{ inputs.version-number }}
+      distribute: ${{ inputs.distribute }}
+  build-public:
+    name: Build CI
+    if: ${{ github.event_name == 'push' }}
+    uses: ${{ github.server_url }}/${{ github.repository }}/.github/workflows/_build-any.yml@main
     strategy:
       matrix:
-        env: [bwpm_prod]
+        env: [bwpm_prod, bwpm_beta]
     with:
       environment: ${{ matrix.env }}
+      version-name: "2025.3.0"
+      version-number: "${{ github.run_number }}"
+      distribute: ${{ inputs.distribute }}
     secrets: inherit
