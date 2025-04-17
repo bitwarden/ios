@@ -10,11 +10,20 @@ extension CipherListView {
         key: String? = nil,
         name: String = "Example",
         subtitle: String = "email@example.com",
-        type: BitwardenSdk.CipherListViewType = .login(LoginListView(hasFido2: false, totp: nil, uris: nil)),
+        type: BitwardenSdk.CipherListViewType = .login(
+            LoginListView(
+                fido2Credentials: nil,
+                hasFido2: false,
+                username: nil,
+                totp: nil,
+                uris: nil
+            )
+        ),
         favorite: Bool = true,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
         organizationUseTotp: Bool = false,
         edit: Bool = false,
+        permissions: BitwardenSdk.CipherPermissions? = nil,
         viewPassword: Bool = true,
         attachments: UInt32 = 0,
         creationDate: Date = Date(),
@@ -34,6 +43,7 @@ extension CipherListView {
             reprompt: reprompt,
             organizationUseTotp: organizationUseTotp,
             edit: edit,
+            permissions: permissions,
             viewPassword: viewPassword,
             attachments: attachments,
             creationDate: creationDate,

@@ -346,7 +346,12 @@ extension DefaultCipherService {
         let userId = try await stateService.getActiveAccountId()
 
         // Update the cipher in the backend.
-        var response = try await cipherAPIService.updateCipher(cipher)
+        var response: CipherDetailsResponseModel = if cipher.edit {
+            try await cipherAPIService.updateCipher(cipher)
+        } else {
+            // if the cipher is not editable, update the favorite status and folder only.
+            try await cipherAPIService.updateCipherPreference(cipher)
+        }
 
         // The API doesn't return the collectionIds, so manually add them back.
         response.collectionIds = cipher.collectionIds

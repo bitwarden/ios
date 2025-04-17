@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 /// A protocol for the service that handles common client functionality such as encryption and

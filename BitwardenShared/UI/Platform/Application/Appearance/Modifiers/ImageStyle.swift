@@ -111,6 +111,24 @@ extension ImageStyle {
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)
     }
+
+    /// An `ImageStyle` for applying common properties for icons within a full screen view.
+    ///
+    /// - Size: 36x36pt
+    /// - Color: Defaults to `Asset.Colors.textSecondary`
+    ///
+    /// - Parameters:
+    ///   - color: The foreground color of the image. Defaults to `Asset.Colors.illustrationOutline`.
+    ///   - scaleWithFont: Whether the image should scale with font size changes.
+    ///   - size: The size of the icon.
+    ///
+    static func viewIcon(
+        color: Color = Asset.Colors.illustrationOutline.swiftUIColor,
+        scaleWithFont: Bool = true,
+        size: CGFloat = 36
+    ) -> ImageStyle {
+        ImageStyle(color: color, scaleWithFont: scaleWithFont, width: size, height: size)
+    }
 }
 
 // MARK: - Image

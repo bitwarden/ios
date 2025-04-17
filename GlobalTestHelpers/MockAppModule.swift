@@ -1,3 +1,5 @@
+import BitwardenKit
+
 @testable import BitwardenShared
 
 // MARK: - MockAppModule
@@ -167,7 +169,7 @@ class MockAppModule:
     }
 
     func makeTabCoordinator( // swiftlint:disable:this function_parameter_count
-        errorReporter _: BitwardenShared.ErrorReporter,
+        errorReporter _: ErrorReporter,
         rootNavigator _: BitwardenShared.RootNavigator,
         settingsDelegate _: BitwardenShared.SettingsCoordinatorDelegate,
         tabNavigator _: BitwardenShared.TabNavigator,

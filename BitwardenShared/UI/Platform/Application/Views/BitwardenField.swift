@@ -23,6 +23,9 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
     /// content automatically has the `AccessoryButtonStyle` applied to it.
     var accessoryContent: AccessoryContent?
 
+    /// Whether the view allows user interaction.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
     // MARK: View
 
     var body: some View {
@@ -32,7 +35,10 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
             footerView()
         }
         .padding(.leading, 16)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
+        .background(
+            isEnabled ? Asset.Colors.backgroundSecondary.swiftUIColor :
+                Asset.Colors.backgroundSecondaryDisabled.swiftUIColor
+        )
         .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 
@@ -78,7 +84,11 @@ struct BitwardenField<Content: View, AccessoryContent: View, FooterContent: View
                             includeLinePadding: false,
                             includeLineSpacing: false
                         )
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .foregroundColor(
+                            isEnabled
+                                ? Asset.Colors.textSecondary.swiftUIColor :
+                                Asset.Colors.textDisabled.swiftUIColor
+                        )
                         .accessibilityIdentifier(titleAccessibilityIdentifier ?? title)
                 }
 

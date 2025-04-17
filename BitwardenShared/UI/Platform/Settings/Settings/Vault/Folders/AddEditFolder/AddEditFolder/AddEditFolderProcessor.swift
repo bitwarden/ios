@@ -23,7 +23,8 @@ protocol AddEditFolderDelegate: AnyObject {
 final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFolderAction, AddEditFolderEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasSettingsRepository
 
     // MARK: Properties
@@ -99,9 +100,9 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
             coordinator.navigate(to: .dismiss)
             delegate?.folderDeleted()
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.deleteFolder(withID: id)
-            })
+            }
             services.errorReporter.log(error: error)
         }
     }
@@ -133,9 +134,9 @@ final class AddEditFolderProcessor: StateProcessor<AddEditFolderState, AddEditFo
         } catch let error as InputValidationError {
             coordinator.showAlert(Alert.inputValidationAlert(error: error))
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.handleSaveTapped()
-            })
+            }
             services.errorReporter.log(error: error)
         }
     }

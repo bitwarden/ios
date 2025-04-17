@@ -1,6 +1,6 @@
 /// A `TokenProvider` handles getting an access token and refreshing it when necessary.
 ///
-public protocol TokenProvider {
+public protocol TokenProvider: Sendable {
     /// Gets the current access token.
     ///
     /// - Returns: The current access token.

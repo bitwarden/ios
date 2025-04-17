@@ -2,7 +2,7 @@ import Foundation
 
 /// A protocol for a networking client that performs HTTP requests.
 ///
-public protocol HTTPClient {
+public protocol HTTPClient: Sendable {
     /// Download and store the data from a `URLRequest`.
     ///
     /// - Parameter urlRequest: The `URLRequest` where the downloadable data is located.

@@ -1,4 +1,5 @@
 import AuthenticatorShared
+import BitwardenKit
 import FirebaseCore
 import FirebaseCrashlytics
 
@@ -29,5 +30,19 @@ final class CrashlyticsErrorReporter: ErrorReporter {
         guard !error.isNetworkingError else { return }
 
         Crashlytics.crashlytics().record(error: error)
+    }
+
+    func setRegion(_ region: String, isPreAuth: Bool) {
+        guard isEnabled else {
+            return
+        }
+        Crashlytics.crashlytics().setCustomValue(region, forKey: isPreAuth ? "PreAuthRegion" : "Region")
+    }
+
+    func setUserId(_ userId: String?) {
+        guard isEnabled else {
+            return
+        }
+        Crashlytics.crashlytics().setUserID(userId)
     }
 }

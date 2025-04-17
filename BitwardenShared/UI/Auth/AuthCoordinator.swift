@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import OSLog
 import SwiftUI
 import UIKit
@@ -51,6 +52,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         & HasConfigService
         & HasDeviceAPIService
         & HasEnvironmentService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasGeneratorRepository
         & HasNFCReaderService

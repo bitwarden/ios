@@ -22,6 +22,7 @@ final class MockStackNavigator: StackNavigator {
     }
 
     var actions: [NavigationAction] = []
+    var alertOnDismissed: (() -> Void)?
     var alerts: [BitwardenShared.Alert] = []
     var isEmpty = true
     var isNavigationBarHidden = false
@@ -74,6 +75,7 @@ final class MockStackNavigator: StackNavigator {
 
     func present(_ alert: BitwardenShared.Alert, onDismissed: (() -> Void)?) {
         alerts.append(alert)
+        alertOnDismissed = onDismissed
     }
 
     func present<Content: View>(

@@ -16,6 +16,9 @@ struct ExpandableContent<Content: View>: View {
     /// A binding to determine if the content in the section is expanded or collapsed.
     @Binding var isExpanded: Bool
 
+    /// A value indicating whether the expandable content is currently enabled or disabled.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
     /// The title of the button used to expand or collapse the content.
     let title: String
 
@@ -49,7 +52,11 @@ struct ExpandableContent<Content: View>: View {
                     .rotationEffect(isExpanded ? Angle(degrees: 180) : .zero)
             }
             .multilineTextAlignment(.leading)
-            .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
+            .foregroundStyle(
+                isEnabled
+                    ? Asset.Colors.textInteraction.swiftUIColor :
+                    Asset.Colors.textDisabled.swiftUIColor
+            )
         }
         .accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier(buttonAccessibilityIdentifier)

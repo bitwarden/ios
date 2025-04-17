@@ -62,55 +62,27 @@ class URLTests: BitwardenTestCase {
         try XCTAssertFalse(XCTUnwrap(URL(string: "https://example.com")).isApp)
     }
 
-    /// `sanitized` prepends a https scheme if the URL is missing a scheme.
-    func test_sanitized_missingScheme() {
-        XCTAssertEqual(
-            URL(string: "bitwarden.com")?.sanitized,
-            URL(string: "https://bitwarden.com")
-        )
-        XCTAssertEqual(
-            URL(string: "example.com")?.sanitized,
-            URL(string: "https://example.com")
-        )
-        XCTAssertEqual(
-            URL(string: "vault.bitwarden.com/#/vault")?.sanitized,
-            URL(string: "https://vault.bitwarden.com/#/vault")
-        )
-        XCTAssertEqual(
-            URL(string: "google.com/search?q=bitwarden")?.sanitized,
-            URL(string: "https://google.com/search?q=bitwarden")
-        )
-    }
+    /// `setIsExcludedFromBackup(_:)` sets whether the file is excluded from backups.
+    func test_setIsExcludedFromBackup() throws {
+        let fileName = UUID().uuidString
+        let url = try XCTUnwrap(URL(fileURLWithPath: NSTemporaryDirectory())).appendingPathComponent(fileName)
+        try Data().write(to: url)
 
-    /// `sanitized` removes a trailing slash from the URL.
-    func test_sanitized_trailingSlash() {
-        XCTAssertEqual(
-            URL(string: "https://bitwarden.com/")?.sanitized,
-            URL(string: "https://bitwarden.com")
-        )
-        XCTAssertEqual(
-            URL(string: "example.com/")?.sanitized,
-            URL(string: "https://example.com")
-        )
-    }
+        try XCTAssertFalse(url.isExcludedFromBackups())
 
-    /// `sanitized` returns the URL unchanged if it's valid and contains a scheme.
-    func test_sanitized_validURL() {
-        XCTAssertEqual(
-            URL(string: "https://bitwarden.com")?.sanitized,
-            URL(string: "https://bitwarden.com")
-        )
-        XCTAssertEqual(
-            URL(string: "http://bitwarden.com")?.sanitized,
-            URL(string: "http://bitwarden.com")
-        )
-        XCTAssertEqual(
-            URL(string: "https://vault.bitwarden.com/#/vault")?.sanitized,
-            URL(string: "https://vault.bitwarden.com/#/vault")
-        )
-        XCTAssertEqual(
-            URL(string: "https://google.com/search?q=bitwarden")?.sanitized,
-            URL(string: "https://google.com/search?q=bitwarden")
-        )
+        try url.setIsExcludedFromBackup(true)
+        try XCTAssertTrue(url.isExcludedFromBackups())
+
+        try url.setIsExcludedFromBackup(false)
+        try XCTAssertFalse(url.isExcludedFromBackups())
+
+        try FileManager.default.removeItem(at: url)
+    }
+}
+
+private extension URL {
+    func isExcludedFromBackups() throws -> Bool {
+        let values = try resourceValues(forKeys: [.isExcludedFromBackupKey])
+        return values.isExcludedFromBackup ?? false
     }
 }

@@ -5,7 +5,7 @@ import Foundation
 
 /// Report with traceability about Fido2 flows.
 public struct Fido2DebuggingReport {
-    var allCredentialsResult: Result<[BitwardenSdk.CipherView], Error>?
+    var allCredentialsResult: Result<[BitwardenSdk.CipherListView], Error>?
     var findCredentialsResult: Result<[BitwardenSdk.CipherView], Error>?
     var getAssertionRequest: GetAssertionRequest?
     var getAssertionResult: Result<GetAssertionResult, Error>?
@@ -25,7 +25,7 @@ public struct Fido2DebuggingReportBuilder {
         report
     }
 
-    mutating func withAllCredentialsResult(_ result: Result<[BitwardenSdk.CipherView], Error>) {
+    mutating func withAllCredentialsResult(_ result: Result<[BitwardenSdk.CipherListView], Error>) {
         report.allCredentialsResult = result
     }
 

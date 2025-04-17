@@ -4,12 +4,14 @@ import Foundation
 
 /// The processor used to manage state and handle actions for the `AboutView`.
 ///
-final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
+final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect> {
     // MARK: Types
 
     typealias Services = HasAppInfoService
+        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
+        & HasFlightRecorder
         & HasPasteboardService
 
     // MARK: Properties
@@ -47,6 +49,21 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
 
     // MARK: Methods
 
+    override func perform(_ effect: AboutEffect) async {
+        switch effect {
+        case .loadData:
+            await loadData()
+        case .streamFlightRecorderEnabled:
+            await streamFlightRecorderEnabled()
+        case let .toggleFlightRecorder(isOn):
+            if isOn {
+                coordinator.navigate(to: .enableFlightRecorder)
+            } else {
+                await services.flightRecorder.disableFlightRecorder()
+            }
+        }
+    }
+
     override func receive(_ action: AboutAction) {
         switch action {
         case .clearAppReviewURL:
@@ -74,6 +91,8 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
             services.errorReporter.isEnabled = isOn
         case .versionTapped:
             handleVersionTapped()
+        case .viewFlightRecorderLogsTapped:
+            coordinator.navigate(to: .flightRecorderLogs)
         case .webVaultTapped:
             coordinator.showAlert(.webVaultAlert {
                 self.state.url = self.services.environmentService.webVaultURL
@@ -87,5 +106,17 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, Void> {
     private func handleVersionTapped() {
         services.pasteboardService.copy(services.appInfoService.appInfoString)
         state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.appInfo))
+    }
+
+    /// Load any initial data for the view.
+    private func loadData() async {
+        state.isFlightRecorderFeatureFlagEnabled = await services.configService.getFeatureFlag(.flightRecorder)
+    }
+
+    /// Streams the enabled status of the flight recorder.
+    private func streamFlightRecorderEnabled() async {
+        for await isEnabled in await services.flightRecorder.isEnabledPublisher().values {
+            state.isFlightRecorderToggleOn = isEnabled
+        }
     }
 }

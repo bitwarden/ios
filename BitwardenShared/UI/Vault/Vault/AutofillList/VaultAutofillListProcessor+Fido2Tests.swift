@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 
 import AuthenticationServices
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -207,7 +208,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         waitFor(!errorReporter.errors.isEmpty)
 
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
@@ -652,7 +653,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
 
         waitFor(!errorReporter.errors.isEmpty)
 
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
@@ -685,6 +686,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     /// `vaultItemTapped(_:)` with Fido2 credential doesn't call the `Fido2UserInterfaceHelper`
     /// that a cipher has been picked for creation when there is no creation request.
     @available(iOSApplicationExtension 17.0, *)
+    @MainActor
     func test_perform_vaultItemTapped_fido2PickedWhenNotInCreation() async {
         let vaultListItem = VaultListItem(
             cipherView: CipherView.fixture(),

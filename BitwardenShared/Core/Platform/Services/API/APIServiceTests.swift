@@ -1,5 +1,7 @@
+import TestHelpers
 import XCTest
 
+@testable import BitwardenKit
 @testable import BitwardenShared
 @testable import Networking
 

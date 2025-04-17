@@ -1,3 +1,4 @@
+import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -8,7 +9,8 @@ import Foundation
 class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, AttachmentsEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasVaultRepository
 
     // MARK: Private Properties
@@ -91,7 +93,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
             state.cipher = updatedCipher
             state.toast = Toast(title: Localizations.attachmentDeleted)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -107,7 +109,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
                 coordinator.showAlert(.defaultAlert(title: Localizations.premiumRequired))
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -163,7 +165,7 @@ class AttachmentsProcessor: StateProcessor<AttachmentsState, AttachmentsAction, 
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

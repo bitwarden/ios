@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -205,7 +206,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     @MainActor
     func test_perform_sendListItemRow_deletePressed_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
-        sendRepository.deleteSendResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        sendRepository.deleteSendResult = .failure(error)
         await subject.perform(.sendListItemRow(.deletePressed(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -214,8 +216,9 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
         sendRepository.deleteSendResult = .success(())
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try await errorAlert.tapAction(title: Localizations.tryAgain)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,
@@ -248,7 +251,8 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     @MainActor
     func test_perform_sendListItemRow_removePassword_networkError() async throws {
         let sendView = SendView.fixture(id: "SEND_ID")
-        sendRepository.removePasswordFromSendResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        sendRepository.removePasswordFromSendResult = .failure(error)
         await subject.perform(.sendListItemRow(.removePassword(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -257,8 +261,9 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 
         sendRepository.removePasswordFromSendResult = .success(sendView)
-        let errorAlert = try XCTUnwrap(coordinator.alertShown.last)
-        try await errorAlert.tapAction(title: Localizations.tryAgain)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(
             coordinator.loadingOverlaysShown.last?.title,

@@ -1,8 +1,11 @@
+import BitwardenKit
+import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
 
+@MainActor
 final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -38,8 +41,8 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         stateService.activeAccount = account
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         appSettingsStore = nil
         client = nil
@@ -109,7 +112,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(response?.gitHash, "75238192")
 
         try await waitForAsync {
-            self.client.requests.count == 1
+            self.stateService.serverConfig["1"]?.gitHash == "75238191"
         }
 
         XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
@@ -135,7 +138,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(response?.gitHash, "75238192")
 
         try await waitForAsync {
-            self.client.requests.count == 1
+            !self.errorReporter.errors.isEmpty
         }
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
@@ -166,7 +169,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(response)
 
         try await waitForAsync {
-            self.client.requests.count == 1
+            self.stateService.serverConfig["1"] != nil
         }
 
         XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
@@ -250,7 +253,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(response?.gitHash, "75238192")
 
         try await waitForAsync {
-            self.client.requests.count == 1
+            self.stateService.preAuthServerConfig?.gitHash == "75238191"
         }
 
         XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")
@@ -277,7 +280,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(response?.gitHash, "75238192")
 
         try await waitForAsync {
-            self.client.requests.count == 1
+            !self.errorReporter.errors.isEmpty
         }
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
@@ -311,7 +314,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertNil(response)
 
         try await waitForAsync {
-            self.client.requests.count == 1
+            self.stateService.preAuthServerConfig != nil
         }
 
         XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")

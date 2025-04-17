@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import CoreData
 import XCTest

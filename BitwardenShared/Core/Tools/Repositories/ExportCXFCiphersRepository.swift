@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import BitwardenSdk
 
 /// Protocol for a repository to handle exporting ciphers in Credential Exchange Format.

@@ -58,7 +58,9 @@ class ExportVaultViewTests: BitwardenTestCase {
         let button = try subject.inspect().find(button: Localizations.export)
         try button.tap()
 
-        XCTAssertEqual(processor.dispatchedActions.last, .exportVaultTapped)
+        waitFor { !processor.effects.isEmpty }
+
+        XCTAssertEqual(processor.effects.last, .exportVaultTapped)
     }
 
     /// Updating the value of the file format sends the  `.fileFormatTypeChanged()` action.

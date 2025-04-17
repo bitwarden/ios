@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 // swiftlint:disable file_length
@@ -20,6 +21,7 @@ typealias Services = HasAPIService
     & HasConfigService
     & HasDeviceAPIService
     & HasEnvironmentService
+    & HasErrorReportBuilder
     & HasErrorReporter
     & HasEventService
     & HasExportCXFCiphersRepository
@@ -27,6 +29,7 @@ typealias Services = HasAPIService
     & HasFido2CredentialStore
     & HasFido2UserInterfaceHelper
     & HasFileAPIService
+    & HasFlightRecorder
     & HasGeneratorRepository
     & HasImportCiphersRepository
     & HasLocalAuthService
@@ -173,6 +176,13 @@ protocol HasEnvironmentService {
     var environmentService: EnvironmentService { get }
 }
 
+/// Protocol for an object that provides an `ErrorReportBuilder`.
+///
+protocol HasErrorReportBuilder {
+    /// A helper for building an error report containing the details of an error that occurred.
+    var errorReportBuilder: ErrorReportBuilder { get }
+}
+
 /// Protocol for an object that provides an `ErrorReporter`.
 ///
 protocol HasErrorReporter {
@@ -221,6 +231,13 @@ protocol HasFido2UserInterfaceHelper {
 protocol HasFileAPIService {
     /// The service used by the application to make file-related API requests.
     var fileAPIService: FileAPIService { get }
+}
+
+/// Protocol for an object that provides a `FlightRecorder`.
+///
+protocol HasFlightRecorder {
+    /// The service used by the application for recording temporary debug logs.
+    var flightRecorder: FlightRecorder { get }
 }
 
 /// Protocol for an object that provides a `GeneratorRepository`.

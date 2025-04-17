@@ -5,9 +5,6 @@ enum ExportVaultAction: Equatable {
     /// Dismiss the sheet.
     case dismiss
 
-    /// The export vault button was tapped.
-    case exportVaultTapped
-
     /// The file format type was changed.
     case fileFormatTypeChanged(ExportFormatType)
 

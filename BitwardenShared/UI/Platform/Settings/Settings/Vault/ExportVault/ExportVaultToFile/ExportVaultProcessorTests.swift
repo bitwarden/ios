@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
@@ -55,9 +57,10 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.validatePasswordResult = .success(false)
         subject.state.masterPasswordOrOtpText = "password"
 
-        subject.receive(.exportVaultTapped)
-        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
-        await exportAction.handler?(exportAction, [])
+        await subject.perform(.exportVaultTapped)
+
+        let confirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await confirmationAlert.tapAction(title: Localizations.exportVault)
 
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.invalidMasterPassword))
     }
@@ -68,11 +71,12 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
         subject.state.masterPasswordOrOtpText = "password"
 
-        subject.receive(.exportVaultTapped)
-        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
-        await exportAction.handler?(exportAction, [])
+        await subject.perform(.exportVaultTapped)
 
-        XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
+        let confirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await confirmationAlert.tapAction(title: Localizations.exportVault)
+
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
     }
 
     /// `loadData` loads the initial data for the view.
@@ -106,7 +110,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         await subject.perform(.sendCodeTapped)
 
-        XCTAssertEqual(coordinator.alertShown, [.networkResponseError(BitwardenTestError.example)])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
@@ -122,7 +126,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `.receive()` with  `.exportVaultTapped` shows the confirm alert for encrypted formats and
     /// exports the vault.
     @MainActor
-    func test_receive_exportVaultTapped_encrypted() throws {
+    func test_receive_exportVaultTapped_encrypted() async throws {
         let testURL = URL(string: "www.bitwarden.com")!
         exportService.exportVaultContentResult = .success("")
         exportService.writeToFileResult = .success(testURL)
@@ -130,59 +134,57 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.filePasswordText = "file password"
         subject.state.filePasswordConfirmationText = "file password"
         subject.state.masterPasswordOrOtpText = "password"
-        subject.receive(.exportVaultTapped)
+
+        await subject.perform(.exportVaultTapped)
 
         // Confirm that the correct alert is displayed.
-        XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: true, action: {}))
+        let confirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(confirmationAlert, .confirmExportVault(encrypted: true, action: {}))
 
-        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
-        let task = Task {
-            await exportAction.handler?(exportAction, [])
-        }
-        waitFor(!coordinator.routes.isEmpty)
-        task.cancel()
+        try await confirmationAlert.tapAction(title: Localizations.exportVault)
+
         XCTAssertEqual(exportService.exportVaultContentsFormat, .encryptedJson(password: "file password"))
         XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
     }
 
     /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
     @MainActor
-    func test_receive_exportVaultTapped_encrypted_error() throws {
+    func test_receive_exportVaultTapped_encrypted_error() async throws {
         exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .jsonEncrypted
         subject.state.filePasswordText = "file password"
         subject.state.filePasswordConfirmationText = "file password"
         subject.state.masterPasswordOrOtpText = "password"
-        subject.receive(.exportVaultTapped)
+
+        await subject.perform(.exportVaultTapped)
 
         // Select the alert action to export.
-        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
-        let task = Task {
-            await exportAction.handler?(exportAction, [])
-        }
-        waitFor(!errorReporter.errors.isEmpty)
-        task.cancel()
+        let confirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(confirmationAlert, .confirmExportVault(encrypted: true, action: {}))
+
+        try await confirmationAlert.tapAction(title: Localizations.exportVault)
+
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
     /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password fields don't match.
     @MainActor
-    func test_receive_exportVaultTapped_encrypted_filePasswordMismatch() {
+    func test_receive_exportVaultTapped_encrypted_filePasswordMismatch() async {
         subject.state.fileFormat = .jsonEncrypted
         subject.state.filePasswordText = "filePassword"
         subject.state.filePasswordConfirmationText = "not the file password"
 
-        subject.receive(.exportVaultTapped)
+        await subject.perform(.exportVaultTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .passwordsDontMatch)
     }
 
     /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password is missing.
     @MainActor
-    func test_receive_exportVaultTapped_encrypted_missingFilePassword() {
+    func test_receive_exportVaultTapped_encrypted_missingFilePassword() async {
         subject.state.fileFormat = .jsonEncrypted
 
-        subject.receive(.exportVaultTapped)
+        await subject.perform(.exportVaultTapped)
 
         XCTAssertEqual(
             coordinator.alertShown.last,
@@ -196,11 +198,11 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `.receive()` with  `.exportVaultTapped` shows an alert if the file password confirmation is missing.
     @MainActor
-    func test_receive_exportVaultTapped_encrypted_missingFilePasswordConfirmation() {
+    func test_receive_exportVaultTapped_encrypted_missingFilePasswordConfirmation() async {
         subject.state.fileFormat = .jsonEncrypted
         subject.state.filePasswordText = "file password"
 
-        subject.receive(.exportVaultTapped)
+        await subject.perform(.exportVaultTapped)
 
         XCTAssertEqual(
             coordinator.alertShown.last,
@@ -214,8 +216,8 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `.receive()` with  `.exportVaultTapped` shows an alert if the master password is missing.
     @MainActor
-    func test_receive_exportVaultTapped_missingMasterPassword() {
-        subject.receive(.exportVaultTapped)
+    func test_receive_exportVaultTapped_missingMasterPassword() async {
+        await subject.perform(.exportVaultTapped)
 
         XCTAssertEqual(
             coordinator.alertShown.last,
@@ -229,10 +231,10 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `.receive()` with `.exportVaultTapped` shows the confirm alert for unencrypted formats.
     @MainActor
-    func test_receive_exportVaultTapped_unencrypted() {
+    func test_receive_exportVaultTapped_unencrypted() async {
         subject.state.fileFormat = .json
         subject.state.masterPasswordOrOtpText = "password"
-        subject.receive(.exportVaultTapped)
+        await subject.perform(.exportVaultTapped)
 
         // Confirm that the correct alert is displayed.
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
@@ -240,39 +242,35 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
 
     /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
     @MainActor
-    func test_receive_exportVaultTapped_unencrypted_error() throws {
+    func test_receive_exportVaultTapped_unencrypted_error() async throws {
         exportService.exportVaultContentResult = .failure(BitwardenTestError.example)
         subject.state.fileFormat = .csv
         subject.state.masterPasswordOrOtpText = "password"
-        subject.receive(.exportVaultTapped)
+
+        await subject.perform(.exportVaultTapped)
 
         // Select the alert action to export.
-        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
-        let task = Task {
-            await exportAction.handler?(exportAction, [])
-        }
-        waitFor(!errorReporter.errors.isEmpty)
-        task.cancel()
+        let confirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await confirmationAlert.tapAction(title: Localizations.exportVault)
+
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
     /// `.receive()` with  `.exportVaultTapped` passes a file url to the coordinator on success.
     @MainActor
-    func test_receive_exportVaultTapped_unencrypted_success() throws {
+    func test_receive_exportVaultTapped_unencrypted_success() async throws {
         let testURL = URL(string: "www.bitwarden.com")!
         exportService.exportVaultContentResult = .success("")
         exportService.writeToFileResult = .success(testURL)
         subject.state.fileFormat = .json
         subject.state.masterPasswordOrOtpText = "password"
-        subject.receive(.exportVaultTapped)
+
+        await subject.perform(.exportVaultTapped)
 
         // Select the alert action to export.
-        let exportAction = try XCTUnwrap(coordinator.alertShown.last?.alertActions.first)
-        let task = Task {
-            await exportAction.handler?(exportAction, [])
-        }
-        waitFor(!coordinator.routes.isEmpty)
-        task.cancel()
+        let confirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
+        try await confirmationAlert.tapAction(title: Localizations.exportVault)
+
         XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
     }
 
@@ -288,7 +286,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.filePasswordConfirmationText = "file password"
         subject.state.masterPasswordOrOtpText = "password"
 
-        subject.receive(.exportVaultTapped)
+        await subject.perform(.exportVaultTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: true, action: {}))
         try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)
@@ -310,7 +308,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.hasMasterPassword = false
         subject.state.masterPasswordOrOtpText = "otp"
 
-        subject.receive(.exportVaultTapped)
+        await subject.perform(.exportVaultTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
         try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)
@@ -331,7 +329,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         subject.state.hasMasterPassword = false
         subject.state.masterPasswordOrOtpText = "otp"
 
-        subject.receive(.exportVaultTapped)
+        await subject.perform(.exportVaultTapped)
 
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
         try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)

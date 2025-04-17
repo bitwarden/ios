@@ -1,3 +1,4 @@
+import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -14,6 +15,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
 
     typealias Services = HasAuthRepository
         & HasAuthService
+        & HasConfigService
         & HasErrorReporter
         & HasPolicyService
         & HasSettingsRepository
@@ -116,9 +118,9 @@ class UpdateMasterPasswordProcessor: StateProcessor<
                 await coordinator.handleEvent(.didCompleteAuth)
             }
         } catch {
-            coordinator.showAlert(.networkResponseError(error) {
+            await coordinator.showErrorAlert(error: error) {
                 await self.syncVault()
-            })
+            }
             services.errorReporter.log(error: error)
         }
     }
@@ -174,7 +176,7 @@ class UpdateMasterPasswordProcessor: StateProcessor<
         } catch let error as InputValidationError {
             coordinator.showAlert(.inputValidationAlert(error: error))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

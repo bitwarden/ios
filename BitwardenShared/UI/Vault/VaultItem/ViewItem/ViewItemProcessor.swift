@@ -1,3 +1,4 @@
+import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Foundation
 
@@ -10,6 +11,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
 
     typealias Services = HasAPIService
         & HasAuthRepository
+        & HasConfigService
+        & HasEnvironmentService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -77,7 +80,6 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
         self.itemId = itemId
         self.services = services
         super.init(state: state)
-
         Task {
             await self.services.rehydrationHelper.addRehydratableTarget(self)
         }
@@ -119,6 +121,8 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                 return
             }
             await showRestoreItemConfirmation()
+        case .toggleDisplayMultipleCollections:
+            toggleDisplayMultipleCollections()
         case .totpCodeExpired:
             await updateTOTPCode()
         }
@@ -307,7 +311,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -324,7 +328,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemSoftDeleted()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -461,7 +465,7 @@ private extension ViewItemProcessor {
                 self?.delegate?.itemRestored()
             })))
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }
@@ -519,7 +523,19 @@ private extension ViewItemProcessor {
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
                 let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
                 let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
+                var folder: FolderView?
+                if let folderId = cipher.folderId {
+                    folder = try await services.vaultRepository.fetchFolder(withId: folderId)
+                }
+                var organization: Organization?
+                if let orgId = cipher.organizationId {
+                    organization = try await services.vaultRepository.fetchOrganization(withId: orgId)
+                }
+                let showWebIcons = await services.stateService.getShowWebIcons()
 
+                let restrictCipherItemDeletionFlagEnabled: Bool = await services.configService.getFeatureFlag(
+                    .restrictCipherItemDeletion
+                )
                 var totpState = LoginTOTPState(cipher.login?.totp)
                 if let key = totpState.authKeyModel,
                    let updatedState = try? await services.vaultRepository.refreshTOTPCode(for: key) {
@@ -529,12 +545,17 @@ private extension ViewItemProcessor {
                 guard var newState = ViewItemState(
                     cipherView: cipher,
                     hasMasterPassword: hasMasterPassword,
-                    hasPremium: hasPremium
+                    hasPremium: hasPremium,
+                    iconBaseURL: services.environmentService.iconsURL,
+                    restrictCipherItemDeletionFlagEnabled: restrictCipherItemDeletionFlagEnabled
                 ) else { continue }
 
                 if case var .data(itemState) = newState.loadingState {
                     itemState.loginState.totpState = totpState
-                    itemState.collections = collections
+                    itemState.allUserCollections = collections
+                    itemState.folderName = folder?.name
+                    itemState.organizationName = organization?.name
+                    itemState.showWebIcons = showWebIcons
                     newState.loadingState = .data(itemState)
                 }
                 newState.hasVerifiedMasterPassword = state.hasVerifiedMasterPassword
@@ -543,6 +564,18 @@ private extension ViewItemProcessor {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
+
+    /// Toggles whether to show one or multiple collections the cipher belongs to, if any.
+    private func toggleDisplayMultipleCollections() {
+        guard case var .data(cipherState) = state.loadingState,
+              !cipherState.cipherCollections.isEmpty else {
+            return
+        }
+
+        cipherState.isShowingMultipleCollections.toggle()
+
+        state.loadingState = .data(cipherState)
     }
 }
 

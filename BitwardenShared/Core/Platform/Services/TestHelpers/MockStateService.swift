@@ -1,3 +1,4 @@
+import BitwardenKit
 import Combine
 import Foundation
 
@@ -38,6 +39,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var environmentURLsError: Error?
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
+    var flightRecorderData: FlightRecorderData?
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var getHasPerformedSyncAfterLoginError: Error?
     var hasPerformedSyncAfterLogin = [String: Bool]()
@@ -249,6 +251,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
         return events[userId] ?? []
+    }
+
+    func getFlightRecorderData() async -> FlightRecorderData? {
+        flightRecorderData
     }
 
     func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool {
@@ -511,6 +517,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         self.events[userId] = events
     }
 
+    func setFlightRecorderData(_ data: FlightRecorderData?) async {
+        flightRecorderData = data
+    }
+
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         forcePasswordResetReason[userId] = reason
@@ -605,11 +615,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         ].pinProtectedUserKey = pin
     }
 
-    func setPreAuthEnvironmentURLs(_ urls: BitwardenShared.EnvironmentURLData) async {
+    func setPreAuthEnvironmentURLs(_ urls: EnvironmentURLData) async {
         preAuthEnvironmentURLs = urls
     }
 
-    func setAccountCreationEnvironmentURLs(urls: BitwardenShared.EnvironmentURLData, email: String) async {
+    func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async {
         accountCreationEnvironmentURLs[email] = urls
     }
 

@@ -24,7 +24,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 94fd09f0b73367071bc033987a1962fce85f5c76
+    revision: ce330bb3cb873c47041eb0e86f5c065b8799caa2
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -34,7 +34,7 @@ packages:
     exactVersion: 1.3.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.17.5
+    exactVersion: 1.18.3
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.0
@@ -222,6 +222,7 @@ targets:
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: ViewInspector
@@ -231,8 +232,8 @@ targets:
     type: app-extension
     platform: iOS
     configFiles:
-      Debug: Configs/BitwardenActionExtension.xcconfig
-      Release: Configs/BitwardenActionExtension.xcconfig
+      Debug: Configs/BitwardenActionExtension-Debug.xcconfig
+      Release: Configs/BitwardenActionExtension-Release.xcconfig
     settings:
       base:
         CODE_SIGN_ENTITLEMENTS: BitwardenActionExtension/Application/Support/BitwardenActionExtension.entitlements
@@ -410,6 +411,7 @@ targets:
     dependencies:
       - target: Bitwarden
       - target: BitwardenShared
+      - target: BitwardenKit/BitwardenKitMocks
       - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: SnapshotTesting

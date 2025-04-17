@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import PhotosUI
 import XCTest
 

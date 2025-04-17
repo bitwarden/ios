@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -121,7 +122,7 @@ final class VaultListProcessor: StateProcessor<
         }
     }
 
-    override func receive(_ action: VaultListAction) { // swiftlint:disable:this function_body_length
+    override func receive(_ action: VaultListAction) {
         switch action {
         case .addFolder:
             coordinator.navigate(to: .addFolder)

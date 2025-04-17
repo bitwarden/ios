@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Combine
 import Foundation
@@ -189,6 +190,12 @@ protocol StateService: AnyObject {
     /// - Returns: The events for the user
     ///
     func getEvents(userId: String?) async throws -> [EventData]
+
+    /// Gets the data for the flight recorder.
+    ///
+    /// - Returns: The flight recorder data.
+    ///
+    func getFlightRecorderData() async -> FlightRecorderData?
 
     /// Gets whether a sync has been done successfully after login. This is particular useful to trigger logic that
     /// needs to be executed right after login in and after the first successful sync.
@@ -534,6 +541,10 @@ protocol StateService: AnyObject {
     ///   - hasBeenPerformed: Whether a sync has been performed after login.
     ///   - userId: The user ID associated with the sync after login.
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool, userId: String?) async throws
+
+    /// Sets the data for the flight recorder.
+    ///
+    func setFlightRecorderData(_ data: FlightRecorderData?) async
 
     /// Sets whether the intro carousel screen has been shown.
     ///
@@ -1394,7 +1405,7 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         showWebIconsSubject = CurrentValueSubject(!appSettingsStore.disableWebIcons)
 
         Task {
-            for await activeUserId in self.appSettingsStore.activeAccountIdPublisher().values {
+            for await activeUserId in await self.appSettingsStore.activeAccountIdPublisher().values {
                 errorReporter.setUserId(activeUserId)
             }
         }
@@ -1551,6 +1562,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getEvents(userId: String?) async throws -> [EventData] {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.events(userId: userId)
+    }
+
+    func getFlightRecorderData() async -> FlightRecorderData? {
+        appSettingsStore.flightRecorderData
     }
 
     func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool {
@@ -1828,6 +1843,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setEvents(events, userId: userId)
+    }
+
+    func setFlightRecorderData(_ data: FlightRecorderData?) async {
+        appSettingsStore.flightRecorderData = data
     }
 
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {

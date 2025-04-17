@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 /// A protocol for the service that handles common client functionality such as encryption and
@@ -224,7 +225,7 @@ actor DefaultClientService: ClientService {
     /// - Returns: A user's client.
     ///
     private func client(for userId: String?, isPreAuth: Bool = false) async throws -> BitwardenSdkClient {
-        return clientBuilder.buildClient()
+        clientBuilder.buildClient()
     }
 
     /// Creates a new client and maps it to an ID.
@@ -345,4 +346,4 @@ extension Client: BitwardenSdkClient {
     func vault() -> VaultClientService {
         vault() as VaultClient
     }
-} // swiftlint:disable:this file_length
+}

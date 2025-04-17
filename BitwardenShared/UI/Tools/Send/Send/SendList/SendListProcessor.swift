@@ -8,7 +8,8 @@ import Foundation
 final class SendListProcessor: StateProcessor<SendListState, SendListAction, SendListEffect> {
     // MARK: Types
 
-    typealias Services = HasErrorReporter
+    typealias Services = HasConfigService
+        & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
         & HasSendRepository
@@ -117,10 +118,9 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
         do {
             try await services.sendRepository.fetchSync(forceSync: false)
         } catch {
-            let alert = Alert.networkResponseError(error) { [weak self] in
-                await self?.refresh()
+            await coordinator.showErrorAlert(error: error) {
+                await self.refresh()
             }
-            coordinator.showAlert(alert)
         }
     }
 
@@ -135,11 +135,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             coordinator.hideLoadingOverlay()
             state.toast = Toast(title: Localizations.sendDeleted)
         } catch {
-            let alert = Alert.networkResponseError(error) { [weak self] in
-                await self?.deleteSend(sendView)
-            }
             coordinator.hideLoadingOverlay()
-            coordinator.showAlert(alert)
+            await coordinator.showErrorAlert(error: error) {
+                await self.deleteSend(sendView)
+            }
         }
     }
 
@@ -160,11 +159,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             coordinator.hideLoadingOverlay()
             state.toast = Toast(title: Localizations.sendPasswordRemoved)
         } catch {
-            let alert = Alert.networkResponseError(error) { [weak self] in
-                await self?.removePassword(sendView)
-            }
             coordinator.hideLoadingOverlay()
-            coordinator.showAlert(alert)
+            await coordinator.showErrorAlert(error: error) {
+                await self.removePassword(sendView)
+            }
         }
     }
 

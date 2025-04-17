@@ -2,7 +2,7 @@ import Foundation
 
 /// A data model containing the details of an HTTP request to be performed.
 ///
-public struct HTTPRequest: Equatable {
+public struct HTTPRequest: Equatable, Sendable {
     // MARK: Properties
 
     /// Data to be sent in the body of the request.

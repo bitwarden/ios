@@ -1,3 +1,4 @@
+import BitwardenKit
 import OSLog
 
 /// An `ErrorReporter` that logs non-fatal errors to the console via OSLog.

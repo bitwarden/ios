@@ -7,7 +7,7 @@ import BitwardenSdk
 class PasswordHistoryCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Services = HasConfigService
+    typealias Services = HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasGeneratorRepository
         & HasPasteboardService

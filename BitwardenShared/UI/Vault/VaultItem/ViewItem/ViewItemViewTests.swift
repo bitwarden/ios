@@ -295,6 +295,24 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )))
     }
 
+    /// Tapping the toggle to display multiple collections dispatches the `.toggleDisplayMultipleCollections` effect.
+    @MainActor
+    func test_toggleDisplayMultipleCollectionsButton_tap() async throws {
+        var cipherState = loginState(collectionIds: ["1", "2"])
+        cipherState.allUserCollections = [
+            .fixture(id: "1"),
+            .fixture(id: "2"),
+            .fixture(id: "3"),
+        ]
+        cipherState.isShowingMultipleCollections = true
+        processor.state.loadingState = .data(cipherState)
+        let button = try subject.inspect().find(
+            asyncButton: Localizations.showLess
+        )
+        try await button.tap()
+        XCTAssertTrue(processor.effects.contains(.toggleDisplayMultipleCollections))
+    }
+
     // MARK: Snapshots
 
     @MainActor
@@ -314,6 +332,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         )!
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
+        cipherState.folderName = "Folder"
         cipherState.notes = "Notes"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.identityState = .fixture(
@@ -341,6 +360,7 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     func loginState( // swiftlint:disable:this function_body_length
         canViewPassword: Bool = true,
+        collectionIds: [String] = ["1", "2"],
         isFavorite: Bool = false,
         isPasswordVisible: Bool = true,
         isTOTPCodeVisible: Bool = true,
@@ -349,16 +369,24 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     ) -> CipherItemState {
         var cipherState = CipherItemState(
             existing: .fixture(
+                collectionIds: collectionIds,
                 favorite: isFavorite,
                 id: "fake-id"
             ),
             hasPremium: hasPremium
         )!
         cipherState.accountHasPremium = hasPremium
+        cipherState.allUserCollections = [
+            .fixture(id: "1", name: "Collection 1"),
+            .fixture(id: "2", name: "Collection 2"),
+        ]
+        cipherState.collectionIds = collectionIds
         cipherState.folderId = "1"
         cipherState.folders = [.custom(.fixture(id: "1", name: "Folder"))]
+        cipherState.folderName = "Folder"
         cipherState.name = "Example"
         cipherState.notes = "Notes"
+        cipherState.organizationName = "Organization"
         cipherState.updatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
         cipherState.loginState.canViewPassword = canViewPassword
         cipherState.loginState.fido2Credentials = [.fixture()]
@@ -512,6 +540,24 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_snapshot_login_withAllValues_exceptTotp_noPremium() {
         let loginState = loginState(hasPremium: false, hasTotp: false)
         processor.state.loadingState = .data(loginState)
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_login_withAllValuesExceptOrganization() {
+        var state = loginState(collectionIds: [])
+        state.organizationId = nil
+        state.organizationName = nil
+        state.collectionIds = []
+        state.allUserCollections = []
+        processor.state.loadingState = .data(state)
+        assertSnapshot(of: subject, as: .tallPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_login_withAllValuesShowMore() {
+        let state = loginState(isFavorite: true)
+        processor.state.loadingState = .data(state)
         assertSnapshot(of: subject, as: .tallPortrait)
     }
 

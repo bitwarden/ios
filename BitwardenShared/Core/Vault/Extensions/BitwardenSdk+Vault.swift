@@ -77,6 +77,7 @@ extension CipherDetailsResponseModel {
             organizationId: cipher.organizationId,
             organizationUseTotp: cipher.organizationUseTotp,
             passwordHistory: cipher.passwordHistory?.map(CipherPasswordHistoryModel.init),
+            permissions: CipherPermissionsModel(cipherPermissions: cipher.permissions),
             reprompt: BitwardenShared.CipherRepromptType(type: cipher.reprompt),
             revisionDate: cipher.revisionDate,
             secureNote: cipher.secureNote.map(CipherSecureNoteModel.init),
@@ -173,6 +174,15 @@ extension CipherPasswordHistoryModel {
             lastUsedDate: passwordHistory.lastUsedDate,
             password: passwordHistory.password
         )
+    }
+}
+
+extension CipherPermissionsModel {
+    init?(cipherPermissions: BitwardenSdk.CipherPermissions?) {
+        guard let cipherPermissions else {
+            return nil
+        }
+        self.init(delete: cipherPermissions.delete, restore: cipherPermissions.restore)
     }
 }
 
@@ -318,6 +328,7 @@ extension BitwardenSdk.Cipher {
             reprompt: BitwardenSdk.CipherRepromptType(model.reprompt),
             organizationUseTotp: model.organizationUseTotp,
             edit: model.edit,
+            permissions: model.permissions.map(CipherPermissions.init),
             viewPassword: model.viewPassword,
             localData: nil,
             attachments: model.attachments?.map(Attachment.init),
@@ -366,6 +377,7 @@ extension BitwardenSdk.CipherView: @retroactive Identifiable {
             reprompt: .none,
             organizationUseTotp: false,
             edit: false,
+            permissions: nil,
             viewPassword: true,
             localData: nil,
             attachments: nil,
@@ -527,6 +539,12 @@ extension BitwardenSdk.PasswordHistory {
     }
 }
 
+extension BitwardenSdk.CipherPermissions {
+    init(cipherPermissionsModel model: CipherPermissionsModel) {
+        self.init(delete: model.delete, restore: model.restore)
+    }
+}
+
 extension BitwardenSdk.SecureNote {
     init(cipherSecureNoteModel model: CipherSecureNoteModel) {
         self.init(type: BitwardenSdk.SecureNoteType(type: model.type))
@@ -611,7 +629,7 @@ extension BitwardenSdk.Collection {
     }
 }
 
-extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, TreeNodeModel {}
+extension BitwardenSdk.CollectionView: @unchecked @retroactive Sendable, @retroactive Identifiable, TreeNodeModel {}
 
 // MARK: - Folders (BitwardenSdk)
 

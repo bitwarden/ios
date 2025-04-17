@@ -1,3 +1,5 @@
+import BitwardenKit
+
 /// A model containing information about the device.
 ///
 struct DeviceInfo {

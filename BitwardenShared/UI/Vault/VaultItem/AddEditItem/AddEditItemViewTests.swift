@@ -674,7 +674,7 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     @MainActor
     func test_snapshot_add_login_collections() {
-        processor.state.collections = [
+        processor.state.allUserCollections = [
             .fixture(id: "1", name: "Design", organizationId: "1"),
             .fixture(id: "2", name: "Engineering", organizationId: "1"),
         ]
@@ -719,6 +719,40 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
         processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
 
         assertSnapshot(of: subject.navStackWrapped, as: .tallPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_edit_full_readOnly() {
+        processor.state = CipherItemState(
+            existing: CipherView.loginFixture(edit: false),
+            hasPremium: true
+        )!
+        processor.state.loginState = .fixture(
+            fido2Credentials: [.fixture()],
+            isPasswordVisible: false,
+            password: "password1!",
+            uris: [
+                .init(uri: URL.example.absoluteString),
+            ],
+            username: "username"
+        )
+        processor.state.type = .login
+        processor.state.name = "Name"
+        processor.state.isAdditionalOptionsExpanded = true
+        processor.state.isFavoriteOn = true
+        processor.state.isMasterPasswordRePromptOn = true
+        processor.state.notes = "Notes"
+        processor.state.folderId = "1"
+        processor.state.folders = [.custom(.fixture(id: "1", name: "Folder"))]
+        processor.state.ownershipOptions = [.personal(email: "user@bitwarden.com")]
+
+        assertSnapshots(
+            of: subject.navStackWrapped,
+            as: [
+                .tallPortrait,
+                .portraitDark(heightMultiple: 2),
+            ]
+        )
     }
 
     @MainActor

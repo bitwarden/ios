@@ -1,3 +1,4 @@
+import BitwardenKit
 import Combine
 import Foundation
 
@@ -15,6 +16,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var appTheme: String?
     var cachedActiveUserId: String?
     var disableWebIcons = false
+    var flightRecorderData: FlightRecorderData?
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
     var learnGeneratorActionCardStatus: AccountSetupProgress = .incomplete
@@ -64,7 +66,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var unsuccessfulUnlockAttempts = [String: Int]()
     var usernameGenerationOptions = [String: UsernameGenerationOptions]()
 
-    lazy var activeIdSubject = CurrentValueSubject<String?, Never>(self.state?.activeUserId)
+    var activeIdSubject = CurrentValueSubject<String?, Never>(nil)
 
     func accountSetupAutofill(userId: String) -> AccountSetupProgress? {
         accountSetupAutofill[userId]
@@ -159,7 +161,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId]
     }
 
-    func accountCreationEnvironmentURLs(email: String) -> BitwardenShared.EnvironmentURLData? {
+    func accountCreationEnvironmentURLs(email: String) -> EnvironmentURLData? {
         accountCreationEnvironmentURLs[email]
     }
 
@@ -275,7 +277,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         pinProtectedUserKey[userId] = key
     }
 
-    func setAccountCreationEnvironmentURLs(environmentURLData: BitwardenShared.EnvironmentURLData, email: String) {
+    func setAccountCreationEnvironmentURLs(environmentURLData: EnvironmentURLData, email: String) {
         accountCreationEnvironmentURLs[email] = environmentURLData
     }
 

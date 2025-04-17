@@ -1,5 +1,8 @@
 import AuthenticationServices
+import BitwardenKit
+import BitwardenKitMocks
 import Networking
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -194,21 +197,13 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.startRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "Email 'j@a.com' is already taken."
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -234,21 +229,13 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.startRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "The field Email must be a string with a maximum length of 256."
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -299,21 +286,13 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         )
 
         guard let errorResponse = try? ErrorResponseModel(response: response) else { return }
-
-        client.result = .httpFailure(
-            ServerError.error(errorResponse: errorResponse)
-        )
+        let error = ServerError.error(errorResponse: errorResponse)
+        client.result = .httpFailure(error)
 
         await subject.perform(.startRegistration)
 
         XCTAssertEqual(client.requests.count, 1)
-        XCTAssertEqual(
-            coordinator.alertShown.last,
-            .defaultAlert(
-                title: Localizations.anErrorHasOccurred,
-                message: "The Email field is not a supported e-mail address format."
-            )
-        )
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? ServerError, error)
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.creatingAccount)])
@@ -325,17 +304,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_startRegistration_noInternetConnection() async throws {
         subject.state = .fixture()
 
-        let urlError = URLError(.notConnectedToInternet) as Error
+        let urlError = URLError(.notConnectedToInternet)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .startRegistrationSuccess)]
 
         await subject.perform(.startRegistration)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, Alert.networkResponseError(urlError) {
-            await self.subject.perform(.startRegistration)
-        })
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, urlError)
 
-        try await alert.tapAction(title: Localizations.tryAgain)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(
@@ -367,15 +344,15 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
     func test_perform_startRegistration_timeout() async throws {
         subject.state = .fixture()
 
-        let urlError = URLError(.timedOut) as Error
+        let urlError = URLError(.timedOut)
         client.results = [.httpFailure(urlError), .httpSuccess(testData: .startRegistrationSuccess)]
 
         await subject.perform(.startRegistration)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert.message, urlError.localizedDescription)
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, urlError)
 
-        try await alert.tapAction(title: Localizations.tryAgain)
+        await errorAlertWithRetry.retry()
 
         XCTAssertEqual(client.requests.count, 2)
         XCTAssertEqual(

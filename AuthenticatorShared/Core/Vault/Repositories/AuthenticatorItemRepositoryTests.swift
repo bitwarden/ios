@@ -1,4 +1,5 @@
 import AuthenticatorBridgeKit
+import BitwardenKitMocks
 import InlineSnapshotTesting
 import TestHelpers
 import XCTest

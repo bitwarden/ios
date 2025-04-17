@@ -13,6 +13,12 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
     /// The primary content containing the text input field for the label.
     let content: Content
 
+    /// A value indicating whether the text label is currently enabled or disabled.
+    @Environment(\.isEnabled) var isEnabled: Bool
+
+    /// If the text field in the `Content` was disabled.
+    let isTextFieldDisabled: Bool
+
     /// The title of the field.
     let title: String?
 
@@ -63,6 +69,7 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
     ///
     /// - Parameters:
     ///   - title: The title of the field.
+    ///   - isTextFieldDisabled: If the text field in the `Content` was disabled.
     ///   - showPlaceholder: Whether the title text should display as a placeholder centered over
     ///     the field.
     ///   - content: The primary content containing the text input field for the label.
@@ -71,11 +78,13 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
     ///
     init(
         title: String?,
+        isTextFieldDisabled: Bool = false,
         showPlaceholder: Bool,
         @ViewBuilder content: () -> Content,
         @ViewBuilder trailingContent: () -> TrailingContent
     ) {
         self.content = content()
+        self.isTextFieldDisabled = isTextFieldDisabled
         self.showPlaceholder = showPlaceholder
         self.title = title
         self.trailingContent = trailingContent()
@@ -85,16 +94,19 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
     ///
     /// - Parameters:
     ///   - title: The title of the field.
+    ///   - isTextFieldDisabled: If the text field in the `Content` was disabled.
     ///   - showPlaceholder: Whether the title text should display as a placeholder centered over
     ///     the field.
     ///   - content: The primary content containing the text input field for the label.
     ///
     init(
         title: String?,
+        isTextFieldDisabled: Bool = false,
         showPlaceholder: Bool,
         @ViewBuilder content: () -> Content
     ) where TrailingContent == EmptyView {
         self.content = content()
+        self.isTextFieldDisabled = isTextFieldDisabled
         self.showPlaceholder = showPlaceholder
         self.title = title
         trailingContent = nil
@@ -113,7 +125,11 @@ struct BitwardenFloatingTextLabel<Content: View, TrailingContent: View>: View {
                     includeLinePadding: false,
                     includeLineSpacing: false
                 )
-                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                .foregroundStyle(
+                    isEnabled && !isTextFieldDisabled
+                        ? Asset.Colors.textSecondary.swiftUIColor :
+                        Asset.Colors.textDisabled.swiftUIColor
+                )
         }
     }
 }

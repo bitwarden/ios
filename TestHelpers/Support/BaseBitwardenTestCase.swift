@@ -194,6 +194,7 @@ open class BaseBitwardenTestCase: XCTestCase {
     ///     - line: The line number in which the failure occurred. Defaults to the line number on
     ///         which this function was called from.
     ///
+    @MainActor
     open func waitForAsync(
         _ condition: @escaping () -> Bool,
         timeout: TimeInterval = 10.0,

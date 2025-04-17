@@ -6,6 +6,7 @@ import XCTest
 
 // MARK: - Fido2UserInterfaceHelperTests
 
+@MainActor
 class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -23,8 +24,8 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         subject = DefaultFido2UserInterfaceHelper(fido2UserVerificationMediator: fido2UserVerificationMediator)
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         fido2UserInterfaceHelperDelegate = nil
         fido2UserVerificationMediator = nil
@@ -35,7 +36,6 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `checkUser(options:hint:)` with hint `informExcludedCredentialFound` informs the delegate
     /// of the situation and returns that user has not been verified.
-    @MainActor
     func test_checkUser_informExcludedCredentialFoundHint() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         let cipher = CipherView.fixture()
@@ -213,7 +213,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
     }
 
     /// `checkUserAndPickCredentialForCreation(options:newCredential:)` returns picked cipher
-    /// after succesfully calling `pickedCredentialForCreation(cipherResult:)`.
+    /// after successfully calling `pickedCredentialForCreation(cipherResult:)`.
     func test_checkUserAndPickCredentialForCreation_returnsPickedCipher() async throws {
         let expectedOptions = CheckUserOptions(
             requirePresence: true,
@@ -278,7 +278,6 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `pickCredentialForAuthentication(availableCredentials:)` not autofilling from list succeeds
     /// with first available credential.
-    @MainActor
     func test_pickCredentialForAuthentication_notAutofillingFromListSucceeds() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         fido2UserInterfaceHelperDelegate.isAutofillingFromList = false
@@ -291,7 +290,6 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `pickCredentialForAuthentication(availableCredentials:)` autofilling from list succeeds
     /// with picked credential.
-    @MainActor
     func test_pickCredentialForAuthentication_autofillingFromListSucceeds() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         fido2UserInterfaceHelperDelegate.isAutofillingFromList = true
@@ -322,7 +320,6 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `pickCredentialForAuthentication(availableCredentials:)` autofilling from list throws
     /// when picking credential.
-    @MainActor
     func test_pickCredentialForAuthentication_autofillingFromListThrowsPickingCredential() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         fido2UserInterfaceHelperDelegate.isAutofillingFromList = true
@@ -346,7 +343,6 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
     /// `pickCredentialForAuthentication(availableCredentials:)` not autofilling from list throws
     /// invalid operation error when available credentials is different from 1.
-    @MainActor
     func test_pickCredentialForAuthentication_throwsNotAutofillingFromListNoAvailableCredentials() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate)
         fido2UserInterfaceHelperDelegate.isAutofillingFromList = false
@@ -382,8 +378,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(resultPreferredFalse)
     }
 
-    /// `setupDelegate(fido2UserVerificationMediatorDelegate:)`  sets up deleagte in inner mediator.
-    @MainActor
+    /// `setupDelegate(fido2UserVerificationMediatorDelegate:)`  sets up delegate in inner mediator.
     func test_setupDelegate() async throws {
         subject.setupDelegate(fido2UserInterfaceHelperDelegate: MockFido2UserInterfaceHelperDelegate())
         XCTAssertTrue(fido2UserVerificationMediator.setupDelegateCalled)

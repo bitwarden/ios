@@ -1,3 +1,5 @@
+import TestHelpers
+
 extension APITestData {
     static let organizationAutoEnrollStatus = loadFromJsonBundle(resource: "OrganizationAutoEnrollStatus")
     static let organizationAutoEnrollStatusDisabled = loadFromJsonBundle(

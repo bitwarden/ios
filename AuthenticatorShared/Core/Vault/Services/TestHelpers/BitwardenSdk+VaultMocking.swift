@@ -70,6 +70,7 @@ extension CipherListView {
             reprompt: cipher.reprompt,
             organizationUseTotp: cipher.organizationUseTotp,
             edit: cipher.edit,
+            permissions: cipher.permissions,
             viewPassword: cipher.viewPassword,
             attachments: UInt32(cipher.attachments?.count ?? 0),
             creationDate: cipher.creationDate,
@@ -89,9 +90,11 @@ extension CipherListViewType {
         case .login:
             self = .login(
                 LoginListView(
+                    fido2Credentials: nil,
                     hasFido2: !(
                         cipher.login?.fido2Credentials?.isEmpty ?? true
                     ),
+                    username: nil,
                     totp: cipher.login?.totp,
                     uris: cipher.login?.uris?.map { LoginUriView(loginUri: $0) }
                 )
@@ -124,6 +127,7 @@ extension Cipher {
             reprompt: cipherView.reprompt,
             organizationUseTotp: cipherView.organizationUseTotp,
             edit: cipherView.edit,
+            permissions: cipherView.permissions,
             viewPassword: cipherView.viewPassword,
             localData: cipherView.localData.map(LocalData.init),
             attachments: cipherView.attachments?.map(Attachment.init),
@@ -156,6 +160,7 @@ extension CipherView {
             reprompt: cipher.reprompt,
             organizationUseTotp: cipher.organizationUseTotp,
             edit: cipher.edit,
+            permissions: cipher.permissions,
             viewPassword: cipher.viewPassword,
             localData: cipher.localData.map(LocalDataView.init),
             attachments: cipher.attachments?.map(AttachmentView.init),

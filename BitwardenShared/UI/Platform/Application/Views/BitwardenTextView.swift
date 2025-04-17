@@ -9,7 +9,7 @@ struct BitwardenTextView: View {
 
     /// Indicates whether the `UITextView` is editable. When set to `true`, the user can edit the
     /// text. If `false`, the text view is read-only.
-    let isEditable = true
+    let isEditable: Bool
 
     /// The text entered into the text view.
     @Binding var text: String
@@ -49,10 +49,12 @@ struct BitwardenTextView: View {
     /// - Parameters:
     ///   - title: The title of the text view.
     ///   - text: The text entered into the text view.
+    ///   - isEditable: Indicates whether the text view is editable.
     ///
-    init(title: String? = nil, text: Binding<String>) {
+    init(title: String? = nil, text: Binding<String>, isEditable: Bool = true) {
         self.title = title
         _text = text
+        self.isEditable = isEditable
     }
 
     // MARK: Private

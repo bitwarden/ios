@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -57,16 +58,14 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
         await subject.perform(.deleteTapped)
 
         // Ensure the alert is shown.
-        var alert = coordinator.alertShown.last
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .confirmDeleteFolder {})
 
         // Press the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert?.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert.tapAction(title: Localizations.yes)
 
         // Ensure the error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
@@ -76,23 +75,22 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     func test_perform_deleteTapped_networkError() async throws {
         // Set up the mock data.
         subject.state.mode = .edit(.fixture(id: "testID"))
-        settingsRepository.deleteFolderResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        settingsRepository.deleteFolderResult = .failure(error)
 
         await subject.perform(.deleteTapped)
 
         // Ensure the alert is shown.
-        var alert = try XCTUnwrap(coordinator.alertShown.last)
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
         XCTAssertEqual(alert, .confirmDeleteFolder {})
 
         // Press the "Yes" button on the alert.
-        let action = try XCTUnwrap(alert.alertActions.first(where: { $0.title == Localizations.yes }))
-        await action.handler?(action, [])
+        try await alert.tapAction(title: Localizations.yes)
 
         XCTAssertEqual(settingsRepository.deletedFolderId, "testID")
 
         // Ensure the error alert is displayed.
-        alert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? URLError, error)
         XCTAssertEqual(errorReporter.errors.first as? URLError, URLError(.timedOut))
 
         // The try again button should retry the call.
@@ -150,8 +148,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
         await subject.perform(.saveTapped)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(alert, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
@@ -165,8 +162,7 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
 
         await subject.perform(.saveTapped)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(alert, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsWithRetryShown.last?.error as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors.first as? BitwardenTestError, .example)
     }
 
@@ -175,20 +171,20 @@ class AddEditFolderProcessorTests: BitwardenTestCase {
     @MainActor
     func test_perform_savePressed_networkError() async throws {
         subject.state.folderName = "Folder Name"
-        settingsRepository.addFolderResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        settingsRepository.addFolderResult = .failure(error)
 
         await subject.perform(.saveTapped)
 
         XCTAssertEqual(settingsRepository.addedFolderName, "Folder Name")
 
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
-        XCTAssertEqual(errorReporter.errors.first as? URLError, URLError(.timedOut))
+        let errorAlertsWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertsWithRetry.error as? URLError, error)
+        XCTAssertEqual(errorReporter.errors.first as? URLError, error)
 
         // The try again button should retry the call.
         settingsRepository.addedFolderName = nil
-        let tryAgainAction = try XCTUnwrap(alert.alertActions.first)
-        await tryAgainAction.handler?(tryAgainAction, [])
+        await errorAlertsWithRetry.retry()
         XCTAssertEqual(settingsRepository.addedFolderName, "Folder Name")
     }
 

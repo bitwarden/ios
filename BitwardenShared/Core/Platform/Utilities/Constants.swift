@@ -1,13 +1,11 @@
+import BitwardenKit
 import Foundation
-
-typealias ClientType = String
-typealias DeviceType = Int
 
 // MARK: - Constants
 
 /// Constant values reused throughout the app.
 ///
-enum Constants {
+extension Constants {
     // MARK: Static Properties
 
     /// The app review prompt delay in nanoseconds.
@@ -19,9 +17,6 @@ enum Constants {
     /// The minimum server version required to have cipher key encryption on.
     static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
 
-    /// The client type corresponding to the app.
-    static let clientType: ClientType = "mobile"
-
     /// The default type for a Fido2 public key credential.
     static let defaultFido2PublicKeyCredentialType = "public-key"
 
@@ -31,8 +26,9 @@ enum Constants {
     /// The URL for the web vault if the user account doesn't have one specified.
     static let defaultWebVaultHost = "bitwarden.com"
 
-    /// The device type, iOS = 1.
-    static let deviceType: DeviceType = 1
+    /// The number of days that a flight recorder log will remain on the device after the end date
+    /// before being automatically deleted.
+    static let flightRecorderLogExpirationDays = 30
 
     /// The length of a masked password.
     static let hiddenPasswordLength = 8
@@ -96,9 +92,6 @@ enum Constants {
     /// The minimum number of seconds after a user delays the two-factor notice
     /// before we display the notice again.
     static let twoFactorNoticeDelayInterval: TimeInterval = 86400 * 7 // Seven days
-
-    /// The default file name when the file name cannot be determined.
-    static let unknownFileName = "unknown_file_name"
 }
 
 // MARK: Extension Constants

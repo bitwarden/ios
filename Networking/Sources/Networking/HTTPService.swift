@@ -2,14 +2,14 @@ import Foundation
 
 /// A networking service that can be used to perform HTTP requests.
 ///
-public class HTTPService {
+public final class HTTPService: Sendable {
     // MARK: Properties
 
     /// The URL against which requests are resolved.
     var baseURL: URL { baseURLGetter() }
 
     /// A getter function for dynamically retrieving the base url against which requests are resolved.
-    let baseURLGetter: () -> URL
+    let baseURLGetter: @Sendable () -> URL
 
     /// The underlying `HTTPClient` that performs the network request.
     let client: HTTPClient
@@ -69,7 +69,7 @@ public class HTTPService {
     ///   - tokenProvider: An object used to get an access token and refresh it when necessary.
     ///
     public init(
-        baseURLGetter: @escaping () -> URL,
+        baseURLGetter: @escaping @Sendable () -> URL,
         client: HTTPClient = URLSession.shared,
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = [],

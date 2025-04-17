@@ -12,6 +12,7 @@ final class VaultGroupProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasAuthRepository
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasPasteboardService
@@ -206,7 +207,7 @@ final class VaultGroupProcessor: StateProcessor<
         do {
             try await services.vaultRepository.fetchSync(forceSync: true, filter: state.vaultFilterType)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

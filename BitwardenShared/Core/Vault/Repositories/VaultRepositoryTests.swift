@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import InlineSnapshotTesting
 import TestHelpers
@@ -337,7 +338,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
         ]
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send(expectedCiphersInFido2Section)
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send(expectedCiphersInFido2Section)
 
         let expectedRpID = "myApp.com"
         var iterator = try await subject.ciphersAutofillPublisher(
@@ -911,6 +912,39 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try XCTAssertFalse(XCTUnwrap(collectionService.fetchAllCollectionsIncludeReadOnly))
     }
 
+    /// `fetchFolder(withId:)` fetches and decrypts the folder with the specified id.
+    func test_fetchFolder() async throws {
+        folderService.fetchFolderResult = .success(.fixture(id: "1"))
+        let expectedResult = FolderView.fixture(id: "1")
+        clientService.mockVault.clientFolders.decryptFolderResult = .success(expectedResult)
+        let result = try await subject.fetchFolder(withId: "1")
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    /// `fetchFolder(withId:)` returns `nil` when can't be fetched.
+    func test_fetchFolder_nil() async throws {
+        folderService.fetchFolderResult = .success(nil)
+        let result = try await subject.fetchFolder(withId: "1")
+        XCTAssertNil(result)
+    }
+
+    /// `fetchFolder(withId:)` throws when attempting to fetch the folder.
+    func test_fetchFolder_throwsFetching() async throws {
+        folderService.fetchFolderResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.fetchFolder(withId: "1")
+        }
+    }
+
+    /// `fetchFolder(withId:)` throws when attempting to decrypt the folder.
+    func test_fetchFolder_throwsDecrypting() async throws {
+        folderService.fetchFolderResult = .success(.fixture(id: "1"))
+        clientService.mockVault.clientFolders.decryptFolderResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.fetchFolder(withId: "1")
+        }
+    }
+
     /// `fetchFolders` returns the folders for the user.
     func test_fetchFolders() async throws {
         let folders: [Folder] = [
@@ -929,6 +963,39 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ]
         )
         XCTAssertEqual(clientService.mockVault.clientFolders.decryptedFolders, folders)
+    }
+
+    /// `fetchOrganization(withId:)` fetches the organization by its id.
+    func test_fetchOrganization() async throws {
+        let expectedResult = Organization.fixture(id: "2", useEvents: true)
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "1", useEvents: true),
+            expectedResult,
+            .fixture(id: "3", useEvents: true),
+        ])
+
+        let result = try await subject.fetchOrganization(withId: "2")
+        XCTAssertEqual(result, expectedResult)
+    }
+
+    /// `fetchOrganization(withId:)` returns `nil` if the organization is not found.
+    func test_fetchOrganization_nil() async throws {
+        organizationService.fetchAllOrganizationsResult = .success([
+            .fixture(id: "1", useEvents: true),
+            .fixture(id: "2", useEvents: true),
+            .fixture(id: "3", useEvents: true),
+        ])
+
+        let result = try await subject.fetchOrganization(withId: "42")
+        XCTAssertNil(result)
+    }
+
+    /// `fetchOrganization(withId:)` throws when fetching all organizations.
+    func test_fetchOrganization_throws() async throws {
+        organizationService.fetchAllOrganizationsResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.fetchOrganization(withId: "throwing")
+        }
     }
 
     /// `fetchSync(forceSync:)` only syncs when expected.
@@ -1352,7 +1419,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.value = ciphers
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
@@ -1405,7 +1472,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         setupDefaultDecryptFido2AutofillCredentialsMocker(expectedCredentialId: expectedCredentialId)
         cipherService.ciphersSubject.value = []
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),
@@ -1440,7 +1507,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         cipherService.ciphersSubject.value = ciphers
         let cipherView = try CipherView(cipher: XCTUnwrap(cipherService.ciphersSubject.value.last))
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([])
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([])
         var iterator = try await subject
             .searchCipherAutofillPublisher(
                 availableFido2CredentialsPublisher: fido2UserInterfaceHelper
@@ -1480,7 +1547,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
         cipherService.ciphersSubject.value = ciphers
 
-        fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
+        await fido2UserInterfaceHelper.credentialsForAuthenticationSubject.send([
             .fixture(id: "2", name: "qwe", type: .login),
             .fixture(id: "3", name: "Café", type: .login),
             .fixture(id: "4"),

@@ -1,7 +1,7 @@
 /// A protocol for an object that can view or modify `HTTPResponse` objects after they are received
 /// by the `HTTPClient` but before they are parsed into response objects and returned to the caller.
 ///
-public protocol ResponseHandler {
+public protocol ResponseHandler: Sendable {
     /// Handles receiving a `HTTPResponse`. The handler can view or modify the response before
     /// returning it to continue to handler chain.
     ///

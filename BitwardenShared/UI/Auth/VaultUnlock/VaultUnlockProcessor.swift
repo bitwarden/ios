@@ -1,3 +1,4 @@
+import BitwardenKit
 import OSLog
 
 /// The processor used to manage state and handle actions for the vault unlock screen.

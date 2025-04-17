@@ -158,6 +158,10 @@ public class AppProcessor {
             }
         }
 
+        await services.flightRecorder.log(
+            "App launched, context: \(appContext), version: \(Bundle.main.appVersion) (\(Bundle.main.buildNumber))"
+        )
+
         await services.migrationService.performMigrations()
         await services.environmentService.loadURLsForActiveAccount()
         _ = await services.configService.getConfig()
