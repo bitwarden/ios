@@ -666,6 +666,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(actual, events)
     }
 
+    /// `getFlightRecorderData()` returns the data for the flight recorder.
+    func test_getFlightRecorderData() async throws {
+        let storedFlightRecorderData = FlightRecorderData()
+        appSettingsStore.flightRecorderData = storedFlightRecorderData
+
+        let flightRecorderData = await subject.getFlightRecorderData()
+        XCTAssertEqual(flightRecorderData, storedFlightRecorderData)
+    }
+
+    /// `getFlightRecorderData()` returns `nil` if there's no stored data for the flight recorder.
+    func test_getFlightRecorderData_notSet() async throws {
+        appSettingsStore.flightRecorderData = nil
+
+        let flightRecorderData = await subject.getFlightRecorderData()
+        XCTAssertNil(flightRecorderData)
+    }
+
     /// `init()` subscribes to active account publisher and sets the user id on the error reporter.
     func test_init_activeAccountSubscription() async throws {
         appSettingsStore.state = State(
@@ -1636,6 +1653,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         try await subject.setEvents(events, userId: "1")
         XCTAssertEqual(appSettingsStore.eventsByUserId["1"], events)
+    }
+
+    /// `setFlightRecorderData(_:)` sets the data for the flight recorder.
+    func test_setFlightRecorderData() async throws {
+        let flightRecorderData = FlightRecorderData()
+        await subject.setFlightRecorderData(flightRecorderData)
+        XCTAssertEqual(appSettingsStore.flightRecorderData, flightRecorderData)
     }
 
     /// `setIntroCarouselShown(_:)` sets whether the intro carousel screen has been shown.

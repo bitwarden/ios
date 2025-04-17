@@ -2,7 +2,7 @@ import Foundation
 
 /// An enum that represents how long to enable the flight recorder.
 ///
-enum FlightRecorderLoggingDuration: CaseIterable, Menuable {
+enum FlightRecorderLoggingDuration: CaseIterable, Codable, Menuable {
     /// The flight recorder is enabled for one hour.
     case oneHour
 
@@ -21,6 +21,16 @@ enum FlightRecorderLoggingDuration: CaseIterable, Menuable {
         case .eightHours: Localizations.xHours(8)
         case .twentyFourHours: Localizations.xHours(24)
         case .oneWeek: Localizations.oneWeek
+        }
+    }
+
+    /// A short string representation of the duration (e.g. 1h, 8h, 1w).
+    var shortDescription: String {
+        switch self {
+        case .oneHour: "1h"
+        case .eightHours: "8h"
+        case .twentyFourHours: "24h"
+        case .oneWeek: "1w"
         }
     }
 }

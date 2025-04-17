@@ -14,6 +14,9 @@ enum ViewItemEffect: Equatable {
     /// The restore button was pressed.
     case restorePressed
 
+    /// Toggles displaying one or multiple collections.
+    case toggleDisplayMultipleCollections
+
     /// The TOTP code for the view expired.
     case totpCodeExpired
 }

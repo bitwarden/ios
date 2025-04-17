@@ -16,6 +16,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var appTheme: String?
     var cachedActiveUserId: String?
     var disableWebIcons = false
+    var flightRecorderData: FlightRecorderData?
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
     var learnGeneratorActionCardStatus: AccountSetupProgress = .incomplete

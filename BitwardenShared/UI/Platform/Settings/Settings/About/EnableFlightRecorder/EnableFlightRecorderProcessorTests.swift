@@ -1,4 +1,6 @@
+import BitwardenKitMocks
 import SnapshotTesting
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -7,6 +9,7 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
+    var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
     var subject: EnableFlightRecorderProcessor!
 
@@ -16,11 +19,13 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
         super.setUp()
 
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
 
         subject = EnableFlightRecorderProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
                 flightRecorder: flightRecorder
             ),
             state: EnableFlightRecorderState()
@@ -31,6 +36,7 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
         super.tearDown()
 
         coordinator = nil
+        errorReporter = nil
         flightRecorder = nil
         subject = nil
     }
@@ -56,6 +62,20 @@ class EnableFlightRecorderProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .dismiss)
         XCTAssertTrue(flightRecorder.enableFlightRecorderCalled)
         XCTAssertEqual(flightRecorder.enableFlightRecorderDuration, .eightHours)
+    }
+
+    /// `perform(_:)` with `.save` shows an alert if an error occurs.
+    @MainActor
+    func test_perform_save_error() async {
+        flightRecorder.enableFlightRecorderResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.save)
+
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(flightRecorder.enableFlightRecorderCalled)
+        XCTAssertEqual(flightRecorder.enableFlightRecorderDuration, .twentyFourHours)
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.

@@ -39,6 +39,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var environmentURLsError: Error?
     var eventsResult: Result<Void, Error> = .success(())
     var events = [String: [EventData]]()
+    var flightRecorderData: FlightRecorderData?
     var forcePasswordResetReason = [String: ForcePasswordResetReason]()
     var getHasPerformedSyncAfterLoginError: Error?
     var hasPerformedSyncAfterLogin = [String: Bool]()
@@ -250,6 +251,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try eventsResult.get()
         let userId = try unwrapUserId(userId)
         return events[userId] ?? []
+    }
+
+    func getFlightRecorderData() async -> FlightRecorderData? {
+        flightRecorderData
     }
 
     func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool {
@@ -510,6 +515,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setEvents(_ events: [EventData], userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.events[userId] = events
+    }
+
+    func setFlightRecorderData(_ data: FlightRecorderData?) async {
+        flightRecorderData = data
     }
 
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {

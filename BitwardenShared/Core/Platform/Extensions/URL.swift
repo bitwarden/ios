@@ -80,4 +80,15 @@ extension URL {
             return components.url
         }
     }
+
+    /// Sets whether the file should be excluded from backups.
+    ///
+    /// - Parameter value: `true` if the file should be excluded from backups, or `false` otherwise.
+    ///
+    func setIsExcludedFromBackup(_ value: Bool) throws {
+        var url = self
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = value
+        try url.setResourceValues(values)
+    }
 }
