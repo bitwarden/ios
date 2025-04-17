@@ -30,6 +30,7 @@ typealias Services = HasAPIService
     & HasFido2CredentialStore
     & HasFido2UserInterfaceHelper
     & HasFileAPIService
+    & HasFlightRecorder
     & HasGeneratorRepository
     & HasImportCiphersRepository
     & HasLocalAuthService
@@ -239,6 +240,13 @@ protocol HasFido2UserInterfaceHelper {
 protocol HasFileAPIService {
     /// The service used by the application to make file-related API requests.
     var fileAPIService: FileAPIService { get }
+}
+
+/// Protocol for an object that provides a `FlightRecorder`.
+///
+protocol HasFlightRecorder {
+    /// The service used by the application for recording temporary debug logs.
+    var flightRecorder: FlightRecorder { get }
 }
 
 /// Protocol for an object that provides a `GeneratorRepository`.

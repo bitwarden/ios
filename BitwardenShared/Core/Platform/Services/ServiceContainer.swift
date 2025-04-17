@@ -92,6 +92,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     /// of the `Fido2UserInterface` from the SDK.
     let fido2UserInterfaceHelper: Fido2UserInterfaceHelper
 
+    /// The service used by the application for recording temporary debug logs.
+    let flightRecorder: FlightRecorder
+
     /// The repository used by the application to manage generator data for the UI layer.
     let generatorRepository: GeneratorRepository
 
@@ -216,6 +219,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
     ///   - fido2UserInterfaceHelper: A helper to be used on Fido2 flows that requires user interaction
     ///   and extends the capabilities of the `Fido2UserInterface` from the SDK.
     ///   - fido2CredentialStore: A store to be used on Fido2 flows to get/save credentials.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - generatorRepository: The repository used by the application to manage generator data for the UI layer.
     ///   - importCiphersRepository: The repository used by the application to manage importing credential
     ///   in Credential Exhange flow.
@@ -273,6 +277,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         exportVaultService: ExportVaultService,
         fido2CredentialStore: Fido2CredentialStore,
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper,
+        flightRecorder: FlightRecorder,
         generatorRepository: GeneratorRepository,
         importCiphersRepository: ImportCiphersRepository,
         keychainRepository: KeychainRepository,
@@ -328,6 +333,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         self.exportVaultService = exportVaultService
         self.fido2CredentialStore = fido2CredentialStore
         self.fido2UserInterfaceHelper = fido2UserInterfaceHelper
+        self.flightRecorder = flightRecorder
         self.generatorRepository = generatorRepository
         self.importCiphersRepository = importCiphersRepository
         self.keychainService = keychainService
@@ -489,6 +495,11 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             errorReporter: errorReporter,
             folderService: folderService,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
+
+        let flightRecorder = DefaultFlightRecorder(
             stateService: stateService,
             timeProvider: timeProvider
         )
@@ -811,6 +822,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             generatorRepository: generatorRepository,
             importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,

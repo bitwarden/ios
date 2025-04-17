@@ -25,6 +25,7 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
           "plusAddressedEmailType": 0,
           "serviceType": 2,
           "simpleLoginApiKey": "SIMPLELOGIN_API_KEY",
+          "simpleLoginBaseUrl": "app.simplelogin.io",
           "type": 2
         }
         """
@@ -49,6 +50,7 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
                 plusAddressedEmailType: .random,
                 serviceType: .simpleLogin,
                 simpleLoginApiKey: "SIMPLELOGIN_API_KEY",
+                simpleLoginBaseUrl: "app.simplelogin.io",
                 type: .forwardedEmail
             )
         )
