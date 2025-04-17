@@ -76,10 +76,7 @@ jobs:
       - name: Install Homebrew Dependencies
         run: |
           brew update
-          brew install fastlane@2.227.1
-          brew install mint
-          brew install yq
-          brew install swift-protobuf
+          brew bundle
 
       - name: Log in to Azure
         if: env._BUILD_MODE == 'Device'
