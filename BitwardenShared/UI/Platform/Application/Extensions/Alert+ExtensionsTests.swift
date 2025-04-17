@@ -22,11 +22,11 @@ class AlertExtensionsTests: BitwardenTestCase {
         XCTAssertEqual(action.style, .default)
         XCTAssertNil(action.handler)
     }
-    
+
     /// `nameCustomFieldAlert` disables the "OK" button when the text field is empty,
     /// and enables it dynamically when the user enters text.
     @MainActor
-    func test_nameCustomFieldAlert_enanlesOkButtonWhenTextIsEntered() throws {
+    func test_nameCustomFieldAlert_enablesOkButtonWhenTextIsEntered() throws {
         let alert = Alert.nameCustomFieldAlert(text: "") { _ in }
         let controller = alert.createAlertController()
 

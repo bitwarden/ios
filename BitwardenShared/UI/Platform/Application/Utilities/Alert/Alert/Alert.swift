@@ -128,8 +128,8 @@ public class Alert {
 
                     for (index, alertAction) in alertActions.enumerated() {
                         guard let shouldEnable = alertAction.shouldEnableAction else { continue }
-                        if index < alert.actions.count {
-                            alert.actions[index].isEnabled = shouldEnable(alertTextFields)
+                        if index < alertController.actions.count {
+                            alertController.actions[index].isEnabled = shouldEnable(alertTextFields)
                         }
                     }
                 }
