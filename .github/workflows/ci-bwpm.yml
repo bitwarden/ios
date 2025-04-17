@@ -45,7 +45,7 @@ on:
 jobs:
   version:
     name: Calculate Version Name and Number
-    uses: ${{ github.server_url }}/${{ github.repository }}/.github/workflows/_version.yml@main
+    uses: bitwarden/ios/.github/workflows/_version.yml@main
     with:
       base_version_number: 2000
       version_name: ${{ inputs.version-name }}
@@ -113,7 +113,7 @@ jobs:
   build-manual:
     name: Build Manual
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    uses: ${{ github.server_url }}/${{ github.repository }}/.github/workflows/_build-any.yml@main
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
       environment: ${{ inputs.environment }}
       version-name: ${{ inputs.version-name }}
@@ -122,7 +122,7 @@ jobs:
   build-public:
     name: Build CI
     if: ${{ github.event_name == 'push' }}
-    uses: ${{ github.server_url }}/${{ github.repository }}/.github/workflows/_build-any.yml@main
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     strategy:
       matrix:
         env: [bwpm_prod, bwpm_beta]
