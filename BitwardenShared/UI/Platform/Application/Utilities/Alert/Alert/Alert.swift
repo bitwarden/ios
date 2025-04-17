@@ -124,7 +124,7 @@ public class Alert {
 
             if updateActionsIfNeeded {
                 alertTextField.onTextChanged = { [weak self, weak alertController] in
-                    guard let self, let alert = alertController else { return }
+                    guard let self, let alertController else { return }
 
                     for (index, alertAction) in alertActions.enumerated() {
                         guard let shouldEnable = alertAction.shouldEnableAction else { continue }
