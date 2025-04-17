@@ -1,5 +1,6 @@
 import BitwardenKit
 import BitwardenKitMocks
+import BitwardenSdk
 import TestHelpers
 import XCTest
 
@@ -13,6 +14,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
     var authRepository: MockAuthRepository!
     var configService: MockConfigService!
     var errorReporter: MockErrorReporter!
+    var generatorRepository: MockGeneratorRepository!
     var stateService: MockStateService!
     var subject: AppIntentMediator!
 
@@ -24,11 +26,13 @@ class AppIntentMediatorTests: BitwardenTestCase {
         authRepository = MockAuthRepository()
         configService = MockConfigService()
         errorReporter = MockErrorReporter()
+        generatorRepository = MockGeneratorRepository()
         stateService = MockStateService()
         subject = DefaultAppIntentMediator(
             authRepository: authRepository,
             configService: configService,
             errorReporter: errorReporter,
+            generatorRepository: generatorRepository,
             stateService: stateService
         )
     }
@@ -39,6 +43,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
         authRepository = nil
         configService = nil
         errorReporter = nil
+        generatorRepository = nil
         stateService = nil
         subject = nil
     }
@@ -59,6 +64,37 @@ class AppIntentMediatorTests: BitwardenTestCase {
         configService.featureFlagsBool[.appIntents] = false
         let canRunAppIntents = await subject.canRunAppIntents()
         XCTAssertFalse(canRunAppIntents)
+    }
+
+    /// `generatePassphrase(settings:)` calls the repository to generate a passhprase with the request.
+    func test_generatePassphrase() async throws {
+        var request = PassphraseGeneratorRequest(
+            numWords: 6,
+            wordSeparator: "-",
+            capitalize: false,
+            includeNumber: true
+        )
+        generatorRepository.passphraseResult = .success("this-is-1-test-passphrase-result")
+        let result = try await subject.generatePassphrase(settings: request)
+        XCTAssertEqual(generatorRepository.passphraseGeneratorRequest, request)
+        XCTAssertEqual(result, "this-is-1-test-passphrase-result")
+    }
+
+    /// `generatePassphrase(settings:)` throws when the repository throws
+    /// trying to generate a passhprase with the request.
+    func test_generatePassphrase_throws() async throws {
+        var request = PassphraseGeneratorRequest(
+            numWords: 6,
+            wordSeparator: "-",
+            capitalize: false,
+            includeNumber: true
+        )
+        generatorRepository.passphraseResult = .failure(BitwardenTestError.example)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.generatePassphrase(settings: request)
+        }
+
+        XCTAssertEqual(generatorRepository.passphraseGeneratorRequest, request)
     }
 
     /// `lockAllUsers()` locks all user vaults.
@@ -114,5 +150,11 @@ class AppIntentMediatorTests: BitwardenTestCase {
         try await subject.logoutAllUsers()
         XCTAssertTrue(authRepository.logoutUserIds.isEmpty)
         XCTAssertFalse(authRepository.logoutCalled)
+    }
+
+    /// `openGenerator()` adds the appropriate pending AppIntent action to open the generator.
+    func test_openGenerator() async {
+        await subject.openGenerator()
+        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.openGenerator) == true)
     }
 }

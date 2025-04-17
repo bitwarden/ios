@@ -568,6 +568,54 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertTrue(coordinator.events.isEmpty)
     }
 
+    /// `onPendingAppIntentActionSuccess(_:data:)` sets `setAuthCompletionRoute` as the generator when
+    /// pending app intent action is `.openGenerator` and the vault is locked.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultLocked() async throws {
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles navigation to the generator screen when
+    /// pending app intent action is `.openGenerator` and the vault is unlocked.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlocked() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.routes.last, .tab(.generator(.generator())))
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles receiving a pending AppIntent action for  `.openGenerator`
+    /// and setting an auth completion route on the coordinator if the the user's vault is unlocked
+    /// but will be timing out as the app is foregrounded.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlockedTimeout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles receiving a pending AppIntent action for  `.openGenerator`
+    /// and setting an auth completion route on the coordinator if the the user's vault is unlocked
+    /// but checking timing out as throws an error.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlockedTimeoutError() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
+    }
+
     /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
     /// coordinator to handle routing to the account security screen when the vault is unlocked.
     @MainActor

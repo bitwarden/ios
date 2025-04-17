@@ -103,6 +103,31 @@ class PendingAppIntentActionMediatorTests: BitwardenTestCase {
         XCTAssertNil(delegate.onPendingAppIntentActionSuccessData)
         XCTAssertEqual(stateService.pendingAppIntentActions, [])
     }
+
+    /// `executePendingAppIntentActions()` with `.openGenerator` action calls the delegate informing that
+    /// the generator screen needs to be opened.
+    func test_executePendingAppIntentActions_openGenerator() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.pendingAppIntentActions = [.openGenerator]
+        subject.setDelegate(delegate)
+
+        await subject.executePendingAppIntentActions()
+
+        XCTAssertEqual(delegate.onPendingAppIntentActionSuccessAction, .openGenerator)
+        XCTAssertEqual(stateService.pendingAppIntentActions, [])
+    }
+
+    /// `executePendingAppIntentActions()` with `.openGenerator` with no delegate
+    /// doesn't inform the delegate to navigate to screen.
+    func test_executePendingAppIntentActions_openGeneratorNoDelegate() async throws {
+        stateService.activeAccount = .fixture()
+        stateService.pendingAppIntentActions = [.openGenerator]
+
+        await subject.executePendingAppIntentActions()
+
+        XCTAssertNotEqual(delegate.onPendingAppIntentActionSuccessAction, .openGenerator)
+        XCTAssertEqual(stateService.pendingAppIntentActions, [])
+    }
 }
 
 class MockPendingAppIntentActionMediatorDelegate: PendingAppIntentActionMediatorDelegate {
