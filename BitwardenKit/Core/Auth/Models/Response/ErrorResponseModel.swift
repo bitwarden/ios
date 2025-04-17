@@ -17,7 +17,7 @@ public struct ErrorResponseModel: Codable, Equatable {
     // MARK: Initializers
 
     /// Public version of synthesized initializer.
-    public init(validationErrors: [String : [String]]?, message: String) {
+    public init(validationErrors: [String: [String]]?, message: String) {
         self.validationErrors = validationErrors
         self.message = message
     }

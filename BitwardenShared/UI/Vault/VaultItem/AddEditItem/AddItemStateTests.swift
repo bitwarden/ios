@@ -124,7 +124,7 @@ class AddItemStateTests: XCTestCase {
         let collectionOrg2 = CollectionView.fixture(id: "2", name: "Collection 2", organizationId: "2")
 
         var subject = CipherItemState(hasPremium: true)
-        subject.collections = [collectionOrg1, collectionOrg2]
+        subject.allUserCollections = [collectionOrg1, collectionOrg2]
         subject.ownershipOptions = [
             .personal(email: "user@bitwarden.com"),
             .organization(id: "1", name: "Organization 1"),
@@ -140,7 +140,7 @@ class AddItemStateTests: XCTestCase {
     /// `toggleCollection(newValue:collectionId:)` toggles whether the cipher is included in the collection.
     func test_toggleCollection() {
         var subject = CipherItemState(hasPremium: true)
-        subject.collections = [
+        subject.allUserCollections = [
             .fixture(id: "1", name: "Collection 1"),
             .fixture(id: "2", name: "Collection 2"),
         ]
