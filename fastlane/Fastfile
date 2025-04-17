@@ -18,8 +18,213 @@ default_platform(:ios)
 
 require_relative 'build_utils'
 
+APP_CONFIG_MAP = {
+  "password_manager" => {
+    project_filepath: "project-pm.yml",
+    build_ipa_path: "build/Bitwarden/Bitwarden.ipa",
+    build_dsyms_path: "build/Bitwarden.xcarchive/dSYMs",
+    build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app",
+    ci_build_info_filepath: "BitwardenShared/Core/Platform/Utilities/CIBuildInfo.swift",
+  },
+  "authenticator" => {
+    project_filepath: "project-bwa.yml",
+    build_ipa_path: "build/Authenticator/Authenticator.ipa",
+    build_dsyms_path: "build/Authenticator.xcarchive/dSYMs",
+    build_app_path: "build/DerivedData/Build/Products/Debug-iphonesimulator/Authenticator.app",
+    ci_build_info_filepath: "AuthenticatorShared/Core/Platform/Utilities/CIBuildInfo.swift",
+  },
+}
+
+ARTIFACT_EXTENSION = {
+    "simulator" => "app",
+    "device" => "ipa",
+}
+
 platform :ios do |options|
-    lane :update_plists do |options|
+    before_all do
+        ensure_env_vars(
+            env_vars: ['APP']
+        )
+        app = ENV["APP"]
+        lane_context[:APP] = app
+        lane_context[:APP_CONFIG] = APP_CONFIG_MAP[app]
+    end
+
+    lane :setup_secrets do |options|
+        download_secrets options
+        move_provisioning_profiles options
+    end
+
+    lane :setup_code_files do |options|
+        update_plists options
+        select_variant options
+        update_version_info options
+    end
+
+    lane :post_build do |options|
+        prepare_artifacts options
+    end
+
+    lane :get_artifact_name do |options|
+        required_options = [
+            :build_mode,
+            :version_name,
+            :version_number,
+            :xcode_version,
+        ]
+        ensure_required_options(options, required_options)
+
+        ensure_env_vars(
+             env_vars: ['BUNDLE_ID']
+        )
+
+        build_mode = options[:build_mode]
+        version_name = options[:version_name]
+        version_number = options[:version_number]
+        xcode_version = options[:xcode_version]
+
+        bundle_id = ENV["BUNDLE_ID"]
+        ext = ARTIFACT_EXTENSION[build_mode]
+        app_config = lane_context[:APP_CONFIG]
+        UI.message "artifact_filename: #{bundle_id}-#{version_name}(#{version_number})-#{xcode_version}.#{ext}"
+    end
+
+    desc "Update CI build info"
+    lane :update_ci_build_info do |options|
+        required_options = [
+            :repository,
+            :branch,
+            :commit_hash,
+            :ci_run_number,
+            :ci_run_attempt,
+        ]
+
+        ensure_required_options(options, required_options)
+
+        repository = options[:repository]
+        branch = options[:branch]
+        commit_hash = options[:commit_hash]
+        ci_run_number = options[:ci_run_number]
+        ci_run_attempt = options[:ci_run_attempt]
+        compiler_flags = options[:compiler_flags]
+
+        app_config = lane_context[:APP_CONFIG]
+        ci_build_info_filepath = app_config[:ci_build_info_filepath]
+
+        git_source = "#{repository}/#{branch}@#{commit_hash}"
+        ci_run_source = "#{repository}/actions/runs/#{ci_run_number}/attempts/#{ci_run_attempt}"
+
+        UI.message("🧱 Updating app CI Build info...")
+        UI.message("🧱 🧱#{git_source}")
+        UI.message("🧱 💻#{ci_run_source}")
+        UI.message("🧱 🛠️ #{compiler_flags}")
+
+        Dir.chdir("..") do
+            FileUtils.mkdir_p(File.dirname(ci_build_info_filepath))
+            File.write(ci_build_info_filepath, <<~CONTENT)
+                enum CIBuildInfo {
+                    static let info: KeyValuePairs<String, String> = [
+                        "🧱 commit:": "#{git_source}",
+                        "💻 build source:": "#{ci_run_source}",
+                        "🛠️ compiler flags:": "#{compiler_flags}",
+                    ]
+                }
+            CONTENT
+        end
+
+        UI.success("🧱 Successfully updated app CI Build info")
+    end
+
+    desc "Push a new build to TestFlight"
+    lane :upload_build do |options|
+        upload_to_testflight(
+            skip_submission: false,
+            changelog: options[:changelog],
+            skip_waiting_for_build_processing: false,
+            api_key_path: options[:api_key_path],
+            ipa: options[:ipa_path],
+            localized_build_info: {
+                "default": {
+                    whats_new: options[:changelog],
+                }
+            }
+        )
+    end
+
+    desc "Download secrets from remote storage"
+    private_lane :download_secrets do |options|
+        required_options = [
+            :az_account_name,
+            :az_profiles_container,
+            :az_files_container,
+            :secrets_path,
+            :fastlane_creds_filename
+        ]
+
+        ensure_required_options(options, required_options)
+
+        ensure_env_vars(
+             env_vars: ['PROVISIONING_PROFILES', 'AZURE_CRASHLYTICS_FILE_NAME']
+        )
+
+        az_account_name = options[:az_account_name]
+        az_profiles_container = options[:az_profiles_container]
+        az_files_container = options[:az_files_container]
+        secrets_path = options[:secrets_path]
+        fastlane_creds_filename = options[:fastlane_creds_filename]
+
+        fastlane_creds_filepath = secrets_path + fastlane_creds_filename
+        local_crashlytics_filepath = "Bitwarden/Application/Support/GoogleService-Info.plist"
+        local_watch_crashlytics_filepath = "BitwardenWatchApp/GoogleService-Info.plist"
+
+        provisioning_profiles = parse_env_list(ENV['PROVISIONING_PROFILES'])
+        azure_crashlytics_filename = ENV['AZURE_CRASHLYTICS_FILE_NAME']
+
+        #TODO do we need Dir.chdir("..") here?
+        BuildUtils.fetch_provisioning_profiles(provisioning_profiles, secrets_path, az_account_name, az_profiles_container)
+        BuildUtils.fetch_file(azure_crashlytics_filename, local_crashlytics_filepath, az_account_name, az_files_container)
+        BuildUtils.fetch_file(azure_crashlytics_filename, local_watch_crashlytics_filepath, az_account_name, az_files_container)
+        BuildUtils.fetch_file(fastlane_creds_filename, fastlane_creds_filepath, az_account_name, az_files_container)
+    end
+
+    desc "Install provisioning profiles"
+    private_lane :install_provisioning_profiles do |options|
+        #TODO transition to install_provisioning_profile(path: "profiles/profile.mobileprovision") ?
+        required_options = [
+            :secrets_path,
+        ]
+
+        ensure_required_options(options, required_options)
+        ensure_env_vars(
+            env_vars: ['PROVISIONING_PROFILES']
+        )
+
+        secrets_path = options[:secrets_path]
+        provisioning_profiles = parse_env_list(ENV["PROVISIONING_PROFILES"])
+
+        library_dir_path = File.expand_path("~/Library/MobileDevice/Provisioning Profiles")
+        FileUtils.mkdir_p(library_dir_path)
+
+        provisioning_profiles.each do |profile|
+            profile_filepath = "#{secrets_path}/#{profile}"
+            profile_uuid = sh("grep UUID -A1 -a #{profile_filepath} | grep -io \"[-A-F0-9]\\{36\\}\"").strip
+            FileUtils.cp(profile_filepath, "#{library_dir_path}/#{profile_uuid}.mobileprovision")
+        end
+    end
+
+    private_lane :update_plists do |options|
+        required_options = [
+            :build_mode
+        ]
+        ensure_required_options(options, required_options)
+
+        ensure_env_vars(
+            env_vars: ['BUNDLE_ID', 'PLIST_EXPORT_COMPLIANCE_CODE', 'APS_ENVIRONMENT_DEVICE', 'APS_ENVIRONMENT_SIMULATOR']
+        )
+
+        build_mode = options[:build_mode].downcase() #values: simulator, device
+
+        #TODO add support for Authenticator
         update_plist(
             plist_path: "Bitwarden/Application/Support/Info.plist",
             block: proc do |plist|
@@ -27,11 +232,16 @@ platform :ios do |options|
                 plist[:ITSEncryptionExportComplianceCode] = ENV["PLIST_EXPORT_COMPLIANCE_CODE"]
               end
         )
-        # TODO Simulator builds should use development instead of production APS env
+
+        aps_env = if(build_mode == 'device')
+            ENV['APS_ENVIRONMENT_DEVICE']
+        else
+            ENV['APS_ENVIRONMENT_SIMULATOR']
+        end
         update_plist(
             plist_path: "Bitwarden/Application/Support/Bitwarden.entitlements",
             block: proc do |plist|
-                plist[:aps-environment] = ENV["APS_ENVIRONMENT"]
+                plist["aps-environment"] = aps_env
               end
         )
         update_plist(
@@ -42,49 +252,161 @@ platform :ios do |options|
         )
     end
 
-    desc "Push a new build to TestFlight"
-    lane :upload_build do |options|
-    upload_to_testflight(
-        skip_submission: false,
-        changelog: options[:changelog],
-        skip_waiting_for_build_processing: false,
-        api_key_path: options[:api_key_path],
-        ipa: options[:ipa_path],
-        localized_build_info: {
-            "default": {
-                whats_new: options[:changelog],
-            }
-        }
-    )
-    end
+    desc "Update version info in project yaml file"
+    private_lane :update_version_info do |options|
+      #require 'yaml'
 
-    desc "Update version numbers in project yaml file"
-    lane :update_version do |options|
-      require 'yaml'
+      required_options = [
+        :version_name,
+        :version_number,
+      ]
 
-      # Check required parameters
+      ensure_required_options(options, required_options)
+
+      app_config = lane_context[:APP_CONFIG]
+      project_filepath = app_config[:project_filepath]
+
       version_name = options[:version_name]
       version_number = options[:version_number]
-      project_filepath = options[:project_filepath]
-
-      UI.user_error!("Missing version_name parameter") unless version_name
-      UI.user_error!("Missing version_number parameter") unless version_number
-      UI.user_error!("Missing project_filepath parameter") unless project_filepath
 
       UI.message("Updating #{project_filepath} with version name: #{version_name} and version number: #{version_number}")
 
-      # Read the YAML file
-      project_yaml = YAML.load_file(project_filepath)
-
-      # Update the version values
-      project_yaml['settings']['MARKETING_VERSION'] = version_name
-      project_yaml['settings']['CURRENT_PROJECT_VERSION'] = version_number
-
-      # Write the updated YAML back to the file
-      File.open(project_filepath, 'w') do |file|
-        file.write(project_yaml.to_yaml)
+      #TODO yq retains the original formatting
+      Dir.chdir("..") do
+        sh("yq -i '.settings.MARKETING_VERSION = \"#{version_name}\"' '#{project_filepath}'")
+        sh("yq -i '.settings.CURRENT_PROJECT_VERSION = \"#{version_number}\"' '#{project_filepath}'")
       end
 
+
+      # Read the YAML file
+    #   project_yaml = YAML.load_file(project_filepath)
+
+    #   # Update the version values
+    #   project_yaml['settings']['MARKETING_VERSION'] = version_name
+    #   project_yaml['settings']['CURRENT_PROJECT_VERSION'] = version_number
+
+    #   # Write the updated YAML back to the file
+    #   File.open(project_filepath, 'w') do |file|
+    #     file.write(project_yaml.to_yaml)
+    #   end
+
       UI.success("Updated version information in #{project_filepath}")
+    end
+
+    desc "Select build variant and set compiler flags"
+    private_lane :select_variant do |options|
+      compiler_flags = options[:compiler_flags] || ''
+
+      ensure_env_vars(
+        env_vars: ['BUNDLE_ID', 'GROUP_ID', 'PROVISIONING_PROFILE_PREFIX', 'APP_ICON']
+      )
+
+      local_xcconfig_file = "Configs/Local.xcconfig"
+      export_options_file = "Configs/export_options.plist"
+
+      ios_bundle_id = ENV["BUNDLE_ID"]
+      shared_app_group_id = ENV["GROUP_ID"]
+      profile_prefix = ENV["PROVISIONING_PROFILE_PREFIX"]
+      app_icon = ENV["APP_ICON"]
+
+      UI.message("🧱 Setting build variant for #{ios_bundle_id}")
+
+      xcconfig_content = {
+        "CODE_SIGN_STYLE" => "Manual",
+        "CODE_SIGN_IDENTITY" => "Apple Distribution",
+        "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
+        "ORGANIZATION_IDENTIFIER" => "com.8bit",
+        "BASE_BUNDLE_ID" => ios_bundle_id,
+        "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
+        "APPICON_NAME" => app_icon,
+        #TODO support authenticator; check Scripts-bwa/select_variant.sh
+        "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden",
+        "PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION" => "#{profile_prefix} Extension",
+        "PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION" => "#{profile_prefix} Autofill",
+        "PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION" => "#{profile_prefix} Share Extension",
+        "PROVISIONING_PROFILE_SPECIFIER_WATCH_APP" => "#{profile_prefix} Bitwarden Watch App",
+        "PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION" => "#{profile_prefix} Bitwarden Watch Widget Extension",
+        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{compiler_flags}"
+      }
+
+      export_options_plist_content = <<~PLIST
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>method</key>
+          <string>app-store</string>
+          <key>provisioningProfiles</key>
+          <dict>
+              <key>#{ios_bundle_id}</key>
+              <string>#{profile_prefix} Bitwarden</string>
+              <key>#{ios_bundle_id}.find-login-action-extension</key>
+              <string>#{profile_prefix} Extension</string>
+              <key>#{ios_bundle_id}.autofill</key>
+              <string>#{profile_prefix} Autofill</string>
+              <key>#{ios_bundle_id}.share-extension</key>
+              <string>#{profile_prefix} Share Extension</string>
+              <key>#{ios_bundle_id}.watchkitapp</key>
+              <string>#{profile_prefix} Bitwarden Watch App</string>
+              <key>#{ios_bundle_id}.watchkitapp.widget-extension</key>
+              <string>#{profile_prefix} Bitwarden Watch Widget Extension</string>
+          </dict>
+          <key>manageAppVersionAndBuildNumber</key>
+          <false/>
+      </dict>
+      </plist>
+      PLIST
+
+      Dir.chdir("..") do
+        FileUtils.mkdir_p(File.dirname(local_xcconfig_file))
+        FileUtils.mkdir_p(File.dirname(export_options_file))
+        File.write(local_xcconfig_file, xcconfig_content.map { |key, value| "#{key} = #{value}" }.join("\n"))
+        File.write(export_options_file, export_options_plist_content)
+      end
+
+      #TODO do we need to convert this to a fastlane lane?
+      if compiler_flags.include?("SUPPORTS_CXP")
+        sh("./Scripts/alpha_update_cxp_infoplist.sh")
+      end
+
+      UI.success("Successfully set build variant for #{ios_bundle_id}")
+    end
+
+    desc "Prepare artifacts for upload to GitHub"
+    private_lane :prepare_artifacts do |options|
+        required_options = [
+            :build_mode,
+            :export_path
+        ]
+        ensure_required_options(options, required_options)
+
+        build_mode = options[:build_mode].downcase() #values: simulator, device
+        export_path = options[:export_path]
+        app_config = lane_context[:APP_CONFIG]
+        build_ipa_path = app_config[:build_ipa_path]
+        build_dsyms_path = app_config[:build_dsyms_path]
+        build_app_path = app_config[:build_app_path]
+
+        case build_mode
+            when 'simulator'
+                sh("cp -r #{build_app_path} #{export_path}")
+            when 'device'
+                sh("cp #{build_ipa_path} #{export_path}")
+                sh("cp -rv #{build_dsyms_path}/*dSYM #{export_path}/dSYMs")
+            else
+                UI.user_error!("Invalid build mode: #{build_mode}")
+        end
+    end
+
+    def ensure_required_options(options, required_options)
+        missing_options = required_options.select { |option| options[option].nil? || options[option].empty? }
+
+        unless missing_options.empty?
+            UI.user_error!("Missing required options: #{missing_options.join(', ')}")
+        end
+    end
+
+    def parse_env_list(env_value)
+        env_value.to_s.delete(" \t\r\n").split(',')
     end
 end
