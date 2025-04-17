@@ -157,8 +157,8 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertFalse(state.canBeDeleted)
     }
 
-    /// `canBeRestoredPermission` cipher permissions is nil fallback to isSoftDeleted
-    func test_canBeRestoredPermission_permissions_nil() throws {
+    /// `canBeRestored` cipher permissions is nil fallback to isSoftDeleted
+    func test_canBeRestored_permissions_nil() throws {
         var cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
             deletedDate: nil,
@@ -167,7 +167,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.restrictCipherItemDeletionFlagEnabled = true
-        XCTAssertFalse(state.canBeRestoredPermission)
+        XCTAssertFalse(state.canBeRestored)
 
         cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
@@ -176,12 +176,12 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
             permissions: nil
         )
         state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertTrue(state.canBeRestoredPermission)
+        XCTAssertTrue(state.canBeRestored)
     }
 
-    /// `canBeRestoredPermission` returns value from cipher permissions if not nil
+    /// `canBeRestored` returns value from cipher permissions if not nil
     /// restore value true
-    func test_canBeRestoredPermission_true() throws {
+    func test_canBeRestored_true() throws {
         let cipher = CipherView.loginFixture(
             deletedDate: Date(),
             login: .fixture(),
@@ -192,12 +192,12 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.restrictCipherItemDeletionFlagEnabled = true
-        XCTAssertTrue(state.canBeRestoredPermission)
+        XCTAssertTrue(state.canBeRestored)
     }
 
-    /// `canBeRestoredPermission` returns value from cipher permissions if not nil
+    /// `canBeRestored` returns value from cipher permissions if not nil
     /// restore value false
-    func test_canBeRestoredPermission_false() throws {
+    func test_canBeRestored_false() throws {
         let cipher = CipherView.loginFixture(
             deletedDate: Date(),
             login: .fixture(),
@@ -208,7 +208,7 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.restrictCipherItemDeletionFlagEnabled = true
-        XCTAssertFalse(state.canBeRestoredPermission)
+        XCTAssertFalse(state.canBeRestored)
     }
 
     /// `restrictCipherItemDeletionFlagEnable` default value is false

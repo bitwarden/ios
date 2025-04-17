@@ -81,12 +81,13 @@ extension ViewItemState {
         iconBaseURL: URL?,
         restrictCipherItemDeletionFlagEnabled: Bool
     ) {
-        guard let cipherItemState = CipherItemState(
+        guard var cipherItemState = CipherItemState(
             existing: cipherView,
             hasMasterPassword: hasMasterPassword,
             hasPremium: hasPremium,
             iconBaseURL: iconBaseURL
         ) else { return nil }
+        cipherItemState.restrictCipherItemDeletionFlagEnabled = restrictCipherItemDeletionFlagEnabled
         self.init(loadingState: .data(cipherItemState))
         self.hasMasterPassword = hasMasterPassword
         hasPremiumFeatures = cipherItemState.accountHasPremium

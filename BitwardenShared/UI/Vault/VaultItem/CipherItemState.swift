@@ -151,25 +151,27 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     /// Whether or not this item can be deleted by the user.
     var canBeDeleted: Bool {
-        // New permission model from PM-18091
-        if restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions {
-            return cipherPermissions.delete
+        // backwards compatibility for old server versions
+        guard restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions else {
+            guard !collectionIds.isEmpty else { return true }
+            return allUserCollections.contains { collection in
+                guard let id = collection.id else { return false }
+                return collection.manage && collectionIds.contains(id)
+            }
         }
 
-        guard !collectionIds.isEmpty else { return true }
-        return allUserCollections.contains { collection in
-            guard let id = collection.id else { return false }
-            return collection.manage && collectionIds.contains(id)
-        }
+        // New permission model from PM-18091
+        return cipherPermissions.delete
     }
 
     /// Whether or not this item can be restored by the user.
-    /// New permission model from PM-18091
-    var canBeRestoredPermission: Bool {
+    var canBeRestored: Bool {
         // backwards compatibility for old server versions
-        guard let cipherPermissions = cipher.permissions else {
+        guard restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions else {
             return isSoftDeleted
         }
+
+        // New permission model from PM-18091
         return cipherPermissions.restore && isSoftDeleted
     }
 

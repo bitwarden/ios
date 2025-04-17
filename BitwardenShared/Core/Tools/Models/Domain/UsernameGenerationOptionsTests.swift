@@ -11,6 +11,7 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
         {
           "anonAddyApiAccessToken": "ADDYIO_API_TOKEN",
           "anonAddyDomainName": "bitwarden.com",
+          "anonAddyBaseUrl": "bitwarden.com",
           "capitalizeRandomWordUsername": true,
           "catchAllEmailDomain": "bitwarden.com",
           "catchAllEmailType": 0,
@@ -24,6 +25,7 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
           "plusAddressedEmailType": 0,
           "serviceType": 2,
           "simpleLoginApiKey": "SIMPLELOGIN_API_KEY",
+          "simpleLoginBaseUrl": "app.simplelogin.io",
           "type": 2
         }
         """
@@ -34,6 +36,7 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
             UsernameGenerationOptions(
                 anonAddyApiAccessToken: "ADDYIO_API_TOKEN",
                 anonAddyDomainName: "bitwarden.com",
+                anonAddyBaseUrl: "bitwarden.com",
                 capitalizeRandomWordUsername: true,
                 catchAllEmailDomain: "bitwarden.com",
                 catchAllEmailType: .random,
@@ -47,6 +50,7 @@ class UsernameGenerationOptionsTests: BitwardenTestCase {
                 plusAddressedEmailType: .random,
                 serviceType: .simpleLogin,
                 simpleLoginApiKey: "SIMPLELOGIN_API_KEY",
+                simpleLoginBaseUrl: "app.simplelogin.io",
                 type: .forwardedEmail
             )
         )

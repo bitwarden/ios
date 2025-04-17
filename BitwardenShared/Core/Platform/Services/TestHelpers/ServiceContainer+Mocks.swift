@@ -2,6 +2,7 @@ import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
 import Networking
+import TestHelpers
 
 @testable import BitwardenShared
 
@@ -29,6 +30,7 @@ extension ServiceContainer {
         exportVaultService: ExportVaultService = MockExportVaultService(),
         fido2CredentialStore: Fido2CredentialStore = MockFido2CredentialStore(),
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper = MockFido2UserInterfaceHelper(),
+        flightRecorder: FlightRecorder = MockFlightRecorder(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         importCiphersRepository: ImportCiphersRepository = MockImportCiphersRepository(),
         httpClient: HTTPClient = MockHTTPClient(),
@@ -87,6 +89,7 @@ extension ServiceContainer {
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             generatorRepository: generatorRepository,
             importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,

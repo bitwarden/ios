@@ -100,6 +100,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .addyIO
+        subject.usernameState.addyIOSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -115,6 +116,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API access token Value: (empty)
               Text: Domain name (required) Value: (empty)
+              Text: Self-host server URL Value: (empty)
             """
         }
     }
@@ -222,6 +224,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.generatorType = .username
         subject.usernameState.usernameGeneratorType = .forwardedEmail
         subject.usernameState.forwardedEmailService = .simpleLogin
+        subject.usernameState.simpleLoginSelfHostServerUrlEnabled = true
 
         assertInlineSnapshot(of: dumpFormSections(subject.formSections), as: .lines) {
             """
@@ -236,6 +239,7 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 Selection: SimpleLogin
                 Options: addy.io, DuckDuckGo, Fastmail, Firefox Relay, ForwardEmail, SimpleLogin
               Text: API key (required) Value: (empty)
+              Text: Self-host server URL Value: (empty)
             """
         }
     }
@@ -551,6 +555,9 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.addyIOAPIAccessToken = "token"
         XCTAssertTrue(subject.canGenerateUsername)
 
+        subject.addyIOSelfHostServerUrl = "bitwarden.com"
+        XCTAssertTrue(subject.canGenerateUsername)
+
         subject.forwardedEmailService = .duckDuckGo
         XCTAssertFalse(subject.canGenerateUsername)
         subject.duckDuckGoAPIKey = "apiKey"
@@ -585,6 +592,32 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         XCTAssertEqual(subject.catchAllEmailType, .random)
         XCTAssertEqual(subject.plusAddressedEmailType, .random)
+    }
+
+    /// `usernameState.update(with:)` sets addy io base url if exists.
+    func test_usernameState_updateWithOptions_addyIOBaseUrl() {
+        var subject = GeneratorState().usernameState
+        subject.update(with: UsernameGenerationOptions(anonAddyBaseUrl: "bitwarden.com"))
+
+        XCTAssertEqual(subject.usernameGenerationOptions.anonAddyBaseUrl, "bitwarden.com")
+
+        subject.addyIOSelfHostServerUrl = "bitwarden2.com"
+        subject.update(with: UsernameGenerationOptions())
+
+        XCTAssertEqual(subject.usernameGenerationOptions.anonAddyBaseUrl, "bitwarden2.com")
+    }
+
+    /// `usernameState.update(with:)` sets SimpleLogin base url if exists.
+    func test_usernameState_updateWithOptions_simpleLoginBaseUrl() {
+        var subject = GeneratorState().usernameState
+        subject.update(with: UsernameGenerationOptions(simpleLoginBaseUrl: "bitwarden.com"))
+
+        XCTAssertEqual(subject.usernameGenerationOptions.simpleLoginBaseUrl, "bitwarden.com")
+
+        subject.simpleLoginSelfHostServerUrl = "bitwarden2.com"
+        subject.update(with: UsernameGenerationOptions())
+
+        XCTAssertEqual(subject.usernameGenerationOptions.simpleLoginBaseUrl, "bitwarden2.com")
     }
 
     /// `usernameState.update(with:)` sets the email type to website if an email website exists.
@@ -677,7 +710,13 @@ class GeneratorStateTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         subject.forwardedEmailService = .simpleLogin
         try XCTAssertEqual(
             subject.usernameGeneratorRequest(),
-            .forwarded(service: .simpleLogin(apiKey: "SIMPLE LOGIN TOKEN", baseUrl: ""), website: "example.com")
+            .forwarded(
+                service: .simpleLogin(
+                    apiKey: "SIMPLE LOGIN TOKEN",
+                    baseUrl: "https://app.simplelogin.io"
+                ),
+                website: "example.com"
+            )
         )
     }
 

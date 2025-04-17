@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// A protocol for a `TwoStepLoginService` which is used by the application to generate a two step login URL.

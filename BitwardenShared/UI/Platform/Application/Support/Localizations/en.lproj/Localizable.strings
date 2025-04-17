@@ -1174,3 +1174,4 @@
 "ExpiresToday" = "Expires today";
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
+"SelfHostServerURL" = "Self-host server URL";

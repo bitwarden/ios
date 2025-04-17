@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -482,6 +483,18 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         stateService.learnGeneratorActionCardStatus = .complete
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
+    }
+
+    /// `perform(:)` with `.appeared` should set the `addyIOSelfHostServerUrlEnabled` to
+    /// feature flag `anonAddySelfHostAlias` value and `simpleLoginSelfHostServerUrlEnabled`
+    /// to feature flag `simpleLoginSelfHostAlias` value.
+    @MainActor
+    func test_perform_loadFlags() async {
+        configService.featureFlagsBool[.anonAddySelfHostAlias] = true
+        configService.featureFlagsBool[.simpleLoginSelfHostAlias] = true
+        await subject.perform(.appeared)
+        XCTAssertTrue(subject.state.usernameState.addyIOSelfHostServerUrlEnabled)
+        XCTAssertTrue(subject.state.usernameState.simpleLoginSelfHostServerUrlEnabled)
     }
 
     /// `receive(_:)` with `.copyGeneratedValØue` copies the generated password to the system
