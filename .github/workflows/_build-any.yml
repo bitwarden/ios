@@ -7,9 +7,6 @@ on:
       environment:
         description: "Environment"
         type: string
-      build-variant:
-        description: "Build Variant"
-        type: string
       build-mode:
         description: "Build Mode"
         type: string
@@ -28,16 +25,16 @@ on:
       distribute:
         description: "Distribute to TestFlight"
         type: boolean
-      upload_version_info:
-        description: "Upload version-info file - When false, caller may be handling it already"
-        type: boolean
 env:
   _ENV: ${{ inputs.environment || 'bwpm-prod' }}
-  _BUILD_VARIANT: ${{ inputs.build-variant || 'Beta' }}
+  _BUILD_VARIANT: ${{ inputs.environment == 'bwpm-prod' && 'Production' || 'Beta' }} #TODO: improve build variant check by migrating configure_provisioning_profiles.sh to fastlane
   _BUILD_MODE: ${{ inputs.build-mode || 'Device' }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
+  _VERSION_NAME: ${{ inputs.version-name }}
+  _VERSION_NUMBER: ${{ inputs.version-number }}
   _COMPILER_FLAGS: ${{ inputs.compiler-flags }}
   _GITHUB_ACTION_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}
+  _EXPORT_PATH: 'export'
 
 jobs:
   build:
@@ -58,50 +55,6 @@ jobs:
 
       - name: Check out repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        # with:
-        #   fetch-depth: 0
-        #   filter: tree:0 #TODO validate arguments
-
-      # - name: Calculate version
-      #   if: ${{ inputs.build-number == '' || inputs.build-version == '' }}
-      #   uses: bitwarden/ios/.github/actions/dispatch-and-download@main
-      #   id: dispatch-version
-      #   with:
-      #     token: ${{ secrets.GITHUB_TOKEN }}
-      #     owner: bitwarden
-      #     repo: ios
-      #     ref: main
-      #     workflow: _version.yml
-      #     workflow_inputs: '{"base_version_number": "${{ inputs.base_version_number }}", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
-
-      - name: Read version info
-        id: version_info
-        run: |
-          #TODO refactor this, we're not calculating version anymore
-          if [ ! -f version-info/version_info.json ]; then
-            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
-            json='{
-              "version_number": "${{ inputs.version-number }}",
-              "version_name": "${{ inputs.version-name }}"
-            }'
-
-            # file will be used by the upload step
-            mkdir version-info
-            echo "$json" > version-info/version_info.json
-          else
-              echo "::notice::version-version.json found!"
-          fi
-
-          content=$(cat version-info/version_info.json)
-          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
-          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
-
-      # - name: Upload version info artifact
-      #   if: ${{ inputs.upload_version_info }}
-      #   uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-      #   with:
-      #     name: version-info
-      #     path: version-info/version_info.json
 
       - name: Read Xcode version from file if not provided
         run: |
@@ -109,6 +62,7 @@ jobs:
             echo "_XCODE_VERSION=$(cat .xcode-version | tr -d '\n')" >> "$GITHUB_ENV"
           fi
 
+      #TODO: replace with xcode-select instruction
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@60606e260d2fc5762a71e64e74b2174e8ea3c8bd # v1.6.0
         with:
@@ -119,14 +73,13 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Cache Mint packages
-        id: mint-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
-        with:
-          path: .mint
-          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-          restore-keys: |
-            ${{ runner.os }}-mint-
+      - name: Install Homebrew Dependencies
+        run: |
+          brew update
+          brew install fastlane@2.227.1
+          brew install mint
+          brew install yq
+          brew install swift-protobuf
 
       - name: Log in to Azure
         if: env._BUILD_MODE == 'Device'
@@ -134,35 +87,21 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
-      - name: Retrieve secrets
-        if: env._BUILD_MODE == 'Device'
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "appcenter-ios-token"
-
-      - name: Retrieve production secrets
+      - name: Setup secrets
         if: env._BUILD_MODE == 'Device'
         run: |
           mkdir -p $HOME/secrets
-          ruby fastlane/build_utils.rb \
+          bundle exec fastlane setup_secrets \
             --env $_ENV \
-            --secrets-path $HOME/secrets/ \
-            --fastlane-creds-filename appstoreconnect-fastlane.json \
-            --crashlytics-filepath Bitwarden/Application/Support/GoogleService-Info.plist \
-            --crashlytics-watch-filepath BitwardenWatchApp/GoogleService-Info.plist \
-            --az-account bitwardenci \
-            --az-profiles-container profiles \
-            --az-files-container mobile \
+            secrets_path:$HOME/secrets/ \
+            fastlane_creds_filename:appstoreconnect-fastlane.json \
+            az_account_name:bitwardenci \
+            az_profiles_container:profiles \
+            az_files_container:mobile
 
           mkdir -p $HOME/certificates
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
-            jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
-
-      - name: Update Plist files
-        if: env._BUILD_MODE == 'Device'
-        run: |
-          fastlane update_plists
+          # az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
+          #   jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
       - name: Configure Keychain Access
         if: env._BUILD_MODE == 'Device'
@@ -178,76 +117,69 @@ jobs:
             -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-      - name: Configure provisioning profiles
-        if: env._BUILD_MODE == 'Device'
+      - name: Setup code files
         run: |
-          ./Scripts/configure_provisioning_profiles.sh ${{ env._BUILD_VARIANT }}
+          bundle exec fastlane setup_code_files \
+            --env $_ENV \
+            build_mode:$_BUILD_MODE \
+            version_name:$_VERSION_NAME \
+            version_number:$_VERSION_NUMBER \
 
-      - name: Update beta Fastlane Appfile
-        if: env._BUILD_VARIANT == 'Beta'
-        run: |
-          echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
+          bundle exec fastlane update_ci_build_info \
+            --env $_ENV \
+            repository:$GITHUB_REPOSITORY \
+            branch:$GITHUB_REF_NAME \
+            commit_hash:$GITHUB_SHA \
+            ci_run_number:$GITHUB_RUN_ID \
+            ci_run_attempt:$GITHUB_RUN_ATTEMPT \
+            compiler_flags:"$_COMPILER_FLAGS"
 
-      # - name: Update APNS entitlements
-      #   if: env._BUILD_MODE == 'Device'
-      #   run: |
-      #     plutil -replace aps-environment -string production Bitwarden/Application/Support/Bitwarden.entitlements
-
-
-
-      - name: Install Homebrew Dependencies
-        run: |
-          brew update
-          brew install fastlane
-          brew install mint
-          brew install yq
-          brew install swift-protobuf
+      - name: Cache Mint packages
+        id: mint-cache
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        with:
+          path: .mint
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: |
+            ${{ runner.os }}-mint-
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
         run: |
           mint bootstrap
 
-      - name: Select variant
+      - name: Build ${{ inputs.environment }}
+        env:
+          IS_BWPM: ${{ startsWith(inputs.environment, 'bwpm-') }}
         run: |
-          ./Scripts/select_variant.sh ${{ env._BUILD_VARIANT }} "${{ env._COMPILER_FLAGS }}"
-
-      - name: Update build version and number
-        run: |
-          yq -i '.settings.MARKETING_VERSION = "${{ inputs.version-name }}"' 'project-pm.yml'
-          yq -i '.settings.CURRENT_PROJECT_VERSION = "${{ inputs.version-number }}"' 'project-pm.yml'
-
-      - name: Update CI build info
-        run: |
-          ./Scripts/update_app_ci_build_info.sh $GITHUB_REPOSITORY $GITHUB_REF_NAME $GITHUB_SHA $GITHUB_RUN_ID $GITHUB_RUN_ATTEMPT "$_COMPILER_FLAGS"
-
-      - name: Build iOS app
-        run: |
-          ./Scripts/build.sh ${{ env._BUILD_MODE }}
+          #TODO merge build script / migrate to fastlane
+          if [ "$IS_BWPM" = true ]; then
+            ./Scripts/build.sh $_BUILD_MODE
+          else
+            ./Scripts-bwa/build.sh #TODO add support for simulator Authenticator builds
+          fi
 
       - name: Prepare artifacts for upload to GitHub
         run: |
-          mkdir -p export
-          case "$_BUILD_MODE" in
-            "Simulator")
-              cp -r build/DerivedData/Build/Products/Debug-iphonesimulator/Bitwarden.app export
-              ;;
-            "Device")
-              mkdir -p export/dSYMs
-              cp build/Bitwarden/Bitwarden.ipa export
-              cp -rv build/Bitwarden.xcarchive/dSYMs/*.dSYM export/dSYMs
-              ;;
-            *)
-              echo "Error: Invalid BUILD_MODE '$_BUILD_MODE'"
-              exit 1
-              ;;
-          esac
+          mkdir -p $_EXPORT_PATH
+          mkdir -p $_EXPORT_PATH/dSYMs
+          bundle exec fastlane post_build \
+            --env $_ENV \
+            build_mode:$_BUILD_MODE \
+            export_path:$_EXPORT_PATH
+
+      - name: Get artifact name
+        id: get_artifact_name
+        run: |
+          ARTIFACT_NAME=$(bundle exec fastlane get_artifact_name --env $_ENV | grep "artifact_filename: " | cut -d' ' -f3)
+          echo "🧱 Artifact name: $ARTIFACT_NAME"
+          echo "filename=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts to GitHub
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env._BUILD_VARIANT }} ${{ env._XCODE_VERSION }} ${{ env._BUILD_MODE }} ${{ env._COMPILER_FLAGS }}
-          path: export
+          name: ${{ steps.get_artifact_name.outputs.filename }}
+          path: ${{ env._EXPORT_PATH }}
           if-no-files-found: error
 
       - name: Set up private auth key
