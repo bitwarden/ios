@@ -1161,9 +1161,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Журналите се изтриват автоматично след 30 дни. Битуорден може да получи достъп до информацията в журналите само, ако я споделите.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "За подробности какво се записва в журнала и какво – не, посетете **[помощния център на Битуорден](%1$@)**.";
 "OneWeek" = "1 седмица";
+"ShowMore" = "Show more";
+"ShowLess" = "Show less";
+"ItemNameX" = "Item name, %1$@";
+"OwnerX" = "Owner, %1$@";
+"CollectionX" = "Collection, %1$@";
+"FolderX" = "Folder, %1$@";
+"ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "Преглед на записаните журнали";
 "RecordedLogs" = "Записани журнали";
 "NoLogsRecorded" = "Няма записани журнали";
 "ExpiresToday" = "Изтича днес";
 "ExpiresInXDays" = "Изтича след %1$@ дни";
 "DateRangeXToY" = "%1$@ до %2$@";
+"SelfHostServerURL" = "Адрес на собствения сървър";

@@ -1161,9 +1161,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "A naplók 30 nap elteltével automatikusan törlődnek. A Bitwarden csak akkor fér hozzá a naplóadatokhoz, ha megosztjuk vele azokat.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "A naplózott és nem naplózott részletekért keressük fel a **[Bitwarden súgóját](%1$@)**.";
 "OneWeek" = "1 hét";
+"ShowMore" = "Show more";
+"ShowLess" = "Show less";
+"ItemNameX" = "Item name, %1$@";
+"OwnerX" = "Owner, %1$@";
+"CollectionX" = "Collection, %1$@";
+"FolderX" = "Folder, %1$@";
+"ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "Rögzített naplók megtekintése";
 "RecordedLogs" = "Adatrögzítő naplók";
 "NoLogsRecorded" = "Nincs napló rögzítve.";
 "ExpiresToday" = "Ma lejár";
 "ExpiresInXDays" = "Lejár %1$@ nap múlva";
 "DateRangeXToY" = "%1$@ - %2$@";
+"SelfHostServerURL" = "Saját üzemeltetésű szerver webcím";

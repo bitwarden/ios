@@ -480,7 +480,7 @@
 "Biometrics" = "Biometria";
 "UseBiometricsToUnlock" = "Usar biometria para desbloquear";
 "AccessibilityOverlayPermissionAlert" = "O Bitwarden precisa de atenção - Veja o \"Serviço de Acessibilidade de Autopreenchimento\" nas configurações do Bitwarden";
-"BitwardenAutofillServiceOverlayPermission" = "3. Na tela Configurações do Aplicativo Android para o Bitwarden, vá para a opção de \"Sobrepor a outros aplicativos\" (em Avançado) e toque no botão para habilitar o suporte à sobreposição.";
+"BitwardenAutofillServiceOverlayPermission" = "3. Na tela de configurações de app do Android do Bitwarden, vá para a opção de \"Sobrepor a outros aplicativos\" (em Avançado) e toque no botão para ativar o suporte à sobreposição.";
 "OverlayPermission" = "Permissão";
 "BitwardenAutofillServiceOpenOverlayPermissionSettings" = "Abrir Configurações de Permissão de Sobreposição";
 "BitwardenAutofillServiceStep3" = "3. Na tela de Configurações do Aplicativo Android para o Bitwarden, selecione \"Mostrar sobre outros aplicativos\" (em \"Avançado\") e ative a opção para permitir a sobreposição.";
@@ -540,7 +540,7 @@
 "AccessibilityDrawOverPermissionAlert" = "O Bitwarden precisa de atenção - ative a \"Sobreposição\" em \"Serviços de Autopreenchimento\" nas Configurações do Bitwarden";
 "PasskeyManagement" = "Gerenciamento de chaves de acesso";
 "AutofillServices" = "Serviços de preenchimento automático";
-"InlineAutofill" = "Usar Autopreenchimento em Linha";
+"InlineAutofill" = "Usar preenchimento automático embutido";
 "InlineAutofillDescription" = "Usar autopreenchimento nativo se o IME selecionado (teclado) o suporta. Se sua configuração não for suportada (ou esta opção estiver desativada), será usada a sobreposição de Autopreenchimento padrão.";
 "Accessibility" = "Usar acessibilidade";
 "AccessibilityDescription" = "Utilize o Serviço de Acessibilidade do Bitwarden para autopreencher as suas credenciais entre aplicativos e a web. Quando configurado, será exibido um popup quando os campos de login forem selecionados.";
@@ -852,7 +852,7 @@
 "XHours" = "%1$@ horas";
 "PasskeyManagementExplanationLong" = "Usar o Bitwarden para salvar chaves de acesso novas e fazer login com chaves de acesso armazenadas no seu cofre.";
 "AutofillServicesExplanationLong" = "O Framework de Preenchimento Automático do Android é usado para ajudar a preencher informações de login em outros aplicativos do seu dispositivo.";
-"UseInlineAutofillExplanationLong" = "Use o autopreenchimento interno se o teclado selecionado o suporta. Caso contrário, use a sobreposição padrão.";
+"UseInlineAutofillExplanationLong" = "Usar o preenchimento automático interno se o teclado selecionado o suporta. Caso contrário, a sobreposição padrão será usada.";
 "AdditionalOptions" = "Opções adicionais";
 "ContinueToWebApp" = "Continuar no aplicativo web?";
 "ContinueToX" = "Continuar para %1$@?";
@@ -1161,9 +1161,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Os logs serão excluídos automaticamente após 30 dias. O Bitwarden só será capaz de acessar os seus dados de log quando você compartilhá-los.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Para obter detalhes sobre o que está e não está logado, visite o **[Centro de Ajuda do Bitwarden](%1$@)**.";
 "OneWeek" = "1 semana";
+"ShowMore" = "Show more";
+"ShowLess" = "Show less";
+"ItemNameX" = "Item name, %1$@";
+"OwnerX" = "Owner, %1$@";
+"CollectionX" = "Collection, %1$@";
+"FolderX" = "Folder, %1$@";
+"ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
 "ExpiresToday" = "Expires today";
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
+"SelfHostServerURL" = "Self-host server URL";

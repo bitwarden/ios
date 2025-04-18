@@ -1161,9 +1161,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logy budou automaticky smazány po 30 dnech. Bitwarden má přístup k Vašim logům jen pokud je sdílíte.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Pro podrobnosti o tom, co je a není logováno, navštivte **[centrum nápovědy Bitwardenu](%1$@)**.";
 "OneWeek" = "1 týden";
+"ShowMore" = "Zobrazit více";
+"ShowLess" = "Zobrazit méně";
+"ItemNameX" = "Název položky, %1$@";
+"OwnerX" = "Vlastník, %1$@";
+"CollectionX" = "Kolekce %1$@";
+"FolderX" = "Složka, %1$@";
+"ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobrazit zaznamenané logy";
 "RecordedLogs" = "Nahrané logy";
 "NoLogsRecorded" = "Nebyly zaznamenány žádné logy";
 "ExpiresToday" = "Vyprší dnes";
 "ExpiresInXDays" = "Vyprší za %1$@ dnů";
 "DateRangeXToY" = "%1$@ do %2$@";
+"SelfHostServerURL" = "Adresa URL serveru vlastního hostování";
