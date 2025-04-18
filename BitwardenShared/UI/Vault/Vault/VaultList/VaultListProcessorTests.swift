@@ -26,7 +26,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var stateService: MockStateService!
     var subject: VaultListProcessor!
     var timeProvider: MockTimeProvider!
-    var twoFactorNoticeHelper: MockTwoFactorNoticeHelper!
     var vaultItemMoreOptionsHelper: MockVaultItemMoreOptionsHelper!
     var vaultRepository: MockVaultRepository!
 
@@ -51,7 +50,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         reviewPromptService = MockReviewPromptService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(.mockTime(Date(year: 2024, month: 6, day: 28)))
-        twoFactorNoticeHelper = MockTwoFactorNoticeHelper()
         vaultItemMoreOptionsHelper = MockVaultItemMoreOptionsHelper()
         vaultRepository = MockVaultRepository()
         let services = ServiceContainer.withMocks(
@@ -73,7 +71,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             coordinator: coordinator.asAnyCoordinator(),
             services: services,
             state: VaultListState(),
-            twoFactorNoticeHelper: twoFactorNoticeHelper,
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
         )
     }
@@ -448,14 +445,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         )
         XCTAssertTrue(application.registerForRemoteNotificationsCalled)
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
-    }
-
-    /// `perform(_:)` with `.appeared` calls the two-factor notice helper
-    @MainActor
-    func test_perform_appeared_twoFactorHelper() async throws {
-        await subject.perform(.appeared)
-
-        XCTAssertTrue(twoFactorNoticeHelper.maybeShowTwoFactorNoticeCalled)
     }
 
     /// `perform(_:)` with `.dismissImportLoginsActionCard` sets the user's import logins setup
