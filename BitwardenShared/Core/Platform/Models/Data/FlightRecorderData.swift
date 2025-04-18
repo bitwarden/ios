@@ -12,7 +12,7 @@ struct FlightRecorderData: Codable, Equatable {
     var activeLog: LogMetadata? {
         didSet {
             guard let oldValue else { return }
-            archivedLogs.append(oldValue)
+            archivedLogs.insert(oldValue, at: 0)
         }
     }
 
@@ -37,6 +37,9 @@ extension FlightRecorderData {
         /// The duration for how long the flight recorder was enabled for the log.
         let duration: FlightRecorderLoggingDuration
 
+        /// The date when the logging will end.
+        let endDate: Date
+
         /// The file name of the file on disk.
         let fileName: String
 
@@ -60,6 +63,8 @@ extension FlightRecorderData {
         init(duration: FlightRecorderLoggingDuration, startDate: Date) {
             self.duration = duration
             self.startDate = startDate
+
+            endDate = Calendar.current.date(byAdding: duration, to: startDate) ?? startDate
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"

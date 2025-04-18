@@ -8,6 +8,7 @@ final class MockFlightRecorder: FlightRecorder {
     var enableFlightRecorderCalled = false
     var enableFlightRecorderDuration: FlightRecorderLoggingDuration?
     var enableFlightRecorderResult: Result<Void, Error> = .success(())
+    var fetchLogsResult: Result<[FlightRecorderLogMetadata], Error> = .success([])
     var isEnabledSubject = CurrentValueSubject<Bool, Never>(false)
     var logMessages = [String]()
 
@@ -21,6 +22,10 @@ final class MockFlightRecorder: FlightRecorder {
         enableFlightRecorderCalled = true
         enableFlightRecorderDuration = duration
         try enableFlightRecorderResult.get()
+    }
+
+    func fetchLogs() async throws -> [FlightRecorderLogMetadata] {
+        try fetchLogsResult.get()
     }
 
     func isEnabledPublisher() async -> AnyPublisher<Bool, Never> {

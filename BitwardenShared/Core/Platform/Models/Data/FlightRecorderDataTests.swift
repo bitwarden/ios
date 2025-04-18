@@ -52,12 +52,13 @@ class FlightRecorderDataTests: BitwardenTestCase {
     /// `activeLog` sets the active log, archiving an existing log if there's already one active.
     func test_setActiveLog_existingLog() {
         let log1 = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
-        var subject = FlightRecorderData(activeLog: log1)
+        let log2 = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        var subject = FlightRecorderData(activeLog: log2, archivedLogs: [log1])
 
-        let log2 = FlightRecorderData.LogMetadata(duration: .oneWeek, startDate: .now)
-        subject.activeLog = log2
+        let log3 = FlightRecorderData.LogMetadata(duration: .oneWeek, startDate: .now)
+        subject.activeLog = log3
 
-        XCTAssertEqual(subject, FlightRecorderData(activeLog: log2, archivedLogs: [log1]))
+        XCTAssertEqual(subject, FlightRecorderData(activeLog: log3, archivedLogs: [log2, log1]))
     }
 
     // MARK: FlightRecorderData.LogMetadata Tests
@@ -69,6 +70,21 @@ class FlightRecorderDataTests: BitwardenTestCase {
 
         let log2 = FlightRecorderData.LogMetadata(duration: .oneWeek, startDate: .now)
         XCTAssertEqual(log2.id, log2.fileName)
+    }
+
+    /// `init(duration:startDate:)` calculates the end date based on the start date and duration.
+    func test_logMetadata_init_endDate() {
+        let log1 = FlightRecorderData.LogMetadata(
+            duration: .oneHour,
+            startDate: Date(year: 2025, month: 4, day: 11, hour: 10, minute: 30, second: 20)
+        )
+        XCTAssertEqual(log1.endDate, Date(year: 2025, month: 4, day: 11, hour: 11, minute: 30, second: 20))
+
+        let log2 = FlightRecorderData.LogMetadata(
+            duration: .oneWeek,
+            startDate: Date(year: 2025, month: 1, day: 2, hour: 3, minute: 4, second: 5)
+        )
+        XCTAssertEqual(log2.endDate, Date(year: 2025, month: 1, day: 9, hour: 3, minute: 4, second: 5))
     }
 
     /// `init(duration:startDate:)` creates a file name for the log based on the start date.
