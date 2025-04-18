@@ -52,6 +52,9 @@ protocol AppSettingsStore: AnyObject {
     /// The app's last data migration version.
     var migrationVersion: Int { get set }
 
+    /// The pending actions to be executed after triggering an `AppIntent`.
+    var pendingAppIntentActions: [PendingAppIntentAction]? { get set }
+
     /// The environment URLs used prior to user authentication.
     var preAuthEnvironmentURLs: EnvironmentURLData? { get set }
 
@@ -748,6 +751,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case migrationVersion
         case notificationsLastRegistrationDate(userId: String)
         case passwordGenerationOptions(userId: String)
+        case pendingAppIntentActions
         case pinProtectedUserKey(userId: String)
         case preAuthEnvironmentURLs
         case accountCreationEnvironmentURLs(email: String)
@@ -839,6 +843,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "pushLastRegistrationDate_\(userId)"
             case let .passwordGenerationOptions(userId):
                 key = "passwordGenerationOptions_\(userId)"
+            case .pendingAppIntentActions:
+                key = "pendingAppIntentActions"
             case let .pinProtectedUserKey(userId):
                 key = "pinKeyEncryptedUserKey_\(userId)"
             case .preAuthEnvironmentURLs:
@@ -942,6 +948,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var migrationVersion: Int {
         get { fetch(for: .migrationVersion) }
         set { store(newValue, for: .migrationVersion) }
+    }
+
+    var pendingAppIntentActions: [PendingAppIntentAction]? {
+        get { fetch(for: .pendingAppIntentActions) }
+        set { store(newValue, for: .pendingAppIntentActions) }
     }
 
     var preAuthEnvironmentURLs: EnvironmentURLData? {

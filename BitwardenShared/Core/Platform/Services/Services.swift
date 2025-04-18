@@ -6,6 +6,7 @@ import BitwardenSdk
 /// The services provided by the `ServiceContainer`.
 typealias Services = HasAPIService
     & HasAccountAPIService
+    & HasAppContextHelper
     & HasAppIdService
     & HasAppInfoService
     & HasAppSettingsStore
@@ -38,6 +39,7 @@ typealias Services = HasAPIService
     & HasNotificationService
     & HasOrganizationAPIService
     & HasPasteboardService
+    & HasPendingAppIntentActionMediator
     & HasPolicyService
     & HasRehydrationHelper
     & HasReviewPromptService
@@ -69,6 +71,13 @@ protocol HasAccountAPIService {
 protocol HasAPIService {
     /// The service used by the application to make API requests.
     var apiService: APIService { get }
+}
+
+/// Protocol for an object that provides an `AppContextHelper`.
+///
+protocol HasAppContextHelper {
+    /// Helper used to know app context.
+    var appContextHelper: AppContextHelper { get }
 }
 
 /// Protocol for an object that provides an `AppIdService`.
@@ -294,6 +303,13 @@ protocol HasNotificationCenterService {
 protocol HasOrganizationAPIService {
     /// The service used by the application to make organization-related API requests.
     var organizationAPIService: OrganizationAPIService { get }
+}
+
+/// Protocol for an object that provides an `PendingAppIntentActionMediator`.
+///
+protocol HasPendingAppIntentActionMediator {
+    /// The mediator to execute pending `AppIntent` actions.
+    var pendingAppIntentActionMediator: PendingAppIntentActionMediator { get }
 }
 
 /// Protocol for an object that provides a `PolicyService`.
