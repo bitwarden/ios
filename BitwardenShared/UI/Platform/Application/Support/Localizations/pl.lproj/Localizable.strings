@@ -1161,9 +1161,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logi są automatycznie usuwane po 30 dniach. Bitwarden ma dostęp do Twoich danych dziennika tylko wtedy, gdy je udostępnisz.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Jeśli chcesz dowiedzieć się więcej na temat tego, co jest, a co nie jest rejestrowane, odwiedź **[Centrum Pomocy Bitwarden](%1$@)**.";
 "OneWeek" = "1 tydzień";
+"ShowMore" = "Pokaż więcej";
+"ShowLess" = "Pokaż mniej";
+"ItemNameX" = "Nazwa elementu, %1$@";
+"OwnerX" = "Właściciel, %1$@";
+"CollectionX" = "Kolekcja, %1$@";
+"FolderX" = "Folder, %1$@";
+"ItemXOfY" = "Element %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobacz zarejestrowane logi";
 "RecordedLogs" = "Zarejestrowane logi";
 "NoLogsRecorded" = "Nie zarejestrowano logów";
 "ExpiresToday" = "Wygasa dzisiaj";
 "ExpiresInXDays" = "Wygasa za %1$@ dni";
 "DateRangeXToY" = "%1$@ do %2$@";
+"SelfHostServerURL" = "URL samodzielnie hostowanego serwera";
