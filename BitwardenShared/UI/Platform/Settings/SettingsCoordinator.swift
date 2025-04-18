@@ -193,8 +193,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showShareSheet([url])
         case let .shareURLs(urls):
             showShareSheet(urls)
-        case let .shareExportedVault(fileURL):
-            showExportedVaultURL(fileURL)
         case .vault:
             showVault()
         case .vaultUnlockSetup:
@@ -355,13 +353,6 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         let view = EnableFlightRecorderView(store: Store(processor: processor))
         let viewController = UIHostingController(rootView: view)
         stackNavigator?.present(UINavigationController(rootViewController: viewController))
-    }
-
-    /// Presents an activity controller for an exported vault file URL.
-    ///
-    private func showExportedVaultURL(_ fileURL: URL) {
-        let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
-        stackNavigator?.present(activityVC)
     }
 
     /// Shows the share sheet to share one or more items.

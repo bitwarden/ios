@@ -79,9 +79,6 @@ public enum SettingsRoute: Equatable, Hashable {
     /// A route to the settings screen.
     case settings
 
-    /// A route to the share sheet for an exported vault URL.
-    case shareExportedVault(URL)
-
     /// A route to the share sheet to share a URL.
     case shareURL(URL)
 
