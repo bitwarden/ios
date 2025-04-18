@@ -42,7 +42,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_accountRow_longPress_currentAccount() throws {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        try accountRow.labelView().recursiveCallOnLongPressGesture()
+        try accountRow.labelView().callOnLongPressGesture()
         let currentAccount = processor.state.activeAccountProfile!
         waitFor(!processor.effects.isEmpty)
 
@@ -55,14 +55,14 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.allowLockAndLogout = false
         processor.state.accounts[0].canBeLocked = false
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        XCTAssertThrowsError(try accountRow.labelView().recursiveCallOnLongPressGesture())
+        XCTAssertThrowsError(try accountRow.labelView().callOnLongPressGesture())
     }
 
     /// Tapping a profile row dispatches the `.accountPressed` action.
     @MainActor
     func test_accountRow_tap_currentAccount() throws {
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        try accountRow.labelView().recursiveCallOnTapGesture()
+        try accountRow.labelView().callOnTapGesture()
         let currentAccount = processor.state.activeAccountProfile!
         waitFor(!processor.effects.isEmpty)
 
@@ -97,7 +97,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             isVisible: true
         )
         let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try alternateRow.labelView().recursiveCallOnLongPressGesture()
+        try alternateRow.labelView().callOnLongPressGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .accountLongPressed(alternate))
@@ -123,7 +123,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         let alternateRow = try subject.inspect().find(button: "alternate@bitwarden.com")
         _ = try subject.inspect().find(button: "anne.account@bitwarden.com")
-        XCTAssertThrowsError(try alternateRow.labelView().recursiveCallOnLongPressGesture())
+        XCTAssertThrowsError(try alternateRow.labelView().callOnLongPressGesture())
     }
 
     /// Tapping an alternative profile row dispatches the `.accountPressed` action.
@@ -144,7 +144,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "alternate@bitwarden.com")
-        try addAccountRow.labelView().recursiveCallOnTapGesture()
+        try addAccountRow.labelView().callOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .accountPressed(alternate))
@@ -171,7 +171,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
             isVisible: true
         )
         let addAccountRow = try subject.inspect().find(button: "")
-        try addAccountRow.labelView().recursiveCallOnTapGesture()
+        try addAccountRow.labelView().callOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .accountPressed(secondAlternate))
