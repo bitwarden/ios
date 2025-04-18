@@ -166,6 +166,12 @@ public class ServiceContainer: Services {
             dataStore: dataStore
         )
 
+        let environmentService = DefaultEnvironmentService()
+
+        let apiService = APIService(
+            environmentService: environmentService
+        )
+
         let timeProvider = CurrentTime()
 
         let biometricsRepository = DefaultBiometricsRepository(
@@ -176,6 +182,7 @@ public class ServiceContainer: Services {
 
         let configService = DefaultConfigService(
             appSettingsStore: appSettingsStore,
+            configApiService: apiService,
             errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider

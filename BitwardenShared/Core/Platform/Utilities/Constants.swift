@@ -67,9 +67,6 @@ extension Constants {
     /// The maximum number of unsuccessful attempts the user can make to unlock
     static let maxUnlockUnsuccessfulAttempts = 5
 
-    /// The minimum number of minutes before attempting a server config sync again.
-    static let minimumConfigSyncInterval: TimeInterval = 60 * 60 // 60 minutes
-
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters = 12
 
