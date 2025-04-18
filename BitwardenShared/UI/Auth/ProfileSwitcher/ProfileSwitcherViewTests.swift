@@ -181,7 +181,7 @@ class ProfileSwitcherViewTests: BitwardenTestCase { // swiftlint:disable:this ty
     @MainActor
     func test_background_tap() throws {
         let view = try subject.inspect().view(ProfileSwitcherView.self)
-        let background = try view.implicitAnyView().first
+        let background = view.first
         try background?.callOnTapGesture()
 
         XCTAssertEqual(processor.dispatchedActions.last, .backgroundPressed)
