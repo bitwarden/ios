@@ -1,0 +1,71 @@
+name: Cron / Update public suffix list
+on:
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+env:
+  SOURCE_URL: https://publicsuffix.org/list/public_suffix_list.dat
+  PSL_FILE: BitwardenKit/Core/Platform/Utilities/Resources/public_suffix_list.dat
+
+jobs:
+  update-psl:
+    name: Update Public Suffix List
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # 4.2.2
+
+      - name: Download latest PSL list
+        run: | 
+          curl -s $SOURCE_URL -o $PSL_FILE
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if git diff --quiet -- $PSL_FILE; then
+            echo "✅ No changes detected, skipping..."
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          echo "👀 Changes detected"
+
+      - name: Create branch and commit
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          echo "📋 Committing public_suffix_list.dat..."
+
+          BRANCH_NAME="cron-sync-public-suffix-list/$GITHUB_RUN_NUMBER-sync"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git checkout -b $BRANCH_NAME
+          git add $PSL_FILE
+          git commit -m "Update public suffix list"
+          git push origin $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "🌱 Branch created: $BRANCH_NAME"
+
+      - name: Create Pull Request
+        if: steps.check-changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DUPLICATES_FOUND: ${{ steps.check-changes.outputs.duplicates_found }}
+          BASE_PR_URL: ${{ github.server_url }}/${{ github.repository }}/pull/
+        run: |
+          PR_BODY="Updates the public suffix list with the latest data from $SOURCE_URL"
+
+          # Use echo -e to interpret escape sequences and pipe to gh pr create
+          PR_URL=$(echo -e "$PR_BODY" | gh pr create \
+            --title "Update public suffix list" \
+            --body-file - \
+            --base main \
+            --head $BRANCH_NAME \
+            --label "automated-pr" \
+            --label "t:ci")

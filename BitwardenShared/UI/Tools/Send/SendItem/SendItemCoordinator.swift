@@ -14,6 +14,7 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     typealias Module = FileSelectionModule
 
     typealias Services = HasAuthRepository
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasPasteboardService
         & HasPolicyService
@@ -178,4 +179,10 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         )
         stackNavigator?.present(viewController)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension SendItemCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

@@ -1,9 +1,13 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import Networking
+import TestHelpers
 
 @testable import BitwardenShared
 
 extension ServiceContainer {
+    @MainActor
     static func withMocks( // swiftlint:disable:this function_body_length
         application: Application? = nil,
         appInfoService: AppInfoService = MockAppInfoService(),
@@ -19,12 +23,14 @@ extension ServiceContainer {
         clientService: ClientService = MockClientService(),
         configService: ConfigService = MockConfigService(),
         environmentService: EnvironmentService = MockEnvironmentService(),
+        errorReportBuilder: ErrorReportBuilder = MockErrorReportBuilder(),
         errorReporter: ErrorReporter = MockErrorReporter(),
         eventService: EventService = MockEventService(),
         exportCXFCiphersRepository: ExportCXFCiphersRepository = MockExportCXFCiphersRepository(),
         exportVaultService: ExportVaultService = MockExportVaultService(),
         fido2CredentialStore: Fido2CredentialStore = MockFido2CredentialStore(),
         fido2UserInterfaceHelper: Fido2UserInterfaceHelper = MockFido2UserInterfaceHelper(),
+        flightRecorder: FlightRecorder = MockFlightRecorder(),
         generatorRepository: GeneratorRepository = MockGeneratorRepository(),
         importCiphersRepository: ImportCiphersRepository = MockImportCiphersRepository(),
         httpClient: HTTPClient = MockHTTPClient(),
@@ -76,12 +82,14 @@ extension ServiceContainer {
             clientService: clientService,
             configService: configService,
             environmentService: environmentService,
+            errorReportBuilder: errorReportBuilder,
             errorReporter: errorReporter,
             eventService: eventService,
             exportCXFCiphersRepository: exportCXFCiphersRepository,
             exportVaultService: exportVaultService,
             fido2CredentialStore: fido2CredentialStore,
             fido2UserInterfaceHelper: fido2UserInterfaceHelper,
+            flightRecorder: flightRecorder,
             generatorRepository: generatorRepository,
             importCiphersRepository: importCiphersRepository,
             keychainRepository: keychainRepository,

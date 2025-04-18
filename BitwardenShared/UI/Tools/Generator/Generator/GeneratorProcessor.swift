@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import OSLog
 
@@ -81,6 +82,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
+            await loadFlags()
             await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
@@ -191,6 +193,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
 
     // MARK: Private
 
+    /// Loads feature flags and updates state accordingly.
+    ///
+    private func loadFlags() async {
+        state.usernameState.addyIOSelfHostServerUrlEnabled = await services.configService
+            .getFeatureFlag(.anonAddySelfHostAlias)
+        state.usernameState.simpleLoginSelfHostServerUrlEnabled = await services.configService
+            .getFeatureFlag(.simpleLoginSelfHostAlias)
+    }
+
     /// Checks the eligibility of the generator Login action card.
     ///
     private func checkLearnGeneratorActionCardEligibility() async {
@@ -234,7 +245,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         } catch is CancellationError {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating password: \(error)")
         }
     }
@@ -256,7 +267,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         } catch is CancellationError {
             // No-op: don't log or alert for cancellation errors.
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating username: \(error)")
         }
     }
@@ -334,7 +345,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         do {
             try await saveGeneratedValue(state.generatedValue)
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             Logger.application.error("Generator: error generating username: \(error)")
         }
     }
@@ -406,4 +417,4 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         // before the value is generated.
         return (state.generatorType, state.passwordState)
     }
-}
+} // swiftlint:disable:this file_length

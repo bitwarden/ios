@@ -5,7 +5,7 @@ import Foundation
 
 /// An object that defines the current state of any view interacting with a cipher item.
 ///
-struct CipherItemState: Equatable {
+struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     // MARK: Types
 
     /// An enum defining if the state is a new or existing cipher.
@@ -41,7 +41,7 @@ struct CipherItemState: Equatable {
     var collectionIds: [String]
 
     /// The full list of collections for the user, across all organizations.
-    var collections: [CollectionView]
+    var allUserCollections: [CollectionView]
 
     /// The Add or Existing Configuration.
     let configuration: Configuration
@@ -51,6 +51,9 @@ struct CipherItemState: Equatable {
 
     /// The identifier of the folder for this item.
     var folderId: String?
+
+    /// The folder name this item belongs to, if any.
+    var folderName: String?
 
     /// The list of all folders that the item could be added to.
     var folders: [DefaultableType<FolderView>]
@@ -66,6 +69,9 @@ struct CipherItemState: Equatable {
 
     /// Whether the user has organizations.
     var hasOrganizations: Bool
+
+    /// The base url used to fetch icons.
+    var iconBaseURL: URL?
 
     /// The state for a identity type item.
     var identityState: IdentityItemState
@@ -85,6 +91,9 @@ struct CipherItemState: Equatable {
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool
 
+    /// Whether it's showing multiple collections or not.
+    var isShowingMultipleCollections: Bool = false
+
     /// The state for a login type item.
     var loginState: LoginItemState
 
@@ -97,11 +106,20 @@ struct CipherItemState: Equatable {
     /// The organization ID of the cipher, if the cipher is owned by an organization.
     var organizationId: String?
 
+    /// The name of the organization the cipher belongs to, if any.
+    var organizationName: String?
+
     /// The list of ownership options that can be selected for the cipher.
     var ownershipOptions: [CipherOwner]
 
+    /// A flag indicating if cipher permissions should be used.
+    var restrictCipherItemDeletionFlag: Bool = false
+
     /// If master password reprompt toggle should be shown
     var showMasterPasswordReprompt: Bool
+
+    /// Whether the web icons should be shown.
+    var showWebIcons: Bool
 
     /// The SSH key item state.
     var sshKeyState: SSHKeyItemState
@@ -126,7 +144,7 @@ struct CipherItemState: Equatable {
     var canAssignToCollection: Bool {
         guard !collectionIds.isEmpty else { return true }
 
-        return collections.contains { collection in
+        return allUserCollections.contains { collection in
             guard let id = collection.id else { return false }
             guard collection.manage || (!collection.readOnly && !collection.hidePasswords) else { return false }
 
@@ -136,18 +154,63 @@ struct CipherItemState: Equatable {
 
     /// Whether or not this item can be deleted by the user.
     var canBeDeleted: Bool {
-        guard !collectionIds.isEmpty else { return true }
-        return collections.contains { collection in
-            guard let id = collection.id else { return false }
-            return collection.manage && collectionIds.contains(id)
+        // backwards compatibility for old server versions
+        guard restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions else {
+            guard !collectionIds.isEmpty else { return true }
+            return allUserCollections.contains { collection in
+                guard let id = collection.id else { return false }
+                return collection.manage && collectionIds.contains(id)
+            }
         }
+
+        // New permission model from PM-18091
+        return cipherPermissions.delete
+    }
+
+    /// Whether or not this item can be restored by the user.
+    var canBeRestored: Bool {
+        // backwards compatibility for old server versions
+        guard restrictCipherItemDeletionFlagEnabled, let cipherPermissions = cipher.permissions else {
+            return isSoftDeleted
+        }
+
+        // New permission model from PM-18091
+        return cipherPermissions.restore && isSoftDeleted
+    }
+
+    /// The collections that the cipher belongs to.
+    var cipherCollections: [CollectionView] {
+        guard !collectionIds.isEmpty else {
+            return []
+        }
+        return allUserCollections.filter { collection in
+            guard let id = collection.id else {
+                return false
+            }
+            return collectionIds.contains(id)
+        }
+    }
+
+    /// The collections the cipher belongs to to display.
+    /// When there are collections, this depends on whether the user selects
+    /// show more/less for this to have one or more collections the cipher
+    /// belongs to.
+    var cipherCollectionsToDisplay: [CollectionView] {
+        guard !cipherCollections.isEmpty else {
+            return []
+        }
+
+        guard isShowingMultipleCollections else {
+            return [cipherCollections[0]]
+        }
+        return cipherCollections
     }
 
     /// The list of collections that can be selected from for the current owner.
     /// These are collections that the user can add items to, so they are non-read-only collections.
     var collectionsForOwner: [CollectionView] {
         guard let owner, !owner.isPersonal else { return [] }
-        return collections.filter { $0.organizationId == owner.organizationId && !$0.readOnly }
+        return allUserCollections.filter { $0.organizationId == owner.organizationId && !$0.readOnly }
     }
 
     /// The folder this item should be added to.
@@ -163,6 +226,11 @@ struct CipherItemState: Equatable {
         }
     }
 
+    /// Whether the cipher is read-only.
+    var isReadOnly: Bool {
+        cipher.edit == false
+    }
+
     /// The owner of the cipher.
     var owner: CipherOwner? {
         get {
@@ -173,6 +241,11 @@ struct CipherItemState: Equatable {
             organizationId = newValue?.organizationId
             collectionIds = []
         }
+    }
+
+    var restrictCipherItemDeletionFlagEnabled: Bool {
+        get { restrictCipherItemDeletionFlag }
+        set { restrictCipherItemDeletionFlag = newValue }
     }
 
     /// The flag indicating if we should show the learn new login action card.
@@ -199,6 +272,7 @@ struct CipherItemState: Equatable {
         customFields: [CustomFieldState],
         folderId: String?,
         hasOrganizations: Bool,
+        iconBaseURL: URL?,
         identityState: IdentityItemState,
         isFavoriteOn: Bool,
         isMasterPasswordRePromptOn: Bool,
@@ -207,6 +281,7 @@ struct CipherItemState: Equatable {
         name: String,
         notes: String,
         organizationId: String?,
+        showWebIcons: Bool,
         sshKeyState: SSHKeyItemState,
         type: CipherType,
         updatedDate: Date
@@ -214,10 +289,11 @@ struct CipherItemState: Equatable {
         self.accountHasPremium = accountHasPremium
         cardItemState = cardState
         self.collectionIds = collectionIds
-        collections = []
+        allUserCollections = []
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
         self.hasOrganizations = hasOrganizations
+        self.iconBaseURL = iconBaseURL
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
         self.isMasterPasswordRePromptOn = isMasterPasswordRePromptOn
@@ -229,6 +305,7 @@ struct CipherItemState: Equatable {
         self.organizationId = organizationId
         ownershipOptions = []
         showMasterPasswordReprompt = true
+        self.showWebIcons = showWebIcons
         self.sshKeyState = sshKeyState
         self.type = type
         self.updatedDate = updatedDate
@@ -257,6 +334,7 @@ struct CipherItemState: Equatable {
             customFields: customFields,
             folderId: folderId,
             hasOrganizations: hasOrganizations,
+            iconBaseURL: nil,
             identityState: .init(),
             isFavoriteOn: false,
             isMasterPasswordRePromptOn: false,
@@ -271,6 +349,7 @@ struct CipherItemState: Equatable {
             name: name ?? uri.flatMap(URL.init)?.host ?? "",
             notes: "",
             organizationId: organizationId,
+            showWebIcons: false,
             sshKeyState: .init(),
             type: type,
             updatedDate: .now
@@ -286,6 +365,7 @@ struct CipherItemState: Equatable {
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
             hasOrganizations: cipherView.organizationId != nil,
+            iconBaseURL: nil,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
@@ -294,6 +374,7 @@ struct CipherItemState: Equatable {
             name: "\(cipherView.name) - \(Localizations.clone)",
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,
+            showWebIcons: false,
             sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
@@ -303,7 +384,9 @@ struct CipherItemState: Equatable {
     init?(
         existing cipherView: CipherView,
         hasMasterPassword: Bool = true,
-        hasPremium: Bool
+        hasPremium: Bool,
+        iconBaseURL: URL? = nil,
+        showWebIcons: Bool = true
     ) {
         guard cipherView.id != nil else { return nil }
         self.init(
@@ -314,6 +397,7 @@ struct CipherItemState: Equatable {
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
             hasOrganizations: cipherView.organizationId != nil,
+            iconBaseURL: iconBaseURL,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
@@ -325,6 +409,7 @@ struct CipherItemState: Equatable {
             name: cipherView.name,
             notes: cipherView.notes ?? "",
             organizationId: cipherView.organizationId,
+            showWebIcons: showWebIcons,
             sshKeyState: cipherView.sshKeyItemState(),
             type: .init(type: cipherView.type),
             updatedDate: cipherView.revisionDate
@@ -386,8 +471,8 @@ extension CipherItemState: ViewVaultItemState {
         cipher.attachments
     }
 
-    var isSoftDeleted: Bool {
-        cipher.deletedDate != nil
+    var belongsToMultipleCollections: Bool {
+        cipher.collectionIds.count > 1
     }
 
     var cardItemViewState: any ViewCardItemState {
@@ -401,6 +486,79 @@ extension CipherItemState: ViewVaultItemState {
         case .add:
             return newCipherView()
         }
+    }
+
+    var icon: ImageAsset {
+        switch cipher.type {
+        case .card:
+            guard case let .custom(brand) = cardItemState.brand else {
+                return Asset.Images.card24
+            }
+            return brand.icon
+        case .identity:
+            return Asset.Images.idCard24
+        case .login:
+            return Asset.Images.globe24
+        case .secureNote:
+            return Asset.Images.stickyNote24
+        case .sshKey:
+            return Asset.Images.key24
+        }
+    }
+
+    var iconAccessibilityId: String {
+        "CipherIcon"
+    }
+
+    var isSoftDeleted: Bool {
+        cipher.deletedDate != nil
+    }
+
+    var loginView: BitwardenSdk.LoginView? {
+        cipher.login
+    }
+
+    var multipleCollectionsDisplayButtonTitle: String {
+        guard !cipherCollectionsToDisplay.isEmpty else {
+            return ""
+        }
+        if isShowingMultipleCollections {
+            return Localizations.showLess
+        }
+        return Localizations.showMore
+    }
+
+    var shouldDisplayFolder: Bool {
+        !folderName.isEmptyOrNil
+            && (!belongsToMultipleCollections || isShowingMultipleCollections)
+    }
+
+    var shouldDisplayNoFolder: Bool {
+        organizationId == nil
+            && folderId == nil
+            && collectionIds.isEmpty
+    }
+
+    var shouldUseCustomPlaceholderContent: Bool {
+        guard cipher.type == .card,
+              case let .custom(brand) = cardItemState.brand,
+              brand != .other else {
+            return true
+        }
+        return false
+    }
+
+    var totalHeaderAdditionalItems: Int {
+        // Accessibility only uses this when there's an organization.
+        guard organizationId != nil else {
+            return 0
+        }
+        var total = 1
+        total += cipher.collectionIds.count
+        if !cipher.folderId.isEmptyOrNil {
+            total += 1
+        }
+        return total
     }
 }
 
@@ -425,6 +583,7 @@ extension CipherItemState {
             reprompt: isMasterPasswordRePromptOn ? .password : .none,
             organizationUseTotp: false,
             edit: true,
+            permissions: nil,
             viewPassword: true,
             localData: nil,
             attachments: nil,

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import SwiftUI
 import TestHelpers
@@ -5,6 +7,7 @@ import XCTest
 
 @testable import BitwardenShared
 
+@MainActor
 class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -122,8 +125,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
-    override func tearDown() {
-        super.tearDown()
+    override func tearDown() async throws {
+        try await super.tearDown()
 
         accountAPIService = nil
         authService = nil
@@ -961,7 +964,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getSingleSignOnOrganizationIdentifier(email:)` returns the organization identifier when
     /// the feature flag `.refactorSsoDetailsEndpoint` is on.
-    @MainActor
     func test_getSingleSignOnOrganizationIdentifier_successFeatureFlagOn() async throws {
         configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
         client.result = .httpSuccess(testData: .singleSignOnDomainsVerified)
@@ -971,7 +973,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getSingleSignOnOrganizationIdentifier(email:)` returns the first organization identifier when
     /// the feature flag `.refactorSsoDetailsEndpoint` is on and there are multiple results in response.
-    @MainActor
     func test_getSingleSignOnOrganizationIdentifier_successInMultipleFeatureFlagOn() async throws {
         configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
         client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedMultiple)
@@ -981,7 +982,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
     /// the feature flag `.refactorSsoDetailsEndpoint` is on and there is no data.
-    @MainActor
     func test_getSingleSignOnOrganizationIdentifier_noDataFeatureFlagOn() async throws {
         configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
         client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedNoData)
@@ -991,7 +991,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
     /// the feature flag `.refactorSsoDetailsEndpoint` is on and data array is empty.
-    @MainActor
     func test_getSingleSignOnOrganizationIdentifier_emptyDataFeatureFlagOn() async throws {
         configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
         client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedEmptyData)
@@ -1001,7 +1000,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
     /// the feature flag `.refactorSsoDetailsEndpoint` is on and there is no organization identifier.
-    @MainActor
     func test_getSingleSignOnOrganizationIdentifier_noOrgIdFeatureFlagOn() async throws {
         configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
         client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedNoOrgId)
@@ -1011,7 +1009,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getSingleSignOnOrganizationIdentifier(email:)` returns `nil` when
     /// the feature flag `.refactorSsoDetailsEndpoint` is on and empty organization identifier.
-    @MainActor
     func test_getSingleSignOnOrganizationIdentifier_emptyOrgIdFeatureFlagOn() async throws {
         configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
         client.result = .httpSuccess(testData: .singleSignOnDomainsVerifiedEmptyOrgId)
@@ -1021,7 +1018,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// `getSingleSignOnOrganizationIdentifier(email:)` throws when calling the API
     /// and the feature flag `.refactorSsoDetailsEndpoint` is on.
-    @MainActor
     func test_getSingleSignOnOrganizationIdentifier_throwsFeatureFlagOn() async throws {
         configService.featureFlagsBool[.refactorSsoDetailsEndpoint] = true
         client.result = .httpFailure(BitwardenTestError.example)
@@ -1126,7 +1122,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `isUserManagedByOrganization` returns false when the user isn't managed by an organization.
-    @MainActor
     func test_isUserManagedByOrganization_false_featureFlagON() async throws {
         configService.featureFlagsBool[.accountDeprovisioning] = true
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -1138,7 +1133,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `isUserManagedByOrganization` returns false when the user doesn't belong to an organization.
-    @MainActor
     func test_isUserManagedByOrganization_noOrgs_featureFlagON() async throws {
         configService.featureFlagsBool[.accountDeprovisioning] = true
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -1150,7 +1144,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `isUserManagedByOrganization` returns true if the user is managed by an organization.
-    @MainActor
     func test_isUserManagedByOrganization_true_featureFlagON() async throws {
         configService.featureFlagsBool[.accountDeprovisioning] = true
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -1163,7 +1156,6 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `isUserManagedByOrganization` returns true if the user is managed by at least one organization.
-    @MainActor
     func test_isUserManagedByOrganization_true_multipleOrgs_featureON() async throws {
         configService.featureFlagsBool[.accountDeprovisioning] = true
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -2043,7 +2035,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `logout` successfully logs out a user.
-    func test_logout_success() {
+    func test_logout_success() async throws {
         let account = Account.fixture()
         stateService.accounts = [account]
         stateService.activeAccount = account
@@ -2052,11 +2044,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository.setBiometricUnlockKeyError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
-        let task = Task {
-            try await subject.logout(userInitiated: true)
-        }
-        waitFor(!vaultTimeoutService.removedIds.isEmpty)
-        task.cancel()
+
+        try await subject.logout(userInitiated: true)
 
         XCTAssertEqual([account.profile.userId], stateService.accountsLoggedOut)
         XCTAssertNil(biometricsRepository.capturedUserAuthKey)

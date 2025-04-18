@@ -6,6 +6,7 @@ class ImportCXFCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasConfigService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasImportCiphersRepository
         & HasPolicyService
@@ -66,4 +67,10 @@ class ImportCXFCoordinator: Coordinator, HasStackNavigator {
         let view = ImportCXFView(store: Store(processor: processor))
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension ImportCXFCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -121,7 +122,7 @@ final class VaultListProcessor: StateProcessor<
         }
     }
 
-    override func receive(_ action: VaultListAction) { // swiftlint:disable:this function_body_length
+    override func receive(_ action: VaultListAction) {
         switch action {
         case .addFolder:
             coordinator.navigate(to: .addFolder)
@@ -267,12 +268,14 @@ extension VaultListProcessor {
         } catch URLError.cancelled {
             // No-op: don't log or alert for cancellation errors.
         } catch {
+            services.errorReporter.log(error: error)
+
             let needsSync = try? await services.vaultRepository.needsSync()
             if needsSync == true {
                 // If the vault needs a sync and there are cached items,
                 // display the cached data and show an error alert.
                 if let sections = state.loadingState.data, !sections.isEmpty {
-                    coordinator.showAlert(.networkResponseError(error))
+                    await coordinator.showErrorAlert(error: error)
                 } else {
                     // If the vault needs a sync and there were no cached items,
                     // show the full screen error view.
@@ -281,9 +284,8 @@ extension VaultListProcessor {
                     )
                 }
             } else {
-                coordinator.showAlert(.networkResponseError(error))
+                await coordinator.showErrorAlert(error: error)
             }
-            services.errorReporter.log(error: error)
         }
     }
 

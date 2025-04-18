@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 /// The services provided by the `ServiceContainer`.

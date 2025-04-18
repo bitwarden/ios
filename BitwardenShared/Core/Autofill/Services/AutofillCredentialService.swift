@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import BitwardenSdk
 import OSLog
 
@@ -297,7 +298,7 @@ class DefaultAutofillCredentialService {
     ///
     private func tryUnlockVaultWithoutUserInteraction(delegate: AutofillCredentialServiceDelegate) async throws {
         let userId = try await stateService.getActiveAccountId()
-        let isLocked = vaultTimeoutService.isLocked(userId: userId)
+        let isLocked = await vaultTimeoutService.isLocked(userId: userId)
         let isManuallyLocked = await (try? stateService.getManuallyLockedAccount(userId: userId)) == true
         let vaultTimeout = try? await vaultTimeoutService.sessionTimeoutValue(userId: nil)
         guard vaultTimeout == .never, isLocked, !isManuallyLocked else {
@@ -456,10 +457,10 @@ extension DefaultAutofillCredentialService: AutofillCredentialService {
         rpId: String,
         clientDataHash: Data
     ) async throws -> ASPasskeyAssertionCredential {
-        fido2UserInterfaceHelper.setupDelegate(
+        await fido2UserInterfaceHelper.setupDelegate(
             fido2UserInterfaceHelperDelegate: fido2UserInterfaceHelperDelegate
         )
-        fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
+        await fido2UserInterfaceHelper.setupCurrentUserVerificationPreference(
             userVerificationPreference: request.options.uv
         )
 

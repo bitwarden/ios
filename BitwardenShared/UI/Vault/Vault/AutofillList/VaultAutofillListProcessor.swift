@@ -15,6 +15,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
     typealias Services = HasAuthRepository
         & HasAutofillCredentialService
         & HasClientService
+        & HasConfigService
         & HasErrorReporter
         & HasEventService
         & HasFido2CredentialStore
@@ -713,7 +714,7 @@ extension VaultAutofillListProcessor {
         } catch UserVerificationError.cancelled {
             return
         } catch {
-            coordinator.showAlert(.networkResponseError(error))
+            await coordinator.showErrorAlert(error: error)
             services.errorReporter.log(error: error)
         }
     }

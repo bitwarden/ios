@@ -37,6 +37,8 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
     var fido2UserInterfaceHelperDelegate: Fido2UserInterfaceHelperDelegate?
     var userVerificationPreferenceSetup: Uv?
 
+    nonisolated init() {}
+
     func availableCredentialsForAuthenticationPublisher() -> AnyPublisher<[BitwardenSdk.CipherView]?, Error> {
         credentialsForAuthenticationSubject.eraseToAnyPublisher()
     }

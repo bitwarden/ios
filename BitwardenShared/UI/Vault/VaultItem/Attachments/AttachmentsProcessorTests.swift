@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
@@ -69,7 +70,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         await subject.perform(.loadPremiumStatus)
 
         XCTAssertFalse(subject.state.hasPremium)
-        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -101,7 +102,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
 
         await subject.perform(.save)
 
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -201,7 +202,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the results.
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(BitwardenTestError.example))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
@@ -217,7 +218,7 @@ class AttachmentsProcessorTests: BitwardenTestCase {
         await confirmAction.handler?(confirmAction, [])
 
         // Verify the results.
-        XCTAssertEqual(coordinator.alertShown.last, .networkResponseError(CipherAPIServiceError.updateMissingId))
+        XCTAssertEqual(coordinator.errorAlertsShown as? [CipherAPIServiceError], [.updateMissingId])
         XCTAssertEqual(errorReporter.errors.last as? CipherAPIServiceError, .updateMissingId)
     }
 

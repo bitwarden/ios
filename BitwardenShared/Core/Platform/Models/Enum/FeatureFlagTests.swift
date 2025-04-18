@@ -19,6 +19,7 @@ final class FeatureFlagTests: BitwardenTestCase {
 
     /// `getter:isRemotelyConfigured` returns the correct value for each flag.
     func test_isRemotelyConfigured() {
+        XCTAssertTrue(FeatureFlag.anonAddySelfHostAlias.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.appReviewPrompt.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.cipherKeyEncryption.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.cxpExportMobile.isRemotelyConfigured)
@@ -29,13 +30,17 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertTrue(FeatureFlag.nativeCarouselFlow.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.nativeCreateAccountFlow.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.refactorSsoDetailsEndpoint.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.restrictCipherItemDeletion.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.simpleLoginSelfHostAlias.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialBoolFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialIntFlag.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.testRemoteInitialStringFlag.isRemotelyConfigured)
 
         XCTAssertFalse(FeatureFlag.enableDebugAppReviewPrompt.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.enableCipherKeyEncryption.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.flightRecorder.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.ignore2FANoticeEnvironmentCheck.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.mobileErrorReporting.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalFeatureFlag.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalInitialBoolFlag.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.testLocalInitialIntFlag.isRemotelyConfigured)

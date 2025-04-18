@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Combine
 import Foundation
@@ -15,6 +16,7 @@ enum VaultTimeoutServiceError: Error {
 
 /// A protocol for handling vault access.
 ///
+@MainActor
 protocol VaultTimeoutService: AnyObject {
     // MARK: Methods
 

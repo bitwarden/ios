@@ -171,6 +171,18 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.enableFlightRecorder` presents the enable flight recorder view.
+    @MainActor
+    func test_navigateTo_enableFlightRecorder() throws {
+        subject.navigate(to: .enableFlightRecorder)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<EnableFlightRecorderView>)
+    }
+
     /// `navigate(to:)` with `.exportVault` presents the export vault to file view when
     /// Credential Exchange flag to export is disabled.
     @MainActor
@@ -258,6 +270,18 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is UINavigationController)
         XCTAssertTrue(module.importLoginsCoordinator.isStarted)
         XCTAssertEqual(module.importLoginsCoordinator.routes.last, .importLogins(.settings))
+    }
+
+    /// `navigate(to:)` with `.flightRecorderLogs` presents the flight recorder logs view.
+    @MainActor
+    func test_navigateTo_flightRecorderLogs() throws {
+        subject.navigate(to: .flightRecorderLogs)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
+        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
+        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<FlightRecorderLogsView>)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.

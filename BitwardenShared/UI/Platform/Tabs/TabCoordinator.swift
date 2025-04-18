@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 import UIKit
 
@@ -110,6 +111,13 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     func show(vaultRoute: VaultRoute, context: AnyObject?) {
         vaultCoordinator?.navigate(to: vaultRoute, context: context)
+    }
+
+    func showErrorAlert(error: any Error, tryAgain: (() async -> Void)?, onDismissed: (() -> Void)?) async {
+        errorReporter.log(error: BitwardenError.generalError(
+            type: "TabCoordinator: `showErrorAlert` Not Supported",
+            message: "`showErrorAlert(error:tryAgain:onDismissed:)` is not supported from TabCoordinator."
+        ))
     }
 
     func start() {

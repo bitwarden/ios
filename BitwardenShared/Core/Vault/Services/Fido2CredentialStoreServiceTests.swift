@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import TestHelpers
 import XCTest
@@ -67,7 +68,6 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
 
         let result = try await subject.allCredentials()
 
-        XCTAssertTrue(syncService.didFetchSync)
         XCTAssertTrue(result.count == 1)
         XCTAssertTrue(result[0].id == "5")
     }
@@ -94,23 +94,11 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
                 type: .login
             ),
         ])
-        clientService.mockVault.clientCiphers.decryptResult = { _ in
-            throw BitwardenTestError.example
-        }
+        clientService.mockVault.clientCiphers.decryptListError = BitwardenTestError.example
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.allCredentials()
         }
-    }
-
-    /// `.allCredentials()` throws when syncing.
-    func test_allCredentials_throwsSync() async throws {
-        syncService.fetchSyncResult = .failure(BitwardenTestError.example)
-
-        _ = try await subject.allCredentials()
-
-        XCTAssertFalse(errorReporter.errors.isEmpty)
-        XCTAssertTrue(cipherService.fetchAllCiphersCalled)
     }
 
     /// `.findCredentials(ids:ripId:)` returns the login ciphers that are active, have Fido2 credentials
@@ -197,6 +185,16 @@ class Fido2CredentialStoreServiceTests: BitwardenTestCase { // swiftlint:disable
         let result = try await subject.findCredentials(ids: nil, ripId: "something")
 
         XCTAssertTrue(result.isEmpty)
+    }
+
+    /// `.findCredentials(ids:ripId)` throws when syncing.
+    func test_findCredentials_throwsSync() async throws {
+        syncService.fetchSyncResult = .failure(BitwardenTestError.example)
+
+        _ = try await subject.findCredentials(ids: nil, ripId: "something")
+
+        XCTAssertFalse(errorReporter.errors.isEmpty)
+        XCTAssertTrue(cipherService.fetchAllCiphersCalled)
     }
 
     /// `.findCredentials(ids:ripId:)` throws when fetching ciphers..

@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
 
@@ -117,6 +118,7 @@ class GeneratorDataStoreTests: BitwardenTestCase {
     }
 
     /// `passwordHistoryPublisher(userId:)` returns a publisher for a user's password history objects.
+    @MainActor
     func test_passwordHistoryPublisher() async throws {
         var publishedValues = [[PasswordHistory]]()
         let publisher = subject.passwordHistoryPublisher(userId: "1")

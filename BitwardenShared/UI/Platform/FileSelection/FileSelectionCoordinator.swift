@@ -1,3 +1,4 @@
+import BitwardenKit
 import PhotosUI
 import UIKit
 
@@ -10,6 +11,7 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasCameraService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
     // MARK: Properties
@@ -133,6 +135,12 @@ class FileSelectionCoordinator: NSObject, Coordinator, HasStackNavigator {
         viewController.delegate = self
         stackNavigator?.present(viewController)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension FileSelectionCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - FileSelectionCoordinator:UIDocumentPickerDelegate

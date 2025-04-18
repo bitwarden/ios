@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 
 /// A wrapper for `TextAutofillHelper` which adds the logic for master password reprompt if necessary.

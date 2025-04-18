@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -40,18 +41,10 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
     /// Gets all the active login ciphers that have Fido2 credentials.
     /// - Returns: Array of active login ciphers that have Fido2 credentials.
-    func allCredentials() async throws -> [BitwardenSdk.CipherView] {
-        do {
-            try await syncService.fetchSync(forceSync: false)
-        } catch {
-            errorReporter.log(error: error)
-        }
-
-        return try await cipherService.fetchAllCiphers()
-            .filter(\.isActiveWithFido2Credentials)
-            .asyncMap { cipher in
-                try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
-            }
+    func allCredentials() async throws -> [BitwardenSdk.CipherListView] {
+        try await clientService.vault().ciphers().decryptList(
+            ciphers: cipherService.fetchAllCiphers().filter(\.isActiveWithFido2Credentials)
+        )
     }
 
     /// Finds active login ciphers that have Fido2 credentials, match the `ripId` and if `ids` is sent
@@ -62,7 +55,17 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
     ///   - ripId: The `ripId` to match the Fido2 credential `rpId`.
     /// - Returns: All the ciphers that matches the filter.
     func findCredentials(ids: [Data]?, ripId: String) async throws -> [BitwardenSdk.CipherView] {
-        let activeCiphersWithFido2Credentials = try await allCredentials()
+        do {
+            try await syncService.fetchSync(forceSync: false)
+        } catch {
+            errorReporter.log(error: error)
+        }
+
+        let activeCiphersWithFido2Credentials = try await cipherService.fetchAllCiphers()
+            .filter(\.isActiveWithFido2Credentials)
+            .asyncMap { cipher in
+                try await self.clientService.vault().ciphers().decrypt(cipher: cipher)
+            }
 
         var result = [BitwardenSdk.CipherView]()
         for cipherView in activeCiphersWithFido2Credentials {
@@ -126,7 +129,7 @@ class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
         }
     }
 
-    func allCredentials() async throws -> [BitwardenSdk.CipherView] {
+    func allCredentials() async throws -> [BitwardenSdk.CipherListView] {
         do {
             let result = try await fido2CredentialStore.allCredentials()
             Fido2DebuggingReportBuilder.builder.withAllCredentialsResult(.success(result))

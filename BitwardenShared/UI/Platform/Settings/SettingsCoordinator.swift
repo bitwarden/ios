@@ -1,4 +1,5 @@
 import AuthenticationServices
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -65,9 +66,11 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & HasBiometricsRepository
         & HasConfigService
         & HasEnvironmentService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
         & HasExportCXFCiphersRepository
         & HasExportVaultService
+        & HasFlightRecorder
         & HasNotificationCenterService
         & HasPasteboardService
         & HasPolicyService
@@ -138,7 +141,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         }
     }
 
-    func navigate(to route: SettingsRoute, context: AnyObject?) {
+    func navigate(to route: SettingsRoute, context: AnyObject?) { // swiftlint:disable:this function_body_length
         switch route {
         case .about:
             showAbout()
@@ -146,6 +149,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showAccountSecurity()
         case let .addEditFolder(folder):
             showAddEditFolder(folder, delegate: context as? AddEditFolderDelegate)
+        case .enableFlightRecorder:
+            showEnableFlightRecorder()
         case .appearance:
             showAppearance()
         case .appExtension:
@@ -166,6 +171,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showExportVaultToApp()
         case .exportVaultToFile:
             showExportVaultToFile()
+        case .flightRecorderLogs:
+            showFlightRecorderLogs()
         case .folders:
             showFolders()
         case .importLogins:
@@ -333,6 +340,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(navController)
     }
 
+    /// Shows the enable flight recorder screen.
+    ///
+    private func showEnableFlightRecorder() {
+        let processor = EnableFlightRecorderProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: EnableFlightRecorderState()
+        )
+        let view = EnableFlightRecorderView(store: Store(processor: processor))
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.present(UINavigationController(rootViewController: viewController))
+    }
+
     /// Presents an activity controller for an exported vault file URL.
     ///
     private func showExportedVaultURL(_ fileURL: URL) {
@@ -383,6 +403,19 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         )
         coordinator.start()
         stackNavigator?.present(navigationController)
+    }
+
+    /// Shows the flight recorder logs screen.
+    ///
+    private func showFlightRecorderLogs() {
+        let processor = FlightRecorderLogsProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: FlightRecorderLogsState()
+        )
+        let view = FlightRecorderLogsView(store: Store(processor: processor), timeProvider: services.timeProvider)
+        let viewController = UIHostingController(rootView: view)
+        stackNavigator?.present(UINavigationController(rootViewController: viewController))
     }
 
     /// Shows the folders screen.
@@ -507,6 +540,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         viewController.navigationItem.largeTitleDisplayMode = .never
         stackNavigator?.push(viewController, navigationTitle: Localizations.vault)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension SettingsCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }
 
 // MARK: - ImportLoginsCoordinatorDelegate

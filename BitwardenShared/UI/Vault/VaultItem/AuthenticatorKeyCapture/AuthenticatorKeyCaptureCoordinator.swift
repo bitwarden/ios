@@ -44,6 +44,7 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Services = HasCameraService
+        & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
 
     // MARK: Private Properties
@@ -188,4 +189,10 @@ final class AuthenticatorKeyCaptureCoordinator: Coordinator, HasStackNavigator {
         )
         stackNavigator?.replace(view)
     }
+}
+
+// MARK: - HasErrorAlertServices
+
+extension AuthenticatorKeyCaptureCoordinator: HasErrorAlertServices {
+    var errorAlertServices: ErrorAlertServices { services }
 }

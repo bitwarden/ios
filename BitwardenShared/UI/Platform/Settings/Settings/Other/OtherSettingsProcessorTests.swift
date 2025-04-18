@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
@@ -111,7 +112,8 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     /// syncing fails.
     @MainActor
     func test_perform_syncNow_error() async throws {
-        settingsRepository.fetchSyncResult = .failure(URLError(.timedOut))
+        let error = URLError(.timedOut)
+        settingsRepository.fetchSyncResult = .failure(error)
 
         await subject.perform(.syncNow)
 
@@ -119,13 +121,12 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.loadingOverlaysShown, [LoadingOverlayState(title: Localizations.syncing)])
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
 
-        let alert = try XCTUnwrap(coordinator.alertShown.first)
-        XCTAssertEqual(alert, .networkResponseError(URLError(.timedOut)))
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? URLError, error)
 
         // Tapping the try again button the alert should attempt the call again.
         settingsRepository.fetchSyncCalled = false
-        let tryAgainAction = try XCTUnwrap(alert.alertActions.first)
-        await tryAgainAction.handler?(tryAgainAction, [])
+        await errorAlertWithRetry.retry()
         XCTAssertTrue(settingsRepository.fetchSyncCalled)
     }
 
