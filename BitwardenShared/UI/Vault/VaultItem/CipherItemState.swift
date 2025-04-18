@@ -67,9 +67,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         ]
     )
 
-    /// Whether the user has organizations.
-    var hasOrganizations: Bool
-
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
@@ -138,6 +135,10 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
     /// The edit state of the item.
     var addEditState: AddEditItemState {
         self
+    }
+
+    var hasOrganizations: Bool {
+        cipher.organizationId != nil || ownershipOptions.contains { !$0.isPersonal }
     }
 
     /// Whether or not this item can be assigned to collections.
@@ -271,7 +272,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         configuration: Configuration,
         customFields: [CustomFieldState],
         folderId: String?,
-        hasOrganizations: Bool,
         iconBaseURL: URL?,
         identityState: IdentityItemState,
         isFavoriteOn: Bool,
@@ -292,7 +292,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         allUserCollections = []
         customFieldsState = AddEditCustomFieldsState(cipherType: type, customFields: customFields)
         self.folderId = folderId
-        self.hasOrganizations = hasOrganizations
         self.iconBaseURL = iconBaseURL
         self.identityState = identityState
         self.isFavoriteOn = isFavoriteOn
@@ -317,7 +316,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         collectionIds: [String] = [],
         customFields: [CustomFieldState] = [],
         folderId: String? = nil,
-        hasOrganizations: Bool = false,
         hasPremium: Bool,
         name: String? = nil,
         organizationId: String? = nil,
@@ -333,7 +331,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration: .add,
             customFields: customFields,
             folderId: folderId,
-            hasOrganizations: hasOrganizations,
             iconBaseURL: nil,
             identityState: .init(),
             isFavoriteOn: false,
@@ -364,7 +361,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration: .add,
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
-            hasOrganizations: cipherView.organizationId != nil,
             iconBaseURL: nil,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,
@@ -396,7 +392,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             configuration: .existing(cipherView: cipherView),
             customFields: cipherView.customFields,
             folderId: cipherView.folderId,
-            hasOrganizations: cipherView.organizationId != nil,
             iconBaseURL: iconBaseURL,
             identityState: cipherView.identityItemState(),
             isFavoriteOn: cipherView.favorite,

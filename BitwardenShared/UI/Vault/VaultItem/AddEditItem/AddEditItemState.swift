@@ -46,7 +46,7 @@ protocol AddEditItemState: Sendable {
     var guidedTourViewState: GuidedTourViewState { get set }
 
     /// Whether the user belongs to any organization.
-    var hasOrganizations: Bool { get set }
+    var hasOrganizations: Bool { get }
 
     /// The state for a identity type item.
     var identityState: IdentityItemState { get set }
