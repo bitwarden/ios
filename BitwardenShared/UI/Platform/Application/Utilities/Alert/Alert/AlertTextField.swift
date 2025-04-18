@@ -24,6 +24,9 @@ public class AlertTextField {
     /// A flag indicating if this text field's contents should be masked.
     public let isSecureTextEntry: Bool
 
+    /// A callback invoked when the text changes.
+    public var onTextChanged: (() -> Void)?
+
     /// The keyboard type for this text field.
     public let keyboardType: UIKeyboardType
 
@@ -59,6 +62,7 @@ public class AlertTextField {
     @objc
     func textChanged(in textField: UITextField) {
         text = textField.text ?? ""
+        onTextChanged?()
     }
 }
 
