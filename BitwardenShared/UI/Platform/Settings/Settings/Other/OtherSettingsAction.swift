@@ -6,6 +6,9 @@ enum OtherSettingsAction: Equatable {
     /// The clear clipboard value was changed.
     case clearClipboardValueChanged(ClearClipboardValue)
 
+    /// The value of the Universal Clipboard toggle has changed.
+    case toggleUniversalClipboard(Bool)
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 

@@ -449,6 +449,8 @@
 "TwoMinutes" = "2 minutes";
 "ClearClipboard" = "Clear clipboard";
 "ClearClipboardDescription" = "Automatically clear copied values from your clipboard.";
+"UniversalClipboard" = "Universal Clipboard";
+"UniversalClipboardDescription" = "Use Universal Clipboard to copy and paste between your Apple devices.";
 "DefaultUriMatchDetection" = "Default URI match detection";
 "DefaultUriMatchDetectionDescription" = "Choose the default way that URI match detection is handled for logins when performing actions such as autofill.";
 "Theme" = "Theme";

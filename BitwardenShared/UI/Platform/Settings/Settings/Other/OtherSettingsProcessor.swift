@@ -59,6 +59,9 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         case let .clearClipboardValueChanged(newValue):
             state.clearClipboardValue = newValue
             services.settingsRepository.clearClipboardValue = newValue
+        case let .toggleUniversalClipboard(isOn):
+            services.settingsRepository.allowUniversalClipboard = isOn
+            state.isAllowUniversalClipboardToggleOn = isOn
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):
@@ -74,6 +77,7 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
     private func loadInitialValues() async {
         do {
             state.clearClipboardValue = services.settingsRepository.clearClipboardValue
+            state.isAllowUniversalClipboardToggleOn = services.settingsRepository.allowUniversalClipboard
             state.isAllowSyncOnRefreshToggleOn = try await services.settingsRepository.getAllowSyncOnRefresh()
             state.isConnectToWatchToggleOn = try await services.settingsRepository.getConnectToWatch()
             state.shouldShowConnectToWatchToggle = services.watchService.isSupported()
