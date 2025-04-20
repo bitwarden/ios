@@ -32,6 +32,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
+    var allowUniversalClipboardByUserId = [String: Bool]()
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
@@ -89,6 +90,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
+    }
+
+    func allowUniversalClipboard(userId: String) -> Bool {
+        allowUniversalClipboardByUserId[userId] ?? false
     }
 
     func connectToWatch(userId: String) -> Bool {
@@ -198,6 +203,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        allowUniversalClipboardByUserId[userId] = allowUniversalClipboard
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String) {

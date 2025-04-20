@@ -42,10 +42,10 @@ class DefaultPasteboardService: PasteboardService {
     private let errorReporter: ErrorReporter
 
     /// The time after which the clipboard should clear.
-    private(set) var clearClipboardValue: ClearClipboardValue = .never
+    var clearClipboardValue: ClearClipboardValue = .never
 
     /// Indicates whether Universal Clipboard is allowed when copying.
-    private(set) var allowUniversalClipboard: Bool = false
+    var allowUniversalClipboard: Bool = false
 
     /// The pasteboard used by this service.
     private let pasteboard: UIPasteboard

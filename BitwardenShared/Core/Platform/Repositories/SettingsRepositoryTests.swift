@@ -94,6 +94,15 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertEqual(pasteboardService.clearClipboardValue, .twentySeconds)
     }
 
+    /// `allowUniversalClipboard` gets and sets the value from the `PasteboardService`.
+    func test_allowUniversalClipboard() {
+        pasteboardService.allowUniversalClipboard = true
+        XCTAssertTrue(subject.allowUniversalClipboard)
+
+        subject.allowUniversalClipboard = false
+        XCTAssertFalse(subject.allowUniversalClipboard)
+    }
+
     /// `deleteFolder(id:)` makes the request to delete the folder.
     func test_deleteFolder() async throws {
         try await subject.deleteFolder(id: "123456789")

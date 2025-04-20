@@ -33,6 +33,7 @@ class MockSettingsRepository: SettingsRepository {
     var foldersListSubject = CurrentValueSubject<[FolderView], Error>([])
 
     var clearClipboardValue: ClearClipboardValue = .never
+    var allowUniversalClipboard: Bool = false
 
     func addFolder(name: String) async throws -> FolderView {
         addedFolderName = name
