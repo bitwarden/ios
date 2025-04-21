@@ -1161,9 +1161,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Logs will be automatically deleted after 30 days. Bitwarden is only able to access your log data when you share it.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "For details on what is and isn’t logged, visit the **[Bitwarden help center](%1$@)**.";
 "OneWeek" = "1 week";
+"ShowMore" = "Show more";
+"ShowLess" = "Show less";
+"ItemNameX" = "Item name, %1$@";
+"OwnerX" = "Owner, %1$@";
+"CollectionX" = "Collection, %1$@";
+"FolderX" = "Folder, %1$@";
+"ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "Vis registrerte loggar";
 "RecordedLogs" = "Registrerte loggar";
 "NoLogsRecorded" = "Ingen loggar registrert";
 "ExpiresToday" = "Utgår i dag";
 "ExpiresInXDays" = "Utgår om %1$@ dagar";
 "DateRangeXToY" = "%1$@ til %2$@";
+"SelfHostServerURL" = "Self-host server URL";

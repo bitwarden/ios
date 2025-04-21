@@ -1161,9 +1161,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Os registos serão automaticamente eliminados após 30 dias. O Bitwarden só pode aceder aos seus dados de registo quando os partilha.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Para obter detalhes sobre o que é e o que não é registado, visite o **[Centro de ajuda do Bitwarden](%1$@)**.";
 "OneWeek" = "1 semana";
+"ShowMore" = "Mostrar mais";
+"ShowLess" = "Mostrar menos";
+"ItemNameX" = "Nome do item, %1$@";
+"OwnerX" = "Proprietário, %1$@";
+"CollectionX" = "Coleção, %1$@";
+"FolderX" = "Pasta, %1$@";
+"ItemXOfY" = "Item %1$@ de %2$@";
 "ViewRecordedLogs" = "Ver os registos gravados";
 "RecordedLogs" = "Registos gravados";
 "NoLogsRecorded" = "Nenhum registo gravado";
 "ExpiresToday" = "Expira hoje";
 "ExpiresInXDays" = "Expira em %1$@ dias";
 "DateRangeXToY" = "%1$@ a %2$@";
+"SelfHostServerURL" = "URL do servidor auto-hospedado";

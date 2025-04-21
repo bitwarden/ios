@@ -1161,9 +1161,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Qeydlər 30 gün sonra avtomatik silinəcək. Bitwarden, jurnal datalarınıza yalnız siz paylaşdığınız zaman müraciət edə bilər.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Nəyin yazılıb-yazılmadığını öyrənmək üçün **[Bitwarden kömək mərkəzini](%1$@)** ziyarət edin.";
 "OneWeek" = "1 həftə";
+"ShowMore" = "Show more";
+"ShowLess" = "Show less";
+"ItemNameX" = "Item name, %1$@";
+"OwnerX" = "Owner, %1$@";
+"CollectionX" = "Collection, %1$@";
+"FolderX" = "Folder, %1$@";
+"ItemXOfY" = "Item %1$@ of %2$@";
 "ViewRecordedLogs" = "Yazılmış qeydlərə bax";
 "RecordedLogs" = "Yazılmış qeydlər";
 "NoLogsRecorded" = "Heç bir qeyd yazılmayıb";
 "ExpiresToday" = "Bu gün müddəti bitir";
 "ExpiresInXDays" = "%1$@ günə müddəti bitir";
 "DateRangeXToY" = "%1$@ - %2$@";
+"SelfHostServerURL" = "Self-host server URL-si";

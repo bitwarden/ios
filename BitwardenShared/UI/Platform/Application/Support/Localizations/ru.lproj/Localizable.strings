@@ -395,7 +395,7 @@
 "CheckPassword" = "Проверьте, не скомпрометирован ли пароль.";
 "PasswordExposed" = "Этот пароль был скомпрометирован %1$@ раз(а). Вам следует его изменить.";
 "PasswordSafe" = "Этот пароль не обнаружен в известных базах утечек. Можно продолжать его использовать.";
-"IdentityName" = "Имя";
+"IdentityName" = "Название личности";
 "Value" = "Значение";
 "PasswordHistory" = "История паролей";
 "Types" = "Типы элементов";
@@ -1163,9 +1163,17 @@
 "LogsWillBeAutomaticallyDeletedAfter30DaysDescriptionLong" = "Логи автоматически удаляются через 30 дней. Bitwarden может получить доступ к данным журнала только в том случае, если вы их предоставите.";
 "ForDetailsOnWhatIsAndIsntLoggedVisitTheBitwardenHelpCenter" = "Для получения подробной информации о том, что логируется, а что нет, посетите **[Справочный центр Bitwarden](%1$@)**.";
 "OneWeek" = "1 неделя";
+"ShowMore" = "Больше";
+"ShowLess" = "Меньше";
+"ItemNameX" = "Название элемента %1$@";
+"OwnerX" = "Владелец %1$@";
+"CollectionX" = "Коллекция %1$@";
+"FolderX" = "Папка %1$@";
+"ItemXOfY" = "Элемент %1$@ из %2$@";
 "ViewRecordedLogs" = "Просмотр записанных логов";
 "RecordedLogs" = "Записанные логи";
 "NoLogsRecorded" = "Нет записанных логов";
 "ExpiresToday" = "Истекает сегодня";
 "ExpiresInXDays" = "Истекает через %1$@ дней";
 "DateRangeXToY" = "%1$@ в %2$@";
+"SelfHostServerURL" = "URL собственного сервера";
