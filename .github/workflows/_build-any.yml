@@ -73,10 +73,11 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install Homebrew Dependencies
+      - name: Install Homebrew Dependencies and load environment variables
         run: |
           brew update
           brew bundle
+          bundle exec fastlane load_dotenv_file --env $_ENV
 
       - name: Log in to Azure
         if: env._BUILD_MODE == 'Device'

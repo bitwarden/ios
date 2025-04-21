@@ -89,6 +89,16 @@ platform :ios do |options|
         UI.message "artifact_filename: #{bundle_id}-#{version_name}(#{version_number})-#{xcode_version}.#{ext}"
     end
 
+    desc "Load .env variables (underscore prefixed) to GITHUB_ENV"
+    lane :load_dotenv_file do |options|
+      envfile = Dotenv.parse(".env.#{lane_context[:ENVIRONMENT]}")
+
+      envfile.each do |key, value|
+        value_cleaned = Shellwords.shellescape(value.to_s.delete(" \t\r\n"))
+        sh "echo _#{key}='#{value_cleaned}' >> $GITHUB_ENV"
+      end
+    end
+
     desc "Update CI build info"
     lane :update_ci_build_info do |options|
         required_options = [
