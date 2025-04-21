@@ -449,8 +449,6 @@
 "TwoMinutes" = "2 minutes";
 "ClearClipboard" = "Clear clipboard";
 "ClearClipboardDescription" = "Automatically clear copied values from your clipboard.";
-"UniversalClipboard" = "Universal Clipboard";
-"UniversalClipboardDescription" = "Use Universal Clipboard to copy and paste between your Apple devices.";
 "DefaultUriMatchDetection" = "Default URI match detection";
 "DefaultUriMatchDetectionDescription" = "Choose the default way that URI match detection is handled for logins when performing actions such as autofill.";
 "Theme" = "Theme";
@@ -1169,3 +1167,5 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"UniversalClipboard" = "Allow Universal Clipboard";
+"UniversalClipboardDescription" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
