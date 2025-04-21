@@ -164,7 +164,7 @@ platform :ios do |options|
         ensure_required_options(options, required_options)
 
         ensure_env_vars(
-             env_vars: ['PROVISIONING_PROFILES', 'AZURE_CRASHLYTICS_FILE_NAME']
+             env_vars: ['PROVISIONING_PROFILES', 'AZ_CRASHLYTICS_FILE_NAME']
         )
 
         az_account_name = options[:az_account_name]
@@ -178,7 +178,7 @@ platform :ios do |options|
         local_watch_crashlytics_filepath = "BitwardenWatchApp/GoogleService-Info.plist"
 
         provisioning_profiles = parse_env_list(ENV['PROVISIONING_PROFILES'])
-        azure_crashlytics_filename = ENV['AZURE_CRASHLYTICS_FILE_NAME']
+        azure_crashlytics_filename = ENV['AZ_CRASHLYTICS_FILE_NAME']
 
         #TODO do we need Dir.chdir("..") here?
         BuildUtils.fetch_provisioning_profiles(provisioning_profiles, secrets_path, az_account_name, az_profiles_container)
