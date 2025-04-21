@@ -89,7 +89,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
-        try accountRow.labelView().recursiveCallOnLongPressGesture()
+        try accountRow.labelView().callOnLongPressGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.accountLongPressed(currentAccount)))
@@ -101,7 +101,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         processor.state.profileSwitcherState.isVisible = true
         let accountRow = try subject.inspect().find(button: "anne.account@bitwarden.com")
         let currentAccount = processor.state.profileSwitcherState.activeAccountProfile!
-        try accountRow.labelView().recursiveCallOnTapGesture()
+        try accountRow.labelView().callOnTapGesture()
         waitFor(!processor.effects.isEmpty)
 
         XCTAssertEqual(processor.effects.last, .profileSwitcher(.accountPressed(currentAccount)))
