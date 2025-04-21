@@ -1,0 +1,15 @@
+name: CI / Password Manager
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-manual:
+    name: Build Manual
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    strategy:
+      matrix:
+        env: [bwpm_prod]
+    with:
+      environment: ${{ matrix.env }}
+    secrets: inherit
