@@ -151,8 +151,8 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         XCTAssertTrue(subject.allowUniversalClipboard(userId: "1"))
         XCTAssertFalse(subject.allowUniversalClipboard(userId: "2"))
-        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:universalClipboard_1"))
-        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:universalClipboard_w"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:allowUniversalClipboard_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:allowUniversalClipboard_w"))
     }
 
     /// `appLocale`is initially `nil`.

@@ -781,7 +781,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
             case let .allowSyncOnRefresh(userId):
                 key = "syncOnRefresh_\(userId)"
             case let .allowUniversalClipboard(userId):
-                key = "universalClipboard_\(userId)"
+                key = "allowUniversalClipboard_\(userId)"
             case .appId:
                 key = "appId"
             case .appLocale:
