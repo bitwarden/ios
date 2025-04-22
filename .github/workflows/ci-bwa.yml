@@ -1,0 +1,15 @@
+name: CI / Authenticator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-manual:
+    name: Build Manual
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    strategy:
+      matrix:
+        env: [bwa_prod]
+    with:
+      environment: ${{ matrix.env }}
+    secrets: inherit
