@@ -1,6 +1,9 @@
 import BitwardenKit
 @preconcurrency import Combine
 import Foundation
+import OSLog
+
+// swiftlint:disable file_length
 
 // MARK: - FlightRecorder
 
@@ -78,9 +81,10 @@ enum FlightRecorderError: Error {
 actor DefaultFlightRecorder {
     // MARK: Private Properties
 
-    /// A subject containing the active log or `nil` if there's no active log. This serves as a
-    /// cache of the active log metadata after it has been fetched from disk.
-    private let activeLogSubject = CurrentValueSubject<FlightRecorderData.LogMetadata?, Never>(nil)
+    /// A subject containing the flight recorder data. This serves as a cache of the data after it
+    /// has been fetched from disk. `getFlightRecorderData()`/`setFlightRecorderData()` should be
+    /// used to get/set the data rather than using this directly.
+    private let dataSubject = CurrentValueSubject<FlightRecorderData?, Never>(nil)
 
     /// The service used by the application to get info about the app and device it's running on.
     private let appInfoService: AppInfoService
@@ -104,6 +108,9 @@ actor DefaultFlightRecorder {
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
 
+    /// A task that handles disabling the active log on its end date or deleting expired logs.
+    private var expirationTask: Task<Void, Never>?
+
     // MARK: Initialization
 
     /// Initialize a `DefaultFlightRecorder`.
@@ -111,6 +118,9 @@ actor DefaultFlightRecorder {
     /// - Parameters:
     ///   - appInfoService: The service used by the application to get info about the app and device
     ///     it's running on.
+    ///   - disableExpirationTimerForTesting: Whether the expiration timer should be disabled. This
+    ///     should only be done while testing so that logs aren't removed while testing other flight
+    ///     recorder functionality.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - fileManager: The file manager used to read and write files to the file system.
     ///   - stateService: The service used by the application to manage account state.
@@ -118,6 +128,7 @@ actor DefaultFlightRecorder {
     ///
     init(
         appInfoService: AppInfoService,
+        disableExpirationTimerForTesting: Bool = false,
         errorReporter: ErrorReporter,
         fileManager: FileManagerProtocol = FileManager.default,
         stateService: StateService,
@@ -128,6 +139,17 @@ actor DefaultFlightRecorder {
         self.fileManager = fileManager
         self.stateService = stateService
         self.timeProvider = timeProvider
+
+        if !disableExpirationTimerForTesting {
+            Task {
+                await dataSubject.send(stateService.getFlightRecorderData())
+                await self.configureExpirationTimer()
+            }
+        }
+    }
+
+    deinit {
+        expirationTask?.cancel()
     }
 
     // MARK: Private
@@ -141,6 +163,48 @@ actor DefaultFlightRecorder {
     private func append(message: String, to log: FlightRecorderData.LogMetadata) async throws {
         let url = try fileURL(for: log)
         try fileManager.append(Data(message.utf8), to: url)
+    }
+
+    /// Configures an expiration timer to listen for any changes to `FlightRecorderData` and then
+    /// waits until the next expiration in the data will occur.
+    ///
+    private func configureExpirationTimer() async {
+        for await data in dataSubject.values {
+            expirationTask?.cancel()
+            guard let data else { continue }
+            expirationTask = Task { [weak self, timeProvider] in
+                do {
+                    if let nextExpirationDate = data.nextExpirationDate {
+                        let components = Calendar.current.dateComponents(
+                            [.second],
+                            from: timeProvider.presentTime,
+                            to: nextExpirationDate
+                        )
+                        guard let seconds = components.second else { return }
+                        // Sleep for a minimum of 1 second to prevent continuous looping if the
+                        // timer's sleep time is slightly off from the true expiration.
+                        let sleepSeconds = max(Double(seconds), UI.duration(1))
+
+                        Logger.application.debug(
+                            """
+                            FlightRecorder: next expiration: \(nextExpirationDate), \
+                            sleeping for \(sleepSeconds) seconds
+                            """
+                        )
+                        try await Task.sleep(forSeconds: sleepSeconds)
+                        await self?.evaluateDataExpirations()
+                    }
+                } catch is CancellationError {
+                    // No-op: don't log or alert for cancellation errors.
+                } catch {
+                    await self?.errorReporter.log(error: BitwardenError.generalError(
+                        type: "Flight Recorder Expiration Timer Error",
+                        message: "Error waiting for next flight recorder data expiration",
+                        error: error
+                    ))
+                }
+            }
+        }
     }
 
     /// Creates an initial log file and populates it with the log header.
@@ -163,21 +227,39 @@ actor DefaultFlightRecorder {
         try fileManager.setIsExcludedFromBackup(true, to: url)
     }
 
-    /// Fetches the active log metadata, either from `activeLogSubject` or from disk. After the log
-    /// metadata has been loaded from disk, it's cached in the subject.
+    /// Evaluates the data for any expirations. This handles disabling the active log after the
+    /// logging duration has elapsed and then removing any expired inactive logs.
     ///
-    /// - Returns: The active log, or `nil` if flight recorder logging isn't enabled.
-    ///
-    @discardableResult
-    private func fetchActiveLog() async -> FlightRecorderData.LogMetadata? {
-        if let activeLog = activeLogSubject.value {
-            return activeLog
-        } else if let activeLog = await stateService.getFlightRecorderData()?.activeLog {
-            activeLogSubject.send(activeLog)
-            return activeLog
-        } else {
-            return nil
+    private func evaluateDataExpirations() async {
+        guard var data = dataSubject.value else { return }
+
+        // Check if the active log should be disabled after its duration has elapsed.
+        if let activeLog = data.activeLog, activeLog.endDate <= timeProvider.presentTime {
+            Logger.application.debug("FlightRecorder: active log reached end date, deactivating")
+            data.activeLog = nil
         }
+
+        for (index, log) in data.inactiveLogs.enumerated() {
+            guard log.expirationDate <= timeProvider.presentTime else { continue }
+
+            Logger.application.debug(
+                "FlightRecorder: removing expired log \(log.startDate) \(log.duration.shortDescription)"
+            )
+
+            do {
+                try removeLog(at: fileURL(for: log))
+            } catch {
+                errorReporter.log(error: BitwardenError.generalError(
+                    type: "Flight Recorder Remove Log Error",
+                    message: "Unable to remove file for expired log",
+                    error: error
+                ))
+            }
+
+            data.inactiveLogs.remove(at: index)
+        }
+
+        await setFlightRecorderData(data)
     }
 
     /// Returns the file size for a log file.
@@ -216,33 +298,67 @@ actor DefaultFlightRecorder {
     private func fileURL(for log: FlightRecorderData.LogMetadata) throws -> URL {
         try FileManager.default.flightRecorderLogURL().appendingPathComponent(log.fileName)
     }
+
+    /// Gets the `FlightRecorderData`. If the data has already been loaded, it will be returned
+    /// from `dataSubject`, otherwise it fetches the data from `StateService`.
+    ///
+    /// - Returns: The `FlightRecorderData` containing the list of flight recorder logs.
+    ///
+    private func getFlightRecorderData() async -> FlightRecorderData? {
+        if let data = dataSubject.value {
+            return data
+        } else {
+            let data = await stateService.getFlightRecorderData()
+            if data != dataSubject.value {
+                dataSubject.send(data)
+            }
+            return data
+        }
+    }
+
+    /// Removes the log file at the specified URL.
+    ///
+    /// - Parameter url: The URL of the log file to remove.
+    ///
+    private func removeLog(at url: URL) throws {
+        do {
+            try fileManager.removeItem(at: url)
+        } catch let error as NSError where error.domain == NSCocoaErrorDomain && error.code == NSFileNoSuchFileError {
+            // No-op: if the file doesn't exist, continue without throwing.
+        } catch {
+            throw error
+        }
+    }
+
+    /// Sets the `FlightRecorderData`. Using this ensures that both `dataSubject` and `StateService`
+    /// get updates made to the data.
+    ///
+    /// - Parameter data: The `FlightRecorderData` to set.
+    ///
+    private func setFlightRecorderData(_ data: FlightRecorderData) async {
+        await stateService.setFlightRecorderData(data)
+        dataSubject.send(data)
+    }
 }
 
 // MARK: - DefaultFlightRecorder + FlightRecorder
 
 extension DefaultFlightRecorder: FlightRecorder {
     func deleteInactiveLogs() async throws {
-        guard var data = await stateService.getFlightRecorderData() else {
+        guard var data = await getFlightRecorderData() else {
             throw FlightRecorderError.dataUnavailable
         }
 
         for log in data.inactiveLogs {
-            do {
-                try fileManager.removeItem(at: fileURL(for: log))
-            } catch let error as NSError where error.domain == NSCocoaErrorDomain &&
-                error.code == NSFileNoSuchFileError {
-                // No-op: if the file doesn't exist, continue without throwing.
-            } catch {
-                throw error
-            }
+            try removeLog(at: fileURL(for: log))
         }
 
         data.inactiveLogs.removeAll()
-        await stateService.setFlightRecorderData(data)
+        await setFlightRecorderData(data)
     }
 
     func deleteLog(_ log: FlightRecorderLogMetadata) async throws {
-        guard var data = await stateService.getFlightRecorderData() else {
+        guard var data = await getFlightRecorderData() else {
             throw FlightRecorderError.dataUnavailable
         }
         guard data.activeLog?.id != log.id else {
@@ -252,43 +368,33 @@ extension DefaultFlightRecorder: FlightRecorder {
             throw FlightRecorderError.logNotFound
         }
 
-        do {
-            try fileManager.removeItem(at: log.url)
-        } catch let error as NSError where error.domain == NSCocoaErrorDomain && error.code == NSFileNoSuchFileError {
-            // No-op: if the file doesn't exist, continue without throwing.
-        } catch {
-            throw error
-        }
-
+        try removeLog(at: log.url)
         data.inactiveLogs.removeAll { $0.id == logMetadata.id }
-        await stateService.setFlightRecorderData(data)
+        await setFlightRecorderData(data)
     }
 
     func disableFlightRecorder() async {
-        activeLogSubject.send(nil)
-
-        guard var data = await stateService.getFlightRecorderData() else { return }
+        guard var data = await getFlightRecorderData() else { return }
         data.activeLog = nil
-        await stateService.setFlightRecorderData(data)
+        await setFlightRecorderData(data)
     }
 
     func enableFlightRecorder(duration: FlightRecorderLoggingDuration) async throws {
         let log = FlightRecorderData.LogMetadata(duration: duration, startDate: timeProvider.presentTime)
         try await createLogFile(for: log)
 
-        var data = await stateService.getFlightRecorderData() ?? FlightRecorderData()
+        var data = await getFlightRecorderData() ?? FlightRecorderData()
         data.activeLog = log
-        await stateService.setFlightRecorderData(data)
-
-        activeLogSubject.send(log)
+        await setFlightRecorderData(data)
     }
 
     func fetchLogs() async throws -> [FlightRecorderLogMetadata] {
-        guard let data = await stateService.getFlightRecorderData() else { return [] }
+        guard let data = await getFlightRecorderData() else { return [] }
         return try data.allLogs.map { log in
             try FlightRecorderLogMetadata(
                 duration: log.duration,
                 endDate: log.endDate,
+                expirationDate: log.expirationDate,
                 fileSize: fileSize(for: log),
                 id: log.fileName,
                 isActiveLog: log.id == data.activeLog?.id,
@@ -299,12 +405,12 @@ extension DefaultFlightRecorder: FlightRecorder {
     }
 
     func isEnabledPublisher() async -> AnyPublisher<Bool, Never> {
-        await fetchActiveLog()
-        return activeLogSubject.map { $0 != nil }.eraseToAnyPublisher()
+        _ = await getFlightRecorderData() // Ensure data has already been loaded to the subject.
+        return dataSubject.map { $0?.activeLog != nil }.eraseToAnyPublisher()
     }
 
     func log(_ message: String, file: String, line: UInt) async {
-        guard let log = await fetchActiveLog() else { return }
+        guard let log = await getFlightRecorderData()?.activeLog else { return }
         do {
             let timestampedMessage = "\(dateFormatter.string(from: timeProvider.presentTime)): \(message)\n"
             try await append(message: timestampedMessage, to: log)

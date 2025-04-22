@@ -48,13 +48,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         logURL = try XCTUnwrap(FileManager.default.flightRecorderLogURL()
             .appendingPathComponent("flight_recorder_2025-01-01-00-00-00.txt"))
 
-        subject = DefaultFlightRecorder(
-            appInfoService: appInfoService,
-            errorReporter: errorReporter,
-            fileManager: fileManager,
-            stateService: stateService,
-            timeProvider: timeProvider
-        )
+        subject = makeSubject()
     }
 
     override func tearDown() {
@@ -67,6 +61,19 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService = nil
         subject = nil
         timeProvider = nil
+    }
+
+    /// Builds the `DefaultFlightRecorder` subject for testing.
+    ///
+    func makeSubject(disableExpirationTimer: Bool = true) -> DefaultFlightRecorder {
+        DefaultFlightRecorder(
+            appInfoService: appInfoService,
+            disableExpirationTimerForTesting: disableExpirationTimer,
+            errorReporter: errorReporter,
+            fileManager: fileManager,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
     }
 
     // MARK: Tests
@@ -293,6 +300,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 FlightRecorderLogMetadata.fixture(
                     duration: .eightHours,
                     endDate: Date(year: 2025, month: 1, day: 1, hour: 8),
+                    expirationDate: Date(year: 2025, month: 1, day: 31, hour: 8),
                     fileSize: "120 KB",
                     id: activeLog.id,
                     isActiveLog: true,
@@ -302,6 +310,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 FlightRecorderLogMetadata.fixture(
                     duration: .oneHour,
                     endDate: Date(year: 2025, month: 1, day: 2, hour: 1),
+                    expirationDate: Date(year: 2025, month: 2, day: 1, hour: 1),
                     fileSize: "120 KB",
                     id: inactiveLog1.id,
                     isActiveLog: false,
@@ -311,6 +320,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 FlightRecorderLogMetadata.fixture(
                     duration: .oneWeek,
                     endDate: Date(year: 2025, month: 1, day: 10),
+                    expirationDate: Date(year: 2025, month: 2, day: 9, hour: 0),
                     fileSize: "120 KB",
                     id: inactiveLog2.id,
                     isActiveLog: false,
@@ -408,10 +418,106 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(logs.isEmpty)
     }
 
+    /// `init()` starts the expiration timer and ends the active log when its logging duration has
+    /// elapsed.
+    func test_init_expirationTimer_activeLogEnds() async throws {
+        timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 1, day: 1, hour: 8))
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+        subject = makeSubject(disableExpirationTimer: false)
+
+        var publisher = await subject.isEnabledPublisher().values.makeAsyncIterator()
+
+        // Flight recorder is initially enabled due to active log.
+        var isEnabled = await publisher.next()
+        XCTAssertEqual(isEnabled, true)
+
+        // Expiration timer disables active log, so flight recorder is disabled.
+        isEnabled = await publisher.next()
+        XCTAssertEqual(isEnabled, false)
+
+        // Active log is inactive.
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: [activeLog]))
+    }
+
+    /// `init()` starts the expiration timer and removes an expired active log.
+    func test_init_expirationTimer_activeLogExpires() async throws {
+        timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 2, day: 1))
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+        )
+        subject = makeSubject(disableExpirationTimer: false)
+
+        try await waitForAsync { self.stateService.flightRecorderData == FlightRecorderData() }
+
+        // Expired active log is removed.
+        try XCTAssertEqual(
+            fileManager.removeItemURLs,
+            [FileManager.default.flightRecorderLogURL().appendingPathComponent(activeLog.fileName)]
+        )
+        XCTAssertEqual(
+            stateService.flightRecorderData,
+            FlightRecorderData()
+        )
+    }
+
+    /// `init()` starts the expiration timer and removes any expired inactive logs.
+    func test_init_expirationTimer_inactiveLogExpires() async throws {
+        let expiredLog = FlightRecorderData.LogMetadata(
+            duration: .oneHour,
+            startDate: Date(year: 2024, month: 11, day: 30)
+        )
+        timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 1, day: 1, hour: 5))
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+            inactiveLogs: [inactiveLog1, expiredLog]
+        )
+        subject = makeSubject(disableExpirationTimer: false)
+
+        var publisher = await subject.isEnabledPublisher().values.makeAsyncIterator()
+
+        // Flight recorder is enabled due to active log.
+        let isEnabled = await publisher.next()
+        XCTAssertEqual(isEnabled, true)
+
+        try await waitForAsync { self.stateService.flightRecorderData?.inactiveLogs.count == 1 }
+
+        // Expired inactive log is removed.
+        try XCTAssertEqual(
+            fileManager.removeItemURLs,
+            [FileManager.default.flightRecorderLogURL().appendingPathComponent(expiredLog.fileName)]
+        )
+        XCTAssertEqual(
+            stateService.flightRecorderData,
+            FlightRecorderData(activeLog: activeLog, inactiveLogs: [inactiveLog1])
+        )
+    }
+
+    /// `init()` starts the expiration timer, which logs an error if removing a file for an expired
+    /// log fails.
+    func test_init_expirationTimer_errorRemovingFile() async throws {
+        timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 3, day: 1))
+        fileManager.removeItemResult = .failure(BitwardenTestError.example)
+        stateService.flightRecorderData = FlightRecorderData(inactiveLogs: [inactiveLog1])
+        subject = makeSubject(disableExpirationTimer: false)
+
+        try await waitForAsync { !self.errorReporter.errors.isEmpty }
+
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let error = try XCTUnwrap(errorReporter.errors.first as? NSError)
+        XCTAssertEqual(error.domain, "General Error: Flight Recorder Remove Log Error")
+        XCTAssertEqual(error.code, BitwardenError.Code.generalError.rawValue)
+        try XCTAssertEqual(
+            fileManager.removeItemURLs,
+            [FileManager.default.flightRecorderLogURL().appendingPathComponent(inactiveLog1.fileName)]
+        )
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData())
+    }
+
     /// `isEnabledPublisher()` publishes the enabled status of the flight recorder when there's an
     /// existing active log.
     func test_isEnabledPublisher_existingActiveLog() async throws {
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+        subject = makeSubject()
 
         var initialPublisher = await subject.isEnabledPublisher().values.makeAsyncIterator()
         let initialIsEnabled = await initialPublisher.next()
@@ -431,11 +537,13 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     /// existing active log.
     func test_isEnabledPublisher_existingFlightRecorderData() async throws {
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+        subject = makeSubject()
 
         var isEnabled = false
         let publisher = await subject.isEnabledPublisher().sink { isEnabled = $0 }
         defer { publisher.cancel() }
 
+        try await waitForAsync { isEnabled }
         XCTAssertTrue(isEnabled)
         XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(activeLog: activeLog))
     }

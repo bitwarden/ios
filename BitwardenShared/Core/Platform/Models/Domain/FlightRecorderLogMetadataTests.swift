@@ -8,22 +8,18 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
     let logOneHour = FlightRecorderLogMetadata.fixture(
         duration: .oneHour,
         endDate: Date(year: 2025, month: 4, day: 3, hour: 11, minute: 30),
+        expirationDate: Date(year: 2025, month: 5, day: 3, hour: 11, minute: 30),
         startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
     )
 
     let logEightHours = FlightRecorderLogMetadata.fixture(
         duration: .eightHours,
         endDate: Date(year: 2025, month: 4, day: 3, hour: 18, minute: 30),
+        expirationDate: Date(year: 2025, month: 5, day: 3, hour: 18, minute: 30),
         startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
     )
 
     // MARK: Tests
-
-    /// `expirationDate` returns the date when the log will expire and be deleted.
-    func test_expirationData() {
-        XCTAssertEqual(logOneHour.expirationDate, Date(year: 2025, month: 5, day: 3, hour: 11, minute: 30))
-        XCTAssertEqual(logEightHours.expirationDate, Date(year: 2025, month: 5, day: 3, hour: 18, minute: 30))
-    }
 
     /// `formattedLoggingDateRange` returns the formatted date range for when the flight recorder was enabled.
     func test_formattedLoggingDateRange() {

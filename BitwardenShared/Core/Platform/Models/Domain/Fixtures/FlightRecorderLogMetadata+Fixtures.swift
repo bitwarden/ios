@@ -5,7 +5,8 @@ import Foundation
 extension FlightRecorderLogMetadata {
     static func fixture(
         duration: FlightRecorderLoggingDuration = .twentyFourHours,
-        endDate: Date = Date(year: 2025, month: 4, day: 3, hour: 1),
+        endDate: Date = Date(year: 2025, month: 4, day: 4),
+        expirationDate: Date = Date(year: 2025, month: 5, day: 4),
         fileSize: String = "8 KB",
         id: String = "1",
         isActiveLog: Bool = false,
@@ -15,6 +16,7 @@ extension FlightRecorderLogMetadata {
         FlightRecorderLogMetadata(
             duration: duration,
             endDate: endDate,
+            expirationDate: expirationDate,
             fileSize: fileSize,
             id: id,
             isActiveLog: isActiveLog,
