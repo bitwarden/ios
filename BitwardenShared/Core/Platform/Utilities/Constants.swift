@@ -81,14 +81,6 @@ extension Constants {
 
     /// The default number of KDF iterations to perform.
     static let pbkdf2Iterations = 600_000
-
-    /// The minimum number of seconds an account must have existed for before
-    /// we display the two-factor notice.
-    static let twoFactorNoticeMinimumAccountAgeInterval: TimeInterval = 86400 * 7 // Seven days
-
-    /// The minimum number of seconds after a user delays the two-factor notice
-    /// before we display the notice again.
-    static let twoFactorNoticeDelayInterval: TimeInterval = 86400 * 7 // Seven days
 }
 
 // MARK: Extension Constants
