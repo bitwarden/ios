@@ -211,6 +211,25 @@ extension Alert {
         )
     }
 
+    /// An alert that is displayed to confirm the user wants to log out of the account.
+    ///
+    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm logout.
+    /// - Returns: An alert that is displayed to confirm the user wants to log out of the account.
+    ///
+    static func keyConnectorConfirmation(
+        keyConnectorUrl: URL,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.confirmKeyConnectorDomain,
+            message: Localizations.keyConnectorConfirmDomainWithAdmin(keyConnectorUrl),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
     /// Returns an alert notifying the user that their master password is invalid.
     ///
     /// - Returns: An alert notifying the user that their master password is invalid.

@@ -45,6 +45,10 @@ protocol AuthRepository: AnyObject {
     ///
     func clearPins() async throws
 
+    /// Convert new user to key connector.
+    ///
+    func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws
+
     /// Create new account for a JIT sso user .
     ///
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws
@@ -571,6 +575,13 @@ extension DefaultAuthRepository: AuthRepository {
         }
     }
 
+    func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws {
+        try await keyConnectorService.convertNewUserToKeyConnector(
+            keyConnectorUrl: keyConnectorURL,
+            orgIdentifier: orgIdentifier
+        )
+    }
+
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
         let account = try await stateService.getActiveAccount()
         let enrollStatus = try await organizationAPIService.getOrganizationAutoEnrollStatus(identifier: orgIdentifier)
@@ -962,18 +973,7 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
         let account = try await stateService.getActiveAccount()
 
-        let encryptionKeys: AccountEncryptionKeys
-        do {
-            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        } catch StateServiceError.noEncryptedPrivateKey {
-            // If the private key doesn't exist, this is a new user and we need to convert them to
-            // use key connector.
-            try await keyConnectorService.convertNewUserToKeyConnector(
-                keyConnectorUrl: keyConnectorURL,
-                orgIdentifier: orgIdentifier
-            )
-            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        }
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
 
         guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
 
