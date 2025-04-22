@@ -115,7 +115,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_checkAppReviewEligibility_eligible() async {
         reviewPromptService.isEligibleForReviewPromptResult = true
         configService.featureFlagsBool = [
-            FeatureFlag.appReviewPrompt: true,
             FeatureFlag.enableDebugAppReviewPrompt: true,
         ]
 
@@ -126,12 +125,11 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(_:)` with `.checkAppReviewEligibility` does not schedule a review prompt if the user is eligible
-    /// but the feature flags are disabled.
+    /// but the feature flag is disabled.
     @MainActor
-    func test_perform_checkAppReviewEligibility_eligible_disabledFeatureFlags() async {
+    func test_perform_checkAppReviewEligibility_eligible_disabledFeatureFlag() async {
         reviewPromptService.isEligibleForReviewPromptResult = true
         configService.featureFlagsBool = [
-            FeatureFlag.appReviewPrompt: false,
             FeatureFlag.enableDebugAppReviewPrompt: false,
         ]
 
@@ -146,7 +144,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     func test_perform_checkAppReviewEligibility_notEligible() async {
         reviewPromptService.isEligibleForReviewPromptResult = false
         configService.featureFlagsBool = [
-            FeatureFlag.appReviewPrompt: true,
             FeatureFlag.enableDebugAppReviewPrompt: true,
         ]
 

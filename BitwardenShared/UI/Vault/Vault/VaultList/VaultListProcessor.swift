@@ -374,9 +374,7 @@ extension VaultListProcessor {
         reviewPromptTask = Task {
             do {
                 try await Task.sleep(nanoseconds: Constants.appReviewPromptDelay)
-                if await services.configService.getFeatureFlag(.appReviewPrompt) {
-                    state.isEligibleForAppReview = true
-                }
+                state.isEligibleForAppReview = true
                 if await services.configService.getFeatureFlag(.enableDebugAppReviewPrompt) {
                     state.toast = Toast(title: Constants.appReviewPromptEligibleDebugMessage)
                 }
