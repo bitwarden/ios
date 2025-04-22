@@ -136,6 +136,7 @@ targets:
           - "**/Mocks/*"
     dependencies:
       - target: BitwardenKit
+      - target: TestHelpers
   BitwardenKitTests:
     type: bundle.unit-test
     platform: iOS
