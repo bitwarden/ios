@@ -27,6 +27,15 @@ protocol OrganizationAPIService {
     /// - Parameter email: The user's email address
     /// - Returns: A `SingleSignOnDomainsVerifiedResponse` with the verified domains list.
     func getSingleSignOnVerifiedDomains(email: String) async throws -> SingleSignOnDomainsVerifiedResponse
+
+    /// Performs the API request to leave an organization.
+    ///
+    /// - Parameters:
+    ///   - organizationId: The organization for the user to enroll in password reset.
+    ///
+    func leaveOrganization(
+        organizationId: String
+    ) async throws
 }
 
 extension APIService: OrganizationAPIService {
@@ -44,5 +53,11 @@ extension APIService: OrganizationAPIService {
 
     func getSingleSignOnVerifiedDomains(email: String) async throws -> SingleSignOnDomainsVerifiedResponse {
         try await apiUnauthenticatedService.send(SingleSignOnDomainsVerifiedRequest(email: email))
+    }
+
+    func leaveOrganization(organizationId: String) async throws {
+        _ = try await apiService.send(
+            OrganizationLeaveRequest(identifier: organizationId)
+        )
     }
 }

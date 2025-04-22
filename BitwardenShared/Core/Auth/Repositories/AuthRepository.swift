@@ -107,6 +107,12 @@ protocol AuthRepository: AnyObject {
     ///
     func isUserManagedByOrganization() async throws -> Bool
 
+    /// User leaves organization
+    ///
+    /// - Parameters:
+    ///   - organizationId: The ID of the organization the user is leaving.
+    func leaveOrganization(organizationId: String) async throws
+
     /// Locks the user's vault and clears decrypted data from memory
     /// - Parameters:
     ///   - userId: The userId of the account to lock. Defaults to active account if nil
@@ -733,6 +739,10 @@ extension DefaultAuthRepository: AuthRepository {
 
     func migrateUserToKeyConnector(password: String) async throws {
         try await keyConnectorService.migrateUser(password: password)
+    }
+
+    func leaveOrganization(organizationId: String) async throws {
+        try await organizationAPIService.leaveOrganization(organizationId: organizationId)
     }
 
     func logout(userId: String?, userInitiated: Bool) async throws {
