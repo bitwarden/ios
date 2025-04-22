@@ -84,6 +84,8 @@ public class AppProcessor {
 
         await services.migrationService.performMigrations()
 
+        _ = await services.configService.getConfig()
+
         if let initialRoute {
             coordinator.navigate(to: initialRoute)
         } else {
