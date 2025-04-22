@@ -88,18 +88,47 @@ jobs:
       - name: Setup secrets
         if: env._BUILD_MODE == 'Device'
         run: |
-          mkdir -p $HOME/secrets
-          bundle exec fastlane setup_secrets \
-            --env $_ENV \
-            secrets_path:$HOME/secrets/ \
-            fastlane_creds_filename:appstoreconnect-fastlane.json \
-            az_account_name:bitwardenci \
-            az_profiles_container:profiles \
-            az_files_container:mobile
+          az_download() {
+            local container_name=${1:-mobile}
+            local az_filename=$2
+            local local_filename=$3
+            az storage blob download --account-name bitwardenci --container-name $container_name --name $az_filename --file $local_filename --output none
+          }
 
+          mkdir -p $HOME/secrets
+
+          profiles_dir_path="$HOME/Library/MobileDevice/Provisioning\ Profiles"
+          mkdir -p $profiles_dir_path
+          IFS=',' read -ra profiles <<< "$_PROVISIONING_PROFILES"
+          for FILE in "${profiles[@]}"
+          do
+            echo "📂 Downloading provisioning profile $FILE..."
+            local_profile_path=$HOME/secrets/$FILE
+
+            az_download profiles $FILE $local_profile_path
+
+            profile_uuid=$(grep UUID -A1 -a $local_profile_path | grep -io "[-A-F0-9]\{36\}")
+            cp $local_profile_path "$profiles_dir_path/$profile_uuid.mobileprovision"
+          done
+
+          echo "📂 Downloading Google-Services.plist..."
+          az_download $_AZ_CRASHLYTICS_FILE_NAME "Bitwarden/Application/Support/GoogleService-Info.plist"
+
+          if [[ "$_APP" == "password_manager" ]]; then
+            echo "📂 Downloading Google-Services.plist for watchOS..."
+            az_download $_AZ_CRASHLYTICS_FILE_NAME "BitwardenWatchApp/GoogleService-Info.plist"
+            plutil -replace BUNDLE_ID -string '$BUNDLE_ID.watchkitapp' BitwardenWatchApp/GoogleService-Info.plist
+          fi
+
+          echo "📂 Downloading fastlane credentials..."
+          az_download appstoreconnect-fastlane.json $HOME/secrets/appstoreconnect-fastlane.json
+
+          echo "📂 Downloading distribution certificate..."
           mkdir -p $HOME/certificates
-          # az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
-          #   jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
+            jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
+
+          echo "✅ All secrets downloaded!"
 
       - name: Configure Keychain Access
         if: env._BUILD_MODE == 'Device'
@@ -147,11 +176,9 @@ jobs:
           mint bootstrap
 
       - name: Build ${{ inputs.environment }}
-        env:
-          IS_BWPM: ${{ startsWith(inputs.environment, 'bwpm-') }}
         run: |
           #TODO merge build script / migrate to fastlane
-          if [ "$IS_BWPM" = true ]; then
+          if [ "$_APP" = "password_manager" ]; then
             ./Scripts/build.sh $_BUILD_MODE
           else
             ./Scripts-bwa/build.sh #TODO add support for simulator Authenticator builds

@@ -10,13 +10,7 @@
 # https://docs.fastlane.tools/plugins/available-plugins
 #
 
-# Uncomment the line if you want fastlane to automatically update itself
-# update_fastlane
-#fastlane_require 'dotenv'
-
 default_platform(:ios)
-
-require_relative 'build_utils'
 
 APP_CONFIG_MAP = {
   "password_manager" => {
@@ -48,11 +42,6 @@ platform :ios do |options|
         app = ENV["APP"]
         lane_context[:APP] = app
         lane_context[:APP_CONFIG] = APP_CONFIG_MAP[app]
-    end
-
-    lane :setup_secrets do |options|
-        download_secrets options
-        move_provisioning_profiles options
     end
 
     lane :setup_code_files do |options|
@@ -159,67 +148,6 @@ platform :ios do |options|
                 }
             }
         )
-    end
-
-    desc "Download secrets from remote storage"
-    private_lane :download_secrets do |options|
-        required_options = [
-            :az_account_name,
-            :az_profiles_container,
-            :az_files_container,
-            :secrets_path,
-            :fastlane_creds_filename
-        ]
-
-        ensure_required_options(options, required_options)
-
-        ensure_env_vars(
-             env_vars: ['PROVISIONING_PROFILES', 'AZ_CRASHLYTICS_FILE_NAME']
-        )
-
-        az_account_name = options[:az_account_name]
-        az_profiles_container = options[:az_profiles_container]
-        az_files_container = options[:az_files_container]
-        secrets_path = options[:secrets_path]
-        fastlane_creds_filename = options[:fastlane_creds_filename]
-
-        fastlane_creds_filepath = secrets_path + fastlane_creds_filename
-        local_crashlytics_filepath = "Bitwarden/Application/Support/GoogleService-Info.plist"
-        local_watch_crashlytics_filepath = "BitwardenWatchApp/GoogleService-Info.plist"
-
-        provisioning_profiles = parse_env_list(ENV['PROVISIONING_PROFILES'])
-        azure_crashlytics_filename = ENV['AZ_CRASHLYTICS_FILE_NAME']
-
-        #TODO do we need Dir.chdir("..") here?
-        BuildUtils.fetch_provisioning_profiles(provisioning_profiles, secrets_path, az_account_name, az_profiles_container)
-        BuildUtils.fetch_file(azure_crashlytics_filename, local_crashlytics_filepath, az_account_name, az_files_container)
-        BuildUtils.fetch_file(azure_crashlytics_filename, local_watch_crashlytics_filepath, az_account_name, az_files_container)
-        BuildUtils.fetch_file(fastlane_creds_filename, fastlane_creds_filepath, az_account_name, az_files_container)
-    end
-
-    desc "Install provisioning profiles"
-    private_lane :install_provisioning_profiles do |options|
-        #TODO transition to install_provisioning_profile(path: "profiles/profile.mobileprovision") ?
-        required_options = [
-            :secrets_path,
-        ]
-
-        ensure_required_options(options, required_options)
-        ensure_env_vars(
-            env_vars: ['PROVISIONING_PROFILES']
-        )
-
-        secrets_path = options[:secrets_path]
-        provisioning_profiles = parse_env_list(ENV["PROVISIONING_PROFILES"])
-
-        library_dir_path = File.expand_path("~/Library/MobileDevice/Provisioning Profiles")
-        FileUtils.mkdir_p(library_dir_path)
-
-        provisioning_profiles.each do |profile|
-            profile_filepath = "#{secrets_path}/#{profile}"
-            profile_uuid = sh("grep UUID -A1 -a #{profile_filepath} | grep -io \"[-A-F0-9]\\{36\\}\"").strip
-            FileUtils.cp(profile_filepath, "#{library_dir_path}/#{profile_uuid}.mobileprovision")
-        end
     end
 
     private_lane :update_plists do |options|
