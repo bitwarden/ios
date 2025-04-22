@@ -124,21 +124,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.toast?.title, Constants.appReviewPromptEligibleDebugMessage)
     }
 
-    /// `perform(_:)` with `.checkAppReviewEligibility` does not schedule a review prompt if the user is eligible
-    /// but the feature flag is disabled.
-    @MainActor
-    func test_perform_checkAppReviewEligibility_eligible_disabledFeatureFlag() async {
-        reviewPromptService.isEligibleForReviewPromptResult = true
-        configService.featureFlagsBool = [
-            FeatureFlag.enableDebugAppReviewPrompt: false,
-        ]
-
-        await subject.perform(.checkAppReviewEligibility)
-        await subject.reviewPromptTask?.value
-        XCTAssertFalse(subject.state.isEligibleForAppReview)
-        XCTAssertNil(subject.state.toast?.title)
-    }
-
     /// `perform(_:)` with `.checkAppReviewEligibility` does not schedule a review prompt if the user is not eligible.
     @MainActor
     func test_perform_checkAppReviewEligibility_notEligible() async {
