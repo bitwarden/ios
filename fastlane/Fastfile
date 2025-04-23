@@ -48,7 +48,7 @@ platform :ios do |options|
         if(lane_context[:APP] == 'password_manager')
             update_plists options
         end
-        select_variant options
+        create_config_files options
         update_version_info options
     end
 
@@ -232,8 +232,8 @@ platform :ios do |options|
       UI.success("Updated version information in #{project_filepath}")
     end
 
-    desc "Select build variant and set compiler flags"
-    private_lane :select_variant do |options|
+    desc "Create config files with build variant and compiler flags"
+    private_lane :create_config_files do |options|
       compiler_flags = options[:compiler_flags] || ''
 
       ensure_env_vars(
@@ -243,58 +243,13 @@ platform :ios do |options|
       local_xcconfig_file = "Configs/Local.xcconfig"
       export_options_file = "Configs/export_options.plist"
 
-      ios_bundle_id = ENV["BUNDLE_ID"]
+      bundle_id = ENV["BUNDLE_ID"]
       shared_app_group_id = ENV["GROUP_ID"]
       profile_prefix = ENV["PROVISIONING_PROFILE_PREFIX"]
       app_icon = ENV["APP_ICON"]
 
-      UI.message("🧱 Setting build variant for #{ios_bundle_id}")
-
-      xcconfig_content = {
-        "CODE_SIGN_STYLE" => "Manual",
-        "CODE_SIGN_IDENTITY" => "Apple Distribution",
-        "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
-        "ORGANIZATION_IDENTIFIER" => "com.8bit",
-        "BASE_BUNDLE_ID" => ios_bundle_id,
-        "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
-        "APPICON_NAME" => app_icon,
-        #TODO support authenticator; check Scripts-bwa/select_variant.sh
-        "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden",
-        "PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION" => "#{profile_prefix} Extension",
-        "PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION" => "#{profile_prefix} Autofill",
-        "PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION" => "#{profile_prefix} Share Extension",
-        "PROVISIONING_PROFILE_SPECIFIER_WATCH_APP" => "#{profile_prefix} Bitwarden Watch App",
-        "PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION" => "#{profile_prefix} Bitwarden Watch Widget Extension",
-        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{compiler_flags}"
-      }
-
-      export_options_plist_content = <<~PLIST
-      <?xml version="1.0" encoding="UTF-8"?>
-      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-      <plist version="1.0">
-      <dict>
-          <key>method</key>
-          <string>app-store</string>
-          <key>provisioningProfiles</key>
-          <dict>
-              <key>#{ios_bundle_id}</key>
-              <string>#{profile_prefix} Bitwarden</string>
-              <key>#{ios_bundle_id}.find-login-action-extension</key>
-              <string>#{profile_prefix} Extension</string>
-              <key>#{ios_bundle_id}.autofill</key>
-              <string>#{profile_prefix} Autofill</string>
-              <key>#{ios_bundle_id}.share-extension</key>
-              <string>#{profile_prefix} Share Extension</string>
-              <key>#{ios_bundle_id}.watchkitapp</key>
-              <string>#{profile_prefix} Bitwarden Watch App</string>
-              <key>#{ios_bundle_id}.watchkitapp.widget-extension</key>
-              <string>#{profile_prefix} Bitwarden Watch Widget Extension</string>
-          </dict>
-          <key>manageAppVersionAndBuildNumber</key>
-          <false/>
-      </dict>
-      </plist>
-      PLIST
+      xcconfig_content = generate_xcconfig(lane_context[:APP], bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+      export_options_plist_content = generate_export_options_plist(lane_context[:APP], bundle_id, profile_prefix)
 
       Dir.chdir("..") do
         FileUtils.mkdir_p(File.dirname(local_xcconfig_file))
@@ -303,12 +258,112 @@ platform :ios do |options|
         File.write(export_options_file, export_options_plist_content)
       end
 
-      #TODO do we need to convert this to a fastlane lane?
       if compiler_flags.include?("SUPPORTS_CXP")
         sh("./Scripts/alpha_update_cxp_infoplist.sh")
       end
 
-      UI.success("Successfully set build variant for #{ios_bundle_id}")
+      UI.success("Successfully created config files for #{bundle_id}")
+    end
+
+    def generate_xcconfig(app, bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+        case app
+            when "password_manager"
+                generate_xcconfig_content_bwpm(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+            when "authenticator"
+                generate_xcconfig_content_bwa(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+        end
+    end
+
+    def generate_export_options_plist(app, bundle_id, profile_prefix)
+        case app
+            when "password_manager"
+                generate_export_options_plist_content_bwpm(bundle_id, profile_prefix)
+            when "authenticator"
+                generate_export_options_plist_content_bwa(bundle_id, profile_prefix)
+        end
+    end
+
+    def generate_xcconfig_content_bwpm(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
+      {
+        "CODE_SIGN_STYLE" => "Manual",
+        "CODE_SIGN_IDENTITY" => "Apple Distribution",
+        "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
+        "ORGANIZATION_IDENTIFIER" => "com.8bit",
+        "BASE_BUNDLE_ID" => bundle_id,
+        "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
+        "APPICON_NAME" => app_icon,
+        "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden",
+        "PROVISIONING_PROFILE_SPECIFIER_ACTION_EXTENSION" => "#{profile_prefix} Extension",
+        "PROVISIONING_PROFILE_SPECIFIER_AUTOFILL_EXTENSION" => "#{profile_prefix} Autofill",
+        "PROVISIONING_PROFILE_SPECIFIER_SHARE_EXTENSION" => "#{profile_prefix} Share Extension",
+        "PROVISIONING_PROFILE_SPECIFIER_WATCH_APP" => "#{profile_prefix} Bitwarden Watch App",
+        "PROVISIONING_PROFILE_SPECIFIER_WATCH_WIDGET_EXTENSION" => "#{profile_prefix} Bitwarden Watch Widget Extension",
+        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{compiler_flags}"
+      }
+    end
+
+    def generate_export_options_plist_content_bwpm(bundle_id, profile_prefix)
+      <<~PLIST
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>method</key>
+          <string>app-store</string>
+          <key>provisioningProfiles</key>
+          <dict>
+              <key>#{bundle_id}</key>
+              <string>#{profile_prefix} Bitwarden</string>
+              <key>#{bundle_id}.find-login-action-extension</key>
+              <string>#{profile_prefix} Extension</string>
+              <key>#{bundle_id}.autofill</key>
+              <string>#{profile_prefix} Autofill</string>
+              <key>#{bundle_id}.share-extension</key>
+              <string>#{profile_prefix} Share Extension</string>
+              <key>#{bundle_id}.watchkitapp</key>
+              <string>#{profile_prefix} Bitwarden Watch App</string>
+              <key>#{bundle_id}.watchkitapp.widget-extension</key>
+              <string>#{profile_prefix} Bitwarden Watch Widget Extension</string>
+          </dict>
+          <key>manageAppVersionAndBuildNumber</key>
+          <false/>
+      </dict>
+      </plist>
+      PLIST
+    end
+
+    def generate_xcconfig_content_bwa(bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags = "")
+      {
+        "CODE_SIGN_STYLE" => "Manual",
+        "CODE_SIGN_IDENTITY" => "Apple Distribution",
+        "DEVELOPMENT_TEAM" => "LTZ2PFU5D6",
+        "ORGANIZATION_IDENTIFIER" => "com.8bit",
+        "BASE_BUNDLE_ID" => bundle_id,
+        "SHARED_APP_GROUP_IDENTIFIER" => shared_app_group_id,
+        "APPICON_NAME" => app_icon,
+        "PROVISIONING_PROFILE_SPECIFIER" => "#{profile_prefix} Bitwarden Authenticator",
+        "SWIFT_ACTIVE_COMPILATION_CONDITIONS" => "$(inherited) #{compiler_flags}"
+      }
+    end
+
+    def generate_export_options_plist_content_bwa(bundle_id, profile_prefix)
+      <<~PLIST
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+          <key>method</key>
+          <string>app-store</string>
+          <key>provisioningProfiles</key>
+          <dict>
+              <key>#{bundle_id}</key>
+              <string>#{profile_prefix} Bitwarden Authenticator</string>
+          </dict>
+          <key>manageAppVersionAndBuildNumber</key>
+          <false/>
+      </dict>
+      </plist>
+      PLIST
     end
 
     desc "Prepare artifacts for upload to GitHub"
