@@ -67,7 +67,7 @@ platform :ios do |options|
              env_vars: ['BUNDLE_ID']
         )
 
-        build_mode = options[:build_mode]
+        build_mode = options[:build_mode].downcase() #values: simulator, device
         version_name = options[:version_name]
         version_number = options[:version_number]
         xcode_version = options[:xcode_version]
