@@ -14,7 +14,7 @@ final class FeatureFlagTests: BitwardenTestCase {
 
     /// `initialValues` returns the correct value for each flag.
     func test_initialValues() {
-        XCTAssertNil(FeatureFlag.initialValues[.cipherKeyEncryption]?.boolValue)
+        XCTAssertNil(FeatureFlag.cipherKeyEncryption.initialValue?.boolValue)
     }
 
     /// `getter:isRemotelyConfigured` returns the correct value for each flag.
