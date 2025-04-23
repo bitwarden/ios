@@ -1,4 +1,4 @@
-#include "./Common.xcconfig"
+#include "./Common-bwa.xcconfig"
 #include "./Base-Release.xcconfig"
 #include? "./Local.xcconfig"
 
