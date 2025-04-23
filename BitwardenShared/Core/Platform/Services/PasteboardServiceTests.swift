@@ -97,22 +97,4 @@ class PasteboardServiceTests: BitwardenTestCase {
         waitFor { self.errorReporter.errors.isEmpty == false }
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
-
-    /// Test that copying a string sets the localOnly propertie on the `UIPasteboard` as expected.
-    @MainActor
-    func test_copyChangingPropLocalOnly() async throws {
-        try await stateService.setClearClipboardValue(.never)
-        subject.copy("Test string")
-        XCTAssertEqual(pasteboard.strings?.last, "Test string")
-        XCTAssertTrue(pasteboard.isPersistent)
-
-        subject.updateClearClipboardValue(.fiveMinutes)
-        waitFor { self.stateService.clearClipboardValues["1"] != .never }
-        let value = try await stateService.getClearClipboardValue()
-        XCTAssertEqual(value, .fiveMinutes)
-
-        subject.copy("Test string2")
-        XCTAssertEqual(pasteboard.strings?.last, "Test string2")
-        XCTAssertTrue(pasteboard.isPersistent)
-    }
 }

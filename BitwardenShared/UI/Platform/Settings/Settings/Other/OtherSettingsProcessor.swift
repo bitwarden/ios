@@ -59,13 +59,13 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
         case let .clearClipboardValueChanged(newValue):
             state.clearClipboardValue = newValue
             services.settingsRepository.clearClipboardValue = newValue
-        case let .toggleUniversalClipboard(isOn):
-            services.settingsRepository.allowUniversalClipboard = isOn
-            state.isAllowUniversalClipboardToggleOn = isOn
         case let .toastShown(newValue):
             state.toast = newValue
         case let .toggleAllowSyncOnRefresh(isOn):
             updateAllowSyncOnRefresh(isOn)
+        case let .toggleAllowUniversalClipboard(isOn):
+            services.settingsRepository.allowUniversalClipboard = isOn
+            state.isAllowUniversalClipboardToggleOn = isOn
         case let .toggleConnectToWatch(isOn):
             updateConnectToWatch(isOn)
         }

@@ -5,11 +5,11 @@ import UniformTypeIdentifiers
 /// A protocol for a service used by the application for sharing data with other apps.
 ///
 protocol PasteboardService: AnyObject {
-    /// The time after which the clipboard should clear.
-    var clearClipboardValue: ClearClipboardValue { get }
-
     /// Indicates whether Universal Clipboard is allowed when copying.
     var allowUniversalClipboard: Bool { get }
+
+    /// The time after which the clipboard should clear.
+    var clearClipboardValue: ClearClipboardValue { get }
 
     /// Copies a string value to the system pasteboard and sets a timer to clear the clipboard, if applicable.
     ///

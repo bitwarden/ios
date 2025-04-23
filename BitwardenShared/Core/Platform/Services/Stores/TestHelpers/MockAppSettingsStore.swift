@@ -10,6 +10,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
+    var allowUniversalClipboardByUserId = [String: Bool]()
     var appId: String?
     var appLocale: String?
     var appRehydrationState = [String: AppRehydrationState]()
@@ -32,7 +33,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     var biometricAuthenticationEnabled = [String: Bool?]()
     var clearClipboardValues = [String: ClearClipboardValue]()
-    var allowUniversalClipboardByUserId = [String: Bool]()
     var connectToWatchByUserId = [String: Bool]()
     var defaultUriMatchTypeByUserId = [String: UriMatchType]()
     var disableAutoTotpCopyByUserId = [String: Bool]()
@@ -84,16 +84,16 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         allowSyncOnRefreshes[userId] ?? false
     }
 
+    func allowUniversalClipboard(userId: String) -> Bool {
+        allowUniversalClipboardByUserId[userId] ?? false
+    }
+
     func appRehydrationState(userId: String) -> BitwardenShared.AppRehydrationState? {
         appRehydrationState[userId]
     }
 
     func clearClipboardValue(userId: String) -> ClearClipboardValue {
         clearClipboardValues[userId] ?? .never
-    }
-
-    func allowUniversalClipboard(userId: String) -> Bool {
-        allowUniversalClipboardByUserId[userId] ?? false
     }
 
     func connectToWatch(userId: String) -> Bool {
@@ -193,6 +193,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
     }
 
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        allowUniversalClipboardByUserId[userId] = allowUniversalClipboard
+    }
+
     func setAppRehydrationState(_ state: BitwardenShared.AppRehydrationState?, userId: String) {
         guard state != nil else {
             appRehydrationState.removeValue(forKey: userId)
@@ -203,10 +207,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setClearClipboardValue(_ clearClipboardValue: ClearClipboardValue?, userId: String) {
         clearClipboardValues[userId] = clearClipboardValue
-    }
-
-    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
-        allowUniversalClipboardByUserId[userId] = allowUniversalClipboard
     }
 
     func setConnectToWatch(_ connectToWatch: Bool, userId: String) {

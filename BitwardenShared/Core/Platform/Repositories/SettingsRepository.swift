@@ -5,11 +5,11 @@ import Foundation
 /// A protocol for a `SettingsRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SettingsRepository: AnyObject {
+    /// Get or set whether Universal Clipboard is allowed.
+    var allowUniversalClipboard: Bool { get set }
+
     /// Get or set the clear clipboard raw value.
     var clearClipboardValue: ClearClipboardValue { get set }
-
-    /// Gets or sets whether Universal Clipboard is allowed.
-    var allowUniversalClipboard: Bool { get set }
 
     /// Add a new folder.
     ///

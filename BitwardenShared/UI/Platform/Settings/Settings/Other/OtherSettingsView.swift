@@ -24,7 +24,7 @@ struct OtherSettingsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 clearClipboard
 
-                universalClipboard
+                allowUniversalClipboard
 
                 if store.state.shouldShowConnectToWatchToggle {
                     connectToWatch
@@ -64,6 +64,23 @@ struct OtherSettingsView: View {
         .contentBlock()
     }
 
+    /// The Universal Clipboard toggle button and its description.
+    private var allowUniversalClipboard: some View {
+        BitwardenToggle(
+            Localizations.allowUniversalClipboard,
+            isOn: store.binding(
+                get: \.isAllowUniversalClipboardToggleOn,
+                send: OtherSettingsAction.toggleAllowUniversalClipboard
+            ),
+            accessibilityIdentifier: "UniversalClipboardChooser"
+        ) {
+            Text(Localizations.useUniversalClipboardToCopyDescriptionLong)
+                .styleGuide(.footnote)
+                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+        }
+        .contentBlock()
+    }
+
     /// The clear clipboard button and description.
     private var clearClipboard: some View {
         BitwardenMenuField(
@@ -76,23 +93,6 @@ struct OtherSettingsView: View {
                 send: OtherSettingsAction.clearClipboardValueChanged
             )
         )
-    }
-
-    /// The Universal Clipboard toggle button and its description.
-    private var universalClipboard: some View {
-        BitwardenToggle(
-            Localizations.universalClipboard,
-            isOn: store.binding(
-                get: \.isAllowUniversalClipboardToggleOn,
-                send: OtherSettingsAction.toggleUniversalClipboard
-            ),
-            accessibilityIdentifier: "UniversalClipboardChooser"
-        ) {
-            Text(Localizations.universalClipboardDescription)
-                .styleGuide(.footnote)
-                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
-        }
-        .contentBlock()
     }
 
     /// The connect to watch toggle.

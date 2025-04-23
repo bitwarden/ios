@@ -85,15 +85,6 @@ class SettingsRepositoryTests: BitwardenTestCase {
         }
     }
 
-    /// `clearClipboardValue` gets and sets the value from the `PasteboardService`.
-    func test_clearClipboardValue() {
-        pasteboardService.clearClipboardValue = .tenSeconds
-        XCTAssertEqual(subject.clearClipboardValue, .tenSeconds)
-
-        subject.clearClipboardValue = .twentySeconds
-        XCTAssertEqual(pasteboardService.clearClipboardValue, .twentySeconds)
-    }
-
     /// `allowUniversalClipboard` gets and sets the value from the `PasteboardService`.
     func test_allowUniversalClipboard() {
         pasteboardService.allowUniversalClipboard = true
@@ -101,6 +92,15 @@ class SettingsRepositoryTests: BitwardenTestCase {
 
         subject.allowUniversalClipboard = false
         XCTAssertFalse(subject.allowUniversalClipboard)
+    }
+
+    /// `clearClipboardValue` gets and sets the value from the `PasteboardService`.
+    func test_clearClipboardValue() {
+        pasteboardService.clearClipboardValue = .tenSeconds
+        XCTAssertEqual(subject.clearClipboardValue, .tenSeconds)
+
+        subject.clearClipboardValue = .twentySeconds
+        XCTAssertEqual(pasteboardService.clearClipboardValue, .twentySeconds)
     }
 
     /// `deleteFolder(id:)` makes the request to delete the folder.
