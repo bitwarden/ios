@@ -232,7 +232,8 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                         )
                         await coordinator.handleEvent(.didCompleteAuth)
                         coordinator.navigate(to: .dismiss)
-                    } catch (StateServiceError.noEncryptedPrivateKey) {
+                    } catch StateServiceError.noEncryptedPrivateKey
+                    {
                         // The delay is necessary in order to ensure the alert displays over the WebAuth view.
                         Task { @MainActor in
                             try await Task.sleep(forSeconds: UI.duration(0.5))
