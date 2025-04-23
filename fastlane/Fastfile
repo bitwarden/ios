@@ -45,7 +45,9 @@ platform :ios do |options|
     end
 
     lane :setup_code_files do |options|
-        update_plists options
+        if(lane_context[:APP] == 'password_manager')
+            update_plists options
+        end
         select_variant options
         update_version_info options
     end
@@ -150,6 +152,7 @@ platform :ios do |options|
         )
     end
 
+    desc "Update plists for Password Manager"
     private_lane :update_plists do |options|
         required_options = [
             :build_mode
@@ -162,11 +165,9 @@ platform :ios do |options|
 
         build_mode = options[:build_mode].downcase() #values: simulator, device
 
-        #TODO add support for Authenticator
         update_plist(
             plist_path: "Bitwarden/Application/Support/Info.plist",
             block: proc do |plist|
-                plist[:BUNDLE_ID] = ENV["BUNDLE_ID"]
                 plist[:ITSEncryptionExportComplianceCode] = ENV["PLIST_EXPORT_COMPLIANCE_CODE"]
               end
         )
