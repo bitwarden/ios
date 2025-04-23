@@ -11,9 +11,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag to enable/disable the ability to add a custom domain for anonAddy users.
     case anonAddySelfHostAlias = "anon-addy-self-host-alias"
 
-    /// A feature flag to enable/disable the app review prompt.
-    case appReviewPrompt = "app-review-prompt"
-
     /// Flag to enable/disable Credential Exchange export flow.
     case cxpExportMobile = "cxp-export-mobile"
 
@@ -55,15 +52,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
 
     /// A feature flag for the create account flow.
     case nativeCreateAccountFlow = "native-create-account-flow"
-
-    /// A feature flag for the notice indicating a user does not have two-factor authentication set up.
-    /// If true, the user can dismiss the notice temporarily.
-    case newDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss"
-
-    /// A feature flag for the notice indicating a user does not have two-factor authentication set up.
-    /// If true, the user can not dismiss the notice, and must set up two-factor authentication.
-    /// Overrides the temporary flag.
-    case newDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss"
 
     /// A feature flag for the refactor on the SSO details endpoint.
     case refactorSsoDetailsEndpoint = "pm-12337-refactor-sso-details-endpoint"
@@ -131,8 +119,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .flightRecorder,
              .ignore2FANoticeEnvironmentCheck,
              .mobileErrorReporting,
-             .newDeviceVerificationPermanentDismiss,
-             .newDeviceVerificationTemporaryDismiss,
              .testLocalFeatureFlag,
              .testLocalInitialBoolFlag,
              .testLocalInitialIntFlag,
@@ -140,7 +126,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
             false
         case .accountDeprovisioning,
              .anonAddySelfHostAlias,
-             .appReviewPrompt,
              .cipherKeyEncryption,
              .cxpExportMobile,
              .cxpImportMobile,

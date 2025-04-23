@@ -40,9 +40,6 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
-    /// The helper to handle the two-factor notice.
-    private let twoFactorNoticeHelper: TwoFactorNoticeHelper
-
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
@@ -60,12 +57,10 @@ final class VaultListProcessor: StateProcessor<
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultListState,
-        twoFactorNoticeHelper: TwoFactorNoticeHelper,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
         self.services = services
-        self.twoFactorNoticeHelper = twoFactorNoticeHelper
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
     }
@@ -199,7 +194,6 @@ extension VaultListProcessor {
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
-        await twoFactorNoticeHelper.maybeShowTwoFactorNotice()
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -374,9 +368,7 @@ extension VaultListProcessor {
         reviewPromptTask = Task {
             do {
                 try await Task.sleep(nanoseconds: Constants.appReviewPromptDelay)
-                if await services.configService.getFeatureFlag(.appReviewPrompt) {
-                    state.isEligibleForAppReview = true
-                }
+                state.isEligibleForAppReview = true
                 if await services.configService.getFeatureFlag(.enableDebugAppReviewPrompt) {
                     state.toast = Toast(title: Constants.appReviewPromptEligibleDebugMessage)
                 }
