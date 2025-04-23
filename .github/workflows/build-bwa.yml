@@ -131,9 +131,10 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install Mint, protobuf, xcbeautify, and yq
+      - name: Install Homebrew Dependencies
         run: |
-          brew install mint swift-protobuf xcbeautify yq
+          brew update
+          brew bundle
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'

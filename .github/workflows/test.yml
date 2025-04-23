@@ -114,9 +114,10 @@ jobs:
         run: |
           ./Scripts/update_test_local_config.sh "${{ env._COMPILER_FLAGS }}"
 
-      - name: Install Mint and xcresultparser
+      - name: Install Homebrew Dependencies and run bootstrap.sh
         run: |
-          brew install mint xcresultparser
+          brew update
+          brew bundle
           ./Scripts/bootstrap.sh
 
       - name: Build and test
