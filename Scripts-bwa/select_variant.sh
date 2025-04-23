@@ -21,8 +21,8 @@ variant=$1
 
 echo "🧱 Setting build variant to ${bold}${variant}${normal}."
 
-local_xcconfig_file="Configs-bwa/Local.xcconfig"
-export_options_file="Configs-bwa/export_options.plist"
+local_xcconfig_file="Configs/Local-bwa.xcconfig"
+export_options_file="Configs/export_options.plist"
 
 case $variant in
     Production)

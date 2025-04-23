@@ -73,6 +73,7 @@ fastlane/README.md
 
 # Local xcconfig
 Configs/Local.xcconfig
+Configs/Local-bwa.xcconfig
 
 # Local export options
 Configs/export_options.plist

@@ -3,7 +3,7 @@ CODE_SIGN_IDENTITY = Apple Development
 
 #include "./Common-bwa.xcconfig"
 #include "./Base-Release.xcconfig"
-#include? "./Local.xcconfig"
+#include? "./Local-bwa.xcconfig"
 
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
 CODE_SIGN_ENTITLEMENTS = Authenticator/Application/Support/Entitlements/Authenticator.entitlements
