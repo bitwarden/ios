@@ -225,11 +225,11 @@ class DefaultSyncService: SyncService {
         guard !forceSync, let lastSyncTime = try await stateService.getLastSyncTime(userId: userId) else {
             return true
         }
-        
+
         if try await keyConnectorService.userNeedsMigration() {
             return true
         }
-        
+
         guard lastSyncTime.addingTimeInterval(Constants.minimumSyncInterval) < timeProvider.presentTime else {
             return false
         }

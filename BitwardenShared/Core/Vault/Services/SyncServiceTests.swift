@@ -208,6 +208,7 @@ class SyncServiceTests: BitwardenTestCase {
         let priorSyncDate = Date(year: 2022, month: 1, day: 1)
         stateService.lastSyncTimeByUserId["1"] = priorSyncDate
         cipherService.replaceCiphersError = BitwardenTestError.example
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.fetchSync(forceSync: false)
@@ -253,6 +254,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
             lastSync
         )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false)
 
@@ -274,6 +276,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpFailure(BitwardenTestError.example)
         stateService.activeAccount = .fixture()
         stateService.lastSyncTimeByUserId["1"] = lastSyncTime
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false)
 
@@ -296,6 +299,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
             lastSync
         )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false)
 
@@ -315,6 +319,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
             timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1))
         )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false)
 
@@ -775,13 +780,17 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
     var securityStampChangedUserId: String?
     var setMasterPasswordCalled = false
     var setMasterPasswordOrgId: String?
+    var removeMasterPasswordOrganizationId: String?
+    var removeMasterPasswordKeyConnectorUrl: String?
 
     func onFetchSyncSucceeded(userId: String) async {
         onFetchSyncSucceededCalledWithuserId = userId
     }
 
-    func removeMasterPassword(organizationName: String) {
+    func removeMasterPassword(organizationName: String, organizationId: String, keyConnectorUrl: String) {
         removeMasterPasswordOrganizationName = organizationName
+        removeMasterPasswordOrganizationId = organizationId
+        removeMasterPasswordKeyConnectorUrl = keyConnectorUrl
         removeMasterPasswordCalled = true
     }
 

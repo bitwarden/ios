@@ -1955,6 +1955,20 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         stateService.getAccountEncryptionKeysError = StateServiceError.noEncryptedPrivateKey
 
+        await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
+            try await subject.unlockVaultWithKeyConnectorKey(
+                keyConnectorURL: URL(string: "https://example.com")!,
+                orgIdentifier: "org-id"
+            )
+        }
+
+        await assertAsyncDoesNotThrow {
+            try await subject.convertNewUserToKeyConnector(
+                keyConnectorURL: URL(string: "https://example.com")!,
+                orgIdentifier: "org-id"
+            )
+        }
+
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: URL(string: "https://example.com")!,
@@ -1973,6 +1987,34 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+    }
+
+    /// `unlockVaultWithKeyConnectorKey()` converts a new user to use key connector and unlocks the
+    /// user's vault with their key connector key.
+    func test_convertNewUserToKeyconnector() async {
+        clientService.mockCrypto.initializeUserCryptoResult = .success(())
+        keyConnectorService.convertNewUserToKeyConnectorHandler = { [weak self] in
+            self?.stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+                encryptedPrivateKey: "private",
+                encryptedUserKey: "user"
+            )
+            self?.stateService.getAccountEncryptionKeysError = nil
+        }
+        keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
+        stateService.activeAccount = .fixture()
+        stateService.getAccountEncryptionKeysError = StateServiceError.noEncryptedPrivateKey
+
+        await assertAsyncDoesNotThrow {
+            try await subject.convertNewUserToKeyConnector(
+                keyConnectorURL: URL(string: "https://example.com")!,
+                orgIdentifier: "org-id"
+            )
+        }
+        XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
+        XCTAssertEqual(keyConnectorService.convertNewUserToKeyConnectorOrganizationId,
+                       "org-id")
+        XCTAssertEqual(keyConnectorService.convertNewUserToKeyConnectorKeyConnectorUrl,
+                       URL(string: "https://example.com"))
     }
 
     /// `unlockVaultWithKeyConnectorKey()` throws an error if the user is missing an encrypted user key.

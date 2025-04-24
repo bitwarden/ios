@@ -34,6 +34,9 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var isPinUnlockAvailableResult: Result<Bool, Error> = .success(false)
     var isUserManagedByOrganizationResult: Result<Bool, Error> = .success(false)
     var pinUnlockAvailabilityResult: Result<[String: Bool], Error> = .success([:])
+    var leaveOrganizationCalled = false
+    var leaveOrganizationOrganizationId: String?
+    var leaveOrganizationResult: Result<Void, Error> = .success(())
     var lockVaultUserId: String?
     var logoutCalled = false
     var logoutUserId: String?
@@ -81,6 +84,11 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var unlockVaultWithKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
     var unlockVaultWithKeyConnectorOrgIdentifier: String?
     var unlockVaultWithKeyConnectorKeyResult: Result<Void, Error> = .success(())
+
+    var convertNewUserToKeyConnectorKeyCalled = false
+    var convertNewUserToKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
+    var convertNewUserToKeyConnectorOrgIdentifier: String?
+    var convertNewUserToKeyConnectorKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockKeyCalled = false
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
     var verifyOtpOpt: String?
@@ -136,6 +144,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     func clearPins() async throws {
         clearPinsCalled = true
+    }
+
+    func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws {
+        var convertNewUserToKeyConnectorKeyCalled = false
+        var convertNewUserToKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
+        var convertNewUserToKeyConnectorOrgIdentifier: String?
+        var convertNewUserToKeyConnectorKeyResult: Result<Void, Error> = .success(())
     }
 
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
@@ -229,6 +244,12 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         passwordStrengthPassword = password
         passwordStrengthIsPreAuth = isPreAuth
         return try passwordStrengthResult.get()
+    }
+
+    func leaveOrganization(organizationId: String) async throws {
+        leaveOrganizationCalled = true
+        leaveOrganizationOrganizationId = organizationId
+        try leaveOrganizationResult.get()
     }
 
     func lockVault(userId: String?, isManuallyLocking: Bool) async {

@@ -29,7 +29,9 @@ class RemoveMasterPasswordProcessorTests: BitwardenTestCase {
                 errorReporter: errorReporter
             ),
             state: RemoveMasterPasswordState(
-                organizationName: "Example Org"
+                organizationName: "Example Org",
+                organizationId: "ORG_ID",
+                keyConnectorUrl: "https://example.com"
             )
         )
     }
