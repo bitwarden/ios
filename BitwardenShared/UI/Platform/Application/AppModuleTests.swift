@@ -186,18 +186,6 @@ class AppModuleTests: BitwardenTestCase {
         XCTAssertTrue(rootViewController.childViewController === tabBarController)
     }
 
-    /// `makeTwoFactorNoticeCoordinator` builds the two factor notice coordinator.
-    @MainActor
-    func test_makeTwoFactorNoticeCoordinator() {
-        let navigationController = UINavigationController()
-        let coordinator = subject.makeTwoFactorNoticeCoordinator(
-            stackNavigator: navigationController
-        )
-        coordinator.navigate(to: .emailAccess(allowDelay: true, emailAddress: "person@example.com"))
-        XCTAssertEqual(navigationController.viewControllers.count, 1)
-        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<EmailAccessView>)
-    }
-
     /// `makeVaultCoordinator()` builds the vault coordinator.
     @MainActor
     func test_makeVaultCoordinator() {

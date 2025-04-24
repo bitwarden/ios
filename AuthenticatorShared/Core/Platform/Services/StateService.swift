@@ -309,7 +309,7 @@ extension StateService {
     /// - Returns: The server config sent by the server for the active account.
     ///
     func getServerConfig() async throws -> ServerConfig? {
-        try await getServerConfig(userId: nil)
+        try await getServerConfig(userId: getActiveAccountId())
     }
 }
 

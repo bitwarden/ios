@@ -24,7 +24,7 @@ on:
 
 env:
   build-variant: ${{ inputs.build-variant || 'Production' }}
-  XCODE_VERSION: ${{ inputs.xcode-version || '16.2' }}
+  XCODE_VERSION: ${{ inputs.xcode-version || '16.3' }}
 
 jobs:
   build:
@@ -131,9 +131,10 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install Mint, protobuf, xcbeautify, and yq
+      - name: Install Homebrew Dependencies
         run: |
-          brew install mint swift-protobuf xcbeautify yq
+          brew update
+          brew bundle
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
