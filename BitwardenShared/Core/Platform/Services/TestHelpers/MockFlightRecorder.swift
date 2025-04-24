@@ -4,8 +4,8 @@ import Combine
 
 @MainActor
 final class MockFlightRecorder: FlightRecorder {
-    var deleteArchivedLogsCalled = false
-    var deleteArchivedLogsResult: Result<Void, Error> = .success(())
+    var deleteInactiveLogsCalled = false
+    var deleteInactiveLogsResult: Result<Void, Error> = .success(())
     var deleteLogResult: Result<Void, Error> = .success(())
     var deleteLogLogs = [FlightRecorderLogMetadata]()
     var disableFlightRecorderCalled = false
@@ -19,9 +19,9 @@ final class MockFlightRecorder: FlightRecorder {
 
     nonisolated init() {}
 
-    func deleteArchivedLogs() async throws {
-        deleteArchivedLogsCalled = true
-        try deleteArchivedLogsResult.get()
+    func deleteInactiveLogs() async throws {
+        deleteInactiveLogsCalled = true
+        try deleteInactiveLogsResult.get()
     }
 
     func deleteLog(_ log: FlightRecorderLogMetadata) async throws {

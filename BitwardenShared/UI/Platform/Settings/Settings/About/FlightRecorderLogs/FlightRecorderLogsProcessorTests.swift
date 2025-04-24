@@ -103,7 +103,7 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
-    /// `receive(_:)` with `.deleteAll` shows a confirmation alert and then deletes the archived logs.
+    /// `receive(_:)` with `.deleteAll` shows a confirmation alert and then deletes the inactive logs.
     @MainActor
     func test_receive_deleteAll() async throws {
         subject.receive(.deleteAll)
@@ -112,18 +112,18 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(alert, .confirmDeleteLog(isBulkDeletion: true, action: {}))
 
         try await alert.tapAction(title: Localizations.cancel)
-        XCTAssertFalse(flightRecorder.deleteArchivedLogsCalled)
+        XCTAssertFalse(flightRecorder.deleteInactiveLogsCalled)
 
         try await alert.tapAction(title: Localizations.yes)
 
-        XCTAssertTrue(flightRecorder.deleteArchivedLogsCalled)
+        XCTAssertTrue(flightRecorder.deleteInactiveLogsCalled)
         XCTAssertTrue(flightRecorder.fetchLogsCalled)
     }
 
     /// `receive(_:)` with `.deleteAll` logs an error and shows an error alert if an error occurs.
     @MainActor
     func test_receive_deleteAll_error() async throws {
-        flightRecorder.deleteArchivedLogsResult = .failure(BitwardenTestError.example)
+        flightRecorder.deleteInactiveLogsResult = .failure(BitwardenTestError.example)
 
         subject.receive(.deleteAll)
 

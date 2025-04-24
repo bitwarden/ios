@@ -8,9 +8,9 @@ import Foundation
 /// local file.
 ///
 protocol FlightRecorder: Sendable {
-    /// Deletes all archived flight recorder logs. This will not delete the currently active log.
+    /// Deletes all inactive flight recorder logs. This will not delete the currently active log.
     ///
-    func deleteArchivedLogs() async throws
+    func deleteInactiveLogs() async throws
 
     /// Deletes a flight recorder log.
     ///
@@ -221,12 +221,12 @@ actor DefaultFlightRecorder {
 // MARK: - DefaultFlightRecorder + FlightRecorder
 
 extension DefaultFlightRecorder: FlightRecorder {
-    func deleteArchivedLogs() async throws {
+    func deleteInactiveLogs() async throws {
         guard var data = await stateService.getFlightRecorderData() else {
             throw FlightRecorderError.dataUnavailable
         }
 
-        for log in data.archivedLogs {
+        for log in data.inactiveLogs {
             do {
                 try fileManager.removeItem(at: fileURL(for: log))
             } catch let error as NSError where error.domain == NSCocoaErrorDomain &&
@@ -237,7 +237,7 @@ extension DefaultFlightRecorder: FlightRecorder {
             }
         }
 
-        data.archivedLogs.removeAll()
+        data.inactiveLogs.removeAll()
         await stateService.setFlightRecorderData(data)
     }
 
@@ -248,7 +248,7 @@ extension DefaultFlightRecorder: FlightRecorder {
         guard data.activeLog?.id != log.id else {
             throw FlightRecorderError.deletionNotPermitted
         }
-        guard let logMetadata = data.archivedLogs.first(where: { $0.id == log.id }) else {
+        guard let logMetadata = data.inactiveLogs.first(where: { $0.id == log.id }) else {
             throw FlightRecorderError.logNotFound
         }
 
@@ -260,7 +260,7 @@ extension DefaultFlightRecorder: FlightRecorder {
             throw error
         }
 
-        data.archivedLogs.removeAll { $0.id == logMetadata.id }
+        data.inactiveLogs.removeAll { $0.id == logMetadata.id }
         await stateService.setFlightRecorderData(data)
     }
 

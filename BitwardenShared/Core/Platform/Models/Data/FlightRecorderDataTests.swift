@@ -11,15 +11,15 @@ class FlightRecorderDataTests: BitwardenTestCase {
         XCTAssertEqual(subject.allLogs, [])
     }
 
-    /// `allLogs` returns a list of all logs when there's active and archived logs.
-    func test_allLogs_activeAndArchivedLogs() {
+    /// `allLogs` returns a list of all logs when there's active and inactive logs.
+    func test_allLogs_activeAndInactiveLogs() {
         let activeLog = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
-        let archivedLogs = [
+        let inactiveLogs = [
             FlightRecorderData.LogMetadata(duration: .oneHour, startDate: .now),
             FlightRecorderData.LogMetadata(duration: .oneWeek, startDate: .now),
         ]
-        let subject = FlightRecorderData(activeLog: activeLog, archivedLogs: archivedLogs)
-        XCTAssertEqual(subject.allLogs, [activeLog] + archivedLogs)
+        let subject = FlightRecorderData(activeLog: activeLog, inactiveLogs: inactiveLogs)
+        XCTAssertEqual(subject.allLogs, [activeLog] + inactiveLogs)
     }
 
     /// `allLogs` returns a list of all logs when there's an active log.
@@ -29,14 +29,14 @@ class FlightRecorderDataTests: BitwardenTestCase {
         XCTAssertEqual(subject.allLogs, [log])
     }
 
-    /// `allLogs` returns a list of all logs when there are archived logs.
-    func test_allLogs_archivedLogs() {
+    /// `allLogs` returns a list of all logs when there are inactive logs.
+    func test_allLogs_inactiveLogs() {
         let logs = [
             FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now),
             FlightRecorderData.LogMetadata(duration: .oneHour, startDate: .now),
             FlightRecorderData.LogMetadata(duration: .oneWeek, startDate: .now),
         ]
-        let subject = FlightRecorderData(archivedLogs: logs)
+        let subject = FlightRecorderData(inactiveLogs: logs)
         XCTAssertEqual(subject.allLogs, logs)
     }
 
@@ -53,12 +53,12 @@ class FlightRecorderDataTests: BitwardenTestCase {
     func test_setActiveLog_existingLog() {
         let log1 = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
         let log2 = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
-        var subject = FlightRecorderData(activeLog: log2, archivedLogs: [log1])
+        var subject = FlightRecorderData(activeLog: log2, inactiveLogs: [log1])
 
         let log3 = FlightRecorderData.LogMetadata(duration: .oneWeek, startDate: .now)
         subject.activeLog = log3
 
-        XCTAssertEqual(subject, FlightRecorderData(activeLog: log3, archivedLogs: [log2, log1]))
+        XCTAssertEqual(subject, FlightRecorderData(activeLog: log3, inactiveLogs: [log2, log1]))
     }
 
     // MARK: FlightRecorderData.LogMetadata Tests

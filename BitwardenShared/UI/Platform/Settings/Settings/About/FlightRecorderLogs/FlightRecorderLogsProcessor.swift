@@ -79,12 +79,12 @@ final class FlightRecorderLogsProcessor: StateProcessor<
         coordinator.showAlert(.confirmDeleteLog(isBulkDeletion: isBulkDeletion, action: action))
     }
 
-    /// Shows the deletion confirmation alert and then deletes all archived logs if the user confirms.
+    /// Shows the deletion confirmation alert and then deletes all inactive logs if the user confirms.
     ///
     private func deleteAllLogs() {
         confirmDeletion(isBulkDeletion: true) {
             do {
-                try await self.services.flightRecorder.deleteArchivedLogs()
+                try await self.services.flightRecorder.deleteInactiveLogs()
                 await self.loadData()
             } catch {
                 self.services.errorReporter.log(error: error)
