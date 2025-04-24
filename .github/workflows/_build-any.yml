@@ -27,7 +27,7 @@ on:
         type: boolean
 env:
   _ENV: ${{ inputs.environment || 'bwpm-prod' }}
-  _BUILD_VARIANT: ${{ inputs.environment == 'bwpm-prod' && 'Production' || 'Beta' }} #TODO: improve build variant check by migrating configure_provisioning_profiles.sh to fastlane
+  _BUILD_VARIANT: ${{ inputs.environment == 'bwpm-prod' && 'Production' || 'Beta' }}
   _BUILD_MODE: ${{ inputs.build-mode || 'Device' }}
   _XCODE_VERSION: ${{ inputs.xcode-version }}
   _VERSION_NAME: ${{ inputs.version-name }}

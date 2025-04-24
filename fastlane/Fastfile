@@ -37,9 +37,9 @@ ARTIFACT_EXTENSION = {
 platform :ios do |options|
     before_all do
         ensure_env_vars(
-            env_vars: ['APP']
+            env_vars: ['_APP']
         )
-        app = ENV["APP"]
+        app = ENV["_APP"]
         lane_context[:APP] = app
         lane_context[:APP_CONFIG] = APP_CONFIG_MAP[app]
     end
@@ -66,7 +66,7 @@ platform :ios do |options|
         ensure_required_options(options, required_options)
 
         ensure_env_vars(
-             env_vars: ['BUNDLE_ID']
+             env_vars: ['_BUNDLE_ID']
         )
 
         build_mode = options[:build_mode].downcase() #values: simulator, device
@@ -74,7 +74,7 @@ platform :ios do |options|
         version_number = options[:version_number]
         xcode_version = options[:xcode_version]
 
-        bundle_id = ENV["BUNDLE_ID"]
+        bundle_id = ENV["_BUNDLE_ID"]
         ext = ARTIFACT_EXTENSION[build_mode]
         app_config = lane_context[:APP_CONFIG]
         UI.message "artifact_filename: #{bundle_id}-#{version_name}(#{version_number})-#{xcode_version}.#{ext}"
@@ -86,7 +86,7 @@ platform :ios do |options|
 
       envfile.each do |key, value|
         value_cleaned = Shellwords.shellescape(value.to_s.delete(" \t\r\n"))
-        sh "echo _#{key}='#{value_cleaned}' >> $GITHUB_ENV"
+        sh "echo #{key}='#{value_cleaned}' >> $GITHUB_ENV"
       end
     end
 
@@ -160,7 +160,7 @@ platform :ios do |options|
         ensure_required_options(options, required_options)
 
         ensure_env_vars(
-            env_vars: ['BUNDLE_ID', 'PLIST_EXPORT_COMPLIANCE_CODE', 'APS_ENVIRONMENT_DEVICE', 'APS_ENVIRONMENT_SIMULATOR']
+            env_vars: ['_BUNDLE_ID', '_PLIST_EXPORT_COMPLIANCE_CODE', '_APS_ENVIRONMENT_DEVICE', '_APS_ENVIRONMENT_SIMULATOR']
         )
 
         build_mode = options[:build_mode].downcase() #values: simulator, device
@@ -168,14 +168,14 @@ platform :ios do |options|
         update_plist(
             plist_path: "Bitwarden/Application/Support/Info.plist",
             block: proc do |plist|
-                plist[:ITSEncryptionExportComplianceCode] = ENV["PLIST_EXPORT_COMPLIANCE_CODE"]
+                plist[:ITSEncryptionExportComplianceCode] = ENV["_PLIST_EXPORT_COMPLIANCE_CODE"]
               end
         )
 
         aps_env = if(build_mode == 'device')
-            ENV['APS_ENVIRONMENT_DEVICE']
+            ENV['_APS_ENVIRONMENT_DEVICE']
         else
-            ENV['APS_ENVIRONMENT_SIMULATOR']
+            ENV['_APS_ENVIRONMENT_SIMULATOR']
         end
         update_plist(
             plist_path: "Bitwarden/Application/Support/Bitwarden.entitlements",
@@ -186,7 +186,7 @@ platform :ios do |options|
         update_plist(
             plist_path: "BitwardenWatchApp/GoogleService-Info.plist",
             block: proc do |plist|
-                plist[:BUNDLE_ID] = ENV["BUNDLE_ID"] + ".watchkitapp"
+                plist[:BUNDLE_ID] = ENV["_BUNDLE_ID"] + ".watchkitapp"
               end
         )
     end
@@ -237,16 +237,16 @@ platform :ios do |options|
       compiler_flags = options[:compiler_flags] || ''
 
       ensure_env_vars(
-        env_vars: ['BUNDLE_ID', 'GROUP_ID', 'PROVISIONING_PROFILE_PREFIX', 'APP_ICON', 'LOCAL_XCCONFIG_PATH']
+        env_vars: ['_BUNDLE_ID', '_GROUP_ID', '_PROVISIONING_PROFILE_PREFIX', '_APP_ICON', '_LOCAL_XCCONFIG_PATH']
       )
 
       export_options_file = "Configs/export_options.plist"
 
-      local_xcconfig_file = ENV["LOCAL_XCCONFIG_PATH"]
-      bundle_id = ENV["BUNDLE_ID"]
-      shared_app_group_id = ENV["GROUP_ID"]
-      profile_prefix = ENV["PROVISIONING_PROFILE_PREFIX"]
-      app_icon = ENV["APP_ICON"]
+      local_xcconfig_file = ENV["_LOCAL_XCCONFIG_PATH"]
+      bundle_id = ENV["_BUNDLE_ID"]
+      shared_app_group_id = ENV["_GROUP_ID"]
+      profile_prefix = ENV["_PROVISIONING_PROFILE_PREFIX"]
+      app_icon = ENV["_APP_ICON"]
 
       xcconfig_content = generate_xcconfig(lane_context[:APP], bundle_id, shared_app_group_id, app_icon, profile_prefix, compiler_flags)
       export_options_plist_content = generate_export_options_plist(lane_context[:APP], bundle_id, profile_prefix)
