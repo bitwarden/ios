@@ -237,12 +237,12 @@ platform :ios do |options|
       compiler_flags = options[:compiler_flags] || ''
 
       ensure_env_vars(
-        env_vars: ['BUNDLE_ID', 'GROUP_ID', 'PROVISIONING_PROFILE_PREFIX', 'APP_ICON']
+        env_vars: ['BUNDLE_ID', 'GROUP_ID', 'PROVISIONING_PROFILE_PREFIX', 'APP_ICON', 'LOCAL_XCCONFIG_PATH']
       )
 
-      local_xcconfig_file = "Configs/Local.xcconfig"
       export_options_file = "Configs/export_options.plist"
 
+      local_xcconfig_file = ENV["LOCAL_XCCONFIG_PATH"]
       bundle_id = ENV["BUNDLE_ID"]
       shared_app_group_id = ENV["GROUP_ID"]
       profile_prefix = ENV["PROVISIONING_PROFILE_PREFIX"]
