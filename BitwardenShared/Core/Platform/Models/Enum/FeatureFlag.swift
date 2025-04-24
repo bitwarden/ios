@@ -47,9 +47,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag to enable additional error reporting.
     case mobileErrorReporting = "mobile-error-reporting"
 
-    /// A feature flag for the intro carousel flow.
-    case nativeCarouselFlow = "native-carousel-flow"
-
     /// A feature flag for the create account flow.
     case nativeCreateAccountFlow = "native-create-account-flow"
 
@@ -135,7 +132,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .emailVerification,
              .enableAuthenticatorSync,
              .importLoginsFlow,
-             .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
              .restrictCipherItemDeletion,
