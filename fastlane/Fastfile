@@ -210,26 +210,9 @@ platform :ios do |options|
 
       UI.message("Updating #{project_filepath} with version name: #{version_name} and version number: #{version_number}")
 
-      #TODO yq retains the original formatting
-      Dir.chdir("..") do
-        sh("yq -i '.settings.MARKETING_VERSION = \"#{version_name}\"' '#{project_filepath}'")
-        sh("yq -i '.settings.CURRENT_PROJECT_VERSION = \"#{version_number}\"' '#{project_filepath}'")
-      end
+      update_version_yq(project_filepath, version_name, version_number)
 
-
-      # Read the YAML file
-    #   project_yaml = YAML.load_file(project_filepath)
-
-    #   # Update the version values
-    #   project_yaml['settings']['MARKETING_VERSION'] = version_name
-    #   project_yaml['settings']['CURRENT_PROJECT_VERSION'] = version_number
-
-    #   # Write the updated YAML back to the file
-    #   File.open(project_filepath, 'w') do |file|
-    #     file.write(project_yaml.to_yaml)
-    #   end
-
-      UI.success("Updated version information in #{project_filepath}")
+      UI.success("Updated #{project_filepath} version to #{version_name}(#{version_number})")
     end
 
     desc "Create config files with build variant and compiler flags"
@@ -402,5 +385,23 @@ platform :ios do |options|
 
     def parse_env_list(env_value)
         env_value.to_s.delete(" \t\r\n").split(',')
+    end
+
+    def update_version_yq(project_filepath, version_name, version_number)
+        Dir.chdir("..") do
+          sh("yq -i '.settings.MARKETING_VERSION = \"#{version_name}\"' '#{project_filepath}'")
+          sh("yq -i '.settings.CURRENT_PROJECT_VERSION = \"#{version_number}\"' '#{project_filepath}'")
+        end
+    end
+
+    def update_version_yaml(project_filepath, version_name, version_number)
+        project_yaml = YAML.load_file(project_filepath)
+
+        project_yaml['settings']['MARKETING_VERSION'] = version_name
+        project_yaml['settings']['CURRENT_PROJECT_VERSION'] = version_number
+
+        File.open(project_filepath, 'w') do |file|
+            file.write(project_yaml.to_yaml)
+        end
     end
 end
