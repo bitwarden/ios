@@ -1174,3 +1174,6 @@
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
 "DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
+"FlightRecorderOn" = "Flight recorder on";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
+"GoToSettings" = "Go to settings";

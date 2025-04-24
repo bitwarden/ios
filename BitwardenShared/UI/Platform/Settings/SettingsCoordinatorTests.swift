@@ -399,7 +399,7 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.navigate(to: .settings)
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .pushed)
+        XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is SettingsView)
     }
 

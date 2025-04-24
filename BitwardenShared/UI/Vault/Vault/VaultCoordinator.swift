@@ -48,6 +48,12 @@ public protocol VaultCoordinatorDelegate: AnyObject {
     ///     accounts and vault unlock
     ///
     func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?)
+
+    /// Called when the user needs to switch to the settings tab and navigate to a `SettingsRoute`.
+    ///
+    /// - Parameter route: The route to navigate to in the settings tab.
+    ///
+    func switchToSettingsTab(route: SettingsRoute)
 }
 
 // MARK: - VaultCoordinator
@@ -73,6 +79,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasFlightRecorder
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasLocalAuthService
@@ -196,6 +203,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             }
         case .dismiss:
             stackNavigator?.dismiss()
+        case .flightRecorderSettings:
+            delegate?.switchToSettingsTab(route: .about)
         case let .group(group, filter):
             showGroup(group, filter: filter)
         case let .importCXF(cxfRoute):

@@ -11,6 +11,12 @@ import OSLog
 /// local file.
 ///
 protocol FlightRecorder: Sendable {
+    /// A publisher which publishes the active log of the flight recorder.
+    ///
+    /// - Returns: A publisher for the active log of the flight recorder.
+    ///
+    func activeLogPublisher() async -> AnyPublisher<FlightRecorderData.LogMetadata?, Never>
+
     /// Deletes all inactive flight recorder logs. This will not delete the currently active log.
     ///
     func deleteInactiveLogs() async throws
@@ -51,6 +57,13 @@ protocol FlightRecorder: Sendable {
     ///   - line: The line number in the file that called the log method.
     ///
     func log(_ message: String, file: String, line: UInt) async
+
+    /// Sets a flag indicating that the flight recorder banner for the active log was viewed and
+    /// dismissed by the active user.
+    ///
+    /// - Parameter userId: The ID of the user who dismissed the banner.
+    ///
+    func setFlightRecorderBannerDismissed(userId: String) async
 }
 
 extension FlightRecorder {
@@ -344,6 +357,11 @@ actor DefaultFlightRecorder {
 // MARK: - DefaultFlightRecorder + FlightRecorder
 
 extension DefaultFlightRecorder: FlightRecorder {
+    func activeLogPublisher() async -> AnyPublisher<FlightRecorderData.LogMetadata?, Never> {
+        _ = await getFlightRecorderData() // Ensure data has already been loaded to the subject.
+        return dataSubject.map { $0?.activeLog }.eraseToAnyPublisher()
+    }
+
     func deleteInactiveLogs() async throws {
         guard var data = await getFlightRecorderData() else {
             throw FlightRecorderError.dataUnavailable
@@ -422,5 +440,11 @@ extension DefaultFlightRecorder: FlightRecorder {
                 error: error
             ))
         }
+    }
+
+    func setFlightRecorderBannerDismissed(userId: String) async {
+        guard var data = await getFlightRecorderData() else { return }
+        data.activeLog?.bannerDismissedByUserIds.append(userId)
+        await setFlightRecorderData(data)
     }
 }
