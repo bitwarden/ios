@@ -6,32 +6,43 @@
 #
 # Usage:
 #
-#   $ ./Scripts/build.sh <build_mode>
+#   $ ./Scripts/build.sh <project_file> <build_scheme> <build_mode>
 #
-# Where mode is one of:
-#   - Device: Build for physical iOS devices
-#   - Simulator: Build for iOS Simulator
+# Where:
+#   - project_file: Path to the project file (i.e., project-pm.yml or project-bwa.yml)
+#   - build_scheme: Build scheme (i.e., Bitwarden or Authenticator)
+#   - build_mode is one of:
+#     - Device: Build for physical iOS devices
+#     - Simulator: Build for iOS Simulator
+#
+# Examples:
+#   $ ./Scripts/build.sh project-pm.yml Bitwarden Simulator
+#   $ ./Scripts/build.sh project-bwa.yml Authenticator Device
 
 set -euo pipefail
 
 bold=$(tput -T ansi bold)
 normal=$(tput -T ansi sgr0)
 
-if [ $# -lt 1 ]; then
-  echo >&2 "Called without necessary arguments: ${bold}mode${normal}"
-  echo >&2 "For example: \`Scripts/build.sh Simulator"
+if [ $# -lt 3 ]; then
+  echo >&2 "Called without necessary arguments: ${bold}project_file build_scheme build_mode${normal}"
+  echo >&2 "For example: \`Scripts/build.sh project-pm.yml Bitwarden Simulator\`"
   exit 1
 fi
 
-MODE=$1
+PROJECT_FILE=$1
+BUILD_SCHEME=$2
+MODE=$3
 
 BUILD_DIR="build"
 DERIVED_DATA_PATH="${BUILD_DIR}/DerivedData"
-ARCHIVE_PATH="${BUILD_DIR}/Bitwarden.xcarchive"
-EXPORT_PATH="${BUILD_DIR}/Bitwarden"
+ARCHIVE_PATH="${BUILD_DIR}/${BUILD_SCHEME}.xcarchive"
+EXPORT_PATH="${BUILD_DIR}/${BUILD_SCHEME}"
 
 echo "🧱 Building in ${bold}$(pwd)${normal}"
-echo "🧱 Using build mode of ${bold}${MODE}${normal}."
+echo "🧱 Project file ${bold}${PROJECT_FILE}${normal}"
+echo "🧱 Build Scheme ${bold}${BUILD_SCHEME}${normal}"
+echo "🧱 Using build mode of ${bold}${MODE}${normal}"
 echo "🧱 Derived Data path ${bold}${DERIVED_DATA_PATH}${normal}"
 echo "🧱 Archive path ${bold}${ARCHIVE_PATH}${normal}"
 echo "🧱 Export path ${bold}${EXPORT_PATH}${normal}"
@@ -39,7 +50,7 @@ echo ""
 
 echo "🌱 Generating Xcode projects"
 mint run xcodegen --spec "project-bwk.yml"
-mint run xcodegen --spec "project-pm.yml"
+mint run xcodegen --spec "${PROJECT_FILE}"
 echo ""
 
 mkdir -p "${BUILD_DIR}"
@@ -49,7 +60,7 @@ case "$MODE" in
     echo "🔨 Performing Xcode build"
     xcrun xcodebuild \
       -workspace Bitwarden.xcworkspace \
-      -scheme Bitwarden \
+      -scheme "${BUILD_SCHEME}" \
       -configuration Debug \
       -destination "generic/platform=iOS Simulator" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
@@ -59,7 +70,7 @@ case "$MODE" in
     echo "📦 Performing Xcode archive"
     xcrun xcodebuild archive \
       -workspace Bitwarden.xcworkspace \
-      -scheme Bitwarden \
+      -scheme "${BUILD_SCHEME}" \
       -configuration Release \
       -archivePath "${ARCHIVE_PATH}" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
