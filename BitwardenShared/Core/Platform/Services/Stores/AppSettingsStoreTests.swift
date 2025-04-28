@@ -418,7 +418,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         }
 
         XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.emailVerification.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
         XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
         XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCreateAccountFlow.rawValue)))
     }

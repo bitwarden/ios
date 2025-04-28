@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - Alert+Auth
@@ -360,7 +361,9 @@ extension Alert {
     ) -> Alert {
         Alert(
             title: Localizations.enterPIN,
-            message: settingUp ? Localizations.setPINDescription : Localizations.verifyPIN,
+            message: settingUp
+                ? Localizations.yourPINMustBeAtLeastXCharactersDescriptionLong(Constants.minimumPinLength)
+                : Localizations.verifyPIN,
             alertActions: [
                 AlertAction(
                     title: Localizations.submit,
@@ -368,6 +371,10 @@ extension Alert {
                     handler: { _, alertTextFields in
                         guard let pin = alertTextFields.first(where: { $0.id == "pin" })?.text else { return }
                         await completion(pin)
+                    },
+                    shouldEnableAction: { textFields in
+                        guard let pin = textFields.first(where: { $0.id == "pin" })?.text else { return false }
+                        return pin.count >= Constants.minimumPinLength
                     }
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in

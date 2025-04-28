@@ -47,9 +47,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag to enable additional error reporting.
     case mobileErrorReporting = "mobile-error-reporting"
 
-    /// A feature flag for the intro carousel flow.
-    case nativeCarouselFlow = "native-carousel-flow"
-
     /// A feature flag for the create account flow.
     case nativeCreateAccountFlow = "native-create-account-flow"
 
@@ -96,18 +93,21 @@ enum FeatureFlag: String, CaseIterable, Codable {
             .filter { $0 != .enableCipherKeyEncryption }
     }
 
-    /// The initial values for feature flags.
+    /// The initial value of the feature flag.
     /// If `isRemotelyConfigured` is true for the flag, then this will get overridden by the server;
     /// but if `isRemotelyConfigured` is false for the flag, then the value here will be used.
     /// This is a helpful way to manage local feature flags.
-    static let initialValues: [FeatureFlag: AnyCodable] = [
-        .testLocalInitialBoolFlag: .bool(true),
-        .testLocalInitialIntFlag: .int(42),
-        .testLocalInitialStringFlag: .string("Test String"),
-        .testRemoteInitialBoolFlag: .bool(true),
-        .testRemoteInitialIntFlag: .int(42),
-        .testRemoteInitialStringFlag: .string("Test String"),
-    ]
+    var initialValue: AnyCodable? {
+        switch self {
+        case .testLocalInitialBoolFlag: .bool(true)
+        case .testLocalInitialIntFlag: .int(42)
+        case .testLocalInitialStringFlag: .string("Test String")
+        case .testRemoteInitialBoolFlag: .bool(true)
+        case .testRemoteInitialIntFlag: .int(42)
+        case .testRemoteInitialStringFlag: .string("Test String")
+        default: nil
+        }
+    }
 
     // MARK: Instance Properties
 
@@ -132,7 +132,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .emailVerification,
              .enableAuthenticatorSync,
              .importLoginsFlow,
-             .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
              .restrictCipherItemDeletion,

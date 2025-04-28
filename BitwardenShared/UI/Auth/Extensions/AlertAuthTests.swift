@@ -1,3 +1,4 @@
+import BitwardenKit
 import XCTest
 
 @testable import BitwardenShared
@@ -177,7 +178,33 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions.count, 2)
         XCTAssertEqual(subject.preferredStyle, .alert)
         XCTAssertEqual(subject.title, Localizations.enterPIN)
-        XCTAssertEqual(subject.message, Localizations.setPINDescription)
+        XCTAssertEqual(subject.message,
+                       Localizations.yourPINMustBeAtLeastXCharactersDescriptionLong(Constants.minimumPinLength))
+    }
+
+    /// `enterPINCode(completion:settingUp:)` disables the "Submit" button when the text field is empty,
+    /// and enables it dynamically when the user enters a pin with the minimum length.
+    @MainActor
+    func test_enterPINCode_enablesSubmitButtonWhenMinimumLengthPinIsEntered() async throws {
+        let alert = Alert.enterPINCode(settingUp: true) { _ in }
+        let controller = alert.createAlertController()
+
+        let pinWithMinimumLength = String(repeating: "1", count: Constants.minimumPinLength)
+
+        let uiTextField = try XCTUnwrap(controller.textFields?.first)
+        let submitAction = try XCTUnwrap(
+            controller.actions.first(where: { $0.title == Localizations.submit })
+        )
+
+        uiTextField.text = String(repeating: "1", count: Constants.minimumPinLength - 1)
+        alert.alertTextFields.first?.textChanged(in: uiTextField)
+
+        XCTAssertFalse(submitAction.isEnabled)
+
+        uiTextField.text = pinWithMinimumLength
+        alert.alertTextFields.first?.textChanged(in: uiTextField)
+
+        XCTAssertTrue(submitAction.isEnabled)
     }
 
     /// `enterPINCode(completion:settingUp:)` constructs an `Alert`

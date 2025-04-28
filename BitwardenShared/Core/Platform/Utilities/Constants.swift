@@ -70,6 +70,9 @@ extension Constants {
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters = 12
 
+    /// The minimum length when setting a pin.
+    static let minimumPinLength = 4
+
     /// The minimum number of minutes before allowing the vault to sync again.
     static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes
 
