@@ -14,7 +14,7 @@ final class FeatureFlagTests: BitwardenTestCase {
 
     /// `initialValues` returns the correct value for each flag.
     func test_initialValues() {
-        XCTAssertNil(FeatureFlag.initialValues[.cipherKeyEncryption]?.boolValue)
+        XCTAssertNil(FeatureFlag.cipherKeyEncryption.initialValue?.boolValue)
     }
 
     /// `getter:isRemotelyConfigured` returns the correct value for each flag.
@@ -26,7 +26,6 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertTrue(FeatureFlag.emailVerification.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.enableAuthenticatorSync.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.importLoginsFlow.isRemotelyConfigured)
-        XCTAssertTrue(FeatureFlag.nativeCarouselFlow.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.nativeCreateAccountFlow.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.refactorSsoDetailsEndpoint.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.restrictCipherItemDeletion.isRemotelyConfigured)

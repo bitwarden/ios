@@ -1091,14 +1091,6 @@
 "SSHKeys" = "SSH-sleutels";
 "OpticID" = "Optische ID";
 "UseOpticIDToUnlock" = "Gebruik Optische ID om te ontgrendelen";
-"ImportantNotice" = "Belangrijke mededeling";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Vanaf februari 2025 stuurt Bitwarden een code naar het e-mailadres van je account om inloggen op nieuwe apparaten te verifiëren.";
-"DoYouHaveReliableAccessToYourEmail" = "Heb je betrouwbare toegang tot je e-mail, **%1$@**?";
-"YesICanReliablyAccessMyEmail" = "Ja, ik heb betrouwbare toegang tot mijn e-mail";
-"SetUpTwoStepLogin" = "Tweestapsaanmelding instellen";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Je kunt tweestapsaanmelding instellen als een alternatieve manier om je account te beschermen of je e-mailadres te veranderen naar een waar je toegang toe hebt.";
-"TurnOnTwoStepLogin" = "Tweestapsaanmelding inschakelen";
-"ChangeAccountEmail" = "E-mailadres van het account veranderen";
 "NothingAvailableToAutofill" = "Niets beschikbaar voor automatisch invullen";
 "FailedToGenerateVerificationCode" = "Genereren van verificatiecode mislukt";
 "FailedToAutofillItem" = "Automatisch invullen van item %1$@ mislukt";

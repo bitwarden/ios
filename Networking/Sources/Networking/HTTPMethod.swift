@@ -2,7 +2,7 @@
 ///
 public struct HTTPMethod: Equatable, Sendable {
     /// The string value of the method.
-    let rawValue: String
+    public let rawValue: String
 }
 
 public extension HTTPMethod {

@@ -23,16 +23,16 @@ packages:
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.8.1
+    exactVersion: 11.12.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     exactVersion: 1.18.3
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
-    exactVersion: 1.26.0
+    exactVersion: 1.29.0
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.0
+    exactVersion: 0.10.1
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj

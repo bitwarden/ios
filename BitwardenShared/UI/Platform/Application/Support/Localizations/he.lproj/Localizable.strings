@@ -1093,14 +1093,6 @@
 "SSHKeys" = "מפתחות SSH";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "השתמש ב־Optic ID כדי לפתוח";
-"ImportantNotice" = "הודעה חשובה";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden ישלח קוד לדוא\"ל החשבון שלך כדי לאמת כניסות ממכשירים חדשים החל מפברואר 2025.";
-"DoYouHaveReliableAccessToYourEmail" = "יש לך גישה מהימנה לדוא\"ל שלך, **%1$@**?";
-"YesICanReliablyAccessMyEmail" = "כן, אני יכול לגשת לדוא\"ל שלי באופן מהימן";
-"SetUpTwoStepLogin" = "הגדר כניסה דו־שלבית";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "אתה יכול להגדיר כניסה דו־שלבית כדרך חלופית להגן על החשבון שלך או לשנות את הדוא\"ל שלך לאחד שאתה יכול לגשת אליו.";
-"TurnOnTwoStepLogin" = "הפעל כניסה דו־שלבית";
-"ChangeAccountEmail" = "שנה את דוא\"ל החשבון";
 "NothingAvailableToAutofill" = "אין שום דבר זמין למלא אוטומטית";
 "FailedToGenerateVerificationCode" = "נכשל לייצר קוד אימות";
 "FailedToAutofillItem" = "נכשל למלא אוטומטית פריט %1$@";

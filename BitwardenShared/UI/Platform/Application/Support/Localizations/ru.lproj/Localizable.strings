@@ -1093,14 +1093,6 @@
 "SSHKeys" = "Ключи SSH";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Использовать Optic ID для разблокировки";
-"ImportantNotice" = "Важное уведомление";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Начиная с февраля 2025 года Bitwarden будет отправлять код на электронную почту вашего аккаунта для подтверждения авторизации с новых устройств.";
-"DoYouHaveReliableAccessToYourEmail" = "Есть ли у вас надежный доступ к электронной почте **%1$@**?";
-"YesICanReliablyAccessMyEmail" = "Да, я имею надежный доступ к своей электронной почте";
-"SetUpTwoStepLogin" = "Настроить двухэтапную аутентификацию";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "В качестве альтернативного способа защиты учетной записи вы можете настроить двухэтапную аутентификацию или сменить электронную почту на ту, к которой вы можете получить доступ.";
-"TurnOnTwoStepLogin" = "Включить двухэтапную аутентификацию";
-"ChangeAccountEmail" = "Изменить email аккаунта";
 "NothingAvailableToAutofill" = "Ничего не доступно для автозаполнения";
 "FailedToGenerateVerificationCode" = "Не удалось сгенерировать код подтверждения";
 "FailedToAutofillItem" = "Не удалось выполнить автозаполнение элемента %1$@";

@@ -358,7 +358,7 @@ jobs:
 
       - name: Build iOS app
         run: |
-          ./Scripts/build.sh ${{ env._BUILD_MODE }}
+          ./Scripts/build.sh project-pm.yml Bitwarden ${{ env._BUILD_MODE }}
 
       - name: Prepare artifacts for upload to GitHub
         run: |
