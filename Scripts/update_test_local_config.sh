@@ -24,7 +24,7 @@ compiler_flags=${1:-''}
 echo "🧱 Updating Test local config..."
 echo "🛠️ Compiler flags: ${compiler_flags}"
 
-local_xcconfig_file="Configs/Local.xcconfig"
+local_xcconfig_file="Configs/Local-bwpm.xcconfig"
 
 cat << EOF > ${local_xcconfig_file}
 BITWARDEN_FLAGS = \$(inherited) ${compiler_flags}

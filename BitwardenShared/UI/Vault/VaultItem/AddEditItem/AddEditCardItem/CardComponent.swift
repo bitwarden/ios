@@ -137,6 +137,34 @@ extension CardComponent.Brand: Menuable {
     }
 }
 
+extension CardComponent.Brand {
+    /// Gets the icon corresponding to each card brand.
+    var icon: ImageAsset {
+        switch self {
+        case .americanExpress:
+            Asset.Images.Cards.amex
+        case .visa:
+            Asset.Images.Cards.visa
+        case .mastercard:
+            Asset.Images.Cards.mastercard
+        case .discover:
+            Asset.Images.Cards.discover
+        case .dinersClub:
+            Asset.Images.Cards.dinersClub
+        case .jcb:
+            Asset.Images.Cards.jcb
+        case .maestro:
+            Asset.Images.Cards.maestro
+        case .unionPay:
+            Asset.Images.Cards.unionPay
+        case .ruPay:
+            Asset.Images.Cards.ruPay
+        case .other:
+            Asset.Images.card24
+        }
+    }
+}
+
 extension CardComponent.Month: CaseIterable {}
 extension CardComponent.Month: Menuable {
     /// default state title for title type

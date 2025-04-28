@@ -4,7 +4,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class CipherItemStateTests: BitwardenTestCase {
+class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Tests
 
     /// `init(cloneItem: hasPremium)` returns a cloned CipherItemState.
@@ -72,7 +72,7 @@ class CipherItemStateTests: BitwardenTestCase {
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         XCTAssertTrue(state.canBeDeleted)
 
-        state.collections = [CollectionView.fixture()]
+        state.allUserCollections = [CollectionView.fixture()]
         XCTAssertTrue(state.canBeDeleted)
     }
 
@@ -82,7 +82,7 @@ class CipherItemStateTests: BitwardenTestCase {
     func test_canBeDeleted_canManageOneCollection() throws {
         let cipher = CipherView.loginFixture(collectionIds: ["1"], login: .fixture())
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.collections = [CollectionView.fixture(id: "1", manage: true)]
+        state.allUserCollections = [CollectionView.fixture(id: "1", manage: true)]
         XCTAssertTrue(state.canBeDeleted)
     }
 
@@ -92,7 +92,7 @@ class CipherItemStateTests: BitwardenTestCase {
     func test_canBeDeleted_cannotManageOneCollection() throws {
         let cipher = CipherView.loginFixture(collectionIds: ["1"], login: .fixture())
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.collections = [CollectionView.fixture(id: "1", manage: false)]
+        state.allUserCollections = [CollectionView.fixture(id: "1", manage: false)]
         XCTAssertFalse(state.canBeDeleted)
     }
 
@@ -105,7 +105,7 @@ class CipherItemStateTests: BitwardenTestCase {
             login: .fixture()
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.collections = [
+        state.allUserCollections = [
             CollectionView.fixture(id: "1", manage: false),
             CollectionView.fixture(id: "2", manage: false),
         ]
@@ -121,7 +121,7 @@ class CipherItemStateTests: BitwardenTestCase {
             login: .fixture()
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.collections = [
+        state.allUserCollections = [
             CollectionView.fixture(id: "1", manage: true),
             CollectionView.fixture(id: "2", manage: false),
         ]
@@ -157,8 +157,8 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertFalse(state.canBeDeleted)
     }
 
-    /// `canBeRestoredPermission` cipher permissions is nil fallback to isSoftDeleted
-    func test_canBeRestoredPermission_permissions_nil() throws {
+    /// `canBeRestored` cipher permissions is nil fallback to isSoftDeleted
+    func test_canBeRestored_permissions_nil() throws {
         var cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
             deletedDate: nil,
@@ -167,7 +167,7 @@ class CipherItemStateTests: BitwardenTestCase {
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.restrictCipherItemDeletionFlagEnabled = true
-        XCTAssertFalse(state.canBeRestoredPermission)
+        XCTAssertFalse(state.canBeRestored)
 
         cipher = CipherView.loginFixture(
             collectionIds: ["1", "2"],
@@ -176,12 +176,12 @@ class CipherItemStateTests: BitwardenTestCase {
             permissions: nil
         )
         state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        XCTAssertTrue(state.canBeRestoredPermission)
+        XCTAssertTrue(state.canBeRestored)
     }
 
-    /// `canBeRestoredPermission` returns value from cipher permissions if not nil
+    /// `canBeRestored` returns value from cipher permissions if not nil
     /// restore value true
-    func test_canBeRestoredPermission_true() throws {
+    func test_canBeRestored_true() throws {
         let cipher = CipherView.loginFixture(
             deletedDate: Date(),
             login: .fixture(),
@@ -192,12 +192,12 @@ class CipherItemStateTests: BitwardenTestCase {
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.restrictCipherItemDeletionFlagEnabled = true
-        XCTAssertTrue(state.canBeRestoredPermission)
+        XCTAssertTrue(state.canBeRestored)
     }
 
-    /// `canBeRestoredPermission` returns value from cipher permissions if not nil
+    /// `canBeRestored` returns value from cipher permissions if not nil
     /// restore value false
-    func test_canBeRestoredPermission_false() throws {
+    func test_canBeRestored_false() throws {
         let cipher = CipherView.loginFixture(
             deletedDate: Date(),
             login: .fixture(),
@@ -208,7 +208,7 @@ class CipherItemStateTests: BitwardenTestCase {
         )
         var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
         state.restrictCipherItemDeletionFlagEnabled = true
-        XCTAssertFalse(state.canBeRestoredPermission)
+        XCTAssertFalse(state.canBeRestored)
     }
 
     /// `restrictCipherItemDeletionFlagEnable` default value is false
@@ -227,21 +227,68 @@ class CipherItemStateTests: BitwardenTestCase {
         XCTAssertTrue(state.restrictCipherItemDeletionFlagEnabled)
     }
 
-    /// `collectionsForOwner` contains collections that are not read-only
-    func test_collectionsForOwner() throws {
-        let cipher = CipherView.loginFixture(
-            collectionIds: ["1", "2", "3"],
-            login: .fixture(),
-            organizationId: "Org1"
-        )
-        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
-        state.ownershipOptions = [.organization(id: "Org1", name: "Organization 1")]
-        state.collections = [
-            CollectionView.fixture(id: "1", organizationId: "Org1", manage: true, readOnly: false),
-            CollectionView.fixture(id: "2", organizationId: "Org1", manage: false, readOnly: false),
-            CollectionView.fixture(id: "3", organizationId: "Org1", manage: false, readOnly: true),
-        ]
-        XCTAssertEqual(state.collectionsForOwner.map(\.id), ["1", "2"])
+    /// `getter:icon` returns the icon for a card cipher with a known brand.
+    func test_icon_cardKnownBrand() throws {
+        let cipher = CipherView.cardFixture(card: .fixture(brand: "Visa"))
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, Asset.Images.Cards.visa.name)
+    }
+
+    /// `getter:icon` returns the icon for a card cipher with "other" brand.
+    func test_icon_cardOtherBrand() throws {
+        let cipher = CipherView.cardFixture(card: .fixture(brand: "Other"))
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, Asset.Images.card24.name)
+    }
+
+    /// `getter:icon` returns the icon for a card cipher with no brand.
+    func test_icon_cardNoBrand() throws {
+        let cipher = CipherView.cardFixture(card: .fixture())
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, Asset.Images.card24.name)
+    }
+
+    /// `getter:icon` returns the icon for an identity cipher.
+    func test_icon_identity() throws {
+        let cipher = CipherView.fixture(type: .identity)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, Asset.Images.idCard24.name)
+    }
+
+    /// `getter:icon` returns the icon for a login cipher.
+    func test_icon_login() throws {
+        let cipher = CipherView.loginFixture(login: .fixture())
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, Asset.Images.globe24.name)
+    }
+
+    /// `getter:icon` returns the icon for a secure note cipher.
+    func test_icon_secureNote() throws {
+        let cipher = CipherView.fixture(type: .secureNote)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, Asset.Images.stickyNote24.name)
+    }
+
+    /// `getter:icon` returns the icon for a SSH key cipher.
+    func test_icon_sshKey() throws {
+        let cipher = CipherView.fixture(type: .sshKey)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.icon.name, Asset.Images.key24.name)
+    }
+
+    /// `getter:iconAccessibilityId` returns the icon accessibility id.
+    func test_iconAccessibilityId() throws {
+        let cipher = CipherView.fixture()
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.iconAccessibilityId, "CipherIcon")
+    }
+
+    /// `getter:loginView` returns login of the cipher.
+    func test_loginView() throws {
+        let login = BitwardenSdk.LoginView.fixture(username: "1")
+        let cipher = CipherView.loginFixture(login: login)
+        let state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        XCTAssertEqual(state.loginView, login)
     }
 
     /// `navigationTitle` returns the navigation title for the view based on the cipher type being edited.

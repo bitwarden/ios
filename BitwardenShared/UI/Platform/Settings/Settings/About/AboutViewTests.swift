@@ -51,19 +51,19 @@ class AboutViewTests: BitwardenTestCase {
 
     /// The flight recorder toggle exists in the view when the feature flag is enabled.
     @MainActor
-    func test_flightRecorderToggle_visibleWithFeatureFlagEnabled() throws {
+    func test_flightRecorderToggle_visibleWithFeatureFlagEnabled() async throws {
         processor.state.isFlightRecorderFeatureFlagEnabled = true
         let toggle = try subject.inspect().find(toggleWithAccessibilityLabel: Localizations.flightRecorder)
 
         try toggle.tap()
-        XCTAssertEqual(processor.dispatchedActions, [.toggleFlightRecorder(true)])
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects, [.toggleFlightRecorder(true)])
+        processor.effects.removeAll()
 
         processor.state.isFlightRecorderToggleOn = true
         try toggle.tap()
-        XCTAssertEqual(
-            processor.dispatchedActions,
-            [.toggleFlightRecorder(true), .toggleFlightRecorder(false)]
-        )
+        try await waitForAsync { !self.processor.effects.isEmpty }
+        XCTAssertEqual(processor.effects, [.toggleFlightRecorder(false)])
     }
 
     /// Tapping the privacy policy button dispatches the `.privacyPolicyTapped` action.

@@ -8,8 +8,8 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag to enable/disable account deprovisioning.
     case accountDeprovisioning = "pm-10308-account-deprovisioning"
 
-    /// A feature flag to enable/disable the app review prompt.
-    case appReviewPrompt = "app-review-prompt"
+    /// A feature flag to enable/disable the ability to add a custom domain for anonAddy users.
+    case anonAddySelfHostAlias = "anon-addy-self-host-alias"
 
     /// Flag to enable/disable Credential Exchange export flow.
     case cxpExportMobile = "cxp-export-mobile"
@@ -47,26 +47,17 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// A feature flag to enable additional error reporting.
     case mobileErrorReporting = "mobile-error-reporting"
 
-    /// A feature flag for the intro carousel flow.
-    case nativeCarouselFlow = "native-carousel-flow"
-
     /// A feature flag for the create account flow.
     case nativeCreateAccountFlow = "native-create-account-flow"
-
-    /// A feature flag for the notice indicating a user does not have two-factor authentication set up.
-    /// If true, the user can dismiss the notice temporarily.
-    case newDeviceVerificationTemporaryDismiss = "new-device-temporary-dismiss"
-
-    /// A feature flag for the notice indicating a user does not have two-factor authentication set up.
-    /// If true, the user can not dismiss the notice, and must set up two-factor authentication.
-    /// Overrides the temporary flag.
-    case newDeviceVerificationPermanentDismiss = "new-device-permanent-dismiss"
 
     /// A feature flag for the refactor on the SSO details endpoint.
     case refactorSsoDetailsEndpoint = "pm-12337-refactor-sso-details-endpoint"
 
     /// A feature flag for the use of new cipher permission properties.
     case restrictCipherItemDeletion = "pm-15493-restrict-item-deletion-to-can-manage-permission"
+
+    /// A feature flag to enable SimpleLogin self-host alias generation
+    case simpleLoginSelfHostAlias = "simple-login-self-host-alias"
 
     // MARK: Test Flags
 
@@ -102,18 +93,21 @@ enum FeatureFlag: String, CaseIterable, Codable {
             .filter { $0 != .enableCipherKeyEncryption }
     }
 
-    /// The initial values for feature flags.
+    /// The initial value of the feature flag.
     /// If `isRemotelyConfigured` is true for the flag, then this will get overridden by the server;
     /// but if `isRemotelyConfigured` is false for the flag, then the value here will be used.
     /// This is a helpful way to manage local feature flags.
-    static let initialValues: [FeatureFlag: AnyCodable] = [
-        .testLocalInitialBoolFlag: .bool(true),
-        .testLocalInitialIntFlag: .int(42),
-        .testLocalInitialStringFlag: .string("Test String"),
-        .testRemoteInitialBoolFlag: .bool(true),
-        .testRemoteInitialIntFlag: .int(42),
-        .testRemoteInitialStringFlag: .string("Test String"),
-    ]
+    var initialValue: AnyCodable? {
+        switch self {
+        case .testLocalInitialBoolFlag: .bool(true)
+        case .testLocalInitialIntFlag: .int(42)
+        case .testLocalInitialStringFlag: .string("Test String")
+        case .testRemoteInitialBoolFlag: .bool(true)
+        case .testRemoteInitialIntFlag: .int(42)
+        case .testRemoteInitialStringFlag: .string("Test String")
+        default: nil
+        }
+    }
 
     // MARK: Instance Properties
 
@@ -125,25 +119,23 @@ enum FeatureFlag: String, CaseIterable, Codable {
              .flightRecorder,
              .ignore2FANoticeEnvironmentCheck,
              .mobileErrorReporting,
-             .newDeviceVerificationPermanentDismiss,
-             .newDeviceVerificationTemporaryDismiss,
              .testLocalFeatureFlag,
              .testLocalInitialBoolFlag,
              .testLocalInitialIntFlag,
              .testLocalInitialStringFlag:
             false
         case .accountDeprovisioning,
-             .appReviewPrompt,
+             .anonAddySelfHostAlias,
              .cipherKeyEncryption,
              .cxpExportMobile,
              .cxpImportMobile,
              .emailVerification,
              .enableAuthenticatorSync,
              .importLoginsFlow,
-             .nativeCarouselFlow,
              .nativeCreateAccountFlow,
              .refactorSsoDetailsEndpoint,
              .restrictCipherItemDeletion,
+             .simpleLoginSelfHostAlias,
              .testRemoteFeatureFlag,
              .testRemoteInitialBoolFlag,
              .testRemoteInitialIntFlag,

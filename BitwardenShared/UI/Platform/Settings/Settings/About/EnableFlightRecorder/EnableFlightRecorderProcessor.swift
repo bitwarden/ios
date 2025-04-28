@@ -12,6 +12,7 @@ final class EnableFlightRecorderProcessor: StateProcessor<
     // MARK: Types
 
     typealias Services = HasErrorReporter
+        & HasFlightRecorder
 
     // MARK: Private Properties
 
@@ -19,7 +20,7 @@ final class EnableFlightRecorderProcessor: StateProcessor<
     private let coordinator: AnyCoordinator<SettingsRoute, SettingsEvent>
 
     /// The services used by this processor.
-    private var services: Services
+    private let services: Services
 
     // MARK: Initialization
 
@@ -63,7 +64,12 @@ final class EnableFlightRecorderProcessor: StateProcessor<
     /// Saves the logging duration and enables the flight recorder.
     ///
     private func saveAndEnableFlightRecorder() async {
-        // TODO: PM-19577 Enable logging
-        coordinator.navigate(to: .dismiss)
+        do {
+            try await services.flightRecorder.enableFlightRecorder(duration: state.loggingDuration)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
     }
 }

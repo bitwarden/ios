@@ -82,6 +82,7 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     override func perform(_ effect: GeneratorEffect) async {
         switch effect {
         case .appeared:
+            await loadFlags()
             await reloadGeneratorOptions()
             await generateValue(shouldSavePassword: true)
             await checkLearnGeneratorActionCardEligibility()
@@ -191,6 +192,15 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     }
 
     // MARK: Private
+
+    /// Loads feature flags and updates state accordingly.
+    ///
+    private func loadFlags() async {
+        state.usernameState.addyIOSelfHostServerUrlEnabled = await services.configService
+            .getFeatureFlag(.anonAddySelfHostAlias)
+        state.usernameState.simpleLoginSelfHostServerUrlEnabled = await services.configService
+            .getFeatureFlag(.simpleLoginSelfHostAlias)
+    }
 
     /// Checks the eligibility of the generator Login action card.
     ///
@@ -407,4 +417,4 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
         // before the value is generated.
         return (state.generatorType, state.passwordState)
     }
-}
+} // swiftlint:disable:this file_length

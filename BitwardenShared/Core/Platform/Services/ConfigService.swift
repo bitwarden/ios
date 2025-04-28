@@ -191,11 +191,11 @@ class DefaultConfigService: ConfigService {
         #endif
 
         guard flag.isRemotelyConfigured else {
-            return FeatureFlag.initialValues[flag]?.boolValue ?? defaultValue
+            return flag.initialValue?.boolValue ?? defaultValue
         }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag]?.boolValue
-            ?? FeatureFlag.initialValues[flag]?.boolValue
+            ?? flag.initialValue?.boolValue
             ?? defaultValue
     }
 
@@ -206,11 +206,11 @@ class DefaultConfigService: ConfigService {
         isPreAuth: Bool = false
     ) async -> Int {
         guard flag.isRemotelyConfigured else {
-            return FeatureFlag.initialValues[flag]?.intValue ?? defaultValue
+            return flag.initialValue?.intValue ?? defaultValue
         }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag]?.intValue
-            ?? FeatureFlag.initialValues[flag]?.intValue
+            ?? flag.initialValue?.intValue
             ?? defaultValue
     }
 
@@ -221,11 +221,11 @@ class DefaultConfigService: ConfigService {
         isPreAuth: Bool = false
     ) async -> String? {
         guard flag.isRemotelyConfigured else {
-            return FeatureFlag.initialValues[flag]?.stringValue ?? defaultValue
+            return flag.initialValue?.stringValue ?? defaultValue
         }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
         return configuration?.featureStates[flag]?.stringValue
-            ?? FeatureFlag.initialValues[flag]?.stringValue
+            ?? flag.initialValue?.stringValue
             ?? defaultValue
     }
 
@@ -237,7 +237,7 @@ class DefaultConfigService: ConfigService {
         let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
             let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
             let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue
-                ?? FeatureFlag.initialValues[feature]?.boolValue
+                ?? feature.initialValue?.boolValue
                 ?? false
 
             return DebugMenuFeatureFlag(
