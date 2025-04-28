@@ -1091,14 +1091,6 @@
 "SSHKeys" = "Claves SSH";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Use Optic ID To Unlock";
-"ImportantNotice" = "Aviso importante";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "A partir de febreiro de 2025 Bitwarden comezará a enviar correos con códigos de verificación para confirmar novos inicios de sesión á túa conta.";
-"DoYouHaveReliableAccessToYourEmail" = "Tes acceso fiable ó teu correo? (%1$@)";
-"YesICanReliablyAccessMyEmail" = "Si, teño acceso fiable ó meu correo";
-"SetUpTwoStepLogin" = "Configurar verificación en dous pasos";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Podes configurar a verificación en 2 pasos como alternativa para protexer a túa conta ou cambiar o enderezo electrónico a un ó que teñas acceso.";
-"TurnOnTwoStepLogin" = "Activar verificación en dous pasos";
-"ChangeAccountEmail" = "Mudar de correo electrónico";
 "NothingAvailableToAutofill" = "Nada dispoñible para autoencher";
 "FailedToGenerateVerificationCode" = "Non se puido xerar o código de verificación";
 "FailedToAutofillItem" = "Non ser puido autoencher %1$@";
