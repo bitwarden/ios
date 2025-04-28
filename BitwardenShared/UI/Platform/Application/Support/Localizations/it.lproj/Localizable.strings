@@ -1091,14 +1091,6 @@
 "SSHKeys" = "Chiavi SSH";
 "OpticID" = "ID ottico";
 "UseOpticIDToUnlock" = "Usa L'ID ottico per sbloccare";
-"ImportantNotice" = "Avviso importante";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden invierà un codice all'email del tuo account per verificare gli accessi da nuovi dispositivi.";
-"DoYouHaveReliableAccessToYourEmail" = "Hai tuttora la possibilità di accedere alla tua email, **%1$@**?";
-"YesICanReliablyAccessMyEmail" = "Sì, ho accesso all'email";
-"SetUpTwoStepLogin" = "Imposta l'accesso in due passaggi";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Puoi impostare l'accesso in due passaggi come metodo alternativo per proteggere il tuo account, oppure cambiare l'email, impostandone una alla quale puoi accedere.";
-"TurnOnTwoStepLogin" = "Attiva l'accesso in due passaggi";
-"ChangeAccountEmail" = "Modifica l'email dell'account";
 "NothingAvailableToAutofill" = "Nessun dato disponibile per il riempimento automatico";
 "FailedToGenerateVerificationCode" = "Impossibile generare il codice di verifica";
 "FailedToAutofillItem" = "Riempimento automatico per %1$@ non riuscito";

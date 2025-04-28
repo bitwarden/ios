@@ -1091,14 +1091,6 @@
 "SSHKeys" = "SSHキー";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Optic ID を使用してロック解除";
-"ImportantNotice" = "重要なお知らせ";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "2025年2月以降、 Bitwarden は新しいデバイスからのログイン時にアカウントのメールアドレスに認証コードを送信します。";
-"DoYouHaveReliableAccessToYourEmail" = "メールアドレス **%1$@** は、確実にアクセスできるものですか？";
-"YesICanReliablyAccessMyEmail" = "はい、メールアドレスには私が確実にアクセスできます";
-"SetUpTwoStepLogin" = "2段階認証によるログインを設定する";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "代わりに2段階認証によるログインでアカウントを保護するか、メールアドレスをあなたがアクセスできるものに変更できます。";
-"TurnOnTwoStepLogin" = "2段階認証によるログインを有効にする";
-"ChangeAccountEmail" = "アカウントのメールアドレスを変更する";
 "NothingAvailableToAutofill" = "自動入力できる項目がありません";
 "FailedToGenerateVerificationCode" = "認証コードの生成に失敗しました";
 "FailedToAutofillItem" = "アイテム %1$@ の自動入力に失敗しました";
