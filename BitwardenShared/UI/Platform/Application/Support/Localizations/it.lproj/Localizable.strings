@@ -435,7 +435,6 @@
 "Unlock" = "Sblocca";
 "UnlockVault" = "Sblocca cassaforte";
 "ThirtyMinutes" = "30 minuti";
-"SetPINDescription" = "Imposta il tuo codice PIN per sbloccare Bitwarden. Le impostazioni del PIN saranno reimpostate se esci dal tuo account.";
 "LoggedInAsOn" = "Accesso effettuato come %1$@ su %2$@.";
 "VaultLockedMasterPassword" = "La tua cassaforte è bloccata. Inserisci la tua password principale per continuare.";
 "VaultLockedPIN" = "La tua cassaforte è bloccata. Inserisci il tuo codice PIN per continuare.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

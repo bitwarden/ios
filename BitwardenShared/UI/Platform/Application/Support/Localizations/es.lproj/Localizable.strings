@@ -435,7 +435,6 @@
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Desbloquear caja fuerte";
 "ThirtyMinutes" = "30 minutos";
-"SetPINDescription" = "Establezca su código PIN para desbloquear Bitwarden. Sus ajustes de PIN se reiniciarán si alguna vez cierra su sesión completamente de la aplicación.";
 "LoggedInAsOn" = "Iniciado como %1$@ en %2$@.";
 "VaultLockedMasterPassword" = "Tu caja fuerte está bloqueada. Verifica tu contraseña maestra para continuar.";
 "VaultLockedPIN" = "Su caja fuerte está bloqueada. Verifique su código PIN para continuar.";
@@ -1168,3 +1167,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

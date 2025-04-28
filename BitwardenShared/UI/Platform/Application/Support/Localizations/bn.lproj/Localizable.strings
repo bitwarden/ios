@@ -435,7 +435,6 @@
 "Unlock" = "আনলক করুন";
 "UnlockVault" = "Unlock vault";
 "ThirtyMinutes" = "৩০ মিনিট";
-"SetPINDescription" = "Bitwarden আনলক করার জন্য আপনার পিন কোডটি সেট করুন। আপনি যদি অ্যাপ্লিকেশনটি থেকে পুরোপুরি লগ আউট করেন তবে আপনার পিন সেটিংস রিসেট করা হবে।";
 "LoggedInAsOn" = "%2$@-এ %1$@ হিসেবে লগইন করা হয়েছে।";
 "VaultLockedMasterPassword" = "আপনার ভল্ট লক করা আছে। চালিয়ে যেতে আপনার প্রধান পাসওয়ার্ডটি যাচাই করান।";
 "VaultLockedPIN" = "আপনার ভল্ট লক করা আছে। চালিয়ে যেতে আপনার পিন কোড যাচাই করান।";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

@@ -435,7 +435,6 @@
 "Unlock" = "Déverrouiller";
 "UnlockVault" = "Déverrouiller le coffre";
 "ThirtyMinutes" = "30 minutes";
-"SetPINDescription" = "Définissez votre code PIN pour déverrouiller Bitwarden. Les paramètres relatifs à votre code PIN seront réinitialisés si vous vous déconnectez complètement de l'application.";
 "LoggedInAsOn" = "Connecté en tant que %1$@ sur %2$@.";
 "VaultLockedMasterPassword" = "Votre coffre est verrouillé. Vérifiez votre mot de passe principal pour continuer.";
 "VaultLockedPIN" = "Votre coffre est verrouillé. Vérifiez votre code PIN pour continuer.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

@@ -435,7 +435,6 @@
 "Unlock" = "Ξεκλείδωμα";
 "UnlockVault" = "Ξεκλείδωμα κρύπτης";
 "ThirtyMinutes" = "30 λεπτά";
-"SetPINDescription" = "Ορίστε τον κωδικό PIN για να ξεκλειδώσετε το Bitwarden. Οι ρυθμίσεις PIN θα επαναρυθμιστούν αν αποσυνδεθείτε πλήρως από την εφαρμογή.";
 "LoggedInAsOn" = "Συνδεθήκατε ως %1$@ στις %2$@.";
 "VaultLockedMasterPassword" = "Το vault σας είναι κλειδωμένο. Επαληθεύστε τον κύριο κωδικό για να συνεχίσετε.";
 "VaultLockedPIN" = "Το vault σας είναι κλειδωμένο. Επαληθεύστε τον κωδικό PIN για να συνεχίσετε.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

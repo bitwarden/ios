@@ -435,7 +435,6 @@
 "Unlock" = "Desblokeatu";
 "UnlockVault" = "Desblokeatu kutxa gotorra";
 "ThirtyMinutes" = "30 minutu";
-"SetPINDescription" = "Ezarri zure PIN kodea Bitwarden desblokeatzeko. Zure PIN-aren konfigurazioa berrezarriko da, noizbait aplikaziotik erabat saioa ixten baduzu.";
 "LoggedInAsOn" = "%2$@-en %1$@ bezala saioa hasita.";
 "VaultLockedMasterPassword" = "Zure kutxa gotorra blokeatuta dago. Egiaztatu zure pasahitz nagusia jarraitzeko.";
 "VaultLockedPIN" = "Zure kutxa gotorra blokeatuta dago. Egiaztatu zure PIN kodea jarraitzeko.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

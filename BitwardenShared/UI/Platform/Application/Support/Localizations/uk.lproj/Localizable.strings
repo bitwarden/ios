@@ -435,7 +435,6 @@
 "Unlock" = "Розблокувати";
 "UnlockVault" = "Розблокувати сховище";
 "ThirtyMinutes" = "30 хвилин";
-"SetPINDescription" = "Встановіть PIN-код для розблокування Bitwarden. Налаштування PIN-коду будуть скинуті, якщо ви коли-небудь повністю вийдете з програми.";
 "LoggedInAsOn" = "Ви увійшли як %1$@ на %2$@.";
 "VaultLockedMasterPassword" = "Сховище заблоковано. Введіть головний пароль для продовження.";
 "VaultLockedPIN" = "Ваше сховище заблоковане. Для продовження підтвердьте свій PIN-код.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Завершується через %1$@ днів";
 "DateRangeXToY" = "%1$@ – %2$@";
 "SelfHostServerURL" = "URL-адреса власного сервера";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

@@ -435,7 +435,6 @@
 "Unlock" = "解鎖";
 "UnlockVault" = "解鎖密碼庫";
 "ThirtyMinutes" = "30 分鐘";
-"SetPINDescription" = "設定您用來解鎖 Bitwarden 的 PIN 碼。您的 PIN 設定將在您完全結束本應用程式時被重設。";
 "LoggedInAsOn" = "已在 %2$@ 以 %1$@ 身份登入。";
 "VaultLockedMasterPassword" = "密碼庫已鎖定。請驗證主密碼以繼續。";
 "VaultLockedPIN" = "密碼庫已鎖定。請驗證 PIN 碼以繼續。";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

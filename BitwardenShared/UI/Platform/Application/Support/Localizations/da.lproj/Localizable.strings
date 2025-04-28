@@ -435,7 +435,6 @@
 "Unlock" = "Lås op";
 "UnlockVault" = "Lås boks op";
 "ThirtyMinutes" = "30 minutter";
-"SetPINDescription" = "Indstil din pinkode til at låse Bitwarden op. Dine pin-indstillinger nulstilles, hvis du nogensinde logger helt ud af app'en.";
 "LoggedInAsOn" = "Logget ind som %1$@ på %2$@.";
 "VaultLockedMasterPassword" = "Din boks er låst. Bekræft din hovedadgangskode for at fortsætte.";
 "VaultLockedPIN" = "Din boks er låst. Bekræft din pinkode for at fortsætte.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

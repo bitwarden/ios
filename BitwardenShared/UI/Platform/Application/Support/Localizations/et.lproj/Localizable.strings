@@ -435,7 +435,6 @@
 "Unlock" = "Lukusta lahti";
 "UnlockVault" = "Hoidla lahtilukustamine";
 "ThirtyMinutes" = "30 minuti pärast";
-"SetPINDescription" = "Määra Bitwardeni lahtilukustamiseks PIN kood. Rakendusest täielikult välja logides nullitakse ka PIN koodi seaded.";
 "LoggedInAsOn" = "Sisse logitud kontoga %1$@ lehel %2$@.";
 "VaultLockedMasterPassword" = "Hoidla on lukus. Jätkamiseks sisesta ülemparool.";
 "VaultLockedPIN" = "Hoidla on lukus. Jätkamiseks sisesta PIN kood.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

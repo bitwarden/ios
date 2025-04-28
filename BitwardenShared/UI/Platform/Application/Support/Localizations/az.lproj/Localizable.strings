@@ -435,7 +435,6 @@
 "Unlock" = "Kilidi aç";
 "UnlockVault" = "Seyfin kilidini aç";
 "ThirtyMinutes" = "30 dəqiqə";
-"SetPINDescription" = "Bitwarden-in kilidini açmaq üçün PIN kodunuzu ayarlayın. Tətbiqdən tam çıxış etdikdə PIN ayarlarınız sıfırlanacaq.";
 "LoggedInAsOn" = "%2$@ saytında %1$@ kimi giriş edildi.";
 "VaultLockedMasterPassword" = "Seyfiniz kilidlənib. Davam etmək üçün ana parolunuzu doğrulayın.";
 "VaultLockedPIN" = "Seyfiniz kilidlənib. Davam etmək üçün PIN kodunuzu doğrulayın.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "%1$@ günə müddəti bitir";
 "DateRangeXToY" = "%1$@ - %2$@";
 "SelfHostServerURL" = "Self-host server URL-si";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-inizdə ən azı %1$@ xarakter olmalıdır. Tətbiqdə hesabınızdan tam çıxış etsəniz, PIN ayarlarınız sıfırlanacaq.";

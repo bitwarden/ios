@@ -435,7 +435,6 @@
 "Unlock" = "Datgloi";
 "UnlockVault" = "Datgloi'ch cell";
 "ThirtyMinutes" = "ar ôl hanner awr";
-"SetPINDescription" = "Set your PIN code for unlocking Bitwarden. Your PIN settings will be reset if you ever fully log out of the application.";
 "LoggedInAsOn" = "Rydych wedi mewngofnodi fel %1$@ ar %2$@.";
 "VaultLockedMasterPassword" = "Mae eich cell dan glo. Gwiriwch eich prif gyfrinair i barhau.";
 "VaultLockedPIN" = "Mae eich cell dan glo. Gwiriwch eich cod PIN i barhau.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

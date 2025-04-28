@@ -436,7 +436,6 @@
 "Unlock" = "בטל נעילה";
 "UnlockVault" = "בטל נעילת כספת";
 "ThirtyMinutes" = "30 דקות";
-"SetPINDescription" = "קבע קוד PIN לביטול נעילת Bitwarden. הגדרות הPIN יאופסו אם תבצע יציאה מהתוכנה.";
 "LoggedInAsOn" = "נכנסת כ־%1$@ ב־%2$@.";
 "VaultLockedMasterPassword" = "הכספת שלך נעולה. הזן את הסיסמה הראשית שלך כדי להמשיך.";
 "VaultLockedPIN" = "הכספת שלך נעולה. הזן את קוד הPIN שלך כדי להמשיך.";
@@ -1169,3 +1168,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

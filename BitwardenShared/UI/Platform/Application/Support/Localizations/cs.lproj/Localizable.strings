@@ -435,7 +435,6 @@
 "Unlock" = "Odemknout";
 "UnlockVault" = "Odemknout trezor";
 "ThirtyMinutes" = "30 minut";
-"SetPINDescription" = "Nastavte svůj PIN kód pro odemknutí trezoru. Pokud se zcela odhlásíte z aplikace bude Váš aktuální PIN resetován.";
 "LoggedInAsOn" = "Přihlášen jako %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Váš trezor je uzamčen. Pro pokračování musíte zadat hlavní heslo.";
 "VaultLockedPIN" = "Váš trezor je uzamčen. Pro pokračování musíte zadat PIN.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Vyprší za %1$@ dnů";
 "DateRangeXToY" = "%1$@ do %2$@";
 "SelfHostServerURL" = "Adresa URL serveru vlastního hostování";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN musí mít nejméně %1$@ znaky. Pokud se z aplikace odhlásíte, nastavení PINu bude resetováno.";

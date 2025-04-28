@@ -100,7 +100,7 @@
 "BitwardenAppExtensionDescription" = "Use Bitwarden in Safari and other apps to autofill your logins.";
 "BitwardenAutofillService" = "Bitwardens hjälpmedelsservice för automatisk ifyllnad";
 "BitwardenAutofillAccessibilityServiceDescription" = "Use the Bitwarden accessibility service to autofill your logins.";
-"ChangeEmailAddress" = "Change email address";
+"ChangeEmailAddress" = "Ändra e-postadress";
 "ChangeEmailConfirmation" = "Du kan ändra din e-postadress på bitwardens webbvalv. Vill du besöka webbplatsen nu?";
 "ChangeMasterPassword" = "Ändra huvudlösenord";
 "Close" = "Stäng";
@@ -436,7 +436,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "Unlock" = "Lås upp";
 "UnlockVault" = "Lås upp valv";
 "ThirtyMinutes" = "30 minuter";
-"SetPINDescription" = "Ange en PIN-kod att låsa upp Bitwarden med. Dina PIN-kodsinställningar återställs om du någonsin loggar ut helt från appen.";
 "LoggedInAsOn" = "Inloggad som %1$@ på %2$@.";
 "VaultLockedMasterPassword" = "Valvet är låst. Bekräfta ditt huvudlösenord för att fortsätta.";
 "VaultLockedPIN" = "Valvet är låst. Bekräfta din PIN-kod för att fortsätta.";
@@ -780,9 +779,9 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ThereAreNoItemsInYourVaultThatMatchX" = "Det finns inga objekt i ditt valv som matchar \"%1$@\"";
 "SearchForAnItemOrAddANewItem" = "Sök efter ett objekt eller lägg till ett nytt objekt";
 "ThereAreNoItemsThatMatchTheSearch" = "Det finns inga objekt som matchar sökningen";
-"ThereAreNoLoginsInYourVault" = "There are no logins in your vault";
-"ThereAreNoCardsInYourVault" = "There are no cards in your vault";
-"ThereAreNoNotesInYourVault" = "There are no notes in your vault";
+"ThereAreNoLoginsInYourVault" = "Det finns inga inloggningar i ditt valv";
+"ThereAreNoCardsInYourVault" = "Det finns inga kort i ditt valv";
+"ThereAreNoNotesInYourVault" = "Det finns inga anteckningar i ditt valv";
 "ThereAreNoIdentitiesInYourVault" = "There are no identities in your vault";
 "ThereAreNoSSHKeysInYourVault" = "There are no SSH keys in your vault";
 "US" = "USA";
@@ -1015,7 +1014,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ContinueToBitwarden" = "Fortsätt till Bitwarden";
 "BackToSettings" = "Tillbaka till inställningar";
 "YoureAllSet" = "You're all set!";
-"AutoFillActivatedDescriptionLong" = "You can now use autofill to log into apps and websites using your saved passwords. Now, you can explore everything else Bitwarden has to offer.";
+"AutoFillActivatedDescriptionLong" = "Du kan nu använda autofyll för att logga in på appar och webbplatser med dina sparade lösenord. Nu kan du utforska allt annat Bitwarden har att erbjuda.";
 "GetStarted" = "Kom igång";
 "Dismiss" = "Dismiss";
 "SaveAndProtectYourData" = "Spara och skydda din data";
@@ -1032,7 +1031,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "EditIdentity" = "Edit identity";
 "EditNote" = "Edit note";
 "EditSSHKey" = "Edit SSH key";
-"ViewLogin" = "View login";
+"ViewLogin" = "Visa inloggning";
 "ViewCard" = "View card";
 "ViewIdentity" = "View identity";
 "ViewNote" = "View note";
@@ -1131,8 +1130,8 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "We don't recognize this device. Enter the 8 digit verification code that was emailed to %1$@.";
 "ItemNameRequired" = "Item name (required)";
 "AutofillOptions" = "Autofill options";
-"WebsiteURI" = "Website (URI)";
-"AddWebsite" = "Add website";
+"WebsiteURI" = "Webbplats (URI)";
+"AddWebsite" = "Lägg till webbplats";
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
 "NewFolder" = "New folder";
@@ -1168,3 +1167,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

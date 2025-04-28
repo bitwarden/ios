@@ -436,7 +436,6 @@
 "Unlock" = "பூட்டவிழ்";
 "UnlockVault" = "பெட்டகத்தைப் பூட்டவிழ்";
 "ThirtyMinutes" = "௩௦ நிமிடங்கள்";
-"SetPINDescription" = "Bitwardenஐ பூட்டவிழ்க்க உம் கடவெண் குறியை அமை. நீங்கள் எப்போதாவது முழுமையாக செயலியிலிருந்து வெளியேறினால் உம் கடவெண் அமைவுகள்  அகரமாக்கப்படும்.";
 "LoggedInAsOn" = "%2$@ இல் %1$@ ஆக உள்நுழைந்துள்ளது.";
 "VaultLockedMasterPassword" = "உம் பெட்டகம் பூட்டப்பட்டுள்ளது. தொடர உம் பிரதான கடவுச்சொல்லைச் சரிபார்.";
 "VaultLockedPIN" = "உம் பெட்டகம் பூட்டப்பட்டுள்ளது. தொடர உமது கடவெண் குறியைச் சரிபார்.";
@@ -1168,3 +1167,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

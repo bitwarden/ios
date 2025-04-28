@@ -435,7 +435,6 @@
 "Unlock" = "Atslēgt";
 "UnlockVault" = "Atslēgt glabātavu";
 "ThirtyMinutes" = "30 minūtes";
-"SetPINDescription" = "Iestatīt PIN kodu Bitwarden atslēgšanai. PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.";
 "LoggedInAsOn" = "Pieteicies %2$@ kā %1$@.";
 "VaultLockedMasterPassword" = "Glabātava ir aizslēgta. Nepieciešams norādīt galveno paroli, lai turpinātu.";
 "VaultLockedPIN" = "Glabātava ir aizslēgta. Nepieciešams norādīt PIN kodu, lai turpinātu.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Beigsies pēc %1$@ dienām";
 "DateRangeXToY" = "%1$@ - %2$@";
 "SelfHostServerURL" = "Pašmitināta servera URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN ir jābūt vismaz %1$@ rakstzīmes garam. PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.";

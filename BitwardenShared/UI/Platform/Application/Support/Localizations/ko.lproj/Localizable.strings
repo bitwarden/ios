@@ -435,7 +435,6 @@
 "Unlock" = "잠금 해제";
 "UnlockVault" = "보관함 잠금 해제";
 "ThirtyMinutes" = "30분";
-"SetPINDescription" = "Bitwarden 잠금해제에 사용될 PIN 코드를 설정합니다. 이 애플리케이션에서 완전히 로그아웃할 경우 PIN 설정이 초기화됩니다.";
 "LoggedInAsOn" = "%2$@에 %1$@으로 로그인되었습니다.";
 "VaultLockedMasterPassword" = "보관함이 잠겨 있습니다. 마스터 비밀번호를 입력하여 계속하세요.";
 "VaultLockedPIN" = "보관함이 잠겨 있습니다. PIN 코드를 입력하여 계속하세요.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

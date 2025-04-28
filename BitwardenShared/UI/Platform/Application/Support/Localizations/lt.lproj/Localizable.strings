@@ -435,7 +435,6 @@
 "Unlock" = "Atrakinti";
 "UnlockVault" = "Atrakinti saugyklą";
 "ThirtyMinutes" = "30 minučių";
-"SetPINDescription" = "Nustatykite savo PIN kodą, kad atrakintumėte „Bitwarden“. Jūsų PIN nustatymai bus nustatyti iš naujo, jei kada nors visiškai atsijungsite nuo programos.";
 "LoggedInAsOn" = "Prisijungęs kaip %1$@ %2$@.";
 "VaultLockedMasterPassword" = "Jūsų saugykla užrakinta. Norėdami tęsti, patikrinkite pagrindinį slaptažodį.";
 "VaultLockedPIN" = "Jūsų saugykla užrakinta. Norėdami tęsti, patikrinkite pagrindinį slaptažodį.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

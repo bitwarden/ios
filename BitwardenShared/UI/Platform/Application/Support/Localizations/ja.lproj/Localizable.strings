@@ -435,7 +435,6 @@
 "Unlock" = "ロック解除";
 "UnlockVault" = "保管庫のロックを解除";
 "ThirtyMinutes" = "30分";
-"SetPINDescription" = "Bitwarden のロックを解除するための PIN コードを設定します。アプリから完全にログアウトすると、PIN 設定はリセットされます。";
 "LoggedInAsOn" = "%1$@ として %2$@ にログインしました。";
 "VaultLockedMasterPassword" = "保管庫がロックされています。開くにはマスターパスワードを入力してください。";
 "VaultLockedPIN" = "保管庫がロックされています。PIN コードで認証してください。";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

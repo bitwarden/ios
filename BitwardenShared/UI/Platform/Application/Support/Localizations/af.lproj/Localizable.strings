@@ -435,7 +435,6 @@
 "Unlock" = "Ontgrendel";
 "UnlockVault" = "Ontgrendel kluis";
 "ThirtyMinutes" = "30 minute";
-"SetPINDescription" = "Stel u PIN-kode in om Bitwarden te ontgrendel. U PIN-kode word heringestel indien u ooit volledig by die toep uitteken.";
 "LoggedInAsOn" = "Op %1$@ aangeteken as %2$@.";
 "VaultLockedMasterPassword" = "U kluis is vergrendel. Verifieer u hoofwagwoord om voort te gaan.";
 "VaultLockedPIN" = "U kluis is vergrendel. Verifieer u PIN-kode om voort te gaan.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

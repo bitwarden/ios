@@ -436,7 +436,6 @@
 "Unlock" = "ಅನ್‌ಲಾಕ್ ಮಾಡಿ";
 "UnlockVault" = "Unlock vault";
 "ThirtyMinutes" = "30 ನಿಮಿಷಗಳು";
-"SetPINDescription" = "ಬಿಟ್‌ವಾರ್ಡೆನ್ ಅನ್ಲಾಕ್ ಮಾಡಲು ನಿಮ್ಮ ಪಿನ್ ಕೋಡ್ ಅನ್ನು ಹೊಂದಿಸಿ. ನೀವು ಎಂದಾದರೂ ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ ಸಂಪೂರ್ಣವಾಗಿ ಲಾಗ್ out ಟ್ ಆಗಿದ್ದರೆ ನಿಮ್ಮ ಪಿನ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಮರುಹೊಂದಿಸಲಾಗುತ್ತದೆ.";
 "LoggedInAsOn" = "%2$@ ನಲ್ಲಿ %1$@ ಆಗಿ ಲಾಗ್ ಇನ್ ಮಾಡಲಾಗಿದೆ.";
 "VaultLockedMasterPassword" = "ನಿಮ್ಮ ವಾಲ್ಟ್ ಲಾಕ್ ಆಗಿದೆ. ಮುಂದುವರೆಯಲು ನಿಮ್ಮ ಮಾಸ್ಟರ್ ಪಾಸ್‌ವರ್ಡ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ.";
 "VaultLockedPIN" = "ನಿಮ್ಮ ವಾಲ್ಟ್ ಲಾಕ್ ಆಗಿದೆ. ಮುಂದುವರೆಯಲು ನಿಮ್ಮ ಪಿನ್ ಕೋಡ್ ಪರಿಶೀಲಿಸಿ.";
@@ -1168,3 +1167,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

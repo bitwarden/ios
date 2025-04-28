@@ -439,7 +439,6 @@
 "Unlock" = "Unlock";
 "UnlockVault" = "Unlock vault";
 "ThirtyMinutes" = "30 minutes";
-"SetPINDescription" = "Set your PIN code for unlocking Bitwarden. Your PIN settings will be reset if you ever fully log out of the application.";
 "LoggedInAsOn" = "Logged in as %1$@ on %2$@.";
 "VaultLockedMasterPassword" = "ตู้เซฟของคุณถูกล็อค ใส่รหัสผ่านหลักของคุณเพื่อดำเนินการต่อ";
 "VaultLockedPIN" = "ตู้เซฟของคุณถูกล็อค ใส่ PIN ของคุณเพื่อดำเนินการต่อ";
@@ -1171,3 +1170,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

@@ -435,7 +435,6 @@
 "Unlock" = "Deblocare";
 "UnlockVault" = "Deblocare seif";
 "ThirtyMinutes" = "30 de minute";
-"SetPINDescription" = "Stabiliți codul PIN de deblocare Bitwarden. Setările codului PIN vor fi reinițializate dacă vă deconectați vreodată din aplicație.";
 "LoggedInAsOn" = "Autentificat ca %1$@ pe %2$@.";
 "VaultLockedMasterPassword" = "Seiful dvs. este blocat. Verificați parola principală pentru a continua.";
 "VaultLockedPIN" = "Seiful dvs. este blocat. Verificați codul PIN pentru a continua.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

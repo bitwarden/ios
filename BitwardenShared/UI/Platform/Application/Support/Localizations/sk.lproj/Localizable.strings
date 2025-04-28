@@ -435,7 +435,6 @@
 "Unlock" = "Odomknúť";
 "UnlockVault" = "Odomknúť trezor";
 "ThirtyMinutes" = "30 minút";
-"SetPINDescription" = "Nastaviť kód PIN na odomknutie Bitwarden. Nastavenie PIN sa vynuluje, ak úplne odhlásite z aplikácie.";
 "LoggedInAsOn" = "Prihlásený ako %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Váš trezor je uzamknutý. Overte sa hlavným heslom ak chcete pokračovať.";
 "VaultLockedPIN" = "Váš trezor je uzamknutý. Overte sa PIN kódom ak chcete pokračovať.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Dni do exspirácie: %1$@";
 "DateRangeXToY" = "%1$@ do %2$@";
 "SelfHostServerURL" = "Adresa URL vlastného hostingu";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN kód musí mať aspoň %1$@ znakov. Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.";

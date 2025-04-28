@@ -435,7 +435,6 @@
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Desbloquear cofre";
 "ThirtyMinutes" = "30 minutos";
-"SetPINDescription" = "Defina o seu código PIN para desbloquear o Bitwarden. As suas configurações de PIN serão redefinidas se você encerrar a sessão por completo do aplicativo.";
 "LoggedInAsOn" = "Sessão iniciada como %1$@ em %2$@.";
 "VaultLockedMasterPassword" = "O seu cofre está bloqueado. Verifique a sua senha mestra para continuar.";
 "VaultLockedPIN" = "O seu cofre está bloqueado. Verifique o seu PIN para continuar.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "URL do servidor auto-hospedado";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

@@ -435,7 +435,6 @@
 "Unlock" = "Feloldás";
 "UnlockVault" = "Széf feloldása";
 "ThirtyMinutes" = "30 perc";
-"SetPINDescription" = "A pinkód beállítása a Bitwarden feloldásához. A pinkód beállítás alaphelyzetbe kerül, ha teljesen kijelentkezünk az alkalmazásból.";
 "LoggedInAsOn" = "Bejelentkezve mint %1$@ :: %2$@.";
 "VaultLockedMasterPassword" = "A széf zárolva van. A folytatáshoz adjuk meg a mesterjelszót.";
 "VaultLockedPIN" = "A széf zárolva van. A folytatáshoz adjuk meg a pinkódot.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Lejár %1$@ nap múlva";
 "DateRangeXToY" = "%1$@ - %2$@";
 "SelfHostServerURL" = "Saját üzemeltetésű szerver webcím";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "A PIN kódnak legalább %1$@ karakterből kell állnia. A PIN kód beállításai alaphelyzetbe kerülnek, ha valaha is teljesen kijelentkezünk az alkalmazásból.";

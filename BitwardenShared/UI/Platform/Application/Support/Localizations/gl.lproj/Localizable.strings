@@ -435,7 +435,6 @@
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Abrir a caixa forte";
 "ThirtyMinutes" = "30 minutos";
-"SetPINDescription" = "Crea un PIN para abrir a caixa forte. Se algunha vez pechas a sesión en Bitwarden perderase a configuración deste PIN.";
 "LoggedInAsOn" = "Sesión iniciada como %1$@ en %2$@.";
 "VaultLockedMasterPassword" = "A caixa forte está pechada. Verifica o contrasinal mestre para continuar.";
 "VaultLockedPIN" = "A caixa forte está pechada. Verifica o código PIN para continuar.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

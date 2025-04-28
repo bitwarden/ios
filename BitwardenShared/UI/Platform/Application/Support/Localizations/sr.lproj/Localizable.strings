@@ -435,7 +435,6 @@
 "Unlock" = "Откључај";
 "UnlockVault" = "Откључај сеф";
 "ThirtyMinutes" = "30 минута";
-"SetPINDescription" = "Поставите свој ПИН код за откључавање Bitwarden-а. Поставке ПИН-а ће се ресетовати ако се икада потпуно одјавите из апликације.";
 "LoggedInAsOn" = "Пријављено као %1$@ на %2$@.";
 "VaultLockedMasterPassword" = "Сеф је блокиран. Унесите главну лозинку за наставак.";
 "VaultLockedPIN" = "Сеф је блокиран. Проверити ПИН код за наставак.";
@@ -1168,3 +1167,4 @@
 "ExpiresInXDays" = "Дани до истека: %1$@";
 "DateRangeXToY" = "%1$@ до %2$@";
 "SelfHostServerURL" = "УРЛ сервера који се самостално хостује";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

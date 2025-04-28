@@ -435,7 +435,6 @@
 "Unlock" = "Desbloqueja";
 "UnlockVault" = "Desbloqueja la caixa forta";
 "ThirtyMinutes" = "30 minuts";
-"SetPINDescription" = "Estableix el teu codi PIN per desbloquejar Bitwarden. La configuració PIN es restablirà si tanqueu sessió de manera completa de l'aplicació.";
 "LoggedInAsOn" = "Heu iniciat la sessió com a %1$@ en %2$@.";
 "VaultLockedMasterPassword" = "La caixa forta està bloquejada. Verifiqueu la contrasenya mestra per continuar.";
 "VaultLockedPIN" = "La caixa forta està bloquejada. Verifiqueu El codi PIN per continuar.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

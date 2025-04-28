@@ -435,7 +435,6 @@
 "Unlock" = "Odblokuj";
 "UnlockVault" = "Odblokuj sejf";
 "ThirtyMinutes" = "30 minut";
-"SetPINDescription" = "Ustaw kod PIN do odblokowywania aplikacji Bitwarden. Ustawienia odblokowywania kodem PIN zostaną zresetowane po wylogowaniu.";
 "LoggedInAsOn" = "Zalogowano jako %1$@ do %2$@.";
 "VaultLockedMasterPassword" = "Sejf jest zablokowany. Wpisz hasło główne, aby kontynuować.";
 "VaultLockedPIN" = "Sejf jest zablokowany. Wpisz kod PIN, aby kontynuować.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Wygasa za %1$@ dni";
 "DateRangeXToY" = "%1$@ do %2$@";
 "SelfHostServerURL" = "URL samodzielnie hostowanego serwera";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Twój PIN musi mieć co najmniej %1$@ znaków. Twoje ustawienia PINu zostaną zresetowane, jeśli kiedykolwiek wylogujesz się całkowicie z aplikacji.";

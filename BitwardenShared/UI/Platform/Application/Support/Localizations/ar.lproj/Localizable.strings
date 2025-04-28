@@ -435,7 +435,6 @@
 "Unlock" = "إلغاء القفل";
 "UnlockVault" = "افتح الحافظة";
 "ThirtyMinutes" = "30 دقيقة";
-"SetPINDescription" = "تعيين رمز PIN الخاص بك لإلغاء قفل بت واردن. سيتم إعادة تعيين إعدادات PIN الخاصة بك إذا قمت بتسجيل الخروج بالكامل من التطبيق.";
 "LoggedInAsOn" = "مسجل الدخول كـ %1$@ على %2$@.";
 "VaultLockedMasterPassword" = "خزانتك مقفلة. تحقق من كلمة المرور الرئيسية للمتابعة.";
 "VaultLockedPIN" = "خزانتك مقفلة. تحقق من رمز PIN الخاص بك للمتابعة.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "تنتهي الصلاحية في %1$@ أيام";
 "DateRangeXToY" = "%1$@ إلى %2$@";
 "SelfHostServerURL" = "رابط خادم الاستضافة الذاتية";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

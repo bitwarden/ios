@@ -435,7 +435,6 @@
 "Unlock" = "Odkleni";
 "UnlockVault" = "Odkleni trezor";
 "ThirtyMinutes" = "30 minut";
-"SetPINDescription" = "Set your PIN code for unlocking Bitwarden. Your PIN settings will be reset if you ever fully log out of the application.";
 "LoggedInAsOn" = "Prijavljeni kot %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Vaš trezor je zaklenjen. Vpišite svoje glavno geslo za nadaljevanje.";
 "VaultLockedPIN" = "Vaš trezor je zaklenjen. Potrdite PIN kodo za nadaljevanje.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

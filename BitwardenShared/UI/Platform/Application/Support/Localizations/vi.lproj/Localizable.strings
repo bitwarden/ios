@@ -435,7 +435,6 @@
 "Unlock" = "Mở khóa";
 "UnlockVault" = "Mở kho";
 "ThirtyMinutes" = "30 phút";
-"SetPINDescription" = "Đặt mã PIN để mở khóa Bitwarden. Cài đặt mã PIN của bạn sẽ bị xóa nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.";
 "LoggedInAsOn" = "Đã đăng nhập %1$@ trên %2$@.";
 "VaultLockedMasterPassword" = "Dùng mật khẩu chính của bạn để mở khóa kho.";
 "VaultLockedPIN" = "Đã khóa kho của bạn. Nhập mã PIN để mở.";
@@ -1167,3 +1166,4 @@
 "ExpiresInXDays" = "Hết hạn sau %1$@ ngày";
 "DateRangeXToY" = "%1$@ đến %2$@";
 "SelfHostServerURL" = "URL máy chủ tự lưu trữ";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Mã PIN tối thiểu %1$@ ký tự. Cài đặt mã PIN của bạn sẽ được đặt lại nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.";
