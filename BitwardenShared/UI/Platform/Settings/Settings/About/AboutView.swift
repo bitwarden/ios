@@ -30,6 +30,9 @@ struct AboutView: View {
         .task {
             await store.perform(.loadData)
         }
+        .task {
+            await store.perform(.streamFlightRecorderEnabled)
+        }
         .toast(store.binding(
             get: \.toast,
             send: AboutAction.toastShown
@@ -63,9 +66,9 @@ struct AboutView: View {
             ContentBlock(dividerLeadingPadding: 16) {
                 BitwardenToggle(
                     Localizations.flightRecorder,
-                    isOn: store.binding(
+                    isOn: store.bindingAsync(
                         get: \.isFlightRecorderToggleOn,
-                        send: AboutAction.toggleFlightRecorder
+                        perform: AboutEffect.toggleFlightRecorder
                     ),
                     accessibilityIdentifier: "FlightRecorderSwitch"
                 )

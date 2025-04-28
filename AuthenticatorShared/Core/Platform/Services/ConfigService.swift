@@ -6,9 +6,11 @@ import OSLog
 // MARK: - ConfigService
 
 /// A protocol for a `ConfigService` that manages the app's config.
-/// This is significantly pared down from the `ConfigService` in the PM app.
 ///
 protocol ConfigService {
+    /// A publisher that updates with a new value when a new server configuration is received.
+    func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>>
+
     /// Retrieves the current configuration. This will return the on-disk configuration if available,
     /// or will retrieve it from the server if not. It will also retrieve the configuration from
     /// the server if it is outdated or if the `forceRefresh` argument is `true`. Configurations
@@ -110,8 +112,14 @@ class DefaultConfigService: ConfigService {
     /// The App Settings Store used for storing and retrieving values from User Defaults.
     private let appSettingsStore: AppSettingsStore
 
+    /// The API service to make config requests.
+    private let configApiService: ConfigAPIService
+
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
+
+    /// A subject to notify any subscribers of new server configs.
+    private let configSubject = CurrentValueSubject<MetaServerConfig?, Never>(nil)
 
     /// The service used by the application to manage account state.
     private let stateService: StateService
@@ -132,11 +140,13 @@ class DefaultConfigService: ConfigService {
     ///
     init(
         appSettingsStore: AppSettingsStore,
+        configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
         self.appSettingsStore = appSettingsStore
+        self.configApiService = configApiService
         self.errorReporter = errorReporter
         self.stateService = stateService
         self.timeProvider = timeProvider
@@ -146,7 +156,26 @@ class DefaultConfigService: ConfigService {
 
     @discardableResult
     func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
-        nil
+        guard !forceRefresh else {
+            await updateConfigFromServer(isPreAuth: isPreAuth)
+            return try? await getStateServerConfig(isPreAuth: isPreAuth)
+        }
+
+        let localConfig = try? await getStateServerConfig(isPreAuth: isPreAuth)
+
+        let localConfigExpired = localConfig?.date.addingTimeInterval(Constants.minimumConfigSyncInterval)
+            ?? Date.distantPast
+            < timeProvider.presentTime
+
+        // if it's not forcing refresh we don't need to wait for the server call
+        // to finish and we can move it to the background.
+        if localConfig == nil || localConfigExpired {
+            Task {
+                await updateConfigFromServer(isPreAuth: isPreAuth)
+            }
+        }
+
+        return localConfig
     }
 
     func getFeatureFlag(
@@ -161,7 +190,12 @@ class DefaultConfigService: ConfigService {
         }
         #endif
 
-        return FeatureFlag.initialValues[flag]?.boolValue
+        guard flag.isRemotelyConfigured else {
+            return flag.initialValue?.boolValue ?? defaultValue
+        }
+        let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
+        return configuration?.featureStates[flag]?.boolValue
+            ?? flag.initialValue?.boolValue
             ?? defaultValue
     }
 
@@ -171,7 +205,12 @@ class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> Int {
-        FeatureFlag.initialValues[flag]?.intValue
+        guard flag.isRemotelyConfigured else {
+            return flag.initialValue?.intValue ?? defaultValue
+        }
+        let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
+        return configuration?.featureStates[flag]?.intValue
+            ?? flag.initialValue?.intValue
             ?? defaultValue
     }
 
@@ -181,16 +220,25 @@ class DefaultConfigService: ConfigService {
         forceRefresh: Bool = false,
         isPreAuth: Bool = false
     ) async -> String? {
-        FeatureFlag.initialValues[flag]?.stringValue
+        guard flag.isRemotelyConfigured else {
+            return flag.initialValue?.stringValue ?? defaultValue
+        }
+        let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
+        return configuration?.featureStates[flag]?.stringValue
+            ?? flag.initialValue?.stringValue
             ?? defaultValue
     }
+
+    // MARK: Debug Feature Flags
 
     func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
         let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
 
         let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
             let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
-            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue ?? false
+            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue
+                ?? feature.initialValue?.boolValue
+                ?? false
 
             return DebugMenuFeatureFlag(
                 feature: feature,
@@ -232,6 +280,10 @@ class DefaultConfigService: ConfigService {
         return try? await stateService.getServerConfig()
     }
 
+    func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
+        configSubject.eraseToAnyPublisher().values
+    }
+
     /// Sets the server config in state depending on if the call is being done before authentication.
     /// - Parameters:
     ///   - config: Config to set
@@ -244,4 +296,50 @@ class DefaultConfigService: ConfigService {
         }
         try? await stateService.setServerConfig(config, userId: userId)
     }
+
+    /// Performs a call to the server to get the latest config and updates the local value.
+    /// - Parameter isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
+    private func updateConfigFromServer(isPreAuth: Bool) async {
+        // The userId is needed here so we know which user trigger getting the config
+        // which helps if this is done in background and the user somehow changes the user
+        // while this is loading.
+        let userId = try? await stateService.getActiveAccountId()
+
+        do {
+            let configResponse = try await configApiService.getConfig()
+            let serverConfig = ServerConfig(
+                date: timeProvider.presentTime,
+                responseModel: configResponse
+            )
+            try? await setStateServerConfig(serverConfig, isPreAuth: isPreAuth, userId: userId)
+
+            configSubject.send(MetaServerConfig(isPreAuth: isPreAuth, userId: userId, serverConfig: serverConfig))
+        } catch {
+            errorReporter.log(error: error)
+
+            guard !isPreAuth else {
+                return
+            }
+
+            let localConfig = try? await stateService.getServerConfig(userId: userId)
+            guard localConfig == nil,
+                  let preAuthConfig = await stateService.getPreAuthServerConfig() else {
+                return
+            }
+
+            try? await setStateServerConfig(preAuthConfig, isPreAuth: false, userId: userId)
+        }
+    }
+}
+
+/// Helper object to send updated server config object with extra metadata
+/// like whether it comes from pre-auth and the user ID it belongs to.
+/// This is useful for getting the config on background and establishing which was the original context.
+struct MetaServerConfig {
+    /// If true, the call is coming before the user is authenticated or when adding a new account
+    let isPreAuth: Bool
+    /// The user ID the requested the server config.
+    let userId: String?
+    /// The server config.
+    let serverConfig: ServerConfig?
 }

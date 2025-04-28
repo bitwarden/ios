@@ -61,4 +61,28 @@ class URLTests: BitwardenTestCase {
 
         try XCTAssertFalse(XCTUnwrap(URL(string: "https://example.com")).isApp)
     }
+
+    /// `setIsExcludedFromBackup(_:)` sets whether the file is excluded from backups.
+    func test_setIsExcludedFromBackup() throws {
+        let fileName = UUID().uuidString
+        let url = try XCTUnwrap(URL(fileURLWithPath: NSTemporaryDirectory())).appendingPathComponent(fileName)
+        try Data().write(to: url)
+
+        try XCTAssertFalse(url.isExcludedFromBackups())
+
+        try url.setIsExcludedFromBackup(true)
+        try XCTAssertTrue(url.isExcludedFromBackups())
+
+        try url.setIsExcludedFromBackup(false)
+        try XCTAssertFalse(url.isExcludedFromBackups())
+
+        try FileManager.default.removeItem(at: url)
+    }
+}
+
+private extension URL {
+    func isExcludedFromBackups() throws -> Bool {
+        let values = try resourceValues(forKeys: [.isExcludedFromBackupKey])
+        return values.isExcludedFromBackup ?? false
+    }
 }

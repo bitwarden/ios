@@ -2,6 +2,8 @@
 
 set -euo pipefail
 
+brew bundle check # use --verbose to list missing dependencies
+
 mint bootstrap
 
 # Handle script being called from repo root or Scripts folder

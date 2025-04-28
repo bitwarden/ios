@@ -47,8 +47,12 @@ class MockVaultRepository: VaultRepository {
     var fetchCollectionsIncludeReadOnly: Bool?
     var fetchCollectionsResult: Result<[CollectionView], Error> = .success([])
 
+    var fetchFolderResult: Result<FolderView?, Error> = .success(nil)
+
     var fetchFoldersCalled = false
     var fetchFoldersResult: Result<[FolderView], Error> = .success([])
+
+    var fetchOrganizationResult: Result<Organization?, Error> = .success(nil)
 
     var fetchSyncCalled = false
     var fetchSyncForceSync: Bool?
@@ -193,9 +197,17 @@ class MockVaultRepository: VaultRepository {
         return try fetchCollectionsResult.get()
     }
 
+    func fetchFolder(withId id: String) async throws -> BitwardenSdk.FolderView? {
+        try fetchFolderResult.get()
+    }
+
     func fetchFolders() async throws -> [FolderView] {
         fetchFoldersCalled = true
         return try fetchFoldersResult.get()
+    }
+
+    func fetchOrganization(withId id: String) async throws -> BitwardenShared.Organization? {
+        try fetchOrganizationResult.get()
     }
 
     func fetchSync(

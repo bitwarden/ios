@@ -30,6 +30,9 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
+    /// The data used by the flight recorder for the current and any archived logs.
+    var flightRecorderData: FlightRecorderData? { get set }
+
     /// Whether the intro carousel screen has been shown.
     var introCarouselShown: Bool { get set }
 
@@ -475,14 +478,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setTimeoutAction(key: SessionTimeoutAction, userId: String)
 
-    /// Sets the display state for the two-factor notice.
-    ///
-    /// - Parameters:
-    ///   - state: The display state.
-    ///   - userId: The userID associated with the state.
-    ///
-    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String)
-
     /// Sets the two-factor token.
     ///
     /// - Parameters:
@@ -543,14 +538,6 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: The  user's session timeout action.
     ///
     func timeoutAction(userId: String) -> Int?
-
-    /// Get the display state of the no-two-factor notice for a user ID.
-    ///
-    /// - Parameters:
-    ///   - userId: The user ID associated with the state.
-    /// - Returns: The state for the user ID.
-    ///
-    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState
 
     /// Get the two-factor token associated with a user's email.
     ///
@@ -731,6 +718,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case encryptedPrivateKey(userId: String)
         case encryptedUserKey(userId: String)
         case events(userId: String)
+        case flightRecorderData
         case hasPerformedSyncAfterLogin(userId: String)
         case introCarouselShown
         case learnNewLoginActionCardStatus
@@ -755,7 +743,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case shouldTrustDevice(userId: String)
         case syncToAuthenticator(userId: String)
         case state
-        case twoFactorNoticeDisplayState(userId: String)
         case twoFactorToken(email: String)
         case unsuccessfulUnlockAttempts(userId: String)
         case usernameGenerationOptions(userId: String)
@@ -807,6 +794,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "encPrivateKey_\(userId)"
             case let .events(userId):
                 key = "events_\(userId)"
+            case .flightRecorderData:
+                key = "flightRecorderData"
             case let .hasPerformedSyncAfterLogin(userId):
                 key = "hasPerformedSyncAfterLogin_\(userId)"
             case .introCarouselShown:
@@ -855,8 +844,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "state"
             case let .syncToAuthenticator(userId):
                 key = "shouldSyncToAuthenticator_\(userId)"
-            case let .twoFactorNoticeDisplayState(userId):
-                key = "twoFactorNoticeDisplayState_\(userId)"
             case let .twoFactorToken(email):
                 key = "twoFactorToken_\(email)"
             case let .unsuccessfulUnlockAttempts(userId):
@@ -901,6 +888,11 @@ extension DefaultAppSettingsStore: AppSettingsStore {
     var disableWebIcons: Bool {
         get { fetch(for: .disableWebIcons) }
         set { store(newValue, for: .disableWebIcons) }
+    }
+
+    var flightRecorderData: FlightRecorderData? {
+        get { fetch(for: .flightRecorderData) }
+        set { store(newValue, for: .flightRecorderData) }
     }
 
     var introCarouselShown: Bool {
@@ -1184,10 +1176,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         store(key, for: .vaultTimeoutAction(userId: userId))
     }
 
-    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String) {
-        store(state, for: .twoFactorNoticeDisplayState(userId: userId))
-    }
-
     func setTwoFactorToken(_ token: String?, email: String) {
         store(token, for: .twoFactorToken(email: email))
     }
@@ -1210,10 +1198,6 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func timeoutAction(userId: String) -> Int? {
         fetch(for: .vaultTimeoutAction(userId: userId))
-    }
-
-    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState {
-        fetch(for: .twoFactorNoticeDisplayState(userId: userId)) ?? .hasNotSeen
     }
 
     func twoFactorToken(email: String) -> String? {

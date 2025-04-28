@@ -78,8 +78,8 @@ targets:
     type: application
     platform: iOS
     configFiles:
-      Debug: Configs-bwa/Authenticator-Debug.xcconfig
-      Release: Configs-bwa/Authenticator-Release.xcconfig
+      Debug: Configs/Authenticator-Debug.xcconfig
+      Release: Configs/Authenticator-Release.xcconfig
     settings:
       base:
         INFOPLIST_FILE: Authenticator/Application/Support/Info.plist
@@ -157,8 +157,8 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs-bwa/AuthenticatorShared-Debug.xcconfig
-      Release: Configs-bwa/AuthenticatorShared-Release.xcconfig
+      Debug: Configs/AuthenticatorShared-Debug.xcconfig
+      Release: Configs/AuthenticatorShared-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true
@@ -224,6 +224,8 @@ targets:
     dependencies:
       - target: Authenticator
       - target: AuthenticatorShared
+      - target: BitwardenKit/BitwardenKitMocks
+      - target: BitwardenKit/TestHelpers
       - package: SnapshotTesting
       - package: SnapshotTesting
         product: InlineSnapshotTesting

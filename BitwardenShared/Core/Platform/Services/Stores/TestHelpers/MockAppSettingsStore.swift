@@ -16,6 +16,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var appTheme: String?
     var cachedActiveUserId: String?
     var disableWebIcons = false
+    var flightRecorderData: FlightRecorderData?
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
     var learnGeneratorActionCardStatus: AccountSetupProgress = .incomplete
@@ -52,7 +53,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
-    var twoFactorNoticeDisplayState = [String: TwoFactorNoticeDisplayState]()
     var twoFactorTokens = [String: String]()
     var usesKeyConnector = [String: Bool]()
     var vaultTimeout = [String: Int]()
@@ -294,14 +294,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         timeoutAction[userId] = key.rawValue
-    }
-
-    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String) {
-        twoFactorNoticeDisplayState[userId] = state
-    }
-
-    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState {
-        twoFactorNoticeDisplayState[userId] ?? .hasNotSeen
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {

@@ -13,6 +13,7 @@ class AboutProcessorTests: BitwardenTestCase {
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var environmentService: MockEnvironmentService!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var pasteboardService: MockPasteboardService!
     var subject: AboutProcessor!
 
@@ -26,6 +27,7 @@ class AboutProcessorTests: BitwardenTestCase {
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         environmentService = MockEnvironmentService()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         pasteboardService = MockPasteboardService()
 
         subject = AboutProcessor(
@@ -35,6 +37,7 @@ class AboutProcessorTests: BitwardenTestCase {
                 configService: configService,
                 environmentService: environmentService,
                 errorReporter: errorReporter,
+                flightRecorder: flightRecorder,
                 pasteboardService: pasteboardService,
                 systemDevice: MockSystemDevice()
             ),
@@ -49,6 +52,7 @@ class AboutProcessorTests: BitwardenTestCase {
         configService = nil
         environmentService = nil
         errorReporter = nil
+        flightRecorder = nil
         pasteboardService = nil
         subject = nil
     }
@@ -85,6 +89,46 @@ class AboutProcessorTests: BitwardenTestCase {
         configService.featureFlagsBool[.flightRecorder] = false
         await subject.perform(.loadData)
         XCTAssertFalse(subject.state.isFlightRecorderFeatureFlagEnabled)
+    }
+
+    /// `perform(_:)` with `.streamFlightRecorderEnabled` subscribes to the flight recorder enabled status.
+    @MainActor
+    func test_perform_streamFlightRecorderEnabled() async throws {
+        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+
+        let task = Task {
+            await subject.perform(.streamFlightRecorderEnabled)
+        }
+        defer { task.cancel() }
+
+        flightRecorder.isEnabledSubject.send(true)
+        try await waitForAsync { self.subject.state.isFlightRecorderToggleOn }
+        XCTAssertTrue(subject.state.isFlightRecorderToggleOn)
+
+        flightRecorder.isEnabledSubject.send(false)
+        try await waitForAsync { !self.subject.state.isFlightRecorderToggleOn }
+        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+    }
+
+    /// `perform(_:)` with `.toggleFlightRecorder(false)` disables the flight recorder when toggled off.
+    @MainActor
+    func test_perform_toggleFlightRecorder_off() async throws {
+        subject.state.isFlightRecorderToggleOn = true
+
+        await subject.perform(.toggleFlightRecorder(false))
+
+        XCTAssertTrue(flightRecorder.disableFlightRecorderCalled)
+    }
+
+    /// `perform(_:)` with `.toggleFlightRecorder(true)` navigates to the enable flight
+    /// recorder screen when toggled on.
+    @MainActor
+    func test_perform_toggleFlightRecorder_on() async {
+        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+
+        await subject.perform(.toggleFlightRecorder(true))
+
+        XCTAssertEqual(coordinator.routes, [.enableFlightRecorder])
     }
 
     /// `receive(_:)` with `.clearAppReviewURL` clears the app review URL in the state.
@@ -155,27 +199,6 @@ class AboutProcessorTests: BitwardenTestCase {
 
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
-    }
-
-    /// `receive(_:)` with action `.isFlightRecorderToggleOn` disables the flight recorder when toggled off.
-    @MainActor
-    func test_receive_toggleFlightRecorder_off() {
-        subject.state.isFlightRecorderToggleOn = true
-
-        subject.receive(.toggleFlightRecorder(false))
-
-        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
-    }
-
-    /// `receive(_:)` with action `.isFlightRecorderToggleOn` navigates to the enable flight
-    /// recorder screen when toggled on.
-    @MainActor
-    func test_receive_toggleFlightRecorder_on() {
-        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
-
-        subject.receive(.toggleFlightRecorder(true))
-
-        XCTAssertEqual(coordinator.routes, [.enableFlightRecorder])
     }
 
     /// `receive(_:)` with action `.isSubmitCrashLogsToggleOn` updates the toggle value in the state.

@@ -191,6 +191,12 @@ protocol StateService: AnyObject {
     ///
     func getEvents(userId: String?) async throws -> [EventData]
 
+    /// Gets the data for the flight recorder.
+    ///
+    /// - Returns: The flight recorder data.
+    ///
+    func getFlightRecorderData() async -> FlightRecorderData?
+
     /// Gets whether a sync has been done successfully after login. This is particular useful to trigger logic that
     /// needs to be executed right after login in and after the first successful sync.
     ///
@@ -327,14 +333,6 @@ protocol StateService: AnyObject {
     /// - Returns: The action to perform when a session timeout occurs.
     ///
     func getTimeoutAction(userId: String?) async throws -> SessionTimeoutAction
-
-    /// Gets the display state of the no-two-factor notice for a user ID.
-    ///
-    /// - Parameters:
-    ///   - userId: The user ID for the account; defaults to current active user if `nil`.
-    /// - Returns: The display state.
-    ///
-    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState
 
     /// Get the two-factor token (non-nil if the user selected the "remember me" option).
     ///
@@ -536,6 +534,10 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the sync after login.
     func setHasPerformedSyncAfterLogin(_ hasBeenPerformed: Bool, userId: String?) async throws
 
+    /// Sets the data for the flight recorder.
+    ///
+    func setFlightRecorderData(_ data: FlightRecorderData?) async
+
     /// Sets whether the intro carousel screen has been shown.
     ///
     /// - Parameter shown: Whether the intro carousel screen has been shown.
@@ -690,14 +692,6 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID associated with the timeout action.
     ///
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws
-
-    /// Sets the user's no-two-factor notice display state for a userID.
-    ///
-    /// - Parameters:
-    ///   - state: The display state to set.
-    ///   - userId: The user ID associated with the state
-    ///
-    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws
 
     /// Sets the user's two-factor token.
     ///
@@ -1004,14 +998,6 @@ extension StateService {
         try await getTimeoutAction(userId: nil)
     }
 
-    /// Gets the display state of the no-two-factor notice for the current user.
-    ///
-    /// - Returns: The display state.
-    ///
-    func getTwoFactorNoticeDisplayState() async throws -> TwoFactorNoticeDisplayState {
-        try await getTwoFactorNoticeDisplayState(userId: nil)
-    }
-
     /// Sets the number of unsuccessful attempts to unlock the vault for the active account.
     ///
     /// - Returns: The number of unsuccessful unlock attempts for the active account.
@@ -1238,15 +1224,6 @@ extension StateService {
     ///
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
         try await setSyncToAuthenticator(syncToAuthenticator, userId: nil)
-    }
-
-    /// Sets the display state for the no-two-factor notice
-    ///
-    /// - Parameters:
-    ///   - state: The state to set.
-    ///
-    func setTwoFactorNoticeDisplayState(state: TwoFactorNoticeDisplayState) async throws {
-        try await setTwoFactorNoticeDisplayState(state, userId: nil)
     }
 
     /// Sets the session timeout action.
@@ -1554,6 +1531,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         return appSettingsStore.events(userId: userId)
     }
 
+    func getFlightRecorderData() async -> FlightRecorderData? {
+        appSettingsStore.flightRecorderData
+    }
+
     func getHasPerformedSyncAfterLogin(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.hasPerformedSyncAfterLogin(userId: userId)
@@ -1650,11 +1631,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
             return .lock
         }
         return timeoutAction
-    }
-
-    func getTwoFactorNoticeDisplayState(userId: String?) async throws -> TwoFactorNoticeDisplayState {
-        let userId = try userId ?? getActiveAccountUserId()
-        return appSettingsStore.twoFactorNoticeDisplayState(userId: userId)
     }
 
     func getTwoFactorToken(email: String) async -> String? {
@@ -1831,6 +1807,10 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
         appSettingsStore.setEvents(events, userId: userId)
     }
 
+    func setFlightRecorderData(_ data: FlightRecorderData?) async {
+        appSettingsStore.flightRecorderData = data
+    }
+
     func setForcePasswordResetReason(_ reason: ForcePasswordResetReason?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         guard var state = appSettingsStore.state else {
@@ -1959,11 +1939,6 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setTimeoutAction(action: SessionTimeoutAction, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setTimeoutAction(key: action, userId: userId)
-    }
-
-    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String?) async throws {
-        let userId = try userId ?? getActiveAccountUserId()
-        appSettingsStore.setTwoFactorNoticeDisplayState(state, userId: userId)
     }
 
     func setTwoFactorToken(_ token: String?, email: String) async {

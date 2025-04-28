@@ -418,7 +418,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         }
 
         XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.emailVerification.rawValue)))
-        XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCarouselFlow.rawValue)))
         XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.enableAuthenticatorSync.rawValue)))
         XCTAssertTrue(try XCTUnwrap(subject.debugFeatureFlag(name: FeatureFlag.nativeCreateAccountFlow.rawValue)))
     }
@@ -426,6 +425,30 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     /// `featureFlag(name:)` returns `nil` if not found.
     func test_featureFlags_nilWhenNotPresent() {
         XCTAssertNil(subject.debugFeatureFlag(name: ""))
+    }
+
+    /// `flightRecorderData` returns `nil` if there isn't any previously stored flight recorder data.
+    func test_flightRecorderData_isInitiallyNil() {
+        XCTAssertNil(subject.flightRecorderData)
+    }
+
+    /// `flightRecorderData` can be used to get and set the flight recorder data.
+    func test_flightRecorderData_withValue() throws {
+        let flightRecorderData = FlightRecorderData(
+            activeLog: FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now),
+            archivedLogs: []
+        )
+        subject.flightRecorderData = flightRecorderData
+
+        let data = try XCTUnwrap(
+            userDefaults.string(forKey: "bwPreferencesStorage:flightRecorderData")?
+                .data(using: .utf8)
+        )
+        let decodedData = try JSONDecoder().decode(FlightRecorderData.self, from: data)
+        XCTAssertEqual(decodedData, flightRecorderData)
+
+        subject.flightRecorderData = nil
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:flightRecorderData"))
     }
 
     /// `hasPerformedSyncAfterLogin(userId:)` returns `false` if there isn't a previously stored value.
@@ -928,21 +951,6 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.syncToAuthenticator(userId: "2"))
         XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:shouldSyncToAuthenticator_1"))
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:shouldSyncToAuthenticator_2"))
-    }
-
-    /// `twoFactorNoticeDisplayState(userId:)` returns `.hasNotSeen` if there isn't a previously stored value.
-    func test_twoFactorNoticeDisplayState_isInitiallyNotSeen() {
-        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "anyone@example.com"), .hasNotSeen)
-    }
-
-    /// `twoFactorToken(email:)` can be used to get and set the persisted value in user defaults.
-    func test_twoFactorNoticeDisplayState_withValue() {
-        let date = Date()
-        subject.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "person1@example.com")
-        subject.setTwoFactorNoticeDisplayState(.seen(date), userId: "person2@example.com")
-
-        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "person1@example.com"), .canAccessEmail)
-        XCTAssertEqual(subject.twoFactorNoticeDisplayState(userId: "person2@example.com"), .seen(date))
     }
 
     /// `twoFactorToken(email:)` returns `nil` if there isn't a previously stored value.

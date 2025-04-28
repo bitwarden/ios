@@ -333,18 +333,10 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Update homebrew
+      - name: Install Homebrew Dependencies
         run: |
           brew update
-
-      - name: Install Fastlane
-        if: env._BUILD_MODE == 'Device'
-        run: |
-          brew install fastlane
-
-      - name: Install Mint
-        run: |
-          brew install mint
+          brew bundle
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -366,7 +358,7 @@ jobs:
 
       - name: Build iOS app
         run: |
-          ./Scripts/build.sh ${{ env._BUILD_MODE }}
+          ./Scripts/build.sh project-pm.yml Bitwarden ${{ env._BUILD_MODE }}
 
       - name: Prepare artifacts for upload to GitHub
         run: |

@@ -666,6 +666,23 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(actual, events)
     }
 
+    /// `getFlightRecorderData()` returns the data for the flight recorder.
+    func test_getFlightRecorderData() async throws {
+        let storedFlightRecorderData = FlightRecorderData()
+        appSettingsStore.flightRecorderData = storedFlightRecorderData
+
+        let flightRecorderData = await subject.getFlightRecorderData()
+        XCTAssertEqual(flightRecorderData, storedFlightRecorderData)
+    }
+
+    /// `getFlightRecorderData()` returns `nil` if there's no stored data for the flight recorder.
+    func test_getFlightRecorderData_notSet() async throws {
+        appSettingsStore.flightRecorderData = nil
+
+        let flightRecorderData = await subject.getFlightRecorderData()
+        XCTAssertNil(flightRecorderData)
+    }
+
     /// `init()` subscribes to active account publisher and sets the user id on the error reporter.
     func test_init_activeAccountSubscription() async throws {
         appSettingsStore.state = State(
@@ -928,24 +945,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
         let action = try await subject.getTimeoutAction(userId: "1")
         XCTAssertEqual(action, .logout)
-    }
-
-    /// `getTwoFactorNoticeDisplayState(userId:)` gets the display state of the two-factor notice for the user.
-    func test_getTwoFactorNoticeDisplayState() async throws {
-        appSettingsStore.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "person@example.com")
-
-        let value = try await subject.getTwoFactorNoticeDisplayState(userId: "person@example.com")
-        XCTAssertEqual(value, .canAccessEmail)
-    }
-
-    /// `getTwoFactorNoticeDisplayState()` gets the display state of the two-factor notice for the current user
-    /// and throws an error if there is no current user.
-    func test_getTwoFactorNoticeDisplayState_noId() async throws {
-        appSettingsStore.setTwoFactorNoticeDisplayState(.canAccessEmail, userId: "1")
-
-        await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
-            _ = try await subject.getTwoFactorNoticeDisplayState()
-        }
     }
 
     /// `getTwoFactorToken(email:)` gets the two-factor code associated with the email.
@@ -1638,6 +1637,13 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.eventsByUserId["1"], events)
     }
 
+    /// `setFlightRecorderData(_:)` sets the data for the flight recorder.
+    func test_setFlightRecorderData() async throws {
+        let flightRecorderData = FlightRecorderData()
+        await subject.setFlightRecorderData(flightRecorderData)
+        XCTAssertEqual(appSettingsStore.flightRecorderData, flightRecorderData)
+    }
+
     /// `setIntroCarouselShown(_:)` sets whether the intro carousel screen has been shown.
     func test_setIntroCarouselShown() async {
         await subject.setIntroCarouselShown(true)
@@ -2050,12 +2056,6 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncThrows(error: StateServiceError.noActiveAccount) {
             _ = try await subject.settingsBadgePublisher()
         }
-    }
-
-    /// `setTwoFactorNoticeDisplayState(_:userId:)` sets the display state of the two-factor notice for the user.
-    func test_setTwoFactorNoticeDisplayState() async throws {
-        try await subject.setTwoFactorNoticeDisplayState(.hasNotSeen, userId: "person1@example.com")
-        XCTAssertEqual(appSettingsStore.twoFactorNoticeDisplayState(userId: "person1@example.com"), .hasNotSeen)
     }
 
     /// `setTwoFactorToken(_:email:)` sets the two-factor code for the email.
