@@ -1091,14 +1091,6 @@
 "SSHKeys" = "SSH-nøkler";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Use Optic ID To Unlock";
-"ImportantNotice" = "Viktig melding";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025.";
-"DoYouHaveReliableAccessToYourEmail" = "Do you have reliable access to your email, **%1$@**?";
-"YesICanReliablyAccessMyEmail" = "Yes, I can reliably access my email";
-"SetUpTwoStepLogin" = "Sett opp 2-trinnspålogging";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "You can set up two-step login as an alternative way to protect your account or change your email to one you can access.";
-"TurnOnTwoStepLogin" = "Slå på 2-trinnsinnlogging";
-"ChangeAccountEmail" = "Endre kontoens E-postadresse";
 "NothingAvailableToAutofill" = "Nothing available to autofill";
 "FailedToGenerateVerificationCode" = "Failed to generate verification code";
 "FailedToAutofillItem" = "Failed to autofill item %1$@";

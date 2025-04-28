@@ -1091,14 +1091,6 @@
 "SSHKeys" = "SSH klíče";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Použít Optic ID k odemknutí";
-"ImportantNotice" = "Důležité upozornění";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden odešle kód na e-mail Vašeho účtu pro ověření přihlášení z nových zařízení počínaje únorem 2025.";
-"DoYouHaveReliableAccessToYourEmail" = "Máte spolehlivý přístup ke svému e-mailu **%1$@**?";
-"YesICanReliablyAccessMyEmail" = "Ano, ke svému e-mailu mám přístup";
-"SetUpTwoStepLogin" = "Nastavit dvoufázové přihlášení";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Dvoufázové přihlášení můžete nastavit jako alternativní způsob ochrany Vašeho účtu nebo změnit svůj e-mail na ten, k němuž můžete přistupovat.";
-"TurnOnTwoStepLogin" = "Zapnout dvoufázové přihlášení";
-"ChangeAccountEmail" = "Změnit e-mail účtu";
 "NothingAvailableToAutofill" = "Není k dispozici nic k automatickému vyplnění";
 "FailedToGenerateVerificationCode" = "Generování ověřovacího kódu se nezdařilo";
 "FailedToAutofillItem" = "Nezdařilo se automaticky vyplnit položku %1$@";
