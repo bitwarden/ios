@@ -1,6 +1,7 @@
 #if SUPPORTS_CXP
 import AuthenticationServices
 import BitwardenSdk
+import TestHelpers
 
 @testable import BitwardenShared
 
