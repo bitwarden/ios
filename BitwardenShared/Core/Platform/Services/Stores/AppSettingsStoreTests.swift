@@ -139,6 +139,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_w"))
     }
 
+    /// `allowUniversalClipboard(userId:)` returns `false` if there isn't a previously stored value.
+    func test_allowUniversalClipboard_isInitiallyFalse() {
+        XCTAssertFalse(subject.allowUniversalClipboard(userId: "-1"))
+    }
+
+    /// `allowUniversalClipboard(userId:)` can be used to get the allow universal clipboard value for a user.
+    func test_allowUniversalClipboard_withValue() {
+        subject.setAllowUniversalClipboard(true, userId: "1")
+        subject.setAllowUniversalClipboard(false, userId: "2")
+
+        XCTAssertTrue(subject.allowUniversalClipboard(userId: "1"))
+        XCTAssertFalse(subject.allowUniversalClipboard(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:allowUniversalClipboard_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:allowUniversalClipboard_w"))
+    }
+
     /// `appLocale`is initially `nil`.
     func test_appLocale_isInitiallyNil() {
         XCTAssertNil(subject.appLocale)

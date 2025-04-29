@@ -1091,14 +1091,6 @@
 "SSHKeys" = "Chaves SSH";
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Usar o Optic ID para Desbloquear";
-"ImportantNotice" = "Aviso importante";
-"BitwardenWillSendACodeToYourAccountEmailDescriptionLong" = "Bitwarden enviará um código para o seu e-mail para verificar novos dispositivos a partir de fevereiro de 2025.";
-"DoYouHaveReliableAccessToYourEmail" = "Você tem acesso confiável ao seu e-mail, **%1$@**?";
-"YesICanReliablyAccessMyEmail" = "Sim, eu tenho";
-"SetUpTwoStepLogin" = "Configurar login em duas etapas";
-"YouCanSetUpTwoStepLoginAsAnAlternativeDescriptionLong" = "Você pode configurar o login em duas etapas como uma forma alternativa de proteger sua conta ou mudar seu e-mail para um que você possa acessar.";
-"TurnOnTwoStepLogin" = "Ativar login em duas etapas";
-"ChangeAccountEmail" = "Alterar e-mail da conta";
 "NothingAvailableToAutofill" = "Nada disponível para preenchimento automático";
 "FailedToGenerateVerificationCode" = "Falha ao gerar código de verificação";
 "FailedToAutofillItem" = "Falha ao preencher automaticamente item %1$@";
@@ -1174,4 +1166,4 @@
 "ExpiresToday" = "Expires today";
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
-"SelfHostServerURL" = "Self-host server URL";
+"SelfHostServerURL" = "URL do servidor auto-hospedado";
