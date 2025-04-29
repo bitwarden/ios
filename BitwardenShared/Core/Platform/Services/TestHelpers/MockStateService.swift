@@ -325,7 +325,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountCreationEnvironmentURLs[email]
     }
 
-    func getPreAuthServerConfig() async -> BitwardenShared.ServerConfig? {
+    func getPreAuthServerConfig() async -> ServerConfig? {
         preAuthServerConfig
     }
 
@@ -623,7 +623,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         accountCreationEnvironmentURLs[email] = urls
     }
 
-    func setPreAuthServerConfig(config: BitwardenShared.ServerConfig) async {
+    func setPreAuthServerConfig(config: ServerConfig) async {
         preAuthServerConfig = config
     }
 

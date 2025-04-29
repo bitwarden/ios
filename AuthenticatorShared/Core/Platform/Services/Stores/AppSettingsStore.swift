@@ -1,3 +1,4 @@
+import BitwardenKit
 import CryptoKit
 import Foundation
 import OSLog
