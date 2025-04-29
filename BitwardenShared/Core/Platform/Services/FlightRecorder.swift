@@ -109,7 +109,7 @@ actor DefaultFlightRecorder {
     private let timeProvider: TimeProvider
 
     /// A task that handles disabling the active log on its end date or deleting expired logs.
-    private var expirationTask: Task<Void, Never>?
+    private var logLifecycleTask: Task<Void, Never>?
 
     // MARK: Initialization
 
@@ -118,9 +118,9 @@ actor DefaultFlightRecorder {
     /// - Parameters:
     ///   - appInfoService: The service used by the application to get info about the app and device
     ///     it's running on.
-    ///   - disableExpirationTimerForTesting: Whether the expiration timer should be disabled. This
-    ///     should only be done while testing so that logs aren't removed while testing other flight
-    ///     recorder functionality.
+    ///   - disableLogLifecycleTimerForTesting: Whether the log lifecycle timer should be disabled.
+    ///     This should only be done while testing so that logs aren't removed while testing other
+    ///     flight recorder functionality.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - fileManager: The file manager used to read and write files to the file system.
     ///   - stateService: The service used by the application to manage account state.
@@ -128,7 +128,7 @@ actor DefaultFlightRecorder {
     ///
     init(
         appInfoService: AppInfoService,
-        disableExpirationTimerForTesting: Bool = false,
+        disableLogLifecycleTimerForTesting: Bool = false,
         errorReporter: ErrorReporter,
         fileManager: FileManagerProtocol = FileManager.default,
         stateService: StateService,
@@ -140,16 +140,16 @@ actor DefaultFlightRecorder {
         self.stateService = stateService
         self.timeProvider = timeProvider
 
-        if !disableExpirationTimerForTesting {
+        if !disableLogLifecycleTimerForTesting {
             Task {
                 await dataSubject.send(stateService.getFlightRecorderData())
-                await self.configureExpirationTimer()
+                await self.configureLogLifecycleTimer()
             }
         }
     }
 
     deinit {
-        expirationTask?.cancel()
+        logLifecycleTask?.cancel()
     }
 
     // MARK: Private
@@ -165,20 +165,20 @@ actor DefaultFlightRecorder {
         try fileManager.append(Data(message.utf8), to: url)
     }
 
-    /// Configures an expiration timer to listen for any changes to `FlightRecorderData` and then
-    /// waits until the next expiration in the data will occur.
+    /// Configures a log lifecycle timer to listen for any changes to `FlightRecorderData` and then
+    /// waits until the next lifecycle event in the data will occur.
     ///
-    private func configureExpirationTimer() async {
+    private func configureLogLifecycleTimer() async {
         for await data in dataSubject.values {
-            expirationTask?.cancel()
+            logLifecycleTask?.cancel()
             guard let data else { continue }
-            expirationTask = Task { [weak self, timeProvider] in
+            logLifecycleTask = Task { [weak self, timeProvider] in
                 do {
-                    if let nextExpirationDate = data.nextExpirationDate {
+                    if let nextLogLifecycleDate = data.nextLogLifecycleDate {
                         let components = Calendar.current.dateComponents(
                             [.second],
                             from: timeProvider.presentTime,
-                            to: nextExpirationDate
+                            to: nextLogLifecycleDate
                         )
                         guard let seconds = components.second else { return }
                         // Sleep for a minimum of 1 second to prevent continuous looping if the
@@ -187,19 +187,19 @@ actor DefaultFlightRecorder {
 
                         Logger.application.debug(
                             """
-                            FlightRecorder: next expiration: \(nextExpirationDate), \
+                            FlightRecorder: next log lifecycle: \(nextLogLifecycleDate), \
                             sleeping for \(sleepSeconds) seconds
                             """
                         )
                         try await Task.sleep(forSeconds: sleepSeconds)
-                        await self?.evaluateDataExpirations()
+                        await self?.evaluateLogLifecycles()
                     }
                 } catch is CancellationError {
                     // No-op: don't log or alert for cancellation errors.
                 } catch {
                     await self?.errorReporter.log(error: BitwardenError.generalError(
-                        type: "Flight Recorder Expiration Timer Error",
-                        message: "Error waiting for next flight recorder data expiration",
+                        type: "Flight Recorder Log Lifecycle Timer Error",
+                        message: "Error waiting for next flight recorder log lifecycle",
                         error: error
                     ))
                 }
@@ -227,10 +227,10 @@ actor DefaultFlightRecorder {
         try fileManager.setIsExcludedFromBackup(true, to: url)
     }
 
-    /// Evaluates the data for any expirations. This handles disabling the active log after the
-    /// logging duration has elapsed and then removing any expired inactive logs.
+    /// Evaluates the data for any log lifecycle changes. This handles disabling the active log
+    /// after the logging duration has elapsed and then removing any expired inactive logs.
     ///
-    private func evaluateDataExpirations() async {
+    private func evaluateLogLifecycles() async {
         guard var data = dataSubject.value else { return }
 
         // Check if the active log should be disabled after its duration has elapsed.

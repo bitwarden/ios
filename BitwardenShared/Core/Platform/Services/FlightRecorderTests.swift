@@ -65,10 +65,10 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// Builds the `DefaultFlightRecorder` subject for testing.
     ///
-    func makeSubject(disableExpirationTimer: Bool = true) -> DefaultFlightRecorder {
+    func makeSubject(disableLogLifecycleTimer: Bool = true) -> DefaultFlightRecorder {
         DefaultFlightRecorder(
             appInfoService: appInfoService,
-            disableExpirationTimerForTesting: disableExpirationTimer,
+            disableLogLifecycleTimerForTesting: disableLogLifecycleTimer,
             errorReporter: errorReporter,
             fileManager: fileManager,
             stateService: stateService,
@@ -418,12 +418,12 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(logs.isEmpty)
     }
 
-    /// `init()` starts the expiration timer and ends the active log when its logging duration has
-    /// elapsed.
-    func test_init_expirationTimer_activeLogEnds() async throws {
+    /// `init()` starts the log lifecycle timer and ends the active log when its logging duration
+    /// has elapsed.
+    func test_init_logLifecycleTimer_activeLogEnds() async throws {
         timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 1, day: 1, hour: 8))
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
-        subject = makeSubject(disableExpirationTimer: false)
+        subject = makeSubject(disableLogLifecycleTimer: false)
 
         var publisher = await subject.isEnabledPublisher().values.makeAsyncIterator()
 
@@ -439,13 +439,13 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: [activeLog]))
     }
 
-    /// `init()` starts the expiration timer and removes an expired active log.
-    func test_init_expirationTimer_activeLogExpires() async throws {
+    /// `init()` starts the log lifecycle timer and removes an expired active log.
+    func test_init_logLifecycleTimer_activeLogExpires() async throws {
         timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 2, day: 1))
         stateService.flightRecorderData = FlightRecorderData(
             activeLog: activeLog,
         )
-        subject = makeSubject(disableExpirationTimer: false)
+        subject = makeSubject(disableLogLifecycleTimer: false)
 
         try await waitForAsync { self.stateService.flightRecorderData == FlightRecorderData() }
 
@@ -460,8 +460,8 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
-    /// `init()` starts the expiration timer and removes any expired inactive logs.
-    func test_init_expirationTimer_inactiveLogExpires() async throws {
+    /// `init()` starts the log lifecycle timer and removes any expired inactive logs.
+    func test_init_logLifecycleTimer_inactiveLogExpires() async throws {
         let expiredLog = FlightRecorderData.LogMetadata(
             duration: .oneHour,
             startDate: Date(year: 2024, month: 11, day: 30)
@@ -471,7 +471,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             activeLog: activeLog,
             inactiveLogs: [inactiveLog1, expiredLog]
         )
-        subject = makeSubject(disableExpirationTimer: false)
+        subject = makeSubject(disableLogLifecycleTimer: false)
 
         var publisher = await subject.isEnabledPublisher().values.makeAsyncIterator()
 
@@ -492,13 +492,13 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
     }
 
-    /// `init()` starts the expiration timer, which logs an error if removing a file for an expired
-    /// log fails.
-    func test_init_expirationTimer_errorRemovingFile() async throws {
+    /// `init()` starts the log lifecycle timer, which logs an error if removing a file for an
+    /// expired log fails.
+    func test_init_logLifecycleTimer_errorRemovingFile() async throws {
         timeProvider.timeConfig = .mockTime(Date(year: 2025, month: 3, day: 1))
         fileManager.removeItemResult = .failure(BitwardenTestError.example)
         stateService.flightRecorderData = FlightRecorderData(inactiveLogs: [inactiveLog1])
-        subject = makeSubject(disableExpirationTimer: false)
+        subject = makeSubject(disableLogLifecycleTimer: false)
 
         try await waitForAsync { !self.errorReporter.errors.isEmpty }
 

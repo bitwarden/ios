@@ -40,9 +40,9 @@ class FlightRecorderDataTests: BitwardenTestCase {
         XCTAssertEqual(subject.allLogs, logs)
     }
 
-    /// `nextExpirationDate` returns the date in which the active log ends logging if that's before
+    /// `nextLogLifecycleDate` returns the date in which the active log ends logging if that's before
     /// any of the inactive logs expire.
-    func test_nextExpirationDate_activeLog() {
+    func test_nextLogLifecycleDate_activeLog() {
         let subject = FlightRecorderData(
             activeLog: FlightRecorderData.LogMetadata(
                 duration: .eightHours,
@@ -53,12 +53,12 @@ class FlightRecorderDataTests: BitwardenTestCase {
                 FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 3, day: 25)),
             ]
         )
-        XCTAssertEqual(subject.nextExpirationDate, Date(year: 2025, month: 4, day: 1, hour: 8))
+        XCTAssertEqual(subject.nextLogLifecycleDate, Date(year: 2025, month: 4, day: 1, hour: 8))
     }
 
-    /// `nextExpirationDate` returns the date in which the first inactive log expires if that's
+    /// `nextLogLifecycleDate` returns the date in which the first inactive log expires if that's
     /// before the active log needs to end logging.
-    func test_nextExpirationDate_inactiveLog() {
+    func test_nextLogLifecycleDate_inactiveLog() {
         let subject = FlightRecorderData(
             activeLog: FlightRecorderData.LogMetadata(
                 duration: .eightHours,
@@ -69,13 +69,13 @@ class FlightRecorderDataTests: BitwardenTestCase {
                 FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 3, day: 4)),
             ]
         )
-        XCTAssertEqual(subject.nextExpirationDate, Date(year: 2025, month: 2, day: 1, hour: 8))
+        XCTAssertEqual(subject.nextLogLifecycleDate, Date(year: 2025, month: 2, day: 1, hour: 8))
     }
 
-    /// `nextExpirationDate` returns an empty array if there's no logs.
-    func test_nextExpirationDate_noLogs() {
+    /// `nextLogLifecycleDate` returns an empty array if there's no logs.
+    func test_nextLogLifecycleDate_noLogs() {
         let subject = FlightRecorderData()
-        XCTAssertNil(subject.nextExpirationDate)
+        XCTAssertNil(subject.nextLogLifecycleDate)
     }
 
     /// `activeLog` sets the active log.

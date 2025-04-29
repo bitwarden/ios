@@ -30,7 +30,7 @@ struct FlightRecorderData: Codable, Equatable {
 
     /// The upcoming date in which either the active log needs to end logging or an inactive log
     /// expires and needs to be removed.
-    var nextExpirationDate: Date? {
+    var nextLogLifecycleDate: Date? {
         let dates = [activeLog?.endDate].compactMap { $0 } + inactiveLogs.map(\.expirationDate)
         return dates.min()
     }
