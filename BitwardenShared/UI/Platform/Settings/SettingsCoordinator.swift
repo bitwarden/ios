@@ -189,8 +189,10 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
         case .settings:
             showSettings()
-        case let .shareExportedVault(fileURL):
-            showExportedVaultURL(fileURL)
+        case let .shareURL(url):
+            showShareSheet([url])
+        case let .shareURLs(urls):
+            showShareSheet(urls)
         case .vault:
             showVault()
         case .vaultUnlockSetup:
@@ -353,10 +355,12 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         stackNavigator?.present(UINavigationController(rootViewController: viewController))
     }
 
-    /// Presents an activity controller for an exported vault file URL.
+    /// Shows the share sheet to share one or more items.
     ///
-    private func showExportedVaultURL(_ fileURL: URL) {
-        let activityVC = UIActivityViewController(activityItems: [fileURL], applicationActivities: nil)
+    /// - Parameter items: The items to share.
+    ///
+    private func showShareSheet(_ items: [Any]) {
+        let activityVC = UIActivityViewController(activityItems: items, applicationActivities: nil)
         stackNavigator?.present(activityVC)
     }
 

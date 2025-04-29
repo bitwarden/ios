@@ -3,7 +3,7 @@ import Foundation
 // MARK: - FlightRecorderData
 
 /// A data model containing the persisted data necessary for the flight recorder. This stores the
-/// metadata for the active and any archived logs.
+/// metadata for the active and any inactive logs.
 ///
 struct FlightRecorderData: Codable, Equatable {
     // MARK: Properties
@@ -12,19 +12,19 @@ struct FlightRecorderData: Codable, Equatable {
     var activeLog: LogMetadata? {
         didSet {
             guard let oldValue else { return }
-            archivedLogs.insert(oldValue, at: 0)
+            inactiveLogs.insert(oldValue, at: 0)
         }
     }
 
     /// A list of previously recorded and inactive logs, which remain available on device until they
     /// are deleted by the user or expire and are deleted by the app.
-    var archivedLogs: [LogMetadata] = []
+    var inactiveLogs: [LogMetadata] = []
 
     // MARK: Computed Properties
 
-    /// The full list of logs containing the active and any archived logs.
+    /// The full list of logs containing the active and any inactive logs.
     var allLogs: [LogMetadata] {
-        ([activeLog] + archivedLogs).compactMap { $0 }
+        ([activeLog] + inactiveLogs).compactMap { $0 }
     }
 }
 

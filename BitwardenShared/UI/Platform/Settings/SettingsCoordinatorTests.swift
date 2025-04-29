@@ -403,6 +403,26 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(action.view is SettingsView)
     }
 
+    /// `navigate(to:)` with `.shareURL(_:)` presents an activity view controller to share the URL.
+    @MainActor
+    func test_navigateTo_shareURL() throws {
+        subject.navigate(to: .shareURL(.example))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UIActivityViewController)
+    }
+
+    /// `navigate(to:)` with `.shareURL(_:)` presents an activity view controller to share the URLs.
+    @MainActor
+    func test_navigateTo_shareURLs() throws {
+        subject.navigate(to: .shareURLs([.example]))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UIActivityViewController)
+    }
+
     /// `navigate(to:)` with `.vault` pushes the vault settings view onto the stack navigator.
     @MainActor
     func test_navigateTo_vault() throws {

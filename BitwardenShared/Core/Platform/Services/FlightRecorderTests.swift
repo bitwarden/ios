@@ -6,6 +6,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
@@ -22,12 +24,12 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         startDate: Date(year: 2025, month: 1, day: 1)
     )
 
-    let archivedLog1 = FlightRecorderData.LogMetadata(
+    let inactiveLog1 = FlightRecorderData.LogMetadata(
         duration: .oneHour,
         startDate: Date(year: 2025, month: 1, day: 2)
     )
 
-    let archivedLog2 = FlightRecorderData.LogMetadata(
+    let inactiveLog2 = FlightRecorderData.LogMetadata(
         duration: .oneWeek,
         startDate: Date(year: 2025, month: 1, day: 3)
     )
@@ -69,6 +71,117 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
+    /// `deleteInactiveLogs()` deletes all of the inactive logs and associated metadata.
+    func test_deleteInactiveLogs() async throws {
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+            inactiveLogs: [inactiveLog1, inactiveLog2]
+        )
+
+        try await subject.deleteInactiveLogs()
+
+        try XCTAssertEqual(
+            fileManager.removeItemURLs,
+            [
+                FileManager.default.flightRecorderLogURL().appendingPathComponent(inactiveLog1.fileName),
+                FileManager.default.flightRecorderLogURL().appendingPathComponent(inactiveLog2.fileName),
+            ]
+        )
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(activeLog: activeLog))
+    }
+
+    /// `deleteInactiveLogs()` throws an error if removing the file results in an error.
+    func test_deleteInactiveLogs_error() async throws {
+        fileManager.removeItemResult = .failure(BitwardenTestError.example)
+        stateService.flightRecorderData = FlightRecorderData(inactiveLogs: [inactiveLog1])
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.deleteInactiveLogs()
+        }
+
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: [inactiveLog1]))
+    }
+
+    /// `deleteInactiveLogs()` handles a file not existing and removes the metadata associated with it.
+    func test_deleteInactiveLogs_errorNoSuchFile() async throws {
+        fileManager.removeItemResult = .failure(NSError(domain: NSCocoaErrorDomain, code: NSFileNoSuchFileError))
+        stateService.flightRecorderData = FlightRecorderData(inactiveLogs: [inactiveLog1])
+
+        try await subject.deleteInactiveLogs()
+
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: []))
+    }
+
+    /// `deleteInactiveLogs()` throws an error if there's no stored flight recorder data.
+    func test_deleteInactiveLogs_noData() async {
+        stateService.flightRecorderData = nil
+        await assertAsyncThrows(error: FlightRecorderError.dataUnavailable) {
+            try await subject.deleteInactiveLogs()
+        }
+    }
+
+    /// `deleteLog(_:)` deletes the log and its metadata.
+    func test_deleteLog() async throws {
+        stateService.flightRecorderData = FlightRecorderData(
+            activeLog: activeLog,
+            inactiveLogs: [inactiveLog1, inactiveLog2]
+        )
+
+        try await subject.deleteLog(.fixture(id: inactiveLog1.id, url: logURL))
+
+        XCTAssertEqual(fileManager.removeItemURLs, [logURL])
+        XCTAssertEqual(
+            stateService.flightRecorderData,
+            FlightRecorderData(activeLog: activeLog, inactiveLogs: [inactiveLog2])
+        )
+    }
+
+    /// `deleteLog(_:)` throws an error if the log is the active log.
+    func test_deleteLog_activeLog() async {
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+        await assertAsyncThrows(error: FlightRecorderError.deletionNotPermitted) {
+            try await subject.deleteLog(.fixture(id: activeLog.id))
+        }
+    }
+
+    /// `deleteLog(_:)` throws an error if removing the file results in an error.
+    func test_deleteLog_error() async throws {
+        fileManager.removeItemResult = .failure(BitwardenTestError.example)
+        stateService.flightRecorderData = FlightRecorderData(inactiveLogs: [inactiveLog1])
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.deleteLog(.fixture(id: inactiveLog1.id))
+        }
+
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: [inactiveLog1]))
+    }
+
+    /// `deleteLog(_:)` handles the file not existing and removes the metadata associated with it.
+    func test_deleteLog_errorNoSuchFile() async throws {
+        fileManager.removeItemResult = .failure(NSError(domain: NSCocoaErrorDomain, code: NSFileNoSuchFileError))
+        stateService.flightRecorderData = FlightRecorderData(inactiveLogs: [inactiveLog1])
+
+        try await subject.deleteLog(.fixture(id: inactiveLog1.id))
+
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: []))
+    }
+
+    /// `deleteLog(_:)` throws an error if the log isn't in the flight recorder data.
+    func test_deleteLog_logNotFound() async {
+        stateService.flightRecorderData = FlightRecorderData()
+        await assertAsyncThrows(error: FlightRecorderError.logNotFound) {
+            try await subject.deleteLog(.fixture())
+        }
+    }
+
+    /// `deleteLog(_:)` throws an error if there's no stored flight recorder data.
+    func test_deleteLog_noData() async {
+        stateService.flightRecorderData = nil
+        await assertAsyncThrows(error: FlightRecorderError.dataUnavailable) {
+            try await subject.deleteLog(.fixture())
+        }
+    }
+
     /// `disableFlightRecorder()` disables the flight recorder.
     func test_disableFlightRecorder() async throws {
         var isEnabledValues = [Bool]()
@@ -83,7 +196,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(isEnabledValues, [false, true, false])
         XCTAssertEqual(
             stateService.flightRecorderData,
-            FlightRecorderData(archivedLogs: [
+            FlightRecorderData(inactiveLogs: [
                 FlightRecorderData.LogMetadata(
                     duration: .twentyFourHours,
                     startDate: timeProvider.presentTime
@@ -168,7 +281,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         fileManager.attributesOfItemResult = .success([.size: Int64(123_000)])
         stateService.flightRecorderData = FlightRecorderData(
             activeLog: activeLog,
-            archivedLogs: [archivedLog1, archivedLog2]
+            inactiveLogs: [inactiveLog1, inactiveLog2]
         )
         let flightRecorderLogURL = try FileManager.default.flightRecorderLogURL()
 
@@ -190,19 +303,19 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                     duration: .oneHour,
                     endDate: Date(year: 2025, month: 1, day: 2, hour: 1),
                     fileSize: "120 KB",
-                    id: archivedLog1.id,
+                    id: inactiveLog1.id,
                     isActiveLog: false,
                     startDate: Date(year: 2025, month: 1, day: 2),
-                    url: flightRecorderLogURL.appendingPathComponent(archivedLog1.fileName)
+                    url: flightRecorderLogURL.appendingPathComponent(inactiveLog1.fileName)
                 ),
                 FlightRecorderLogMetadata.fixture(
                     duration: .oneWeek,
                     endDate: Date(year: 2025, month: 1, day: 10),
                     fileSize: "120 KB",
-                    id: archivedLog2.id,
+                    id: inactiveLog2.id,
                     isActiveLog: false,
                     startDate: Date(year: 2025, month: 1, day: 3),
-                    url: flightRecorderLogURL.appendingPathComponent(archivedLog2.fileName)
+                    url: flightRecorderLogURL.appendingPathComponent(inactiveLog2.fileName)
                 ),
             ]
         )
@@ -229,7 +342,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_fetchLogs_fileSizes() async throws {
         stateService.flightRecorderData = FlightRecorderData(
             activeLog: activeLog,
-            archivedLogs: [archivedLog1, archivedLog2]
+            inactiveLogs: [inactiveLog1, inactiveLog2]
         )
 
         fileManager.attributesOfItemResult = .success([.size: Int64(0)])

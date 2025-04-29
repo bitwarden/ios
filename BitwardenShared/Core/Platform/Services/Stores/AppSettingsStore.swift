@@ -30,7 +30,7 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
-    /// The data used by the flight recorder for the current and any archived logs.
+    /// The data used by the flight recorder for the active and any inactive logs.
     var flightRecorderData: FlightRecorderData? { get set }
 
     /// Whether the intro carousel screen has been shown.

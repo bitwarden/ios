@@ -24,6 +24,16 @@ struct FlightRecorderLogsView: View {
                 closeToolbarItem {
                     store.send(.dismiss)
                 }
+
+                optionsToolbarItem {
+                    Button(Localizations.shareAll) {
+                        store.send(.shareAll)
+                    }
+
+                    Button(Localizations.deleteAll, role: .destructive) {
+                        store.send(.deleteAll)
+                    }
+                }
             }
     }
 
@@ -48,30 +58,58 @@ struct FlightRecorderLogsView: View {
     private var logsList: some View {
         ContentBlock(dividerLeadingPadding: 16) {
             ForEach(store.state.logs) { log in
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(log.formattedLoggingDateRange)
-                        .styleGuide(.body)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                        .accessibilityLabel(log.loggingDateRangeAccessibilityLabel)
-
-                    HStack(spacing: 16) {
-                        Text(log.fileSize)
-
-                        if let formattedExpiration = log.formattedExpiration(currentDate: timeProvider.presentTime) {
-                            Text(formattedExpiration)
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                                .multilineTextAlignment(.trailing)
-                        }
-                    }
-                    .styleGuide(.subheadline)
-                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                }
-                .accessibilityElement(children: .combine)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                logRow(for: log)
             }
         }
         .scrollView(padding: 12)
+    }
+
+    /// A row view for a single log within the logs list.
+    ///
+    /// - Parameter log: The log to build the row view for.
+    ///
+    private func logRow(for log: FlightRecorderLogMetadata) -> some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(log.formattedLoggingDateRange)
+                    .styleGuide(.body)
+                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityLabel(log.loggingDateRangeAccessibilityLabel)
+
+                HStack(spacing: 16) {
+                    Text(log.fileSize)
+
+                    if let formattedExpiration = log.formattedExpiration(currentDate: timeProvider.presentTime) {
+                        Text(formattedExpiration)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .multilineTextAlignment(.trailing)
+                    }
+                }
+                .styleGuide(.subheadline)
+                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            Menu {
+                Button(Localizations.share) {
+                    store.send(.share(log))
+                }
+
+                if !log.isActiveLog {
+                    Button(Localizations.delete, role: .destructive) {
+                        store.send(.delete(log))
+                    }
+                }
+            } label: {
+                Asset.Images.ellipsisHorizontal24.swiftUIImage
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+            }
+            .accessibilityLabel(Localizations.more)
+            .accessibilityIdentifier("FlightRecorderLogOptionsButton")
+        }
+        .accessibilityElement(children: .combine)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 

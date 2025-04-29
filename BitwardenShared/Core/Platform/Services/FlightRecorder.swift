@@ -8,6 +8,16 @@ import Foundation
 /// local file.
 ///
 protocol FlightRecorder: Sendable {
+    /// Deletes all inactive flight recorder logs. This will not delete the currently active log.
+    ///
+    func deleteInactiveLogs() async throws
+
+    /// Deletes a flight recorder log.
+    ///
+    /// - Parameter log: The log to be deleted. This must not be the currently active log.
+    ///
+    func deleteLog(_ log: FlightRecorderLogMetadata) async throws
+
     /// Disables the collection of temporary debug logs.
     ///
     func disableFlightRecorder() async
@@ -44,6 +54,21 @@ extension FlightRecorder {
     func log(_ message: String, file: String = #file, line: UInt = #line) async {
         await log(message, file: file, line: line)
     }
+}
+
+// MARK: - FlightRecorderError
+
+/// An enumeration of errors thrown by a `FlightRecorder`.
+///
+enum FlightRecorderError: Error {
+    /// The stored flight recorder data doesn't exist.
+    case dataUnavailable
+
+    /// Deletion of the log isn't permitted if the log is the active log.
+    case deletionNotPermitted
+
+    /// The specified log wasn't found in the stored flight recorder data.
+    case logNotFound
 }
 
 // MARK: - DefaultFlightRecorder
@@ -196,6 +221,49 @@ actor DefaultFlightRecorder {
 // MARK: - DefaultFlightRecorder + FlightRecorder
 
 extension DefaultFlightRecorder: FlightRecorder {
+    func deleteInactiveLogs() async throws {
+        guard var data = await stateService.getFlightRecorderData() else {
+            throw FlightRecorderError.dataUnavailable
+        }
+
+        for log in data.inactiveLogs {
+            do {
+                try fileManager.removeItem(at: fileURL(for: log))
+            } catch let error as NSError where error.domain == NSCocoaErrorDomain &&
+                error.code == NSFileNoSuchFileError {
+                // No-op: if the file doesn't exist, continue without throwing.
+            } catch {
+                throw error
+            }
+        }
+
+        data.inactiveLogs.removeAll()
+        await stateService.setFlightRecorderData(data)
+    }
+
+    func deleteLog(_ log: FlightRecorderLogMetadata) async throws {
+        guard var data = await stateService.getFlightRecorderData() else {
+            throw FlightRecorderError.dataUnavailable
+        }
+        guard data.activeLog?.id != log.id else {
+            throw FlightRecorderError.deletionNotPermitted
+        }
+        guard let logMetadata = data.inactiveLogs.first(where: { $0.id == log.id }) else {
+            throw FlightRecorderError.logNotFound
+        }
+
+        do {
+            try fileManager.removeItem(at: log.url)
+        } catch let error as NSError where error.domain == NSCocoaErrorDomain && error.code == NSFileNoSuchFileError {
+            // No-op: if the file doesn't exist, continue without throwing.
+        } catch {
+            throw error
+        }
+
+        data.inactiveLogs.removeAll { $0.id == logMetadata.id }
+        await stateService.setFlightRecorderData(data)
+    }
+
     func disableFlightRecorder() async {
         activeLogSubject.send(nil)
 
