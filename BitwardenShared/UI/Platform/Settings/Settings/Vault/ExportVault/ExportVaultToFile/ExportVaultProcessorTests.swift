@@ -144,7 +144,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         try await confirmationAlert.tapAction(title: Localizations.exportVault)
 
         XCTAssertEqual(exportService.exportVaultContentsFormat, .encryptedJson(password: "file password"))
-        XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
+        XCTAssertEqual(coordinator.routes.last, .shareURL(testURL))
     }
 
     /// `.receive()` with  `.exportVaultTapped` logs an error on export failure.
@@ -271,7 +271,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         let confirmationAlert = try XCTUnwrap(coordinator.alertShown.last)
         try await confirmationAlert.tapAction(title: Localizations.exportVault)
 
-        XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
+        XCTAssertEqual(coordinator.routes.last, .shareURL(testURL))
     }
 
     /// `.receive()` with  `.exportVaultTapped` clears the user's master password after exporting
@@ -291,7 +291,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: true, action: {}))
         try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)
 
-        XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
+        XCTAssertEqual(coordinator.routes.last, .shareURL(testURL))
         XCTAssertTrue(subject.state.filePasswordText.isEmpty)
         XCTAssertTrue(subject.state.filePasswordConfirmationText.isEmpty)
         XCTAssertNil(subject.state.filePasswordStrengthScore)
@@ -313,7 +313,7 @@ class ExportVaultProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         XCTAssertEqual(coordinator.alertShown.last, .confirmExportVault(encrypted: false, action: {}))
         try await coordinator.alertShown.last?.tapAction(title: Localizations.exportVault)
 
-        XCTAssertEqual(coordinator.routes.last, .shareExportedVault(testURL))
+        XCTAssertEqual(coordinator.routes.last, .shareURL(testURL))
         XCTAssertTrue(subject.state.masterPasswordOrOtpText.isEmpty)
         XCTAssertEqual(authRepository.verifyOtpOpt, "otp")
     }

@@ -452,7 +452,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_flightRecorderData_withValue() throws {
         let flightRecorderData = FlightRecorderData(
             activeLog: FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now),
-            archivedLogs: []
+            inactiveLogs: []
         )
         subject.flightRecorderData = flightRecorderData
 

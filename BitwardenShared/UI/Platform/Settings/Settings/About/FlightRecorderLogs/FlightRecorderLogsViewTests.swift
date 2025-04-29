@@ -40,6 +40,42 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
+    /// Tapping the delete log menu button dispatches the `.delete(_:)` action.
+    @MainActor
+    func test_delete_tap() throws {
+        let log = FlightRecorderLogMetadata.fixture()
+        processor.state.logs = [log]
+        let button = try subject.inspect().find(button: Localizations.delete)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .delete(log))
+    }
+
+    /// Tapping the delete all toolbar button dispatches the `.deleteAll` action.
+    @MainActor
+    func test_deleteAll_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.deleteAll)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .deleteAll)
+    }
+
+    /// Tapping the share log menu button dispatches the `.share(_:)` action.
+    @MainActor
+    func test_share_tap() throws {
+        let log = FlightRecorderLogMetadata.fixture()
+        processor.state.logs = [log]
+        let button = try subject.inspect().find(button: Localizations.share)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .share(log))
+    }
+
+    /// Tapping the share all toolbar button dispatches the `.shareAll` action.
+    @MainActor
+    func test_shareAll_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.shareAll)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .shareAll)
+    }
+
     // MARK: Snapshots
 
     /// The empty flight recorder logs view renders correctly.
