@@ -99,6 +99,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
 
+    /// Indicates whether the vault content should be copied to the Universal Clipboard.
+    ///
+    /// - Parameter userId: The user ID associated with the Universal Clipboard setting.
+    /// - Returns: A Boolean value indicating whether the vault content should be copied to the Universal Clipboard.
+    ///
+    func allowUniversalClipboard(userId: String) -> Bool
+
     /// Gets the app rehydration state.
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
@@ -301,6 +308,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync on refresh setting.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+
+    /// Sets whether the vault content should be copied to the Universal Clipboard when copying.
+    ///
+    /// - Parameters:
+    ///   - allowUniversalClipboard: A value indicating whether the content should be copied to the Universal Clipboard.
+    ///   - userId: The user ID associated with the Universal Clipboard setting.
+    ///
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String)
 
     /// Sets the user's Biometric Authentication Preference.
     ///
@@ -703,6 +718,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
+        case allowUniversalClipboard(userId: String)
         case appId
         case appLocale
         case appRehydrationState(userId: String)
@@ -764,6 +780,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
                 key = "syncOnRefresh_\(userId)"
+            case let .allowUniversalClipboard(userId):
+                key = "allowUniversalClipboard_\(userId)"
             case .appId:
                 key = "appId"
             case .appLocale:
@@ -974,6 +992,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
 
+    func allowUniversalClipboard(userId: String) -> Bool {
+        fetch(for: .allowUniversalClipboard(userId: userId))
+    }
+
     func appRehydrationState(userId: String) -> AppRehydrationState? {
         fetch(for: .appRehydrationState(userId: userId))
     }
@@ -1082,6 +1104,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        store(allowUniversalClipboard, for: .allowUniversalClipboard(userId: userId))
     }
 
     func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {

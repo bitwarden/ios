@@ -1166,4 +1166,6 @@
 "ExpiresInXDays" = "Expires in %1$@ days";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";

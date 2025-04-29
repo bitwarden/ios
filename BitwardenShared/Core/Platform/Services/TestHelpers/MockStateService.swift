@@ -18,6 +18,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var accounts: [Account]?
     var addSitePromptShown = false
     var allowSyncOnRefresh = [String: Bool]()
+    var allowUniversalClipboard = [String: Bool]()
     var appLanguage: LanguageOption = .default
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: AppTheme?
@@ -207,6 +208,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try unwrapUserId(userId)
         return allowSyncOnRefresh[userId] ?? false
+    }
+
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return allowUniversalClipboard[userId] ?? false
     }
 
     func getClearClipboardValue(userId: String?) async throws -> ClearClipboardValue {
@@ -447,6 +453,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         self.allowSyncOnRefresh[userId] = allowSyncOnRefresh
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.allowUniversalClipboard[userId] = allowUniversalClipboard
     }
 
     func setAppRehydrationState(

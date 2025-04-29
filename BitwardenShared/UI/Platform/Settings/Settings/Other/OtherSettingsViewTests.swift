@@ -6,8 +6,6 @@ import XCTest
 class OtherSettingsViewTests: BitwardenTestCase {
     // MARK: Properties
 
-    // MARK: Properties
-
     var processor: MockProcessor<OtherSettingsState, OtherSettingsAction, OtherSettingsEffect>!
     var subject: OtherSettingsView!
 

@@ -5,6 +5,9 @@ import Foundation
 /// A protocol for a `SettingsRepository` which manages access to the data needed by the UI layer.
 ///
 protocol SettingsRepository: AnyObject {
+    /// Get or set whether Universal Clipboard is allowed.
+    var allowUniversalClipboard: Bool { get set }
+
     /// Get or set the clear clipboard raw value.
     var clearClipboardValue: ClearClipboardValue { get set }
 
@@ -153,6 +156,11 @@ extension DefaultSettingsRepository: SettingsRepository {
     var clearClipboardValue: ClearClipboardValue {
         get { pasteboardService.clearClipboardValue }
         set { pasteboardService.updateClearClipboardValue(newValue) }
+    }
+
+    var allowUniversalClipboard: Bool {
+        get { pasteboardService.allowUniversalClipboard }
+        set { pasteboardService.updateAllowUniversalClipboard(newValue) }
     }
 
     func addFolder(name: String) async throws -> FolderView {
