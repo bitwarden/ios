@@ -29,32 +29,12 @@ public struct ServerConfig: Equatable, Codable, Sendable {
         environment = responseModel.environment.map(EnvironmentServerConfig.init)
         self.date = date
         featureStates = responseModel.featureStates ?? [:]
-//        let features: [(FeatureFlag, AnyCodable)]
-//        features = responseModel.featureStates?.compactMap { key, value in
-//            guard let flag = FeatureFlag(rawValue: key) else { return nil }
-//            return (flag, value)
-//        } ?? []
-//        featureStates = Dictionary(uniqueKeysWithValues: features)
-
         gitHash = responseModel.gitHash
         server = responseModel.server.map(ThirdPartyServerConfig.init)
         version = responseModel.version
     }
 
     // MARK: Methods
-
-    /// Whether the server supports cipher key encryption.
-    ///
-    /// - Returns: `true` if it's supported, `false` otherwise.
-    ///
-//    func supportsCipherKeyEncryption() -> Bool {
-//        guard let minVersion = ServerVersion(Constants.cipherKeyEncryptionMinServerVersion),
-//              let serverVersion = ServerVersion(version),
-//              minVersion <= serverVersion else {
-//            return false
-//        }
-//        return true
-//    }
 
     /// Checks if the server is an official Bitwarden server.
     ///
