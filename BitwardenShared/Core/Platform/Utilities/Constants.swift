@@ -11,9 +11,6 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
-    /// The debug toast message for when the user is eligible for an app review prompt.
-    static let appReviewPromptEligibleDebugMessage = "User is eligible for app review prompt."
-
     /// The minimum server version required to have cipher key encryption on.
     static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
 
