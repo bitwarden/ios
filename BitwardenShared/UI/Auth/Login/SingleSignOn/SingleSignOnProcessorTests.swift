@@ -365,6 +365,42 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
+    /// `singleSignOnCompleted(code:)` show confirm key connector dialog if user has no private key and uses Key Connector.
+    @MainActor
+    func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noPrivateKey() async throws {
+        // Set up the mock data.
+        authService.loginWithSingleSignOnResult = .success(.keyConnector(
+            keyConnectorURL: URL(string: "https://example.com")!
+        ))
+        subject.state.identifierText = "BestOrganization"
+        authRepository.unlockVaultWithKeyConnectorKeyResult = .failure(StateServiceError.noEncryptedPrivateKey)
+
+        // Receive the completed code.
+        subject.singleSignOnCompleted(code: "super_cool_secret_code")
+        try await Task.sleep(nanoseconds: 100_000_000) // 0.1s
+        waitFor(!coordinator.alertShown.isEmpty)
+        authRepository.unlockVaultWithKeyConnectorKeyResult = .success(())
+
+        // Verify the results.
+        XCTAssertTrue(authRepository.unlockVaultWithKeyConnectorKeyCalled)
+        XCTAssertEqual(authService.loginWithSingleSignOnCode, "super_cool_secret_code")
+        XCTAssertEqual(stateService.rememberedOrgIdentifier, "BestOrganization")
+        XCTAssertFalse(coordinator.isLoadingOverlayShowing)
+        let alert = coordinator.alertShown.last
+        XCTAssertEqual(alert,
+                       Alert.keyConnectorConfirmation(keyConnectorUrl: URL(string: "https://example.com")!) {})
+
+        try await alert?.tapAction(title: Localizations.yes)
+
+        waitFor(!coordinator.routes.isEmpty)
+        XCTAssertTrue(authRepository.convertNewUserToKeyConnectorKeyCalled)
+        XCTAssertEqual(authRepository.convertNewUserToKeyConnectorOrgIdentifier, "BestOrganization")
+        XCTAssertEqual(authRepository.convertNewUserToKeyConnectorKeyConnectorURL, URL(string: "https://example.com")!)
+
+        XCTAssertEqual(coordinator.events.last, .didCompleteAuth)
+        XCTAssertEqual(coordinator.routes, [.dismiss])
+    }
+
     /// `singleSignOnCompleted(code:)` navigates to the complete route if the user uses TDE.
     @MainActor
     func test_singleSignOnCompleted_vaultUnlockedTDE() {

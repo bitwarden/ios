@@ -87,7 +87,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
 
     var convertNewUserToKeyConnectorKeyCalled = false
     var convertNewUserToKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
-    var convertNewUserToKeyConnectorOrgIdentifier: String?
+    var convertNewUserToKeyConnectorOrgIdentifier: String? // swiftlint:disable:this identifier_name
     var convertNewUserToKeyConnectorKeyResult: Result<Void, Error> = .success(())
     var unlockVaultWithNeverlockKeyCalled = false
     var unlockVaultWithNeverlockResult: Result<Void, Error> = .success(())
@@ -147,10 +147,10 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     }
 
     func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws {
-        var convertNewUserToKeyConnectorKeyCalled = false
-        var convertNewUserToKeyConnectorKeyConnectorURL: URL? // swiftlint:disable:this identifier_name
-        var convertNewUserToKeyConnectorOrgIdentifier: String?
-        var convertNewUserToKeyConnectorKeyResult: Result<Void, Error> = .success(())
+        convertNewUserToKeyConnectorKeyCalled = true
+        convertNewUserToKeyConnectorKeyConnectorURL = keyConnectorURL
+        convertNewUserToKeyConnectorOrgIdentifier = orgIdentifier
+        try convertNewUserToKeyConnectorKeyResult.get()
     }
 
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
