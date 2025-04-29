@@ -24,9 +24,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
     /// This flag introduces a new flow for account creation
     case emailVerification = "email-verification"
 
-    /// Flag to enable/disable the debug app review prompt.
-    case enableDebugAppReviewPrompt = "enable-debug-app-review-prompt"
-
     /// Flag to enable/disable the ability to sync TOTP codes with the Authenticator app.
     case enableAuthenticatorSync = "enable-pm-bwa-sync"
 
@@ -115,7 +112,6 @@ enum FeatureFlag: String, CaseIterable, Codable {
     var isRemotelyConfigured: Bool {
         switch self {
         case .enableCipherKeyEncryption,
-             .enableDebugAppReviewPrompt,
              .flightRecorder,
              .ignore2FANoticeEnvironmentCheck,
              .mobileErrorReporting,
