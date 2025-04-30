@@ -132,6 +132,7 @@ struct FlightRecorderLogsView: View {
                     FlightRecorderLogMetadata(
                         duration: .eightHours,
                         endDate: Date(year: 2025, month: 4, day: 1, hour: 8),
+                        expirationDate: Date(year: 2025, month: 5, day: 1, hour: 8),
                         fileSize: "2 KB",
                         id: "1",
                         isActiveLog: true,
@@ -141,6 +142,7 @@ struct FlightRecorderLogsView: View {
                     FlightRecorderLogMetadata(
                         duration: .oneWeek,
                         endDate: Date(year: 2025, month: 3, day: 7),
+                        expirationDate: Date(year: 2025, month: 4, day: 6),
                         fileSize: "12 KB",
                         id: "2",
                         isActiveLog: false,
@@ -150,6 +152,7 @@ struct FlightRecorderLogsView: View {
                     FlightRecorderLogMetadata(
                         duration: .oneHour,
                         endDate: Date(year: 2025, month: 3, day: 3, hour: 13),
+                        expirationDate: Date(year: 2025, month: 4, day: 2, hour: 13),
                         fileSize: "1.5 MB",
                         id: "3",
                         isActiveLog: false,
@@ -159,6 +162,7 @@ struct FlightRecorderLogsView: View {
                     FlightRecorderLogMetadata(
                         duration: .twentyFourHours,
                         endDate: Date(year: 2025, month: 3, day: 2),
+                        expirationDate: Date(year: 2025, month: 4, day: 1),
                         fileSize: "50 KB",
                         id: "4",
                         isActiveLog: false,

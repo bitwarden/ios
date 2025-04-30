@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - FlightRecorderData
@@ -26,6 +27,13 @@ struct FlightRecorderData: Codable, Equatable {
     var allLogs: [LogMetadata] {
         ([activeLog] + inactiveLogs).compactMap { $0 }
     }
+
+    /// The upcoming date in which either the active log needs to end logging or an inactive log
+    /// expires and needs to be removed.
+    var nextLogLifecycleDate: Date? {
+        let dates = [activeLog?.endDate].compactMap { $0 } + inactiveLogs.map(\.expirationDate)
+        return dates.min()
+    }
 }
 
 extension FlightRecorderData {
@@ -47,6 +55,15 @@ extension FlightRecorderData {
         let startDate: Date
 
         // MARK: Computed Properties
+
+        /// The date when the flight recorder log will expire and be deleted.
+        var expirationDate: Date {
+            Calendar.current.date(
+                byAdding: .day,
+                value: Constants.flightRecorderLogExpirationDays,
+                to: endDate
+            ) ?? endDate
+        }
 
         var id: String {
             fileName

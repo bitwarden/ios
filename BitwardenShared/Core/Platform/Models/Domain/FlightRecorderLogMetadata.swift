@@ -14,6 +14,9 @@ struct FlightRecorderLogMetadata: Equatable, Identifiable {
     /// The date when the flight recorder for this log stops/stopped logging.
     let endDate: Date
 
+    /// The date when the flight recorder log will expire and be deleted.
+    let expirationDate: Date
+
     /// The size of the log file.
     let fileSize: String
 
@@ -30,15 +33,6 @@ struct FlightRecorderLogMetadata: Equatable, Identifiable {
     let url: URL
 
     // MARK: Computed Properties
-
-    /// The date when the flight recorder log will expire and be deleted.
-    var expirationDate: Date {
-        Calendar.current.date(
-            byAdding: .day,
-            value: Constants.flightRecorderLogExpirationDays,
-            to: endDate
-        ) ?? endDate
-    }
 
     /// The formatted date range for when the flight recorder was enabled for the log.
     var formattedLoggingDateRange: String {

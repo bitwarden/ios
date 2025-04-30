@@ -40,6 +40,44 @@ class FlightRecorderDataTests: BitwardenTestCase {
         XCTAssertEqual(subject.allLogs, logs)
     }
 
+    /// `nextLogLifecycleDate` returns the date in which the active log ends logging if that's before
+    /// any of the inactive logs expire.
+    func test_nextLogLifecycleDate_activeLog() {
+        let subject = FlightRecorderData(
+            activeLog: FlightRecorderData.LogMetadata(
+                duration: .eightHours,
+                startDate: Date(year: 2025, month: 4, day: 1)
+            ),
+            inactiveLogs: [
+                FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 3, day: 20)),
+                FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 3, day: 25)),
+            ]
+        )
+        XCTAssertEqual(subject.nextLogLifecycleDate, Date(year: 2025, month: 4, day: 1, hour: 8))
+    }
+
+    /// `nextLogLifecycleDate` returns the date in which the first inactive log expires if that's
+    /// before the active log needs to end logging.
+    func test_nextLogLifecycleDate_inactiveLog() {
+        let subject = FlightRecorderData(
+            activeLog: FlightRecorderData.LogMetadata(
+                duration: .eightHours,
+                startDate: Date(year: 2025, month: 4, day: 1)
+            ),
+            inactiveLogs: [
+                FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 1, day: 2)),
+                FlightRecorderData.LogMetadata(duration: .eightHours, startDate: Date(year: 2025, month: 3, day: 4)),
+            ]
+        )
+        XCTAssertEqual(subject.nextLogLifecycleDate, Date(year: 2025, month: 2, day: 1, hour: 8))
+    }
+
+    /// `nextLogLifecycleDate` returns an empty array if there's no logs.
+    func test_nextLogLifecycleDate_noLogs() {
+        let subject = FlightRecorderData()
+        XCTAssertNil(subject.nextLogLifecycleDate)
+    }
+
     /// `activeLog` sets the active log.
     func test_setActiveLog() {
         var subject = FlightRecorderData()
@@ -62,6 +100,24 @@ class FlightRecorderDataTests: BitwardenTestCase {
     }
 
     // MARK: FlightRecorderData.LogMetadata Tests
+
+    /// `expirationDate` returns the date when the log will expire and be deleted.
+    func test_logMetadata_expirationData() {
+        XCTAssertEqual(
+            FlightRecorderData.LogMetadata(
+                duration: .oneHour,
+                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+            ).expirationDate,
+            Date(year: 2025, month: 5, day: 3, hour: 11, minute: 30)
+        )
+        XCTAssertEqual(
+            FlightRecorderData.LogMetadata(
+                duration: .eightHours,
+                startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+            ).expirationDate,
+            Date(year: 2025, month: 5, day: 3, hour: 18, minute: 30)
+        )
+    }
 
     /// `id` returns the log's file name as a unique identifier.
     func test_logMetadata_id() {
