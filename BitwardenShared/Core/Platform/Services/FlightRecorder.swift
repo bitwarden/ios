@@ -424,3 +424,13 @@ extension DefaultFlightRecorder: FlightRecorder {
         }
     }
 }
+
+// MARK: DefaultFlightRecorder + BitwardenLogger
+
+extension DefaultFlightRecorder: BitwardenLogger {
+    nonisolated func log(_ message: String, file: String, line: UInt) {
+        Task {
+            await log(message, file: file, line: line)
+        }
+    }
+}

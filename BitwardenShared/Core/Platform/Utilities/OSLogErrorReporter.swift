@@ -6,6 +6,9 @@ import OSLog
 public final class OSLogErrorReporter: ErrorReporter {
     // MARK: Properties
 
+    /// A list of additional loggers that errors will be logged to.
+    private var additionalLoggers: [any BitwardenLogger] = []
+
     /// The logger instance to log local messages.
     let logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "ErrorReporter")
 
@@ -21,8 +24,17 @@ public final class OSLogErrorReporter: ErrorReporter {
 
     // MARK: ErrorReporter
 
+    public func add(logger: any BitwardenLogger) {
+        additionalLoggers.append(logger)
+    }
+
     public func log(error: Error) {
         logger.error("Error: \(error)")
+
+        let callStack = Thread.callStackSymbols.joined(separator: "\n")
+        for logger in additionalLoggers {
+            logger.log("Error: \(error as NSError)\n\(callStack)")
+        }
 
         // Don't crash for networking related errors.
         guard !error.isNetworkingError else { return }
