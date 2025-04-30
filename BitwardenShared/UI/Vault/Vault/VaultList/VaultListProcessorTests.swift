@@ -111,24 +111,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     @MainActor
     func test_perform_checkAppReviewEligibility_eligible() async {
         reviewPromptService.isEligibleForReviewPromptResult = true
-        configService.featureFlagsBool = [
-            FeatureFlag.enableDebugAppReviewPrompt: true,
-        ]
-
         await subject.perform(.checkAppReviewEligibility)
         await subject.reviewPromptTask?.value
         XCTAssertTrue(subject.state.isEligibleForAppReview)
-        XCTAssertEqual(subject.state.toast?.title, Constants.appReviewPromptEligibleDebugMessage)
     }
 
     /// `perform(_:)` with `.checkAppReviewEligibility` does not schedule a review prompt if the user is not eligible.
     @MainActor
     func test_perform_checkAppReviewEligibility_notEligible() async {
         reviewPromptService.isEligibleForReviewPromptResult = false
-        configService.featureFlagsBool = [
-            FeatureFlag.enableDebugAppReviewPrompt: true,
-        ]
-
         await subject.perform(.checkAppReviewEligibility)
         await subject.reviewPromptTask?.value
         XCTAssertFalse(subject.state.isEligibleForAppReview)
