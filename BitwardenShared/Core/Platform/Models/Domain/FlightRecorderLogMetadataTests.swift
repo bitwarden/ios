@@ -7,73 +7,80 @@ class FlightRecorderLogMetadataTests: BitwardenTestCase {
 
     let logOneHour = FlightRecorderLogMetadata.fixture(
         duration: .oneHour,
+        endDate: Date(year: 2025, month: 4, day: 3, hour: 11, minute: 30),
+        expirationDate: Date(year: 2025, month: 5, day: 3, hour: 11, minute: 30),
         startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
     )
 
     let logEightHours = FlightRecorderLogMetadata.fixture(
         duration: .eightHours,
+        endDate: Date(year: 2025, month: 4, day: 3, hour: 18, minute: 30),
+        expirationDate: Date(year: 2025, month: 5, day: 3, hour: 18, minute: 30),
         startDate: Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
     )
 
     // MARK: Tests
 
-    /// `endDate` returns the date when logging will or did end for the log.
-    func test_endData() {
-        XCTAssertEqual(logOneHour.endDate, Date(year: 2025, month: 4, day: 3, hour: 11, minute: 30))
-        XCTAssertEqual(logEightHours.endDate, Date(year: 2025, month: 4, day: 3, hour: 18, minute: 30))
-    }
-
     /// `formattedLoggingDateRange` returns the formatted date range for when the flight recorder was enabled.
     func test_formattedLoggingDateRange() {
         XCTAssertEqual(
             logOneHour.formattedLoggingDateRange,
-            "2025-04-03T10:30:00 - 2025-04-03T11:30:00"
+            "2025-04-03T10:30:00 – 2025-04-03T11:30:00"
         )
         XCTAssertEqual(
             logEightHours.formattedLoggingDateRange,
-            "2025-04-03T10:30:00 - 2025-04-03T18:30:00"
+            "2025-04-03T10:30:00 – 2025-04-03T18:30:00"
         )
     }
 
+    /// `formattedExpiration(currentDate:)` returns `nil` if the log is still active.
+    func test_formattedExpiration_activeLog() {
+        let currentDate = Date(year: 2025, month: 4, day: 3, hour: 10, minute: 30)
+        let log = FlightRecorderLogMetadata.fixture(
+            duration: .oneHour,
+            isActiveLog: true,
+            startDate: currentDate
+        )
+        XCTAssertNil(log.formattedExpiration(currentDate: currentDate))
+    }
+
     /// `formattedExpiration(currentDate:)` returns the formatted date for when the log expires
-    /// when the log expires for a while from now.
-    func test_formattedExpiration_long() {
-        let currentDate = Date(year: 2025, month: 4, day: 3, hour: 8)
+    /// more than two days from today.
+    func test_formattedExpiration_greaterThanTwoDays() {
+        let currentDate = Date(year: 2025, month: 4, day: 30, hour: 8)
         XCTAssertEqual(
             logOneHour.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresInXDays(30)
+            Localizations.expiresOnXDate("5/3/25")
         )
         XCTAssertEqual(
             logEightHours.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresInXDays(30)
+            Localizations.expiresOnXDate("5/3/25")
         )
     }
 
-    /// `formattedExpiration(currentDate:)` returns the formatted date for when the log expires
-    /// when the log expires within a few days.
-    func test_formattedExpiration_short() {
-        let currentDate = Date(year: 2025, month: 5, day: 1, hour: 8)
-        XCTAssertEqual(
-            logOneHour.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresInXDays(2)
-        )
-        XCTAssertEqual(
-            logEightHours.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresInXDays(2)
-        )
-    }
-
-    /// `formattedExpiration(currentDate:)` returns the formatted date for when the log expires
-    /// when the log expires today.
+    /// `formattedExpiration(currentDate:)` returns the formatted date for when the log expires today.
     func test_formattedExpiration_today() {
         let currentDate = Date(year: 2025, month: 5, day: 3, hour: 8)
         XCTAssertEqual(
             logOneHour.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresToday
+            Localizations.expiresAtXTime("11:30 AM")
         )
         XCTAssertEqual(
             logEightHours.formattedExpiration(currentDate: currentDate),
-            Localizations.expiresToday
+            Localizations.expiresAtXTime("6:30 PM")
+        )
+    }
+
+    /// `formattedExpiration(currentDate:)` returns the formatted date for when the log expires tomorrow.
+    func test_formattedExpiration_tomorrow() {
+        let currentDate = Date(year: 2025, month: 5, day: 2, hour: 8)
+        XCTAssertEqual(
+            logOneHour.formattedExpiration(currentDate: currentDate),
+            Localizations.expiresTomorrow
+        )
+        XCTAssertEqual(
+            logEightHours.formattedExpiration(currentDate: currentDate),
+            Localizations.expiresTomorrow
         )
     }
 

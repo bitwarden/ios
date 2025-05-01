@@ -194,7 +194,7 @@ class DefaultConfigService: ConfigService {
             return flag.initialValue?.boolValue ?? defaultValue
         }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
-        return configuration?.featureStates[flag]?.boolValue
+        return configuration?.featureStates[flag.rawValue]?.boolValue
             ?? flag.initialValue?.boolValue
             ?? defaultValue
     }
@@ -209,7 +209,7 @@ class DefaultConfigService: ConfigService {
             return flag.initialValue?.intValue ?? defaultValue
         }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
-        return configuration?.featureStates[flag]?.intValue
+        return configuration?.featureStates[flag.rawValue]?.intValue
             ?? flag.initialValue?.intValue
             ?? defaultValue
     }
@@ -224,7 +224,7 @@ class DefaultConfigService: ConfigService {
             return flag.initialValue?.stringValue ?? defaultValue
         }
         let configuration = await getConfig(forceRefresh: forceRefresh, isPreAuth: isPreAuth)
-        return configuration?.featureStates[flag]?.stringValue
+        return configuration?.featureStates[flag.rawValue]?.stringValue
             ?? flag.initialValue?.stringValue
             ?? defaultValue
     }
@@ -236,7 +236,7 @@ class DefaultConfigService: ConfigService {
 
         let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
             let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
-            let remoteFlagValue = remoteFeatureFlags[feature]?.boolValue
+            let remoteFlagValue = remoteFeatureFlags[feature.rawValue]?.boolValue
                 ?? feature.initialValue?.boolValue
                 ?? false
 

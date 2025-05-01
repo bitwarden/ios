@@ -1,44 +1,47 @@
-import BitwardenKit
 import Foundation
 
 // MARK: - ServerConfig
 
 /// Model that represents the configuration provided by the server at a particular time.
 ///
-struct ServerConfig: Equatable, Codable, Sendable {
+public struct ServerConfig: Equatable, Codable, Sendable {
     // MARK: Properties
 
     /// The environment URLs of the server.
-    let environment: EnvironmentServerConfig?
+    public let environment: EnvironmentServerConfig?
 
     /// The particular time of the server configuration.
-    let date: Date
+    public let date: Date
 
     /// Feature flags to configure the client.
-    let featureStates: [FeatureFlag: AnyCodable]
+    public let featureStates: [String: AnyCodable]
 
     /// The git hash of the server.
-    let gitHash: String?
+    public let gitHash: String?
 
     /// Third party server information.
-    let server: ThirdPartyServerConfig?
+    public let server: ThirdPartyServerConfig?
 
     /// The version of the server.
-    let version: String
+    public let version: String
 
-    init(date: Date, responseModel: ConfigResponseModel) {
+    public init(date: Date, responseModel: ConfigResponseModel) {
         environment = responseModel.environment.map(EnvironmentServerConfig.init)
         self.date = date
-        let features: [(FeatureFlag, AnyCodable)]
-        features = responseModel.featureStates?.compactMap { key, value in
-            guard let flag = FeatureFlag(rawValue: key) else { return nil }
-            return (flag, value)
-        } ?? []
-        featureStates = Dictionary(uniqueKeysWithValues: features)
-
+        featureStates = responseModel.featureStates ?? [:]
         gitHash = responseModel.gitHash
         server = responseModel.server.map(ThirdPartyServerConfig.init)
         version = responseModel.version
+    }
+
+    // MARK: Methods
+
+    /// Checks if the server is an official Bitwarden server.
+    ///
+    /// - Returns: `true` if the server is `nil`, indicating an official Bitwarden server, otherwise `false`.
+    ///
+    public func isOfficialBitwardenServer() -> Bool {
+        server == nil
     }
 }
 
@@ -46,14 +49,14 @@ struct ServerConfig: Equatable, Codable, Sendable {
 
 /// Model for third-party configuration of the server.
 ///
-struct ThirdPartyServerConfig: Equatable, Codable {
+public struct ThirdPartyServerConfig: Equatable, Codable, Sendable {
     /// The name of the third party configuration.
-    let name: String
+    public let name: String
 
     /// The URL of the third party configuration.
-    let url: String
+    public let url: String
 
-    init(responseModel: ThirdPartyConfigResponseModel) {
+    public init(responseModel: ThirdPartyConfigResponseModel) {
         name = responseModel.name
         url = responseModel.url
     }
@@ -62,26 +65,26 @@ struct ThirdPartyServerConfig: Equatable, Codable {
 // MARK: - EnvironmentServerConfig
 
 /// Model for the environment URLs in a server configuration.
-struct EnvironmentServerConfig: Equatable, Codable {
+public struct EnvironmentServerConfig: Equatable, Codable, Sendable {
     /// The API URL.
-    let api: String?
+    public let api: String?
 
     /// The Cloud Region (e.g. "US")
-    let cloudRegion: String?
+    public let cloudRegion: String?
 
     /// The Identity URL.
-    let identity: String?
+    public let identity: String?
 
     /// The Notifications URL.
-    let notifications: String?
+    public let notifications: String?
 
     /// The SSO URL.
-    let sso: String?
+    public let sso: String?
 
     /// The Vault URL.
-    let vault: String?
+    public let vault: String?
 
-    init(responseModel: EnvironmentServerConfigResponseModel) {
+    public init(responseModel: EnvironmentServerConfigResponseModel) {
         api = responseModel.api
         cloudRegion = responseModel.cloudRegion
         identity = responseModel.identity

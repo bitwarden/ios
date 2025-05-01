@@ -16,7 +16,7 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
         super.setUp()
 
         processor = MockProcessor(state: FlightRecorderLogsState())
-        timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 4, day: 4)))
+        timeProvider = MockTimeProvider(.mockTime(Date(year: 2025, month: 4, day: 1)))
         let store = Store(processor: processor)
 
         subject = FlightRecorderLogsView(store: store, timeProvider: timeProvider)
@@ -40,6 +40,42 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
     }
 
+    /// Tapping the delete log menu button dispatches the `.delete(_:)` action.
+    @MainActor
+    func test_delete_tap() throws {
+        let log = FlightRecorderLogMetadata.fixture()
+        processor.state.logs = [log]
+        let button = try subject.inspect().find(button: Localizations.delete)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .delete(log))
+    }
+
+    /// Tapping the delete all toolbar button dispatches the `.deleteAll` action.
+    @MainActor
+    func test_deleteAll_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.deleteAll)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .deleteAll)
+    }
+
+    /// Tapping the share log menu button dispatches the `.share(_:)` action.
+    @MainActor
+    func test_share_tap() throws {
+        let log = FlightRecorderLogMetadata.fixture()
+        processor.state.logs = [log]
+        let button = try subject.inspect().find(button: Localizations.share)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .share(log))
+    }
+
+    /// Tapping the share all toolbar button dispatches the `.shareAll` action.
+    @MainActor
+    func test_shareAll_tap() throws {
+        let button = try subject.inspect().find(button: Localizations.shareAll)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .shareAll)
+    }
+
     // MARK: Snapshots
 
     /// The empty flight recorder logs view renders correctly.
@@ -56,22 +92,44 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
     func test_snapshot_flightRecorderLogs_populated() {
         processor.state.logs = [
             FlightRecorderLogMetadata(
-                duration: .oneHour,
-                fileSize: "12 KB",
-                id: "1",
-                startDate: Date(year: 2025, month: 3, day: 4, hour: 8)
-            ),
-            FlightRecorderLogMetadata(
                 duration: .eightHours,
-                fileSize: "200 KB",
-                id: "2",
-                startDate: Date(year: 2025, month: 3, day: 20)
+                endDate: Date(year: 2025, month: 4, day: 1, hour: 8),
+                expirationDate: Date(year: 2025, month: 5, day: 1, hour: 8),
+                fileSize: "2 KB",
+                id: "1",
+                isActiveLog: true,
+                startDate: Date(year: 2025, month: 4, day: 1),
+                url: URL(string: "https://example.com")!
             ),
             FlightRecorderLogMetadata(
                 duration: .oneWeek,
-                fileSize: "347 KB",
+                endDate: Date(year: 2025, month: 3, day: 7),
+                expirationDate: Date(year: 2025, month: 4, day: 6),
+                fileSize: "12 KB",
+                id: "2",
+                isActiveLog: false,
+                startDate: Date(year: 2025, month: 3, day: 7),
+                url: URL(string: "https://example.com")!
+            ),
+            FlightRecorderLogMetadata(
+                duration: .oneHour,
+                endDate: Date(year: 2025, month: 3, day: 3, hour: 13),
+                expirationDate: Date(year: 2025, month: 4, day: 2, hour: 13),
+                fileSize: "1.5 MB",
                 id: "3",
-                startDate: Date(year: 2025, month: 4, day: 1, hour: 20)
+                isActiveLog: false,
+                startDate: Date(year: 2025, month: 3, day: 3, hour: 12),
+                url: URL(string: "https://example.com")!
+            ),
+            FlightRecorderLogMetadata(
+                duration: .twentyFourHours,
+                endDate: Date(year: 2025, month: 3, day: 2),
+                expirationDate: Date(year: 2025, month: 4, day: 1),
+                fileSize: "50 KB",
+                id: "4",
+                isActiveLog: false,
+                startDate: Date(year: 2025, month: 3, day: 1),
+                url: URL(string: "https://example.com")!
             ),
         ]
         assertSnapshots(
