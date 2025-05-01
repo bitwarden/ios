@@ -31,7 +31,7 @@ protocol OrganizationAPIService {
     /// Performs the API request to leave an organization.
     ///
     /// - Parameters:
-    ///   - organizationId: The organization for the user to enroll in password reset.
+    ///   - organizationId: The organization identifier for the organization the user wants to leave.
     ///
     func leaveOrganization(
         organizationId: String

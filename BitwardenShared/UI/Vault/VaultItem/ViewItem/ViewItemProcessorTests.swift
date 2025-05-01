@@ -500,7 +500,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         waitFor(subject.state.loadingState != .loading(nil))
         task.cancel()
 
-        let expectedState = CipherItemState(
+        let _ = CipherItemState(
             existing: cipherItem,
             hasPremium: false
         )!

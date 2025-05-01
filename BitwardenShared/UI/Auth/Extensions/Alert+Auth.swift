@@ -212,11 +212,10 @@ extension Alert {
         )
     }
 
-    /// An alert that is displayed to confirm the user wants to log out of the account.
+    /// An alert that is displayed to confirm the key connector domain.
     ///
-    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm logout.
-    /// - Returns: An alert that is displayed to confirm the user wants to log out of the account.
-    ///
+    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm the domain.
+    /// - Returns: An alert that is displayed to confirm the key connector domain.
     static func keyConnectorConfirmation(
         keyConnectorUrl: URL,
         action: @escaping () async -> Void

@@ -13,38 +13,26 @@ struct RemoveMasterPasswordView: View {
     // MARK: View
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(alignment: .leading, spacing: 24) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Localizations.removeMasterPasswordConfirmDomain)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.horizontal, 12)
                     .styleGuide(.body)
-
                 Text(Localizations.keyConnectorOrganization)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.horizontal, 12)
                     .styleGuide(.body)
-
                 Text(store.state.organizationName)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.horizontal, 12)
                     .styleGuide(.body)
-
                 Text(Localizations.keyConnectorDomain)
                     .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.horizontal, 12)
                     .styleGuide(.body)
-
                 Text(store.state.keyConnectorUrl)
                     .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    .multilineTextAlignment(.leading)
-                    .padding(.horizontal, 12)
                     .styleGuide(.body)
             }
+            .multilineTextAlignment(.leading)
+            .padding(.horizontal, 12)
 
             BitwardenTextField(
                 title: Localizations.masterPassword,

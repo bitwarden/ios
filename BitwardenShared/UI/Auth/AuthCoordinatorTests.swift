@@ -462,9 +462,11 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `navigate(to:)` with `.removeMasterPassword` pushes the remove master password view onto the stack navigator.
     @MainActor
     func test_navigate_removeMasterPassword() throws {
-        subject.navigate(to: .removeMasterPassword(organizationName: "Example Org",
-                                                   organizationId: "ORG_ID",
-                                                   keyConnectorUrl: "https://example.com"))
+        subject.navigate(to: .removeMasterPassword(
+            organizationName: "Example Org",
+            organizationId: "ORG_ID",
+            keyConnectorUrl: "https://example.com")
+        )
 
         XCTAssertTrue(stackNavigator.actions.last?.view is RemoveMasterPasswordView)
         XCTAssertEqual(stackNavigator.actions.last?.type, .pushed)

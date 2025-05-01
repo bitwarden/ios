@@ -81,9 +81,10 @@ protocol SyncServiceDelegate: AnyObject {
 
     /// The user needs to remove their master password so they can be migrated to use Key Connector.
     ///
-    /// - Parameter organizationName: The organization's name that requires Key Connector.
-    /// - Parameter organizationId: The organization's id that requires Key Connector.
-    /// - Parameter keyConnectorUrl: The organization's Key Connector domain.
+    /// - Parameters:
+    ///   - organizationName: The organization's name that requires Key Connector.
+    ///   - organizationId: The organization's id that requires Key Connector.
+    ///   - keyConnectorUrl: The organization's Key Connector domain.
     ///
     @MainActor
     func removeMasterPassword(organizationName: String, organizationId: String, keyConnectorUrl: String)
@@ -300,9 +301,12 @@ extension DefaultSyncService {
 
         if try await keyConnectorService.userNeedsMigration(),
            let organization = try await keyConnectorService.getManagingOrganization() {
-            await delegate?.removeMasterPassword(organizationName: organization.name,
-                                                 organizationId: organization.id,
-                                                 keyConnectorUrl: organization.keyConnectorUrl ?? "")
+            guard let keyConnectorUrl = organization.keyConnectorUrl else { return }
+            await delegate?.removeMasterPassword(
+                organizationName: organization.name,
+                organizationId: organization.id,
+                keyConnectorUrl: keyConnectorUrl
+            )
         }
 
         await delegate?.onFetchSyncSucceeded(userId: userId)

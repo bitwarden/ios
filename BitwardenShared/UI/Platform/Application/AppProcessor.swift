@@ -587,9 +587,11 @@ extension AppProcessor: SyncServiceDelegate {
         guard appExtensionDelegate?.isInAppExtension != true else { return }
 
         coordinator?.hideLoadingOverlay()
-        coordinator?.navigate(to: .auth(.removeMasterPassword(organizationName: organizationName,
-                                                              organizationId: organizationId,
-                                                              keyConnectorUrl: keyConnectorUrl)))
+        coordinator?.navigate(to: .auth(.removeMasterPassword(
+            organizationName: organizationName,
+            organizationId: organizationId,
+            keyConnectorUrl: keyConnectorUrl
+        )))
     }
 
     func securityStampChanged(userId: String) async {

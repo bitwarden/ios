@@ -1,9 +1,8 @@
 import Networking
 
-// MARK: - OrganizationAutoEnrollStatusRequest
+// MARK: - OrganizationLeaveRequest
 
-/// A networking request to get the auto-enroll status for an organization.
-///
+/// A networking request to leave an organization.
 struct OrganizationLeaveRequest: Request {
     typealias Response = EmptyResponse
 
