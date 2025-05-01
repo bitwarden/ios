@@ -96,6 +96,9 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
             if !newValue {
                 updateRememberedEmail()
             }
+        case .showPreLoginSettings:
+            // TODO: BIT-20367 Show Pre-Login Settings
+            break
         case let .toastShown(toast):
             state.toast = toast
         }
@@ -120,6 +123,10 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
         state.emailVerificationFeatureFlag = await services.configService.getFeatureFlag(
             FeatureFlag.emailVerification,
             defaultValue: false,
+            isPreAuth: true
+        )
+        state.isPreLoginSettingsEnabled = await services.configService.getFeatureFlag(
+            .preLoginSettings,
             isPreAuth: true
         )
     }
