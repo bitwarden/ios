@@ -475,6 +475,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         HStack(alignment: .top) {
             Image(decorative: icon)
                 .resizable()
+                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                 .scaledToFit()
                 .imageStyle(.accessoryIcon16(scaleWithFont: true))
                 .padding(.top, paddingTopBelongingViewImage)
