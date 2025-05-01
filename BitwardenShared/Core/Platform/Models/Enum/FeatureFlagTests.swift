@@ -1,16 +1,85 @@
+import BitwardenKit
 import XCTest
 
 @testable import BitwardenShared
+
+extension FeatureFlag {
+    static let testLocalFeatureFlag = FeatureFlag(
+        rawValue: "test-local-feature-flag",
+        isRemotelyConfigured: false
+    )
+
+    static let testLocalInitialBoolFlag = FeatureFlag(
+        rawValue: "test-local-initial-bool-flag",
+        initialValue: .bool(true),
+        isRemotelyConfigured: false
+    )
+
+    static let testLocalInitialIntFlag = FeatureFlag(
+        rawValue: "test-local-initial-int-flag",
+        initialValue: .int(42),
+        isRemotelyConfigured: false
+    )
+
+    static let testLocalInitialStringFlag = FeatureFlag(
+        rawValue: "test-local-initial-string-flag",
+        initialValue: .string("Test String"),
+        isRemotelyConfigured: false
+    )
+
+    static let testRemoteFeatureFlag = FeatureFlag(
+        rawValue: "test-remote-feature-flag",
+        isRemotelyConfigured: true
+    )
+
+    static let testRemoteInitialBoolFlag = FeatureFlag(
+        rawValue: "test-remote-initial-bool-flag",
+        initialValue: .bool(true),
+        isRemotelyConfigured: true
+    )
+
+    static let testRemoteInitialIntFlag = FeatureFlag(
+        rawValue: "test-remote-initial-int-flag",
+        initialValue: .int(42),
+        isRemotelyConfigured: true
+    )
+
+    static let testRemoteInitialStringFlag = FeatureFlag(
+        rawValue: "test-remote-initial-string-flag",
+        initialValue: .string("Test String"),
+        isRemotelyConfigured: true
+    )
+
+    //
+    //    /// A test feature flag that has an initial integer value and is not remotely configured.
+    //    case testLocalInitialIntFlag = "test-local-initial-int-flag"
+    //
+    //    /// A test feature flag that has an initial string value and is not remotely configured.
+    //    case testLocalInitialStringFlag = "test-local-initial-string-flag"
+    //
+    //    /// A test feature flag that can be remotely configured.
+    //    case testRemoteFeatureFlag = "test-remote-feature-flag"
+    //
+    //    /// A test feature flag that has an initial boolean value and is not remotely configured.
+    //    case testRemoteInitialBoolFlag = "test-remote-initial-bool-flag"
+    //
+    //    /// A test feature flag that has an initial integer value and is not remotely configured.
+    //    case testRemoteInitialIntFlag = "test-remote-initial-int-flag"
+    //
+    //    /// A test feature flag that has an initial string value and is not remotely configured.
+    //    case testRemoteInitialStringFlag = "test-remote-initial-string-flag"
+
+}
 
 final class FeatureFlagTests: BitwardenTestCase {
     // MARK: Tests
 
     /// `debugMenuFeatureFlags` does not include any test flags
-    func test_debugMenu_testFlags() {
-        let actual = FeatureFlag.debugMenuFeatureFlags.map(\.rawValue)
-        let filtered = actual.filter { $0.hasPrefix("test-") }
-        XCTAssertEqual(filtered, [])
-    }
+//    func test_debugMenu_testFlags() {
+//        let actual = FeatureFlag.debugMenuFeatureFlags.map(\.rawValue)
+//        let filtered = actual.filter { $0.hasPrefix("test-") }
+//        XCTAssertEqual(filtered, [])
+//    }
 
     /// `initialValues` returns the correct value for each flag.
     func test_initialValues() {

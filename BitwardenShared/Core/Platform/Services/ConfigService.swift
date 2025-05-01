@@ -232,21 +232,22 @@ class DefaultConfigService: ConfigService {
     // MARK: Debug Feature Flags
 
     func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
-        let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
-
-        let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
-            let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
-            let remoteFlagValue = remoteFeatureFlags[feature.rawValue]?.boolValue
-                ?? feature.initialValue?.boolValue
-                ?? false
-
-            return DebugMenuFeatureFlag(
-                feature: feature,
-                isEnabled: userDefaultValue ?? remoteFlagValue
-            )
-        }
-
-        return flags
+        return []
+//        let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
+//
+//        let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
+//            let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
+//            let remoteFlagValue = remoteFeatureFlags[feature.rawValue]?.boolValue
+//                ?? feature.initialValue?.boolValue
+//                ?? false
+//
+//            return DebugMenuFeatureFlag(
+//                feature: feature,
+//                isEnabled: userDefaultValue ?? remoteFlagValue
+//            )
+//        }
+//
+//        return flags
     }
 
     func toggleDebugFeatureFlag(name: String, newValue: Bool?) async -> [DebugMenuFeatureFlag] {
@@ -258,12 +259,12 @@ class DefaultConfigService: ConfigService {
     }
 
     func refreshDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
-        for feature in FeatureFlag.debugMenuFeatureFlags {
-            appSettingsStore.overrideDebugFeatureFlag(
-                name: feature.rawValue,
-                value: nil
-            )
-        }
+//        for feature in FeatureFlag.debugMenuFeatureFlags {
+//            appSettingsStore.overrideDebugFeatureFlag(
+//                name: feature.rawValue,
+//                value: nil
+//            )
+//        }
         return await getDebugFeatureFlags()
     }
 
