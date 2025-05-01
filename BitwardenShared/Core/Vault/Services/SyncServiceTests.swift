@@ -449,7 +449,8 @@ class SyncServiceTests: BitwardenTestCase {
     /// Connector.
     func test_fetchSync_removeMasterPassword() async throws {
         client.result = .httpSuccess(testData: .syncWithProfile)
-        keyConnectorService.getManagingOrganizationResult = .success(.fixture(name: "Example Org"))
+        keyConnectorService.getManagingOrganizationResult = .success(
+            .fixture(keyConnectorUrl: "htttp://example.com/", name: "Example Org"))
         keyConnectorService.userNeedsMigrationResult = .success(true)
         stateService.activeAccount = .fixture()
 
@@ -457,6 +458,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         XCTAssertTrue(syncServiceDelegate.removeMasterPasswordCalled)
         XCTAssertEqual(syncServiceDelegate.removeMasterPasswordOrganizationName, "Example Org")
+        XCTAssertEqual(syncServiceDelegate.removeMasterPasswordKeyConnectorUrl, "htttp://example.com/")
     }
 
     /// `fetchSync()` throws an error if checking if the user needs to be migrated fails.
