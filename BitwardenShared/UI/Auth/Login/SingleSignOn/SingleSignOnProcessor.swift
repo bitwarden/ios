@@ -168,6 +168,10 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         coordinator.navigate(to: route)
     }
 
+    /// Migrates a new user to KeyConnector and unlocks the vault with the KeyConnector
+    ///
+    /// - Parameter keyConnectorUrl: The organization's KeyConnector domain
+    ///
     private func migrateUserKeyConnector(keyConnectorUrl: URL) async {
         do {
             try await services.authRepository.convertNewUserToKeyConnector(

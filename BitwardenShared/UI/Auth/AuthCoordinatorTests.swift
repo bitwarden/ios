@@ -465,7 +465,8 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .removeMasterPassword(
             organizationName: "Example Org",
             organizationId: "ORG_ID",
-            keyConnectorUrl: "https://example.com")
+            keyConnectorUrl: "https://example.com"
+        )
         )
 
         XCTAssertTrue(stackNavigator.actions.last?.view is RemoveMasterPasswordView)

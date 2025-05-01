@@ -129,6 +129,20 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
     }
 
+    /// `leaveOrganizationConfirmation(orgName:action:)` constructs an `Alert` used to confirm that the user wants to
+    /// leave the organization.
+    func test_leaveOrganizationConfirmation() {
+        let orgName = "orgName"
+        let subject = Alert.leaveOrganizationConfirmation(orgName: orgName) {}
+
+        XCTAssertEqual(subject.title, Localizations.leaveOrganization)
+        XCTAssertEqual(subject.message, Localizations.leaveOrganizationName(orgName))
+        XCTAssertEqual(subject.preferredStyle, .alert)
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
+    }
+
     /// `logoutConfirmation(action:)` constructs an `Alert` used to confirm that the user wants to
     /// logout of the account.
     func test_logoutConfirmation() {
@@ -158,6 +172,18 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.title, Localizations.passwordSafe)
         XCTAssertEqual(subject.alertActions.count, 1)
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
+    }
+
+    /// `masterPasswordInvalid()` returns an alert notifying the user that their master password is invalid.
+    func test_keyConnectorConfirmation() {
+        let url = URL(string: "http://example.com")!
+        let subject = Alert.keyConnectorConfirmation(keyConnectorUrl: url) {}
+
+        XCTAssertEqual(subject.title, Localizations.confirmKeyConnectorDomain)
+        XCTAssertEqual(subject.message, Localizations.keyConnectorConfirmDomainWithAdmin(url))
+        XCTAssertEqual(subject.alertActions.count, 2)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.yes)
+        XCTAssertEqual(subject.alertActions[1].title, Localizations.cancel)
     }
 
     /// `masterPasswordInvalid()` returns an alert notifying the user that their master password is invalid.
