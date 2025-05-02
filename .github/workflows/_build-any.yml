@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       bw-env:
-        description: "Environment"
+        description: "BW Environment"
         type: string
       build-mode:
         description: "Build Mode"
@@ -37,7 +37,7 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: Build ${{ inputs.bw-env }}
     runs-on: macos-15
     env:
       MINT_PATH: .mint/lib
@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Log inputs to job summary
         run: |
-          echo "<details><summary>Build ${{ env._BW_ENV }} Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Job Inputs</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
@@ -74,8 +74,8 @@ jobs:
 
       - name: Install Homebrew Dependencies and load environment variables
         run: |
-          #brew update #TODO: add this back before merging to main
-          #brew bundle
+          brew update
+          brew bundle
           bundle exec fastlane load_dotenv_file --env $_BW_ENV
 
       - name: Log in to Azure
@@ -87,14 +87,11 @@ jobs:
       - name: Setup secrets
         if: env._BUILD_MODE == 'Device'
         run: |
-          set -euo pipefail #TODO: remove this before merging to main
-
           az_download() {
             local container_name=$1
             local az_filename=$2
             local local_filename=$3
 
-            echo ""
             az storage blob download --account-name bitwardenci --container-name $container_name --name $az_filename --file $local_filename --output none --only-show-errors --no-progress
           }
 
