@@ -292,7 +292,7 @@ platform :ios do |options|
       <plist version="1.0">
       <dict>
           <key>method</key>
-          <string>app-store</string>
+          <string>app-store-connect</string>
           <key>provisioningProfiles</key>
           <dict>
               <key>#{bundle_id}</key>
@@ -336,7 +336,7 @@ platform :ios do |options|
       <plist version="1.0">
       <dict>
           <key>method</key>
-          <string>app-store</string>
+          <string>app-store-connect</string>
           <key>provisioningProfiles</key>
           <dict>
               <key>#{bundle_id}</key>
