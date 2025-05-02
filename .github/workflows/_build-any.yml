@@ -90,7 +90,7 @@ jobs:
           set -euo pipefail #TODO: remove this before merging to main
 
           az_download() {
-            local container_name=${1:-mobile}
+            local container_name=$1
             local az_filename=$2
             local local_filename=$3
 
@@ -115,16 +115,16 @@ jobs:
           done
 
           echo "⌛️ Downloading Google-Services.plist..."
-          az_download $_AZ_CRASHLYTICS_FILE_NAME "Bitwarden/Application/Support/GoogleService-Info.plist"
+          az_download mobile $_AZ_CRASHLYTICS_FILE_NAME "Bitwarden/Application/Support/GoogleService-Info.plist"
 
           if [[ "$_APP" == "password_manager" ]]; then
             echo "⌛️ Downloading Google-Services.plist for watchOS..."
-            az_download $_AZ_CRASHLYTICS_FILE_NAME "BitwardenWatchApp/GoogleService-Info.plist"
+            az_download mobile $_AZ_CRASHLYTICS_FILE_NAME "BitwardenWatchApp/GoogleService-Info.plist"
             plutil -replace BUNDLE_ID -string '$BUNDLE_ID.watchkitapp' BitwardenWatchApp/GoogleService-Info.plist
           fi
 
           echo "⌛️ Downloading fastlane credentials..."
-          az_download appstoreconnect-fastlane.json $HOME/secrets/appstoreconnect-fastlane.json
+          az_download mobile appstoreconnect-fastlane.json $HOME/secrets/appstoreconnect-fastlane.json
 
           echo "⌛️ Downloading distribution certificate..."
           mkdir -p $HOME/certificates
