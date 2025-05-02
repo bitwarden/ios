@@ -128,7 +128,7 @@ public enum AuthRoute: Equatable {
     case preventAccountLock
 
     /// A route to the remove master password screen.
-    case removeMasterPassword(organizationName: String)
+    case removeMasterPassword(organizationName: String, organizationId: String, keyConnectorUrl: String)
 
     /// A route to the self-hosted settings screen.
     ///

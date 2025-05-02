@@ -153,6 +153,25 @@ extension Alert {
         )
     }
 
+    /// An alert that is displayed to confirm the user wants to leave the organization
+    ///
+    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm leave organization.
+    /// - Returns: An alert that is displayed to confirm the user wants to leave the organization.
+    ///
+    static func leaveOrganizationConfirmation(
+        orgName: String,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.leaveOrganization,
+            message: Localizations.leaveOrganizationName(orgName),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
     /// An alert that is displayed to confirm the user wants to log out of the account.
     ///
     /// - Parameter action: An action to perform when the user taps `Yes`, to confirm logout.
@@ -186,6 +205,24 @@ extension Alert {
             title: Localizations.logOut,
             message: Localizations.logoutConfirmation + "\n\n"
                 + [profile.email, profile.webVault].joined(separator: "\n"),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
+    /// An alert that is displayed to confirm the key connector domain.
+    ///
+    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm the domain.
+    /// - Returns: An alert that is displayed to confirm the key connector domain.
+    static func keyConnectorConfirmation(
+        keyConnectorUrl: URL,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.confirmKeyConnectorDomain,
+            message: Localizations.keyConnectorConfirmDomainWithAdmin(keyConnectorUrl),
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
