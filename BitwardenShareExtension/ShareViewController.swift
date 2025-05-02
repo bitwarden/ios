@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenShared
 import Social
 import UIKit
