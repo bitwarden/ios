@@ -115,10 +115,10 @@ platform :ios do |options|
         git_source = "#{repository}/#{branch}@#{commit_hash}"
         ci_run_source = "#{repository}/actions/runs/#{ci_run_number}/attempts/#{ci_run_attempt}"
 
-        UI.message("🧱 Updating app CI Build info...")
-        UI.message("🧱 🧱#{git_source}")
-        UI.message("🧱 💻#{ci_run_source}")
-        UI.message("🧱 🛠️ #{compiler_flags}")
+        UI.message("🧱 Updating app CI Build info with:")
+        UI.message("🧱 commit: #{git_source}")
+        UI.message("💻 build source: #{ci_run_source}")
+        UI.message("🛠️ compiler flags: #{compiler_flags}")
 
         Dir.chdir("..") do
             FileUtils.mkdir_p(File.dirname(ci_build_info_filepath))
