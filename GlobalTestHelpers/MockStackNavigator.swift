@@ -6,6 +6,7 @@ final class MockStackNavigator: StackNavigator {
         var type: NavigationType
         var view: Any?
         var animated: Bool
+        var embedInNavigationController: Bool?
         var hidesBottomBar: Bool?
         var overFullscreen: Bool?
     }
@@ -81,6 +82,7 @@ final class MockStackNavigator: StackNavigator {
     func present<Content: View>(
         _ view: Content,
         animated: Bool,
+        embedInNavigationController: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)?
     ) {
@@ -90,6 +92,7 @@ final class MockStackNavigator: StackNavigator {
                 type: .presented,
                 view: view,
                 animated: animated,
+                embedInNavigationController: embedInNavigationController,
                 overFullscreen: overFullscreen
             )
         )

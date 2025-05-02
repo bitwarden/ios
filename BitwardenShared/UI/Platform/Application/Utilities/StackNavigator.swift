@@ -62,12 +62,15 @@ public protocol StackNavigator: Navigator {
     /// - Parameters:
     ///   - view: The view to present.
     ///   - animated: Whether the transition should be animated.
+    ///   - embedInNavigationController: Whether the presented view should be embedded in a
+    ///     navigation controller.
     ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
     ///   - onCompletion: A closure to call on completion.
     ///
     func present<Content: View>(
         _ view: Content,
         animated: Bool,
+        embedInNavigationController: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)?
     )
@@ -194,18 +197,22 @@ extension StackNavigator {
     /// - Parameters:
     ///   - view: The view to present.
     ///   - animated: Whether the transition should be animated. Defaults to `UI.animated`.
+    ///   - embedInNavigationController: Whether the presented view should be embedded in a
+    ///     navigation controller.
     ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
     ///   - onCompletion: The closure to call after presenting.
     ///
     func present<Content: View>(
         _ view: Content,
         animated: Bool = UI.animated,
+        embedInNavigationController: Bool = true,
         overFullscreen: Bool = false,
         onCompletion _: (() -> Void)? = nil
     ) {
         present(
             view,
             animated: animated,
+            embedInNavigationController: embedInNavigationController,
             overFullscreen: overFullscreen,
             onCompletion: nil
         )
@@ -281,10 +288,20 @@ extension UINavigationController: StackNavigator {
     public func present<Content: View>(
         _ view: Content,
         animated: Bool,
+        embedInNavigationController: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)? = nil
     ) {
-        let controller = UIHostingController(rootView: view)
+        let controller: UIViewController
+        if embedInNavigationController {
+            let navigationController = UINavigationController(rootViewController: UIHostingController(rootView: view))
+            // Pass along the existing delegates to propagate view logging to new navigation controllers.
+            navigationController.delegate = delegate
+            navigationController.presentationController?.delegate = presentationController?.delegate
+            controller = navigationController
+        } else {
+            controller = UIHostingController(rootView: view)
+        }
         controller.isModalInPresentation = true
         if overFullscreen {
             controller.modalPresentationStyle = .overFullScreen
@@ -300,6 +317,11 @@ extension UINavigationController: StackNavigator {
         overFullscreen: Bool = false,
         onCompletion: (() -> Void)? = nil
     ) {
+        if let navigationController = viewController as? UINavigationController {
+            // Pass along the existing delegates to propagate view logging to new navigation controllers.
+            navigationController.delegate = delegate
+            navigationController.presentationController?.delegate = presentationController?.delegate
+        }
         var presentedChild = presentedViewController
         var availablePresenter: UIViewController? = self
         while presentedChild != nil {
