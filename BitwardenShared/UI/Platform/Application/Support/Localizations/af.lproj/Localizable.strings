@@ -11,6 +11,7 @@
 "CopyUsername" = "Kopieer gebruikersnaam";
 "Credits" = "Met dank aan";
 "Delete" = "Skrap";
+"DeleteAll" = "Delete all";
 "Deleting" = "Skrap tans…";
 "DoYouReallyWantToDelete" = "Wil u dit regtig skrap? Dit kan nie ontdaan word nie.";
 "Edit" = "Wysig";
@@ -414,6 +415,7 @@
 "ItemShared" = "Item is gedeel.";
 "SelectOneCollection" = "U moet ten minste een versameling kies.";
 "Share" = "Deel";
+"ShareAll" = "Share all";
 "ShareItem" = "Deel Item";
 "MoveToOrganization" = "Skuif na organisasie";
 "NoOrgsToList" = "Geen organisasies om te lys nie.";
@@ -435,7 +437,6 @@
 "Unlock" = "Ontgrendel";
 "UnlockVault" = "Ontgrendel kluis";
 "ThirtyMinutes" = "30 minute";
-"SetPINDescription" = "Stel u PIN-kode in om Bitwarden te ontgrendel. U PIN-kode word heringestel indien u ooit volledig by die toep uitteken.";
 "LoggedInAsOn" = "Op %1$@ aangeteken as %2$@.";
 "VaultLockedMasterPassword" = "U kluis is vergrendel. Verifieer u hoofwagwoord om voort te gaan.";
 "VaultLockedPIN" = "U kluis is vergrendel. Verifieer u PIN-kode om voort te gaan.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

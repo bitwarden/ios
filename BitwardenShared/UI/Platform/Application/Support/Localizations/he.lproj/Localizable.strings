@@ -11,6 +11,7 @@
 "CopyUsername" = "העתק שם משתמש";
 "Credits" = "תודות";
 "Delete" = "מחק";
+"DeleteAll" = "Delete all";
 "Deleting" = "מוחק...";
 "DoYouReallyWantToDelete" = "האם אתה בטוח שברצונך למחוק? זוהי פעולה בלתי הפיכה.";
 "Edit" = "ערוך";
@@ -414,6 +415,7 @@
 "ItemShared" = "הפריט שותף.";
 "SelectOneCollection" = "עליך לבחור לפחות אוסף אחד.";
 "Share" = "שתף";
+"ShareAll" = "Share all";
 "ShareItem" = "שתף פריט";
 "MoveToOrganization" = "העבר לארגון";
 "NoOrgsToList" = "אין ארגונים להצגה ברשימה.";
@@ -436,7 +438,6 @@
 "Unlock" = "בטל נעילה";
 "UnlockVault" = "בטל נעילת כספת";
 "ThirtyMinutes" = "30 דקות";
-"SetPINDescription" = "קבע קוד PIN לביטול נעילת Bitwarden. הגדרות הPIN יאופסו אם תבצע יציאה מהתוכנה.";
 "LoggedInAsOn" = "נכנסת כ־%1$@ ב־%2$@.";
 "VaultLockedMasterPassword" = "הכספת שלך נעולה. הזן את הסיסמה הראשית שלך כדי להמשיך.";
 "VaultLockedPIN" = "הכספת שלך נעולה. הזן את קוד הPIN שלך כדי להמשיך.";
@@ -1165,7 +1166,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

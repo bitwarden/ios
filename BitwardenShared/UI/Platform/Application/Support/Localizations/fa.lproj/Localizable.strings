@@ -11,6 +11,7 @@
 "CopyUsername" = "کپی نام کاربری";
 "Credits" = "پدید آورندگان";
 "Delete" = "حذف";
+"DeleteAll" = "Delete all";
 "Deleting" = "در حال حذف...";
 "DoYouReallyWantToDelete" = "مطمئنید می‌خواهید حذف کنید؟ این عمل قابل بازگشت نیست.";
 "Edit" = "ویرایش";
@@ -414,6 +415,7 @@
 "ItemShared" = "مورد به اشتراک گذاشته شد.";
 "SelectOneCollection" = "شما باید حداقل یک مجموعه را انتخاب کنید.";
 "Share" = "اشتراک گذاری";
+"ShareAll" = "Share all";
 "ShareItem" = "اشتراک گذاری مورد";
 "MoveToOrganization" = "انتقال به سازمان";
 "NoOrgsToList" = "هیچ سازمانی برای نمایش وجود ندارد.";
@@ -435,7 +437,6 @@
 "Unlock" = "باز کردن قفل";
 "UnlockVault" = "بازگشایی گاوصندوق";
 "ThirtyMinutes" = "۳۰ دقیقه";
-"SetPINDescription" = "کد پین خود را برای باز کردن Bitwarden استفاده کنید. اگر به صورت کامل از حساب خود خارج شوید تنظیمات پین شما مجدداً تنظیم می‌شود.";
 "LoggedInAsOn" = "وارد شده به عنوان %1$@ در %2$@.";
 "VaultLockedMasterPassword" = "گاوصندوق شما قفل شد. برای ادامه کلمه عبور اصلی را وارد کنید.";
 "VaultLockedPIN" = "گاوصندوق شما قفل شده است. برای ادامه کد پین خود را تأیید کنید.";
@@ -1164,7 +1165,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

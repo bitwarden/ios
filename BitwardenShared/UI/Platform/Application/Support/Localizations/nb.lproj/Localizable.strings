@@ -11,6 +11,7 @@
 "CopyUsername" = "Kopier brukernavn";
 "Credits" = "Krediteringer";
 "Delete" = "Slett";
+"DeleteAll" = "Delete all";
 "Deleting" = "Sletter...";
 "DoYouReallyWantToDelete" = "Vil du virkelig slette den? Dette kan ikke angres på.";
 "Edit" = "Rediger";
@@ -414,6 +415,7 @@
 "ItemShared" = "Elementet har blitt delt.";
 "SelectOneCollection" = "Du må velge minst én samling.";
 "Share" = "Del";
+"ShareAll" = "Share all";
 "ShareItem" = "Del element";
 "MoveToOrganization" = "Flytt til organisasjon";
 "NoOrgsToList" = "Det er ingen organisasjoner å vise.";
@@ -435,7 +437,6 @@
 "Unlock" = "Lås opp";
 "UnlockVault" = "Lås opp hvelvet";
 "ThirtyMinutes" = "30 minutter";
-"SetPINDescription" = "Angi PIN-koden for å låse opp Bitwarden. PIN-innstillingene dine blir tilbakestilt hvis du logger deg ut av applikasjonen.";
 "LoggedInAsOn" = "Logget på som %1$@ på %2$@.";
 "VaultLockedMasterPassword" = "Hvelvet ditt er låst. Kontroller hovedpassordet ditt for å fortsette.";
 "VaultLockedPIN" = "Hvelvet ditt er låst. Kontroller PIN-koden din for å fortsette.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

@@ -11,6 +11,7 @@
 "CopyUsername" = "사용자 이름 복사";
 "Credits" = "크레딧";
 "Delete" = "삭제";
+"DeleteAll" = "Delete all";
 "Deleting" = "삭제 중...";
 "DoYouReallyWantToDelete" = "정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.";
 "Edit" = "편집";
@@ -414,6 +415,7 @@
 "ItemShared" = "항목이 공유되었습니다.";
 "SelectOneCollection" = "반드시 하나 이상의 컬렉션을 선택해야 합니다.";
 "Share" = "공유";
+"ShareAll" = "Share all";
 "ShareItem" = "항목 공유";
 "MoveToOrganization" = "조직으로 이동하기";
 "NoOrgsToList" = "조직이 없습니다.";
@@ -435,7 +437,6 @@
 "Unlock" = "잠금 해제";
 "UnlockVault" = "보관함 잠금 해제";
 "ThirtyMinutes" = "30분";
-"SetPINDescription" = "Bitwarden 잠금해제에 사용될 PIN 코드를 설정합니다. 이 애플리케이션에서 완전히 로그아웃할 경우 PIN 설정이 초기화됩니다.";
 "LoggedInAsOn" = "%2$@에 %1$@으로 로그인되었습니다.";
 "VaultLockedMasterPassword" = "보관함이 잠겨 있습니다. 마스터 비밀번호를 입력하여 계속하세요.";
 "VaultLockedPIN" = "보관함이 잠겨 있습니다. PIN 코드를 입력하여 계속하세요.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

@@ -11,6 +11,7 @@
 "CopyUsername" = "Копіювати ім'я користувача";
 "Credits" = "Подяки";
 "Delete" = "Видалити";
+"DeleteAll" = "Delete all";
 "Deleting" = "Видалення...";
 "DoYouReallyWantToDelete" = "Ви справді хочете видалити? Цю дію неможливо скасувати.";
 "Edit" = "Змінити";
@@ -414,6 +415,7 @@
 "ItemShared" = "Надано спільний доступ для запису.";
 "SelectOneCollection" = "Необхідно вибрати принаймні одну збірку.";
 "Share" = "Поділитися";
+"ShareAll" = "Share all";
 "ShareItem" = "Поділитися записом";
 "MoveToOrganization" = "Перемістити до організації";
 "NoOrgsToList" = "Немає організацій.";
@@ -435,7 +437,6 @@
 "Unlock" = "Розблокувати";
 "UnlockVault" = "Розблокувати сховище";
 "ThirtyMinutes" = "30 хвилин";
-"SetPINDescription" = "Встановіть PIN-код для розблокування Bitwarden. Налаштування PIN-коду будуть скинуті, якщо ви коли-небудь повністю вийдете з програми.";
 "LoggedInAsOn" = "Ви увійшли як %1$@ на %2$@.";
 "VaultLockedMasterPassword" = "Сховище заблоковано. Введіть головний пароль для продовження.";
 "VaultLockedPIN" = "Ваше сховище заблоковане. Для продовження підтвердьте свій PIN-код.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Перегляд записаних подій";
 "RecordedLogs" = "Записані події";
 "NoLogsRecorded" = "Немає записаних подій";
-"ExpiresToday" = "Завершується сьогодні";
-"ExpiresInXDays" = "Завершується через %1$@ днів";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ – %2$@";
 "SelfHostServerURL" = "URL-адреса власного сервера";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

@@ -11,6 +11,7 @@
 "CopyUsername" = "Ievietot lietotājvārdu starpliktuvē";
 "Credits" = "Izmantotie risinājumi";
 "Delete" = "Izdzēst";
+"DeleteAll" = "Izdzēst visu";
 "Deleting" = "Dzēš...";
 "DoYouReallyWantToDelete" = "Vai tiešām izdzēst? To nevar atsaukt.";
 "Edit" = "Labot";
@@ -180,7 +181,7 @@
 "Submitting" = "Iesniedz...";
 "Syncing" = "Sinhronizē…";
 "SyncingLogins" = "Sinhronizē pieteikšanās vienumus...";
-"SyncingComplete" = "Sinhronizācija pabeigta";
+"SyncingComplete" = "Sinhronizēšana pabeigta";
 "SyncingFailed" = "Sinhronizēšana neizdevās.";
 "SyncVaultNow" = "Sinhronizēt glabātavu";
 "TouchID" = "Touch ID";
@@ -414,6 +415,7 @@
 "ItemShared" = "Vienums tika kopīgots.";
 "SelectOneCollection" = "Ir jāizvēlas vismaz viens krājums.";
 "Share" = "Kopīgot";
+"ShareAll" = "Kopīgot visu";
 "ShareItem" = "Kopīgot vienumu";
 "MoveToOrganization" = "Pārvietot uz apvienību";
 "NoOrgsToList" = "Nav apvienību, ko parādīt";
@@ -435,7 +437,6 @@
 "Unlock" = "Atslēgt";
 "UnlockVault" = "Atslēgt glabātavu";
 "ThirtyMinutes" = "30 minūtes";
-"SetPINDescription" = "Iestatīt PIN kodu Bitwarden atslēgšanai. PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.";
 "LoggedInAsOn" = "Pieteicies %2$@ kā %1$@.";
 "VaultLockedMasterPassword" = "Glabātava ir aizslēgta. Nepieciešams norādīt galveno paroli, lai turpinātu.";
 "VaultLockedPIN" = "Glabātava ir aizslēgta. Nepieciešams norādīt PIN kodu, lai turpinātu.";
@@ -477,7 +478,7 @@
 "ToggleVisibility" = "Pārslēgt redzamību";
 "LoginExpired" = "Pieteikšanās sesija ir beigusies.";
 "BiometricsDirection" = "Apstiprināšana ar biometriju";
-"Biometrics" = "Biometrija";
+"Biometrics" = "biometriju";
 "UseBiometricsToUnlock" = "Izmantot biometriju, lai atslēgtu";
 "AccessibilityOverlayPermissionAlert" = "Bitwarden needs attention - See \"Autofill Accessibility Service\" from Bitwarden settings";
 "BitwardenAutofillServiceOverlayPermission" = "3. Android lietotņu iestatījumu sadaļā, kas attiecas uz Bitwarden, jāritina līdz \"Papildu\", jāatver \"Rādīt pāri citām lietotnēm\" un jāpiesit slēdzim, lai iespējotu pārklāšanās atbalstu.";
@@ -515,7 +516,7 @@
 "DoYouReallyWantToSoftDeleteCipher" = "Vai tiešām pārvietot uz atkritni?";
 "AccountBiometricInvalidated" = "Šī konta atslēgšana ar biometriju ir atspējota, tiek gaidīts galvenās paroles apstiprinājums.";
 "AccountBiometricInvalidatedExtension" = "Automātiskās aizpildes atslēgšana ar biometriju ir atspējota, tiek gaidīts galvenās paroles apstiprinājums.";
-"EnableSyncOnRefresh" = "Iespējot sinhronizēšanu atsvaidzinot";
+"EnableSyncOnRefresh" = "Ļaut sinhronizēšanu pēc atsvaidzināšanas";
 "EnableSyncOnRefreshDescription" = "Sinhronizēt glabātavu ar uz leju pavelkošu kustību.";
 "LogInSso" = "Uzņēmuma vienotā pieteikšanās";
 "LogInSsoSummary" = "Ātri pieteikties apvienības vienotās pieteikšanās portālā. Lūgums ievadīt apvienības identifikatoru, lai sāktu.";
@@ -987,7 +988,7 @@
 "LearnAboutWaysToPreventAccountLockout" = "Vairāk par veidiem, kā nepieļaut nepiekļūšanu kontam, var uzzināt";
 "WhatMakesAPasswordStrong" = "Kas paroli padara stipru?";
 "XCharacters" = "%1$@ rakstzīmes";
-"RemoveMasterPasswordMessage" = "%1$@ izmanto vienoto pieteikšanos ar pašizvietotu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.";
+"RemoveMasterPasswordMessage" = "%1$@ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.";
 "RestartRegistration" = "Sākt reģistrēšanos no jauna";
 "ExpiredLink" = "Saitei beidzies derīgums";
 "PleaseRestartRegistrationOrTryLoggingInYouMayAlreadyHaveAnAccount" = "Lūgums sākt reģistrēšanos no jauna vai mēģināt pieteikties. Tev jau varētu būt konts.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Apskatīt ierakstītos žurnālus";
 "RecordedLogs" = "Ierakstītie žurnāli";
 "NoLogsRecorded" = "Nav ierakstītu žurnālu";
-"ExpiresToday" = "Beigsies šodien";
-"ExpiresInXDays" = "Beigsies pēc %1$@ dienām";
+"ExpiresAtXTime" = "Beigsies %1$@";
+"ExpiresOnXDate" = "Beigsies %1$@";
+"ExpiresTomorrow" = "Beigsies rīt";
 "DateRangeXToY" = "%1$@ - %2$@";
 "SelfHostServerURL" = "Pašmitināta servera URL";
+"AllowUniversalClipboard" = "Ļaut Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Izmantot Universal Clipboard, lai ievietotu šeit un ielīmētu citās ierīcēs, kurās ir veikta pieteikšanāš ar to pašu Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN ir jābūt vismaz %1$@ rakstzīmes garam. PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.";
+"DoYouReallyWantToDeleteThisLog" = "Vai tiešām izdzēst šo žurnālu?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Vai tiešām izdzēst visus ierakstītos žurnālus?";

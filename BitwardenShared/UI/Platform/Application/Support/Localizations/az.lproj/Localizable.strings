@@ -11,6 +11,7 @@
 "CopyUsername" = "İstifadəçi adını kopyala";
 "Credits" = "Ərsəyə gətirənlər";
 "Delete" = "Sil";
+"DeleteAll" = "Delete all";
 "Deleting" = "Silinir...";
 "DoYouReallyWantToDelete" = "Həqiqətən silmək istəyirsiniz? Bunun geri dönüşü yoxdur.";
 "Edit" = "Düzəliş et";
@@ -414,6 +415,7 @@
 "ItemShared" = "Element paylaşıldı.";
 "SelectOneCollection" = "Ən azı bir kolleksiya seçməlisiniz.";
 "Share" = "Paylaş";
+"ShareAll" = "Share all";
 "ShareItem" = "Elementi paylaş";
 "MoveToOrganization" = "Təşkilata daşı";
 "NoOrgsToList" = "Sadalanacaq heç bir təşkilat yoxdur.";
@@ -435,7 +437,6 @@
 "Unlock" = "Kilidi aç";
 "UnlockVault" = "Seyfin kilidini aç";
 "ThirtyMinutes" = "30 dəqiqə";
-"SetPINDescription" = "Bitwarden-in kilidini açmaq üçün PIN kodunuzu ayarlayın. Tətbiqdən tam çıxış etdikdə PIN ayarlarınız sıfırlanacaq.";
 "LoggedInAsOn" = "%2$@ saytında %1$@ kimi giriş edildi.";
 "VaultLockedMasterPassword" = "Seyfiniz kilidlənib. Davam etmək üçün ana parolunuzu doğrulayın.";
 "VaultLockedPIN" = "Seyfiniz kilidlənib. Davam etmək üçün PIN kodunuzu doğrulayın.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Yazılmış qeydlərə bax";
 "RecordedLogs" = "Yazılmış qeydlər";
 "NoLogsRecorded" = "Heç bir qeyd yazılmayıb";
-"ExpiresToday" = "Bu gün müddəti bitir";
-"ExpiresInXDays" = "%1$@ günə müddəti bitir";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ - %2$@";
 "SelfHostServerURL" = "Self-host server URL-si";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-inizdə ən azı %1$@ xarakter olmalıdır. Tətbiqdə hesabınızdan tam çıxış etsəniz, PIN ayarlarınız sıfırlanacaq.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

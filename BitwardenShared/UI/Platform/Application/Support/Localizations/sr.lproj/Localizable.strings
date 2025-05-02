@@ -11,6 +11,7 @@
 "CopyUsername" = "Копирај име";
 "Credits" = "Заслуге";
 "Delete" = "Обриши";
+"DeleteAll" = "Избриши све";
 "Deleting" = "Брисање...";
 "DoYouReallyWantToDelete" = "Да ли сигурно желите да избришете? Ово се не може поништити.";
 "Edit" = "Уреди";
@@ -414,6 +415,7 @@
 "ItemShared" = "Ставка је подељена.";
 "SelectOneCollection" = "Морате одабрати макар једну колекцију.";
 "Share" = "Подели";
+"ShareAll" = "Подели све";
 "ShareItem" = "Поделити ставку";
 "MoveToOrganization" = "Премести у организацију";
 "NoOrgsToList" = "Ниједна организација у листу.";
@@ -435,7 +437,6 @@
 "Unlock" = "Откључај";
 "UnlockVault" = "Откључај сеф";
 "ThirtyMinutes" = "30 минута";
-"SetPINDescription" = "Поставите свој ПИН код за откључавање Bitwarden-а. Поставке ПИН-а ће се ресетовати ако се икада потпуно одјавите из апликације.";
 "LoggedInAsOn" = "Пријављено као %1$@ на %2$@.";
 "VaultLockedMasterPassword" = "Сеф је блокиран. Унесите главну лозинку за наставак.";
 "VaultLockedPIN" = "Сеф је блокиран. Проверити ПИН код за наставак.";
@@ -1164,7 +1165,13 @@
 "ViewRecordedLogs" = "Погледајте снимљене извештаје";
 "RecordedLogs" = "Снимљени извештаји";
 "NoLogsRecorded" = "Нема извештаја";
-"ExpiresToday" = "Истиче данас";
-"ExpiresInXDays" = "Дани до истека: %1$@";
+"ExpiresAtXTime" = "Истиче у %1$@";
+"ExpiresOnXDate" = "Истиче у %1$@";
+"ExpiresTomorrow" = "Истиче сутра";
 "DateRangeXToY" = "%1$@ до %2$@";
 "SelfHostServerURL" = "УРЛ сервера који се самостално хостује";
+"AllowUniversalClipboard" = "Дозволи универзални међуспремник";
+"UseUniversalClipboardToCopyDescriptionLong" = "Користите Универсал Међуспремник да бисте копирали овде и залепили на друге уређаје пријављене са истим Apple ID-ом.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Ваш ПИН PIN треба да има најмање %1$@ слова. Подешавања ПИН-а ће се ресетовати ако се икада у потпуности одјавите из апликације.";
+"DoYouReallyWantToDeleteThisLog" = "Да ли заиста желите да избришете овај извештај?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Да ли заиста желите да избришете све извештаје?";
