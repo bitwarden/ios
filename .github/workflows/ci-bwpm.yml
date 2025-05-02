@@ -55,13 +55,13 @@ jobs:
 
   build-manual:
     name: Build Manual
-    needs: version
+    #needs: version
     if: ${{ github.event_name == 'workflow_dispatch' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@monorepo/new-build #TODO: change to main
     with:
       environment: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
-      version-name: ${{ needs.version.outputs.version_name }}
-      version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
+      version-name: ${{ needs.version.outputs.version_name || '2025.3.0' }}
+      version-number: ${{ needs.version.outputs.version_number || github.run_number }} #TODO: refactor all inputs to be consistent with - or _
       distribute: ${{ inputs.distribute }}
     secrets: inherit
 

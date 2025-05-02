@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: Log inputs to job summary
         run: |
-          echo "<details><summary>Build $_ENV Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+          echo "<details><summary>Build ${_ENV} Inputs</summary>" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo '```json' >> $GITHUB_STEP_SUMMARY
           echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
@@ -88,11 +88,14 @@ jobs:
       - name: Setup secrets
         if: env._BUILD_MODE == 'Device'
         run: |
+          set -euo pipefail #TODO: remove this before merging to main
+
           az_download() {
             local container_name=${1:-mobile}
             local az_filename=$2
             local local_filename=$3
-            az storage blob download --account-name bitwardenci --container-name $container_name --name $az_filename --file $local_filename --output none
+
+            az storage blob download --account-name bitwardenci --container-name $container_name --name $az_filename --file $local_filename #--output none #TODO: add output none back before merging to main
           }
 
           mkdir -p $HOME/secrets
