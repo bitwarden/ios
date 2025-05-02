@@ -52,63 +52,6 @@ jobs:
       version_number: ${{ inputs.version-number }}
       patch_version: ${{ inputs.patch_version }}
     secrets: inherit
-  resolve-values:
-    name: "Resolve values"
-    runs-on: ubuntu-22.04
-    outputs:
-      version_name: ${{ steps.version_info.outputs.version_name }}
-      version_number: ${{ steps.version_info.outputs.version_number }}
-      xcode_version: ${{ steps.xcode_version.outputs.xcode_version }}
-      distribute_to_testflight: ${{ env.DISTRIBUTE_TO_TESTFLIGHT }}
-      internal_beta_version_name: ${{ steps.internal_versions.outputs.internal_beta_version_name}}
-    steps:
-      - name: Log inputs to job summary
-        run: |
-          echo "<details><summary>CI-main Workflow Inputs</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo '```json' >> $GITHUB_STEP_SUMMARY
-          echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "</details>" >> $GITHUB_STEP_SUMMARY
-
-      - name: Calculate version
-        if: ${{ inputs.version-name == '' || inputs.version-number == '' }}
-        uses: bitwarden/ios/.github/actions/dispatch-and-download@main
-        id: dispatch-version
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repo: ios
-          owner: bitwarden
-          workflow: _version.yml
-          workflow_inputs: '{"base_version_number": "1500", "version_name": "${{ inputs.build-version }}", "version_number": "${{ inputs.build-number }}", "patch_version": "${{ inputs.patch_version }}"}'
-
-      - name: Read version info
-        id: version_info
-        run: |
-          # test if dispatch-version was skipped. In that case, creates the same .json file expected by the Upload artifact step
-          if [ ! -f version-info/version_info.json ]; then
-            echo "::warning::version-version.json not found, was the previous step skipped? Creating a new file"
-            json='{
-              "version_number": "${{ inputs.build-number }}",
-              "version_name": "${{ inputs.build-version }}"
-            }'
-
-            # file will be used by the upload step
-            mkdir version-info
-            echo "$json" > version-info/version_info.json
-          else
-              echo "::notice::version-version.json found!"
-          fi
-
-          content=$(cat version-info/version_info.json)
-          echo "version_name=$(echo $content | jq -r .version_name)" >> $GITHUB_OUTPUT
-          echo "version_number=$(echo $content | jq -r .version_number)" >> $GITHUB_OUTPUT
-
-      - name: Upload version info artifact
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
-        with:
-          name: version-info
-          path: version-info/version_info.json
 
   build-manual:
     name: Build Manual
