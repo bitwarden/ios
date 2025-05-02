@@ -58,7 +58,7 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
-      environment: ${{ inputs.environment }}
+      environment: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
       version-name: ${{ inputs.version-name }}
       version-number: ${{ inputs.version-number }}
       distribute: ${{ inputs.distribute }}
