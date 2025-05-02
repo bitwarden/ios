@@ -410,9 +410,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             )
         )
 
-        let view = VaultItemSelectionView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: viewController))
+        stackNavigator?.present(VaultItemSelectionView(store: Store(processor: processor)))
     }
 }
 

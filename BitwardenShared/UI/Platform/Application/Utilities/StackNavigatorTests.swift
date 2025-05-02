@@ -41,14 +41,14 @@ class StackNavigatorTests: BitwardenTestCase {
         XCTAssertTrue(subject.isPresenting)
     }
 
-    /// `present(_:animated:)` presents the hosted view.
+    /// `present(_:animated:)` presents the hosted view in a navigation controller.
     @MainActor
     func test_present() throws {
         subject.present(EmptyView(), animated: false)
         XCTAssertTrue(subject.presentedViewController is UINavigationController)
         let navigationController = try XCTUnwrap(subject.presentedViewController as? UINavigationController)
         XCTAssertEqual(navigationController.viewControllers.count, 1)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<EmptyView>)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<EmptyView>)
     }
 
     /// `present(_:animated:)` presents the hosted view.
@@ -71,6 +71,13 @@ class StackNavigatorTests: BitwardenTestCase {
             subject.presentedViewController?.presentedViewController
                 is UIHostingController<ScrollView<EmptyView>>
         )
+    }
+
+    /// `present(_:animated:)` presents the hosted view without embedding it in a navigation controller.
+    @MainActor
+    func test_present_withoutEmbedInNavigationController() {
+        subject.present(EmptyView(), animated: false, embedInNavigationController: false)
+        XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
     }
 
     /// `dismiss(animated:)` dismisses the hosted view.

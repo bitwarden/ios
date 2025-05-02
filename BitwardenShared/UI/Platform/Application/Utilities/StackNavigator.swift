@@ -64,13 +64,16 @@ public protocol StackNavigator: Navigator {
     ///   - animated: Whether the transition should be animated.
     ///   - embedInNavigationController: Whether the presented view should be embedded in a
     ///     navigation controller.
+    ///   - isModalInPresentation: Whether the presented view controller enforces a modal behavior.
+    ///     This prevents interactive dismissal.
     ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
     ///   - onCompletion: A closure to call on completion.
     ///
-    func present<Content: View>(
+    func present<Content: View>( // swiftlint:disable:this function_parameter_count
         _ view: Content,
         animated: Bool,
         embedInNavigationController: Bool,
+        isModalInPresentation: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)?
     )
@@ -199,6 +202,8 @@ extension StackNavigator {
     ///   - animated: Whether the transition should be animated. Defaults to `UI.animated`.
     ///   - embedInNavigationController: Whether the presented view should be embedded in a
     ///     navigation controller.
+    ///   - isModalInPresentation: Whether the presented view controller enforces a modal behavior.
+    ///     This prevents interactive dismissal.
     ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
     ///   - onCompletion: The closure to call after presenting.
     ///
@@ -206,6 +211,7 @@ extension StackNavigator {
         _ view: Content,
         animated: Bool = UI.animated,
         embedInNavigationController: Bool = true,
+        isModalInPresentation: Bool = false,
         overFullscreen: Bool = false,
         onCompletion _: (() -> Void)? = nil
     ) {
@@ -213,6 +219,7 @@ extension StackNavigator {
             view,
             animated: animated,
             embedInNavigationController: embedInNavigationController,
+            isModalInPresentation: isModalInPresentation,
             overFullscreen: overFullscreen,
             onCompletion: nil
         )
@@ -289,6 +296,7 @@ extension UINavigationController: StackNavigator {
         _ view: Content,
         animated: Bool,
         embedInNavigationController: Bool,
+        isModalInPresentation: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)? = nil
     ) {
@@ -302,7 +310,7 @@ extension UINavigationController: StackNavigator {
         } else {
             controller = UIHostingController(rootView: view)
         }
-        controller.isModalInPresentation = true
+        controller.isModalInPresentation = isModalInPresentation
         if overFullscreen {
             controller.modalPresentationStyle = .overFullScreen
             controller.view.backgroundColor = .clear

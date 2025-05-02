@@ -220,9 +220,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: AttachmentsState(cipher: cipher)
         )
-        let view = AttachmentsView(store: Store(processor: processor))
-        let hostingController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(AttachmentsView(store: Store(processor: processor)))
     }
 
     /// Shows the totp camera setup screen.
@@ -287,9 +285,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: EditCollectionsState(cipher: cipher)
         )
-        let view = EditCollectionsView(store: Store(processor: processor))
-        let hostingController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(EditCollectionsView(store: Store(processor: processor)))
     }
 
     /// Shows the edit item screen.
@@ -393,9 +389,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
             services: services,
             state: MoveToOrganizationState(cipher: cipher)
         )
-        let view = MoveToOrganizationView(store: Store(processor: processor))
-        let hostingController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: hostingController))
+        stackNavigator?.present(MoveToOrganizationView(store: Store(processor: processor)))
     }
 
     /// A route to view the password history view.

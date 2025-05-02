@@ -8,6 +8,7 @@ final class MockStackNavigator: StackNavigator {
         var animated: Bool
         var embedInNavigationController: Bool?
         var hidesBottomBar: Bool?
+        var isModalInPresentation: Bool?
         var overFullscreen: Bool?
     }
 
@@ -79,10 +80,11 @@ final class MockStackNavigator: StackNavigator {
         alertOnDismissed = onDismissed
     }
 
-    func present<Content: View>(
+    func present<Content: View>( // swiftlint:disable:this function_parameter_count
         _ view: Content,
         animated: Bool,
         embedInNavigationController: Bool,
+        isModalInPresentation: Bool,
         overFullscreen: Bool,
         onCompletion: (() -> Void)?
     ) {
@@ -93,6 +95,7 @@ final class MockStackNavigator: StackNavigator {
                 view: view,
                 animated: animated,
                 embedInNavigationController: embedInNavigationController,
+                isModalInPresentation: isModalInPresentation,
                 overFullscreen: overFullscreen
             )
         )

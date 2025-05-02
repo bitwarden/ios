@@ -337,9 +337,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: DeleteAccountState()
         )
-        let view = DeleteAccountView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(DeleteAccountView(store: Store(processor: processor)))
     }
 
     /// Shows the enable flight recorder screen.
@@ -350,9 +348,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: EnableFlightRecorderState()
         )
-        let view = EnableFlightRecorderView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: viewController))
+        stackNavigator?.present(EnableFlightRecorderView(store: Store(processor: processor)))
     }
 
     /// Shows the share sheet to share one or more items.
@@ -393,9 +389,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             coordinator: asAnyCoordinator(),
             services: services
         )
-        let view = ExportVaultView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(ExportVaultView(store: Store(processor: processor)))
     }
 
     /// Shows the export vault to another app screen (Credential Exchange flow).
@@ -418,8 +412,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             state: FlightRecorderLogsState()
         )
         let view = FlightRecorderLogsView(store: Store(processor: processor), timeProvider: services.timeProvider)
-        let viewController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: viewController))
+        stackNavigator?.present(view)
     }
 
     /// Shows the folders screen.
@@ -499,9 +492,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: PendingRequestsState()
         )
-        let view = PendingRequestsView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(PendingRequestsView(store: Store(processor: processor)))
     }
 
     /// Shows the select language screen.
@@ -513,9 +504,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             services: services,
             state: SelectLanguageState(currentLanguage: currentLanguage)
         )
-        let view = SelectLanguageView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(SelectLanguageView(store: Store(processor: processor)))
     }
 
     /// Shows the settings screen.
