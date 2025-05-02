@@ -97,8 +97,9 @@ jobs:
 
           mkdir -p $HOME/secrets
 
-          profiles_dir_path="$HOME/Library/MobileDevice/Provisioning\ Profiles"
+          profiles_dir_path="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$profiles_dir_path"
+
           IFS=',' read -ra profiles <<< "$_PROVISIONING_PROFILES"
           for FILE in "${profiles[@]}"
           do
