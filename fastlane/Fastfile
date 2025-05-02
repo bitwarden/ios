@@ -364,14 +364,16 @@ platform :ios do |options|
         build_dsyms_path = app_config[:build_dsyms_path]
         build_app_path = app_config[:build_app_path]
 
-        case build_mode
-            when 'simulator'
-                sh("cp -r #{build_app_path} #{export_path}")
-            when 'device'
-                sh("cp #{build_ipa_path} #{export_path}")
-                sh("cp -rv #{build_dsyms_path}/*dSYM #{export_path}/dSYMs")
-            else
-                UI.user_error!("Invalid build mode: #{build_mode}")
+        Dir.chdir("..") do
+            case build_mode
+                when 'simulator'
+                    sh("cp -r #{build_app_path} #{export_path}")
+                when 'device'
+                    sh("cp #{build_ipa_path} #{export_path}")
+                    sh("cp -r #{build_dsyms_path}/*dSYM #{export_path}/dSYMs")
+                else
+                    UI.user_error!("Invalid build mode: #{build_mode}")
+            end
         end
     end
 

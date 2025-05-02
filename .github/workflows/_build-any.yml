@@ -184,6 +184,7 @@ jobs:
         run: |
           mkdir -p $_EXPORT_PATH
           mkdir -p $_EXPORT_PATH/dSYMs
+
           bundle exec fastlane post_build \
             --env $_BW_ENV \
             build_mode:$_BUILD_MODE \
