@@ -400,10 +400,10 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
     @MainActor
     func test_navigateTo_settings() throws {
-        subject.navigate(to: .settings)
+        subject.navigate(to: .settings(.tab))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .pushed)
+        XCTAssertEqual(action.type, .replaced)
         XCTAssertTrue(action.view is SettingsView)
     }
 

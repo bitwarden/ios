@@ -35,7 +35,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = PasswordAutoFillModule
+    typealias Module = NavigatorBuilderModule
+        & PasswordAutoFillModule
+        & SettingsModule
 
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
@@ -202,6 +204,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showMasterPasswordGuidance(delegate: context as? MasterPasswordUpdateDelegate)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
+        case .preLoginSettings:
+            showPreLoginSettings()
         case .preventAccountLock:
             showPreventAccountLock()
         case let .removeMasterPassword(
@@ -628,6 +632,19 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let store = Store(processor: processor)
         let view = PasswordHintView(store: store)
         stackNavigator?.present(view)
+    }
+
+    /// Shows the pre-login settings.
+    ///
+    private func showPreLoginSettings() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeSettingsCoordinator(
+            delegate: nil, // Delegate not needed for pre-login settings.
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        coordinator.navigate(to: .settings(.preLogin))
+        stackNavigator?.present(navigationController, overFullscreen: true)
     }
 
     /// Shows the prevent account lock screen.

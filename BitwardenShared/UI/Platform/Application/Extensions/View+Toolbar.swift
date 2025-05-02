@@ -178,12 +178,16 @@ extension View {
 
     /// A `ToolbarItem` for views with a close text button.
     ///
-    /// - Parameter action: The action to perform when the close button is tapped.
+    /// - Parameters:
+    ///   - hidden: Whether to hide the toolbar item.
+    ///   - action: The action to perform when the close button is tapped.
     /// - Returns: A `ToolbarItem` with a dismiss button.
     ///
-    func closeToolbarItem(_ action: @escaping () -> Void) -> some ToolbarContent {
+    func closeToolbarItem(hidden: Bool = false, _ action: @escaping () -> Void) -> some ToolbarContent {
         ToolbarItem(placement: .topBarLeading) {
-            closeToolbarButton(action: action)
+            if !hidden {
+                closeToolbarButton(action: action)
+            }
         }
     }
 
