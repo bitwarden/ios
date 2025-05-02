@@ -174,7 +174,7 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
     }
 
-    /// `masterPasswordInvalid()` returns an alert notifying the user that their master password is invalid.
+    /// `keyConnectorConfirmation()` returns an alert asking the user to confirm the key connector domain.
     func test_keyConnectorConfirmation() {
         let url = URL(string: "http://example.com")!
         let subject = Alert.keyConnectorConfirmation(keyConnectorUrl: url) {}

@@ -300,8 +300,8 @@ extension DefaultSyncService {
         try await checkVaultTimeoutPolicy()
 
         if try await keyConnectorService.userNeedsMigration(),
-           let organization = try await keyConnectorService.getManagingOrganization() {
-            guard let keyConnectorUrl = organization.keyConnectorUrl else { return }
+           let organization = try await keyConnectorService.getManagingOrganization(),
+           let keyConnectorUrl = organization.keyConnectorUrl {
             await delegate?.removeMasterPassword(
                 organizationName: organization.name,
                 organizationId: organization.id,

@@ -204,10 +204,16 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showMasterPasswordHint(for: username)
         case .preventAccountLock:
             showPreventAccountLock()
-        case let .removeMasterPassword(organizationName: organizationName,
-                                       organizationId: organizationId,
-                                       keyConnectorUrl: keyConnectorUrl):
-            showRemoveMasterPassword(organizationName: organizationName, organizationId: organizationId, keyConnectorUrl: keyConnectorUrl)
+        case let .removeMasterPassword(
+            organizationName: organizationName,
+            organizationId: organizationId,
+            keyConnectorUrl: keyConnectorUrl
+        ):
+            showRemoveMasterPassword(
+                organizationName: organizationName,
+                organizationId: organizationId,
+                keyConnectorUrl: keyConnectorUrl
+            )
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .setMasterPassword(organizationIdentifier):
