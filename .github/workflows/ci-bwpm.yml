@@ -37,7 +37,7 @@ on:
       distribute:
         description: "Distribute to TestFlight"
         type: boolean
-        default: true
+        default: false #TODO: change to true before merging to main
       xcode-version:
           description: "Xcode Version Override - e.g. '15.2'"
           type: string
@@ -45,7 +45,7 @@ on:
 jobs:
   version:
     name: Calculate Version Name and Number
-    uses: bitwarden/ios/.github/workflows/_version.yml@main
+    uses: bitwarden/ios/.github/workflows/_version.yml@monorepo/new-build #TODO: change to main
     with:
       base_version_number: 2000
       version_name: ${{ inputs.version-name }}
@@ -56,16 +56,17 @@ jobs:
   build-manual:
     name: Build Manual
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@monorepo/new-build #TODO: change to main
     with:
       environment: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
       version-name: ${{ inputs.version-name }}
       version-number: ${{ inputs.version-number }}
       distribute: ${{ inputs.distribute }}
+
   build-public:
     name: Build CI
     if: ${{ github.event_name == 'push' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@monorepo/new-build #TODO: change to main
     strategy:
       matrix:
         env: [bwpm_prod, bwpm_beta]
