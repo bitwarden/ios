@@ -12,6 +12,13 @@ extension FeatureFlag {
         rawValue: "enable-pm-bwa-sync"
     )
 
+    public static var debugFlags: [FeatureFlag] {
+        [
+            enablePasswordManagerSync
+        ]
+    }
+
+
     /// A feature flag that determines whether or not the password manager sync capability is enabled.
 //    case enablePasswordManagerSync = "enable-pm-bwa-sync"
 
