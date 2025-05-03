@@ -61,8 +61,10 @@ jobs:
     uses: bitwarden/ios/.github/workflows/_build-any.yml@monorepo/new-build #TODO: change to main
     with:
       bw-env: ${{ (inputs.build-variant == 'Production') && 'bwpm_prod' || 'bwpm_beta' }}
+      build-mode: ${{ inputs.build-mode }}
       version-name: ${{ needs.version.outputs.version_name || '2025.3.0' }}
       version-number: ${{ needs.version.outputs.version_number || github.run_number }} #TODO: refactor all inputs to be consistent with - or _
+      compiler-flags: ${{ inputs.compiler-flags }}
       distribute: ${{ inputs.distribute }}
     secrets: inherit
 
@@ -73,10 +75,18 @@ jobs:
     uses: bitwarden/ios/.github/workflows/_build-any.yml@monorepo/new-build #TODO: change to main
     strategy:
       matrix:
-        bw-env: [bwpm_prod, bwpm_beta]
+        include:
+          - bw-env: bwpm_prod
+            build-mode: Device
+          - bw-env: bwpm_prod
+            build-mode: Simulator
+          - bw-env: bwpm_beta
+            build-mode: Device
+            compiler-flags: DEBUG_MENU
     with:
       bw-env: ${{ matrix.bw-env }}
+      build-mode: ${{ matrix.build-mode }}
       version-name: ${{ needs.version.outputs.version_name }}
       version-number: ${{ needs.version.outputs.version_number }}
-      distribute: ${{ inputs.distribute }}
+      compiler-flags: ${{ matrix.compiler-flags }}
     secrets: inherit
