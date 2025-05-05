@@ -168,9 +168,10 @@ platform :ios do |options|
         update_plist(
             plist_path: "Bitwarden/Application/Support/Info.plist",
             block: proc do |plist|
-                plist[:ITSEncryptionExportComplianceCode] = ENV["_PLIST_EXPORT_COMPLIANCE_CODE"]
+                plist["ITSEncryptionExportComplianceCode"] = ENV['_PLIST_EXPORT_COMPLIANCE_CODE']
               end
         )
+        UI.message("✅ Updated Info.plist with ITSEncryptionExportComplianceCode: #{ENV['_PLIST_EXPORT_COMPLIANCE_CODE']}")
 
         aps_env = if(build_mode == 'device')
             ENV['_APS_ENVIRONMENT_DEVICE']
@@ -183,12 +184,15 @@ platform :ios do |options|
                 plist["aps-environment"] = aps_env
               end
         )
+        UI.message("✅ Updated Bitwarden.entitlements with aps-environment: #{aps_env}")
+
         update_plist(
             plist_path: "BitwardenWatchApp/GoogleService-Info.plist",
             block: proc do |plist|
-                plist[:BUNDLE_ID] = ENV["_BUNDLE_ID"] + ".watchkitapp"
+                plist["BUNDLE_ID"] = ENV["_BUNDLE_ID"] + ".watchkitapp"
               end
         )
+        UI.message("✅ Updated GoogleService-Info.plist with BUNDLE_ID: #{ENV['_BUNDLE_ID']}.watchkitapp")
     end
 
     desc "Update version info in project yaml file"
