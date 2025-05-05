@@ -1,3 +1,6 @@
+import Foundation
+
+// MARK: - FeatureFlag
 
 /// A struct that encapsulates information about a feature flag. Importing applications
 /// should extend this struct to add static members representing each flag.
