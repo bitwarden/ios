@@ -50,12 +50,47 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .delete(log))
     }
 
+    /// The delete button is disabled for the active log.
+    @MainActor
+    func test_delete_disabledForActiveLog() throws {
+        processor.state.logs = [.fixture(isActiveLog: true)]
+        let button = try subject.inspect().find(button: Localizations.delete)
+        XCTAssertTrue(button.isDisabled())
+    }
+
+    /// The delete all button is disabled when there's no logs or only an active log.
+    @MainActor
+    func test_deleteAll_disabledWhenNoLogs() throws {
+        var button = try subject.inspect().find(button: Localizations.deleteAll)
+        XCTAssertTrue(button.isDisabled())
+
+        processor.state.logs = [.fixture(isActiveLog: true)]
+        button = try subject.inspect().find(button: Localizations.deleteAll)
+        XCTAssertTrue(button.isDisabled())
+
+        processor.state.logs = [.fixture()]
+        button = try subject.inspect().find(button: Localizations.deleteAll)
+        XCTAssertFalse(button.isDisabled())
+    }
+
     /// Tapping the delete all toolbar button dispatches the `.deleteAll` action.
     @MainActor
     func test_deleteAll_tap() throws {
+        processor.state.logs = [.fixture()]
         let button = try subject.inspect().find(button: Localizations.deleteAll)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .deleteAll)
+    }
+
+    /// The share all button is disabled when there's no logs.
+    @MainActor
+    func test_shareAll_disabledWhenNoLogs() throws {
+        var button = try subject.inspect().find(button: Localizations.shareAll)
+        XCTAssertTrue(button.isDisabled())
+
+        processor.state.logs = [.fixture()]
+        button = try subject.inspect().find(button: Localizations.shareAll)
+        XCTAssertFalse(button.isDisabled())
     }
 
     /// Tapping the share log menu button dispatches the `.share(_:)` action.
@@ -71,6 +106,7 @@ class FlightRecorderLogsViewTests: BitwardenTestCase {
     /// Tapping the share all toolbar button dispatches the `.shareAll` action.
     @MainActor
     func test_shareAll_tap() throws {
+        processor.state.logs = [.fixture()]
         let button = try subject.inspect().find(button: Localizations.shareAll)
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .shareAll)
