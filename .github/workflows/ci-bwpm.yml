@@ -32,9 +32,9 @@ on:
       compiler-flags:
         description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
         type: string
-      patch_version: #TODO: remove or replace with boolean to control
-        description: "Patch Version Override - e.g. '999'"
-        type: string
+      patch_version:
+        description: "Order 999 - Overrides Patch version"
+        type: boolean
       distribute:
         description: "Distribute to TestFlight"
         type: boolean
@@ -51,7 +51,7 @@ jobs:
       base_version_number: 2100
       version_name: ${{ inputs.version-name }}
       version_number: ${{ inputs.version-number }}
-      patch_version: ${{ inputs.patch_version }}
+      patch_version: ${{ inputs.patch_version && '999' || '' }}
     secrets: inherit
 
   build-manual:
