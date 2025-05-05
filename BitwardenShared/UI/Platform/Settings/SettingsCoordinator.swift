@@ -56,6 +56,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
         & ExportCXFModule
         & ImportLoginsModule
         & LoginRequestModule
+        & NavigatorBuilderModule
         & PasswordAutoFillModule
 
     typealias Services = HasAccountAPIService
@@ -242,7 +243,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// - Parameter folder: The existing folder to edit, if applicable.
     ///
     private func showAddEditFolder(_ folder: FolderView?, delegate: AddEditFolderDelegate?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .addEditFolder(folder: folder), context: delegate)
@@ -395,7 +396,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the export vault to another app screen (Credential Exchange flow).
     ///
     private func showExportVaultToApp() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeExportCXFCoordinator(
             stackNavigator: navigationController
         )
@@ -432,7 +433,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     /// Shows the import login items screen.
     ///
     private func showImportLogins() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         navigationController.modalPresentationStyle = .overFullScreen
         let coordinator = module.makeImportLoginsCoordinator(
             delegate: self,
@@ -451,7 +452,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///   - delegate: The delegate.
     ///
     private func showLoginRequest(_ loginRequest: LoginRequest, delegate: LoginRequestDelegate?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeLoginRequestCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .loginRequest(loginRequest), context: delegate)

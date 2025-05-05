@@ -13,6 +13,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     typealias Module = AddEditFolderModule
         & FileSelectionModule
         & GeneratorModule
+        & NavigatorBuilderModule
         & PasswordHistoryModule
         & VaultItemModule
 
@@ -146,7 +147,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// - Parameter route: The route to navigate to in the presented coordinator.
     ///
     private func presentChildVaultItemCoordinator(route: VaultItemRoute, context: AnyObject?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.navigate(to: route, context: context)
         coordinator.start()
@@ -159,7 +160,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     ///     change to folders.
     ///
     private func showAddFolder(delegate: AddEditFolderDelegate?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .addEditFolder(folder: nil), context: delegate)
@@ -226,7 +227,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// Shows the totp camera setup screen.
     ///
     private func showCamera(delegate: AuthenticatorKeyCaptureDelegate) async {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
@@ -350,7 +351,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
         emailWebsite: String?,
         delegate: GeneratorCoordinatorDelegate
     ) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         if type != .username {
             // Username doesn't show the segmented control so the divider should show. Otherwise,
             // remove it to make the segmented control appear to be part of the navigation controller.
@@ -368,7 +369,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// Shows the totp manual setup screen.
     ///
     private func showManualTotp(delegate: AuthenticatorKeyCaptureDelegate) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = AuthenticatorKeyCaptureCoordinator(
             appExtensionDelegate: appExtensionDelegate,
             delegate: delegate,
@@ -397,7 +398,7 @@ class VaultItemCoordinator: NSObject, Coordinator, HasStackNavigator { // swiftl
     /// - Parameter passwordHistory: The password history to view.
     ///
     private func showPasswordHistory(_ passwordHistory: [PasswordHistoryView]) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .passwordHistoryList(.item(passwordHistory)))

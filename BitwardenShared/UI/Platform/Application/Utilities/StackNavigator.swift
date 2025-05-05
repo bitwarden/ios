@@ -325,11 +325,6 @@ extension UINavigationController: StackNavigator {
         overFullscreen: Bool = false,
         onCompletion: (() -> Void)? = nil
     ) {
-        if let navigationController = viewController as? UINavigationController {
-            // Pass along the existing delegates to propagate view logging to new navigation controllers.
-            navigationController.delegate = delegate
-            navigationController.presentationController?.delegate = presentationController?.delegate
-        }
         var presentedChild = presentedViewController
         var availablePresenter: UIViewController? = self
         while presentedChild != nil {
