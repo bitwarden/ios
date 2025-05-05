@@ -69,7 +69,7 @@ platform :ios do |options|
              env_vars: ['_BUNDLE_ID']
         )
 
-        build_mode = options[:build_mode].downcase() #values: simulator, device
+        build_mode = ensure_build_mode(options[:build_mode])
         version_name = options[:version_name]
         version_number = options[:version_number]
         xcode_version = options[:xcode_version]
@@ -163,7 +163,7 @@ platform :ios do |options|
             env_vars: ['_BUNDLE_ID', '_PLIST_EXPORT_COMPLIANCE_CODE', '_APS_ENVIRONMENT_DEVICE', '_APS_ENVIRONMENT_SIMULATOR']
         )
 
-        build_mode = options[:build_mode].downcase() #values: simulator, device
+        build_mode = ensure_build_mode(options[:build_mode])
 
         update_plist(
             plist_path: "Bitwarden/Application/Support/Info.plist",
@@ -361,7 +361,7 @@ platform :ios do |options|
         ]
         ensure_required_options(options, required_options)
 
-        build_mode = options[:build_mode].downcase() #values: simulator, device
+        build_mode = ensure_build_mode(options[:build_mode])
         export_path = options[:export_path]
         app_config = lane_context[:APP_CONFIG]
         build_ipa_path = app_config[:build_ipa_path]
@@ -387,6 +387,14 @@ platform :ios do |options|
         unless missing_options.empty?
             UI.user_error!("Missing required options: #{missing_options.join(', ')}")
         end
+    end
+
+    def ensure_build_mode(build_mode)
+        build_mode_lower = build_mode.downcase()
+        unless build_mode_lower == 'simulator' || build_mode_lower == 'device'
+            UI.user_error!("Invalid build mode: #{build_mode}")
+        end
+        return build_mode_lower
     end
 
     def parse_env_list(env_value)
