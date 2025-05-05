@@ -11,6 +11,7 @@
 "CopyUsername" = "Kopiraj uporabniško ime";
 "Credits" = "Zasluge";
 "Delete" = "Izbriši";
+"DeleteAll" = "Delete all";
 "Deleting" = "Brišem... ";
 "DoYouReallyWantToDelete" = "Ste prepričani, da želite izbrisati? Tega ni mogoče povrniti.";
 "Edit" = "Uredi";
@@ -414,6 +415,7 @@
 "ItemShared" = "Element je bil dan v skupno rabo.";
 "SelectOneCollection" = "Izbrati moraš vsaj eno zbirko.";
 "Share" = "Deli";
+"ShareAll" = "Share all";
 "ShareItem" = "Delite element";
 "MoveToOrganization" = "Premakni v organizacijo";
 "NoOrgsToList" = "Ni organizacij za prikazat.";
@@ -435,7 +437,6 @@
 "Unlock" = "Odkleni";
 "UnlockVault" = "Odkleni trezor";
 "ThirtyMinutes" = "30 minut";
-"SetPINDescription" = "Set your PIN code for unlocking Bitwarden. Your PIN settings will be reset if you ever fully log out of the application.";
 "LoggedInAsOn" = "Prijavljeni kot %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Vaš trezor je zaklenjen. Vpišite svoje glavno geslo za nadaljevanje.";
 "VaultLockedPIN" = "Vaš trezor je zaklenjen. Potrdite PIN kodo za nadaljevanje.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

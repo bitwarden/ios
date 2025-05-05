@@ -11,6 +11,7 @@
 "CopyUsername" = "ഉപയോക്തൃനാമം പകർത്തുക";
 "Credits" = "ക്രെഡിറ്റുകൾ";
 "Delete" = "നീക്കംചെയ്യുക";
+"DeleteAll" = "Delete all";
 "Deleting" = "നീക്കംചെയ്യുന്നു...";
 "DoYouReallyWantToDelete" = "നിങ്ങൾക്ക്എന്നെന്നേക്കുമായി നീക്കം ചെയ്യാൻ ആഗ്രഹമുണ്ടോ? ഇത് പഴയപടിയാക്കാൻ കഴിയില്ല.";
 "Edit" = "തിരുത്തുക";
@@ -414,6 +415,7 @@
 "ItemShared" = "ഇനം പങ്കിട്ടു.";
 "SelectOneCollection" = "നിങ്ങൾ ഒരു  കളക്ഷനെങ്കിലും  തിരഞ്ഞെടുക്കണം.";
 "Share" = "പങ്കിടുക";
+"ShareAll" = "Share all";
 "ShareItem" = "ഇനം പങ്കിടുക";
 "MoveToOrganization" = "സംഘടനയിലേക്ക് മാറ്റുക";
 "NoOrgsToList" = "പ്രദർശിപ്പിക്കാൻ സംഘടനകൾ  ഒന്നും ഇല്ല.";
@@ -435,7 +437,6 @@
 "Unlock" = "അൺലോക്ക്";
 "UnlockVault" = "Unlock vault";
 "ThirtyMinutes" = "30 മിനിറ്റ്";
-"SetPINDescription" = "Bitwarden അൺലോക്കുചെയ്യുന്നതിന് തങ്ങളുടെ പിൻ കോഡ് സജ്ജമാക്കുക. തങ്ങൾ എപ്പോഴെങ്കിലും അപ്ലിക്കേഷനിൽ നിന്ന് പൂർണ്ണമായി ലോഗ് ഔട്ട് ചെയ്യുകയാണെങ്കിൽ, പിൻ ക്രമീകരണങ്ങൾ പുനസജ്ജമാക്കും.";
 "LoggedInAsOn" = "%2$@ൽ %1$@ പ്രവേശിച്ചരിക്കുന്നു.";
 "VaultLockedMasterPassword" = "നിങ്ങളുടെ വാൾട് പൂട്ടിയിരിക്കുന്നു. തുടരുന്നതിന് നിങ്ങളുടെ പ്രാഥമിക പാസ്‌വേഡ് സ്ഥിരീകരിക്കുക .";
 "VaultLockedPIN" = "നിങ്ങളുടെ വാൾട് പൂട്ടിയിരിക്കുന്നു. തുടരാൻ പിൻ കോഡ് സ്ഥിരീകരിക്കുക.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

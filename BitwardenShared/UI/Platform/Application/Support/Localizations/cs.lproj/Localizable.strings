@@ -11,6 +11,7 @@
 "CopyUsername" = "Kopírovat uživatelské jméno";
 "Credits" = "Autoři";
 "Delete" = "Smazat";
+"DeleteAll" = "Smazat vše";
 "Deleting" = "Mazání...";
 "DoYouReallyWantToDelete" = "Opravdu chcete smazat tuto položku? Akce je nevratná.";
 "Edit" = "Upravit";
@@ -414,6 +415,7 @@
 "ItemShared" = "Položka byla sdílena.";
 "SelectOneCollection" = "Musíte vybrat alespoň jednu kolekci.";
 "Share" = "Sdílet";
+"ShareAll" = "Sdílet vše";
 "ShareItem" = "Sdílet položku";
 "MoveToOrganization" = "Přesunout do organizace";
 "NoOrgsToList" = "Žádné organizace k zobrazení.";
@@ -435,7 +437,6 @@
 "Unlock" = "Odemknout";
 "UnlockVault" = "Odemknout trezor";
 "ThirtyMinutes" = "30 minut";
-"SetPINDescription" = "Nastavte svůj PIN kód pro odemknutí trezoru. Pokud se zcela odhlásíte z aplikace bude Váš aktuální PIN resetován.";
 "LoggedInAsOn" = "Přihlášen jako %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Váš trezor je uzamčen. Pro pokračování musíte zadat hlavní heslo.";
 "VaultLockedPIN" = "Váš trezor je uzamčen. Pro pokračování musíte zadat PIN.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Zobrazit zaznamenané logy";
 "RecordedLogs" = "Nahrané logy";
 "NoLogsRecorded" = "Nebyly zaznamenány žádné logy";
-"ExpiresToday" = "Vyprší dnes";
-"ExpiresInXDays" = "Vyprší za %1$@ dnů";
+"ExpiresAtXTime" = "Vyprší v %1$@";
+"ExpiresOnXDate" = "Vyprší %1$@";
+"ExpiresTomorrow" = "Vyprší zítra";
 "DateRangeXToY" = "%1$@ do %2$@";
 "SelfHostServerURL" = "Adresa URL serveru vlastního hostování";
+"AllowUniversalClipboard" = "Povolit univerzální schránku";
+"UseUniversalClipboardToCopyDescriptionLong" = "Použijte univerzální schránku pro kopírování zde a vložení na jiná zařízení přihlášená se stejným Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN musí mít nejméně %1$@ znaky. Pokud se z aplikace odhlásíte, nastavení PINu bude resetováno.";
+"DoYouReallyWantToDeleteThisLog" = "Opravdu chcete smazat tento log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Opravdu chcete smazat všechny zaznamenané logy?";

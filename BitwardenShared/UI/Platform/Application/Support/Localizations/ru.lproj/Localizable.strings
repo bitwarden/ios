@@ -11,6 +11,7 @@
 "CopyUsername" = "Скопировать имя пользователя";
 "Credits" = "Благодарности";
 "Delete" = "Удалить";
+"DeleteAll" = "Удалить все";
 "Deleting" = "Удаление...";
 "DoYouReallyWantToDelete" = "Вы действительно хотите удалить? Это действие необратимо.";
 "Edit" = "Изменить";
@@ -414,6 +415,7 @@
 "ItemShared" = "Элемент был сделан общим.";
 "SelectOneCollection" = "Необходимо выбрать хотя бы одну коллекцию.";
 "Share" = "Поделиться";
+"ShareAll" = "Поделиться всеми";
 "ShareItem" = "Поделиться элементом";
 "MoveToOrganization" = "Переместить в организацию";
 "NoOrgsToList" = "Нет организаций для отображения.";
@@ -435,7 +437,6 @@
 "Unlock" = "Разблокировать";
 "UnlockVault" = "Разблокировать хранилище";
 "ThirtyMinutes" = "30 минут";
-"SetPINDescription" = "Установите PIN-код для разблокировки Bitwarden. Настройки PIN-кода будут сброшены, если вы когда-либо полностью выйдете из приложения.";
 "LoggedInAsOn" = "На %2$@ авторизован %1$@.";
 "VaultLockedMasterPassword" = "Ваше хранилище заблокировано. Для продолжения введите мастер-пароль.";
 "VaultLockedPIN" = "Ваше хранилище заблокировано. Для продолжения введите PIN-код.";
@@ -1165,7 +1166,13 @@
 "ViewRecordedLogs" = "Просмотр записанных логов";
 "RecordedLogs" = "Записанные логи";
 "NoLogsRecorded" = "Нет записанных логов";
-"ExpiresToday" = "Истекает сегодня";
-"ExpiresInXDays" = "Истекает через %1$@ дней";
+"ExpiresAtXTime" = "Истекает %1$@";
+"ExpiresOnXDate" = "Истекает %1$@";
+"ExpiresTomorrow" = "Истекает завтра";
 "DateRangeXToY" = "%1$@ в %2$@";
 "SelfHostServerURL" = "URL собственного сервера";
+"AllowUniversalClipboard" = "Разрешить универсальный буфер обмена";
+"UseUniversalClipboardToCopyDescriptionLong" = "Используйте универсальный буфер обмена, чтобы копировать здесь и вставлять на других устройствах, авторизованных с тем же Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-код для Bitwarden должен состоять как минимум из %1$@ символов. Настройки PIN-кода будут сброшены, если вы полностью выйдете из приложения.";
+"DoYouReallyWantToDeleteThisLog" = "Вы действительно хотите удалить этот лог?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Вы действительно хотите удалить все записанные логи?";

@@ -11,6 +11,7 @@
 "CopyUsername" = "Copier le nom d'utilisateur";
 "Credits" = "Remerciements";
 "Delete" = "Supprimer";
+"DeleteAll" = "Delete all";
 "Deleting" = "Suppression...";
 "DoYouReallyWantToDelete" = "Êtes-vous sûr de vouloir supprimer ? Cette action ne peut pas être annulée.";
 "Edit" = "Modifier";
@@ -414,6 +415,7 @@
 "ItemShared" = "L'élément a été partagé.";
 "SelectOneCollection" = "Vous devez sélectionner au moins une collection.";
 "Share" = "Partager";
+"ShareAll" = "Share all";
 "ShareItem" = "Partager l'élément";
 "MoveToOrganization" = "Déplacer vers l'organisation";
 "NoOrgsToList" = "Aucune organisation à lister.";
@@ -435,7 +437,6 @@
 "Unlock" = "Déverrouiller";
 "UnlockVault" = "Déverrouiller le coffre";
 "ThirtyMinutes" = "30 minutes";
-"SetPINDescription" = "Définissez votre code PIN pour déverrouiller Bitwarden. Les paramètres relatifs à votre code PIN seront réinitialisés si vous vous déconnectez complètement de l'application.";
 "LoggedInAsOn" = "Connecté en tant que %1$@ sur %2$@.";
 "VaultLockedMasterPassword" = "Votre coffre est verrouillé. Vérifiez votre mot de passe principal pour continuer.";
 "VaultLockedPIN" = "Votre coffre est verrouillé. Vérifiez votre code PIN pour continuer.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
