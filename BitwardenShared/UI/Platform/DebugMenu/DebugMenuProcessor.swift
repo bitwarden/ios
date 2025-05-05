@@ -10,7 +10,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
     // MARK: Types
 
     typealias Services = HasConfigService
-    & HasErrorReporter
+        & HasErrorReporter
 
     // MARK: Properties
 
