@@ -57,7 +57,7 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
                 name: flag,
                 newValue: newValue
             )
-            state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.debugFlags)
+            state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
         }
     }
 
@@ -65,11 +65,11 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     /// Fetch the current debug feature flags.
     private func fetchFlags() async {
-        state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.debugFlags)
+        state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
     }
 
     /// Refreshes the feature flags by resetting their local values and fetching the latest configurations.
     private func refreshFlags() async {
-        state.featureFlags = await services.configService.refreshDebugFeatureFlags(FeatureFlag.debugFlags)
+        state.featureFlags = await services.configService.refreshDebugFeatureFlags(FeatureFlag.allCases)
     }
 }

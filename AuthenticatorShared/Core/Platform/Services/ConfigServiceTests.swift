@@ -541,7 +541,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         )
         appSettingsStore.overrideDebugFeatureFlag(name: "enable-pm-bwa-sync", value: false)
-        let flags = await subject.getDebugFeatureFlags()
+        let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
         let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "enable-pm-bwa-sync" })
         XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
     }
@@ -561,7 +561,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `refreshDebugFeatureFlags` will reset the flags to the original state before overriding.
     func test_refreshDebugFeatureFlags() async throws {
-        let flags = await subject.refreshDebugFeatureFlags()
+        let flags = await subject.refreshDebugFeatureFlags(FeatureFlag.allCases)
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
         let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
         XCTAssertFalse(flag.isEnabled)

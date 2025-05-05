@@ -18,10 +18,6 @@ public struct FeatureFlag: Codable, Equatable, Hashable, Sendable {
         self.rawValue = rawValue
     }
 
-    public var hashValue: Int {
-        rawValue.hashValue
-    }
-
     public func hash(into hasher: inout Hasher) {
         rawValue.hash(into: &hasher)
     }

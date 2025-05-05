@@ -10,7 +10,7 @@ class MockConfigService: ConfigService {
     // MARK: Properties
 
     var configMocker = InvocationMockerWithThrowingResult<(forceRefresh: Bool, isPreAuth: Bool), ServerConfig?>()
-    var configSubject = CurrentValueSubject<BitwardenShared.MetaServerConfig?, Never>(nil)
+    var configSubject = CurrentValueSubject<MetaServerConfig?, Never>(nil)
     var debugFeatureFlags = [DebugMenuFeatureFlag]()
     var featureFlagsBool = [FeatureFlag: Bool]()
     var featureFlagsBoolPreAuth = [FeatureFlag: Bool]()
@@ -27,7 +27,7 @@ class MockConfigService: ConfigService {
     // MARK: Methods
 
     func configPublisher(
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<BitwardenShared.MetaServerConfig?, Never>> {
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
         configSubject.eraseToAnyPublisher().values
     }
 
