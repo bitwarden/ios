@@ -37,7 +37,6 @@ public struct FeatureFlag: Codable, Equatable, Sendable {
         self.isRemotelyConfigured = isRemotelyConfigured
         self.rawValue = rawValue
     }
-
 }
 
 // MARK: - FeatureFlag + Hashable
