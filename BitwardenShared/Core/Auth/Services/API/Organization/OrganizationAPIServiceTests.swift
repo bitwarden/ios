@@ -93,4 +93,13 @@ class OrganizationAPIServiceTests: BitwardenTestCase {
             )
         )
     }
+
+    /// `leaveOrganization(organizationId:)` successfully runs the leaveOrganization
+    func test_leaveOrganization() async throws {
+        client.result = .httpSuccess(testData: .emptyResponse)
+
+        await assertAsyncDoesNotThrow {
+            try await subject.leaveOrganization(organizationId: "ORG_IDENTIFIER")
+        }
+    }
 }
