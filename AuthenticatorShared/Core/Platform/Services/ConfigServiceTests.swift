@@ -550,10 +550,11 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
     func test_toggleDebugFeatureFlag() async throws {
-        let flags = await subject.toggleDebugFeatureFlag(
+        await subject.toggleDebugFeatureFlag(
             name: FeatureFlag.enablePasswordManagerSync.rawValue,
             newValue: true
         )
+        let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
         let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
         XCTAssertTrue(flag.isEnabled)
