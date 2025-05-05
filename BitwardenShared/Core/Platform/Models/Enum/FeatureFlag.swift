@@ -4,7 +4,7 @@ import Foundation
 // MARK: - FeatureFlag
 
 /// An enum to represent a feature flag sent by the server
-extension FeatureFlag {
+extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable/disable account deprovisioning.
     static let accountDeprovisioning = FeatureFlag(rawValue: "pm-10308-account-deprovisioning")
 
@@ -56,6 +56,27 @@ extension FeatureFlag {
     /// A feature flag to enable SimpleLogin self-host alias generation
     static let simpleLoginSelfHostAlias = FeatureFlag(rawValue: "simple-login-self-host-alias")
 
+    public static var allCases: [FeatureFlag] {
+        [
+            .accountDeprovisioning,
+            .anonAddySelfHostAlias,
+            .cxpExportMobile,
+            .cxpImportMobile,
+            .cipherKeyEncryption,
+            .emailVerification,
+            .enableAuthenticatorSync,
+            .enableCipherKeyEncryption,
+            .flightRecorder,
+            .ignore2FANoticeEnvironmentCheck,
+            .importLoginsFlow,
+            .mobileErrorReporting,
+            .nativeCreateAccountFlow,
+            .refactorSsoDetailsEndpoint,
+            .restrictCipherItemDeletion,
+            .simpleLoginSelfHostAlias,
+        ]
+    }
+
 //    // MARK: Test Flags
 //
 //    /// A test feature flag that isn't remotely configured and has no initial value.
@@ -85,10 +106,10 @@ extension FeatureFlag {
     // MARK: Type Properties
 
     /// An array of feature flags available in the debug menu.
-//    static var debugMenuFeatureFlags: [FeatureFlag] {
-//        allCases.filter { !$0.rawValue.hasPrefix("test-") }
-//            .filter { $0 != .enableCipherKeyEncryption }
-//    }
+    static var debugMenuFeatureFlags: [FeatureFlag] {
+        allCases.filter { !$0.rawValue.hasPrefix("test-") }
+            .filter { $0 != .enableCipherKeyEncryption }
+    }
 
     /// The initial value of the feature flag.
     /// If `isRemotelyConfigured` is true for the flag, then this will get overridden by the server;
