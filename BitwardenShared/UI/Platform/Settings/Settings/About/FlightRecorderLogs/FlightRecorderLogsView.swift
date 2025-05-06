@@ -46,6 +46,7 @@ struct FlightRecorderLogsView: View {
         } else {
             EmptyContentView(
                 image: Asset.Images.Illustrations.secureDevices.swiftUIImage,
+                imageSize: .large,
                 text: Localizations.noLogsRecorded,
                 buttonContent: {
                     EmptyView()
