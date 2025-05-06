@@ -144,13 +144,13 @@ public extension EnvironmentURLData {
 public extension EnvironmentURLData {
     /// The default URLs for the US region.
     static let defaultUS = EnvironmentURLData(
-        api: URL(string: "https://api.bitwarden.com")!,
-        base: URL(string: "https://vault.bitwarden.com")!,
-        events: URL(string: "https://events.bitwarden.com")!,
-        icons: URL(string: "https://icons.bitwarden.net")!,
-        identity: URL(string: "https://identity.bitwarden.com")!,
-        notifications: URL(string: "https://notifications.bitwarden.com")!,
-        webVault: URL(string: "https://vault.bitwarden.com")!
+        api: URL(string: "https://api.qa.bitwarden.pw")!,
+        base: URL(string: "https://vault.qa.bitwarden.pw")!,
+        events: URL(string: "https://events.qa.bitwarden.pw")!,
+        icons: URL(string: "https://icons.qa.bitwarden.pw")!,
+        identity: URL(string: "https://identity.qa.bitwarden.pw")!,
+        notifications: URL(string: "https://notifications.qa.bitwarden.pw")!,
+        webVault: URL(string: "https://vault.qa.bitwarden.pw")!
     )
 
     /// The default URLs for the EU region.
