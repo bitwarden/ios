@@ -11,6 +11,7 @@
 "CopyUsername" = "ব্যবহারকারীর নাম অনুলিপিত করুন";
 "Credits" = "কৃতিত্ব";
 "Delete" = "মুছুন";
+"DeleteAll" = "Delete all";
 "Deleting" = "মোছা হচ্ছে...";
 "DoYouReallyWantToDelete" = "আপনি কি সত্যিই মুছে ফেলতে চান? এটিকে পূর্বের মত করা যাবে না।.";
 "Edit" = "সম্পাদনা";
@@ -414,6 +415,7 @@
 "ItemShared" = "Item has been shared.";
 "SelectOneCollection" = "You must select at least one collection.";
 "Share" = "Share";
+"ShareAll" = "Share all";
 "ShareItem" = "Share Item";
 "MoveToOrganization" = "Move to Organization";
 "NoOrgsToList" = "No organizations to list.";
@@ -435,7 +437,6 @@
 "Unlock" = "আনলক করুন";
 "UnlockVault" = "Unlock vault";
 "ThirtyMinutes" = "৩০ মিনিট";
-"SetPINDescription" = "Bitwarden আনলক করার জন্য আপনার পিন কোডটি সেট করুন। আপনি যদি অ্যাপ্লিকেশনটি থেকে পুরোপুরি লগ আউট করেন তবে আপনার পিন সেটিংস রিসেট করা হবে।";
 "LoggedInAsOn" = "%2$@-এ %1$@ হিসেবে লগইন করা হয়েছে।";
 "VaultLockedMasterPassword" = "আপনার ভল্ট লক করা আছে। চালিয়ে যেতে আপনার প্রধান পাসওয়ার্ডটি যাচাই করান।";
 "VaultLockedPIN" = "আপনার ভল্ট লক করা আছে। চালিয়ে যেতে আপনার পিন কোড যাচাই করান।";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

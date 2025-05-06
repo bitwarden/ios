@@ -11,6 +11,7 @@
 "CopyUsername" = "คัดลอกชื่อผู้ใช้";
 "Credits" = "เครดิต";
 "Delete" = "ลบ";
+"DeleteAll" = "Delete all";
 "Deleting" = "กำลังลบ...";
 "DoYouReallyWantToDelete" = "คุณแน่ใจหรือไม่ว่าต้องการลบ? การกระทำนี้ไม่สามารถเลิกทำได้";
 "Edit" = "แก้ไข";
@@ -417,6 +418,7 @@
 "ItemShared" = "รายการถูกแชร์แล้ว";
 "SelectOneCollection" = "คุณต้องเลือกอย่างน้อยหนึ่งคอลเลกชัน";
 "Share" = "แบ่งปัน";
+"ShareAll" = "Share all";
 "ShareItem" = "แชร์รายการนี้";
 "MoveToOrganization" = "ย้ายไปที่องค์กร
 ";
@@ -439,7 +441,6 @@
 "Unlock" = "Unlock";
 "UnlockVault" = "Unlock vault";
 "ThirtyMinutes" = "30 minutes";
-"SetPINDescription" = "Set your PIN code for unlocking Bitwarden. Your PIN settings will be reset if you ever fully log out of the application.";
 "LoggedInAsOn" = "Logged in as %1$@ on %2$@.";
 "VaultLockedMasterPassword" = "ตู้เซฟของคุณถูกล็อค ใส่รหัสผ่านหลักของคุณเพื่อดำเนินการต่อ";
 "VaultLockedPIN" = "ตู้เซฟของคุณถูกล็อค ใส่ PIN ของคุณเพื่อดำเนินการต่อ";
@@ -1167,7 +1168,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

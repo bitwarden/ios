@@ -11,6 +11,7 @@
 "CopyUsername" = "ユーザー名をコピー";
 "Credits" = "クレジット";
 "Delete" = "削除";
+"DeleteAll" = "Delete all";
 "Deleting" = "削除中…";
 "DoYouReallyWantToDelete" = "本当に削除しますか？この操作は元に戻せません。";
 "Edit" = "編集";
@@ -414,6 +415,7 @@
 "ItemShared" = "アイテムを共有しました。";
 "SelectOneCollection" = "コレクションを最低１つは選んでください。";
 "Share" = "共有";
+"ShareAll" = "Share all";
 "ShareItem" = "アイテムを共有する";
 "MoveToOrganization" = "組織に移動";
 "NoOrgsToList" = "表示する組織がありません。";
@@ -435,7 +437,6 @@
 "Unlock" = "ロック解除";
 "UnlockVault" = "保管庫のロックを解除";
 "ThirtyMinutes" = "30分";
-"SetPINDescription" = "Bitwarden のロックを解除するための PIN コードを設定します。アプリから完全にログアウトすると、PIN 設定はリセットされます。";
 "LoggedInAsOn" = "%1$@ として %2$@ にログインしました。";
 "VaultLockedMasterPassword" = "保管庫がロックされています。開くにはマスターパスワードを入力してください。";
 "VaultLockedPIN" = "保管庫がロックされています。PIN コードで認証してください。";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

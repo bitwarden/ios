@@ -11,6 +11,7 @@
 "CopyUsername" = "複製使用者名稱";
 "Credits" = "銘謝";
 "Delete" = "刪除";
+"DeleteAll" = "Delete all";
 "Deleting" = "正在刪除...";
 "DoYouReallyWantToDelete" = "您確定要刪除嗎？刪除後將無法復原。";
 "Edit" = "編輯";
@@ -414,6 +415,7 @@
 "ItemShared" = "已共用項目。";
 "SelectOneCollection" = "您必須至少選擇一個集合。";
 "Share" = "共用";
+"ShareAll" = "Share all";
 "ShareItem" = "共用項目";
 "MoveToOrganization" = "移動至組織";
 "NoOrgsToList" = "沒有可列出的組織。";
@@ -435,7 +437,6 @@
 "Unlock" = "解鎖";
 "UnlockVault" = "解鎖密碼庫";
 "ThirtyMinutes" = "30 分鐘";
-"SetPINDescription" = "設定您用來解鎖 Bitwarden 的 PIN 碼。您的 PIN 設定將在您完全結束本應用程式時被重設。";
 "LoggedInAsOn" = "已在 %2$@ 以 %1$@ 身份登入。";
 "VaultLockedMasterPassword" = "密碼庫已鎖定。請驗證主密碼以繼續。";
 "VaultLockedPIN" = "密碼庫已鎖定。請驗證 PIN 碼以繼續。";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

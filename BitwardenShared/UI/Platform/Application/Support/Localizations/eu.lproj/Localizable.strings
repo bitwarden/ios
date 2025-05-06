@@ -11,6 +11,7 @@
 "CopyUsername" = "Kopiatu erabiltzaile-izena";
 "Credits" = "Kredituak";
 "Delete" = "Ezabatu";
+"DeleteAll" = "Delete all";
 "Deleting" = "Ezabatzen...";
 "DoYouReallyWantToDelete" = "Ziur al zaude benetan ezabatu nahi duzula? Eragiketa hau ezin da desegin!";
 "Edit" = "Editatu";
@@ -414,6 +415,7 @@
 "ItemShared" = "Elementua partekatu da.";
 "SelectOneCollection" = "Gutxienez bilduma bat aukeratu behar duzu.";
 "Share" = "Partekatu";
+"ShareAll" = "Share all";
 "ShareItem" = "Partekatu elementua";
 "MoveToOrganization" = "Mugitu erakundera";
 "NoOrgsToList" = "Ez dago erakunderik erakusteko.";
@@ -435,7 +437,6 @@
 "Unlock" = "Desblokeatu";
 "UnlockVault" = "Desblokeatu kutxa gotorra";
 "ThirtyMinutes" = "30 minutu";
-"SetPINDescription" = "Ezarri zure PIN kodea Bitwarden desblokeatzeko. Zure PIN-aren konfigurazioa berrezarriko da, noizbait aplikaziotik erabat saioa ixten baduzu.";
 "LoggedInAsOn" = "%2$@-en %1$@ bezala saioa hasita.";
 "VaultLockedMasterPassword" = "Zure kutxa gotorra blokeatuta dago. Egiaztatu zure pasahitz nagusia jarraitzeko.";
 "VaultLockedPIN" = "Zure kutxa gotorra blokeatuta dago. Egiaztatu zure PIN kodea jarraitzeko.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

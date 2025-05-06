@@ -11,6 +11,7 @@
 "CopyUsername" = "Kopírovať používateľské meno";
 "Credits" = "Poďakovania";
 "Delete" = "Odstrániť";
+"DeleteAll" = "Odstrániť všetko";
 "Deleting" = "Odstraňuje sa...";
 "DoYouReallyWantToDelete" = "Naozaj chcete odstrániť? Nedá sa to vrátiť späť.";
 "Edit" = "Upraviť";
@@ -414,6 +415,7 @@
 "ItemShared" = "Položka bola zdieľaná.";
 "SelectOneCollection" = "Musíte vybrať aspoň jednu zbierku.";
 "Share" = "Zdieľať";
+"ShareAll" = "Zdieľať všetko";
 "ShareItem" = "Zdieľať položku";
 "MoveToOrganization" = "Presunúť do Organizácie";
 "NoOrgsToList" = "Nenašli sa žiadne organizácie.";
@@ -435,7 +437,6 @@
 "Unlock" = "Odomknúť";
 "UnlockVault" = "Odomknúť trezor";
 "ThirtyMinutes" = "30 minút";
-"SetPINDescription" = "Nastaviť kód PIN na odomknutie Bitwarden. Nastavenie PIN sa vynuluje, ak úplne odhlásite z aplikácie.";
 "LoggedInAsOn" = "Prihlásený ako %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Váš trezor je uzamknutý. Overte sa hlavným heslom ak chcete pokračovať.";
 "VaultLockedPIN" = "Váš trezor je uzamknutý. Overte sa PIN kódom ak chcete pokračovať.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Zobraziť zaznamenané logy";
 "RecordedLogs" = "Zaznamenané logy";
 "NoLogsRecorded" = "Žiadne zaznamenané logy";
-"ExpiresToday" = "Dnes exspirované";
-"ExpiresInXDays" = "Dni do exspirácie: %1$@";
+"ExpiresAtXTime" = "Platnosť končí o %1$@";
+"ExpiresOnXDate" = "Platnosť končí %1$@";
+"ExpiresTomorrow" = "Platnosť končí zajtra";
 "DateRangeXToY" = "%1$@ do %2$@";
 "SelfHostServerURL" = "Adresa URL vlastného hostingu";
+"AllowUniversalClipboard" = "Povoliť Univerzálnu schránku";
+"UseUniversalClipboardToCopyDescriptionLong" = "Použiť Univerzálnu schránku na kopírovanie a vkladanie na ďalších zariadeniach prihlásených s rovnakým Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN kód musí mať aspoň %1$@ znakov. Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.";
+"DoYouReallyWantToDeleteThisLog" = "Naozaj chcete odstrániť tento log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Naozaj chcete odstrániť všetky zaznamenané logy?";

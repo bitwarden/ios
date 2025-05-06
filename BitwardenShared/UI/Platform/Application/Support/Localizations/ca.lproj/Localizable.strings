@@ -11,6 +11,7 @@
 "CopyUsername" = "Copia el nom d'usuari";
 "Credits" = "Crèdits";
 "Delete" = "Suprimeix";
+"DeleteAll" = "Delete all";
 "Deleting" = "S'està suprimint...";
 "DoYouReallyWantToDelete" = "Eseu segur que voleu suprimir? Això no es pot desfer.";
 "Edit" = "Edita";
@@ -414,6 +415,7 @@
 "ItemShared" = "L'element s'ha compartit.";
 "SelectOneCollection" = "Heu d'escollir com a mínim una col·lecció.";
 "Share" = "Comparteix";
+"ShareAll" = "Share all";
 "ShareItem" = "Comparteix l'element";
 "MoveToOrganization" = "Desplaça a l'organització";
 "NoOrgsToList" = "No hi ha cap organització per llistar.";
@@ -435,7 +437,6 @@
 "Unlock" = "Desbloqueja";
 "UnlockVault" = "Desbloqueja la caixa forta";
 "ThirtyMinutes" = "30 minuts";
-"SetPINDescription" = "Estableix el teu codi PIN per desbloquejar Bitwarden. La configuració PIN es restablirà si tanqueu sessió de manera completa de l'aplicació.";
 "LoggedInAsOn" = "Heu iniciat la sessió com a %1$@ en %2$@.";
 "VaultLockedMasterPassword" = "La caixa forta està bloquejada. Verifiqueu la contrasenya mestra per continuar.";
 "VaultLockedPIN" = "La caixa forta està bloquejada. Verifiqueu El codi PIN per continuar.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

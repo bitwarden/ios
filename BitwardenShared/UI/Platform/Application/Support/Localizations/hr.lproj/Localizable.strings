@@ -11,6 +11,7 @@
 "CopyUsername" = "Kopiraj korisničko ime";
 "Credits" = "Zasluge";
 "Delete" = "Izbriši";
+"DeleteAll" = "Delete all";
 "Deleting" = "Brisanje...";
 "DoYouReallyWantToDelete" = "Sigurno želiš izbrisati? To se ne može poništiti.";
 "Edit" = "Uredi";
@@ -414,6 +415,7 @@
 "ItemShared" = "Stavka je podijeljena.";
 "SelectOneCollection" = "Moraš odabrati barem jednu zbirku.";
 "Share" = "Podijeli";
+"ShareAll" = "Share all";
 "ShareItem" = "Podijeli stavku";
 "MoveToOrganization" = "Premjesti u organizaciju";
 "NoOrgsToList" = "Nema organizacija za prikaz.";
@@ -435,7 +437,6 @@
 "Unlock" = "Otključaj";
 "UnlockVault" = "Otključaj trezor";
 "ThirtyMinutes" = "30 minuta";
-"SetPINDescription" = "Postavi svoj PIN kôd za otključavanje Bitwardena. Postavke PIN-a se resetiraju ako se potpuno odjaviš iz aplikacije.";
 "LoggedInAsOn" = "Prijavljen/a kao %1$@ na %2$@.";
 "VaultLockedMasterPassword" = "Tvoj trezor je zaključan. Potvrdi glavnu lozinku za nastavak.";
 "VaultLockedPIN" = "Tvoj trezor je zaključan. Potvrdi PIN-om za nastavak.";
@@ -1164,7 +1165,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

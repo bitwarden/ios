@@ -11,6 +11,7 @@
 "CopyUsername" = "Sao chép tên đăng nhập";
 "Credits" = "Đóng góp";
 "Delete" = "Xóa";
+"DeleteAll" = "Xóa tất cả";
 "Deleting" = "Đang xoá...";
 "DoYouReallyWantToDelete" = "Bạn có chắc chắn muốn xóa nó không? Thao tác này không thể được khôi phục.";
 "Edit" = "Sửa";
@@ -414,6 +415,7 @@
 "ItemShared" = "Đã chia sẻ mục.";
 "SelectOneCollection" = "Bạn phải chọn ít nhất một bộ sưu tập.";
 "Share" = "Chia sẻ";
+"ShareAll" = "Chia sẻ tất cả";
 "ShareItem" = "Chia sẻ mục";
 "MoveToOrganization" = "Chuyển tới Tổ chức";
 "NoOrgsToList" = "Không có tổ chức.";
@@ -435,7 +437,6 @@
 "Unlock" = "Mở khóa";
 "UnlockVault" = "Mở kho";
 "ThirtyMinutes" = "30 phút";
-"SetPINDescription" = "Đặt mã PIN để mở khóa Bitwarden. Cài đặt mã PIN của bạn sẽ bị xóa nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.";
 "LoggedInAsOn" = "Đã đăng nhập %1$@ trên %2$@.";
 "VaultLockedMasterPassword" = "Dùng mật khẩu chính của bạn để mở khóa kho.";
 "VaultLockedPIN" = "Đã khóa kho của bạn. Nhập mã PIN để mở.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Xem nhật ký đã lưu";
 "RecordedLogs" = "Nhật ký đã lưu";
 "NoLogsRecorded" = "Chưa có nhật ký";
-"ExpiresToday" = "Hết hạn hôm nay";
-"ExpiresInXDays" = "Hết hạn sau %1$@ ngày";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ đến %2$@";
 "SelfHostServerURL" = "URL máy chủ tự lưu trữ";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Mã PIN tối thiểu %1$@ ký tự. Cài đặt mã PIN của bạn sẽ được đặt lại nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.";
+"DoYouReallyWantToDeleteThisLog" = "Bạn muốn xoá nhật ký này?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Bạn muốn xoá tất cả nhật ký?";

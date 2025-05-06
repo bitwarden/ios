@@ -11,6 +11,7 @@
 "CopyUsername" = "Gebruikersnaam kopiëren";
 "Credits" = "Met dank aan";
 "Delete" = "Verwijderen";
+"DeleteAll" = "Alles verwijderen";
 "Deleting" = "Verwijderen…";
 "DoYouReallyWantToDelete" = "Weet je zeker dat je wilt verwijderen? Je kunt dit niet ongedaan maken.";
 "Edit" = "Bewerken";
@@ -414,6 +415,7 @@
 "ItemShared" = "Item is gedeeld.";
 "SelectOneCollection" = "Je moet tenminste één verzameling selecteren.";
 "Share" = "Delen";
+"ShareAll" = "Alles delen";
 "ShareItem" = "Item delen";
 "MoveToOrganization" = "Naar organisatie verplaatsen";
 "NoOrgsToList" = "Geen organisaties om weer te geven.";
@@ -435,7 +437,6 @@
 "Unlock" = "Ontgrendelen";
 "UnlockVault" = "Kluis ontgrendelen";
 "ThirtyMinutes" = "30 minuten";
-"SetPINDescription" = "Stel je PIN-code in voor het ontgrendelen van Bitwarden. Je PIN-code wordt opnieuw ingesteld als je je ooit volledig afmeldt bij de applicatie.";
 "LoggedInAsOn" = "Aangemeld als %1$@ op %2$@.";
 "VaultLockedMasterPassword" = "Je kluis is vergrendeld. Voer je hoofdwachtwoord in om door te gaan.";
 "VaultLockedPIN" = "Je kluis is vergrendeld. Voer je PIN-code in om door te gaan.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Logopnames bekijken";
 "RecordedLogs" = "Logopnames";
 "NoLogsRecorded" = "Geen logs opgenomen";
-"ExpiresToday" = "Verloopt vandaag";
-"ExpiresInXDays" = "Verloopt over %1$@ dagen";
+"ExpiresAtXTime" = "Verloopt op %1$@";
+"ExpiresOnXDate" = "Verloopt op %1$@";
+"ExpiresTomorrow" = "Verloopt morgen";
 "DateRangeXToY" = "%1$@ tot %2$@";
 "SelfHostServerURL" = "URL zelfgehoste server";
+"AllowUniversalClipboard" = "Universeel klembord toestaan";
+"UseUniversalClipboardToCopyDescriptionLong" = "Gebruik Universeel Klembord om hier te kopiëren en te plakken op andere apparaten die zijn ingelogd met hetzelfde Apple-ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Je PINmoet tenminste %1$@ tekens bevatten. Je PIN-instellingen worden gereset als je je ooit volledig uitlogt.";
+"DoYouReallyWantToDeleteThisLog" = "Weet je zeker dat je dit log wilt verwijderen?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Weet je zeker dat je alle logs wilt verwijderen?";
