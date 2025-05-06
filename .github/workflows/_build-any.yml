@@ -176,7 +176,7 @@ jobs:
         run: |
           mint bootstrap
 
-      - name: Build ${{ inputs.environment }}
+      - name: Build ${{ inputs.bw-env }}
         run: |
           ./Scripts/build.sh $_BUILD_PROJECT_PATH $_BUILD_SCHEME $_BUILD_MODE
 
@@ -192,28 +192,36 @@ jobs:
             export_path:$_EXPORT_PATH
 
       - name: Get artifact name
-        id: get_artifact_name
+        id: get_file_paths
         run: |
-          ARTIFACT_NAME=$(bundle exec fastlane get_artifact_name \
+          OUTPUT=$(bundle exec fastlane get_artifact_name \
             --env $_BW_ENV \
             build_mode:$_BUILD_MODE \
             version_name:$_VERSION_NAME \
             version_number:$_VERSION_NUMBER \
             xcode_version:$_XCODE_VERSION \
-            | grep "artifact_filename: " \
-            | cut -d' ' -f3)
+            export_path:$_EXPORT_PATH)
+
+          ARTIFACT_NAME=$(echo "$OUTPUT" | grep "artifact_filename: " | cut -d' ' -f3)
+          EXPORT_FILEPATH=$(echo "$OUTPUT" | grep "export_filepath: " | cut -d' ' -f3)
 
           if [ -z "$ARTIFACT_NAME" ]; then
             echo "::error::Failed to get artifact name"
             exit 1
           fi
 
-          echo "filename=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+          if [ -z "$EXPORT_FILEPATH" ]; then
+            echo "::error::Failed to get export filepath"
+            exit 1
+          fi
+
+          echo "artifact_filename=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+          echo "export_filepath=$EXPORT_FILEPATH" >> $GITHUB_OUTPUT
 
       - name: Upload artifacts to GitHub
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
         with:
-          name: ${{ steps.get_artifact_name.outputs.filename }}
+          name: ${{ steps.get_file_paths.outputs.artifact_filename }}
           path: ${{ env._EXPORT_PATH }}
           if-no-files-found: error
 
@@ -227,15 +235,19 @@ jobs:
 
       - name: Validate app with App Store Connect
         if: env._BUILD_MODE == 'Device'
+        env:
+          _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
         run: |
           xcrun altool --validate-app \
             --type ios \
-            --file "export/Bitwarden.ipa" \
+            --file "$_EXPORT_FILEPATH" \
             --apiKey "J46C83CB96" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight with Fastlane
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
+        env:
+          _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
         run: |
           CHANGELOG="$(git show -s --format=%s)
           $GITHUB_REPOSITORY/$GITHUB_REF_NAME @ $GITHUB_SHA
@@ -246,4 +258,4 @@ jobs:
           fastlane upload_build \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
-            ipa_path:"export/Bitwarden.ipa"
+            ipa_path:"$_EXPORT_FILEPATH"

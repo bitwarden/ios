@@ -62,22 +62,26 @@ platform :ios do |options|
             :version_name,
             :version_number,
             :xcode_version,
+            :export_path,
         ]
         ensure_required_options(options, required_options)
 
         ensure_env_vars(
-             env_vars: ['_BUNDLE_ID']
+             env_vars: ['_BUNDLE_ID', '_BUILD_SCHEME']
         )
 
         build_mode = ensure_build_mode(options[:build_mode])
         version_name = options[:version_name]
         version_number = options[:version_number]
         xcode_version = options[:xcode_version]
+        export_path = options[:export_path]
 
         bundle_id = ENV["_BUNDLE_ID"]
+        build_scheme = ENV["_BUILD_SCHEME"]
         ext = ARTIFACT_EXTENSION[build_mode]
         app_config = lane_context[:APP_CONFIG]
         UI.message "artifact_filename: #{bundle_id}-#{version_name}(#{version_number})-#{xcode_version}.#{ext}"
+        UI.message "export_filepath: #{export_path}/#{build_scheme}.#{ext}"
     end
 
     desc "Load .env variables (underscore prefixed) to GITHUB_ENV"
