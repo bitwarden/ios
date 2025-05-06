@@ -8,6 +8,7 @@ import Foundation
 extension FeatureFlag: @retroactive CaseIterable {
     // MARK: Feature Flags
 
+    /// A feature flag that determines whether or not the password manager sync capability is enabled.
     static let enablePasswordManagerSync = FeatureFlag(
         rawValue: "enable-pm-bwa-sync"
     )
