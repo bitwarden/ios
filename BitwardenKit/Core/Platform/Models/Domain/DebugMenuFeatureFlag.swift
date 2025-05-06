@@ -1,4 +1,3 @@
-import BitwardenKit
 import Foundation
 
 // MARK: - DebugMenuFeatureFlag
@@ -6,15 +5,21 @@ import Foundation
 /// A structure representing a feature flag in the debug menu, including its enabled state.
 /// This is used to display and manage feature flags within the debug menu interface.
 ///
-struct DebugMenuFeatureFlag: Equatable, Identifiable {
+public struct DebugMenuFeatureFlag: Equatable, Identifiable, Sendable {
     /// A unique identifier for the feature flag, based on its raw value.
-    var id: String {
+    public var id: String {
         feature.rawValue
     }
 
     /// The feature flag enum that this instance represents.
-    let feature: FeatureFlag
+    public let feature: FeatureFlag
 
     /// A boolean value indicating whether the feature is enabled or not.
-    let isEnabled: Bool
+    public let isEnabled: Bool
+
+    /// Public version of synthesized initializer.
+    public init(feature: FeatureFlag, isEnabled: Bool) {
+        self.feature = feature
+        self.isEnabled = isEnabled
+    }
 }
