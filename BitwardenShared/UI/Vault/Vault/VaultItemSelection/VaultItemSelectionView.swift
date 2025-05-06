@@ -150,9 +150,9 @@ private struct VaultItemSelectionSearchableView: View {
     @ViewBuilder
     private func contentView() -> some View {
         if store.state.vaultListSections.isEmpty {
-            EmptyContentView(
+            PageHeaderView(
                 image: Asset.Images.Illustrations.items.swiftUIImage,
-                text: emptyViewMessage
+                message: emptyViewMessage
             ) {
                 Button {
                     store.send(.addTapped)
@@ -167,7 +167,9 @@ private struct VaultItemSelectionSearchableView: View {
                             ))
                     }
                 }
+                .buttonStyle(.primary(shouldFillWidth: false))
             }
+            .scrollView(centerContentVertically: true)
         } else {
             matchingItemsView()
         }

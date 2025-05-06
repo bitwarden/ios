@@ -209,9 +209,9 @@ private struct VaultAutofillListSearchableView: View {
 
             Group {
                 if store.state.vaultListSections.isEmpty {
-                    EmptyContentView(
+                    PageHeaderView(
                         image: Asset.Images.Illustrations.items.swiftUIImage,
-                        text: store.state.emptyViewMessage
+                        message: store.state.emptyViewMessage
                     ) {
                         if store.state.isAutofillingTotpList
                             || store.state.isAutofillingTextToInsertList {
@@ -230,8 +230,10 @@ private struct VaultAutofillListSearchableView: View {
                                         ))
                                 }
                             }
+                            .buttonStyle(.primary(shouldFillWidth: false))
                         }
                     }
+                    .scrollView(centerContentVertically: true)
                 } else {
                     cipherListView(store.state.vaultListSections)
                 }

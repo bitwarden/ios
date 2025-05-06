@@ -16,15 +16,16 @@ class PageHeaderViewTests: BitwardenTestCase {
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
-            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-            accessory: Button {
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        ) {
+            Button {
                 tapped = true
             } label: {
                 Text(Localizations.learnMore)
                     .styleGuide(.subheadline)
                     .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
             }
-        )
+        }
         let button = try subject.inspect().find(button: Localizations.learnMore)
         try button.tap()
         XCTAssertTrue(tapped)
@@ -70,13 +71,14 @@ class PageHeaderViewTests: BitwardenTestCase {
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
-            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-            accessory: Button {} label: {
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        ) {
+            Button {} label: {
                 Text(Localizations.learnMore)
                     .styleGuide(.subheadline)
                     .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
             }
-        )
+        }
         assertSnapshots(
             of: subject,
             as: [

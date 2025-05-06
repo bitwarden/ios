@@ -20,7 +20,7 @@ struct PageHeaderView<Accessory: View>: View {
     let style: PageHeaderStyle
 
     /// The title to display in the page header.
-    let title: String
+    let title: String?
 
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -40,9 +40,11 @@ struct PageHeaderView<Accessory: View>: View {
                 }
 
             VStack(spacing: style.spaceBetweenTitleAndMessage) {
-                Text(title)
-                    .styleGuide(style.titleTextStyle, weight: .bold)
-                    .accessibilityIdentifier("HeaderTitle")
+                if let title {
+                    Text(title)
+                        .styleGuide(style.titleTextStyle, weight: .bold)
+                        .accessibilityIdentifier("HeaderTitle")
+                }
 
                 Text(LocalizedStringKey(message))
                     .styleGuide(style.messageTextStyle)
@@ -71,11 +73,11 @@ struct PageHeaderView<Accessory: View>: View {
     init(
         image: Image,
         style: PageHeaderStyle = .smallImage,
-        title: String,
+        title: String? = nil,
         message: String,
-        accessory: Accessory
+        @ViewBuilder accessory: () -> Accessory
     ) {
-        self.accessory = accessory
+        self.accessory = accessory()
         self.image = image
         self.message = message
         self.style = style
@@ -94,11 +96,11 @@ struct PageHeaderView<Accessory: View>: View {
     init(
         image: ImageAsset,
         style: PageHeaderStyle = .smallImage,
-        title: String,
+        title: String? = nil,
         message: String,
-        accessory: Accessory
+        @ViewBuilder accessory: () -> Accessory
     ) {
-        self.accessory = accessory
+        self.accessory = accessory()
         self.image = image.swiftUIImage
         self.message = message
         self.style = style
@@ -132,7 +134,7 @@ extension PageHeaderView where Accessory == EmptyView {
     init(
         image: Image,
         style: PageHeaderStyle = .smallImage,
-        title: String,
+        title: String? = nil,
         message: String
     ) {
         accessory = nil
@@ -153,7 +155,7 @@ extension PageHeaderView where Accessory == EmptyView {
     init(
         image: ImageAsset,
         style: PageHeaderStyle = .smallImage,
-        title: String,
+        title: String? = nil,
         message: String
     ) {
         accessory = nil
@@ -190,13 +192,14 @@ extension PageHeaderView where Accessory == EmptyView {
         image: Asset.Images.Illustrations.biometricsPhone,
         style: .mediumImage,
         title: Localizations.setUpUnlock,
-        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-        accessory: Button {} label: {
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+    ) {
+        Button {} label: {
             Text(Localizations.learnMore)
                 .styleGuide(.subheadline)
                 .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
         }
-    )
+    }
 }
 
 #Preview("LargeTextTintedIcon") {
