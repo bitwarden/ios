@@ -43,7 +43,7 @@ jobs:
           private-key: ${{ secrets.BW_GHAPP_KEY }}
 
       - name: Download translations for Password Manager
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.pull-bwpm == true || true }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.pull-bwpm || true }}
         uses: crowdin/github-action@b8012bd5491b8aa8578b73ab5b5f5e7c94aaa6e2 # v2.7.0
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -65,7 +65,7 @@ jobs:
           gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
 
       - name: Download translations for Authenticator
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.pull-bwa == true || true }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.pull-bwa || true }}
         uses: crowdin/github-action@b8012bd5491b8aa8578b73ab5b5f5e7c94aaa6e2 # v2.7.0
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -83,5 +83,5 @@ jobs:
           create_pull_request: true
           pull_request_title: ":shipit: Crowdin Pull - Authenticator"
           pull_request_body: ":inbox_tray: New translations for Authenticator received!"
-          gpg_private_key: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key }}
-          gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
+          #NOTE - gpg_private_key and gpg_passphrase ommited because they're setup by the previous step.
+          #       This step would fail if they were included again
