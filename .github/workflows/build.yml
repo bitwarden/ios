@@ -402,6 +402,15 @@ jobs:
             --apiKey "J46C83CB96" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
+      - name: Upload dSYM files to Crashlytics
+        if: ${{ env._BUILD_MODE == 'Device' }}
+        continue-on-error: true
+        run: |
+          find export/dSYMs -name "*.dSYM" \
+            -exec "build/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
+            -gsp Bitwarden/Application/Support/GoogleService-Info.plist \
+            -p ios -- {} +
+
       - name: Upload app to TestFlight with Fastlane
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
         run: |

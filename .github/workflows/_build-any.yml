@@ -113,7 +113,7 @@ jobs:
           done
 
           echo "⌛️ Downloading Google-Services.plist..."
-          az_download mobile $_AZ_CRASHLYTICS_FILE_NAME "Bitwarden/Application/Support/GoogleService-Info.plist"
+          az_download mobile $_AZ_CRASHLYTICS_FILE_NAME $_CRASHLYTICS_PATH
 
           if [[ "$_APP" == "password_manager" ]]; then
             echo "⌛️ Downloading Google-Services.plist for watchOS..."
@@ -243,6 +243,25 @@ jobs:
             --file "$_EXPORT_FILEPATH" \
             --apiKey "J46C83CB96" \
             --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
+
+      - name: Upload dSYM files to Crashlytics
+        if: ${{ env._BUILD_MODE == 'Device' }}
+        continue-on-error: true
+        run: |
+          # Find the path to the upload-symbols executable
+          UPLOAD_SYMBOLS_PATH=$(find . -name "upload-symbols" -type f | head -n 1)
+
+          if [ -z "$UPLOAD_SYMBOLS_PATH" ]; then
+            echo "::warning::Could not find upload-symbols executable"
+            exit 0
+          fi
+
+          echo "Found upload-symbols at: $UPLOAD_SYMBOLS_PATH"
+
+          find $_EXPORT_PATH/dSYMs -name "*.dSYM" \
+            -exec "build/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/upload-symbols" \
+            -gsp $_CRASHLYTICS_PATH \
+            -p ios -- {} +
 
       - name: Upload app to TestFlight with Fastlane
         if: ${{ inputs.distribute && env._BUILD_MODE == 'Device' }}
