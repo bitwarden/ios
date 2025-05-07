@@ -26,6 +26,9 @@ enum VaultListAction: Equatable {
     /// An item in the vault was pressed.
     case itemPressed(item: VaultListItem)
 
+    /// The user tapped the go to settings button in the flight recorder banner.
+    case navigateToFlightRecorderSettings
+
     /// A forwarded profile switcher action
     case profileSwitcher(ProfileSwitcherAction)
 

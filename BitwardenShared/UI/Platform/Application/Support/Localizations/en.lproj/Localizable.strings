@@ -1180,3 +1180,6 @@
 "KeyConnectorConfirmDomainWithAdmin" = "Please confirm the domain below with your organization administrator.\n\nKey Connector domain:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
+"FlightRecorderOn" = "Flight recorder on";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
+"GoToSettings" = "Go to settings";

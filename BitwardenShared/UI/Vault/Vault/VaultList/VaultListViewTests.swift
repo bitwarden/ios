@@ -6,6 +6,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - VaultListViewTests
 
 class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -202,6 +204,16 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
     }
 
+    /// Tapping the go to settings button in the flight recorder toast banner dispatches the
+    /// `.navigateToFlightRecorderSettings` action.
+    @MainActor
+    func test_toastBannerGoToSettings_tap() async throws {
+        processor.state.isFlightRecorderToastBannerVisible = true
+        let button = try subject.inspect().find(button: Localizations.goToSettings)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.navigateToFlightRecorderSettings])
+    }
+
     /// Tapping the try again button dispatches the `.tryAgainTapped` action.
     @MainActor
     func test_tryAgainButton_tap() async throws {
@@ -268,6 +280,17 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_snapshot_errorState() {
         processor.state.loadingState = .error(
             errorMessage: Localizations.weAreUnableToProcessYourRequestPleaseTryAgainOrContactUs
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
+    func test_snapshot_flightRecorderToastBanner() {
+        processor.state.loadingState = .data([])
+        processor.state.isFlightRecorderToastBannerVisible = true
+        processor.state.activeFlightRecorderLog = FlightRecorderData.LogMetadata(
+            duration: .twentyFourHours,
+            startDate: Date(year: 2025, month: 4, day: 3)
         )
         assertSnapshot(of: subject, as: .defaultPortrait)
     }

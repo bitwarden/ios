@@ -506,4 +506,8 @@ extension AppCoordinator: VaultCoordinatorDelegate {
     func presentLoginRequest(_ loginRequest: LoginRequest) {
         showLoginRequest(loginRequest)
     }
+
+    func switchToSettingsTab(route: SettingsRoute) {
+        navigate(to: .tab(.settings(route)))
+    }
 } // swiftlint:disable:this file_length
