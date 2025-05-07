@@ -1,5 +1,5 @@
 name: CI / Crowdin Push
-run-name: Crowdin Push -${{ github.event_name == 'workflow_dispatch' && 'Manual' || 'CI' }}
+run-name: Crowdin Push - ${{ github.event_name == 'workflow_dispatch' && 'Manual' || 'CI' }}
 
 on:
   workflow_dispatch:
