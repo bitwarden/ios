@@ -46,8 +46,8 @@ jobs:
           download_translations: true
           github_user_name: "bitwarden-devops-bot"
           github_user_email: "106330231+bitwarden-devops-bot@users.noreply.github.com"
-          commit_message: "Autosync the updated translations"
-          localization_branch_name: crowdin-auto-sync
+          commit_message: "Pull translations from Crowdin"
+          localization_branch_name: crowdin-pull-bwpm
           create_pull_request: true
           pull_request_title: ":shipit: Crowdin Pull - Password Manager"
           pull_request_body: ":inbox_tray: New translations for Password Manager received!"
@@ -67,8 +67,8 @@ jobs:
           download_translations: true
           github_user_name: "bitwarden-devops-bot"
           github_user_email: "106330231+bitwarden-devops-bot@users.noreply.github.com"
-          commit_message: "Autosync the updated translations"
-          localization_branch_name: crowdin-auto-sync
+          commit_message: "Pull translations from Crowdin"
+          localization_branch_name: crowdin-pull-bwa
           create_pull_request: true
           pull_request_title: ":shipit: Crowdin Pull - Authenticator"
           pull_request_body: ":inbox_tray: New translations for Authenticator received!"
