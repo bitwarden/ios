@@ -1001,9 +1001,9 @@ extension StateService {
     ///
     /// - Returns: The server config sent by the server for the active account.
     ///
-    func getServerConfig() async throws -> ServerConfig? {
-        try await getServerConfig(userId: nil)
-    }
+//    func getServerConfig() async throws -> ServerConfig? {
+//        try await getServerConfig(userId: nil)
+//    }
 
     /// Gets the sync to authenticator value for the active account.
     ///
@@ -1332,7 +1332,7 @@ enum StateServiceError: LocalizedError {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService { // swiftlint:disable:this type_body_length
+actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The language option currently selected for the app.

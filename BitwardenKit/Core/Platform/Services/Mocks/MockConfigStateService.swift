@@ -6,6 +6,8 @@ public class MockConfigStateService: ConfigStateService {
     public var preAuthServerConfig: ServerConfig?
     public var serverConfig = [String: ServerConfig]()
 
+    public init() {}
+
     public func getActiveAccountId() async throws -> String {
         guard let activeAccountId else { throw BitwardenTestError.example }
         return activeAccountId
@@ -23,7 +25,7 @@ public class MockConfigStateService: ConfigStateService {
     public func setPreAuthServerConfig(config: ServerConfig) async {
         preAuthServerConfig = config
     }
-   
+
     public func setServerConfig(_ config: ServerConfig?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         serverConfig[userId] = config

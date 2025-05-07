@@ -14,7 +14,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     var configApiService: APIService!
     var errorReporter: MockErrorReporter!
     var now: Date!
-    var stateService: MockStateService!
+    var stateService: MockConfigStateService!
     var subject: DefaultConfigService!
     var timeProvider: MockTimeProvider!
 
@@ -28,7 +28,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         configApiService = APIService(client: client)
         errorReporter = MockErrorReporter()
         now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
-        stateService = MockStateService()
+        stateService = MockConfigStateService()
         timeProvider = MockTimeProvider(.mockTime(now))
         subject = DefaultConfigService(
             appSettingsStore: appSettingsStore,
