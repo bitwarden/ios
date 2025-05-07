@@ -1172,5 +1172,11 @@
 "AllowUniversalClipboard" = "允许通用剪贴板";
 "UseUniversalClipboardToCopyDescriptionLong" = "使用通用剪贴板，可以在此处复制然后粘贴到使用相同 Apple ID 登录的其他设备上。";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "您的 PIN 码必须至少包含 %1$@ 个字符。您的 PIN 设置将在您完全注销应用程序时被重置。";
+"RemoveMasterPasswordMessage" = "%1$@ 正在使用自托管密钥服务器 SSO。该组织的成员不再需要主密码登录。";
+"RemoveMasterPasswordConfirmDomain" = "以下组织的成员不再需要主密码。请与您的组织管理员确认下面的域名。";
+"ConfirmKeyConnectorDomain" = "确认 Key Connector 域名";
+"KeyConnectorDomain" = "Key Connector 域名：";
+"KeyConnectorOrganization" = "组织：";
+"KeyConnectorConfirmDomainWithAdmin" = "请与您的组织管理员确认下面的域名。\n\nKey Connector 域名：\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "您确定要删除此日志吗？";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "您确定要删除所有记录的日志吗？";
