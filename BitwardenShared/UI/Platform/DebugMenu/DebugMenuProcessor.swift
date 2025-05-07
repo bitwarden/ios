@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import Foundation
 
@@ -61,10 +62,11 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
         case .refreshFeatureFlags:
             await refreshFlags()
         case let .toggleFeatureFlag(flag, newValue):
-            state.featureFlags = await services.configService.toggleDebugFeatureFlag(
+            await services.configService.toggleDebugFeatureFlag(
                 name: flag,
                 newValue: newValue
             )
+            state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
         }
     }
 
@@ -72,11 +74,11 @@ final class DebugMenuProcessor: StateProcessor<DebugMenuState, DebugMenuAction, 
 
     /// Fetch the current debug feature flags.
     private func fetchFlags() async {
-        state.featureFlags = await services.configService.getDebugFeatureFlags()
+        state.featureFlags = await services.configService.getDebugFeatureFlags(FeatureFlag.allCases)
     }
 
     /// Refreshes the feature flags by resetting their local values and fetching the latest configurations.
     private func refreshFlags() async {
-        state.featureFlags = await services.configService.refreshDebugFeatureFlags()
+        state.featureFlags = await services.configService.refreshDebugFeatureFlags(FeatureFlag.allCases)
     }
 }

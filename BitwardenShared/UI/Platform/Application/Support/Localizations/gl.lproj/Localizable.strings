@@ -11,6 +11,7 @@
 "CopyUsername" = "Copiar nome de usuario";
 "Credits" = "Créditos";
 "Delete" = "Borrar";
+"DeleteAll" = "Delete all";
 "Deleting" = "Borrando...";
 "DoYouReallyWantToDelete" = "Vostede realmente quere borrar? Isto non pode ser desfeito.";
 "Edit" = "Editar";
@@ -414,6 +415,7 @@
 "ItemShared" = "Elemento compartido.";
 "SelectOneCollection" = "Debes seleccionar polo menos unha colección.";
 "Share" = "Compartir";
+"ShareAll" = "Share all";
 "ShareItem" = "Compartir elemento";
 "MoveToOrganization" = "Mover á organización";
 "NoOrgsToList" = "Non hai organizacións que listar.";
@@ -435,7 +437,6 @@
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Abrir a caixa forte";
 "ThirtyMinutes" = "30 minutos";
-"SetPINDescription" = "Crea un PIN para abrir a caixa forte. Se algunha vez pechas a sesión en Bitwarden perderase a configuración deste PIN.";
 "LoggedInAsOn" = "Sesión iniciada como %1$@ en %2$@.";
 "VaultLockedMasterPassword" = "A caixa forte está pechada. Verifica o contrasinal mestre para continuar.";
 "VaultLockedPIN" = "A caixa forte está pechada. Verifica o código PIN para continuar.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

@@ -8,6 +8,12 @@ public protocol ErrorReporter: AnyObject {
 
     // MARK: Methods
 
+    /// Add an additional logger that will any errors will be logged to.
+    ///
+    /// - Parameter logger: The additional logger that any errors will be logged to.
+    ///
+    func add(logger: BitwardenLogger)
+
     /// Logs an error to be reported.
     ///
     /// - Parameter error: The error to log.

@@ -11,6 +11,7 @@
 "CopyUsername" = "Benutzername kopieren";
 "Credits" = "Danksagungen";
 "Delete" = "Löschen";
+"DeleteAll" = "Delete all";
 "Deleting" = "Lösche...";
 "DoYouReallyWantToDelete" = "Wirklich löschen? Dieser Vorgang kann nicht rückgängig gemacht werden.";
 "Edit" = "Bearbeiten";
@@ -414,6 +415,7 @@
 "ItemShared" = "Eintrag wurde geteilt.";
 "SelectOneCollection" = "Es muss mindestens eine Sammlung ausgewählt sein.";
 "Share" = "Teilen";
+"ShareAll" = "Share all";
 "ShareItem" = "Eintrag teilen";
 "MoveToOrganization" = "In Organisation verschieben";
 "NoOrgsToList" = "Keine Organisationen vorhanden.";
@@ -435,7 +437,6 @@
 "Unlock" = "Entsperren";
 "UnlockVault" = "Tresor entsperren";
 "ThirtyMinutes" = "30 Minuten";
-"SetPINDescription" = "Gebe deinen PIN-Code für das Entsperren von Bitwarden ein. Deine PIN-Einstellungen werden zurückgesetzt, wenn du dich vollständig von der Anwendung abmeldest.";
 "LoggedInAsOn" = "Als %1$@ angemeldet auf %2$@.";
 "VaultLockedMasterPassword" = "Dein Tresor ist gesperrt. Überprüfe dein Master-Passwort um fortzufahren.";
 "VaultLockedPIN" = "Dein Tresor ist gesperrt. Gebe deinen PIN-Code ein um fortzufahren.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Gespeicherte Protokolle anzeigen";
 "RecordedLogs" = "Gespeicherte Protokolle";
 "NoLogsRecorded" = "Keine Protokolle gespeichert";
-"ExpiresToday" = "Läuft heute ab";
-"ExpiresInXDays" = "Läuft in %1$@ Tagen ab";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ nach %2$@";
 "SelfHostServerURL" = "Selbst gehostete Server-URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Deine PIN muss mindestens %1$@ Zeichen lang sein. Deine PIN-Einstellungen werden zurückgesetzt, wenn du dich jemals vollständig von der Anwendung abmeldest.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

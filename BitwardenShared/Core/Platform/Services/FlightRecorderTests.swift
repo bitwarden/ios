@@ -653,4 +653,18 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.setFlightRecorderBannerDismissed(userId: "123")
         XCTAssertNil(stateService.flightRecorderData)
     }
+
+    // MARK: DefaultFlightRecorder Tests
+
+    /// `DefaultFlightRecorder` implements `BitwardenLogger.log()` which logs to the active log.
+    func test_log_bitwardenLogger() throws {
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+
+        (subject as? DefaultFlightRecorder)?.log("Hello world!")
+        waitFor { self.fileManager.appendDataData != nil }
+
+        let appendedMessage = try String(data: XCTUnwrap(fileManager.appendDataData), encoding: .utf8)
+        XCTAssertEqual(appendedMessage, "2025-01-01T00:00:00Z: Hello world!\n")
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(activeLog: activeLog))
+    }
 }

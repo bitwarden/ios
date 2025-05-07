@@ -167,6 +167,30 @@ final class SingleSignOnProcessor: StateProcessor<SingleSignOnState, SingleSignO
         services.stateService.rememberedOrgIdentifier = state.identifierText
         coordinator.navigate(to: route)
     }
+
+    /// Migrates a new user to KeyConnector and unlocks the vault with the KeyConnector
+    ///
+    /// - Parameter keyConnectorUrl: The organization's KeyConnector domain
+    ///
+    private func migrateUserKeyConnector(keyConnectorUrl: URL) async {
+        do {
+            try await services.authRepository.convertNewUserToKeyConnector(
+                keyConnectorURL: keyConnectorUrl,
+                orgIdentifier: state.identifierText
+            )
+
+            try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                keyConnectorURL: keyConnectorUrl,
+                orgIdentifier: state.identifierText
+            )
+
+            await coordinator.handleEvent(.didCompleteAuth)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            await coordinator.showErrorAlert(error: error)
+            services.errorReporter.log(error: error)
+        }
+    }
 }
 
 // MARK: - SingleSignOnFlowDelegate
@@ -194,6 +218,7 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                     // Attempt to unlock the vault with tde.
                     try await services.authRepository.unlockVaultWithDeviceKey()
                     await coordinator.handleEvent(.didCompleteAuth)
+                    coordinator.navigate(to: .dismiss)
                 case let .masterPassword(account):
                     coordinator.navigate(
                         to: .vaultUnlock(
@@ -203,15 +228,25 @@ extension SingleSignOnProcessor: SingleSignOnFlowDelegate {
                             didSwitchAccountAutomatically: false
                         )
                     )
+                    coordinator.navigate(to: .dismiss)
                 case let .keyConnector(keyConnectorUrl):
-                    try await services.authRepository.unlockVaultWithKeyConnectorKey(
-                        keyConnectorURL: keyConnectorUrl,
-                        orgIdentifier: state.identifierText
-                    )
-                    await coordinator.handleEvent(.didCompleteAuth)
+                    do {
+                        try await services.authRepository.unlockVaultWithKeyConnectorKey(
+                            keyConnectorURL: keyConnectorUrl,
+                            orgIdentifier: state.identifierText
+                        )
+                        await coordinator.handleEvent(.didCompleteAuth)
+                        coordinator.navigate(to: .dismiss)
+                    } catch StateServiceError.noEncryptedPrivateKey {
+                        // The delay is necessary in order to ensure the alert displays over the WebAuth view.
+                        Task { @MainActor in
+                            try await Task.sleep(forSeconds: UI.duration(0.5))
+                            coordinator.showAlert(Alert.keyConnectorConfirmation(keyConnectorUrl: keyConnectorUrl) {
+                                await self.migrateUserKeyConnector(keyConnectorUrl: keyConnectorUrl)
+                            })
+                        }
+                    }
                 }
-
-                coordinator.navigate(to: .dismiss)
             } catch {
                 // The delay is necessary in order to ensure the alert displays over the WebAuth view.
                 Task { @MainActor in

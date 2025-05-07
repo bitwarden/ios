@@ -11,6 +11,7 @@
 "CopyUsername" = "Copiar nome de utilizador";
 "Credits" = "Créditos";
 "Delete" = "Eliminar";
+"DeleteAll" = "Eliminar tudo";
 "Deleting" = "A eliminar...";
 "DoYouReallyWantToDelete" = "Pretende mesmo eliminar? Esta ação não pode ser anulada.";
 "Edit" = "Editar";
@@ -414,6 +415,7 @@
 "ItemShared" = "O item foi partilhado.";
 "SelectOneCollection" = "Deve selecionar pelo menos uma coleção.";
 "Share" = "Partilhar";
+"ShareAll" = "Partilhar tudo";
 "ShareItem" = "Partilhar item";
 "MoveToOrganization" = "Mover para organização";
 "NoOrgsToList" = "Não há organizações a enumerar.";
@@ -435,7 +437,6 @@
 "Unlock" = "Desbloquear";
 "UnlockVault" = "Desbloquear cofre";
 "ThirtyMinutes" = "30 minutos";
-"SetPINDescription" = "Defina o seu código PIN para desbloquear o Bitwarden. As suas definições de PIN serão redefinidas se alguma vez terminar sessão por completo da aplicação.";
 "LoggedInAsOn" = "Sessão iniciada como %1$@ em %2$@.";
 "VaultLockedMasterPassword" = "O seu cofre está bloqueado. Verifique a sua palavra-passe mestra para continuar.";
 "VaultLockedPIN" = "O seu cofre está bloqueado. Verifique o seu código PIN para continuar.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Ver os registos gravados";
 "RecordedLogs" = "Registos gravados";
 "NoLogsRecorded" = "Nenhum registo gravado";
-"ExpiresToday" = "Expira hoje";
-"ExpiresInXDays" = "Expira em %1$@ dias";
+"ExpiresAtXTime" = "Expira às %1$@";
+"ExpiresOnXDate" = "Expira a %1$@";
+"ExpiresTomorrow" = "Expira amanhã";
 "DateRangeXToY" = "%1$@ a %2$@";
 "SelfHostServerURL" = "URL do servidor auto-hospedado";
+"AllowUniversalClipboard" = "Permitir Área de transferência universal";
+"UseUniversalClipboardToCopyDescriptionLong" = "Utilize a Área de transferência universal para copiar aqui e colar noutros dispositivos com sessão iniciada com o mesmo ID Apple.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "O seu PIN tem de ter, pelo menos, %1$@ caracteres. As suas definições de PIN serão repostas se alguma vez terminar completamente a sessão na aplicação.";
+"DoYouReallyWantToDeleteThisLog" = "Quer mesmo eliminar este registo?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Quer mesmo eliminar todos os registos gravados?";

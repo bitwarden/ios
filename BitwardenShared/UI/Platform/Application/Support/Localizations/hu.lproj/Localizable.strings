@@ -11,6 +11,7 @@
 "CopyUsername" = "Felhasználónév másolása";
 "Credits" = "Készítők";
 "Delete" = "Törlés";
+"DeleteAll" = "Összes törlése";
 "Deleting" = "Törlés...";
 "DoYouReallyWantToDelete" = "Tényleg törölni akarod? Ezt nem lehet visszavonni.";
 "Edit" = "Szerkesztés";
@@ -414,6 +415,7 @@
 "ItemShared" = "Az elem megosztásra került.";
 "SelectOneCollection" = "Legalább egy gyűjteményt ki kell választani.";
 "Share" = "Megosztás";
+"ShareAll" = "Összes megosztása";
 "ShareItem" = "Elem megosztása";
 "MoveToOrganization" = "Áthelyezés szervezetbe";
 "NoOrgsToList" = "Nincs megjeleníthető szervezet.";
@@ -435,7 +437,6 @@
 "Unlock" = "Feloldás";
 "UnlockVault" = "Széf feloldása";
 "ThirtyMinutes" = "30 perc";
-"SetPINDescription" = "A pinkód beállítása a Bitwarden feloldásához. A pinkód beállítás alaphelyzetbe kerül, ha teljesen kijelentkezünk az alkalmazásból.";
 "LoggedInAsOn" = "Bejelentkezve mint %1$@ :: %2$@.";
 "VaultLockedMasterPassword" = "A széf zárolva van. A folytatáshoz adjuk meg a mesterjelszót.";
 "VaultLockedPIN" = "A széf zárolva van. A folytatáshoz adjuk meg a pinkódot.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Rögzített naplók megtekintése";
 "RecordedLogs" = "Adatrögzítő naplók";
 "NoLogsRecorded" = "Nincs napló rögzítve.";
-"ExpiresToday" = "Ma lejár";
-"ExpiresInXDays" = "Lejár %1$@ nap múlva";
+"ExpiresAtXTime" = "Lejárat: %1$@";
+"ExpiresOnXDate" = "Lejárat: %1$@";
+"ExpiresTomorrow" = "Holnap lejár";
 "DateRangeXToY" = "%1$@ - %2$@";
 "SelfHostServerURL" = "Saját üzemeltetésű szerver webcím";
+"AllowUniversalClipboard" = "Univerzális vágólap engedélyezése";
+"UseUniversalClipboardToCopyDescriptionLong" = "Az Univerzális vágólap segítségével másolhatunk itt, majd beilleszthetünk más eszközökre, amelyeken ugyanazzal az Apple ID-val vagyunk bejelentkezve.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "A PIN kódnak legalább %1$@ karakterből kell állnia. A PIN kód beállításai alaphelyzetbe kerülnek, ha valaha is teljesen kijelentkezünk az alkalmazásból.";
+"DoYouReallyWantToDeleteThisLog" = "Valóban törölni akarjuk ezt a naplót?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Valóban törölni szeretnénk az összes rögzített naplót?";

@@ -11,6 +11,7 @@
 "CopyUsername" = "Kopiuj nazwę użytkownika";
 "Credits" = "Podziękowania";
 "Delete" = "Usuń";
+"DeleteAll" = "Usuń wszystkie";
 "Deleting" = "Usuwanie...";
 "DoYouReallyWantToDelete" = "Czy na pewno chcesz to usunąć? Tej operacji nie można cofnąć.";
 "Edit" = "Edycja";
@@ -93,7 +94,7 @@
 "AppExtension" = "Rozszerzenie aplikacji";
 "AutofillAccessibilityDescription" = "Użyj usługi ułatwienia dostępu Bitwarden, aby korzystać z autouzupełniania danych logowania w aplikacjach i na stronach internetowych.";
 "AutofillService" = "Usługa autouzupełniania";
-"SetBitwardenAsPasskeyManagerDescription" = "Ustaw Bitwarden jako dostawcę passkey w ustawieniach urządzenia.";
+"SetBitwardenAsPasskeyManagerDescription" = "Ustaw Bitwarden jako dostawcę passkey w ustawieniach urządzenia.zalu";
 "AvoidAmbiguousCharacters" = "Unikaj niejednoznacznych znaków";
 "BitwardenAppExtension" = "Rozszerzenie aplikacji Bitwarden";
 "BitwardenAppExtensionAlert2" = "Najprostszym sposobem dodania nowych danych logowania do sejfu jest Rozszerzenie Aplikacji Bitwarden. Więcej informacji o używaniu Rozszerzenia Aplikacji Bitwarden znajdziesz w widoku \"Ustawienia\".";
@@ -414,6 +415,7 @@
 "ItemShared" = "Element został udostępniony.";
 "SelectOneCollection" = "Musisz wybrać co najmniej jedną kolekcję.";
 "Share" = "Udostępnij";
+"ShareAll" = "Udostępnij wszystkie";
 "ShareItem" = "Udostępnij element";
 "MoveToOrganization" = "Przenieś do organizacji";
 "NoOrgsToList" = "Brak organizacji do wyświetlenia.";
@@ -435,7 +437,6 @@
 "Unlock" = "Odblokuj";
 "UnlockVault" = "Odblokuj sejf";
 "ThirtyMinutes" = "30 minut";
-"SetPINDescription" = "Ustaw kod PIN do odblokowywania aplikacji Bitwarden. Ustawienia odblokowywania kodem PIN zostaną zresetowane po wylogowaniu.";
 "LoggedInAsOn" = "Zalogowano jako %1$@ do %2$@.";
 "VaultLockedMasterPassword" = "Sejf jest zablokowany. Wpisz hasło główne, aby kontynuować.";
 "VaultLockedPIN" = "Sejf jest zablokowany. Wpisz kod PIN, aby kontynuować.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "Zobacz zarejestrowane logi";
 "RecordedLogs" = "Zarejestrowane logi";
 "NoLogsRecorded" = "Nie zarejestrowano logów";
-"ExpiresToday" = "Wygasa dzisiaj";
-"ExpiresInXDays" = "Wygasa za %1$@ dni";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Wygasa jutro";
 "DateRangeXToY" = "%1$@ do %2$@";
 "SelfHostServerURL" = "URL samodzielnie hostowanego serwera";
+"AllowUniversalClipboard" = "Zezwól na Uniwersalny Schowek";
+"UseUniversalClipboardToCopyDescriptionLong" = "Użyj Uniwersalnego Schowka do skopiowania tutaj i wklejenia na innych urządzeniach zalogowanych tym samym Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Twój PIN musi mieć co najmniej %1$@ znaków. Twoje ustawienia PINu zostaną zresetowane, jeśli kiedykolwiek wylogujesz się całkowicie z aplikacji.";
+"DoYouReallyWantToDeleteThisLog" = "Czy na pewno chcesz usunąć ten log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Czy na pewno chcesz usunąć wszystkie zarejestrowane logi?";

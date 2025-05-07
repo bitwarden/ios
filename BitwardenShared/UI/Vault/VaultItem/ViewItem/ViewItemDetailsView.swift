@@ -235,6 +235,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 Image(decorative: placeholderIconAsset)
                     .resizable()
                     .scaledToFit()
+                    .foregroundStyle(Asset.Colors.illustrationOutline.swiftUIColor)
                     .accessibilityHidden(true)
                     .imageStyle(.viewIcon(size: 24))
                     .withCircularBackground(
@@ -475,12 +476,14 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
         HStack(alignment: .top) {
             Image(decorative: icon)
                 .resizable()
+                .foregroundStyle(Asset.Colors.iconPrimary.swiftUIColor)
                 .scaledToFit()
                 .imageStyle(.accessoryIcon16(scaleWithFont: true))
                 .padding(.top, paddingTopBelongingViewImage)
 
             Text(name)
                 .styleGuide(.body)
+                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
         }
         .accessibilityElement(children: .combine)
     }

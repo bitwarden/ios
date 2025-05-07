@@ -69,18 +69,18 @@ protocol ConfigService {
 
     /// Retrieves the debug menu feature flags.
     ///
-    func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag]
+    func getDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag]
 
     /// Toggles the value of a debug feature flag in the app's settings store.
     ///
     func toggleDebugFeatureFlag(
         name: String,
         newValue: Bool?
-    ) async -> [DebugMenuFeatureFlag]
+    ) async
 
     /// Refreshes the list of debug feature flags by reloading their values from the settings store.
     ///
-    func refreshDebugFeatureFlags() async -> [DebugMenuFeatureFlag]
+    func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag]
 }
 
 extension ConfigService {
@@ -231,10 +231,10 @@ class DefaultConfigService: ConfigService {
 
     // MARK: Debug Feature Flags
 
-    func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
+    func getDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
         let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
 
-        let flags = FeatureFlag.debugMenuFeatureFlags.map { feature in
+        let debugFlags = flags.map { feature in
             let userDefaultValue = appSettingsStore.debugFeatureFlag(name: feature.rawValue)
             let remoteFlagValue = remoteFeatureFlags[feature.rawValue]?.boolValue
                 ?? feature.initialValue?.boolValue
@@ -246,25 +246,24 @@ class DefaultConfigService: ConfigService {
             )
         }
 
-        return flags
+        return debugFlags
     }
 
-    func toggleDebugFeatureFlag(name: String, newValue: Bool?) async -> [DebugMenuFeatureFlag] {
+    func toggleDebugFeatureFlag(name: String, newValue: Bool?) async {
         appSettingsStore.overrideDebugFeatureFlag(
             name: name,
             value: newValue
         )
-        return await getDebugFeatureFlags()
     }
 
-    func refreshDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
-        for feature in FeatureFlag.debugMenuFeatureFlags {
+    func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
+        for flag in flags {
             appSettingsStore.overrideDebugFeatureFlag(
-                name: feature.rawValue,
+                name: flag.rawValue,
                 value: nil
             )
         }
-        return await getDebugFeatureFlags()
+        return await getDebugFeatureFlags(flags)
     }
 
     // MARK: Private

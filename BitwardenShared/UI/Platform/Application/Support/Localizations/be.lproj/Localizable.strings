@@ -11,6 +11,7 @@
 "CopyUsername" = "Скапіяваць імя карыстальніка";
 "Credits" = "Падзякі";
 "Delete" = "Выдаліць";
+"DeleteAll" = "Delete all";
 "Deleting" = "Выдаленне...";
 "DoYouReallyWantToDelete" = "Вы сапраўды хочаце выдаліць? Гэта дзеянне немагчыма адрабіць.";
 "Edit" = "Рэдагаваць";
@@ -414,6 +415,7 @@
 "ItemShared" = "Элемент быў абагулены.";
 "SelectOneCollection" = "Вы павінны выбраць прынамсі адну калекцыю.";
 "Share" = "Абагуліць";
+"ShareAll" = "Share all";
 "ShareItem" = "Абагуліць элемент";
 "MoveToOrganization" = "Перамясціць у арганізацыю";
 "NoOrgsToList" = "Няма арганізацый для паказу.";
@@ -435,7 +437,6 @@
 "Unlock" = "Разблакіраваць";
 "UnlockVault" = "Разблакіраваць сховішча";
 "ThirtyMinutes" = "30 хвілін";
-"SetPINDescription" = "Прызначце PIN-код для разблакіроўкі Bitwarden. Налады PIN-кода будуць скінуты, калі вы калі-небудзь цалкам выйдзеце з праграмы.";
 "LoggedInAsOn" = "Вы ўвайшлі як %1$@ у %2$@.";
 "VaultLockedMasterPassword" = "Ваша сховішча заблакіравана. Увядзіце асноўны пароль для працягу.";
 "VaultLockedPIN" = "Ваша сховішча заблакіравана. Увядзіце PIN-код для працягу.";
@@ -1163,7 +1164,13 @@
 "ViewRecordedLogs" = "View recorded logs";
 "RecordedLogs" = "Recorded logs";
 "NoLogsRecorded" = "No logs recorded";
-"ExpiresToday" = "Expires today";
-"ExpiresInXDays" = "Expires in %1$@ days";
+"ExpiresAtXTime" = "Expires at %1$@";
+"ExpiresOnXDate" = "Expires on %1$@";
+"ExpiresTomorrow" = "Expires tomorrow";
 "DateRangeXToY" = "%1$@ to %2$@";
 "SelfHostServerURL" = "Self-host server URL";
+"AllowUniversalClipboard" = "Allow Universal Clipboard";
+"UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

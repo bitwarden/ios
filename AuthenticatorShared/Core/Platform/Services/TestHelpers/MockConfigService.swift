@@ -55,12 +55,12 @@ class MockConfigService: ConfigService {
         return value ?? defaultValue
     }
 
-    func getDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
+    func getDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
         getDebugFeatureFlagsCalled = true
         return debugFeatureFlags
     }
 
-    func refreshDebugFeatureFlags() async -> [DebugMenuFeatureFlag] {
+    func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
         refreshDebugFeatureFlagsCalled = true
         return debugFeatureFlags
     }
@@ -68,8 +68,7 @@ class MockConfigService: ConfigService {
     func toggleDebugFeatureFlag(
         name: String,
         newValue: Bool?
-    ) async -> [DebugMenuFeatureFlag] {
+    ) async {
         toggleDebugFeatureFlagCalled = true
-        return debugFeatureFlags
     }
 }

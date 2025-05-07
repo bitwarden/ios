@@ -427,7 +427,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
-        let featureFlags = FeatureFlag.debugMenuFeatureFlags
+        let featureFlags = FeatureFlag.allCases
 
         for flag in featureFlags {
             subject.overrideDebugFeatureFlag(name: flag.rawValue, value: true)
