@@ -132,9 +132,9 @@ extension Alert {
         )
     }
 
-    /// An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
+    /// An alert notifying the user that they need to migrate their encryption key.
     ///
-    /// - Returns: An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
+    /// - Returns: An alert notifying the user that they need to migrate their encryption key.
     ///
     static func encryptionKeyMigrationRequiredAlert(
         environmentUrl: String,
