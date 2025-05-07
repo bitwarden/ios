@@ -7,7 +7,7 @@ import Foundation
 ///    For regular builds, the `TimeProvider` should use the current time as `presentTime`.
 ///    When testing, this protocol allows the current time to be mocked with any `Date`.
 ///
-protocol TimeProvider: AnyObject {
+public protocol TimeProvider: AnyObject {
     /// The present time expressed as a `Date`, according to the provider.
     ///
     var presentTime: Date { get }
@@ -24,12 +24,14 @@ protocol TimeProvider: AnyObject {
 
 /// A `TimeProvider` that returns the current time whenever `presentTime` is read.
 ///
-class CurrentTime: TimeProvider {
-    var presentTime: Date {
+public class CurrentTime: TimeProvider {
+    public var presentTime: Date {
         .now
     }
 
-    func timeSince(_ date: Date) -> TimeInterval {
+    public func timeSince(_ date: Date) -> TimeInterval {
         presentTime.timeIntervalSince(date)
     }
+
+    public init() {}
 }

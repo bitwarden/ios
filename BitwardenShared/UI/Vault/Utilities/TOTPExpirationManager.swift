@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 /// A protocol to manage TOTP code expirations for `VaultListItem`s and batch refresh calls.
