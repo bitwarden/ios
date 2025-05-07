@@ -23,7 +23,7 @@ class DefaultConfigService: ConfigService {
     private let configSubject = CurrentValueSubject<MetaServerConfig?, Never>(nil)
 
     /// The service used by the application to manage account state.
-    private let stateService: StateService
+    private let stateService: ConfigStateService
 
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
@@ -43,7 +43,7 @@ class DefaultConfigService: ConfigService {
         appSettingsStore: AppSettingsStore,
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
-        stateService: StateService,
+        stateService: ConfigStateService,
         timeProvider: TimeProvider
     ) {
         self.appSettingsStore = appSettingsStore
