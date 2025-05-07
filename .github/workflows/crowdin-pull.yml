@@ -54,6 +54,18 @@ jobs:
           gpg_private_key: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key }}
           gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
 
+      - name: Remove GPG Lock files
+        run: |
+          #ref: https://superuser.com/questions/1811518/gpg-stops-doing-anything-on-mac
+          #ref: https://forum.gnupg.org/t/gpg-stuck-after-any-command/4197/6
+
+          ls -l ~/.gnupg/*.lock
+          echo "-------"
+          ls -l ~/.gnupg/**/*.lock
+          echo "-------"
+          rm -rf ~/.gnupg/*.lock
+          rm -rf ~/.gnupg/public-keys.d/*.lock
+
       - name: Download translations for Authenticator
         uses: crowdin/github-action@b8012bd5491b8aa8578b73ab5b5f5e7c94aaa6e2 # v2.7.0
         env:
