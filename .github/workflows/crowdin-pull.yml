@@ -72,5 +72,6 @@ jobs:
           create_pull_request: true
           pull_request_title: ":shipit: Crowdin Pull - Authenticator"
           pull_request_body: ":inbox_tray: New translations for Authenticator received!"
-          #NOTE - gpg_private_key and gpg_passphrase ommited because they're setup by the previous step.
+          gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
+          #NOTE - gpg_private_key ommited because they're setup by the previous step.
           #       This step would fail if they were included again
