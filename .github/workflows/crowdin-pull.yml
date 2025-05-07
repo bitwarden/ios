@@ -1,14 +1,14 @@
 name: Cron / Crowdin Pull
+run-name: ${{ github.event_name == 'workflow_dispatch' && 'Manual' || 'Scheduled' }}
 
 on:
   workflow_dispatch:
-    inputs: {}
   schedule:
     - cron: '0 0 * * 5'
 
 jobs:
   crowdin-sync:
-    name: Autosync
+    name: Crowdin Pull - ${{ github.event_name }}
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo

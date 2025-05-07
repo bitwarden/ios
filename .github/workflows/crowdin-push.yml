@@ -1,4 +1,5 @@
-name: Crowdin Push
+name: CI / Crowdin Push
+run-name: ${{ github.event_name == 'workflow_dispatch' && 'Manual' || 'CI' }}
 
 on:
   workflow_dispatch:
@@ -8,7 +9,7 @@ on:
 
 jobs:
   crowdin-push:
-    name: Crowdin Push
+    name: Crowdin Push - ${{ github.event_name }}
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
