@@ -1,18 +1,17 @@
-import BitwardenKit
 import SwiftUI
 
 #if DEBUG
 /// A `TimeProvider` for previews.
 ///
-class PreviewTimeProvider: TimeProvider {
+public class PreviewTimeProvider: TimeProvider {
     /// A fixed date to use for previews.
-    var fixedDate: Date
+    public var fixedDate: Date
 
-    var presentTime: Date {
+    public var presentTime: Date {
         fixedDate
     }
 
-    init(
+    public init(
         fixedDate: Date = .init(
             timeIntervalSinceReferenceDate: 1_695_000_011
         )
@@ -20,7 +19,7 @@ class PreviewTimeProvider: TimeProvider {
         self.fixedDate = fixedDate
     }
 
-    func timeSince(_ date: Date) -> TimeInterval {
+    public func timeSince(_ date: Date) -> TimeInterval {
         presentTime.timeIntervalSince(date)
     }
 }
