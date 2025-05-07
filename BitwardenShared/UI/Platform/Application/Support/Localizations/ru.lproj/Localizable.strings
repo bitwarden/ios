@@ -1174,5 +1174,11 @@
 "AllowUniversalClipboard" = "Разрешить универсальный буфер обмена";
 "UseUniversalClipboardToCopyDescriptionLong" = "Используйте универсальный буфер обмена, чтобы копировать здесь и вставлять на других устройствах, авторизованных с тем же Apple ID.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-код для Bitwarden должен состоять как минимум из %1$@ символов. Настройки PIN-кода будут сброшены, если вы полностью выйдете из приложения.";
+"RemoveMasterPasswordMessage" = "%1$@ использует SSO с собственным сервером ключей. Для авторизации пользователям этой организации больше не требуется мастер-пароль.";
+"RemoveMasterPasswordConfirmDomain" = "Мастер-пароль больше не требуется для членов следующей организации. Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации.";
+"ConfirmKeyConnectorDomain" = "Подтвердите домен соединителя ключей";
+"KeyConnectorDomain" = "Домен соединителя ключей:";
+"KeyConnectorOrganization" = "Организация:";
+"KeyConnectorConfirmDomainWithAdmin" = "Пожалуйста, подтвердите указанный ниже домен у администратора вашей организации.\n\nДомен соединителя ключей:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Вы действительно хотите удалить этот лог?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Вы действительно хотите удалить все записанные логи?";
