@@ -3,15 +3,6 @@ run-name: Crowdin Pull - ${{ github.event_name == 'workflow_dispatch' && 'Manual
 
 on:
   workflow_dispatch:
-    inputs:
-      pull-bwpm:
-        description: "Pull translations for Password Manager"
-        type: boolean
-        default: true
-      pull-bwa:
-        description: "Pull translations for Authenticator"
-        type: boolean
-        default: true
   schedule:
     - cron: '0 0 * * 5'
 
@@ -43,7 +34,6 @@ jobs:
           private-key: ${{ secrets.BW_GHAPP_KEY }}
 
       - name: Download translations for Password Manager
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.pull-bwpm || true }}
         uses: crowdin/github-action@b8012bd5491b8aa8578b73ab5b5f5e7c94aaa6e2 # v2.7.0
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -65,7 +55,6 @@ jobs:
           gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
 
       - name: Download translations for Authenticator
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.pull-bwa || true }}
         uses: crowdin/github-action@b8012bd5491b8aa8578b73ab5b5f5e7c94aaa6e2 # v2.7.0
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
