@@ -439,6 +439,22 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` records an error for encription key migration required.
+    @MainActor
+    func test_perform_loginWithMasterPasswordPressed_encryptionKeyMigrationRequired() async throws {
+        subject.state.masterPassword = "Test"
+        subject.state.serverURLString = "bitwarden.com"
+        authService.loginWithMasterPasswordResult = .failure(IdentityTokenRequestError.encryptionKeyMigrationRequired)
+
+        await subject.perform(.loginWithMasterPasswordPressed)
+
+        XCTAssertEqual(authService.loginWithMasterPasswordPassword, "Test")
+        XCTAssertEqual(
+            coordinator.alertShown.last,
+            .encryptionKeyMigrationRequiredAlert(environmentUrl: "bitwarden.com")
+        )
+    }
+
     /// `perform(_:)` with `.loginWithMasterPasswordPressed` shows an alert for empty login text.
     @MainActor
     func test_perform_loginWithMasterPasswordPressed_invalidInput() async throws {

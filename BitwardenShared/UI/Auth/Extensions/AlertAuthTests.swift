@@ -196,6 +196,19 @@ class AlertAuthTests: BitwardenTestCase {
         XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
     }
 
+    /// `encryptionKeyMigrationRequiredAlert()` returns an alert notifying the user that they need to visit web vault.
+    func test_encryptionKeyMigrationRequiredAlert() {
+        let subject = Alert.encryptionKeyMigrationRequiredAlert(environmentUrl: "bitwarden.com")
+
+        XCTAssertEqual(subject.title, Localizations.anErrorHasOccurred)
+        XCTAssertEqual(
+            subject.message,
+            Localizations.thisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden("bitwarden.com"),
+        )
+        XCTAssertEqual(subject.alertActions.count, 1)
+        XCTAssertEqual(subject.alertActions[0].title, Localizations.ok)
+    }
+
     /// `enterPINCode(completion:)` constructs an `Alert`
     /// with the correct title, message, Submit and Cancel buttons when setting it up.
     func test_enterPINCodeAlert_when_setting_it_up() {

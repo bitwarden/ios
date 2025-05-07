@@ -14,6 +14,9 @@ enum IdentityTokenRequestError: Error, Equatable {
     /// The new device is not verified.
     case newDeviceNotVerified
 
+    /// The encryption key migration is required.
+    case encryptionKeyMigrationRequired
+
     /// Two-factor authentication is required for this login attempt.
     ///
     /// - Parameters:
@@ -102,6 +105,11 @@ struct IdentityTokenRequest: Request {
             } else if let error = errorModel.error,
                       error == IdentityTokenError.deviceError {
                 throw IdentityTokenRequestError.newDeviceNotVerified
+            } else if let error = errorModel.error,
+                      let errorMessage = errorModel.errorDetails?.message,
+                      error == IdentityTokenError.invalidGrant,
+                      errorMessage.contains(IdentityTokenError.encryptionKeyMigrationRequired) {
+                throw IdentityTokenRequestError.encryptionKeyMigrationRequired
             }
         default:
             return

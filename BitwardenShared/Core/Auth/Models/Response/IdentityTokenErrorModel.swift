@@ -6,6 +6,10 @@ import Foundation
 ///
 enum IdentityTokenError {
     static let deviceError = "device_error"
+
+    static let invalidGrant = "invalid_grant"
+
+    static let encryptionKeyMigrationRequired = "Encryption key migration is required. Please log in to the web vault"
 }
 
 // MARK: - IdentityTokenErrorModel
@@ -23,6 +27,7 @@ struct IdentityTokenErrorModel: Codable {
         case ssoToken = "ssoEmail2faSessionToken"
         case twoFactorProvidersData = "twoFactorProviders2"
         case error
+        case errorDetails = "errorModel"
     }
 
     static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
@@ -34,6 +39,9 @@ struct IdentityTokenErrorModel: Codable {
 
     /// The error type.
     let error: String?
+
+    /// An `ErrorModel` object that provides more details about the error.
+    let errorDetails: ErrorModel?
 
     /// The master password policies that the org has enabled.
     let masterPasswordPolicy: MasterPasswordPolicyResponseModel?
@@ -180,4 +188,14 @@ public struct AllowCredential: Codable, Equatable, Sendable {
 public struct Yubikey: Codable, Equatable, Sendable {
     /// Indicates if NFC is supported
     let nfc: Bool?
+}
+
+public struct ErrorModel: Codable, Equatable, Sendable {
+    // MARK: Properties
+
+    /// A string that provides a message about the error.
+    public let message: String?
+
+    /// A string that represents an object associated with the error.
+    public let object: String?
 }

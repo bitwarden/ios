@@ -132,6 +132,22 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
+    ///
+    /// - Returns: An alert notifying the user that they haven't agreed to the terms of service and privacy policy.
+    ///
+    static func encryptionKeyMigrationRequiredAlert(
+        environmentUrl: String,
+    ) -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.thisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden(environmentUrl),
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
     /// An alert notifying the user that unlocking the user's vault may fail in an app extension
     /// because their KDF settings use too much memory.
     ///
