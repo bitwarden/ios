@@ -49,8 +49,8 @@ jobs:
           commit_message: "Autosync the updated translations"
           localization_branch_name: crowdin-auto-sync
           create_pull_request: true
-          pull_request_title: "Autosync Crowdin Translations"
-          pull_request_body: "Autosync the updated translations"
+          pull_request_title: ":shipit: Crowdin Pull - Password Manager"
+          pull_request_body: ":inbox_tray: New translations for Password Manager received!"
           gpg_private_key: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key }}
           gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
 
@@ -70,7 +70,7 @@ jobs:
           commit_message: "Autosync the updated translations"
           localization_branch_name: crowdin-auto-sync
           create_pull_request: true
-          pull_request_title: "Autosync Crowdin Translations"
-          pull_request_body: "Autosync the updated translations"
+          pull_request_title: ":shipit: Crowdin Pull - Authenticator"
+          pull_request_body: ":inbox_tray: New translations for Authenticator received!"
           gpg_private_key: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key }}
           gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
