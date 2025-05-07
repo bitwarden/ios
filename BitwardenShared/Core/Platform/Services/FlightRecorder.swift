@@ -443,7 +443,7 @@ extension DefaultFlightRecorder: FlightRecorder {
     }
 
     func setFlightRecorderBannerDismissed(userId: String) async {
-        guard var data = await getFlightRecorderData() else { return }
+        guard var data = await getFlightRecorderData(), data.activeLog != nil else { return }
         data.activeLog?.bannerDismissedByUserIds.append(userId)
         await setFlightRecorderData(data)
     }
