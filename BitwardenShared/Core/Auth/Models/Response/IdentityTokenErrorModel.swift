@@ -1,4 +1,5 @@
 import Foundation
+import BitwardenKit
 
 // MARK: - IdentityTokenErrors
 
@@ -188,14 +189,4 @@ public struct AllowCredential: Codable, Equatable, Sendable {
 public struct Yubikey: Codable, Equatable, Sendable {
     /// Indicates if NFC is supported
     let nfc: Bool?
-}
-
-public struct ErrorModel: Codable, Equatable, Sendable {
-    // MARK: Properties
-
-    /// A string that provides a message about the error.
-    public let message: String?
-
-    /// A string that represents an object associated with the error.
-    public let object: String?
 }

@@ -439,7 +439,7 @@ class LoginProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    /// `perform(_:)` with `.loginWithMasterPasswordPressed` records an error for encription key migration required.
+    /// `perform(_:)` with `.loginWithMasterPasswordPressed` records an error for encryption key migration required.
     @MainActor
     func test_perform_loginWithMasterPasswordPressed_encryptionKeyMigrationRequired() async throws {
         subject.state.masterPassword = "Test"

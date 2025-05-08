@@ -11,11 +11,11 @@ enum IdentityTokenRequestError: Error, Equatable {
     ///
     case captchaRequired(hCaptchaSiteCode: String)
 
-    /// The new device is not verified.
-    case newDeviceNotVerified
-
     /// The encryption key migration is required.
     case encryptionKeyMigrationRequired
+
+    /// The new device is not verified.
+    case newDeviceNotVerified
 
     /// Two-factor authentication is required for this login attempt.
     ///
