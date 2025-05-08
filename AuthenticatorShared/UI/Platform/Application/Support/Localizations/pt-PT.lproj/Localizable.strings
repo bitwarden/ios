@@ -70,8 +70,8 @@
 "EnterKeyManually" = "Introduzir a chave manualmente";
 "Service" = "Serviço";
 "Language" = "Idioma";
-"LanguageChangeXDescription" = "O idioma foi alterado para %1$@. Por favor, reinicie a aplicação para ver as alterações";
-"LanguageChangeRequiresAppRestart" = "A alteração do idioma requer o reinício da aplicação";
+"LanguageChangeXDescription" = "O idioma foi alterado para %1$@. Por favor, reinicie a app para ver as alterações";
+"LanguageChangeRequiresAppRestart" = "A alteração do idioma requer o reinício da app";
 "DefaultSystem" = "Predefinido (Sistema)";
 "Important" = "Importante";
 "YourMasterPasswordCannotBeRecoveredIfYouForgetItXCharactersMinimum" = "A sua palavra-passe mestra não pode ser recuperada se a esquecer! %1$@ caracteres no mínimo.";
@@ -149,7 +149,7 @@
 "Immediately" = "Imediatamente";
 "VaultTimeout" = "Tempo limite do cofre";
 "ThirtyMinutes" = "30 minutos";
-"OnRestart" = "Ao reiniciar a aplicação";
+"OnRestart" = "Ao reiniciar a app";
 "SessionTimeout" = "Tempo limite da sessão";
 "FileCouldNotBeProcessed" = "O ficheiro não pôde ser processado";
 "EnsureItsValidJsonAndTryAgain" = "Certifique-se de que se trata de um JSON válido e tente novamente.";
