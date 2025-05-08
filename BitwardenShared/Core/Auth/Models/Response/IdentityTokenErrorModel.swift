@@ -1,4 +1,5 @@
 import Foundation
+import BitwardenKit
 
 // MARK: - IdentityTokenErrors
 
@@ -6,6 +7,10 @@ import Foundation
 ///
 enum IdentityTokenError {
     static let deviceError = "device_error"
+
+    static let invalidGrant = "invalid_grant"
+
+    static let encryptionKeyMigrationRequired = "Encryption key migration is required. Please log in to the web vault"
 }
 
 // MARK: - IdentityTokenErrorModel
@@ -23,6 +28,7 @@ struct IdentityTokenErrorModel: Codable {
         case ssoToken = "ssoEmail2faSessionToken"
         case twoFactorProvidersData = "twoFactorProviders2"
         case error
+        case errorDetails = "errorModel"
     }
 
     static let decoder = JSONDecoder.pascalOrSnakeCaseDecoder
@@ -34,6 +40,9 @@ struct IdentityTokenErrorModel: Codable {
 
     /// The error type.
     let error: String?
+
+    /// An `ErrorModel` object that provides more details about the error.
+    let errorDetails: ErrorModel?
 
     /// The master password policies that the org has enabled.
     let masterPasswordPolicy: MasterPasswordPolicyResponseModel?

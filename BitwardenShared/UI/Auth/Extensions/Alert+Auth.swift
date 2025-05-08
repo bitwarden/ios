@@ -132,6 +132,22 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user that they need to migrate their encryption key.
+    ///
+    /// - Returns: An alert notifying the user that they need to migrate their encryption key.
+    ///
+    static func encryptionKeyMigrationRequiredAlert(
+        environmentUrl: String,
+    ) -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.thisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden(environmentUrl),
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
     /// An alert notifying the user that unlocking the user's vault may fail in an app extension
     /// because their KDF settings use too much memory.
     ///
