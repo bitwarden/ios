@@ -1,4 +1,5 @@
 import BitwardenKit
+import UIKit
 
 @testable import BitwardenShared
 
@@ -16,6 +17,7 @@ class MockAppModule:
     ImportCXFModule,
     ImportLoginsModule,
     LoginRequestModule,
+    NavigatorBuilderModule,
     PasswordAutoFillModule,
     PasswordHistoryModule,
     SendModule,
@@ -128,6 +130,10 @@ class MockAppModule:
         stackNavigator _: StackNavigator
     ) -> AnyCoordinator<LoginRequestRoute, Void> {
         loginRequestCoordinator.asAnyCoordinator()
+    }
+
+    func makeNavigationController() -> UINavigationController {
+        UINavigationController()
     }
 
     func makePasswordAutoFillCoordinator(
