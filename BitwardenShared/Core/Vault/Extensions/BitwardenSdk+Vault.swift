@@ -1,6 +1,7 @@
 // swiftlint:disable:this file_name
 // swiftlint:disable file_length
 
+import BitwardenKit
 import BitwardenSdk
 
 // MARK: - DataMappingError
