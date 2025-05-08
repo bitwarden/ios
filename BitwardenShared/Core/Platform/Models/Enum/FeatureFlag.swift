@@ -59,6 +59,12 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag for the create account flow.
     static let nativeCreateAccountFlow = FeatureFlag(rawValue: "native-create-account-flow")
 
+    /// A feature flag for the pre-login settings.
+    static let preLoginSettings = FeatureFlag(
+        rawValue: "enable-pm-prelogin-settings",
+        isRemotelyConfigured: false
+    )
+
     /// A feature flag for the refactor on the SSO details endpoint.
     static let refactorSsoDetailsEndpoint = FeatureFlag(rawValue: "pm-12337-refactor-sso-details-endpoint")
 
@@ -85,6 +91,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .importLoginsFlow,
             .mobileErrorReporting,
             .nativeCreateAccountFlow,
+            .preLoginSettings,
             .refactorSsoDetailsEndpoint,
             .restrictCipherItemDeletion,
             .simpleLoginSelfHostAlias,
