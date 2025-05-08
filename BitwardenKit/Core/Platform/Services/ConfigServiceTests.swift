@@ -529,44 +529,44 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     }
 
     /// `getDebugFeatureFlags(:)` returns the default value if the feature is not remotely configurable for strings
-//    func test_getDebugFeatureFlags() async {
-//        stateService.serverConfig["1"] = ServerConfig(
-//            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
-//            responseModel: ConfigResponseModel(
-//                environment: nil,
-//                featureStates: ["enable-pm-bwa-sync": .bool(true)],
-//                gitHash: "75238191",
-//                server: nil,
-//                version: "2024.4.0"
-//            )
-//        )
-//        appSettingsStore.overrideDebugFeatureFlag(name: "enable-pm-bwa-sync", value: false)
-//        let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
-//        let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "enable-pm-bwa-sync" })
-//        XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
-//    }
+    func test_getDebugFeatureFlags() async {
+        stateService.serverConfig["1"] = ServerConfig(
+            date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
+            responseModel: ConfigResponseModel(
+                environment: nil,
+                featureStates: ["test-remote-feature-flag": .bool(true)],
+                gitHash: "75238191",
+                server: nil,
+                version: "2024.4.0"
+            )
+        )
+        appSettingsStore.overrideDebugFeatureFlag(name: "test-remote-feature-flag", value: false)
+        let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
+        let flag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "test-remote-feature-flag" })
+        XCTAssertFalse(flag?.isEnabled ?? true)
+    }
 
     // MARK: Tests - Other
 
     /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
-//    func test_toggleDebugFeatureFlag() async throws {
-//        await subject.toggleDebugFeatureFlag(
-//            name: FeatureFlag.enablePasswordManagerSync.rawValue,
-//            newValue: true
-//        )
-//        let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
-//        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-//        let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
-//        XCTAssertTrue(flag.isEnabled)
-//    }
+    func test_toggleDebugFeatureFlag() async throws {
+        await subject.toggleDebugFeatureFlag(
+            name: FeatureFlag.testRemoteFeatureFlag.rawValue,
+            newValue: true
+        )
+        let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
+        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try XCTUnwrap(flags.first { $0.feature == .testRemoteFeatureFlag })
+        XCTAssertTrue(flag.isEnabled)
+    }
 
     /// `refreshDebugFeatureFlags` will reset the flags to the original state before overriding.
-//    func test_refreshDebugFeatureFlags() async throws {
-//        let flags = await subject.refreshDebugFeatureFlags(FeatureFlag.allCases)
-//        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-//        let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
-//        XCTAssertFalse(flag.isEnabled)
-//    }
+    func test_refreshDebugFeatureFlags() async throws {
+        let flags = await subject.refreshDebugFeatureFlags(FeatureFlag.allCases)
+        XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
+        let flag = try XCTUnwrap(flags.first { $0.feature == .testRemoteFeatureFlag })
+        XCTAssertFalse(flag.isEnabled)
+    }
 
     // MARK: Private
 
