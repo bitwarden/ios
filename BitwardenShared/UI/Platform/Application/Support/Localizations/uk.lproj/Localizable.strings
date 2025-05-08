@@ -1172,5 +1172,11 @@
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"RemoveMasterPasswordMessage" = "%1$@ використовує SSO з власним сервером ключів. Головний пароль для учасників цієї організації більше не вимагається.";
+"RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
+"ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
+"KeyConnectorDomain" = "Key Connector domain:";
+"KeyConnectorOrganization" = "Organization:";
+"KeyConnectorConfirmDomainWithAdmin" = "Please confirm the domain below with your organization administrator.\n\nKey Connector domain:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
