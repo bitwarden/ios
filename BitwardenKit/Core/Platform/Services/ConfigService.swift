@@ -147,7 +147,7 @@ public extension ConfigService {
 
 /// A default implementation of a `ConfigService` that manages the app's config.
 ///
-class DefaultConfigService: ConfigService {
+public class DefaultConfigService: ConfigService {
     // MARK: Properties
 
     /// The App Settings Store used for storing and retrieving values from User Defaults.
@@ -179,7 +179,7 @@ class DefaultConfigService: ConfigService {
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The services used to get the present time.
     ///
-    init(
+    public init(
         appSettingsStore: ConfigSettingsStore,
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
@@ -196,7 +196,7 @@ class DefaultConfigService: ConfigService {
     // MARK: Methods
 
     @discardableResult
-    func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
+    public func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
         guard !forceRefresh else {
             await updateConfigFromServer(isPreAuth: isPreAuth)
             return try? await getStateServerConfig(isPreAuth: isPreAuth)
@@ -219,7 +219,7 @@ class DefaultConfigService: ConfigService {
         return localConfig
     }
 
-    func getFeatureFlag(
+    public func getFeatureFlag(
         _ flag: FeatureFlag,
         defaultValue: Bool = false,
         forceRefresh: Bool = false,
@@ -240,7 +240,7 @@ class DefaultConfigService: ConfigService {
             ?? defaultValue
     }
 
-    func getFeatureFlag(
+    public func getFeatureFlag(
         _ flag: FeatureFlag,
         defaultValue: Int = 0,
         forceRefresh: Bool = false,
@@ -255,7 +255,7 @@ class DefaultConfigService: ConfigService {
             ?? defaultValue
     }
 
-    func getFeatureFlag(
+    public func getFeatureFlag(
         _ flag: FeatureFlag,
         defaultValue: String? = nil,
         forceRefresh: Bool = false,
@@ -272,7 +272,7 @@ class DefaultConfigService: ConfigService {
 
     // MARK: Debug Feature Flags
 
-    func getDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
+    public func getDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
         let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
 
         let debugFlags = flags.map { feature in
@@ -290,14 +290,14 @@ class DefaultConfigService: ConfigService {
         return debugFlags
     }
 
-    func toggleDebugFeatureFlag(name: String, newValue: Bool?) async {
+    public func toggleDebugFeatureFlag(name: String, newValue: Bool?) async {
         appSettingsStore.overrideDebugFeatureFlag(
             name: name,
             value: newValue
         )
     }
 
-    func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
+    public func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
         for flag in flags {
             appSettingsStore.overrideDebugFeatureFlag(
                 name: flag.rawValue,
@@ -313,14 +313,14 @@ class DefaultConfigService: ConfigService {
     /// - Parameters:
     ///   - config: Config to set
     ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
-    func getStateServerConfig(isPreAuth: Bool) async throws -> ServerConfig? {
+    public func getStateServerConfig(isPreAuth: Bool) async throws -> ServerConfig? {
         guard !isPreAuth else {
             return await stateService.getPreAuthServerConfig()
         }
         return try? await stateService.getServerConfig()
     }
 
-    func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
+    public func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
         configSubject.eraseToAnyPublisher().values
     }
 
@@ -329,7 +329,7 @@ class DefaultConfigService: ConfigService {
     ///   - config: Config to set
     ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
     ///   - userId: The userId to set the server config to.
-    func setStateServerConfig(_ config: ServerConfig, isPreAuth: Bool, userId: String? = nil) async throws {
+    public func setStateServerConfig(_ config: ServerConfig, isPreAuth: Bool, userId: String? = nil) async throws {
         guard !isPreAuth else {
             await stateService.setPreAuthServerConfig(config: config)
             return
