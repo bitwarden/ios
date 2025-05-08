@@ -88,6 +88,9 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
             showList()
         case let .share(url):
             showShareSheet(for: [url])
+        case let .viewItem(sendView):
+            guard let delegate = context as? SendItemDelegate else { return }
+            showItem(route: .view(sendView), delegate: delegate)
         }
     }
 

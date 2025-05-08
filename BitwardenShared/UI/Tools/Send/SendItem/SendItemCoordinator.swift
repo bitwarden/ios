@@ -86,6 +86,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             showFileSelection(route: route, delegate: delegate)
         case let .share(url):
             showShareSheet(for: [url])
+        case let .view(sendView):
+            showViewItem(for: sendView)
         }
     }
 
@@ -178,6 +180,20 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             applicationActivities: nil
         )
         stackNavigator?.present(viewController)
+    }
+
+    /// Shows the view item screen.
+    ///
+    /// - Parameter sendView: The send to view.
+    ///
+    private func showViewItem(for sendView: SendView) {
+        let state = ViewSendItemState(sendView: sendView)
+        let processor = ViewSendItemProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: state
+        )
+        stackNavigator?.replace(ViewSendItemView(store: Store(processor: processor)))
     }
 }
 

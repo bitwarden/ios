@@ -199,4 +199,16 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         subject.navigate(to: .fileSelection(.camera), context: nil)
         XCTAssertNil(stackNavigator.actions.last)
     }
+
+    /// `navigate(to:)` with `.view` shows the view send screen.
+    @MainActor
+    func test_navigateTo_view() throws {
+        let sendView = SendView.fixture()
+        subject.navigate(to: .view(sendView))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? ViewSendItemView)
+        XCTAssertEqual(view.store.state.sendView, sendView)
+    }
 }

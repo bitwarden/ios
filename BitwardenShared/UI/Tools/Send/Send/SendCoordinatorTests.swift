@@ -263,6 +263,20 @@ class SendCoordinatorTests: BitwardenTestCase {
         XCTAssertTrue(action.view is UIActivityViewController)
     }
 
+    /// `navigate(to:)` with `.viewItem` presents the view send item screen
+    @MainActor
+    func test_navigateTo_viewItem() throws {
+        let sendView = SendView.fixture()
+        subject.navigate(to: .viewItem(sendView), context: sendItemDelegate)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+
+        XCTAssertTrue(module.sendItemCoordinator.isStarted)
+        XCTAssertEqual(module.sendItemCoordinator.routes.last, .view(sendView))
+    }
+
     /// `start()` initializes the coordinator's state correctly.
     @MainActor
     func test_start() throws {

@@ -29,17 +29,17 @@ public enum SendItemRoute: Equatable, Hashable {
     ///
     case add(content: AddSendContentType?, hasPremium: Bool)
 
-    /// A route specifing that the send item flow has been cancelled.
+    /// A route specifying that the send item flow has been cancelled.
     case cancel
 
-    /// A route specifing that the send item flow has been completed, along with the new/updated
+    /// A route specifying that the send item flow has been completed, along with the new/updated
     /// send view.
     ///
     /// - Parameter sendView: The new or updated `SendView`.
     ///
     case complete(_ sendView: SendView)
 
-    /// A route specifing that the send item flow completed by deleting a send.
+    /// A route specifying that the send item flow completed by deleting a send.
     case deleted
 
     /// A route to the edit item screen for the provided send.
@@ -61,4 +61,10 @@ public enum SendItemRoute: Equatable, Hashable {
     /// - Parameter url: The `URL` to share.
     ///
     case share(url: URL)
+
+    /// A route to view send item screen.
+    ///
+    /// - Parameter sendView: The `SendView` to view the details of.
+    ///
+    case view(_ sendView: SendView)
 }
