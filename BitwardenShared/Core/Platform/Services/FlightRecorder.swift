@@ -142,7 +142,7 @@ actor DefaultFlightRecorder {
 
         if !disableLogLifecycleTimerForTesting {
             Task {
-                await dataSubject.send(stateService.getFlightRecorderData())
+                _ = await getFlightRecorderData() // Load the flight recorder data to the subject.
                 await self.configureLogLifecycleTimer()
             }
         }

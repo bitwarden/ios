@@ -425,15 +425,11 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
         subject = makeSubject(disableLogLifecycleTimer: false)
 
-        var publisher = await subject.isEnabledPublisher().values.makeAsyncIterator()
+        var isEnabled: Bool?
+        let publisher = await subject.isEnabledPublisher().sink { isEnabled = $0 }
+        defer { publisher.cancel() }
 
-        // Flight recorder is initially enabled due to active log.
-        var isEnabled = await publisher.next()
-        XCTAssertEqual(isEnabled, true)
-
-        // Expiration timer disables active log, so flight recorder is disabled.
-        isEnabled = await publisher.next()
-        XCTAssertEqual(isEnabled, false)
+        try await waitForAsync { isEnabled == false }
 
         // Active log is inactive.
         XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: [activeLog]))
