@@ -321,7 +321,7 @@ class DefaultAppSettingsStore {
     }
 }
 
-extension DefaultAppSettingsStore: AppSettingsStore {
+extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {

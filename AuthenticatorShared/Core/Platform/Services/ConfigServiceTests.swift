@@ -9,7 +9,7 @@ import XCTest
 final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
+    var appSettingsStore: MockConfigSettingsStore!
     var client: MockHTTPClient!
     var configApiService: APIService!
     var errorReporter: MockErrorReporter!
@@ -23,7 +23,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
+        appSettingsStore = MockConfigSettingsStore()
         client = MockHTTPClient()
         configApiService = APIService(client: client)
         errorReporter = MockErrorReporter()

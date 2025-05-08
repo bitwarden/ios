@@ -11,7 +11,7 @@ class DefaultConfigService: ConfigService {
     // MARK: Properties
 
     /// The App Settings Store used for storing and retrieving values from User Defaults.
-    private let appSettingsStore: AppSettingsStore
+    private let appSettingsStore: ConfigSettingsStore
 
     /// The API service to make config requests.
     private let configApiService: ConfigAPIService
@@ -40,7 +40,7 @@ class DefaultConfigService: ConfigService {
     ///   - timeProvider: The services used to get the present time.
     ///
     init(
-        appSettingsStore: AppSettingsStore,
+        appSettingsStore: ConfigSettingsStore,
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
         stateService: ConfigStateService,
