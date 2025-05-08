@@ -115,7 +115,7 @@
 "OtpType" = "OTP-typ";
 "CreateVerificationCode" = "Skapa verifieringskod";
 "ItemsExported" = "Verification codes exported";
-"ItemsImported" = "Vertification codes imported";
+"ItemsImported" = "Verification codes imported";
 "VerificationCodeAdded" = "Verifieringskod har lagts till";
 "Data" = "Data";
 "Backup" = "Backup";
