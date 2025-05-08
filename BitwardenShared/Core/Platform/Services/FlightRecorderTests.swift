@@ -572,7 +572,8 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(activeLog: activeLog))
     }
 
-    /// `log(_:)` logs an error if appending the log to the file fails.
+    /// `log(_:)` logs an error and deactivates the flight recorder if appending the log to the file
+    /// fails.
     func test_log_error() async throws {
         fileManager.appendDataResult = .failure(BitwardenTestError.example)
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
@@ -583,6 +584,7 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         let error = try XCTUnwrap(errorReporter.errors.last as? NSError)
         XCTAssertEqual(error.code, BitwardenError.Code.generalError.rawValue)
         XCTAssertEqual(error.domain, "General Error: Flight Recorder Log Error")
+        XCTAssertEqual(stateService.flightRecorderData, FlightRecorderData(inactiveLogs: [activeLog]))
     }
 
     /// `log(_:)` doesn't record the log if there's no active log.
