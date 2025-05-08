@@ -398,6 +398,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             timeProvider: timeProvider
         )
+        errorReporter.add(logger: flightRecorder)
 
         let rehydrationHelper = DefaultRehydrationHelper(
             errorReporter: errorReporter,

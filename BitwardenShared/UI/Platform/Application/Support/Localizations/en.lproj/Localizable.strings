@@ -1181,3 +1181,4 @@
 "DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
+"AppSettings" = "App settings";

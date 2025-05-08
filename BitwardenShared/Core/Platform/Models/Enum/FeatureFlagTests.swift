@@ -29,5 +29,6 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertFalse(FeatureFlag.flightRecorder.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.ignore2FANoticeEnvironmentCheck.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.mobileErrorReporting.isRemotelyConfigured)
+        XCTAssertFalse(FeatureFlag.preLoginSettings.isRemotelyConfigured)
     }
 }
