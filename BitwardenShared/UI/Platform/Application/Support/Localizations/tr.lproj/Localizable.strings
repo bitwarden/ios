@@ -1172,5 +1172,11 @@
 "AllowUniversalClipboard" = "Evrensel Pano’ya izin ver";
 "UseUniversalClipboardToCopyDescriptionLong" = "Burada kopyaladığınız şeyleri aynı Apple ID ile giriş yapmış diğer cihazlarınıza yapıştırmak için Evrensel Pano’yu kullanabilirsiniz.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN'iniz en az %1$@ karakter olmalıdır. Uygulamadan tamamen çıkış yaparsanız PIN ayarlarınız sıfırlanacaktır.";
+"RemoveMasterPasswordMessage" = "%1$@ kendi barındırdığı bir anahtar sunucusuyla SSO kullanıyor. Bu kuruluşun üyelerinin giriş yapmak için artık ana parola kullanması gerekmiyor.";
+"RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
+"ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
+"KeyConnectorDomain" = "Key Connector domain:";
+"KeyConnectorOrganization" = "Kuruluş:";
+"KeyConnectorConfirmDomainWithAdmin" = "Please confirm the domain below with your organization administrator.\n\nKey Connector domain:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";

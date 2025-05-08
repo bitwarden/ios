@@ -1173,5 +1173,11 @@
 "AllowUniversalClipboard" = "Дозволи универзални међуспремник";
 "UseUniversalClipboardToCopyDescriptionLong" = "Користите Универсал Међуспремник да бисте копирали овде и залепили на друге уређаје пријављене са истим Apple ID-ом.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Ваш ПИН PIN треба да има најмање %1$@ слова. Подешавања ПИН-а ће се ресетовати ако се икада у потпуности одјавите из апликације.";
+"RemoveMasterPasswordMessage" = "%1$@ користи SSO уз сопствени сервер за кључеве. Главна лозинка за пријаву више није неопходна за чланове ове организације.";
+"RemoveMasterPasswordConfirmDomain" = "Главна лозинка више није потребна за чланове следеће организације. Молимо потврдите домен са администратором организације.";
+"ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
+"KeyConnectorDomain" = "Key Connector domain:";
+"KeyConnectorOrganization" = "Организација:";
+"KeyConnectorConfirmDomainWithAdmin" = "Please confirm the domain below with your organization administrator.\n\nKey Connector domain:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Да ли заиста желите да избришете овај извештај?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Да ли заиста желите да избришете све извештаје?";

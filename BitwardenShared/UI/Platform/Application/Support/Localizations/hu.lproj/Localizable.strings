@@ -1172,5 +1172,11 @@
 "AllowUniversalClipboard" = "Univerzális vágólap engedélyezése";
 "UseUniversalClipboardToCopyDescriptionLong" = "Az Univerzális vágólap segítségével másolhatunk itt, majd beilleszthetünk más eszközökre, amelyeken ugyanazzal az Apple ID-val vagyunk bejelentkezve.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "A PIN kódnak legalább %1$@ karakterből kell állnia. A PIN kód beállításai alaphelyzetbe kerülnek, ha valaha is teljesen kijelentkezünk az alkalmazásból.";
+"RemoveMasterPasswordMessage" = "%1$@ jelenleg saját tárolású aláíráskulcsú SSO szervert használ. A mesterjelszó a továbbiakban nem szükséges a szervezeti tagsági bejelentkezéshez.";
+"RemoveMasterPasswordConfirmDomain" = "A következő szervezet tagjai számára már nincs szükség mesterjelszóra. Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával.";
+"ConfirmKeyConnectorDomain" = "A Key Connector tartomány megerősítése";
+"KeyConnectorDomain" = "Key Connector tartomány:";
+"KeyConnectorOrganization" = "Szervezet:";
+"KeyConnectorConfirmDomainWithAdmin" = "Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával.\n\nKey Connector tartomány:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Valóban törölni akarjuk ezt a naplót?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Valóban törölni szeretnénk az összes rögzített naplót?";

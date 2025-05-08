@@ -1172,5 +1172,11 @@
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Mã PIN tối thiểu %1$@ ký tự. Cài đặt mã PIN của bạn sẽ được đặt lại nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.";
+"RemoveMasterPasswordMessage" = "%1$@ đang sử dụng SSO với khóa máy chủ tự lưu trữ. Mật khẩu chính không còn cần để đăng nhập cho các thành viên của tổ chức này.";
+"RemoveMasterPasswordConfirmDomain" = "Mật khẩu chính không còn cần thiết đối với các thành viên của tổ chức. Vui lòng xác nhận tên miền bên dưới với quản trị viên tổ chức của bạn.";
+"ConfirmKeyConnectorDomain" = "Xác nhận tên miền kết nối khóa";
+"KeyConnectorDomain" = "Tên miền kết nối khóa:";
+"KeyConnectorOrganization" = "Tổ chức:";
+"KeyConnectorConfirmDomainWithAdmin" = "Vui lòng xác nhận tên miền bên dưới với quản trị viên tổ chức của bạn.\n\nTên miền kết nối khóa:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Bạn muốn xoá nhật ký này?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Bạn muốn xoá tất cả nhật ký?";
