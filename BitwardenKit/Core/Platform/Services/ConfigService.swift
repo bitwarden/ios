@@ -32,7 +32,12 @@ public protocol ConfigService {
     ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
     ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
     /// - Returns: The value for the feature flag
-    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool, forceRefresh: Bool, isPreAuth: Bool) async -> Bool
+    func getFeatureFlag(
+        _ flag: FeatureFlag,
+        defaultValue: Bool,
+        forceRefresh: Bool,
+        isPreAuth: Bool
+    ) async -> Bool
 
     /// Retrieves an integer feature flag. This will use the on-disk configuration if available,
     /// or will retrieve it from the server if not. It will also retrieve the configuration from
@@ -44,7 +49,12 @@ public protocol ConfigService {
     ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
     ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
     /// - Returns: The value for the feature flag
-    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int, forceRefresh: Bool, isPreAuth: Bool) async -> Int
+    func getFeatureFlag(
+        _ flag: FeatureFlag,
+        defaultValue: Int,
+        forceRefresh: Bool,
+        isPreAuth: Bool
+    ) async -> Int
 
     /// Retrieves a string feature flag. This will use the on-disk configuration if available,
     /// or will retrieve it from the server if not. It will also retrieve the configuration from
