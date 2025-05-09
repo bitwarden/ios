@@ -327,8 +327,8 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.topViewController is UIHostingController<VaultItemSelectionView>)
+        XCTAssertTrue(action.view is VaultItemSelectionView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.

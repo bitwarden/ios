@@ -10,7 +10,7 @@ import OSLog
 /// A protocol for a service which can temporarily be enabled to collect logs for debugging to a
 /// local file.
 ///
-protocol FlightRecorder: Sendable {
+protocol FlightRecorder: Sendable, BitwardenLogger {
     /// Deletes all inactive flight recorder logs. This will not delete the currently active log.
     ///
     func deleteInactiveLogs() async throws
@@ -56,6 +56,12 @@ protocol FlightRecorder: Sendable {
 extension FlightRecorder {
     func log(_ message: String, file: String = #file, line: UInt = #line) async {
         await log(message, file: file, line: line)
+    }
+
+    nonisolated func log(_ message: String, file: String, line: UInt) {
+        Task {
+            await log(message, file: file, line: line)
+        }
     }
 }
 
@@ -421,16 +427,6 @@ extension DefaultFlightRecorder: FlightRecorder {
                 message: "\(fileName):\(line) Unable to write message to log: \(message)",
                 error: error
             ))
-        }
-    }
-}
-
-// MARK: DefaultFlightRecorder + BitwardenLogger
-
-extension DefaultFlightRecorder: BitwardenLogger {
-    nonisolated func log(_ message: String, file: String, line: UInt) {
-        Task {
-            await log(message, file: file, line: line)
         }
     }
 }

@@ -11,6 +11,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
     /// The module types required by this coordinator for creating child coordinators.
     typealias Module = GeneratorModule
+        & NavigatorBuilderModule
         & SendModule
         & SettingsModule
         & VaultModule
@@ -125,7 +126,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
 
         rootNavigator.show(child: tabNavigator)
 
-        let vaultNavigator = UINavigationController()
+        let vaultNavigator = module.makeNavigationController()
         vaultNavigator.navigationBar.prefersLargeTitles = true
         vaultNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         vaultCoordinator = module.makeVaultCoordinator(
@@ -133,7 +134,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             stackNavigator: vaultNavigator
         )
 
-        let sendNavigator = UINavigationController()
+        let sendNavigator = module.makeNavigationController()
         sendNavigator.navigationBar.prefersLargeTitles = true
         sendNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         sendCoordinator = module.makeSendCoordinator(
@@ -141,7 +142,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         )
         sendCoordinator?.start()
 
-        let generatorNavigator = UINavigationController()
+        let generatorNavigator = module.makeNavigationController()
         generatorNavigator.navigationBar.prefersLargeTitles = true
         generatorNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         // Remove the hairline divider under the navigation bar to make it appear that the segmented
@@ -153,7 +154,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
         )
         generatorCoordinator?.start()
 
-        let settingsNavigator = UINavigationController()
+        let settingsNavigator = module.makeNavigationController()
         settingsNavigator.navigationBar.prefersLargeTitles = true
         settingsNavigator.navigationBar.accessibilityIdentifier = "MainHeaderBar"
         let settingsCoordinator = module.makeSettingsCoordinator(
@@ -167,7 +168,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             .vault(.list): vaultNavigator,
             .send: sendNavigator,
             .generator(.generator()): generatorNavigator,
-            .settings(.settings): settingsNavigator,
+            .settings(.settings(.tab)): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
         streamOrganizations()

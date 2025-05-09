@@ -129,6 +129,14 @@ class SettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(coordinator.routes.last, .autoFill)
     }
 
+    /// Receiving `.dismiss` has the coordinator dismiss the view.
+    @MainActor
+    func test_receive_dismiss() {
+        subject.receive(.dismiss)
+
+        XCTAssertEqual(coordinator.routes.last, .dismiss)
+    }
+
     /// Receiving `.otherPressed` navigates to the other screen.
     @MainActor
     func test_receive_otherPressed() {

@@ -1171,6 +1171,14 @@
 "SelfHostServerURL" = "Adresa URL serveru vlastního hostování";
 "AllowUniversalClipboard" = "Povolit univerzální schránku";
 "UseUniversalClipboardToCopyDescriptionLong" = "Použijte univerzální schránku pro kopírování zde a vložení na jiná zařízení přihlášená se stejným Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN musí mít nejméně %1$@ znaky. Pokud se z aplikace odhlásíte, nastavení PINu bude resetováno.";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN musí mít nejméně %1$@ znaků. Pokud se z aplikace odhlásíte, nastavení PINu bude resetováno.";
+"RemoveMasterPasswordMessage" = "%1$@ používá SSO s vlastním serverem s klíči. Hlavní heslo pro členy této organizace již není vyžadováno.";
+"RemoveMasterPasswordConfirmDomain" = "Hlavní heslo již není vyžadováno pro členy následující organizace. Potvrďte níže uvedenou doménu u správce Vaší organizace.";
+"ConfirmKeyConnectorDomain" = "Potvrdit doménu Key Connectoru";
+"KeyConnectorDomain" = "Doména Key Connectoru:";
+"KeyConnectorOrganization" = "Organizace:";
+"KeyConnectorConfirmDomainWithAdmin" = "Potvrďte níže uvedenou doménu u správce Vaší organizace.\n\nDoména Key Connectoru:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Opravdu chcete smazat tento log?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Opravdu chcete smazat všechny zaznamenané logy?";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Tento účet bude brzy smazán. Chcete-li pokračovat v používání Bitwardenu, přihlaste se na %1$@.";
+"AppSettings" = "Nastavení aplikace";

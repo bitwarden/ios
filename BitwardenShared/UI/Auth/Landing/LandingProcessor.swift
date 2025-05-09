@@ -97,8 +97,7 @@ class LandingProcessor: StateProcessor<LandingState, LandingAction, LandingEffec
                 updateRememberedEmail()
             }
         case .showPreLoginSettings:
-            // TODO: BIT-20367 Show Pre-Login Settings
-            break
+            coordinator.navigate(to: .preLoginSettings)
         case let .toastShown(toast):
             state.toast = toast
         }
