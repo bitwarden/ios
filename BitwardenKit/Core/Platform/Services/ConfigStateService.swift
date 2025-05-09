@@ -37,4 +37,12 @@ public extension ConfigStateService {
     func getServerConfig() async throws -> ServerConfig? {
         try await getServerConfig(userId: getActiveAccountId())
     }
+
+    /// Sets the server config for the active account.
+    ///
+    /// - Parameter config: The server config.
+    ///
+    func setServerConfig(_ config: ServerConfig?) async throws {
+        try await setServerConfig(config, userId: nil)
+    }
 }
