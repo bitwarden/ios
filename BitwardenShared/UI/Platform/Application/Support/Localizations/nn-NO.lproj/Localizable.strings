@@ -11,7 +11,7 @@
 "CopyUsername" = "Skriv av brukarnamn";
 "Credits" = "Medverkande";
 "Delete" = "Sletta";
-"DeleteAll" = "Slett alle";
+"DeleteAll" = "Delete all";
 "Deleting" = "Slettar...";
 "DoYouReallyWantToDelete" = "Er du heilt trygg på at du vil sletta? Ein kan ikkje angra på dette.";
 "Edit" = "Rediger";
@@ -415,7 +415,7 @@
 "ItemShared" = "Oppføring er vorten delt.";
 "SelectOneCollection" = "You must select at least one collection.";
 "Share" = "Del";
-"ShareAll" = "Del alle";
+"ShareAll" = "Share all";
 "ShareItem" = "Del oppføring";
 "MoveToOrganization" = "Flytta til samskipnad";
 "NoOrgsToList" = "Det er ingen samskipnader å syna.";
@@ -1171,6 +1171,14 @@
 "SelfHostServerURL" = "Self-host server URL";
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN-koden din må vere på minst %1$@ teikn. PIN-innstillingane dine blir tilbakestilt viss du loggar deg ut av applikasjonen.";
-"DoYouReallyWantToDeleteThisLog" = "Vil du verkeleg slette denne oppføringa?";
-"DoYouReallyWantToDeleteAllRecordedLogs" = "Vil du verkeleg slette alle oppføringane?";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"RemoveMasterPasswordMessage" = "%1$@ is using SSO with a self-hosted key server. A master password is no longer required to log in for members of this organization.";
+"RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
+"ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
+"KeyConnectorDomain" = "Key Connector domain:";
+"KeyConnectorOrganization" = "Organization:";
+"KeyConnectorConfirmDomainWithAdmin" = "Please confirm the domain below with your organization administrator.\n\nKey Connector domain:\n%1$@";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
+"AppSettings" = "App settings";
