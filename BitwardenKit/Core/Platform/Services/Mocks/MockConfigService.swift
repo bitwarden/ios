@@ -33,12 +33,22 @@ public class MockConfigService: ConfigService {
         try? configMocker.invoke(param: (forceRefresh: forceRefresh, isPreAuth: isPreAuth))
     }
 
-    public func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool, forceRefresh: Bool, isPreAuth: Bool) async -> Bool {
+    public func getFeatureFlag(
+        _ flag: FeatureFlag,
+        defaultValue: Bool,
+        forceRefresh: Bool,
+        isPreAuth: Bool
+    ) async -> Bool {
         let value = isPreAuth ? featureFlagsBoolPreAuth[flag] : featureFlagsBool[flag]
         return value ?? defaultValue
     }
 
-    public func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int, forceRefresh: Bool, isPreAuth: Bool) async -> Int {
+    public func getFeatureFlag(
+        _ flag: FeatureFlag,
+        defaultValue: Int,
+        forceRefresh: Bool,
+        isPreAuth: Bool
+    ) async -> Int {
         let value = isPreAuth ? featureFlagsIntPreAuth[flag] : featureFlagsInt[flag]
         return value ?? defaultValue
     }

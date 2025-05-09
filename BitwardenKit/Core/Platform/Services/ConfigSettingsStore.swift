@@ -1,3 +1,5 @@
+/// A protocol for an object that persists config setting values.
+///
 public protocol ConfigSettingsStore {
     /// Retrieves a feature flag value from the app's settings store.
     ///

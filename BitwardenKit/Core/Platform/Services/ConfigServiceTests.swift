@@ -172,7 +172,10 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
 
         XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
-        XCTAssertEqual(stateService.serverConfig["1"]?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue], .bool(true))
+        XCTAssertEqual(
+            stateService.serverConfig["1"]?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue],
+            .bool(true)
+        )
     }
 
     /// `getConfig(:)` gets the configuration from the pre authenticated server config if `forceRefresh` is true,
@@ -317,7 +320,10 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
 
         XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")
-        XCTAssertEqual(stateService.preAuthServerConfig?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue], .bool(true))
+        XCTAssertEqual(
+            stateService.preAuthServerConfig?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue],
+            .bool(true)
+        )
     }
 
     // MARK: Tests - getConfig initial values
