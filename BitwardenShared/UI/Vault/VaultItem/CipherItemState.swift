@@ -137,6 +137,10 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
         self
     }
 
+    var hasOrganizations: Bool {
+        cipher.organizationId != nil || ownershipOptions.contains { !$0.isPersonal }
+    }
+
     /// Whether or not this item can be assigned to collections.
     var canAssignToCollection: Bool {
         guard !collectionIds.isEmpty else { return true }
