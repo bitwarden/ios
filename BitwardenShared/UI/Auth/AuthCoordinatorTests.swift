@@ -439,6 +439,18 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(action.embedInNavigationController, true)
     }
 
+    /// `navigate(to:)` with `.preLoginSettings` presents the pre-login settings view.
+    @MainActor
+    func test_navigate_preLoginSettings() throws {
+        subject.navigate(to: .preLoginSettings)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertIdentical(action.view as? AnyObject, module.settingsNavigator)
+        XCTAssertTrue(module.settingsCoordinator.isStarted)
+        XCTAssertEqual(module.settingsCoordinator.routes.last, .settings(.preLogin))
+    }
+
     /// `navigate(to:)` with `.preventAccountLock` presents the prevent account lock view.
     @MainActor
     func test_navigate_preventAccountLock() throws {

@@ -874,6 +874,14 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(coordinator.routes, [])
     }
 
+    /// `receive(_:)` with `.showPreLoginSettings` requests the coordinator navigate to the
+    /// pre-login settings.
+    @MainActor
+    func test_receive_showPreLoginSettings() {
+        subject.receive(.showPreLoginSettings)
+        XCTAssertEqual(coordinator.routes, [.preLoginSettings])
+    }
+
     /// `receive(_:)` with `.toastShown` updates the state's toast value.
     @MainActor
     func test_receive_toastShown() {

@@ -165,7 +165,7 @@ class MockAppModule:
     }
 
     func makeSettingsCoordinator(
-        delegate _: SettingsCoordinatorDelegate,
+        delegate _: SettingsCoordinatorDelegate?,
         stackNavigator: StackNavigator
     ) -> AnyCoordinator<SettingsRoute, SettingsEvent> {
         settingsNavigator = stackNavigator

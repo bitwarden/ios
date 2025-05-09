@@ -111,7 +111,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
     ///
     init(
-        delegate: SettingsCoordinatorDelegate,
+        delegate: SettingsCoordinatorDelegate?,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator
@@ -188,8 +188,8 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             showPendingLoginRequests()
         case let .selectLanguage(currentLanguage: currentLanguage):
             showSelectLanguage(currentLanguage: currentLanguage, delegate: context as? SelectLanguageDelegate)
-        case .settings:
-            showSettings()
+        case let .settings(presentationMode):
+            showSettings(presentationMode: presentationMode)
         case let .shareURL(url):
             showShareSheet([url])
         case let .shareURLs(urls):
@@ -202,7 +202,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
     }
 
     func start() {
-        navigate(to: .settings)
+        navigate(to: .settings(.tab))
     }
 
     // MARK: Private Methods
@@ -510,15 +510,15 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
 
     /// Shows the settings screen.
     ///
-    private func showSettings() {
+    private func showSettings(presentationMode: SettingsPresentationMode) {
         let processor = SettingsProcessor(
             coordinator: asAnyCoordinator(),
             delegate: self,
             services: services,
-            state: SettingsState()
+            state: SettingsState(presentationMode: presentationMode)
         )
         let view = SettingsView(store: Store(processor: processor))
-        stackNavigator?.push(view)
+        stackNavigator?.replace(view)
     }
 
     /// Shows the vault screen.

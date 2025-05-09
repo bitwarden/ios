@@ -168,7 +168,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             .vault(.list): vaultNavigator,
             .send: sendNavigator,
             .generator(.generator()): generatorNavigator,
-            .settings(.settings): settingsNavigator,
+            .settings(.settings(.tab)): settingsNavigator,
         ]
         tabNavigator.setNavigators(tabsAndNavigators)
         streamOrganizations()
