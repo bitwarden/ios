@@ -542,7 +542,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         )
         appSettingsStore.overrideDebugFeatureFlag(name: "email-verification", value: false)
-        let flags = await subject.getDebugFeatureFlags()
+        let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
         let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "email-verification" })
         XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
     }
@@ -551,10 +551,11 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
     func test_toggleDebugFeatureFlag() async throws {
-        let flags = await subject.toggleDebugFeatureFlag(
+        await subject.toggleDebugFeatureFlag(
             name: FeatureFlag.emailVerification.rawValue,
             newValue: true
         )
+        let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
         let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
         XCTAssertTrue(flag.isEnabled)
@@ -562,7 +563,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `refreshDebugFeatureFlags` will reset the flags to the original state before overriding.
     func test_refreshDebugFeatureFlags() async throws {
-        let flags = await subject.refreshDebugFeatureFlags()
+        let flags = await subject.refreshDebugFeatureFlags(FeatureFlag.allCases)
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
         let flag = try XCTUnwrap(flags.first { $0.feature == .emailVerification })
         XCTAssertFalse(flag.isEnabled)

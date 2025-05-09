@@ -27,7 +27,8 @@ protocol GeneratorCoordinatorDelegate: AnyObject {
 final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Module = PasswordHistoryModule
+    typealias Module = NavigatorBuilderModule
+        & PasswordHistoryModule
 
     typealias Services = HasConfigService
         & HasErrorAlertServices.ErrorAlertServices
@@ -123,7 +124,7 @@ final class GeneratorCoordinator: Coordinator, HasStackNavigator {
     /// Shows the generator password history screen.
     ///
     private func showGeneratorHistory() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makePasswordHistoryCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .passwordHistoryList(.generator))

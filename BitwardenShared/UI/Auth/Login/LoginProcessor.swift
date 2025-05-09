@@ -171,6 +171,8 @@ class LoginProcessor: StateProcessor<LoginState, LoginAction, LoginEffect> {
                         true
                     )
                 )
+            case .encryptionKeyMigrationRequired:
+                coordinator.showAlert(.encryptionKeyMigrationRequiredAlert(environmentUrl: state.serverURLString))
             }
         } catch {
             await handleErrorResponse(error)

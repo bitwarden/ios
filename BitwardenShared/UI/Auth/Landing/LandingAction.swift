@@ -14,6 +14,9 @@ enum LandingAction: Equatable {
     /// The value for the remember me toggle was changed.
     case rememberMeChanged(Bool)
 
+    /// Show the pre-login app settings.
+    case showPreLoginSettings
+
     /// The toast was shown or hidden.
     case toastShown(Toast?)
 }

@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -235,6 +236,7 @@ struct ViewItemDetailsView: View { // swiftlint:disable:this type_body_length
                 Image(decorative: placeholderIconAsset)
                     .resizable()
                     .scaledToFit()
+                    .foregroundStyle(Asset.Colors.illustrationOutline.swiftUIColor)
                     .accessibilityHidden(true)
                     .imageStyle(.viewIcon(size: 24))
                     .withCircularBackground(

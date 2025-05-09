@@ -11,7 +11,7 @@
 "CopyUsername" = "Sao chép tên đăng nhập";
 "Credits" = "Đóng góp";
 "Delete" = "Xóa";
-"DeleteAll" = "Xóa tất cả";
+"DeleteAll" = "Delete all";
 "Deleting" = "Đang xoá...";
 "DoYouReallyWantToDelete" = "Bạn có chắc chắn muốn xóa nó không? Thao tác này không thể được khôi phục.";
 "Edit" = "Sửa";
@@ -415,7 +415,7 @@
 "ItemShared" = "Đã chia sẻ mục.";
 "SelectOneCollection" = "Bạn phải chọn ít nhất một bộ sưu tập.";
 "Share" = "Chia sẻ";
-"ShareAll" = "Chia sẻ tất cả";
+"ShareAll" = "Share all";
 "ShareItem" = "Chia sẻ mục";
 "MoveToOrganization" = "Chuyển tới Tổ chức";
 "NoOrgsToList" = "Không có tổ chức.";
@@ -1171,6 +1171,14 @@
 "SelfHostServerURL" = "URL máy chủ tự lưu trữ";
 "AllowUniversalClipboard" = "Allow Universal Clipboard";
 "UseUniversalClipboardToCopyDescriptionLong" = "Use Universal Clipboard to copy here and paste on other devices signed in with the same Apple ID.";
-"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Mã PIN tối thiểu %1$@ ký tự. Cài đặt mã PIN của bạn sẽ được đặt lại nếu bạn đăng xuất hoàn toàn khỏi ứng dụng.";
-"DoYouReallyWantToDeleteThisLog" = "Bạn muốn xoá nhật ký này?";
-"DoYouReallyWantToDeleteAllRecordedLogs" = "Bạn muốn xoá tất cả nhật ký?";
+"YourPINMustBeAtLeastXCharactersDescriptionLong" = "Your PIN must be at least %1$@ characters. Your PIN settings will be reset if you ever fully log out of the application.";
+"RemoveMasterPasswordMessage" = "%1$@ đang sử dụng SSO với khóa máy chủ tự lưu trữ. Mật khẩu chính không còn cần để đăng nhập cho các thành viên của tổ chức này.";
+"RemoveMasterPasswordConfirmDomain" = "A master password is no longer required for members of the following organization. Please confirm the domain below with your organization administrator.";
+"ConfirmKeyConnectorDomain" = "Confirm Key Connector domain";
+"KeyConnectorDomain" = "Key Connector domain:";
+"KeyConnectorOrganization" = "Organization:";
+"KeyConnectorConfirmDomainWithAdmin" = "Please confirm the domain below with your organization administrator.\n\nKey Connector domain:\n%1$@";
+"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
+"AppSettings" = "App settings";

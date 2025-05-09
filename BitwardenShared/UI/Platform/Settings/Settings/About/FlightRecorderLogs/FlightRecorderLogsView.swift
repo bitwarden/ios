@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - FlightRecorderLogsView
@@ -29,10 +30,12 @@ struct FlightRecorderLogsView: View {
                     Button(Localizations.shareAll) {
                         store.send(.shareAll)
                     }
+                    .disabled(!store.state.isShareAllEnabled)
 
                     Button(Localizations.deleteAll, role: .destructive) {
                         store.send(.deleteAll)
                     }
+                    .disabled(!store.state.isDeleteAllEnabled)
                 }
             }
     }
@@ -94,11 +97,10 @@ struct FlightRecorderLogsView: View {
                     store.send(.share(log))
                 }
 
-                if !log.isActiveLog {
-                    Button(Localizations.delete, role: .destructive) {
-                        store.send(.delete(log))
-                    }
+                Button(Localizations.delete, role: .destructive) {
+                    store.send(.delete(log))
                 }
+                .disabled(log.isActiveLog)
             } label: {
                 Asset.Images.ellipsisHorizontal24.swiftUIImage
                     .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)

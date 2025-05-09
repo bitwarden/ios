@@ -11,6 +11,9 @@ enum IdentityTokenRequestError: Error, Equatable {
     ///
     case captchaRequired(hCaptchaSiteCode: String)
 
+    /// The encryption key migration is required.
+    case encryptionKeyMigrationRequired
+
     /// The new device is not verified.
     case newDeviceNotVerified
 
@@ -102,6 +105,11 @@ struct IdentityTokenRequest: Request {
             } else if let error = errorModel.error,
                       error == IdentityTokenError.deviceError {
                 throw IdentityTokenRequestError.newDeviceNotVerified
+            } else if let error = errorModel.error,
+                      let errorMessage = errorModel.errorDetails?.message,
+                      error == IdentityTokenError.invalidGrant,
+                      errorMessage.contains(IdentityTokenError.encryptionKeyMigrationRequired) {
+                throw IdentityTokenRequestError.encryptionKeyMigrationRequired
             }
         default:
             return

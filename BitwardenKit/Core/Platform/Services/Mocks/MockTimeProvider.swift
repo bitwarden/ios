@@ -1,9 +1,8 @@
+import BitwardenKit
 import Foundation
 
-@testable import AuthenticatorShared
-
-class MockTimeProvider {
-    enum TimeConfig {
+public class MockTimeProvider {
+    public enum TimeConfig {
         case currentTime
         case mockTime(Date)
 
@@ -17,25 +16,25 @@ class MockTimeProvider {
         }
     }
 
-    var timeConfig: TimeConfig
+    public var timeConfig: TimeConfig
 
-    init(_ timeConfig: TimeConfig) {
+    public init(_ timeConfig: TimeConfig) {
         self.timeConfig = timeConfig
     }
 }
 
 extension MockTimeProvider: Equatable {
-    static func == (_: MockTimeProvider, _: MockTimeProvider) -> Bool {
+    public static func == (_: MockTimeProvider, _: MockTimeProvider) -> Bool {
         true
     }
 }
 
 extension MockTimeProvider: TimeProvider {
-    var presentTime: Date {
+    public var presentTime: Date {
         timeConfig.date
     }
 
-    func timeSince(_ date: Date) -> TimeInterval {
+    public func timeSince(_ date: Date) -> TimeInterval {
         presentTime.timeIntervalSince(date)
     }
 }
