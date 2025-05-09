@@ -135,10 +135,13 @@ struct BitwardenUITextView: UIViewRepresentable {
             }
         }
 
-        recalculateHeight(
-            view: uiView,
-            result: $calculatedHeight
-        )
+        // Dispatch here to ensure UITextView has a valid width.
+        DispatchQueue.main.asyncAfter(deadline: UI.after(0.15)) {
+            recalculateHeight(
+                view: uiView,
+                result: $calculatedHeight
+            )
+        }
     }
 
     /// Recalculates the height of the UIView based on its content size and updates the binding if the height changes.
