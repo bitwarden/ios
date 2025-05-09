@@ -40,7 +40,7 @@ struct ExtensionActivationView: View {
     /// The main content of the view.
     @ViewBuilder private var content: some View {
         VStack(spacing: 0) {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Asset.Images.autofill,
                 title: Localizations.youreAllSet,
                 message: Localizations.autoFillActivatedDescriptionLong

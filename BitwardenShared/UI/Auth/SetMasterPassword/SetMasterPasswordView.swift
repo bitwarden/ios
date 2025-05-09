@@ -12,7 +12,7 @@ struct SetMasterPasswordView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.lock,
                 title: Localizations.chooseYourMasterPassword,
                 message: store.state.explanationText

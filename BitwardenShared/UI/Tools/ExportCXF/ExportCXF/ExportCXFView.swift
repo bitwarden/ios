@@ -14,7 +14,7 @@ struct ExportCXFView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Image(decorative: store.state.mainIcon),
                 style: .largeTextTintedIcon,
                 title: store.state.title,

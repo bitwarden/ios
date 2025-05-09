@@ -77,7 +77,7 @@ private struct SearchableVaultListView: View {
 
                     Spacer()
 
-                    PageHeaderView(
+                    IllustratedMessageView(
                         image: Asset.Images.Illustrations.items,
                         title: Localizations.saveAndProtectYourData,
                         message: Localizations

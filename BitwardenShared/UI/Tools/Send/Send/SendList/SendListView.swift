@@ -73,7 +73,7 @@ private struct MainSendListView: View {
 
                     Spacer()
 
-                    PageHeaderView(
+                    IllustratedMessageView(
                         image: Asset.Images.Illustrations.send,
                         title: Localizations.sendSensitiveInformationSafely,
                         message: Localizations

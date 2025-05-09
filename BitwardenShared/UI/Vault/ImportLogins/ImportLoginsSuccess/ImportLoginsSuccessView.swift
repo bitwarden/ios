@@ -14,7 +14,7 @@ struct ImportLoginsSuccessView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.devices,
                 title: Localizations.importSuccessful,
                 message: Localizations.manageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop
