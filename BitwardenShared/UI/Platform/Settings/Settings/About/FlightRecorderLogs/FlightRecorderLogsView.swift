@@ -47,7 +47,7 @@ struct FlightRecorderLogsView: View {
         if !store.state.logs.isEmpty {
             logsList
         } else {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.secureDevices.swiftUIImage,
                 style: .mediumImage,
                 message: Localizations.noLogsRecorded

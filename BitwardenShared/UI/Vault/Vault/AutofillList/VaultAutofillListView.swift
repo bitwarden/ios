@@ -210,7 +210,7 @@ private struct VaultAutofillListSearchableView: View {
 
             Group {
                 if store.state.vaultListSections.isEmpty {
-                    PageHeaderView(
+                    IllustratedMessageView(
                         image: Asset.Images.Illustrations.items.swiftUIImage,
                         message: store.state.emptyViewMessage
                     ) {

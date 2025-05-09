@@ -151,7 +151,7 @@ private struct VaultItemSelectionSearchableView: View {
     @ViewBuilder
     private func contentView() -> some View {
         if store.state.vaultListSections.isEmpty {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.items.swiftUIImage,
                 message: emptyViewMessage
             ) {
