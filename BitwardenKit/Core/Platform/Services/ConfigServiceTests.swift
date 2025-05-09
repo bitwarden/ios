@@ -9,7 +9,6 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var appSettingsStore: MockConfigSettingsStore!
-//    var client: MockHTTPClient!
     var configApiService: MockConfigAPIService!
     var errorReporter: MockErrorReporter!
     var now: Date!
@@ -23,7 +22,6 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         appSettingsStore = MockConfigSettingsStore()
-//        client = MockHTTPClient()
         configApiService = MockConfigAPIService()
         errorReporter = MockErrorReporter()
         now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
@@ -43,7 +41,6 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await super.tearDown()
 
         appSettingsStore = nil
-//        client = nil
         configApiService = nil
         errorReporter = nil
         stateService = nil
@@ -66,7 +63,6 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         )
         configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
-//        configApiService.getConfigResult = .success(.validServerConfig)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
         XCTAssertEqual(configApiService.clientRequestCount, 1)
         XCTAssertEqual(response?.gitHash, "75238191")
