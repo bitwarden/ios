@@ -74,9 +74,9 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         XCTAssertTrue(subjectAuthorizationCode.headers.isEmpty)
     }
 
-    /// `headers` returns the headers needed for a password request.
+    /// `headers` returns empty headers for a password request as Auth-Email is deprecated.
     func test_headers_password() {
-        XCTAssertEqual(subjectPassword.headers, ["Auth-Email": "dXNlckBleGFtcGxlLmNvbQ"])
+        XCTAssertTrue(subjectPassword.headers.isEmpty)
     }
 
     /// `method` returns the method of the request.
