@@ -29,9 +29,9 @@ public class CurrentTime: TimeProvider {
         .now
     }
 
+    public init() {}
+
     public func timeSince(_ date: Date) -> TimeInterval {
         presentTime.timeIntervalSince(date)
     }
-
-    public init() {}
 }

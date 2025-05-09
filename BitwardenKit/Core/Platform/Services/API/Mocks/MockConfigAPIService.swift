@@ -4,12 +4,13 @@ import Networking
 import TestHelpers
 
 public class MockConfigAPIService: ConfigAPIService {
-    public var getConfigResult: Result<ConfigResponseModel, Error> =
-        Result<HTTPResponse, Error>
-            .httpSuccess(testData: .validServerConfig)
-            .map { try! ConfigResponseModel(response: $0) } // swiftlint:disable:this force_try
+    public var clientResult: Result<HTTPResponse, Error> = .httpSuccess(testData: .validServerConfig)
+    public var clientRequestCount: Int = 0
+
+    public init() {}
 
     public func getConfig() async throws -> ConfigResponseModel {
-        try getConfigResult.get()
+        clientRequestCount += 1
+        return try ConfigResponseModel(response: clientResult.get())
     }
 }

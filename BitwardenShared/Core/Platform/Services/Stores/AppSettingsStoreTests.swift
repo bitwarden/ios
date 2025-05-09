@@ -10,7 +10,7 @@ import XCTest
 class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var subject: AppSettingsStore!
+    var subject: DefaultAppSettingsStore!
     var userDefaults: UserDefaults!
 
     // MARK: Setup & Teardown

@@ -1,13 +1,11 @@
-import BitwardenKit
 import Combine
 import Foundation
-import OSLog
 
 // MARK: - ConfigService
 
 /// A protocol for a `ConfigService` that manages the app's config.
 ///
-protocol ConfigService {
+public protocol ConfigService {
     /// A publisher that updates with a new value when a new server configuration is received.
     func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>>
 
@@ -34,7 +32,12 @@ protocol ConfigService {
     ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
     ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
     /// - Returns: The value for the feature flag
-    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool, forceRefresh: Bool, isPreAuth: Bool) async -> Bool
+    func getFeatureFlag(
+        _ flag: FeatureFlag,
+        defaultValue: Bool,
+        forceRefresh: Bool,
+        isPreAuth: Bool
+    ) async -> Bool
 
     /// Retrieves an integer feature flag. This will use the on-disk configuration if available,
     /// or will retrieve it from the server if not. It will also retrieve the configuration from
@@ -46,7 +49,12 @@ protocol ConfigService {
     ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
     ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
     /// - Returns: The value for the feature flag
-    func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int, forceRefresh: Bool, isPreAuth: Bool) async -> Int
+    func getFeatureFlag(
+        _ flag: FeatureFlag,
+        defaultValue: Int,
+        forceRefresh: Bool,
+        isPreAuth: Bool
+    ) async -> Int
 
     /// Retrieves a string feature flag. This will use the on-disk configuration if available,
     /// or will retrieve it from the server if not. It will also retrieve the configuration from
@@ -83,20 +91,63 @@ protocol ConfigService {
     func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag]
 }
 
-extension ConfigService {
+public extension ConfigService {
+    /// Retrieves the current configuration. This will return the on-disk configuration if available,
+    /// or will retrieve it from the server if not. It will also retrieve the configuration from
+    /// the server if it is outdated or if the `forceRefresh` argument is `true`. Configurations
+    /// retrieved from the server are saved to disk.
+    ///
+    /// - Parameters:
+    ///   - forceRefresh: If true, forces refreshing the configuration from the server.
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
+    /// - Returns: A server configuration if able.
+    ///
     @discardableResult
     func getConfig(isPreAuth: Bool = false) async -> ServerConfig? {
         await getConfig(forceRefresh: false, isPreAuth: isPreAuth)
     }
 
+    /// Retrieves a boolean feature flag. This will use the on-disk configuration if available,
+    /// or will retrieve it from the server if not. It will also retrieve the configuration from
+    /// the server if it is outdated or if the `forceRefresh` argument is `true`.
+    ///
+    /// - Parameters:
+    ///   - flag: The feature flag to retrieve
+    ///   - defaultValue: The default value to use if the flag is not in the server configuration
+    ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
+    /// - Returns: The value for the feature flag
+    ///
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Bool = false, isPreAuth: Bool = false) async -> Bool {
         await getFeatureFlag(flag, defaultValue: defaultValue, forceRefresh: false, isPreAuth: isPreAuth)
     }
 
+    /// Retrieves an integer feature flag. This will use the on-disk configuration if available,
+    /// or will retrieve it from the server if not. It will also retrieve the configuration from
+    /// the server if it is outdated or if the `forceRefresh` argument is `true`.
+    ///
+    /// - Parameters:
+    ///   - flag: The feature flag to retrieve
+    ///   - defaultValue: The default value to use if the flag is not in the server configuration
+    ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
+    /// - Returns: The value for the feature flag
+    ///
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: Int = 0, isPreAuth: Bool = false) async -> Int {
         await getFeatureFlag(flag, defaultValue: defaultValue, forceRefresh: false, isPreAuth: isPreAuth)
     }
 
+    /// Retrieves a string feature flag. This will use the on-disk configuration if available,
+    /// or will retrieve it from the server if not. It will also retrieve the configuration from
+    /// the server if it is outdated or if the `forceRefresh` argument is `true`.
+    ///
+    /// - Parameters:
+    ///   - flag: The feature flag to retrieve
+    ///   - defaultValue: The default value to use if the flag is not in the server configuration
+    ///   - forceRefresh: If true, forces refreshing the configuration from the server before retrieval
+    ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account.
+    /// - Returns: The value for the feature flag
+    ///
     func getFeatureFlag(_ flag: FeatureFlag, defaultValue: String? = nil, isPreAuth: Bool = false) async -> String? {
         await getFeatureFlag(flag, defaultValue: defaultValue, forceRefresh: false, isPreAuth: isPreAuth)
     }
@@ -106,11 +157,11 @@ extension ConfigService {
 
 /// A default implementation of a `ConfigService` that manages the app's config.
 ///
-class DefaultConfigService: ConfigService {
+public class DefaultConfigService: ConfigService {
     // MARK: Properties
 
     /// The App Settings Store used for storing and retrieving values from User Defaults.
-    private let appSettingsStore: AppSettingsStore
+    private let appSettingsStore: ConfigSettingsStore
 
     /// The API service to make config requests.
     private let configApiService: ConfigAPIService
@@ -122,7 +173,7 @@ class DefaultConfigService: ConfigService {
     private let configSubject = CurrentValueSubject<MetaServerConfig?, Never>(nil)
 
     /// The service used by the application to manage account state.
-    private let stateService: StateService
+    private let stateService: ConfigStateService
 
     /// The service used to get the present time.
     private let timeProvider: TimeProvider
@@ -138,11 +189,11 @@ class DefaultConfigService: ConfigService {
     ///   - stateService: The service used by the application to manage account state.
     ///   - timeProvider: The services used to get the present time.
     ///
-    init(
-        appSettingsStore: AppSettingsStore,
+    public init(
+        appSettingsStore: ConfigSettingsStore,
         configApiService: ConfigAPIService,
         errorReporter: ErrorReporter,
-        stateService: StateService,
+        stateService: ConfigStateService,
         timeProvider: TimeProvider
     ) {
         self.appSettingsStore = appSettingsStore
@@ -155,7 +206,7 @@ class DefaultConfigService: ConfigService {
     // MARK: Methods
 
     @discardableResult
-    func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
+    public func getConfig(forceRefresh: Bool, isPreAuth: Bool) async -> ServerConfig? {
         guard !forceRefresh else {
             await updateConfigFromServer(isPreAuth: isPreAuth)
             return try? await getStateServerConfig(isPreAuth: isPreAuth)
@@ -178,7 +229,7 @@ class DefaultConfigService: ConfigService {
         return localConfig
     }
 
-    func getFeatureFlag(
+    public func getFeatureFlag(
         _ flag: FeatureFlag,
         defaultValue: Bool = false,
         forceRefresh: Bool = false,
@@ -199,7 +250,7 @@ class DefaultConfigService: ConfigService {
             ?? defaultValue
     }
 
-    func getFeatureFlag(
+    public func getFeatureFlag(
         _ flag: FeatureFlag,
         defaultValue: Int = 0,
         forceRefresh: Bool = false,
@@ -214,7 +265,7 @@ class DefaultConfigService: ConfigService {
             ?? defaultValue
     }
 
-    func getFeatureFlag(
+    public func getFeatureFlag(
         _ flag: FeatureFlag,
         defaultValue: String? = nil,
         forceRefresh: Bool = false,
@@ -231,7 +282,7 @@ class DefaultConfigService: ConfigService {
 
     // MARK: Debug Feature Flags
 
-    func getDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
+    public func getDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
         let remoteFeatureFlags = await getConfig()?.featureStates ?? [:]
 
         let debugFlags = flags.map { feature in
@@ -249,14 +300,14 @@ class DefaultConfigService: ConfigService {
         return debugFlags
     }
 
-    func toggleDebugFeatureFlag(name: String, newValue: Bool?) async {
+    public func toggleDebugFeatureFlag(name: String, newValue: Bool?) async {
         appSettingsStore.overrideDebugFeatureFlag(
             name: name,
             value: newValue
         )
     }
 
-    func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
+    public func refreshDebugFeatureFlags(_ flags: [FeatureFlag]) async -> [DebugMenuFeatureFlag] {
         for flag in flags {
             appSettingsStore.overrideDebugFeatureFlag(
                 name: flag.rawValue,
@@ -272,14 +323,14 @@ class DefaultConfigService: ConfigService {
     /// - Parameters:
     ///   - config: Config to set
     ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
-    func getStateServerConfig(isPreAuth: Bool) async throws -> ServerConfig? {
+    public func getStateServerConfig(isPreAuth: Bool) async throws -> ServerConfig? {
         guard !isPreAuth else {
             return await stateService.getPreAuthServerConfig()
         }
         return try? await stateService.getServerConfig()
     }
 
-    func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
+    public func configPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<MetaServerConfig?, Never>> {
         configSubject.eraseToAnyPublisher().values
     }
 
@@ -288,7 +339,7 @@ class DefaultConfigService: ConfigService {
     ///   - config: Config to set
     ///   - isPreAuth: If true, the call is coming before the user is authenticated or when adding a new account
     ///   - userId: The userId to set the server config to.
-    func setStateServerConfig(_ config: ServerConfig, isPreAuth: Bool, userId: String? = nil) async throws {
+    public func setStateServerConfig(_ config: ServerConfig, isPreAuth: Bool, userId: String? = nil) async throws {
         guard !isPreAuth else {
             await stateService.setPreAuthServerConfig(config: config)
             return
@@ -329,16 +380,4 @@ class DefaultConfigService: ConfigService {
             try? await setStateServerConfig(preAuthConfig, isPreAuth: false, userId: userId)
         }
     }
-}
-
-/// Helper object to send updated server config object with extra metadata
-/// like whether it comes from pre-auth and the user ID it belongs to.
-/// This is useful for getting the config on background and establishing which was the original context.
-struct MetaServerConfig {
-    /// If true, the call is coming before the user is authenticated or when adding a new account
-    let isPreAuth: Bool
-    /// The user ID the requested the server config.
-    let userId: String?
-    /// The server config.
-    let serverConfig: ServerConfig?
 }
