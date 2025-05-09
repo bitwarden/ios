@@ -11,6 +11,7 @@ public class MockConfigAPIService: ConfigAPIService {
 
     public func getConfig() async throws -> ConfigResponseModel {
         clientRequestCount += 1
-        return try ConfigResponseModel(response: try clientResult.get())
+        let result = try clientResult.get()
+        return try ConfigResponseModel(response: result)
     }
 }

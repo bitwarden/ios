@@ -1,3 +1,5 @@
+// swiftlint:disable:this file_name
+
 import BitwardenKit
 
 extension FeatureFlag: @retroactive CaseIterable {

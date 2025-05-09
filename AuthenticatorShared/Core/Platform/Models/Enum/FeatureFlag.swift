@@ -15,7 +15,7 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
-            .enablePasswordManagerSync
+            .enablePasswordManagerSync,
         ]
     }
 }
