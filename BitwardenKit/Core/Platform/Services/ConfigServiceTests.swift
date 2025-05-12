@@ -1,20 +1,18 @@
-import BitwardenKit
 import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
-@testable import AuthenticatorShared
+@testable import BitwardenKit
 
 @MainActor
 final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var appSettingsStore: MockAppSettingsStore!
-    var client: MockHTTPClient!
-    var configApiService: APIService!
+    var appSettingsStore: MockConfigSettingsStore!
+    var configApiService: MockConfigAPIService!
     var errorReporter: MockErrorReporter!
     var now: Date!
-    var stateService: MockStateService!
+    var stateService: MockConfigStateService!
     var subject: DefaultConfigService!
     var timeProvider: MockTimeProvider!
 
@@ -23,12 +21,11 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     override func setUp() {
         super.setUp()
 
-        appSettingsStore = MockAppSettingsStore()
-        client = MockHTTPClient()
-        configApiService = APIService(client: client)
+        appSettingsStore = MockConfigSettingsStore()
+        configApiService = MockConfigAPIService()
         errorReporter = MockErrorReporter()
         now = Date(year: 2024, month: 2, day: 14, hour: 8, minute: 0, second: 0)
-        stateService = MockStateService()
+        stateService = MockConfigStateService()
         timeProvider = MockTimeProvider(.mockTime(now))
         subject = DefaultConfigService(
             appSettingsStore: appSettingsStore,
@@ -44,7 +41,6 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         try await super.tearDown()
 
         appSettingsStore = nil
-        client = nil
         configApiService = nil
         errorReporter = nil
         stateService = nil
@@ -66,9 +62,9 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 version: "2024.4.0"
             )
         )
-        client.result = .httpSuccess(testData: .validServerConfig)
+        configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
-        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(configApiService.clientRequestCount, 1)
         XCTAssertEqual(response?.gitHash, "75238191")
 
         try await assertConfigPublisherWith(isPreAuth: false, userId: "1", gitHash: "75238191")
@@ -86,9 +82,9 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 version: "2024.4.0"
             )
         )
-        client.result = .failure(BitwardenTestError.example)
+        configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
-        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(configApiService.clientRequestCount, 1)
         XCTAssertEqual(response?.gitHash, "75238192")
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
@@ -106,7 +102,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 version: "2024.4.0"
             )
         )
-        client.result = .httpSuccess(testData: .validServerConfig)
+        configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
         XCTAssertEqual(response?.gitHash, "75238192")
 
@@ -132,7 +128,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 version: "2024.4.0"
             )
         )
-        client.result = .failure(BitwardenTestError.example)
+        configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
         XCTAssertEqual(response?.gitHash, "75238192")
 
@@ -156,14 +152,14 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         )
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
-        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(configApiService.clientRequestCount, 0)
         XCTAssertEqual(response?.gitHash, "75238192")
     }
 
     /// `getConfig(:)` gets the configuration from the server if there is no local configuration
     ///  but in background returning nil to the caller as is the current available local config.
     func test_getConfig_noLocal() async throws {
-        client.result = .httpSuccess(testData: .validServerConfig)
+        configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: false)
         XCTAssertNil(response)
 
@@ -172,7 +168,10 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
 
         XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238191")
-        XCTAssertEqual(stateService.serverConfig["1"]?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue], .bool(true))
+        XCTAssertEqual(
+            stateService.serverConfig["1"]?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue],
+            .bool(true)
+        )
     }
 
     /// `getConfig(:)` gets the configuration from the pre authenticated server config if `forceRefresh` is true,
@@ -189,9 +188,9 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 version: "2024.4.0"
             )
         )
-        client.result = .failure(BitwardenTestError.example)
+        configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
-        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(configApiService.clientRequestCount, 1)
         XCTAssertEqual(response?.gitHash, "75238192")
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertEqual(stateService.serverConfig["1"]?.gitHash, "75238192")
@@ -200,9 +199,9 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `getConfig(:)` returns `nil` if `forceRefresh` is true,
     /// there is no local config nor a pre authenticated server config.
     func test_getConfig_forceRefreshServerCallThrowingWithoutPreAuthConfig() async {
-        client.result = .failure(BitwardenTestError.example)
+        configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: false)
-        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(configApiService.clientRequestCount, 1)
         XCTAssertNil(response)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
         XCTAssertNil(stateService.serverConfig["1"])
@@ -224,9 +223,9 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 version: "2024.4.0"
             )
         )
-        client.result = .httpSuccess(testData: .validServerConfig)
+        configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: true, isPreAuth: true)
-        XCTAssertEqual(client.requests.count, 1)
+        XCTAssertEqual(configApiService.clientRequestCount, 1)
         XCTAssertEqual(response?.gitHash, "75238191")
         XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")
 
@@ -247,7 +246,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 version: "2024.4.0"
             )
         )
-        client.result = .httpSuccess(testData: .validServerConfig)
+        configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
         XCTAssertEqual(response?.gitHash, "75238192")
 
@@ -274,7 +273,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
                 version: "2024.4.0"
             )
         )
-        client.result = .failure(BitwardenTestError.example)
+        configApiService.clientResult = .failure(BitwardenTestError.example)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
         XCTAssertEqual(response?.gitHash, "75238192")
 
@@ -299,7 +298,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             )
         )
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
-        XCTAssertEqual(client.requests.count, 0)
+        XCTAssertEqual(configApiService.clientRequestCount, 0)
         XCTAssertEqual(response?.gitHash, "75238192")
         XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238192")
     }
@@ -308,7 +307,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// and the user has not been authenticated
     /// but in background returning nil to the caller as is the current available local config.
     func test_getConfig_noLocalPreAuth() async throws {
-        client.result = .httpSuccess(testData: .validServerConfig)
+        configApiService.clientResult = .httpSuccess(testData: .validServerConfig)
         let response = await subject.getConfig(forceRefresh: false, isPreAuth: true)
         XCTAssertNil(response)
 
@@ -317,7 +316,10 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
         }
 
         XCTAssertEqual(stateService.preAuthServerConfig?.gitHash, "75238191")
-        XCTAssertEqual(stateService.preAuthServerConfig?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue], .bool(true))
+        XCTAssertEqual(
+            stateService.preAuthServerConfig?.featureStates[FeatureFlag.testRemoteFeatureFlag.rawValue],
+            .bool(true)
+        )
     }
 
     // MARK: Tests - getConfig initial values
@@ -534,16 +536,16 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
             date: Date(year: 2024, month: 2, day: 14, hour: 7, minute: 50, second: 0),
             responseModel: ConfigResponseModel(
                 environment: nil,
-                featureStates: ["enable-pm-bwa-sync": .bool(true)],
+                featureStates: ["test-remote-feature-flag": .bool(true)],
                 gitHash: "75238191",
                 server: nil,
                 version: "2024.4.0"
             )
         )
-        appSettingsStore.overrideDebugFeatureFlag(name: "enable-pm-bwa-sync", value: false)
+        appSettingsStore.overrideDebugFeatureFlag(name: "test-remote-feature-flag", value: false)
         let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
-        let emailVerificationFlag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "enable-pm-bwa-sync" })
-        XCTAssertFalse(emailVerificationFlag?.isEnabled ?? true)
+        let flag = try? XCTUnwrap(flags.first { $0.feature.rawValue == "test-remote-feature-flag" })
+        XCTAssertFalse(flag?.isEnabled ?? true)
     }
 
     // MARK: Tests - Other
@@ -551,12 +553,12 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `toggleDebugFeatureFlag` will correctly change the value of the flag given.
     func test_toggleDebugFeatureFlag() async throws {
         await subject.toggleDebugFeatureFlag(
-            name: FeatureFlag.enablePasswordManagerSync.rawValue,
+            name: FeatureFlag.testRemoteFeatureFlag.rawValue,
             newValue: true
         )
         let flags = await subject.getDebugFeatureFlags(FeatureFlag.allCases)
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-        let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
+        let flag = try XCTUnwrap(flags.first { $0.feature == .testRemoteFeatureFlag })
         XCTAssertTrue(flag.isEnabled)
     }
 
@@ -564,7 +566,7 @@ final class ConfigServiceTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_refreshDebugFeatureFlags() async throws {
         let flags = await subject.refreshDebugFeatureFlags(FeatureFlag.allCases)
         XCTAssertTrue(appSettingsStore.overrideDebugFeatureFlagCalled)
-        let flag = try XCTUnwrap(flags.first { $0.feature == .enablePasswordManagerSync })
+        let flag = try XCTUnwrap(flags.first { $0.feature == .testRemoteFeatureFlag })
         XCTAssertFalse(flag.isEnabled)
     }
 
