@@ -42,6 +42,8 @@ struct ViewSendItemView: View {
     @ViewBuilder private var content: some View {
         VStack(spacing: 16) {
             sendLink
+
+            sendDetailsSection
         }
     }
 
@@ -80,6 +82,43 @@ struct ViewSendItemView: View {
             .padding(16)
         }
     }
+
+    /// The send details section, containing the send's name, content, and deletion date.
+    @ViewBuilder private var sendDetailsSection: some View {
+        SectionView(Localizations.sendDetails, contentSpacing: 8) {
+            BitwardenTextValueField(title: Localizations.sendNameRequired, value: store.state.sendView.name)
+
+            switch store.state.sendView.type {
+            case .file:
+                if let file = store.state.sendView.file {
+                    BitwardenField {
+                        HStack(alignment: .firstTextBaseline, spacing: 8) {
+                            Text(file.fileName)
+                                .styleGuide(.body)
+                                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+
+                            if let fileSize = file.sizeName {
+                                Text(fileSize)
+                                    .styleGuide(.footnote)
+                                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                    .multilineTextAlignment(.trailing)
+                            }
+                        }
+                    }
+                }
+            case .text:
+                if let text = store.state.sendView.text?.text {
+                    BitwardenTextValueField(title: Localizations.textToShare, value: text)
+                }
+            }
+
+            BitwardenTextValueField(
+                title: Localizations.deletionDate,
+                value: store.state.sendView.deletionDate.formatted(date: .abbreviated, time: .shortened)
+            )
+        }
+    }
 }
 
 // MARK: - Previews
@@ -87,7 +126,10 @@ struct ViewSendItemView: View {
 #if DEBUG
 #Preview("Text") {
     ViewSendItemView(store: Store(processor: StateProcessor(state: ViewSendItemState(
-        sendView: .fixture(),
+        sendView: .fixture(
+            name: "My text send",
+            text: .fixture(text: "Some text to send")
+        ),
         shareURL: URL(string: "https://send.bitwarden.com/39ngaol3")
     ))))
     .navStackWrapped
@@ -95,7 +137,7 @@ struct ViewSendItemView: View {
 
 #Preview("File") {
     ViewSendItemView(store: Store(processor: StateProcessor(state: ViewSendItemState(
-        sendView: .fixture(type: .file),
+        sendView: .fixture(type: .file, file: .fixture(fileName: "photo_123.jpg", sizeName: "3.25 MB")),
         shareURL: URL(string: "https://send.bitwarden.com/39ngaol3")
     ))))
     .navStackWrapped
