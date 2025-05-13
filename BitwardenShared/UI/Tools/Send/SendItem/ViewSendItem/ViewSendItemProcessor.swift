@@ -40,6 +40,10 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
 
     override func perform(_ effect: ViewSendItemEffect) async {
         switch effect {
+        case .deleteSend:
+            coordinator.showAlert(.confirmation(title: Localizations.areYouSureDeleteSend) {
+                await self.deleteSend()
+            })
         case .loadData:
             await loadData()
         }
@@ -70,6 +74,22 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
     }
 
     // MARK: Private
+
+    /// Deletes the send.
+    ///
+    private func deleteSend() async {
+        coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.deleting))
+        do {
+            try await services.sendRepository.deleteSend(state.sendView)
+            coordinator.hideLoadingOverlay()
+            coordinator.navigate(to: .deleted)
+        } catch {
+            coordinator.hideLoadingOverlay()
+            await coordinator.showErrorAlert(error: error) {
+                await self.deleteSend()
+            }
+        }
+    }
 
     /// Loads the data for the view.
     ///

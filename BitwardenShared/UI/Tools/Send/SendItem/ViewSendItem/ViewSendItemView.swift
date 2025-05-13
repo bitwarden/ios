@@ -38,6 +38,16 @@ struct ViewSendItemView: View {
 
     // MARK: Private Views
 
+    /// The button to delete the send.
+    private var deleteSendButton: some View {
+        AsyncButton {
+            await store.perform(.deleteSend)
+        } label: {
+            Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
+        }
+        .buttonStyle(.secondary(isDestructive: true))
+    }
+
     /// The main content of the view.
     @ViewBuilder private var content: some View {
         VStack(spacing: 16) {
@@ -46,6 +56,8 @@ struct ViewSendItemView: View {
             sendDetailsSection
 
             additionalOptions
+
+            deleteSendButton
         }
         .animation(.default, value: store.state.isAdditionalOptionsExpanded)
     }

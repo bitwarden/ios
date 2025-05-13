@@ -1,4 +1,5 @@
 import BitwardenKitMocks
+import BitwardenSdk
 import TestHelpers
 import XCTest
 
@@ -45,6 +46,50 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
     }
 
     // MARK: Tests
+
+    /// `perform(_:)` with `deleteSend` shows a confirmation alert and then uses the send repository
+    /// to delete the send.
+    @MainActor
+    func test_perform_deleteSend() async throws {
+        let sendView = SendView.fixture()
+        subject.state = ViewSendItemState(sendView: sendView)
+        sendRepository.deleteSendResult = .success(())
+
+        await subject.perform(.deleteSend)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert, .confirmation(title: Localizations.areYouSureDeleteSend) {})
+
+        try await alert.tapCancel()
+        XCTAssertNil(sendRepository.deleteSendSendView)
+
+        try await alert.tapAction(title: Localizations.yes)
+        XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
+        XCTAssertEqual(coordinator.routes.last, .deleted)
+    }
+
+    /// `perform(_:)` with `deleteSend` shows an error alert and logs an error if an error occurs
+    /// when deleting the send.
+    @MainActor
+    func test_perform_deleteSend_error() async throws {
+        let sendView = SendView.fixture()
+        subject.state = ViewSendItemState(sendView: sendView)
+        sendRepository.deleteSendResult = .failure(BitwardenTestError.example)
+
+        await subject.perform(.deleteSend)
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        try await alert.tapAction(title: Localizations.yes)
+
+        sendRepository.deleteSendResult = .success(())
+        let errorAlertWithRetry = try XCTUnwrap(coordinator.errorAlertsWithRetryShown.last)
+        XCTAssertEqual(errorAlertWithRetry.error as? BitwardenTestError, .example)
+        await errorAlertWithRetry.retry()
+
+        XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
+        XCTAssertEqual(coordinator.routes.last, .deleted)
+    }
 
     /// `perform(_:)` with `loadData` loads the share URL for the view.
     @MainActor
