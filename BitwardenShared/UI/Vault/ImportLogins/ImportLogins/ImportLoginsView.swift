@@ -44,7 +44,7 @@ struct ImportLoginsView: View {
     @ViewBuilder
     private func intro() -> some View {
         VStack(spacing: 32) {
-            PageHeaderView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.import,
                 title: Localizations.giveYourVaultAHeadStart,
                 message: Localizations.importLoginsDescriptionLong

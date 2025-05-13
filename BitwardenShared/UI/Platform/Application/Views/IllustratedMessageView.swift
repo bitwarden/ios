@@ -1,26 +1,27 @@
 import SwiftUI
 
-// MARK: - PageHeaderView
+// MARK: - IllustratedMessageView
 
-/// A view that renders a header for page. This support displaying a square image, title, and message.
+/// A view that renders a message view with an image on top. This support displaying a square image,
+/// title, and message.
 ///
-struct PageHeaderView<Accessory: View>: View {
+struct IllustratedMessageView<Accessory: View>: View {
     // MARK: Properties
 
     /// An optional accessory to display after the message, such as a button.
     let accessory: Accessory?
 
-    /// The image to display in the page header.
+    /// The image to display in the message view.
     let image: Image
 
-    /// The message to display in the page header.
+    /// The message to display in the message view.
     let message: String
 
-    /// The style for rendering the page header.
-    let style: PageHeaderStyle
+    /// The style for rendering the message view.
+    let style: IllustratedMessageStyle
 
-    /// The title to display in the page header.
-    let title: String
+    /// The title to display in the message view.
+    let title: String?
 
     /// An environment variable for getting the vertical size class of the view.
     @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -40,9 +41,11 @@ struct PageHeaderView<Accessory: View>: View {
                 }
 
             VStack(spacing: style.spaceBetweenTitleAndMessage) {
-                Text(title)
-                    .styleGuide(style.titleTextStyle, weight: .bold)
-                    .accessibilityIdentifier("HeaderTitle")
+                if let title {
+                    Text(title)
+                        .styleGuide(style.titleTextStyle, weight: .bold)
+                        .accessibilityIdentifier("HeaderTitle")
+                }
 
                 Text(LocalizedStringKey(message))
                     .styleGuide(style.messageTextStyle)
@@ -59,46 +62,46 @@ struct PageHeaderView<Accessory: View>: View {
 
     // MARK: Initialization
 
-    /// Initialize a `PageHeaderView`.
+    /// Initialize a `IllustratedMessageView`.
     ///
     /// - Parameters:
     ///   - image: The image to display.
-    ///   - style: The style of the page header.
+    ///   - style: The style of the message view.
     ///   - title: The title to display.
     ///   - message: The message to display.
     ///   - accessory: An optional accessory view to display.
     ///
     init(
         image: Image,
-        style: PageHeaderStyle = .smallImage,
-        title: String,
+        style: IllustratedMessageStyle = .smallImage,
+        title: String? = nil,
         message: String,
-        accessory: Accessory
+        @ViewBuilder accessory: () -> Accessory
     ) {
-        self.accessory = accessory
+        self.accessory = accessory()
         self.image = image
         self.message = message
         self.style = style
         self.title = title
     }
 
-    /// Initialize a `PageHeaderView`.
+    /// Initialize a `IllustratedMessageView`.
     ///
     /// - Parameters:
     ///   - image: The image asset to display.
-    ///   - style: The style of the page header.
+    ///   - style: The style of the message view.
     ///   - title: The title to display.
     ///   - message: The message to display.
     ///   - accessory: An optional accessory view to display.
     ///
     init(
         image: ImageAsset,
-        style: PageHeaderStyle = .smallImage,
-        title: String,
+        style: IllustratedMessageStyle = .smallImage,
+        title: String? = nil,
         message: String,
-        accessory: Accessory
+        @ViewBuilder accessory: () -> Accessory
     ) {
-        self.accessory = accessory
+        self.accessory = accessory()
         self.image = image.swiftUIImage
         self.message = message
         self.style = style
@@ -120,19 +123,19 @@ struct PageHeaderView<Accessory: View>: View {
     }
 }
 
-extension PageHeaderView where Accessory == EmptyView {
-    /// Initialize a `PageHeaderView`.
+extension IllustratedMessageView where Accessory == EmptyView {
+    /// Initialize a `IllustratedMessageView`.
     ///
     /// - Parameters:
     ///   - image: The image to display.
-    ///   - style: The style of the page header.
+    ///   - style: The style of the message view.
     ///   - title: The title to display.
     ///   - message: The message to display.
     ///
     init(
         image: Image,
-        style: PageHeaderStyle = .smallImage,
-        title: String,
+        style: IllustratedMessageStyle = .smallImage,
+        title: String? = nil,
         message: String
     ) {
         accessory = nil
@@ -142,18 +145,18 @@ extension PageHeaderView where Accessory == EmptyView {
         self.title = title
     }
 
-    /// Initialize a `PageHeaderView`.
+    /// Initialize a `IllustratedMessageView`.
     ///
     /// - Parameters:
     ///   - image: The image asset to display.
-    ///   - style: The style of the page header.
+    ///   - style: The style of the message view.
     ///   - title: The title to display.
     ///   - message: The message to display.
     ///
     init(
         image: ImageAsset,
-        style: PageHeaderStyle = .smallImage,
-        title: String,
+        style: IllustratedMessageStyle = .smallImage,
+        title: String? = nil,
         message: String
     ) {
         accessory = nil
@@ -168,7 +171,7 @@ extension PageHeaderView where Accessory == EmptyView {
 
 #if DEBUG
 #Preview("SmallImage") {
-    PageHeaderView(
+    IllustratedMessageView(
         image: Asset.Images.Illustrations.biometricsPhone,
         style: .smallImage,
         title: Localizations.setUpUnlock,
@@ -177,7 +180,7 @@ extension PageHeaderView where Accessory == EmptyView {
 }
 
 #Preview("MediumImage") {
-    PageHeaderView(
+    IllustratedMessageView(
         image: Asset.Images.Illustrations.biometricsPhone,
         style: .mediumImage,
         title: Localizations.setUpUnlock,
@@ -186,21 +189,22 @@ extension PageHeaderView where Accessory == EmptyView {
 }
 
 #Preview("MediumImage With Button") {
-    PageHeaderView(
+    IllustratedMessageView(
         image: Asset.Images.Illustrations.biometricsPhone,
         style: .mediumImage,
         title: Localizations.setUpUnlock,
-        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-        accessory: Button {} label: {
+        message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+    ) {
+        Button {} label: {
             Text(Localizations.learnMore)
                 .styleGuide(.subheadline)
                 .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
         }
-    )
+    }
 }
 
 #Preview("LargeTextTintedIcon") {
-    PageHeaderView(
+    IllustratedMessageView(
         image: Asset.Images.plus24,
         style: .largeTextTintedIcon,
         title: Localizations.setUpUnlock,
@@ -209,11 +213,11 @@ extension PageHeaderView where Accessory == EmptyView {
 }
 #endif
 
-// MARK: PageHeaderStyle
+// MARK: IllustratedMessageStyle
 
-/// A `PageHeaderStyle` contains the metrics for rendering a `PageHeaderView`.
+/// A `IllustratedMessageStyle` contains the metrics for rendering a `IllustratedMessageView`.
 ///
-struct PageHeaderStyle: Sendable {
+struct IllustratedMessageStyle: Sendable {
     // MARK: Properties
 
     /// A foreground tint to apply to the image. Only applied if this has a value.
@@ -252,9 +256,9 @@ struct PageHeaderStyle: Sendable {
     }
 }
 
-// MARK: - PageHeaderStyle Internal Constants
+// MARK: - IllustratedMessageStyle Internal Constants
 
-private extension PageHeaderStyle {
+private extension IllustratedMessageStyle {
     /// The height and width of a square icon image
     static let iconSquareImageDimension: CGFloat = 70
 
@@ -265,10 +269,10 @@ private extension PageHeaderStyle {
     static let smallSquareImageDimension: CGFloat = 100
 }
 
-// MARK: - PageHeaderStyle Constants
+// MARK: - IllustratedMessageStyle Constants
 
-extension PageHeaderStyle {
-    static let largeTextTintedIcon = PageHeaderStyle(
+extension IllustratedMessageStyle {
+    static let largeTextTintedIcon = IllustratedMessageStyle(
         imageColor: Asset.Colors.iconSecondary.swiftUIColor,
         imageSize: OrientationBasedValue(
             both: iconSquareImageDimension
@@ -281,7 +285,7 @@ extension PageHeaderStyle {
         titleTextStyle: .hugeTitle
     )
 
-    static let mediumImage = PageHeaderStyle(
+    static let mediumImage = IllustratedMessageStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(
             portrait: mediumSquareImageDimension,
@@ -296,7 +300,7 @@ extension PageHeaderStyle {
         titleTextStyle: .title2
     )
 
-    static let smallImage = PageHeaderStyle(
+    static let smallImage = IllustratedMessageStyle(
         imageColor: nil,
         imageSize: OrientationBasedValue(
             both: smallSquareImageDimension

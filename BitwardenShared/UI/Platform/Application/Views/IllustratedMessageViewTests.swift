@@ -5,26 +5,27 @@ import XCTest
 
 @testable import BitwardenShared
 
-class PageHeaderViewTests: BitwardenTestCase {
+class IllustratedMessageViewTests: BitwardenTestCase {
     // MARK: Tests
 
     /// Tapping the button (if it is there) dispatches the action.
     @MainActor
     func test_button_tap() throws {
         var tapped = false
-        let subject = PageHeaderView(
+        let subject = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
-            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-            accessory: Button {
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        ) {
+            Button {
                 tapped = true
             } label: {
                 Text(Localizations.learnMore)
                     .styleGuide(.subheadline)
                     .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
             }
-        )
+        }
         let button = try subject.inspect().find(button: Localizations.learnMore)
         try button.tap()
         XCTAssertTrue(tapped)
@@ -32,7 +33,7 @@ class PageHeaderViewTests: BitwardenTestCase {
 
     /// Test snapshots of the largeTextTintedIcon style.
     func test_snapshot_largeTextTintedIcon() {
-        let subject = PageHeaderView(
+        let subject = IllustratedMessageView(
             image: Asset.Images.plus24,
             style: .largeTextTintedIcon,
             title: Localizations.importPasswords,
@@ -49,7 +50,7 @@ class PageHeaderViewTests: BitwardenTestCase {
 
     /// Test snapshots of the mediumImage style.
     func test_snapshot_mediumImage() {
-        let subject = PageHeaderView(
+        let subject = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
@@ -66,17 +67,18 @@ class PageHeaderViewTests: BitwardenTestCase {
 
     /// Test snapshots of the mediumImage style with a button.
     func test_snapshot_mediumImage_withButton() {
-        let subject = PageHeaderView(
+        let subject = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .mediumImage,
             title: Localizations.setUpUnlock,
-            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins,
-            accessory: Button {} label: {
+            message: Localizations.setUpBiometricsOrChooseAPinCodeToQuicklyAccessYourVaultAndAutofillYourLogins
+        ) {
+            Button {} label: {
                 Text(Localizations.learnMore)
                     .styleGuide(.subheadline)
                     .foregroundStyle(Asset.Colors.textInteraction.swiftUIColor)
             }
-        )
+        }
         assertSnapshots(
             of: subject,
             as: [
@@ -88,7 +90,7 @@ class PageHeaderViewTests: BitwardenTestCase {
 
     /// Test snapshots of the smallImage style.
     func test_snapshot_smallImage() {
-        let subject = PageHeaderView(
+        let subject = IllustratedMessageView(
             image: Asset.Images.Illustrations.biometricsPhone,
             style: .smallImage,
             title: Localizations.setUpUnlock,
