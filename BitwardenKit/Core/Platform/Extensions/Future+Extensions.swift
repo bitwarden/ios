@@ -1,6 +1,6 @@
 import Combine
 
-extension Future {
+public extension Future {
     /// Initialize a `Future` with an async throwing closure.
     ///
     /// - Parameter attemptToFulfill: A closure that the publisher invokes when it emits a value or
