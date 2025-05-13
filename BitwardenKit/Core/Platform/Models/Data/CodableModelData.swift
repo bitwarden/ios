@@ -6,14 +6,14 @@ import OSLog
 /// be a `@NSManaged` property of the `NSManagedObject`. When the managed object is populated from
 /// the database, the `model` property can be read to decode the data.
 ///
-protocol CodableModelData: AnyObject, NSManagedObject {
+public protocol CodableModelData: AnyObject, NSManagedObject {
     associatedtype Model: Codable
 
     /// A `@NSManaged` property of the manage object for storing the encoded model as data.
     var modelData: Data? { get set }
 }
 
-extension CodableModelData {
+public extension CodableModelData {
     /// Encodes or decodes the model to/from the data instance.
     var model: Model? {
         get {
