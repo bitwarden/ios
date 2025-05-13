@@ -1,6 +1,6 @@
 import Combine
 
-extension Publisher {
+public extension Publisher {
     /// Maps the output of a publisher to a different type, discarding any `nil` values.
     ///
     /// - Parameters:
@@ -38,7 +38,7 @@ extension Publisher {
     }
 }
 
-extension Publisher where Failure == Error {
+public extension Publisher where Failure == Error {
     /// Maps the output of a publisher to a different type which could throw an error.
     ///
     /// - Parameters:

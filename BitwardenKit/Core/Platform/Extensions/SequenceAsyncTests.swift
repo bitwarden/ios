@@ -1,4 +1,4 @@
-@testable import AuthenticatorShared
+import BitwardenKit
 
 import XCTest
 
@@ -18,6 +18,27 @@ final class SequenceAsyncTests: BitwardenTestCase {
         await assertAsyncThrows {
             _ = try await input.asyncMap { number in
                 try await asyncDoubleWithError(number)
+            }
+        }
+    }
+
+    /// `asyncForEach` correctly performs a block with each element.
+    func test_asyncForEach_success() async {
+        let input = [1, 2, 3]
+        var output: [Int] = []
+        await input.asyncForEach { number in
+            output.append(await asyncDouble(number))
+        }
+        XCTAssertEqual(output, [2, 4, 6])
+    }
+
+    /// `asyncForEach` correctly propagates errors.
+    func test_asyncForEach_error() async {
+        let input = [1, 2, 3]
+        var output: [Int] = []
+        await assertAsyncThrows {
+            try await input.asyncForEach { number in
+                try output.append(await asyncDoubleWithError(number))
             }
         }
     }

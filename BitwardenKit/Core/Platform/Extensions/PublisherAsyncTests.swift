@@ -1,7 +1,6 @@
+import BitwardenKit
 import Combine
 import XCTest
-
-@testable import AuthenticatorShared
 
 class PublisherAsyncTests: BitwardenTestCase {
     // MARK: Properties
