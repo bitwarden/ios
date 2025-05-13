@@ -23,11 +23,9 @@ public enum AddSendContentType: Equatable, Hashable {
 public enum SendItemRoute: Equatable, Hashable {
     /// A route to the add item screen.
     ///
-    /// - Parameters:
-    ///   - content: Initial content to pre-fill the add send screen with.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter content: Initial content to pre-fill the add send screen with.
     ///
-    case add(content: AddSendContentType?, hasPremium: Bool)
+    case add(content: AddSendContentType?)
 
     /// A route specifying that the send item flow has been cancelled.
     case cancel
@@ -44,11 +42,9 @@ public enum SendItemRoute: Equatable, Hashable {
 
     /// A route to the edit item screen for the provided send.
     ///
-    /// - Parameters:
-    ///   - sendView: The `SendView` to edit.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter sendView: The `SendView` to edit.
     ///
-    case edit(_ sendView: SendView, hasPremium: Bool)
+    case edit(_ sendView: SendView)
 
     /// A route to a file selection route.
     ///

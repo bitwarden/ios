@@ -64,24 +64,17 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case let .addItem(type):
             guard let delegate = context as? SendItemDelegate else { return }
-            Task {
-                let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                let route: SendItemRoute
-                if let type {
-                    route = .add(content: .type(type), hasPremium: hasPremium ?? false)
-                } else {
-                    route = .add(content: nil, hasPremium: hasPremium ?? false)
-                }
-                showItem(route: route, delegate: delegate)
+            let route: SendItemRoute = if let type {
+                .add(content: .type(type))
+            } else {
+                .add(content: nil)
             }
+            showItem(route: route, delegate: delegate)
         case let .dismiss(dismissAction):
             stackNavigator?.dismiss(completion: dismissAction?.action)
         case let .editItem(sendView):
             guard let delegate = context as? SendItemDelegate else { return }
-            Task {
-                let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                showItem(route: .edit(sendView, hasPremium: hasPremium ?? false), delegate: delegate)
-            }
+            showItem(route: .edit(sendView), delegate: delegate)
         case let .group(type):
             showGroup(type)
         case .list:

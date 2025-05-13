@@ -43,7 +43,7 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
         case .dismiss:
             coordinator.navigate(to: .cancel)
         case .editItem:
-            break
+            coordinator.navigate(to: .edit(state.sendView))
         }
     }
 }
