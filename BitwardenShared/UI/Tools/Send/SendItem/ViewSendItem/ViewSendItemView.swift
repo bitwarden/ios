@@ -44,6 +44,43 @@ struct ViewSendItemView: View {
             sendLink
 
             sendDetailsSection
+
+            additionalOptions
+        }
+        .animation(.default, value: store.state.isAdditionalOptionsExpanded)
+    }
+
+    /// The expandable additional options section.
+    @ViewBuilder private var additionalOptions: some View {
+        if store.state.sendView.maxAccessCount != nil || store.state.sendView.notes?.isEmpty == false {
+            ExpandableContent(
+                title: Localizations.additionalOptions,
+                isExpanded: store.binding(
+                    get: \.isAdditionalOptionsExpanded,
+                    send: { _ in ViewSendItemAction.toggleAdditionalOptions }
+                ),
+                buttonAccessibilityIdentifier: "SendShowHideOptionsButton"
+            ) {
+                if let maxAccessCount = store.state.sendView.maxAccessCount {
+                    SendItemAccessCountStepper(
+                        currentAccessCount: Int(store.state.sendView.accessCount),
+                        maximumAccessCount: .constant(Int(maxAccessCount))
+                    )
+                    .disabled(true)
+                }
+
+                if let notes = store.state.sendView.notes, !notes.isEmpty {
+                    BitwardenTextValueField(
+                        title: Localizations.privateNote,
+                        value: notes,
+                        useUIKitTextView: true,
+                        copyButtonAccessibilityIdentifier: "CopyNotesButton",
+                        copyButtonAction: {
+                            store.send(.copyNotes)
+                        }
+                    )
+                }
+            }
         }
     }
 

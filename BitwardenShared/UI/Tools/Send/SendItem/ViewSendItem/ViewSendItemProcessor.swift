@@ -47,6 +47,10 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
 
     override func receive(_ action: ViewSendItemAction) {
         switch action {
+        case .copyNotes:
+            guard let notes = state.sendView.notes else { return }
+            services.pasteboardService.copy(notes)
+            state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.privateNote))
         case .copyShareURL:
             guard let shareURL = state.shareURL else { return }
             services.pasteboardService.copy(shareURL.absoluteString)
@@ -60,6 +64,8 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
             coordinator.navigate(to: .share(url: shareURL))
         case let .toastShown(toast):
             state.toast = toast
+        case .toggleAdditionalOptions:
+            state.isAdditionalOptionsExpanded.toggle()
         }
     }
 

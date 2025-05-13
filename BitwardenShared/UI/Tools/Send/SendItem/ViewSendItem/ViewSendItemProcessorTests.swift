@@ -62,6 +62,21 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `receive(_:)` with `.copyNotes` copies the send's notes and displays a toast.
+    @MainActor
+    func test_receive_copyNotes() {
+        let notes = "Notes for my send"
+        subject.state = ViewSendItemState(sendView: .fixture(notes: notes))
+
+        subject.receive(.copyNotes)
+
+        XCTAssertEqual(pasteboardService.copiedString, notes)
+        XCTAssertEqual(
+            subject.state.toast,
+            Toast(title: Localizations.valueHasBeenCopied(Localizations.privateNote))
+        )
+    }
+
     /// `receive(_:)` with `.copyShareURL` copies the URL and displays a toast.
     @MainActor
     func test_receive_copyShareURL() {
@@ -106,5 +121,15 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         subject.state.toast = Toast(title: "toasty")
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
+    }
+
+    /// `receive(_:)` with `.toggleAdditionalOptions` toggles whether the additional options are expanded.
+    @MainActor
+    func test_receive_toggleAdditionalOptions() {
+        subject.receive(.toggleAdditionalOptions)
+        XCTAssertTrue(subject.state.isAdditionalOptionsExpanded)
+
+        subject.receive(.toggleAdditionalOptions)
+        XCTAssertFalse(subject.state.isAdditionalOptionsExpanded)
     }
 }

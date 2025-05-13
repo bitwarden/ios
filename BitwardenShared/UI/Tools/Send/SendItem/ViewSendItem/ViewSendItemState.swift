@@ -8,6 +8,9 @@ import Foundation
 struct ViewSendItemState: Equatable {
     // MARK: Properties
 
+    /// Whether the additional options section is expanded.
+    var isAdditionalOptionsExpanded = false
+
     /// The send to show the details of.
     let sendView: SendView
 
