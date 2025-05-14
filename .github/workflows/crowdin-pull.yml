@@ -59,10 +59,10 @@ jobs:
           download_translations: true
           github_user_name: "bitwarden-devops-bot"
           github_user_email: "106330231+bitwarden-devops-bot@users.noreply.github.com"
-          commit_message: "Pull translations from Crowdin"
-          localization_branch_name: ${{ matrix.branch }}
+          commit_message: "Crowdin Pull - ${{ matrix.name }}"
+          localization_branch_name: ${{ matrix.branch }}-${{ github.run_number }}
           create_pull_request: true
-          pull_request_title: ":shipit: Crowdin Pull - ${{ matrix.name }}"
+          pull_request_title: "Crowdin Pull - ${{ matrix.name }}"
           pull_request_body: ":inbox_tray: New translations for ${{ matrix.name }} received!"
           gpg_private_key: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key }}
           gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
