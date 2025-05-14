@@ -43,25 +43,12 @@ class SendItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.add()` shows the add item screen.
     @MainActor
-    func test_navigateTo_add_noContent_hasPremium() throws {
-        subject.navigate(to: .add(content: nil, hasPremium: true))
+    func test_navigateTo_add_noContent() throws {
+        subject.navigate(to: .add(content: nil))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
-        XCTAssertTrue(view.store.state.hasPremium)
-        XCTAssertEqual(view.store.state.mode, .add)
-    }
-
-    /// `navigate(to:)` with `.addItem` shows the add send item screen.
-    @MainActor
-    func test_navigateTo_add_noContent_notHasPremium() throws {
-        subject.navigate(to: .add(content: nil, hasPremium: false))
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = try XCTUnwrap(action.view as? AddEditSendItemView)
-        XCTAssertFalse(view.store.state.hasPremium)
         XCTAssertEqual(view.store.state.mode, .add)
     }
 
@@ -73,15 +60,13 @@ class SendItemCoordinatorTests: BitwardenTestCase {
                 content: .file(
                     fileName: "test file",
                     fileData: Data("test data".utf8)
-                ),
-                hasPremium: false
+                )
             )
         )
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
-        XCTAssertFalse(view.store.state.hasPremium)
         XCTAssertEqual(view.store.state.mode, .shareExtension(.empty()))
         XCTAssertEqual(view.store.state.type, .file)
         XCTAssertEqual(view.store.state.text, "")
@@ -92,17 +77,11 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.add()` shows the add item screen with prefilled text content.
     @MainActor
     func test_navigateTo_add_textContent() throws {
-        subject.navigate(
-            to: .add(
-                content: .text("test"),
-                hasPremium: true
-            )
-        )
+        subject.navigate(to: .add(content: .text("test")))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
-        XCTAssertTrue(view.store.state.hasPremium)
         XCTAssertEqual(
             view.store.state.mode,
             .shareExtension(.empty())
@@ -116,17 +95,11 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     /// `navigate(to:)` with `.add()` shows the add send item screen with prefilled type content.
     @MainActor
     func test_navigateTo_add_typeContent() throws {
-        subject.navigate(
-            to: .add(
-                content: .type(.file),
-                hasPremium: false
-            )
-        )
+        subject.navigate(to: .add(content: .type(.file)))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
-        XCTAssertFalse(view.store.state.hasPremium)
         XCTAssertEqual(view.store.state.mode, .add)
         XCTAssertEqual(view.store.state.type, .file)
         XCTAssertEqual(view.store.state.text, "")
@@ -154,28 +127,13 @@ class SendItemCoordinatorTests: BitwardenTestCase {
 
     /// `navigate(to:)` with `.edit` shows the edit screen.
     @MainActor
-    func test_navigateTo_edit_hasPremium() throws {
+    func test_navigateTo_edit() throws {
         let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
-        subject.navigate(to: .edit(sendView, hasPremium: true))
+        subject.navigate(to: .edit(sendView))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
-        XCTAssertTrue(view.store.state.hasPremium)
-        XCTAssertEqual(view.store.state.name, "Name")
-        XCTAssertEqual(view.store.state.mode, .edit)
-    }
-
-    /// `navigate(to:)` with `.edit` shows the edit screen.
-    @MainActor
-    func test_navigateTo_edit_notHasPremium() throws {
-        let sendView = SendView.fixture(id: "SEND_ID", name: "Name")
-        subject.navigate(to: .edit(sendView, hasPremium: false))
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = try XCTUnwrap(action.view as? AddEditSendItemView)
-        XCTAssertFalse(view.store.state.hasPremium)
         XCTAssertEqual(view.store.state.name, "Name")
         XCTAssertEqual(view.store.state.mode, .edit)
     }
@@ -198,5 +156,17 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     func test_navigateTo_fileSelection_withoutDelegate() throws {
         subject.navigate(to: .fileSelection(.camera), context: nil)
         XCTAssertNil(stackNavigator.actions.last)
+    }
+
+    /// `navigate(to:)` with `.view` shows the view send screen.
+    @MainActor
+    func test_navigateTo_view() throws {
+        let sendView = SendView.fixture()
+        subject.navigate(to: .view(sendView))
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .replaced)
+        let view = try XCTUnwrap(action.view as? ViewSendItemView)
+        XCTAssertEqual(view.store.state.sendView, sendView)
     }
 }

@@ -23,32 +23,28 @@ public enum AddSendContentType: Equatable, Hashable {
 public enum SendItemRoute: Equatable, Hashable {
     /// A route to the add item screen.
     ///
-    /// - Parameters:
-    ///   - content: Initial content to pre-fill the add send screen with.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter content: Initial content to pre-fill the add send screen with.
     ///
-    case add(content: AddSendContentType?, hasPremium: Bool)
+    case add(content: AddSendContentType?)
 
-    /// A route specifing that the send item flow has been cancelled.
+    /// A route specifying that the send item flow has been cancelled.
     case cancel
 
-    /// A route specifing that the send item flow has been completed, along with the new/updated
+    /// A route specifying that the send item flow has been completed, along with the new/updated
     /// send view.
     ///
     /// - Parameter sendView: The new or updated `SendView`.
     ///
     case complete(_ sendView: SendView)
 
-    /// A route specifing that the send item flow completed by deleting a send.
+    /// A route specifying that the send item flow completed by deleting a send.
     case deleted
 
     /// A route to the edit item screen for the provided send.
     ///
-    /// - Parameters:
-    ///   - sendView: The `SendView` to edit.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter sendView: The `SendView` to edit.
     ///
-    case edit(_ sendView: SendView, hasPremium: Bool)
+    case edit(_ sendView: SendView)
 
     /// A route to a file selection route.
     ///
@@ -61,4 +57,10 @@ public enum SendItemRoute: Equatable, Hashable {
     /// - Parameter url: The `URL` to share.
     ///
     case share(url: URL)
+
+    /// A route to view send item screen.
+    ///
+    /// - Parameter sendView: The `SendView` to view the details of.
+    ///
+    case view(_ sendView: SendView)
 }
