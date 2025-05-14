@@ -783,7 +783,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .dismiss())
     }
 
-    /// `receive` with `.disappeared` should clear streamCipherDetailsTask and call deinit.
+    /// `receive` with `.disappeared` should clear streamCipherDetailsTask.
     @MainActor
     func test_receive_disappearPressed() {
         let account = Account.fixture()
