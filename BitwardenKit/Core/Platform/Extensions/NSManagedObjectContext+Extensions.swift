@@ -1,6 +1,6 @@
 import CoreData
 
-extension NSManagedObjectContext {
+public extension NSManagedObjectContext {
     /// Executes the batch delete request and/or batch insert request and merges any changes into
     /// the current context plus any additional contexts.
     ///

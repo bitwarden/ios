@@ -3,7 +3,7 @@ import CoreData
 /// A protocol for a `ManagedObject` data model associated with a user that adds some convenience
 /// methods for building `NSPersistentStoreRequest` for common CRUD operations.
 ///
-protocol ManagedUserObject: ManagedObject {
+public protocol ManagedUserObject: ManagedObject {
     /// The value type (struct) associated with the managed object that is persisted in the database.
     associatedtype ValueType
 
@@ -28,7 +28,7 @@ protocol ManagedUserObject: ManagedObject {
     func update(with value: ValueType, userId: String) throws
 }
 
-extension ManagedUserObject where Self: NSManagedObject {
+public extension ManagedUserObject where Self: NSManagedObject {
     /// A `NSBatchInsertRequest` that inserts objects for the specified user.
     ///
     /// - Parameters:

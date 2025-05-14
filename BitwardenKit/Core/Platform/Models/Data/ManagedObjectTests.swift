@@ -1,7 +1,6 @@
+import BitwardenKit
 import CoreData
 import XCTest
-
-@testable import AuthenticatorShared
 
 class ManagedObjectTests: BitwardenTestCase {
     // MARK: Tests

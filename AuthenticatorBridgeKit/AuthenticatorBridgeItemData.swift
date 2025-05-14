@@ -1,3 +1,4 @@
+import BitwardenKit
 import CoreData
 import Foundation
 
@@ -47,7 +48,7 @@ extension AuthenticatorBridgeItemData: ManagedUserObject {
     ///   - id: The id to match in the predicate
     /// - Returns: The NSPredicate for searching/filtering by userId and id
     ///
-    static func userIdAndIdPredicate(userId: String, id: String) -> NSPredicate {
+    public static func userIdAndIdPredicate(userId: String, id: String) -> NSPredicate {
         NSPredicate(
             format: "%K == %@ AND %K == %@",
             #keyPath(AuthenticatorBridgeItemData.userId),
@@ -62,7 +63,7 @@ extension AuthenticatorBridgeItemData: ManagedUserObject {
     /// - Parameter userId: The userId to match in the predicate
     /// - Returns: The NSPredicate for searching/filtering by userId
     ///
-    static func userIdPredicate(userId: String) -> NSPredicate {
+    public static func userIdPredicate(userId: String) -> NSPredicate {
         NSPredicate(format: "%K == %@", #keyPath(AuthenticatorBridgeItemData.userId), userId)
     }
 
@@ -72,7 +73,7 @@ extension AuthenticatorBridgeItemData: ManagedUserObject {
     ///   - value: the `AuthenticatorBridgeItemDataModel` to use in updating the object
     ///   - userId: userId to update this object with.
     ///
-    func update(with value: AuthenticatorBridgeItemDataModel, userId: String) throws {
+    public func update(with value: AuthenticatorBridgeItemDataModel, userId: String) throws {
         id = value.id
         model = value
         self.userId = userId

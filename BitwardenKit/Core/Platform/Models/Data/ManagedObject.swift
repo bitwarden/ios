@@ -3,12 +3,12 @@ import CoreData
 /// A protocol for an `NSManagedObject` data model that adds some convenience methods for working
 /// with Core Data.
 ///
-protocol ManagedObject: AnyObject {
+public protocol ManagedObject: AnyObject {
     /// The name of the entity of the managed object, as defined in the data model.
     static var entityName: String { get }
 }
 
-extension ManagedObject where Self: NSManagedObject {
+public extension ManagedObject where Self: NSManagedObject {
     static var entityName: String {
         String(describing: self)
     }

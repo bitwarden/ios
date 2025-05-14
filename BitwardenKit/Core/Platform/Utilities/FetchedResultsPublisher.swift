@@ -8,12 +8,12 @@ import CoreData
 ///
 /// Adapted from https://gist.github.com/darrarski/28d2f5a28ef2c5669d199069c30d3d52
 ///
-class FetchedResultsPublisher<ResultType>: Publisher where ResultType: NSFetchRequestResult {
+public class FetchedResultsPublisher<ResultType>: Publisher where ResultType: NSFetchRequestResult {
     // MARK: Types
 
-    typealias Output = [ResultType]
+    public typealias Output = [ResultType]
 
-    typealias Failure = Error
+    public typealias Failure = Error
 
     // MARK: Properties
 
@@ -31,14 +31,14 @@ class FetchedResultsPublisher<ResultType>: Publisher where ResultType: NSFetchRe
     ///   - context: The managed object context that the fetch request is executed against.
     ///   - request: The fetch request used to get the objects.
     ///
-    init(context: NSManagedObjectContext, request: NSFetchRequest<ResultType>) {
+    public init(context: NSManagedObjectContext, request: NSFetchRequest<ResultType>) {
         self.context = context
         self.request = request
     }
 
     // MARK: Publisher
 
-    func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Failure, S.Input == Output {
+    public func receive<S>(subscriber: S) where S: Subscriber, S.Failure == Failure, S.Input == Output {
         subscriber.receive(subscription: FetchedResultsSubscription(
             context: context,
             request: request,
