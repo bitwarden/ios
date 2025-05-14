@@ -257,7 +257,10 @@ extension GeneratorState.UsernameState {
                     ?? ForwardedEmailServiceType.defaultSimpleLoginBaseUrl
             )
         }
-        return UsernameGeneratorRequest.forwarded(service: service, website: emailWebsite)
+
+        // Fastmail does not allow emailWebsite to be nil.
+        let website = (forwardedEmailService == .fastmail) ? (emailWebsite ?? "") : emailWebsite
+        return UsernameGeneratorRequest.forwarded(service: service, website: website)
     }
 
     /// Returns a `UsernameGeneratorRequest` used to generate a plus-addressed email username.
