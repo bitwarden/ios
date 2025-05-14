@@ -12,6 +12,9 @@ jobs:
   crowdin-sync:
     name: Crowdin Pull - ${{ matrix.name }} - ${{ github.event_name }}
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
     strategy:
       matrix:
         include:
