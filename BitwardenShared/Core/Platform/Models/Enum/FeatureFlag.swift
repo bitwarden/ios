@@ -51,10 +51,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     static let importLoginsFlow = FeatureFlag(rawValue: "import-logins-flow")
 
     /// A feature flag to enable additional error reporting.
-    static let mobileErrorReporting = FeatureFlag(
-        rawValue: "mobile-error-reporting",
-        isRemotelyConfigured: false
-    )
+    static let mobileErrorReporting = FeatureFlag(rawValue: "mobile-error-reporting")
 
     /// A feature flag for the create account flow.
     static let nativeCreateAccountFlow = FeatureFlag(rawValue: "native-create-account-flow")
