@@ -1,4 +1,6 @@
+import BitwardenKitMocks
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -9,6 +11,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     // MARK: Properties
 
     var delegate: MockSendItemDelegate!
+    var errorReporter: MockErrorReporter!
     var module: MockAppModule!
     var sendRepository: MockSendRepository!
     var stackNavigator: MockStackNavigator!
@@ -19,13 +22,17 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
         delegate = MockSendItemDelegate()
+        errorReporter = MockErrorReporter()
         module = MockAppModule()
         sendRepository = MockSendRepository()
         stackNavigator = MockStackNavigator()
         subject = SendItemCoordinator(
             delegate: delegate,
             module: module,
-            services: ServiceContainer.withMocks(sendRepository: sendRepository),
+            services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
+                sendRepository: sendRepository
+            ),
             stackNavigator: stackNavigator
         )
     }
@@ -33,6 +40,7 @@ class SendItemCoordinatorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
         delegate = nil
+        errorReporter = nil
         module = nil
         sendRepository = nil
         stackNavigator = nil
@@ -125,6 +133,15 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(delegate.sendItemCompletedSendView, sendView)
     }
 
+    /// `navigate(to:)` with `.dismiss` dismisses the current modally presented screen.
+    @MainActor
+    func test_navigateTo_dismiss() throws {
+        subject.navigate(to: .dismiss())
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
     /// `navigate(to:)` with `.edit` shows the edit screen.
     @MainActor
     func test_navigateTo_edit() throws {
@@ -136,6 +153,19 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         let view = try XCTUnwrap(action.view as? AddEditSendItemView)
         XCTAssertEqual(view.store.state.name, "Name")
         XCTAssertEqual(view.store.state.mode, .edit)
+    }
+
+    /// `navigate(to:)` with `.edit` with a non empty stack presents a new send item coordinator.
+    @MainActor
+    func test_navigateTo_edit_presentsCoordinator() throws {
+        stackNavigator.isEmpty = false
+
+        subject.navigate(to: .edit(.fixture()), context: nil)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UINavigationController)
+        XCTAssertEqual(module.sendItemCoordinator.routes, [.edit(.fixture())])
     }
 
     /// `navigate(to:)` with `.fileSelection` and with a file selection delegate presents the file
@@ -168,5 +198,79 @@ class SendItemCoordinatorTests: BitwardenTestCase {
         XCTAssertEqual(action.type, .replaced)
         let view = try XCTUnwrap(action.view as? ViewSendItemView)
         XCTAssertEqual(view.store.state.sendView, sendView)
+    }
+
+    /// `handle(_:)` calls `handle(_:)` on the delegate.
+    @MainActor
+    func test_sendItemDelegate_handleAuthAction() async {
+        let action = AuthAction.logout(userId: "1", userInitiated: true)
+        await subject.handle(action)
+        XCTAssertEqual(delegate.handledAuthActions, [action])
+    }
+
+    /// `sendItemCancelled()` dismisses the presented view.
+    @MainActor
+    func test_sendItemDelegate_sendItemCancelled() throws {
+        subject.sendItemCancelled()
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissed)
+    }
+
+    /// `sendItemCompleted(with:)` dismisses the view and presents the share sheet.
+    @MainActor
+    func test_sendItemDelegate_sendItemCompleted() throws {
+        sendRepository.shareURLResult = .success(.example)
+
+        subject.sendItemCompleted(with: .fixture())
+
+        waitFor { stackNavigator.actions.count == 2 }
+
+        XCTAssertEqual(stackNavigator.actions.count, 2)
+
+        let shareAction = try XCTUnwrap(stackNavigator.actions[0])
+        XCTAssertEqual(shareAction.type, .presented)
+        XCTAssertTrue(shareAction.view is UIActivityViewController)
+
+        let dismissAction = try XCTUnwrap(stackNavigator.actions[1])
+        XCTAssertEqual(dismissAction.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `sendItemCompleted(with:)` logs an error if generating the share URL fails.
+    @MainActor
+    func test_sendItemDelegate_sendItemCompleted_error() throws {
+        sendRepository.shareURLResult = .failure(BitwardenTestError.example)
+
+        subject.sendItemCompleted(with: .fixture())
+
+        waitFor { !stackNavigator.actions.isEmpty }
+
+        XCTAssertEqual(stackNavigator.actions.count, 1)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `sendItemCompleted(with:)` dismisses the view if the share URL is `nil`.
+    @MainActor
+    func test_sendItemDelegate_sendItemCompleted_nilURL() throws {
+        sendRepository.shareURLResult = .success(nil)
+
+        subject.sendItemCompleted(with: .fixture())
+
+        waitFor { !stackNavigator.actions.isEmpty }
+
+        XCTAssertEqual(stackNavigator.actions.count, 1)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .dismissedWithCompletionHandler)
+    }
+
+    /// `sendItemDeleted()` calls `sendItemDeleted()` on the delegate.
+    @MainActor
+    func test_sendItemDelegate_sendItemDeleted() {
+        subject.sendItemDeleted()
+        XCTAssertTrue(delegate.didSendItemDeleted)
     }
 }

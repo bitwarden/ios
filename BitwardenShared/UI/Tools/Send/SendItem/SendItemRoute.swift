@@ -40,6 +40,13 @@ public enum SendItemRoute: Equatable, Hashable {
     /// A route specifying that the send item flow completed by deleting a send.
     case deleted
 
+    /// A route that dismisses a presented sheet.
+    ///
+    /// - Parameter action: An optional `DismissAction` that is executed after the sheet has been
+    ///   dismissed.
+    ///
+    case dismiss(_ action: DismissAction? = nil)
+
     /// A route to the edit item screen for the provided send.
     ///
     /// - Parameter sendView: The `SendView` to edit.
