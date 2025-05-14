@@ -6,14 +6,12 @@ on:
   schedule:
     - cron: '0 0 * * 5'
 
-permissions: read-all
-
 jobs:
   crowdin-sync:
     name: Crowdin Pull - ${{ matrix.name }} - ${{ github.event_name }}
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     strategy:
       matrix:
