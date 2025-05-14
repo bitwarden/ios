@@ -1172,5 +1172,13 @@
 "AllowUniversalClipboard" = "Разрешаване на универсалния буфер за обмен";
 "UseUniversalClipboardToCopyDescriptionLong" = "Използвайте универсалния буфер за обмен, за да копирате тук и да поставяте на други устройства, където сте вписан(а) със същия идентификатор на Apple.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Вашият ПИН трябва да бъде с дължина поне %1$@ знака. Настройките за ПИН се изчистват при всяко пълно излизане от програмата.";
+"RemoveMasterPasswordMessage" = "%1$@ използва еднократно удостоверяване със собствен сървър за ключове. Членовете на тази организация вече нямат нужда от главна парола за вписване.";
+"RemoveMasterPasswordConfirmDomain" = "За членовете на следната организация вече не се изисква главна парола. Потвърдете домейна по-долу с администратора на организацията си.";
+"ConfirmKeyConnectorDomain" = "Потвърждаване на домейна на конектора за ключове";
+"KeyConnectorDomain" = "Домейн на конектора за ключове:";
+"KeyConnectorOrganization" = "Организация:";
+"KeyConnectorConfirmDomainWithAdmin" = "Моля, потвърдете домейна по-долу с администратора на организацията си.\n\nДомейн на конектора за ключове:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Наистина ли искате да изтриете журнала?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Наистина ли искате да изтриете всички записани журнали?";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Този акаунт скоро ще бъде изтрит. Впишете се на %1$@, за да продължите да използвате Битуорден.";
+"AppSettings" = "Настройки на приложението";

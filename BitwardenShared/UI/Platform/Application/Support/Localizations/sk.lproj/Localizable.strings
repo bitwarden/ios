@@ -1172,5 +1172,13 @@
 "AllowUniversalClipboard" = "Povoliť Univerzálnu schránku";
 "UseUniversalClipboardToCopyDescriptionLong" = "Použiť Univerzálnu schránku na kopírovanie a vkladanie na ďalších zariadeniach prihlásených s rovnakým Apple ID.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Váš PIN kód musí mať aspoň %1$@ znakov. Nastavenie PIN kódu sa vynuluje, ak sa úplne odhlásite z aplikácie.";
+"RemoveMasterPasswordMessage" = "%1$@ používa SSO s vlastným kľúčovým serverom. Na prihlásenie členov tejto organizácie už nie je potrebné hlavné heslo.";
+"RemoveMasterPasswordConfirmDomain" = "Hlavné heslo sa už nevyžaduje pre členov tejto organizácie. Nižšie uvedenú doménu potvrďte u správcu organizácie.";
+"ConfirmKeyConnectorDomain" = "Potvrdiť doménu Key Connectora";
+"KeyConnectorDomain" = "Doména Key Connectora:";
+"KeyConnectorOrganization" = "Organizácia:";
+"KeyConnectorConfirmDomainWithAdmin" = "Potvrďte u správcu organizácie nižšie uvedenú doménu.\n\nDoména Key Connectora:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Naozaj chcete odstrániť tento log?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Naozaj chcete odstrániť všetky zaznamenané logy?";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Tento účet bude čoskoro odstránený. Prihláste sa na %1$@ a pokračujte v používaní Bitwarden.";
+"AppSettings" = "Nastavenia aplikácie";
