@@ -16,9 +16,6 @@ struct SettingsListItem<Content: View>: View {
     /// An optional string to display as the badge next to the trailing content.
     let badgeValue: String?
 
-    /// Whether or not the list item should have a divider on the bottom.
-    let hasDivider: Bool
-
     /// The optional icon to display on the leading edge of the list item.
     let icon: ImageAsset?
 
@@ -63,11 +60,6 @@ struct SettingsListItem<Content: View>: View {
                         .multilineTextAlignment(.trailing)
                 }
                 .padding(.horizontal, icon == nil ? 16 : 12)
-
-                if hasDivider {
-                    Divider()
-                        .padding(.leading, icon == nil ? 16 : 48)
-                }
             }
         }
         .accessibilityIdentifier(accessibilityIdentifier ?? "")
@@ -80,7 +72,6 @@ struct SettingsListItem<Content: View>: View {
     ///
     /// - Parameters:
     ///  - name: The name of the list item.
-    ///  - hasDivider: Whether or not the list item should have a divider on the bottom.
     ///  - accessibilityIdentifier: The accessibility ID for the list item.
     ///  - badgeValue: An optional string to display as the badge next to the trailing content.
     ///  - icon: The optional icon to display on the leading edge of the list item.
@@ -92,7 +83,6 @@ struct SettingsListItem<Content: View>: View {
     ///
     init(
         _ name: String,
-        hasDivider: Bool = true,
         accessibilityIdentifier: String? = nil,
         badgeValue: String? = nil,
         icon: ImageAsset? = nil,
@@ -103,7 +93,6 @@ struct SettingsListItem<Content: View>: View {
         self.accessibilityIdentifier = accessibilityIdentifier
         self.badgeValue = badgeValue
         self.name = name
-        self.hasDivider = hasDivider
         self.icon = icon
         self.nameAccessibilityID = nameAccessibilityID
         self.trailingContent = trailingContent
@@ -116,7 +105,7 @@ struct SettingsListItem<Content: View>: View {
 #if DEBUG
 #Preview {
     ScrollView {
-        VStack(spacing: 0) {
+        ContentBlock(dividerLeadingPadding: 16) {
             SettingsListItem("Account Security", icon: Asset.Images.locked24) {} trailingContent: {
                 Text("Trailing content")
             }
@@ -134,5 +123,7 @@ struct SettingsListItem<Content: View>: View {
             }
         }
     }
+    .padding()
+    .background(Asset.Colors.backgroundPrimary.swiftUIColor)
 }
 #endif
