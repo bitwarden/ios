@@ -101,8 +101,8 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs/BitwardenKit.xcconfig
-      Release: Configs/BitwardenKit.xcconfig
+      Debug: Configs/BitwardenKit-Debug.xcconfig
+      Release: Configs/BitwardenKit-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true

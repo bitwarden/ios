@@ -123,9 +123,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_checkEmail() throws {
         subject.navigate(to: .checkEmail(email: "email@example.com"))
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<CheckEmailView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is CheckEmailView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.completeWithNeverUnlockKey` notifies the delegate that auth has completed.
@@ -161,9 +162,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_createAccount() throws {
         subject.navigate(to: .createAccount)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<CreateAccountView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is CreateAccountView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.completeRegistration` pushes the create account view onto the stack navigator.
@@ -174,9 +176,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             userEmail: "email@example.com"
         ))
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<CompleteRegistrationView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is CompleteRegistrationView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.completeRegistrationFromAppLink` pushes the create account view onto the stack navigator.
@@ -190,16 +193,11 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
         let landingAction = try XCTUnwrap(stackNavigator.actions[1])
         let completeRegistrationAction = try XCTUnwrap(stackNavigator.actions[2])
-        let completeRegistrationNavigationController = try XCTUnwrap(
-            completeRegistrationAction.view as? UINavigationController
-        )
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
 
-        XCTAssertTrue(
-            completeRegistrationNavigationController.viewControllers.first
-                is UIHostingController<CompleteRegistrationView>
-        )
         XCTAssertTrue(landingAction.view is LandingView)
+        XCTAssertTrue(completeRegistrationAction.view is CompleteRegistrationView)
+        XCTAssertEqual(completeRegistrationAction.embedInNavigationController, true)
         XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
     }
 
@@ -208,9 +206,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_startRegistration() throws {
         subject.navigate(to: .startRegistration, context: MockStartRegistrationDelegate())
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<StartRegistrationView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is StartRegistrationView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.startRegistrationFromExpiredLink` pushes the start registration view
@@ -226,18 +225,13 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
         subject.navigate(to: .startRegistrationFromExpiredLink)
 
         let landingAction = try XCTUnwrap(stackNavigator.actions[5])
-        let startRegistration = try XCTUnwrap(stackNavigator.actions[6])
-        let startRegistrationNavigationController = try XCTUnwrap(
-            startRegistration.view as? UINavigationController
-        )
+        let startRegistrationAction = try XCTUnwrap(stackNavigator.actions[6])
         let lastAction = try XCTUnwrap(stackNavigator.actions.last)
 
-        XCTAssertTrue(
-            startRegistrationNavigationController.viewControllers.first
-                is UIHostingController<StartRegistrationView>
-        )
         XCTAssertTrue(landingAction.view is LandingView)
         XCTAssertEqual(landingAction.type, .replaced)
+        XCTAssertTrue(startRegistrationAction.view is StartRegistrationView)
+        XCTAssertEqual(startRegistrationAction.embedInNavigationController, true)
         XCTAssertEqual(lastAction.type, .dismissedWithCompletionHandler)
     }
 
@@ -283,9 +277,11 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_expiredLink() throws {
         subject.navigate(to: .expiredLink)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExpiredLinkView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is ExpiredLinkView)
+        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertEqual(action.isModalInPresentation, true)
     }
 
     /// `navigate(to:)` with `.enterpriseSingleSignOn` pushes the enterprise single sign-on view onto the stack
@@ -294,9 +290,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_enterpriseSingleSignOn() throws {
         subject.navigate(to: .enterpriseSingleSignOn(email: "email@example.com"))
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SingleSignOnView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is SingleSignOnView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.introCarousel` replaces the navigation stack with the intro carousel.
@@ -401,9 +398,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
             isAuthenticated: false
         ))
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<LoginWithDeviceView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is LoginWithDeviceView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.masterPasswordGuidance` presents the master password guidance view.
@@ -411,9 +409,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_masterPasswordGuidance() throws {
         subject.navigate(to: .masterPasswordGuidance)
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<MasterPasswordGuidanceView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is MasterPasswordGuidanceView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.masterPasswordGenerator` presents the generate master password view.
@@ -434,9 +433,22 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_masterPasswordHint() throws {
         subject.navigate(to: .masterPasswordHint(username: "email@example.com"))
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PasswordHintView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is PasswordHintView)
+        XCTAssertEqual(action.embedInNavigationController, true)
+    }
+
+    /// `navigate(to:)` with `.preLoginSettings` presents the pre-login settings view.
+    @MainActor
+    func test_navigate_preLoginSettings() throws {
+        subject.navigate(to: .preLoginSettings)
+
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertIdentical(action.view as? AnyObject, module.settingsNavigator)
+        XCTAssertTrue(module.settingsCoordinator.isStarted)
+        XCTAssertEqual(module.settingsCoordinator.routes.last, .settings(.preLogin))
     }
 
     /// `navigate(to:)` with `.preventAccountLock` presents the prevent account lock view.
@@ -444,9 +456,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_preventAccountLock() throws {
         subject.navigate(to: .preventAccountLock)
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PreventAccountLockView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is PreventAccountLockView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.selfHosted` pushes the self-hosted view onto the stack navigator.
@@ -454,9 +467,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_selfHosted() throws {
         subject.navigate(to: .selfHosted(currentRegion: .unitedStates))
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelfHostedView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is SelfHostedView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.removeMasterPassword` pushes the remove master password view onto the stack navigator.
@@ -478,9 +492,11 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_setMasterPassword() throws {
         subject.navigate(to: .setMasterPassword(organizationIdentifier: "ORG_ID"))
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SetMasterPasswordView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is SetMasterPasswordView)
+        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertEqual(action.isModalInPresentation, true)
     }
 
     /// `handleEvent()` with `.switchAccount` with an locked account navigates to vault unlock
@@ -553,9 +569,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_twoFactor() throws {
         subject.navigate(to: .twoFactor("", .password(""), AuthMethodsData.fixture(), nil))
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<TwoFactorAuthView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is TwoFactorAuthView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.twoFactor` shows the two factor auth view with device verification.
@@ -563,9 +580,10 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_twoFactor_deviceVerification() throws {
         subject.navigate(to: .twoFactor("", .password(""), AuthMethodsData.fixture(), nil, true))
 
-        XCTAssertEqual(stackNavigator.actions.last?.type, .presented)
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<TwoFactorAuthView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is TwoFactorAuthView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.updateMasterPassword` pushes the update master password view onto the stack navigator.
@@ -573,9 +591,11 @@ class AuthCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_navigate_updateMasterPassword() throws {
         subject.navigate(to: .updateMasterPassword)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<UpdateMasterPasswordView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is UpdateMasterPasswordView)
+        XCTAssertEqual(action.embedInNavigationController, true)
+        XCTAssertEqual(action.isModalInPresentation, true)
     }
 
     /// `navigate(to:)` with `.vaultUnlock` replaces the current view with the vault unlock view.

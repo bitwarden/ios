@@ -1,0 +1,7 @@
+{
+  "error": "invalid_grant",
+  "ErrorModel": {
+    "Message": "Encryption key migration is required. Please log in to the web vault at https://localhost:8080/#",
+    "Object": "error"
+  }
+}

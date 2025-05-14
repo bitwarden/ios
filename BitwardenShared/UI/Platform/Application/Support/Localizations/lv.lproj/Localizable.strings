@@ -358,7 +358,7 @@
 "URIPosition" = "URI %1$@";
 "BaseDomain" = "Pamata domēns";
 "Default" = "Noklusējums";
-"Exact" = "Tiešs";
+"Exact" = "Tieši";
 "Host" = "Saimniekdators";
 "RegEx" = "Regulārā izteiksme";
 "StartsWith" = "Sākas ar";
@@ -1170,7 +1170,15 @@
 "DateRangeXToY" = "%1$@ - %2$@";
 "SelfHostServerURL" = "Pašmitināta servera URL";
 "AllowUniversalClipboard" = "Ļaut Universal Clipboard";
-"UseUniversalClipboardToCopyDescriptionLong" = "Izmantot Universal Clipboard, lai ievietotu šeit un ielīmētu citās ierīcēs, kurās ir veikta pieteikšanāš ar to pašu Apple ID.";
+"UseUniversalClipboardToCopyDescriptionLong" = "Izmantot Universal Clipboard, lai ievietotu šeit un ielīmētu citās ierīcēs, kurās ir veikta pieteikšanās ar to pašu Apple ID.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "PIN ir jābūt vismaz %1$@ rakstzīmes garam. PIN iestatījumi tiks atiestatīti pēc pilnīgas izrakstīšanās no lietotnes.";
+"RemoveMasterPasswordMessage" = "%1$@ izmanto vienoto pieteikšanos ar pašmitinātu atslēgu serveri. Tās dalībniekiem vairs nav nepieciešama galvenā parole, lai pieteiktos.";
+"RemoveMasterPasswordConfirmDomain" = "Galvenā parole nav nepieciešama turpmāk minētās apvienības dalībniekiem. Lūgums saskaņot zemāk esošo domēnu ar savas apvienības pārvaldītāju.";
+"ConfirmKeyConnectorDomain" = "Apstiprināt Key Connector domēnu";
+"KeyConnectorDomain" = "Key Connector domēns:";
+"KeyConnectorOrganization" = "Apvienība:";
+"KeyConnectorConfirmDomainWithAdmin" = "Lūgums apstiprināt zemāk esošo domēnu ar savas apvienības pārvaldītāju.\n\nKey Connector domēns:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Vai tiešām izdzēst šo žurnālu?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Vai tiešām izdzēst visus ierakstītos žurnālus?";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
+"AppSettings" = "Lietotnes iestatījumi";

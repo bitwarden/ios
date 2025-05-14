@@ -196,6 +196,8 @@ final class LoginWithDeviceProcessor: StateProcessor<
                 services.errorReporter.log(error: error)
             case .newDeviceNotVerified:
                 services.errorReporter.log(error: error)
+            case .encryptionKeyMigrationRequired:
+                services.errorReporter.log(error: error)
             }
             return
         }

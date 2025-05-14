@@ -11,7 +11,8 @@ import SwiftUI
 final class SendCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Module = SendItemCoordinator.Module
+    typealias Module = NavigatorBuilderModule
+        & SendItemCoordinator.Module
         & SendItemModule
 
     typealias Services = HasErrorAlertServices.ErrorAlertServices
@@ -132,7 +133,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     ///   - delegate: The delegate for this navigation.
     ///
     private func showItem(route: SendItemRoute, delegate: SendItemDelegate) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         if case .add = route {
             navigationController.removeHairlineDivider()
         }

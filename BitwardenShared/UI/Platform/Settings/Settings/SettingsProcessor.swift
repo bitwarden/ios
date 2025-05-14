@@ -90,6 +90,8 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
             coordinator.navigate(to: .appearance)
         case .autoFillPressed:
             coordinator.navigate(to: .autoFill)
+        case .dismiss:
+            coordinator.navigate(to: .dismiss)
         case .otherPressed:
             coordinator.navigate(to: .other)
         case .vaultPressed:

@@ -72,9 +72,9 @@ class TabCoordinatorTests: BitwardenTestCase {
     @MainActor
     func test_navigate_settings() {
         subject.start()
-        subject.navigate(to: .settings(.settings))
+        subject.navigate(to: .settings(.settings(.tab)))
         XCTAssertEqual(tabNavigator.selectedIndex, 3)
-        XCTAssertEqual(module.settingsCoordinator.routes, [.settings])
+        XCTAssertEqual(module.settingsCoordinator.routes, [.settings(.tab)])
     }
 
     /// `navigate(to:)` with `.vault(.list)` sets the correct selected index on tab navigator.
