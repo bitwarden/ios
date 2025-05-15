@@ -57,7 +57,6 @@ struct SettingsView: View {
     private var aboutRow: some View {
         SettingsListItem(
             Localizations.about,
-            hasDivider: false,
             icon: Asset.Images.informationCircle24
         ) {
             store.send(.aboutPressed)
@@ -71,7 +70,6 @@ struct SettingsView: View {
     private var accountSecurityRow: some View {
         SettingsListItem(
             Localizations.accountSecurity,
-            hasDivider: false,
             badgeValue: store.state.accountSecurityBadgeValue,
             icon: Asset.Images.locked24
         ) {
@@ -84,7 +82,7 @@ struct SettingsView: View {
 
     /// The appearance settings row.
     private var appearanceRow: some View {
-        SettingsListItem(Localizations.appearance, hasDivider: false, icon: Asset.Images.paintBrush) {
+        SettingsListItem(Localizations.appearance, icon: Asset.Images.paintBrush) {
             store.send(.appearancePressed)
         } trailingContent: {
             chevron
@@ -96,7 +94,6 @@ struct SettingsView: View {
     private var autofillRow: some View {
         SettingsListItem(
             Localizations.autofill,
-            hasDivider: false,
             badgeValue: store.state.autofillBadgeValue,
             icon: Asset.Images.checkCircle24
         ) {
@@ -109,7 +106,7 @@ struct SettingsView: View {
 
     /// The other settings row.
     private var otherRow: some View {
-        SettingsListItem(Localizations.other, hasDivider: false, icon: Asset.Images.other) {
+        SettingsListItem(Localizations.other, icon: Asset.Images.other) {
             store.send(.otherPressed)
         } trailingContent: {
             chevron
@@ -121,7 +118,6 @@ struct SettingsView: View {
     private var vaultRow: some View {
         SettingsListItem(
             Localizations.vault,
-            hasDivider: false,
             badgeValue: store.state.vaultBadgeValue,
             icon: Asset.Images.vaultSettings
         ) {

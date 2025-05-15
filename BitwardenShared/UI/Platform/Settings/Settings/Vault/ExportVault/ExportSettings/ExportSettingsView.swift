@@ -14,7 +14,7 @@ struct ExportSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            SettingsListItem(Localizations.exportVaultToAFile, hasDivider: false) {
+            SettingsListItem(Localizations.exportVaultToAFile) {
                 store.send(.exportToFileTapped)
             } trailingContent: {
                 chevron
@@ -22,7 +22,7 @@ struct ExportSettingsView: View {
             .accessibilityIdentifier("ExportVaultToAFileLabel")
             .cornerRadius(10)
 
-            SettingsListItem(Localizations.exportVaultToAnotherApp, hasDivider: false) {
+            SettingsListItem(Localizations.exportVaultToAnotherApp) {
                 store.send(.exportToAppTapped)
             } trailingContent: {
                 chevron
