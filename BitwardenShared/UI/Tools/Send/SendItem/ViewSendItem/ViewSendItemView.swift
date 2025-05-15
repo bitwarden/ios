@@ -45,7 +45,7 @@ struct ViewSendItemView: View {
         } label: {
             Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
         }
-        .buttonStyle(.secondary(isDestructive: true))
+        .buttonStyle(.secondary(isDestructive: true, size: .medium))
     }
 
     /// The main content of the view.
@@ -119,14 +119,14 @@ struct ViewSendItemView: View {
                 } label: {
                     Label(Localizations.copy, image: Asset.Images.copy16.swiftUIImage, scaleImageDimension: 16)
                 }
-                .buttonStyle(.primary())
+                .buttonStyle(.primary(size: .medium))
 
                 Button {
                     store.send(.shareSend)
                 } label: {
                     Label(Localizations.share, image: Asset.Images.share16.swiftUIImage, scaleImageDimension: 16)
                 }
-                .buttonStyle(.secondary())
+                .buttonStyle(.secondary(size: .medium))
             }
             .padding(16)
         }
