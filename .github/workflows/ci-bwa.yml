@@ -1,5 +1,5 @@
 name: CI / Authenticator
-run-name: ${{ github.event_name == 'workflow_dispatch-REMOVEME' && format('Manual - {0}', inputs.build-mode) || 'CI' }}
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Authenticator ({0})', inputs.build-mode) || 'CI - Authenticator' }}
 
 on:
   workflow_dispatch:
