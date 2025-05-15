@@ -2,9 +2,6 @@ name: CI / Authenticator
 run-name: ${{ github.event_name == 'workflow_dispatch-REMOVEME' && format('Manual - {0}', inputs.build-mode) || 'CI' }}
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       build-mode:
@@ -30,7 +27,7 @@ on:
       distribute:
         description: "Distribute to TestFlight"
         type: boolean
-        default: false #TODO: change to true before merging to main
+        default: true
       xcode-version:
           description: "Xcode Version Override - e.g. '15.2'"
           type: string
@@ -38,7 +35,7 @@ on:
 jobs:
   version:
     name: Calculate Version Name and Number
-    uses: bitwarden/ios/.github/workflows/_version.yml@monorepo/new-build #TODO: change to main
+    uses: bitwarden/ios/.github/workflows/_version.yml@main
     with:
       base_version_number: 10
       version_name: ${{ inputs.version-name }}
@@ -50,7 +47,7 @@ jobs:
     name: Build Manual - ${{ inputs.build-mode }}
     needs: version
     if: ${{ github.event_name == 'workflow_dispatch-REMOVEME' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@monorepo/new-build #TODO: change to main
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     with:
       bw-env: bwa_prod
       build-mode: ${{ inputs.build-mode }}
@@ -64,7 +61,7 @@ jobs:
     name: Build CI
     needs: version
     if: ${{ github.event_name == 'workflow_dispatch' }}
-    uses: bitwarden/ios/.github/workflows/_build-any.yml@monorepo/new-build #TODO: change to main
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     strategy:
       matrix:
         include:
