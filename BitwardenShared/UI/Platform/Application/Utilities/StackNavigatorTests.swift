@@ -41,17 +41,20 @@ class StackNavigatorTests: BitwardenTestCase {
         XCTAssertTrue(subject.isPresenting)
     }
 
-    /// `present(_:animated:)` presents the hosted view.
+    /// `present(_:animated:)` presents the hosted view in a navigation controller.
     @MainActor
-    func test_present() {
+    func test_present() throws {
         subject.present(EmptyView(), animated: false)
-        XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
+        XCTAssertTrue(subject.presentedViewController is UINavigationController)
+        let navigationController = try XCTUnwrap(subject.presentedViewController as? UINavigationController)
+        XCTAssertEqual(navigationController.viewControllers.count, 1)
+        XCTAssertTrue(navigationController.viewControllers[0] is UIHostingController<EmptyView>)
     }
 
     /// `present(_:animated:)` presents the hosted view.
     @MainActor
     func test_present_overFullscreen() {
-        subject.present(EmptyView(), animated: false, overFullscreen: true)
+        subject.present(EmptyView(), animated: false, embedInNavigationController: false, overFullscreen: true)
         XCTAssertEqual(subject.presentedViewController?.modalPresentationStyle, .overFullScreen)
         XCTAssertEqual(subject.presentedViewController?.view.backgroundColor, .clear)
         XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
@@ -60,14 +63,21 @@ class StackNavigatorTests: BitwardenTestCase {
     /// `present(_:animated:)` presents the hosted view on existing presented views.
     @MainActor
     func test_present_onPresentedView() {
-        subject.present(EmptyView(), animated: false)
-        subject.present(ScrollView<EmptyView> {}, animated: false)
+        subject.present(EmptyView(), animated: false, embedInNavigationController: false)
+        subject.present(ScrollView<EmptyView> {}, animated: false, embedInNavigationController: false)
         XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
         waitFor(subject.presentedViewController?.presentedViewController != nil)
         XCTAssertTrue(
             subject.presentedViewController?.presentedViewController
                 is UIHostingController<ScrollView<EmptyView>>
         )
+    }
+
+    /// `present(_:animated:)` presents the hosted view without embedding it in a navigation controller.
+    @MainActor
+    func test_present_withoutEmbedInNavigationController() {
+        subject.present(EmptyView(), animated: false, embedInNavigationController: false)
+        XCTAssertTrue(subject.presentedViewController is UIHostingController<EmptyView>)
     }
 
     /// `dismiss(animated:)` dismisses the hosted view.

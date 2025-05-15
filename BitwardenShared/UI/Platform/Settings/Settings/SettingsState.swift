@@ -6,6 +6,10 @@ struct SettingsState: Equatable {
     /// The state of the badges in the settings tab.
     var badgeState: SettingsBadgeState?
 
+    /// The presentation mode based on where the settings view is displayed from. This determines
+    /// if the UI should show specific elements.
+    var presentationMode = SettingsPresentationMode.tab
+
     // MARK: Computed Properties
 
     /// The badge value for the account security row.

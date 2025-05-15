@@ -1171,10 +1171,23 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_removeMasterPassword() {
         coordinator.isLoadingOverlayShowing = true
 
-        subject.removeMasterPassword(organizationName: "Example Org")
+        subject.removeMasterPassword(
+            organizationName: "Example Org",
+            organizationId: "ORG_ID",
+            keyConnectorUrl: "https://example.com"
+        )
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
-        XCTAssertEqual(coordinator.routes, [.auth(.removeMasterPassword(organizationName: "Example Org"))])
+        XCTAssertEqual(
+            coordinator.routes,
+            [
+                .auth(.removeMasterPassword(
+                    organizationName: "Example Org",
+                    organizationId: "ORG_ID",
+                    keyConnectorUrl: "https://example.com"
+                )),
+            ]
+        )
     }
 
     /// `removeMasterPassword(organizationName:)` doesn't show the remove master password screen in
@@ -1188,7 +1201,11 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
             services: ServiceContainer.withMocks()
         )
 
-        subject.removeMasterPassword(organizationName: "Example Org")
+        subject.removeMasterPassword(
+            organizationName: "Example Org",
+            organizationId: "ORG_ID",
+            keyConnectorUrl: "https://example.com"
+        )
 
         XCTAssertTrue(coordinator.routes.isEmpty)
     }

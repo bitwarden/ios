@@ -369,9 +369,6 @@ extension VaultListProcessor {
             do {
                 try await Task.sleep(nanoseconds: Constants.appReviewPromptDelay)
                 state.isEligibleForAppReview = true
-                if await services.configService.getFeatureFlag(.enableDebugAppReviewPrompt) {
-                    state.toast = Toast(title: Constants.appReviewPromptEligibleDebugMessage)
-                }
             } catch is CancellationError {
                 // Task was cancelled, no need to handle this error
             } catch {

@@ -13,6 +13,9 @@ struct OtherSettingsState {
     /// Whether the allow sync on refresh toggle is on.
     var isAllowSyncOnRefreshToggleOn: Bool = false
 
+    /// Indicates whether the Universal Clipboard toggle is on.
+    var isAllowUniversalClipboardToggleOn: Bool = false
+
     /// Whether the connect to watch toggle is on.
     var isConnectToWatchToggleOn: Bool = false
 

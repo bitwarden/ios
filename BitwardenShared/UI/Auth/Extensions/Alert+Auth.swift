@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - Alert+Auth
@@ -131,6 +132,22 @@ extension Alert {
         )
     }
 
+    /// An alert notifying the user that they need to migrate their encryption key.
+    ///
+    /// - Returns: An alert notifying the user that they need to migrate their encryption key.
+    ///
+    static func encryptionKeyMigrationRequiredAlert(
+        environmentUrl: String,
+    ) -> Alert {
+        Alert(
+            title: Localizations.anErrorHasOccurred,
+            message: Localizations.thisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden(environmentUrl),
+            alertActions: [
+                AlertAction(title: Localizations.ok, style: .default),
+            ]
+        )
+    }
+
     /// An alert notifying the user that unlocking the user's vault may fail in an app extension
     /// because their KDF settings use too much memory.
     ///
@@ -147,6 +164,25 @@ extension Alert {
                 AlertAction(title: Localizations.continue, style: .default) { _ in
                     await continueAction()
                 },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
+    /// An alert that is displayed to confirm the user wants to leave the organization
+    ///
+    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm leave organization.
+    /// - Returns: An alert that is displayed to confirm the user wants to leave the organization.
+    ///
+    static func leaveOrganizationConfirmation(
+        orgName: String,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.leaveOrganization,
+            message: Localizations.leaveOrganizationName(orgName),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
             ]
         )
@@ -185,6 +221,24 @@ extension Alert {
             title: Localizations.logOut,
             message: Localizations.logoutConfirmation + "\n\n"
                 + [profile.email, profile.webVault].joined(separator: "\n"),
+            alertActions: [
+                AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
+                AlertAction(title: Localizations.cancel, style: .cancel),
+            ]
+        )
+    }
+
+    /// An alert that is displayed to confirm the key connector domain.
+    ///
+    /// - Parameter action: An action to perform when the user taps `Yes`, to confirm the domain.
+    /// - Returns: An alert that is displayed to confirm the key connector domain.
+    static func keyConnectorConfirmation(
+        keyConnectorUrl: URL,
+        action: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: Localizations.confirmKeyConnectorDomain,
+            message: Localizations.keyConnectorConfirmDomainWithAdmin(keyConnectorUrl),
             alertActions: [
                 AlertAction(title: Localizations.yes, style: .default) { _ in await action() },
                 AlertAction(title: Localizations.cancel, style: .cancel),
@@ -322,7 +376,9 @@ extension Alert {
     ) -> Alert {
         Alert(
             title: Localizations.enterPIN,
-            message: settingUp ? Localizations.setPINDescription : Localizations.verifyPIN,
+            message: settingUp
+                ? Localizations.yourPINMustBeAtLeastXCharactersDescriptionLong(Constants.minimumPinLength)
+                : Localizations.verifyPIN,
             alertActions: [
                 AlertAction(
                     title: Localizations.submit,
@@ -330,6 +386,10 @@ extension Alert {
                     handler: { _, alertTextFields in
                         guard let pin = alertTextFields.first(where: { $0.id == "pin" })?.text else { return }
                         await completion(pin)
+                    },
+                    shouldEnableAction: { textFields in
+                        guard let pin = textFields.first(where: { $0.id == "pin" })?.text else { return false }
+                        return pin.count >= Constants.minimumPinLength
                     }
                 ),
                 AlertAction(title: Localizations.cancel, style: .cancel, handler: { _, _ in

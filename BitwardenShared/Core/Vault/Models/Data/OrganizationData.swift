@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import CoreData
 import Foundation

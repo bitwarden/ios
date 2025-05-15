@@ -1,5 +1,6 @@
 // swiftlint:disable file_length
 
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -76,7 +77,7 @@ private struct SearchableVaultListView: View {
 
                     Spacer()
 
-                    PageHeaderView(
+                    IllustratedMessageView(
                         image: Asset.Images.Illustrations.items,
                         title: Localizations.saveAndProtectYourData,
                         message: Localizations

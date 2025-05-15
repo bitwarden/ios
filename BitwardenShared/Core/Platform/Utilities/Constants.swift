@@ -11,9 +11,6 @@ extension Constants {
     /// The app review prompt delay in nanoseconds.
     static let appReviewPromptDelay: UInt64 = 3_000_000_000
 
-    /// The debug toast message for when the user is eligible for an app review prompt.
-    static let appReviewPromptEligibleDebugMessage = "User is eligible for app review prompt."
-
     /// The minimum server version required to have cipher key encryption on.
     static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
 
@@ -69,6 +66,9 @@ extension Constants {
 
     /// A default value for the minimum number of characters required when creating a password.
     static let minimumPasswordCharacters = 12
+
+    /// The minimum length when setting a pin.
+    static let minimumPinLength = 4
 
     /// The minimum number of minutes before allowing the vault to sync again.
     static let minimumSyncInterval: TimeInterval = 30 * 60 // 30 minutes

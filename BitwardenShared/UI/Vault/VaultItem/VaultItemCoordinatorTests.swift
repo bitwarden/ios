@@ -255,8 +255,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.topViewController is UIHostingController<EditCollectionsView>)
+        XCTAssertTrue(action.view is EditCollectionsView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.attachments()` navigates to the attachments view..
@@ -266,8 +266,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.topViewController is UIHostingController<AttachmentsView>)
+        XCTAssertTrue(action.view is AttachmentsView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.generator`, `.password`, and a delegate presents the generator
@@ -446,8 +446,8 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.topViewController is UIHostingController<MoveToOrganizationView>)
+        XCTAssertTrue(action.view is MoveToOrganizationView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.passwordHistory` presents the password history view.

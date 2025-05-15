@@ -85,6 +85,15 @@ class SettingsRepositoryTests: BitwardenTestCase {
         }
     }
 
+    /// `allowUniversalClipboard` gets and sets the value from the `PasteboardService`.
+    func test_allowUniversalClipboard() {
+        pasteboardService.allowUniversalClipboard = true
+        XCTAssertTrue(subject.allowUniversalClipboard)
+
+        subject.allowUniversalClipboard = false
+        XCTAssertFalse(subject.allowUniversalClipboard)
+    }
+
     /// `clearClipboardValue` gets and sets the value from the `PasteboardService`.
     func test_clearClipboardValue() {
         pasteboardService.clearClipboardValue = .tenSeconds

@@ -1,4 +1,5 @@
 import BitwardenKit
+import BitwardenKitMocks
 import TestHelpers
 import XCTest
 
@@ -208,6 +209,7 @@ class SyncServiceTests: BitwardenTestCase {
         let priorSyncDate = Date(year: 2022, month: 1, day: 1)
         stateService.lastSyncTimeByUserId["1"] = priorSyncDate
         cipherService.replaceCiphersError = BitwardenTestError.example
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.fetchSync(forceSync: false)
@@ -253,6 +255,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
             lastSync
         )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false)
 
@@ -274,6 +277,7 @@ class SyncServiceTests: BitwardenTestCase {
         client.result = .httpFailure(BitwardenTestError.example)
         stateService.activeAccount = .fixture()
         stateService.lastSyncTimeByUserId["1"] = lastSyncTime
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false)
 
@@ -296,6 +300,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
             lastSync
         )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false)
 
@@ -315,6 +320,7 @@ class SyncServiceTests: BitwardenTestCase {
         stateService.lastSyncTimeByUserId["1"] = try XCTUnwrap(
             timeProvider.presentTime.addingTimeInterval(-(Constants.minimumSyncInterval - 1))
         )
+        keyConnectorService.userNeedsMigrationResult = .success(false)
 
         try await subject.fetchSync(forceSync: false)
 
@@ -444,7 +450,8 @@ class SyncServiceTests: BitwardenTestCase {
     /// Connector.
     func test_fetchSync_removeMasterPassword() async throws {
         client.result = .httpSuccess(testData: .syncWithProfile)
-        keyConnectorService.getManagingOrganizationResult = .success(.fixture(name: "Example Org"))
+        keyConnectorService.getManagingOrganizationResult = .success(
+            .fixture(keyConnectorUrl: "htttp://example.com/", name: "Example Org"))
         keyConnectorService.userNeedsMigrationResult = .success(true)
         stateService.activeAccount = .fixture()
 
@@ -452,6 +459,7 @@ class SyncServiceTests: BitwardenTestCase {
 
         XCTAssertTrue(syncServiceDelegate.removeMasterPasswordCalled)
         XCTAssertEqual(syncServiceDelegate.removeMasterPasswordOrganizationName, "Example Org")
+        XCTAssertEqual(syncServiceDelegate.removeMasterPasswordKeyConnectorUrl, "htttp://example.com/")
     }
 
     /// `fetchSync()` throws an error if checking if the user needs to be migrated fails.
@@ -775,13 +783,17 @@ class MockSyncServiceDelegate: SyncServiceDelegate {
     var securityStampChangedUserId: String?
     var setMasterPasswordCalled = false
     var setMasterPasswordOrgId: String?
+    var removeMasterPasswordOrganizationId: String?
+    var removeMasterPasswordKeyConnectorUrl: String?
 
     func onFetchSyncSucceeded(userId: String) async {
         onFetchSyncSucceededCalledWithuserId = userId
     }
 
-    func removeMasterPassword(organizationName: String) {
+    func removeMasterPassword(organizationName: String, organizationId: String, keyConnectorUrl: String) {
         removeMasterPasswordOrganizationName = organizationName
+        removeMasterPasswordOrganizationId = organizationId
+        removeMasterPasswordKeyConnectorUrl = keyConnectorUrl
         removeMasterPasswordCalled = true
     }
 

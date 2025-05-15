@@ -101,10 +101,7 @@ class ImportLoginsCoordinator: NSObject, Coordinator, HasStackNavigator {
     private func showImportLoginsSuccess() {
         let processor = ImportLoginsSuccessProcessor(coordinator: asAnyCoordinator())
         let view = ImportLoginsSuccessView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        navigationController.isModalInPresentation = true
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view, isModalInPresentation: true)
     }
 }
 

@@ -6,6 +6,11 @@ import FirebaseCrashlytics
 /// An `ErrorReporter` that logs non-fatal errors to Crashlytics for investigation.
 ///
 final class CrashlyticsErrorReporter: ErrorReporter {
+    // MARK: Properties
+
+    /// A list of additional loggers that errors will be logged to.
+    private var additionalLoggers: [any BitwardenLogger] = []
+
     // MARK: ErrorReporter Properties
 
     var isEnabled: Bool {
@@ -25,7 +30,16 @@ final class CrashlyticsErrorReporter: ErrorReporter {
 
     // MARK: ErrorReporter
 
+    public func add(logger: any BitwardenLogger) {
+        additionalLoggers.append(logger)
+    }
+
     func log(error: Error) {
+        let callStack = Thread.callStackSymbols.joined(separator: "\n")
+        for logger in additionalLoggers {
+            logger.log("Error: \(error)\n\(callStack)")
+        }
+
         // Don't log networking related errors to Crashlytics.
         guard !error.isNetworkingError else { return }
 

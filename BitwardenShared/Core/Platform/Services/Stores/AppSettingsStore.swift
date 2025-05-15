@@ -30,7 +30,7 @@ protocol AppSettingsStore: AnyObject {
     /// Whether to disable the website icons.
     var disableWebIcons: Bool { get set }
 
-    /// The data used by the flight recorder for the current and any archived logs.
+    /// The data used by the flight recorder for the active and any inactive logs.
     var flightRecorderData: FlightRecorderData? { get set }
 
     /// Whether the intro carousel screen has been shown.
@@ -99,6 +99,13 @@ protocol AppSettingsStore: AnyObject {
     ///
     func allowSyncOnRefresh(userId: String) -> Bool
 
+    /// Indicates whether the vault content should be copied to the Universal Clipboard.
+    ///
+    /// - Parameter userId: The user ID associated with the Universal Clipboard setting.
+    /// - Returns: A Boolean value indicating whether the vault content should be copied to the Universal Clipboard.
+    ///
+    func allowUniversalClipboard(userId: String) -> Bool
+
     /// Gets the app rehydration state.
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
@@ -119,18 +126,6 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to connect to the watch app.
     ///
     func connectToWatch(userId: String) -> Bool
-
-    /// Retrieves a feature flag value from the app's settings store.
-    ///
-    /// This method fetches the value for a specified feature flag from the app's settings store.
-    /// The value is returned as a `Bool`. If the flag does not exist or cannot be decoded,
-    /// the method returns `nil`.
-    ///
-    /// - Parameter name: The name of the feature flag to retrieve, represented as a `String`.
-    /// - Returns: The value of the feature flag as a `Bool`, or `nil` if the flag does not exist
-    ///     or cannot be decoded.
-    ///
-    func debugFeatureFlag(name: String) -> Bool?
 
     /// Gets the default URI match type.
     ///
@@ -223,19 +218,6 @@ protocol AppSettingsStore: AnyObject {
     ///
     func notificationsLastRegistrationDate(userId: String) -> Date?
 
-    /// Sets a feature flag value in the app's settings store.
-    ///
-    /// This method updates or removes the value for a specified feature flag in the app's settings store.
-    /// If the `value` parameter is `nil`, the feature flag is removed from the store. Otherwise, the flag
-    /// is set to the provided boolean value.
-    ///
-    /// - Parameters:
-    ///   - name: The name of the feature flag to set or remove, represented as a `String`.
-    ///   - value: The boolean value to assign to the feature flag. If `nil`, the feature flag will be removed
-    ///    from the settings store.
-    ///
-    func overrideDebugFeatureFlag(name: String, value: Bool?)
-
     /// Gets the password generation options for a user ID.
     ///
     /// - Parameter userId: The user ID associated with the password generation options.
@@ -301,6 +283,14 @@ protocol AppSettingsStore: AnyObject {
     ///   - userId: The user ID associated with the sync on refresh setting.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String)
+
+    /// Sets whether the vault content should be copied to the Universal Clipboard when copying.
+    ///
+    /// - Parameters:
+    ///   - allowUniversalClipboard: A value indicating whether the content should be copied to the Universal Clipboard.
+    ///   - userId: The user ID associated with the Universal Clipboard setting.
+    ///
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String)
 
     /// Sets the user's Biometric Authentication Preference.
     ///
@@ -694,7 +684,7 @@ class DefaultAppSettingsStore {
     }
 }
 
-extension DefaultAppSettingsStore: AppSettingsStore {
+extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
     /// The keys used to store their associated values.
     ///
     enum Keys {
@@ -703,6 +693,7 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         case accountSetupVaultUnlock(userId: String)
         case addSitePromptShown
         case allowSyncOnRefresh(userId: String)
+        case allowUniversalClipboard(userId: String)
         case appId
         case appLocale
         case appRehydrationState(userId: String)
@@ -764,6 +755,8 @@ extension DefaultAppSettingsStore: AppSettingsStore {
                 key = "addSitePromptShown"
             case let .allowSyncOnRefresh(userId):
                 key = "syncOnRefresh_\(userId)"
+            case let .allowUniversalClipboard(userId):
+                key = "allowUniversalClipboard_\(userId)"
             case .appId:
                 key = "appId"
             case .appLocale:
@@ -974,6 +967,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
         fetch(for: .allowSyncOnRefresh(userId: userId))
     }
 
+    func allowUniversalClipboard(userId: String) -> Bool {
+        fetch(for: .allowUniversalClipboard(userId: userId))
+    }
+
     func appRehydrationState(userId: String) -> AppRehydrationState? {
         fetch(for: .appRehydrationState(userId: userId))
     }
@@ -1082,6 +1079,10 @@ extension DefaultAppSettingsStore: AppSettingsStore {
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         store(allowSyncOnRefresh, for: .allowSyncOnRefresh(userId: userId))
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        store(allowUniversalClipboard, for: .allowUniversalClipboard(userId: userId))
     }
 
     func setAppRehydrationState(_ state: AppRehydrationState?, userId: String) {

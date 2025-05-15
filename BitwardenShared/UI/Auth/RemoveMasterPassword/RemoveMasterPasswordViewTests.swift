@@ -17,7 +17,9 @@ class RemoveMasterPasswordViewTests: BitwardenTestCase {
 
         processor = MockProcessor(state: RemoveMasterPasswordState(
             masterPassword: "password",
-            organizationName: "Example Org"
+            organizationName: "Example Org",
+            organizationId: "ORG_ID",
+            keyConnectorUrl: "https://example.com"
         ))
 
         subject = RemoveMasterPasswordView(store: Store(processor: processor))

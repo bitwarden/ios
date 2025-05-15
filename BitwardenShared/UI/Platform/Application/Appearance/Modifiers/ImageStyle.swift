@@ -106,7 +106,7 @@ extension ImageStyle {
     ///   - scaleWithFont: Whether the image should scale with font size changes.
     ///
     static func rowIcon(
-        color: Color = Asset.Colors.textSecondary.swiftUIColor,
+        color: Color = Asset.Colors.iconPrimary.swiftUIColor,
         scaleWithFont: Bool = true
     ) -> ImageStyle {
         ImageStyle(color: color, scaleWithFont: scaleWithFont, width: 24, height: 24)

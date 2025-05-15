@@ -139,7 +139,7 @@ extension AddEditSendItemState {
     ///   - sendView: The `SendView` to use to instantiate this state.
     ///   - hasPremium: A flag indicating if the active account has premium access.
     ///
-    init(sendView: SendView, hasPremium: Bool) {
+    init(sendView: SendView, hasPremium: Bool = false) {
         self.init(
             accessId: sendView.accessId,
             currentAccessCount: Int(sendView.accessCount),

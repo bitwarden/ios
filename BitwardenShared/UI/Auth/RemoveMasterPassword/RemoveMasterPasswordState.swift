@@ -13,4 +13,10 @@ struct RemoveMasterPasswordState: Equatable {
 
     /// The organization's name.
     let organizationName: String
+
+    /// The organization's id.
+    let organizationId: String
+
+    /// The organization's key connector url.
+    let keyConnectorUrl: String
 }

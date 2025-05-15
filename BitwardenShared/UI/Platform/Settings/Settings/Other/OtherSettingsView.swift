@@ -24,6 +24,8 @@ struct OtherSettingsView: View {
             VStack(alignment: .leading, spacing: 8) {
                 clearClipboard
 
+                allowUniversalClipboard
+
                 if store.state.shouldShowConnectToWatchToggle {
                     connectToWatch
                 }
@@ -56,6 +58,23 @@ struct OtherSettingsView: View {
             accessibilityIdentifier: "SyncOnRefreshSwitch"
         ) {
             Text(Localizations.enableSyncOnRefreshDescription)
+                .styleGuide(.footnote)
+                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+        }
+        .contentBlock()
+    }
+
+    /// The Universal Clipboard toggle button and its description.
+    private var allowUniversalClipboard: some View {
+        BitwardenToggle(
+            Localizations.allowUniversalClipboard,
+            isOn: store.binding(
+                get: \.isAllowUniversalClipboardToggleOn,
+                send: OtherSettingsAction.toggleAllowUniversalClipboard
+            ),
+            accessibilityIdentifier: "UniversalClipboardChooser"
+        ) {
+            Text(Localizations.useUniversalClipboardToCopyDescriptionLong)
                 .styleGuide(.footnote)
                 .foregroundColor(Color(asset: Asset.Colors.textSecondary))
         }

@@ -10,7 +10,7 @@ import XCTest
 class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    var subject: AppSettingsStore!
+    var subject: DefaultAppSettingsStore!
     var userDefaults: UserDefaults!
 
     // MARK: Setup & Teardown
@@ -137,6 +137,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(subject.allowSyncOnRefresh(userId: "2"))
         XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_1"))
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:syncOnRefresh_w"))
+    }
+
+    /// `allowUniversalClipboard(userId:)` returns `false` if there isn't a previously stored value.
+    func test_allowUniversalClipboard_isInitiallyFalse() {
+        XCTAssertFalse(subject.allowUniversalClipboard(userId: "-1"))
+    }
+
+    /// `allowUniversalClipboard(userId:)` can be used to get the allow universal clipboard value for a user.
+    func test_allowUniversalClipboard_withValue() {
+        subject.setAllowUniversalClipboard(true, userId: "1")
+        subject.setAllowUniversalClipboard(false, userId: "2")
+
+        XCTAssertTrue(subject.allowUniversalClipboard(userId: "1"))
+        XCTAssertFalse(subject.allowUniversalClipboard(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:allowUniversalClipboard_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:allowUniversalClipboard_w"))
     }
 
     /// `appLocale`is initially `nil`.
@@ -411,7 +427,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `overrideDebugFeatureFlag(name:value:)` and `debugFeatureFlag(name:)` work as expected with correct values.
     func test_featureFlags() {
-        let featureFlags = FeatureFlag.debugMenuFeatureFlags
+        let featureFlags = FeatureFlag.allCases
 
         for flag in featureFlags {
             subject.overrideDebugFeatureFlag(name: flag.rawValue, value: true)
@@ -436,7 +452,7 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
     func test_flightRecorderData_withValue() throws {
         let flightRecorderData = FlightRecorderData(
             activeLog: FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now),
-            archivedLogs: []
+            inactiveLogs: []
         )
         subject.flightRecorderData = flightRecorderData
 

@@ -9,6 +9,7 @@ class MockSettingsRepository: SettingsRepository {
     var addFolderResult: Result<FolderView, Error> = .success(.fixture())
     var allowSyncOnRefresh = false
     var allowSyncOnRefreshResult: Result<Void, Error> = .success(())
+    var allowUniversalClipboard: Bool = false
     var connectToWatch = false
     var connectToWatchResult: Result<Void, Error> = .success(())
     var deletedFolderId: String?
