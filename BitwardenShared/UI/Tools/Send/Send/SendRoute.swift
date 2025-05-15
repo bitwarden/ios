@@ -33,4 +33,10 @@ public enum SendRoute: Equatable {
     /// - Parameter url: The `URL` to share.
     ///
     case share(url: URL)
+
+    /// A route to view send item screen.
+    ///
+    /// - Parameter sendView: The `SendView` to view the details of.
+    ///
+    case viewItem(_ sendView: SendView)
 }

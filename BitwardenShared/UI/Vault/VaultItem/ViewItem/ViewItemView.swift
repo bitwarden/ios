@@ -107,6 +107,9 @@ struct ViewItemView: View {
                 await store.perform(.appeared)
             }
         }
+        .onDisappear {
+            store.send(.disappeared)
+        }
     }
 
     // MARK: Private Views

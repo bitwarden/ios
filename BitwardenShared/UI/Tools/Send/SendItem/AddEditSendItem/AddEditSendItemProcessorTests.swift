@@ -1,5 +1,7 @@
 import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared
@@ -10,6 +12,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     // MARK: Properties
 
     var coordinator: MockCoordinator<SendItemRoute, AuthAction>!
+    var errorReporter: MockErrorReporter!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var sendRepository: MockSendRepository!
@@ -24,6 +27,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     override func setUp() {
         super.setUp()
         coordinator = MockCoordinator()
+        errorReporter = MockErrorReporter()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         reviewPromptService = MockReviewPromptService()
@@ -31,6 +35,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject = AddEditSendItemProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
                 reviewPromptService: reviewPromptService,
@@ -43,6 +48,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     override func tearDown() {
         super.tearDown()
         coordinator = nil
+        errorReporter = nil
         pasteboardService = nil
         policyService = nil
         sendRepository = nil
@@ -142,6 +148,27 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.maximumAccessCount = 0
         await subject.perform(.loadData)
         subject.state.maximumAccessCountText = ""
+    }
+
+    /// `perform(_:)` with `loadData` loads whether the user has premium.
+    @MainActor
+    func test_perform_loadData_hasPremium() async {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        await subject.perform(.loadData)
+        XCTAssertTrue(subject.state.hasPremium)
+
+        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.hasPremium)
+    }
+
+    /// `perform(_:)` with `loadData` logs an error if checking if the user has premium fails.
+    @MainActor
+    func test_perform_loadData_hasPremium_error() async {
+        sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
+        await subject.perform(.loadData)
+        XCTAssertFalse(subject.state.hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove

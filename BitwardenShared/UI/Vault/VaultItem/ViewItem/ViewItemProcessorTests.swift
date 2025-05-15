@@ -157,6 +157,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         )
         vaultRepository.cipherDetailsSubject.send(cipherItem)
 
+        XCTAssertNil(subject.streamCipherDetailsTask)
         let task = Task {
             await subject.perform(.appeared)
         }
@@ -172,6 +173,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         expectedState.allUserCollections = collections
 
+        XCTAssertNotNil(subject.streamCipherDetailsTask)
         XCTAssertTrue(subject.state.hasPremiumFeatures)
         XCTAssertTrue(subject.state.hasMasterPassword)
         XCTAssertFalse(subject.state.restrictCipherItemDeletionFlagEnabled)
@@ -779,6 +781,25 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_receive_dismissPressed() {
         subject.receive(.dismissPressed)
         XCTAssertEqual(coordinator.routes.last, .dismiss())
+    }
+
+    /// `receive` with `.disappeared` should clear streamCipherDetailsTask.
+    @MainActor
+    func test_receive_disappearPressed() {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+
+        XCTAssertNil(subject.streamCipherDetailsTask)
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        XCTAssertNotNil(subject.streamCipherDetailsTask)
+        subject.receive(.disappeared)
+        XCTAssertNil(subject.streamCipherDetailsTask)
     }
 
     /// `perform(_:)` with `.deletePressed` presents the confirmation alert before delete the item and displays

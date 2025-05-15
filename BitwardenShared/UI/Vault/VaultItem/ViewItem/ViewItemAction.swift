@@ -18,6 +18,9 @@ enum ViewItemAction: Equatable, Sendable {
     /// The visibility button was pressed for the specified custom field.
     case customFieldVisibilityPressed(CustomFieldState)
 
+    /// The view item disappeared from the screen.
+    case disappeared
+
     /// The dismiss button was pressed.
     case dismissPressed
 
@@ -57,7 +60,8 @@ enum ViewItemAction: Equatable, Sendable {
             true
         case let .copyPressed(_, field):
             field.requiresMasterPasswordReprompt
-        case .dismissPressed,
+        case .disappeared,
+             .dismissPressed,
              .passwordHistoryPressed,
              .toastShown:
             false
