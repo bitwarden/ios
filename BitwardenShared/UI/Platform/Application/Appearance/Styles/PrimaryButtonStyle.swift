@@ -5,38 +5,6 @@ import SwiftUI
 /// The style for all primary buttons in this application.
 ///
 struct PrimaryButtonStyle: ButtonStyle {
-    // MARK: Types
-
-    /// The different sizes that the button style supports.
-    enum Size {
-        case medium
-        case large
-
-        /// The font style of the button label for this size.
-        var fontStyle: StyleGuideFont {
-            switch self {
-            case .medium: .calloutBold
-            case .large: .bodyBold
-            }
-        }
-
-        /// The minimum height of the button for this size.
-        var minimumHeight: CGFloat {
-            switch self {
-            case .medium: 36
-            case .large: 44
-            }
-        }
-
-        /// The amount of vertical padding to apply to the button content for this size.
-        var verticalPadding: CGFloat {
-            switch self {
-            case .medium: 8
-            case .large: 12
-            }
-        }
-    }
-
     // MARK: Properties
 
     @Environment(\.isEnabled) var isEnabled: Bool
@@ -45,7 +13,7 @@ struct PrimaryButtonStyle: ButtonStyle {
     var isDestructive = false
 
     /// The size of the button.
-    var size: Size
+    var size: ButtonStyleSize
 
     /// If this button should fill to take up as much width as possible.
     var shouldFillWidth = true
@@ -94,8 +62,8 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
     ///
     static func primary(
         isDestructive: Bool = false,
-        size: PrimaryButtonStyle.Size = .large,
-        shouldFillWidth: Bool = true
+        shouldFillWidth: Bool = true,
+        size: ButtonStyleSize = .large
     ) -> PrimaryButtonStyle {
         PrimaryButtonStyle(
             isDestructive: isDestructive,
@@ -124,6 +92,9 @@ extension ButtonStyle where Self == PrimaryButtonStyle {
 
 #Preview("Sizes") {
     VStack {
+        Button("Small") {}
+            .buttonStyle(.primary(size: .small))
+
         Button("Medium") {}
             .buttonStyle(.primary(size: .medium))
 
