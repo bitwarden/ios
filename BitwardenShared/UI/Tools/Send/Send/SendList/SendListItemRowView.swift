@@ -41,6 +41,9 @@ enum SendListItemRowAction: Equatable, Sendable {
 
     /// The item was pressed.
     case sendListItemPressed(SendListItem)
+
+    /// The view send button was tapped.
+    case viewSend(_ sendView: SendView)
 }
 
 // MARK: - SendListItemRowEffect
@@ -155,6 +158,9 @@ struct SendListItemRowView: View {
                     await store.perform(.copyLinkPressed(sendView))
                 }
                 .accessibilityIdentifier("Copy")
+                Button(Localizations.view) {
+                    store.send(.viewSend(sendView))
+                }
                 Button(Localizations.edit) {
                     store.send(.editPressed(sendView))
                 }
