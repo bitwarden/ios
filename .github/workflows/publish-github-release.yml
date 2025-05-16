@@ -2,8 +2,8 @@ name: Publish GitHub Release as newest
 
 on:
   workflow_dispatch:
-#   schedule:
-#     - cron: '0 3 * * *'
+  schedule:
+    - cron: '0 3 * * 1-5'
 
 jobs:
   create-release:
