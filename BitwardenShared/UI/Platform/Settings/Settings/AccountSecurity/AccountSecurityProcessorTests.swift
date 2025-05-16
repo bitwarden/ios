@@ -427,7 +427,8 @@ class AccountSecurityProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(syncEnabled)
     }
 
-    /// `perform(_:)` with `.toggleSyncWithAuthenticator` enables authenticator sync, updates the state, and attempts a sync.
+    /// `perform(_:)` with `.toggleSyncWithAuthenticator` enables authenticator sync,
+    /// updates the state, and attempts a sync.
     @MainActor
     func test_perform_toggleSyncWithAuthenticator_enable() async throws {
         configService.featureFlagsBool[.enableAuthenticatorSync] = true
