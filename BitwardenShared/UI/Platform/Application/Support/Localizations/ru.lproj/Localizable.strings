@@ -1184,3 +1184,5 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Вы действительно хотите удалить все записанные логи?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Скоро этот аккаунт будет удален. Войдите в %1$@, чтобы продолжить использование Bitwarden.";
 "AppSettings" = "Настройки приложения";
+"ViewFileSend" = "Просмотр файловой Send";
+"ViewTextSend" = "Просмотр тестовой Send";

@@ -1180,5 +1180,7 @@
 "KeyConnectorConfirmDomainWithAdmin" = "Erősítsük meg az alábbi tartományt a szervezet adminisztrátorával.\n\nKey Connector tartomány:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Valóban törölni akarjuk ezt a naplót?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Valóban törölni szeretnénk az összes rögzített naplót?";
-"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Ez a fiók hamarosan törlésre kerül. A Bitwarden használatának folytatásához jelentkezzünk be: %1$@.";
 "AppSettings" = "Alkalmazás beállítások";
+"ViewFileSend" = "Send fájl megtekintése";
+"ViewTextSend" = "Szöveges Send elem megtekintése";

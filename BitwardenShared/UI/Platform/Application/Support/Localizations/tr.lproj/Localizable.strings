@@ -1182,3 +1182,5 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Bu hesap yakında silinecek. Bitwarden'ı kullanmaya devam etmek için %1$@ adresinden giriş yapın.";
 "AppSettings" = "Uygulama ayarları";
+"ViewFileSend" = "Send dosyasını göster";
+"ViewTextSend" = "Send metnini göster";
