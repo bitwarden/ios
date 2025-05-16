@@ -1182,3 +1182,5 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Opravdu chcete smazat všechny zaznamenané logy?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Tento účet bude brzy smazán. Chcete-li pokračovat v používání Bitwardenu, přihlaste se na %1$@.";
 "AppSettings" = "Nastavení aplikace";
+"ViewFileSend" = "Zobrazit soubor ze Send";
+"ViewTextSend" = "Zobrazit text ze Send";

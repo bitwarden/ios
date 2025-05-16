@@ -1182,3 +1182,5 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Ви дійсно хочете видалити всі записи журналу?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Цей обліковий запис незабаром буде видалено. Виконайте вхід на %1$@, щоб продовжити використання Bitwarden.";
 "AppSettings" = "Налаштування програми";
+"ViewFileSend" = "View file Send";
+"ViewTextSend" = "View text Send";

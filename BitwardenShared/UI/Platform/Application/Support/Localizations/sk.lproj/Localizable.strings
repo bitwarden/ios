@@ -1180,5 +1180,7 @@
 "KeyConnectorConfirmDomainWithAdmin" = "Potvrďte u správcu organizácie nižšie uvedenú doménu.\n\nDoména Key Connectora:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Naozaj chcete odstrániť tento log?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Naozaj chcete odstrániť všetky zaznamenané logy?";
-"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
-"AppSettings" = "App settings";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Tento účet bude čoskoro odstránený. Prihláste sa na %1$@ a pokračujte v používaní Bitwarden.";
+"AppSettings" = "Nastavenia aplikácie";
+"ViewFileSend" = "Zobraziť súborový Send";
+"ViewTextSend" = "Zobraziť textový Send";

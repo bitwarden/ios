@@ -1182,3 +1182,5 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Czy na pewno chcesz usunąć wszystkie zarejestrowane logi?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "To konto zostanie wkrótce usunięte. Zaloguj się na %1$@, aby kontynuować korzystanie z Bitwarden.";
 "AppSettings" = "Ustawienia aplikacji";
+"ViewFileSend" = "Zobacz wysłany plik";
+"ViewTextSend" = "Zobacz wysyłany tekst";
