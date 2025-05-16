@@ -15,4 +15,12 @@ public extension URL {
         }
         return URL(string: stringUrl) ?? self
     }
+
+    /// Returns a string of the URL with the scheme removed (e.g. `send.bitwarden.com/39ngaol3`).
+    var withoutScheme: String {
+        guard let scheme else { return absoluteString }
+        let prefix = "\(scheme)://"
+        guard absoluteString.hasPrefix(prefix) else { return absoluteString }
+        return String(absoluteString.dropFirst(prefix.count))
+    }
 }

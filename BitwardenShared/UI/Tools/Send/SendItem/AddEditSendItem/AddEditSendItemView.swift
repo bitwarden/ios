@@ -123,44 +123,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         }
     }
 
-    /// The access count stepper.
-    @ViewBuilder private var accessCount: some View {
-        ContentBlock(dividerLeadingPadding: 16) {
-            BitwardenStepper(
-                value: store.binding(
-                    get: \.maximumAccessCount,
-                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
-                ),
-                in: 0 ... Int.max,
-                allowTextFieldInput: true,
-                textFieldAccessibilityIdentifier: "MaxAccessCountTextField"
-            ) {
-                Text(Localizations.maximumAccessCount)
-                    .styleGuide(.body)
-                    .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-            } footer: {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(Localizations.maximumAccessCountInfo)
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-                    if let currentAccessCount = store.state.currentAccessCount {
-                        // Wrap these texts in a group so that the style guide can be set on
-                        // both of them at once.
-                        Group {
-                            Text("\(Localizations.currentAccessCount): ")
-                                + Text("\(currentAccessCount)")
-                                .fontWeight(.bold)
-                        }
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    }
-                }
-            }
-            .accessibilityIdentifier("SendMaxAccessCountEntry")
-        }
-    }
-
     /// Additional options.
     @ViewBuilder private var additionalOptions: some View {
         ExpandableContent(
@@ -171,7 +133,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             ),
             buttonAccessibilityIdentifier: "SendShowHideOptionsButton"
         ) {
-            accessCount
+            SendItemAccessCountStepper(
+                currentAccessCount: store.state.currentAccessCount,
+                maximumAccessCount: store.binding(
+                    get: \.maximumAccessCount,
+                    send: AddEditSendItemAction.maximumAccessCountStepperChanged
+                )
+            )
 
             BitwardenTextField(
                 title: Localizations.newPassword,
