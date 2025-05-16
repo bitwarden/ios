@@ -217,7 +217,11 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         do {
             if enabled {
                 Task {
-                    try await services.settingsRepository.fetchSync(forceSync: false)
+                    do {
+                        try await services.settingsRepository.fetchSync(forceSync: false)
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
                 }
             }
             try await services.stateService.setSyncToAuthenticator(enabled)
