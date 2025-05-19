@@ -1182,3 +1182,5 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Quer mesmo eliminar todos os registos gravados?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Esta conta será eliminada em breve. Inicie sessão em %1$@ para continuar a utilizar o Bitwarden.";
 "AppSettings" = "Definições da app";
+"ViewFileSend" = "Ver Send de ficheiro";
+"ViewTextSend" = "Ver Send de texto";

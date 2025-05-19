@@ -190,7 +190,7 @@
 "UnlockWithPIN" = "Atslēgt ar PIN kodu";
 "UnlockWithUnknownBiometrics" = "Atslēgt ar biometriju";
 "Validating" = "Pārbauda";
-"VerificationCode" = "Apstiprinājuma kods";
+"VerificationCode" = "Apliecinājuma kods";
 "ViewItem" = "Skatīt vienumu";
 "WebVault" = "Bitwarden tīmekļa glabātava";
 "Lost2FAApp" = "Pazuadēta autentificētāja lietotne?";
@@ -223,8 +223,8 @@
 "LearnOrg" = "Uzzināt par apvienībām";
 "CannotOpenApp" = "Nevar atvērt lietotni \"%1$@\".";
 "AuthenticatorAppTitle" = "Autentificētāja lietotne";
-"EnterVerificationCodeApp" = "Jāievada 6 ciparu apstiprinājuma kods no autentificētāja lietotnes.";
-"EnterVerificationCodeEmail" = "Jāievada 6 ciparu apstiprinājuma kods, kas tika nosūtīts uz %1$@.";
+"EnterVerificationCodeApp" = "Jāievada 6 ciparu apliecinājuma kods no autentificētāja lietotnes.";
+"EnterVerificationCodeEmail" = "Jāievada 6 ciparu apliecinājuma kods, kas tika nosūtīts uz %1$@.";
 "LoginUnavailable" = "Pieteikšanās nav pieejama";
 "NoTwoStepAvailable" = "Šim kontam ir iestatīta divpakāpju pieteikšanās, bet šajā ierīcē netiek nodrošināts neviens no uzstādītajiem divpakāpju pārbaudes nodrošinātājiem. Lūgums izmantot atbalstītu ierīci un/vai pievienot papildu nodrošinātājus, kas tiek labāk atbalstīti dažādās ierīcēs (piemēram, autentificētāja lietotni).";
 "RecoveryCodeTitle" = "Atgūšanas kods";
@@ -232,8 +232,8 @@
 "SendVerificationCodeAgain" = "Sūtīt apstiprinājuma koda e-pastu vēlreiz";
 "TwoStepLoginOptions" = "Divpakāpju pieteikšanās iespējas";
 "UseAnotherTwoStepMethod" = "Izmantot citu divpakāpju pieteikšanās veidu";
-"VerificationEmailNotSent" = "Apstiprinājumu nevarēja nosūtīt e-pastā. Mēģināt vēlreiz.";
-"VerificationEmailSent" = "Apstiprināšanas e-pasta ziņojums ir nosūtīts.";
+"VerificationEmailNotSent" = "Apliecinājuma e-pasta ziņojumu nevarēja nosūtīt. Jāmēģina vēlreiz.";
+"VerificationEmailSent" = "Apliecināšanas e-pasta ziņojums ir nosūtīts";
 "YubiKeyInstruction" = "Lai turpinātu, YubiKey NEO jātur pie ierīces aizmugures vai jāiesprauž USB ligzdā un tad jāpieskaras YubiKey pogai.";
 "YubiKeyTitle" = "YubiKey drošības atslēga";
 "AddNewAttachment" = "Pievienot jaunu pielikumu";
@@ -243,7 +243,7 @@
 "Downloading" = "Lejupielādē...";
 "AttachmentLargeWarning" = "Šī pielikuma lielums ir %1$@. Vai tiešām to lejupielādēt šajā ierīcē?";
 "AuthenticatorKey" = "Authenticator key";
-"VerificationCodeTotp" = "Apstiprinājuma kods (TOTP)";
+"VerificationCodeTotp" = "Apliecinājuma kods (TOTP)";
 "AuthenticatorKeyAdded" = "Autentificētāja atslēga ir pievienota.";
 "AuthenticatorKeyReadError" = "Nevar nolasīt autentificētāja atslēgu.";
 "PointYourCameraAtTheQRCode" = "Kamera jāpavērš pret kvadrātkodu.\nNolasīšana notiks automātiski.";
@@ -251,7 +251,7 @@
 "Camera" = "Kamera";
 "Photos" = "Attēli";
 "CopyTotp" = "Ievietot TOTP starpliktuvē";
-"CopyTotpAutomaticallyDescription" = "If a login has an authenticator key, copy the TOTP verification code to your clipboard when you autofill the login.";
+"CopyTotpAutomaticallyDescription" = "Ja pieteikšanās vienumam ir pievienota autentificētāja atslēga, TOTP apliecinājuma kods tiks automātiski ievietots starpliktuvē, kad vien tiks automātiski aizpildīta pieteikšanās veidne.";
 "CopyTotpAutomatically" = "Automātiski ievietot TOTP starpliktuvē";
 "PremiumRequired" = "Ir nepieciešama Premium dalība, lai izmantotu šo iespēju.";
 "AttachementAdded" = "Pielikums pievienots";
@@ -477,7 +477,7 @@
 "Shared" = "Kopīgots";
 "ToggleVisibility" = "Pārslēgt redzamību";
 "LoginExpired" = "Pieteikšanās sesija ir beigusies.";
-"BiometricsDirection" = "Apstiprināšana ar biometriju";
+"BiometricsDirection" = "Apliecināšana ar biometriju";
 "Biometrics" = "biometriju";
 "UseBiometricsToUnlock" = "Izmantot biometriju, lai atslēgtu";
 "AccessibilityOverlayPermissionAlert" = "Bitwarden needs attention - See \"Autofill Accessibility Service\" from Bitwarden settings";
@@ -489,7 +489,7 @@
 "Granted" = "Nodrošināts";
 "FileFormat" = "Datnes veids";
 "ExportVaultMasterPasswordDescription" = "Ievadīt galveno paroli, lai izgūtu glabātavas saturu.";
-"SendVerificationCodeToEmail" = "Sūtīt apstiprinājuma kodu uz e-pastu";
+"SendVerificationCodeToEmail" = "Nosūtīt apliecinājuma kodu e-pastā";
 "CodeSent" = "Kods nosūtīts";
 "ConfirmYourIdentity" = "Jāapstiprina identitāte, lai turpinātu.";
 "ExportVaultWarning" = "Šī izguve satur glabātavas datus nešifrētā veidā. Izgūto datni nevajadzētu glabāt vai sūtīt nedrošos veidos (piemēram, e-pastā). Tā ir jāizdzēš uzreiz pēc izmantošanas.";
@@ -514,8 +514,8 @@
 "DoYouReallyWantToPermanentlyDeleteCipher" = "Vai tiešām neatgriezeniski izdzēst? To nevar atsaukt.";
 "DoYouReallyWantToRestoreCipher" = "Vai tiešām vēlaties atjaunot šo vienumu?";
 "DoYouReallyWantToSoftDeleteCipher" = "Vai tiešām pārvietot uz atkritni?";
-"AccountBiometricInvalidated" = "Šī konta atslēgšana ar biometriju ir atspējota, tiek gaidīts galvenās paroles apstiprinājums.";
-"AccountBiometricInvalidatedExtension" = "Automātiskās aizpildes atslēgšana ar biometriju ir atspējota, tiek gaidīts galvenās paroles apstiprinājums.";
+"AccountBiometricInvalidated" = "Šī konta atslēgšana ar biometriju ir atspējota, tiek gaidīts galvenās paroles apliecinājums.";
+"AccountBiometricInvalidatedExtension" = "Automātiskās aizpildes atslēgšana ar biometriju ir atspējota, tiek gaidīts galvenās paroles apliecinājums.";
 "EnableSyncOnRefresh" = "Ļaut sinhronizēšanu pēc atsvaidzināšanas";
 "EnableSyncOnRefreshDescription" = "Sinhronizēt glabātavu ar uz leju pavelkošu kustību.";
 "LogInSso" = "Uzņēmuma vienotā pieteikšanās";
@@ -604,7 +604,7 @@
 "HideEmail" = "Slēpt e-pasta adresi no saņēmējiem.";
 "SendOptionsPolicyInEffect" = "Viens vai vairāki apvienības nosacījumi ietekmē Send iespējas.";
 "SendFilePremiumRequired" = "Ar bezmaksas kontu ir iespējams kopīgot tikai tekstu. Ir nepieciešama Premium dalība, lai Send izmantotu datnes.";
-"SendFileEmailVerificationRequired" = "Ir jāapstiprina e-pasta adrese, lai izmantotu datnes ar Send. E-pasta edresi var apstiprināt tīmekļa glabātavā.";
+"SendFileEmailVerificationRequired" = "Ir jāapliecina sava e-pasta adrese, lai izmantotu datnes ar Send. E-pasta edresi var apliecināt tīmekļa glabātavā.";
 "PasswordPrompt" = "Galvenās paroles pārvaicāšana";
 "PasswordConfirmation" = "Galvenās paroles apstiprināšana";
 "PasswordConfirmationDesc" = "Šī darbība ir aizsargāta, lai turpinātu, ir jāievada galvenā parole, lai apstiprinātu identitāti.";
@@ -645,7 +645,7 @@
 "DeleteAccountExplanation" = "Konts un visi ar to saistītie dati tiks izdzēsti un nebūs atkopjami. Vai tiešām turpināt?";
 "DeletingYourAccount" = "Dzēš kontu";
 "YourAccountHasBeenPermanentlyDeleted" = "Jūsu konts ir neatgriezeniski izdzēsts";
-"InvalidVerificationCode" = "Nederīgs apstiprinājuma kods.";
+"InvalidVerificationCode" = "Nederīgs apliecinājuma kods";
 "RequestOTP" = "Pieprasīt vienreiz izmantojamo paroli";
 "SendCode" = "Nosūtīt kodu";
 "Sending" = "Sūta";
@@ -653,8 +653,8 @@
 "SendingCode" = "Sūta kodu";
 "Verifying" = "Pārbauda";
 "ResendCode" = "Atkārtoti nosūtīt kodu";
-"AVerificationCodeWasSentToYourEmail" = "Pārbaudes kods tika nosūtīts e-pastā";
-"AnErrorOccurredWhileSendingAVerificationCodeToYourEmailPleaseTryAgain" = "Atgadījās kļūda, kad apliecinājuma kods tika sūtīts uz e-pastu. Lūgums mēģināt vēlreiz";
+"AVerificationCodeWasSentToYourEmail" = "Apliecinājuma kods tika nosūtīts e-pastā";
+"AnErrorOccurredWhileSendingAVerificationCodeToYourEmailPleaseTryAgain" = "Apliecinājuma koda nosūtīšanas e-pastā laikā atgadījās kļūda. Lūgums mēģināt vēlreiz";
 "EnterTheVerificationCodeThatWasSentToYourEmail" = "Jāievada apliecinājuma kods, kas tika nosūtīts e-pastā";
 "SubmitCrashLogs" = "Iesniegt avāriju ierakstus";
 "SubmitCrashLogsDescription" = "Avāriju ziņojumu iesniegšana palīdz Bitwarden uzlabot lietotnes noturību.";
@@ -673,7 +673,7 @@
 "VaultFilterDescription" = "Glabātava: %1$@";
 "All" = "Visi";
 "Totp" = "TOTP";
-"VerificationCodes" = "Apstiprinājuma kodi";
+"VerificationCodes" = "Apliecinājuma kodi";
 "PremiumSubscriptionRequired" = "Nepieciešams Premium abonements";
 "CannotAddAuthenticatorKey" = "Nevar pievienot autentificētāja atslēgu?";
 "ScanQRCode" = "Nolasīt kvadrātkodu";
@@ -939,7 +939,7 @@
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Iegūt savā iesūtnē padomus, paziņojumus un izpētes iespējas no Bitwarden. **[Atrakstīties](%1$@)** var jebkurā brīdī.";
 "OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepiešķirti apvienības vienumi vairs nav redzami skatā \"Visas glabātavas\" un ir sasniedzami tikai no pārvaldības konsoles, kur šie vienumi jāpiešķir krājumam, lai padarītu tos redzamus.";
 "UnknownAccount" = "Nezināms konts";
-"UserVerificationForPasskey" = "Lietotāja apliecināšana piekļuves atsēgai";
+"UserVerificationForPasskey" = "Lietotāja apliecināšana piekļuves atslēgai";
 "NewItem" = "Jauns vienums";
 "ExploreTheGenerator" = "Izpētīt veidotāju";
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Drošas pieteikšanās informācijas izveidošanas iepazīšana soli pa solim.";
@@ -1093,7 +1093,7 @@
 "OpticID" = "Optic ID";
 "UseOpticIDToUnlock" = "Izmantot Optic ID, lai atslēgtu";
 "NothingAvailableToAutofill" = "Nav piejams nekas automātiski aizpildāms";
-"FailedToGenerateVerificationCode" = "Neizdevās izveidot apliecināšanas kodu";
+"FailedToGenerateVerificationCode" = "Neizdevās izveidot apliecinājuma kodu";
 "FailedToAutofillItem" = "Neizdevās automātiski aizpildīt vienumu %1$@";
 "ExportingFailed" = "Izgūšana neizdevās";
 "YouMayNeedToEnableDevicePasscodeOrBiometrics" = "Var būt nepieciešams iespējot ierīces piekļuves kodu vai biometriju.";
@@ -1128,7 +1128,7 @@
 "CannotDeleteUserSoleOwnerDescriptionLong" = "Nevar izdzēst šo lietotāju, jo viņš ir vienīgais īpašnieks vismaz vienai apvienībai. Lūgums izdzēst šīs apvienības vai paaugstināt citu lietotāju.";
 "APasskeyAlreadyExistsForThisApplication" = "Šai lietotnei jau pastāv piekļuves atslēga.";
 "APasskeyAlreadyExistsForThisApplicationButAnErrorOccurredWhileLoadingIt" = "Šai lietotnei jau pastāv piekļuves atslēga, bet atgadījās kļūda tās ielādēšanas laikā.";
-"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Mēs neatpazīstam šo ierīci. Jāievada 8 ciparu apliecināšanas kods, kas tika nosūtīts %1$@.";
+"WeDontRecognizeThisDeviceEnterVerificationCodeEmailDescriptionLong" = "Mēs neatpazīstam šo ierīci. Jāievada 8 ciparu apliecinājuma kods, kas tika nosūtīts uz %1$@.";
 "ItemNameRequired" = "Vienuma nosaukums (nepieciešams)";
 "AutofillOptions" = "Automātiskās aizpildes iespējas";
 "WebsiteURI" = "Tīmekļvietne (URI)";
@@ -1180,5 +1180,7 @@
 "KeyConnectorConfirmDomainWithAdmin" = "Lūgums apstiprināt zemāk esošo domēnu ar savas apvienības pārvaldītāju.\n\nKey Connector domēns:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Vai tiešām izdzēst šo žurnālu?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Vai tiešām izdzēst visus ierakstītos žurnālus?";
-"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Šis konts drīzumā tiks izdzēsts. Jāpiesakās %1$@, lai turpinātu izmantot Bitwarden.";
 "AppSettings" = "Lietotnes iestatījumi";
+"ViewFileSend" = "Apskatīt datnes Send";
+"ViewTextSend" = "Apskatīt teksta Send";

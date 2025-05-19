@@ -1183,3 +1183,5 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
 "AppSettings" = "App settings";
+"ViewFileSend" = "View file Send";
+"ViewTextSend" = "View text Send";

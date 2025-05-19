@@ -34,7 +34,7 @@ protocol SettingsRepository: AnyObject {
 
     /// Updates the user's vault by syncing it with the API.
     ///
-    func fetchSync() async throws
+    func fetchSync(forceSync: Bool) async throws
 
     /// Get the current value of the allow sync on refresh value.
     func getAllowSyncOnRefresh() async throws -> Bool
@@ -94,6 +94,12 @@ protocol SettingsRepository: AnyObject {
 
     /// The publisher to keep track of the list of the user's current folders.
     func foldersListPublisher() async throws -> AsyncThrowingPublisher<AnyPublisher<[FolderView], Error>>
+}
+
+extension SettingsRepository {
+    func fetchSync() async throws {
+        try await fetchSync(forceSync: true)
+    }
 }
 
 // MARK: - DefaultSettingsRepository
@@ -181,8 +187,8 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await folderService.editFolderWithServer(id: id, name: folder.name)
     }
 
-    func fetchSync() async throws {
-        try await syncService.fetchSync(forceSync: true)
+    func fetchSync(forceSync: Bool) async throws {
+        try await syncService.fetchSync(forceSync: forceSync)
     }
 
     func getAllowSyncOnRefresh() async throws -> Bool {

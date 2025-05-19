@@ -215,6 +215,15 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     ///
     private func setSyncToAuthenticator(_ enabled: Bool) async {
         do {
+            if enabled {
+                Task {
+                    do {
+                        try await services.settingsRepository.fetchSync(forceSync: false)
+                    } catch {
+                        services.errorReporter.log(error: error)
+                    }
+                }
+            }
             try await services.stateService.setSyncToAuthenticator(enabled)
             state.isAuthenticatorSyncEnabled = enabled
         } catch {
