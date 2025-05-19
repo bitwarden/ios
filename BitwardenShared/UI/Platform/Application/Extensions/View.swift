@@ -97,7 +97,7 @@ extension View {
     ///
     func addItemFloatingActionButton(
         hidden: Bool = false,
-        action: @escaping () -> Void
+        action: @escaping () async -> Void
     ) -> some View {
         floatingActionButton(
             hidden: hidden,
@@ -174,7 +174,7 @@ extension View {
     func floatingActionButton(
         hidden: Bool = false,
         image: Image,
-        action: @escaping () -> Void
+        action: @escaping () async -> Void
     ) -> some View {
         FloatingActionButton(
             image: image,
