@@ -59,9 +59,6 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// A description of the size of the file attached to this send.
     var fileSize: String?
 
-    /// A flag indicating if the active account has access to premium features.
-    var hasPremium = false
-
     /// The id for this send.
     var id: String?
 
@@ -135,11 +132,9 @@ struct AddEditSendItemState: Equatable, Sendable {
 extension AddEditSendItemState {
     /// Creates a new `AddEditSendItemState`.
     ///
-    /// - Parameters:
-    ///   - sendView: The `SendView` to use to instantiate this state.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter sendView: The `SendView` to use to instantiate this state.
     ///
-    init(sendView: SendView, hasPremium: Bool = false) {
+    init(sendView: SendView) {
         self.init(
             accessId: sendView.accessId,
             currentAccessCount: Int(sendView.accessCount),
@@ -149,7 +144,6 @@ extension AddEditSendItemState {
             fileData: nil,
             fileName: sendView.file?.fileName,
             fileSize: sendView.file?.sizeName,
-            hasPremium: hasPremium,
             id: sendView.id,
             isDeactivateThisSendOn: sendView.disabled,
             isHideMyEmailOn: sendView.hideEmail,

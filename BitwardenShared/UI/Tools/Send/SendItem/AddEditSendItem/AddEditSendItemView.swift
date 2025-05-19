@@ -16,36 +16,27 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                if store.state.mode == .add {
-                    typePicker
-                    Divider()
+            VStack(alignment: .leading, spacing: 8) {
+                if store.state.isSendDisabled {
+                    InfoContainer(Localizations.sendDisabledWarning)
+                        .accessibilityIdentifier("DisabledSendPolicyLabel")
+                } else if store.state.isSendHideEmailDisabled {
+                    InfoContainer(Localizations.sendOptionsPolicyInEffect)
+                        .accessibilityIdentifier("HideEmailAddressPolicyLabel")
                 }
 
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        if store.state.isSendDisabled {
-                            InfoContainer(Localizations.sendDisabledWarning)
-                                .accessibilityIdentifier("DisabledSendPolicyLabel")
-                        } else if store.state.isSendHideEmailDisabled {
-                            InfoContainer(Localizations.sendOptionsPolicyInEffect)
-                                .accessibilityIdentifier("HideEmailAddressPolicyLabel")
-                        }
-
-                        switch store.state.type {
-                        case .text:
-                            textSendAttributes
-                        case .file:
-                            fileSendAttributes
-                        }
-
-                        sendDetails
-
-                        additionalOptions
-                    }
-                    .padding(12)
+                switch store.state.type {
+                case .text:
+                    textSendAttributes
+                case .file:
+                    fileSendAttributes
                 }
+
+                sendDetails
+
+                additionalOptions
             }
+            .scrollView(padding: 12)
             .disabled(store.state.isSendDisabled)
 
             profileSwitcher
@@ -313,17 +304,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             )
         )
         .accessibilityIdentifier("SendTextContentEntry")
-    }
-
-    /// The type field.
-    @ViewBuilder private var typePicker: some View {
-        BitwardenSegmentedControl(
-            selection: store.binding(get: \.type, send: AddEditSendItemAction.typeChanged),
-            selections: SendType.allCases
-        )
-        .padding(.horizontal, 12)
-        .padding(.bottom, 12)
-        .background(Asset.Colors.backgroundSecondary.swiftUIColor)
     }
 }
 

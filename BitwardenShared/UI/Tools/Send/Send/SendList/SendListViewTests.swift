@@ -29,23 +29,62 @@ class SendListViewTests: BitwardenTestCase {
 
     // MARK: Tests
 
-    /// Tapping the add item floating action button dispatches the `.addItemPressed` action.`
+    /// Tapping the add item floating action button in the file type list performs the `.addItemPressed` effect.
     @MainActor
-    func test_addItemFloatingActionButton_tap() async throws {
+    func test_addItemFloatingActionButton_sendTypeFile_tap() async throws {
+        processor.state.type = .file
         let fab = try subject.inspect().find(
             floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
         )
         try await fab.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        XCTAssertEqual(processor.effects.last, .addItemPressed(.file))
     }
 
-    /// Tapping the add a send button dispatches the `.addItemPressed` action.
+    /// Tapping the add item floating action button in the text type list performs the `.addItemPressed` effect.
     @MainActor
-    func test_addSendButton_tap() throws {
+    func test_addItemFloatingActionButton_sendTypeText_tap() async throws {
+        processor.state.type = .text
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+        )
+        try await fab.tap()
+        XCTAssertEqual(processor.effects.last, .addItemPressed(.text))
+    }
+
+    /// Tapping the add item floating action menu and selecting the file type performs the `.addItemPressed` effect.
+    @MainActor
+    func test_addItemFloatingActionMenu_file_tap() async throws {
+        let fabMenuButton = try subject.inspect().find(asyncButton: Localizations.file)
+        try await fabMenuButton.tap()
+        XCTAssertEqual(processor.effects.last, .addItemPressed(.file))
+    }
+
+    /// Tapping the add item floating action menu and selecting the text type performs the `.addItemPressed` effect.
+    @MainActor
+    func test_addItemFloatingActionMenu_text_tap() async throws {
+        let fabMenuButton = try subject.inspect().find(asyncButton: Localizations.text)
+        try await fabMenuButton.tap()
+        XCTAssertEqual(processor.effects.last, .addItemPressed(.text))
+    }
+
+    /// Tapping the add a send button in the empty state performs the `.addItemPressed` effect.
+    @MainActor
+    func test_emptyState_addSendButton_sendTypeFile_tap() async throws {
         processor.state = .empty
-        let button = try subject.inspect().find(button: Localizations.newSend)
-        try button.tap()
-        XCTAssertEqual(processor.dispatchedActions.last, .addItemPressed)
+        processor.state.type = .file
+        let button = try subject.inspect().find(asyncButton: Localizations.newSend)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .addItemPressed(.file))
+    }
+
+    /// Tapping the add a send button in the empty state performs the `.addItemPressed` effect.
+    @MainActor
+    func test_emptyState_addSendButton_sendTypeText_tap() async throws {
+        processor.state = .empty
+        processor.state.type = .text
+        let button = try subject.inspect().find(asyncButton: Localizations.newSend)
+        try await button.tap()
+        XCTAssertEqual(processor.effects.last, .addItemPressed(.text))
     }
 
     /// Tapping the info button dispatches the `.infoButtonPressed` action.

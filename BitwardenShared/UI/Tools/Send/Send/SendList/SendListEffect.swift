@@ -1,7 +1,10 @@
 // MARK: - SendListEffect
 
 /// Effects that can be processed by a `SendListProcessor`.
-enum SendListEffect {
+enum SendListEffect: Equatable {
+    /// The add item button was pressed.
+    case addItemPressed(SendType)
+
     /// Any initial data for the view should be loaded.
     case loadData
 
