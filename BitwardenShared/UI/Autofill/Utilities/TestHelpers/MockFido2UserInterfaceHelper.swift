@@ -53,7 +53,7 @@ class MockFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
 
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: BitwardenSdk.CipherView,
+        credential: Fido2UserVerifiableCipherView,
         shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> BitwardenSdk.CheckUserResult {
         checkUserCalled = true

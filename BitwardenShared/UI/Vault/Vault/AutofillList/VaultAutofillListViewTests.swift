@@ -100,30 +100,33 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 id: "",
                 items: [
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "1",
-                            login: .fixture(
+                            name: "Apple",
+                            subtitle: "user@bitwarden.com",
+                            type: .login(.fixture(
                                 username: "user@bitwarden.com"
-                            ),
-                            name: "Apple"
+                            ))
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "2",
-                            login: .fixture(
+                            name: "Bitwarden",
+                            subtitle: "user@bitwarden.com",
+                            type: .login(.fixture(
                                 username: "user@bitwarden.com"
-                            ),
-                            name: "Bitwarden"
+                            ))
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "3",
-                            login: .fixture(
+                            name: "Company XYZ",
+                            subtitle: "",
+                            type: .login(.fixture(
                                 username: ""
-                            ),
-                            name: "Company XYZ"
+                            ))
                         )
                     )!,
                 ],
@@ -148,51 +151,55 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 id: Localizations.chooseALoginToSaveThisPasskeyTo,
                 items: [
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "1",
-                            login: .fixture(
+                            name: "Apple",
+                            subtitle: "user@bitwarden.com",
+                            type: .login(.fixture(
                                 username: "user@bitwarden.com"
-                            ),
-                            name: "Apple"
+                            ))
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "2",
-                            login: .fixture(
+                            name: "Bitwarden",
+                            subtitle: "user@bitwarden.com",
+                            type: .login(.fixture(
                                 username: "user@bitwarden.com"
-                            ),
-                            name: "Bitwarden"
+                            ))
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "3",
-                            login: .fixture(
+                            name: "Company XYZ",
+                            type: .login(.fixture(
                                 username: ""
-                            ),
-                            name: "Company XYZ"
+                            ))
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "4",
-                            login: .fixture(
+                            name: "App",
+                            subtitle: "myFido2Username",
+                            type: .login(.fixture(
                                 username: ""
-                            ),
-                            name: "App"
+                            ))
                         ),
                         fido2CredentialAutofillView: .fixture(
                             userNameForUi: "myFido2Username"
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "5",
-                            login: .fixture(
+                            name: "myApp.com",
+                            subtitle: "another user",
+                            type: .login(.fixture(
                                 username: ""
-                            ),
-                            name: "myApp.com"
+                            ))
                         ),
                         fido2CredentialAutofillView: .fixture(
                             userNameForUi: "another user"
@@ -221,24 +228,24 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 id: "Passkeys for myApp.com",
                 items: [
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "4",
-                            login: .fixture(
+                            name: "App",
+                            type: .login(.fixture(
                                 username: ""
-                            ),
-                            name: "App"
+                            ))
                         ),
                         fido2CredentialAutofillView: .fixture(
                             userNameForUi: "myFido2Username"
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "5",
-                            login: .fixture(
+                            name: "myApp.com",
+                            type: .login(.fixture(
                                 username: ""
-                            ),
-                            name: "myApp.com"
+                            ))
                         ),
                         fido2CredentialAutofillView: .fixture(
                             userNameForUi: "another user"
@@ -251,30 +258,30 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 id: "Passwords for myApp.com",
                 items: [
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "1",
-                            login: .fixture(
+                            name: "Apple",
+                            type: .login(.fixture(
                                 username: "user@bitwarden.com"
-                            ),
-                            name: "Apple"
+                            ))
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "2",
-                            login: .fixture(
+                            name: "Bitwarden",
+                            type: .login(.fixture(
                                 username: "user@bitwarden.com"
-                            ),
-                            name: "Bitwarden"
+                            ))
                         )
                     )!,
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "3",
-                            login: .fixture(
+                            name: "Company XYZ",
+                            type: .login(.fixture(
                                 username: ""
-                            ),
-                            name: "Company XYZ"
+                            ))
                         )
                     )!,
                 ],
@@ -290,6 +297,8 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
     /// The populated view renders correctly when autofilling text to insert.
     @MainActor
     func test_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsert() {
+        // swiftlint:disable:previous function_body_length
+
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -298,17 +307,23 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
             VaultListSection(
                 id: "",
                 items: [
-                    .fixture(cipherView: .fixture(
-                        login: .fixture(username: "email@example.com"),
-                        name: "Example"
+                    .fixture(cipherListView: .fixture(
+                        name: "Example",
+                        subtitle: "email@example.com",
+                        type: .login(.fixture(
+                            username: "email@example.com"
+                        ))
                     )),
-                    .fixture(cipherView: .fixture(id: "12", name: "Example", type: .secureNote)),
-                    .fixture(cipherView: .loginFixture(
-                        attachments: [.fixture()],
+                    .fixture(cipherListView: .fixture(id: "12", name: "Example", type: .secureNote)),
+                    .fixture(cipherListView: .fixture(
                         id: "13",
-                        login: .fixture(username: "user@bitwarden.com"),
+                        organizationId: "1",
                         name: "Bitwarden",
-                        organizationId: "1"
+                        subtitle: "user@bitwarden.com",
+                        type: .login(.fixture(
+                            username: "user@bitwarden.com"
+                        )),
+                        attachments: 1
                     )),
                 ],
                 name: "Favorites"
@@ -345,6 +360,7 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
     /// The populated view renders correctly when autofilling text to insert when filtering by group.
     @MainActor
     func test_snapshot_vaultAutofillList_populatedWhenAutofillingTextToInsertWithGroup() {
+        // swiftlint:disable:previous function_body_length
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
@@ -355,28 +371,38 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 id: "Items",
                 items: [
                     .fixture(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: "1",
-                            login: .fixture(username: "email@example.com"),
-                            name: "Example"
+                            name: "Example",
+                            subtitle: "email@example.com",
+                            type: .login(.fixture(
+                                username: "email@example.com"
+                            ))
                         )
                     ),
-                    .fixture(cipherView: .fixture(
+                    .fixture(cipherListView: .fixture(
                         id: "2",
-                        login: .fixture(
+                        name: "An extra long name that should take up more than one line",
+                        subtitle: "An equally long subtitle that should also take up more than one line",
+                        type: .login(.fixture(
                             username: "An equally long subtitle that should also take up more than one line"
-                        ),
-                        name: "An extra long name that should take up more than one line"
+                        ))
                     )),
-                    .fixture(cipherView: .fixture(
+                    .fixture(cipherListView: .fixture(
                         id: "3",
-                        login: .fixture(username: "email@example.com"),
-                        name: "Example"
+                        name: "Example",
+                        subtitle: "email@example.com",
+                        type: .login(.fixture(
+                            username: "email@example.com"
+                        ))
                     )),
-                    .fixture(cipherView: .fixture(
+                    .fixture(cipherListView: .fixture(
                         id: "4",
-                        login: .fixture(username: "email@example.com"),
-                        name: "Example"
+                        name: "Example",
+                        subtitle: "email@example.com",
+                        type: .login(.fixture(
+                            username: "email@example.com"
+                        ))
                     )),
                 ],
                 name: Localizations.items
@@ -400,12 +426,15 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
             VaultListSection(
                 id: Localizations.aPasskeyAlreadyExistsForThisApplication,
                 items: [
-                    .fixture(cipherView: .loginFixture(
-                        attachments: [.fixture()],
+                    .fixture(cipherListView: .fixture(
                         id: "13",
-                        login: .fixture(username: "user@bitwarden.com"),
+                        organizationId: "1",
                         name: "Bitwarden",
-                        organizationId: "1"
+                        subtitle: "user@bitwarden.com",
+                        type: .login(.fixture(
+                            username: "user@bitwarden.com"
+                        )),
+                        attachments: 1,
                     ), fido2CredentialAutofillView: .fixture()),
                 ],
                 name: Localizations.aPasskeyAlreadyExistsForThisApplication
@@ -426,10 +455,10 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
                 id: "Passwords",
                 items: (1 ... 5).map { id in
                     .init(
-                        cipherView: .fixture(
+                        cipherListView: .fixture(
                             id: String(id),
-                            login: .fixture(),
-                            name: "Bitwarden"
+                            name: "Bitwarden",
+                            type: .login(.fixture())
                         )
                     )!
                 },

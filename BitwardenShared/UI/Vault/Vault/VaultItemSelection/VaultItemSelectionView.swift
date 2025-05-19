@@ -275,16 +275,16 @@ private struct VaultItemSelectionSearchableView: View {
 
 #Preview("Matching Items") {
     NavigationView {
-        let ciphers: [CipherView] = [
+        let ciphers: [CipherListView] = [
             .fixture(
                 id: "1",
-                login: .fixture(username: "user@bitwarden.com"),
-                name: "Apple"
+                name: "Apple",
+                type: .login(.fixture(username: "user@bitwarden.com"))
             ),
             .fixture(
                 id: "2",
-                login: .fixture(username: "user@bitwarden.com"),
-                name: "Bitwarden"
+                name: "Bitwarden",
+                type: .login(.fixture(username: "user@bitwarden.com"))
             ),
             .fixture(
                 id: "3",
@@ -292,13 +292,13 @@ private struct VaultItemSelectionSearchableView: View {
             ),
             .fixture(
                 id: "4",
-                login: .fixture(username: "user@bitwarden.com"),
-                name: "Apple"
+                name: "Apple",
+                type: .login(.fixture(username: "user@bitwarden.com"))
             ),
             .fixture(
                 id: "5",
-                login: .fixture(username: "user@bitwarden.com"),
-                name: "Bitwarden"
+                name: "Bitwarden",
+                type: .login(.fixture(username: "user@bitwarden.com"))
             ),
             .fixture(
                 id: "6",
@@ -306,13 +306,13 @@ private struct VaultItemSelectionSearchableView: View {
             ),
             .fixture(
                 id: "7",
-                login: .fixture(username: "user@bitwarden.com"),
-                name: "Apple"
+                name: "Apple",
+                type: .login(.fixture(username: "user@bitwarden.com"))
             ),
             .fixture(
                 id: "8",
-                login: .fixture(username: "user@bitwarden.com"),
-                name: "Bitwarden"
+                name: "Bitwarden",
+                type: .login(.fixture(username: "user@bitwarden.com"))
             ),
             .fixture(
                 id: "9",

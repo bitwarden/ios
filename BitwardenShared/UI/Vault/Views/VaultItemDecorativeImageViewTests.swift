@@ -15,13 +15,13 @@ final class VaultItemDecorativeImageViewTests: BitwardenTestCase {
     /// Test that the placeholder image is shown when not showing web icons.
     func test_snapshot_notShowWebIcons() {
         let subject = VaultItemDecorativeImageView(
-            item: VaultListItem.fixture(cipherView: .fixture(login: .fixture(uris: [
+            item: VaultListItem.fixture(cipherListView: .fixture(type: .login(.fixture(uris: [
                 LoginUriView(
                     uri: "some",
                     match: .domain,
                     uriChecksum: ""
                 ),
-            ]))),
+            ])))),
             iconBaseURL: .example,
             showWebIcons: false
         )
@@ -31,7 +31,7 @@ final class VaultItemDecorativeImageViewTests: BitwardenTestCase {
     /// Test that the placeholder image is shown when login view is nil.
     func test_snapshot_nilLogin() {
         let subject = VaultItemDecorativeImageView(
-            item: VaultListItem.fixture(cipherView: .fixture()),
+            item: VaultListItem.fixture(cipherListView: .fixture()),
             iconBaseURL: .example,
             showWebIcons: true
         )

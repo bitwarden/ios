@@ -109,7 +109,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         )
         let result = try await subject.checkUser(
             userVerificationPreference: .preferred,
-            credential: .fixture(),
+            credential: MockFido2UserVerifiableCipherView(),
             shouldThrowEnforcingRequiredVerification: false
         )
         XCTAssertTrue(result.userPresent)
@@ -124,7 +124,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         )
         let result = try await subject.checkUser(
             userVerificationPreference: .preferred,
-            credential: .fixture(),
+            credential: MockFido2UserVerifiableCipherView(),
             shouldThrowEnforcingRequiredVerification: false
         )
         XCTAssertTrue(result.userPresent)
@@ -140,7 +140,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         )
         let result = try await subject.checkUser(
             userVerificationPreference: .discouraged,
-            credential: .fixture(),
+            credential: MockFido2UserVerifiableCipherView(),
             shouldThrowEnforcingRequiredVerification: true
         )
         XCTAssertTrue(result.userPresent)
@@ -157,7 +157,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         await assertAsyncThrows(error: Fido2UserVerificationError.requiredEnforcementFailed) {
             _ = try await subject.checkUser(
                 userVerificationPreference: .required,
-                credential: .fixture(),
+                credential: MockFido2UserVerifiableCipherView(),
                 shouldThrowEnforcingRequiredVerification: true
             )
         }
@@ -175,7 +175,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         await assertAsyncThrows(error: Fido2UserVerificationError.requiredEnforcementFailed) {
             _ = try await subject.checkUser(
                 userVerificationPreference: .preferred,
-                credential: .fixture(),
+                credential: MockFido2UserVerifiableCipherView(),
                 shouldThrowEnforcingRequiredVerification: true
             )
         }
@@ -192,7 +192,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
 
         let result = try await subject.checkUser(
             userVerificationPreference: .preferred,
-            credential: .fixture(),
+            credential: MockFido2UserVerifiableCipherView(),
             shouldThrowEnforcingRequiredVerification: true
         )
         XCTAssertTrue(result.userPresent)
@@ -206,7 +206,7 @@ class Fido2UserInterfaceHelperTests: BitwardenTestCase { // swiftlint:disable:th
         await assertAsyncThrows(error: BitwardenTestError.example) {
             _ = try await subject.checkUser(
                 userVerificationPreference: .preferred,
-                credential: .fixture(),
+                credential: MockFido2UserVerifiableCipherView(),
                 shouldThrowEnforcingRequiredVerification: false
             )
         }

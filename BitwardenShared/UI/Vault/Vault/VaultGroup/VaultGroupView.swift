@@ -314,15 +314,19 @@ struct VaultGroupView: View {
                                 .init(
                                     id: "Items",
                                     items: [
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: "1",
-                                            login: .fixture(username: "email@example.com"),
-                                            name: "Example"
+                                            name: "Example",
+                                            type: .login(.fixture(
+                                                username: "email@example.com")
+                                            )
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: "2",
-                                            login: .fixture(username: "email2@example.com"),
-                                            name: "Example 2"
+                                            name: "Example 2",
+                                            type: .login(.fixture(
+                                                username: "email2@example.com")
+                                            )
                                         ))!,
                                     ],
                                     name: "Items"

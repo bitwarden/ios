@@ -95,9 +95,27 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         let account = ProfileSwitcherItem.anneAccount
         processor.state.profileSwitcherState.accounts = [account]
         processor.state.profileSwitcherState.activeAccountId = account.userId
-        let ciphers: [CipherView] = [
-            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
-            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
+        let ciphers: [CipherListView] = [
+            .fixture(
+                id: "1",
+                name: "Example",
+                subtitle: "user@bitwarden.com",
+                type: .login(
+                    .fixture(
+                        username: "user@bitwarden.com"
+                    )
+                )
+            ),
+            .fixture(
+                id: "2",
+                name: "Example Co",
+                subtitle: "user@bitwarden.com",
+                type: .login(
+                    .fixture(
+                        username: "user@bitwarden.com"
+                    )
+                )
+            ),
         ]
         processor.state.vaultListSections = [
             VaultListSection(
@@ -115,9 +133,27 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
     /// The search view renders correctly when there's search results.
     @MainActor
     func test_snapshot_cipherSelection_search() {
-        let ciphers: [CipherView] = [
-            .fixture(id: "1", login: .fixture(username: "user@bitwarden.com"), name: "Example"),
-            .fixture(id: "2", login: .fixture(username: "user@bitwarden.com"), name: "Example Co"),
+        let ciphers: [CipherListView] = [
+            .fixture(
+                id: "1",
+                name: "Example",
+                subtitle: "user@bitwarden.com",
+                type: .login(
+                    .fixture(
+                        username: "user@bitwarden.com"
+                    )
+                )
+            ),
+            .fixture(
+                id: "2",
+                name: "Example Co",
+                subtitle: "user@bitwarden.com",
+                type: .login(
+                    .fixture(
+                        username: "user@bitwarden.com"
+                    )
+                )
+            ),
         ]
         processor.state.searchResults = ciphers.compactMap(VaultListItem.init)
         processor.state.searchText = "Example"

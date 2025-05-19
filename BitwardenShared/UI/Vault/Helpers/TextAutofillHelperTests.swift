@@ -8,7 +8,7 @@ import XCTest
 // MARK: - TextAutofillHelperTests
 
 @available(iOS 18.0, *)
-class TextAutofillHelperTests: BitwardenTestCase {
+class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
@@ -66,9 +66,10 @@ class TextAutofillHelperTests: BitwardenTestCase {
             ("Option 2", "Value 2"),
         ]
         textAutofillOptionsHelperFactory.createResult = optionsHelper
+        vaultRepository.fetchCipherResult = .success(.fixture())
 
         let task = Task {
-            try await subject.handleCipherForAutofill(cipherView: CipherView.fixture())
+            try await subject.handleCipherForAutofill(cipherListView: CipherListView.fixture())
         }
         defer { task.cancel() }
 
@@ -96,9 +97,12 @@ class TextAutofillHelperTests: BitwardenTestCase {
         let optionsHelper = MockTextAutofillOptionsHelper()
         optionsHelper.getTextAutofillOptionsResult = []
         textAutofillOptionsHelperFactory.createResult = optionsHelper
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            name: "Cipher 1"
+        ))
 
         let task = Task {
-            try await subject.handleCipherForAutofill(cipherView: CipherView.fixture(name: "Cipher 1"))
+            try await subject.handleCipherForAutofill(cipherListView: CipherListView.fixture(id: "1", name: "Cipher 1"))
         }
         defer { task.cancel() }
 
@@ -122,6 +126,9 @@ class TextAutofillHelperTests: BitwardenTestCase {
             (Localizations.verificationCode, "123456"),
         ]
         textAutofillOptionsHelperFactory.createResult = optionsHelper
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(totp: "123456")
+        ))
 
         vaultRepository.refreshTOTPCodeResult =
             .success(
@@ -139,9 +146,8 @@ class TextAutofillHelperTests: BitwardenTestCase {
 
         let task = Task {
             try await subject.handleCipherForAutofill(
-                cipherView: CipherView.fixture(
-                    login: .fixture(totp: "123456"),
-                    type: .login
+                cipherListView: CipherListView.fixture(
+                    type: .login(.fixture(totp: "123456"))
                 )
             )
         }
@@ -175,13 +181,15 @@ class TextAutofillHelperTests: BitwardenTestCase {
         ]
         textAutofillOptionsHelperFactory.createResult = optionsHelper
 
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(totp: "123456")
+        ))
         vaultRepository.refreshTOTPCodeResult = .failure(BitwardenTestError.example)
 
         let task = Task {
             try await subject.handleCipherForAutofill(
-                cipherView: CipherView.fixture(
-                    login: .fixture(totp: "123456"),
-                    type: .login
+                cipherListView: CipherListView.fixture(
+                    type: .login(.fixture(totp: "123456"))
                 )
             )
         }
@@ -218,17 +226,22 @@ class TextAutofillHelperTests: BitwardenTestCase {
             ("Option 2", "Value 2"),
         ]
         textAutofillOptionsHelperFactory.createResult = optionsHelper
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            fields: [
+                .fixture(name: "Field 1", value: "Custom Value 1", type: .text),
+                .fixture(name: "Field 2", value: "Custom Value 2", type: .hidden),
+                .fixture(name: "Field 3", value: nil, type: .text),
+                .fixture(name: nil, value: "Something", type: .text),
+                .fixture(name: nil, value: nil, type: .text),
+            ],
+            id: "1",
+            viewPassword: true
+        ))
 
         let task = Task {
             try await subject.handleCipherForAutofill(
-                cipherView: CipherView.fixture(
-                    fields: [
-                        .fixture(name: "Field 1", value: "Custom Value 1", type: .text),
-                        .fixture(name: "Field 2", value: "Custom Value 2", type: .hidden),
-                        .fixture(name: "Field 3", value: nil, type: .text),
-                        .fixture(name: nil, value: "Something", type: .text),
-                        .fixture(name: nil, value: nil, type: .text),
-                    ],
+                cipherListView: CipherListView.fixture(
+                    id: "1",
                     viewPassword: true
                 )
             )
@@ -278,14 +291,19 @@ class TextAutofillHelperTests: BitwardenTestCase {
             ("Option 2", "Value 2"),
         ]
         textAutofillOptionsHelperFactory.createResult = optionsHelper
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            fields: [
+                .fixture(name: "Field 1", value: "Custom Value 1", type: .text),
+                .fixture(name: "Field 2", value: "Custom Value 2", type: .hidden),
+            ],
+            id: "1",
+            viewPassword: false
+        ))
 
         let task = Task {
             try await subject.handleCipherForAutofill(
-                cipherView: CipherView.fixture(
-                    fields: [
-                        .fixture(name: "Field 1", value: "Custom Value 1", type: .text),
-                        .fixture(name: "Field 2", value: "Custom Value 2", type: .hidden),
-                    ],
+                cipherListView: CipherListView.fixture(
+                    id: "1",
                     viewPassword: false
                 )
             )
@@ -329,7 +347,7 @@ class TextAutofillHelperTests: BitwardenTestCase {
 class NoOpTextAutofillHelperTests: BitwardenTestCase {
     func test_handleCipherForAutofill() async throws {
         let subject = NoOpTextAutofillHelper()
-        await subject.handleCipherForAutofill(cipherView: .fixture())
+        await subject.handleCipherForAutofill(cipherListView: .fixture())
         throw XCTSkip("This TextAutofillHelper handleCipherForAutofill does nothing")
     }
 

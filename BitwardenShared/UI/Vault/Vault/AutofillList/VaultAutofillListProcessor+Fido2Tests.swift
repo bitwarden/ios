@@ -287,7 +287,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 id: "excludedCredentialsId",
                 items: [
                     VaultListItem(
-                        cipherView: cipher,
+                        cipherListView: .fixture(id: cipher.id),
                         fido2CredentialAutofillView: .fixture()
                     )!,
                 ],
@@ -328,7 +328,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 id: "excludedCredentialsId",
                 items: [
                     VaultListItem(
-                        cipherView: cipher,
+                        cipherListView: .fixture(id: cipher.id),
                         fido2CredentialAutofillView: .fixture()
                     )!,
                 ],
@@ -450,9 +450,10 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     func test_perform_vaultItemTapped_fido2PickedForAuthentication() async {
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], MockPasskeyCredentialRequestParameters())
         let vaultListItem = VaultListItem(
-            cipherView: CipherView.fixture(),
+            cipherListView: .fixture(),
             fido2CredentialAutofillView: .fixture()
         )!
+        vaultRepository.fetchCipherResult = .success(.fixture())
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -470,14 +471,20 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @available(iOSApplicationExtension 17.0, *)
     @MainActor
     func test_perform_vaultItemTapped_fido2PickedForCreationWithAlreadyFido2Credential() async throws {
-        let expectedResult = CipherView.fixture(
-            login: .fixture(fido2Credentials: [.fixture()])
+        let expectedCipher = Cipher.fixture(
+            id: "1",
+            login: .fixture(
+                fido2Credentials: [.fixture()]
+            ),
+            type: .login
         )
+        let expectedResult = CipherListView(cipher: expectedCipher)
         let vaultListItem = VaultListItem(
-            cipherView: expectedResult,
+            cipherListView: expectedResult,
             fido2CredentialAutofillView: .fixture()
         )!
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: expectedCipher))
 
         fido2UserInterfaceHelper.fido2CreationOptions = CheckUserOptions(
             requirePresence: true,
@@ -511,11 +518,16 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @available(iOSApplicationExtension 17.0, *)
     @MainActor
     func test_perform_vaultItemTapped_fido2PickedForCreationNoOverwrite() async throws {
-        let expectedResult = CipherView.fixture(
-            login: .fixture(fido2Credentials: [.fixture()])
+        let expectedCipher = Cipher.fixture(
+            id: "1",
+            login: .fixture(
+                fido2Credentials: [.fixture()]
+            ),
+            type: .login
         )
+        let expectedResult = CipherListView(cipher: expectedCipher)
         let vaultListItem = VaultListItem(
-            cipherView: expectedResult,
+            cipherListView: expectedResult,
             fido2CredentialAutofillView: .fixture()
         )!
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
@@ -524,6 +536,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             requirePresence: true,
             requireVerification: .required
         )
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: expectedCipher))
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -541,11 +554,11 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @available(iOSApplicationExtension 17.0, *)
     @MainActor
     func test_perform_vaultItemTapped_fido2PickedForCreationNoFido2Options() async throws {
-        let expectedResult = CipherView.fixture(
-            login: .fixture(fido2Credentials: [.fixture()])
+        let expectedResult = CipherListView.fixture(
+            type: .login(.fixture(fido2Credentials: [.fixture()]))
         )
         let vaultListItem = VaultListItem(
-            cipherView: expectedResult,
+            cipherListView: expectedResult,
             fido2CredentialAutofillView: .fixture()
         )!
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
@@ -569,11 +582,14 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @available(iOSApplicationExtension 17.0, *)
     @MainActor
     func test_perform_vaultItemTapped_cipherPickedForFido2Creation() async throws {
-        let expectedResult = CipherView.fixture(
-            login: .fixture()
+        let expectedCipher = Cipher.fixture(
+            id: "1",
+            login: .fixture(),
+            type: .login
         )
+        let expectedResult = CipherListView(cipher: expectedCipher)
         let vaultListItem = VaultListItem(
-            cipherView: expectedResult
+            cipherListView: expectedResult
         )!
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
@@ -582,6 +598,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             requireVerification: .required
         )
         fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: true))
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: expectedCipher))
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -602,11 +619,14 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @available(iOSApplicationExtension 17.0, *)
     @MainActor
     func test_perform_vaultItemTapped_cipherPickedForFido2CreationUserCheckNotVerified() async throws {
-        let expectedResult = CipherView.fixture(
-            login: .fixture()
+        let expectedCipher = Cipher.fixture(
+            id: "1",
+            login: .fixture(),
+            type: .login
         )
+        let expectedResult = CipherListView(cipher: expectedCipher)
         let vaultListItem = VaultListItem(
-            cipherView: expectedResult
+            cipherListView: expectedResult
         )!
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
@@ -615,6 +635,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             requireVerification: .required
         )
         fido2UserInterfaceHelper.checkUserResult = .success(CheckUserResult(userPresent: true, userVerified: false))
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: expectedCipher))
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -635,11 +656,14 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @available(iOSApplicationExtension 17.0, *)
     @MainActor
     func test_perform_vaultItemTapped_cipherPickedForFido2CreationUserCheckThrows() async throws {
-        let expectedResult = CipherView.fixture(
-            login: .fixture()
+        let expectedCipher = Cipher.fixture(
+            id: "1",
+            login: .fixture(),
+            type: .login
         )
+        let expectedResult = CipherListView(cipher: expectedCipher)
         let vaultListItem = VaultListItem(
-            cipherView: expectedResult
+            cipherListView: expectedResult
         )!
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
@@ -648,6 +672,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             requireVerification: .required
         )
         fido2UserInterfaceHelper.checkUserResult = .failure(BitwardenTestError.example)
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: expectedCipher))
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -662,11 +687,14 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @available(iOSApplicationExtension 17.0, *)
     @MainActor
     func test_perform_vaultItemTapped_cipherPickedForFido2CreationUserCheckCancelled() async throws {
-        let expectedResult = CipherView.fixture(
-            login: .fixture()
+        let expectedCipher = Cipher.fixture(
+            id: "1",
+            login: .fixture(),
+            type: .login
         )
+        let expectedResult = CipherListView(cipher: expectedCipher)
         let vaultListItem = VaultListItem(
-            cipherView: expectedResult
+            cipherListView: expectedResult
         )!
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture())
 
@@ -675,6 +703,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             requireVerification: .required
         )
         fido2UserInterfaceHelper.checkUserResult = .failure(UserVerificationError.cancelled)
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: expectedCipher))
 
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -689,7 +718,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @MainActor
     func test_perform_vaultItemTapped_fido2PickedWhenNotInCreation() async {
         let vaultListItem = VaultListItem(
-            cipherView: CipherView.fixture(),
+            cipherListView: CipherListView.fixture(),
             fido2CredentialAutofillView: .fixture()
         )!
 
@@ -901,13 +930,13 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate.extensionMode = .autofillFido2VaultList([], passkeyParameters)
         let expectedCredentialId = Data(repeating: 123, count: 16)
 
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
         let expectedSections = [
             VaultListSection(
                 id: Localizations.passkeysForX("Bit"),
                 items: ciphers.suffix(from: 1).compactMap { cipher in
                     VaultListItem(
-                        cipherView: cipher,
+                        cipherListView: cipher,
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: cipher.id ?? "",
@@ -919,7 +948,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             ),
             VaultListSection(
                 id: Localizations.passwordsForX("Bit"),
-                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+                items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
                 name: Localizations.passwordsForX("Bit")
             ),
         ]
@@ -938,7 +967,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
                 id: Localizations.passkeysForX("Bit"),
                 items: ciphers.suffix(from: 1).compactMap { cipher in
                     VaultListItem(
-                        cipherView: cipher,
+                        cipherListView: cipher,
                         fido2CredentialAutofillView: .fixture(
                             credentialId: expectedCredentialId,
                             cipherId: cipher.id ?? "",
@@ -953,7 +982,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
             subject.state.ciphersForSearch[1],
             VaultListSection(
                 id: Localizations.passwordsForX("Bit"),
-                items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+                items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
                 name: Localizations.passwordsForX("Bit")
             )
         )
@@ -968,10 +997,10 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(
             credentialIdentity: .fixture(relyingPartyIdentifier: rpId)
         ))
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
         let expectedSection = VaultListSection(
             id: "",
-            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
         vaultRepository.ciphersAutofillSubject.value = [expectedSection]
@@ -996,10 +1025,10 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
         appExtensionDelegate.extensionMode = .registerFido2Credential(ASPasskeyCredentialRequest.fixture(
             credentialIdentity: .fixture(relyingPartyIdentifier: rpId)
         ))
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
         let section = VaultListSection(
             id: "",
-            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
         vaultRepository.ciphersAutofillSubject.value = [section]

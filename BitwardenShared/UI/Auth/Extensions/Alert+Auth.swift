@@ -406,4 +406,4 @@ extension Alert {
             ]
         )
     }
-}
+} // swiftlint:disable:this file_length

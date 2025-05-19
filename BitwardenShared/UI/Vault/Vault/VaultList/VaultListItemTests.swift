@@ -25,57 +25,56 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
 
     /// `init` returns the expected value.
     func test_init() {
-        XCTAssertNil(VaultListItem(cipherView: .fixture(id: nil)))
-        XCTAssertNotNil(VaultListItem(cipherView: .fixture(id: ":)")))
+        XCTAssertNil(VaultListItem(cipherListView: .fixture(id: nil)))
+        XCTAssertNotNil(VaultListItem(cipherListView: .fixture(id: ":)")))
     }
 
     /// `init` returns the expected value when using the one that takes `fido2CredentialAutofillView`.
     func test_init_fido2CredentialAutofillView() {
         XCTAssertNil(
             VaultListItem(
-                cipherView: .fixture(id: nil),
+                cipherListView: .fixture(id: nil),
                 fido2CredentialAutofillView: .fixture()
             )
         )
         XCTAssertNil(
             VaultListItem(
-                cipherView: .fixture(id: ":)", type: .card),
+                cipherListView: .fixture(id: ":)", type: .card),
                 fido2CredentialAutofillView: .fixture()
             )
         )
         XCTAssertNil(
             VaultListItem(
-                cipherView: .fixture(id: ":)", type: .identity),
+                cipherListView: .fixture(id: ":)", type: .identity),
                 fido2CredentialAutofillView: .fixture()
             )
         )
         XCTAssertNil(
             VaultListItem(
-                cipherView: .fixture(id: ":)", type: .secureNote),
+                cipherListView: .fixture(id: ":)", type: .secureNote),
                 fido2CredentialAutofillView: .fixture()
             )
         )
         XCTAssertNotNil(
             VaultListItem(
-                cipherView: .fixture(id: ":)", type: .login),
+                cipherListView: .fixture(id: ":)", type: .login(.fixture())),
                 fido2CredentialAutofillView: .fixture()
             )
         )
     }
 
     /// `fido2CredentialRpId` returns expected value.
-    func test_fido2CredentialRpId() { // swiftlint:disable:this function_body_length
+    func test_fido2CredentialRpId() {
         XCTAssertEqual(
             VaultListItem(
-                cipherView: .fixture(
+                cipherListView: .fixture(
                     login: .fixture(
                         fido2Credentials: [
                             .fixture(),
                         ],
                         username: FakeData.username1
                     ),
-                    name: "MyApp",
-                    type: .login
+                    name: "MyApp"
                 ),
                 fido2CredentialAutofillView: .fixture(
                     userNameForUi: FakeData.username2
@@ -84,24 +83,22 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             BitwardenSdk.Fido2CredentialAutofillView.defaultRpId
         )
         XCTAssertNil(
-            VaultListItem(cipherView: .fixture(
+            VaultListItem(cipherListView: .fixture(
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(userName: FakeData.username2),
                     ],
                     username: FakeData.email1
                 ),
-                name: "MyApp",
-                type: .login
+                name: "MyApp"
             ))!.fido2CredentialRpId
         )
         XCTAssertNil(
-            VaultListItem(cipherView: .fixture(
+            VaultListItem(cipherListView: .fixture(
                 login: .fixture(
                     username: FakeData.email1
                 ),
-                name: "MyApp",
-                type: .login
+                name: "MyApp"
             ))!.fido2CredentialRpId
         )
         XCTAssertNil(
@@ -121,30 +118,30 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `icon` returns the expected value.
     func test_icon() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .card))?.icon.name,
+            VaultListItem(cipherListView: .fixture(type: .card))?.icon.name,
             Asset.Images.card24.name
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .identity))?.icon.name,
+            VaultListItem(cipherListView: .fixture(type: .identity))?.icon.name,
             Asset.Images.idCard24.name
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .login))?.icon.name,
+            VaultListItem(cipherListView: .fixture(type: .login(.fixture())))?.icon.name,
             Asset.Images.globe24.name
         )
         XCTAssertEqual(
             VaultListItem(
-                cipherView: .fixture(type: .login),
+                cipherListView: .fixture(type: .login(.fixture())),
                 fido2CredentialAutofillView: .fixture()
             )?.icon.name,
             Asset.Images.passkey24.name
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .secureNote))?.icon.name,
+            VaultListItem(cipherListView: .fixture(type: .secureNote))?.icon.name,
             Asset.Images.file24.name
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .sshKey))?.icon.name,
+            VaultListItem(cipherListView: .fixture(type: .sshKey))?.icon.name,
             Asset.Images.key24.name
         )
 
@@ -198,30 +195,30 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `getter:iconAccessibilityId` gets the appropriate id for each icon.
     func test_iconAccessibilityId() {
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .card))?.iconAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .card))?.iconAccessibilityId,
             "CardCipherIcon"
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .identity))?.iconAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .identity))?.iconAccessibilityId,
             "IdentityCipherIcon"
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .login))?.iconAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .login(.fixture())))?.iconAccessibilityId,
             "LoginCipherIcon"
         )
         XCTAssertEqual(
             VaultListItem(
-                cipherView: .fixture(type: .login),
+                cipherListView: .fixture(type: .login(.fixture())),
                 fido2CredentialAutofillView: .fixture()
             )?.iconAccessibilityId,
             "LoginCipherIcon"
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .secureNote))?.iconAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .secureNote))?.iconAccessibilityId,
             "SecureNoteCipherIcon"
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .sshKey))?.iconAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .sshKey))?.iconAccessibilityId,
             "SSHKeyCipherIcon"
         )
 
@@ -239,23 +236,23 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `getter:vaultItemAccessibilityId` gets the appropriate id for each vault item.
     func test_vaultItemAccessibilityId() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .login))?.vaultItemAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .login(.fixture())))?.vaultItemAccessibilityId,
             "CipherCell"
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .card))?.vaultItemAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .card))?.vaultItemAccessibilityId,
             "CipherCell"
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .identity))?.vaultItemAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .identity))?.vaultItemAccessibilityId,
             "CipherCell"
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .secureNote))?.vaultItemAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .secureNote))?.vaultItemAccessibilityId,
             "CipherCell"
         )
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(type: .sshKey))?.vaultItemAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .sshKey))?.vaultItemAccessibilityId,
             "CipherCell"
         )
 
@@ -309,50 +306,46 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     /// `shouldShowFido2CredentialRpId` returns expected value.
-    func test_shouldShowFido2CredentialRpId() { // swiftlint:disable:this function_body_length
+    func test_shouldShowFido2CredentialRpId() {
         XCTAssertTrue(
-            VaultListItem(cipherView: .fixture(
+            VaultListItem(cipherListView: .fixture(
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(userName: FakeData.username2),
                     ],
                     username: FakeData.email1
                 ),
-                name: "MyApp",
-                type: .login
+                name: "MyApp"
             ), fido2CredentialAutofillView: .fixture())!.shouldShowFido2CredentialRpId
         )
         XCTAssertFalse(
-            VaultListItem(cipherView: .fixture(
+            VaultListItem(cipherListView: .fixture(
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(userName: FakeData.username2),
                     ],
                     username: FakeData.email1
                 ),
-                name: BitwardenSdk.Fido2CredentialAutofillView.defaultRpId,
-                type: .login
+                name: BitwardenSdk.Fido2CredentialAutofillView.defaultRpId
             ), fido2CredentialAutofillView: .fixture())!.shouldShowFido2CredentialRpId
         )
         XCTAssertFalse(
-            VaultListItem(cipherView: .fixture(
+            VaultListItem(cipherListView: .fixture(
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(rpId: "", userName: FakeData.username2),
                     ],
                     username: FakeData.email1
                 ),
-                name: BitwardenSdk.Fido2CredentialAutofillView.defaultRpId,
-                type: .login
+                name: BitwardenSdk.Fido2CredentialAutofillView.defaultRpId
             ), fido2CredentialAutofillView: .fixture())!.shouldShowFido2CredentialRpId
         )
         XCTAssertFalse(
-            VaultListItem(cipherView: .fixture(
+            VaultListItem(cipherListView: .fixture(
                 login: .fixture(
                     username: FakeData.email1
                 ),
-                name: BitwardenSdk.Fido2CredentialAutofillView.defaultRpId,
-                type: .login
+                name: BitwardenSdk.Fido2CredentialAutofillView.defaultRpId
             ))!.shouldShowFido2CredentialRpId
         )
         XCTAssertFalse(
@@ -369,53 +362,31 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `subtitle` returns the expected value.
     func test_subtitle() {
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(
-                card: .fixture(
-                    brand: "Mom's Credit Card",
-                    number: "1234567890"
-                ),
+            VaultListItem(cipherListView: .fixture(
+                subtitle: "Mom's Credit Card, *7890",
                 type: .card
             ))?.subtitle,
             "Mom's Credit Card, *7890"
         )
 
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(
-                identity: .init(
-                    title: nil,
-                    firstName: "First",
-                    middleName: nil,
-                    lastName: "Last",
-                    address1: nil,
-                    address2: nil,
-                    address3: nil,
-                    city: nil,
-                    state: nil,
-                    postalCode: nil,
-                    country: nil,
-                    company: nil,
-                    email: nil,
-                    phone: nil,
-                    ssn: nil,
-                    username: nil,
-                    passportNumber: nil,
-                    licenseNumber: nil
-                ),
+            VaultListItem(cipherListView: .fixture(
+                subtitle: "First Last",
                 type: .identity
             ))?.subtitle,
             "First Last"
         )
 
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(
+            VaultListItem(cipherListView: .fixture(
                 login: .fixture(username: FakeData.email1),
-                type: .login
+                subtitle: FakeData.email1
             ))?.subtitle,
             FakeData.email1
         )
 
-        XCTAssertNil(VaultListItem(cipherView: .fixture(type: .secureNote))?.subtitle)
-        XCTAssertNil(VaultListItem(cipherView: .fixture(type: .sshKey))?.subtitle)
+        XCTAssertEqual(VaultListItem(cipherListView: .fixture(type: .secureNote))?.subtitle, "")
+        XCTAssertEqual(VaultListItem(cipherListView: .fixture(type: .sshKey))?.subtitle, "")
 
         XCTAssertNil(VaultListItem(id: "1", itemType: .group(.card, 1)).subtitle)
         XCTAssertNil(VaultListItem.fixtureTOTP(totp: .fixture()).subtitle)
@@ -424,14 +395,13 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `subtitle` returns the expected value when in Fido2 credential.
     func test_subtitle_fido2() {
         XCTAssertEqual(
-            VaultListItem(cipherView: .fixture(
+            VaultListItem(cipherListView: .fixture(
                 login: .fixture(
                     fido2Credentials: [
                         .fixture(),
                     ],
                     username: FakeData.email1
-                ),
-                type: .login
+                )
             ), fido2CredentialAutofillView: .fixture(userNameForUi: FakeData.username2))?.subtitle,
             FakeData.username2
         )

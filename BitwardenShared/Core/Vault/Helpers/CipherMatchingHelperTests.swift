@@ -7,27 +7,27 @@ import XCTest
 class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
-    let ciphers: [CipherView] = [
+    let ciphers: [CipherListView] = [
         .fixture(
-            login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]),
-            name: "Bitwarden (Exact)"
+            name: "Bitwarden (Exact)",
+            type: .login(.fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]))
         ),
         .fixture(
-            login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .startsWith)]),
-            name: "Bitwarden (Starts With)"
+            name: "Bitwarden (Starts With)",
+            type: .login(.fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .startsWith)]))
         ),
         .fixture(
-            login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .never)]),
-            name: "Bitwarden (Never)"
-        ),
-
-        .fixture(
-            login: .fixture(uris: [LoginUriView.fixture(uri: "https://example.com", match: .startsWith)]),
-            name: "Example (Starts With)"
+            name: "Bitwarden (Never)",
+            type: .login(.fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .never)]))
         ),
 
-        .fixture(login: .fixture(), name: "No URIs"),
-        .fixture(login: .fixture(uris: []), name: "Empty URIs"),
+        .fixture(
+            name: "Example (Starts With)",
+            type: .login(.fixture(uris: [LoginUriView.fixture(uri: "https://example.com", match: .startsWith)]))
+        ),
+
+        .fixture(name: "No URIs", type: .login(.fixture())),
+        .fixture(name: "Empty URIs", type: .login(.fixture(uris: []))),
     ]
 
     var settingsService: MockSettingsService!
@@ -69,9 +69,9 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
             ("Yahoo", "http://yahoo.com"),
         ]
         let ciphers = uris.map { name, uri in
-            CipherView.fixture(
-                login: .fixture(uris: [LoginUriView.fixture(uri: uri, match: .domain)]),
-                name: name
+            CipherListView.fixture(
+                name: name,
+                type: .login(.fixture(uris: [LoginUriView.fixture(uri: uri, match: .domain)]))
             )
         }
 
@@ -236,25 +236,27 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the exact
     /// match type.
     func test_ciphersMatching_exact() async {
-        let ciphers: [CipherView] = [
+        let ciphers: [CipherListView] = [
             .fixture(
-                login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]),
-                name: "Bitwarden Vault"
+                name: "Bitwarden Vault",
+                type: .login(.fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]))
             ),
             .fixture(
-                login: .fixture(uris: [LoginUriView.fixture(uri: "https://bitwarden.com", match: .exact)]),
-                name: "Bitwarden"
+                name: "Bitwarden",
+                type: .login(.fixture(uris: [LoginUriView.fixture(uri: "https://bitwarden.com", match: .exact)]))
             ),
             .fixture(
-                login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com/login", match: .exact)]),
-                name: "Bitwarden Login"
+                name: "Bitwarden Login",
+                type: .login(.fixture(uris: [
+                    LoginUriView.fixture(uri: "https://vault.bitwarden.com/login", match: .exact),
+                ]))
             ),
             .fixture(
-                login: .fixture(uris: [
+                name: "Bitwarden Multiple",
+                type: .login(.fixture(uris: [
                     LoginUriView.fixture(uri: "https://bitwarden.com", match: .exact),
                     LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact),
-                ]),
-                name: "Bitwarden Multiple"
+                ]))
             ),
         ]
 
@@ -296,9 +298,9 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
             ("Sub Domain 500", "https://sub.domain.com:5000"),
         ]
         let ciphers = uris.map { name, uri in
-            CipherView.fixture(
-                login: .fixture(uris: [LoginUriView.fixture(uri: uri, match: .host)]),
-                name: name
+            CipherListView.fixture(
+                name: name,
+                type: .login(.fixture(uris: [LoginUriView.fixture(uri: uri, match: .host)]))
             )
         }
 
@@ -317,14 +319,14 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the never
     /// match type.
     func test_ciphersMatching_never() async {
-        let ciphers: [CipherView] = [
+        let ciphers: [CipherListView] = [
             .fixture(
-                login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .never)]),
-                name: "Bitwarden Never"
+                name: "Bitwarden Never",
+                type: .login(.fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .never)]))
             ),
             .fixture(
-                login: .fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]),
-                name: "Bitwarden Exact"
+                name: "Bitwarden Exact",
+                type: .login(.fixture(uris: [LoginUriView.fixture(uri: "https://vault.bitwarden.com", match: .exact)]))
             ),
         ]
 
@@ -345,15 +347,13 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `ciphersMatching(uri:ciphers)` returns the list of ciphers that match the URI for the
     /// regular expression match type.
     func test_ciphersMatching_regularExpression() async {
-        let cipher = CipherView.fixture(
-            login: .fixture(
-                uris: [
-                    LoginUriView.fixture(
-                        uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#,
-                        match: .regularExpression
-                    ),
-                ]
-            )
+        let cipher = CipherListView.fixture(
+            type: .login(.fixture(uris: [
+                LoginUriView.fixture(
+                    uri: #"^https://[a-z]+\.wikipedia\.org/w/index\.php"#,
+                    match: .regularExpression
+                ),
+            ]))
         )
 
         var matchingCiphers = await subject.ciphersMatching(
@@ -404,18 +404,18 @@ class CipherMatchingHelperTests: BitwardenTestCase { // swiftlint:disable:this t
 
     // MARK: Private
 
-    /// Returns a list of `CipherView`s created with the specified name, URI and match type.
-    func ciphersForUris(_ nameUris: [(String, String)], matchType: BitwardenSdk.UriMatchType?) -> [CipherView] {
+    /// Returns a list of `CipherListView`s created with the specified name, URI and match type.
+    func ciphersForUris(_ nameUris: [(String, String)], matchType: BitwardenSdk.UriMatchType?) -> [CipherListView] {
         nameUris.map { name, uri in
-            CipherView.fixture(
-                login: .fixture(uris: [LoginUriView.fixture(uri: uri, match: matchType)]),
-                name: name
+            CipherListView.fixture(
+                name: name,
+                type: .login(.fixture(uris: [LoginUriView.fixture(uri: uri, match: matchType)]))
             )
         }
     }
 
     /// Returns a string containing a description of the matching ciphers.
-    func dumpMatchingCiphers(_ ciphers: [CipherView]) -> String {
+    func dumpMatchingCiphers(_ ciphers: [CipherListView]) -> String {
         ciphers.map(\.name).joined(separator: "\n")
     }
 } // swiftlint:disable:this file_length

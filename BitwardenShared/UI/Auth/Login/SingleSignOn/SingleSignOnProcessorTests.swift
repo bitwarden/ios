@@ -365,7 +365,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
-    /// `singleSignOnCompleted(code:)` show confirm key connector dialog if user has no private key and uses Key Connector.
+    /// `singleSignOnCompleted(code:)` show confirm key connector dialog
+    /// if user has no private key and uses Key Connector.
     @MainActor
     func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noPrivateKey() async throws {
         // Set up the mock data.
@@ -401,7 +402,8 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.routes, [.dismiss])
     }
 
-    /// `singleSignOnCompleted(code:)` show confirm key connector dialog if user has no private key and uses Key Connector.
+    /// `singleSignOnCompleted(code:)` show confirm key connector dialog
+    /// if user has no private key and uses Key Connector.
     @MainActor
     func test_singleSignOnCompleted_vaultUnlockedKeyConnector_noPrivateKey_error() async throws {
         // Set up the mock data.
@@ -470,4 +472,4 @@ class SingleSignOnProcessorTests: BitwardenTestCase { // swiftlint:disable:this 
         XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
-}
+} // swiftlint:disable:this file_length
