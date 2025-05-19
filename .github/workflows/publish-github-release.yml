@@ -6,8 +6,8 @@ on:
     - cron: '0 3 * * 1-5'
 
 jobs:
-  create-release:
-    name: Create GitHub Release
+  publish-release:
+    name: Publish GitHub Release
     runs-on: ubuntu-24.04
     permissions:
       contents: write
