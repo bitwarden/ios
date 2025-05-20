@@ -88,6 +88,7 @@ jobs:
     runs-on: macos-15
     permissions:
       contents: read
+      actions: write #required for dispatch-and-download.yml
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
