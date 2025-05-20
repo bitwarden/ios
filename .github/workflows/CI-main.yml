@@ -22,10 +22,15 @@ env:
   DISTRIBUTE_TO_TESTFLIGHT: ${{ github.event_name == 'push' || inputs.distribute }}
   INTERNAL_BETA_PATCH_NUMBER: 999
 
+permissions:
+  contents: read
+
 jobs:
   resolve-values:
     name: "Resolve values"
     runs-on: ubuntu-22.04
+    #permissions:
+      #actions: read #TODO test this
     outputs:
       version_name: ${{ steps.version_info.outputs.version_name }}
       version_number: ${{ steps.version_info.outputs.version_number }}
