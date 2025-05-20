@@ -19,31 +19,31 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get latest pre-release name
-        id: get_latest_prerelease
+      - name: Get latest draft release name
+        id: get_latest_draft
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           latest_release=$(gh release list --json name,tagName,isDraft,isPrerelease -L 1)
-          is_latest_prerelease=$(jq -r '.[0].isPrerelease' <<< $latest_release)
-          echo "is_latest_prerelease=$is_latest_prerelease" >> $GITHUB_OUTPUT
+          is_latest_draft=$(jq -r '.[0].isDraft' <<< $latest_release)
+          echo "is_latest_draft=$is_latest_draft" >> $GITHUB_OUTPUT
 
-          if [ "$is_latest_prerelease" != "true" ]; then
+          if [ "$is_latest_draft" != "true" ]; then
               echo "No pre-release found"
               exit 0
           fi
 
-          latest_prerelease_version=$(jq -r '.[0].tagName' <<< $latest_release)
-          echo "latest_prerelease_version=$latest_prerelease_version" >> $GITHUB_OUTPUT
+          latest_draft_version=$(jq -r '.[0].tagName' <<< $latest_release)
+          echo "latest_draft_version=$latest_draft_version" >> $GITHUB_OUTPUT
 
       - name: Log in to Azure
-        if: steps.get_latest_prerelease.outputs.is_latest_prerelease == 'true'
+        if: steps.get_latest_draft.outputs.is_latest_draft == 'true'
         uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
       - name: Download Fastlane credentials
-        if: steps.get_latest_prerelease.outputs.is_latest_prerelease == 'true'
+        if: steps.get_latest_draft.outputs.is_latest_draft == 'true'
         env:
           ACCOUNT_NAME: bitwardenci
           CONTAINER_NAME: mobile
@@ -54,7 +54,7 @@ jobs:
             --file $HOME/secrets/$FILE --output none
 
       - name: Check released version
-        if: steps.get_latest_prerelease.outputs.is_latest_prerelease == 'true'
+        if: steps.get_latest_draft.outputs.is_latest_draft == 'true'
         id: appstore_version
         run: |
           appstore_version=$(fastlane get_latest_version \
@@ -64,17 +64,17 @@ jobs:
           echo "appstore_version=$appstore_version" >> $GITHUB_OUTPUT
 
       - name: Check if version is already released
-        if: steps.get_latest_prerelease.outputs.is_latest_prerelease == 'true'
+        if: steps.get_latest_draft.outputs.is_latest_draft == 'true'
         id: check_version
         run: |
-          latest_prerelease_version=${{ steps.get_latest_prerelease.outputs.latest_prerelease_version }}
+          latest_draft_version=${{ steps.get_latest_draft.outputs.latest_draft_version }}
           appstore_version=${{ steps.appstore_version.outputs.appstore_version }}
 
-          if [ "$latest_prerelease_version" == "$appstore_version" ]; then
-              echo "Version $latest_prerelease_version is already released on App Store"
+          if [ "$latest_draft_version" == "$appstore_version" ]; then
+              echo "Version $latest_draft_version is already released on App Store"
               echo "version_released=true" >> $GITHUB_OUTPUT
           else
-              echo "Version $latest_prerelease_version is not released on App Store"
+              echo "Version $latest_draft_version is not released on App Store"
               echo "version_released=false" >> $GITHUB_OUTPUT
           fi
 
@@ -82,6 +82,6 @@ jobs:
         if: steps.check_version.outputs.version_released == 'true'
         id: make_release
         env:
-          TAG: ${{ steps.get_latest_prerelease.outputs.latest_prerelease_version }}
+          TAG: ${{ steps.get_latest_draft.outputs.latest_draft_version }}
           GH_TOKEN: ${{ github.token }}
         run: gh release edit $TAG --prerelease=false --latest
