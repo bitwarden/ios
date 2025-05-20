@@ -100,10 +100,12 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
             case let .sendListItemPressed(item):
                 switch item.itemType {
                 case let .send(sendView):
-                    coordinator.navigate(to: .editItem(sendView), context: self)
+                    coordinator.navigate(to: .viewItem(sendView), context: self)
                 case let .group(type, _):
                     coordinator.navigate(to: .group(type))
                 }
+            case let .viewSend(sendView):
+                coordinator.navigate(to: .viewItem(sendView), context: self)
             }
         case let .toastShown(toast):
             state.toast = toast
