@@ -14,6 +14,12 @@ class ViewSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.displayShareURL, "send.bitwarden.com/39ngaol3")
     }
 
+    /// `displayShareURL` returns `nil` if the share URL is `nil`.
+    func test_displayShareURL_nil() {
+        let subject = ViewSendItemState(sendView: .fixture())
+        XCTAssertNil(subject.displayShareURL)
+    }
+
     /// `navigationTitle` returns the navigation title based on the send's type.
     func test_navigationTitle() {
         let textSubject = ViewSendItemState(sendView: .fixture())

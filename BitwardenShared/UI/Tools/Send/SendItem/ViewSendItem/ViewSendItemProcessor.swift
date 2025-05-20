@@ -98,6 +98,7 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
             state.shareURL = try await services.sendRepository.shareURL(for: state.sendView)
         } catch {
             services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
         }
     }
 }

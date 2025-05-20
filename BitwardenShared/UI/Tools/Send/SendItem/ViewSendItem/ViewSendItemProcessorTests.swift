@@ -104,6 +104,7 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
     func test_perform_loadData_shareURL_error() async {
         sendRepository.shareURLResult = .failure(BitwardenTestError.example)
         await subject.perform(.loadData)
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
