@@ -39,6 +39,8 @@ jobs:
   build:
     name: Build ${{ inputs.bw-env }}
     runs-on: macos-15
+    permissions:
+      contents: read
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin

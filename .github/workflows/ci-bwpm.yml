@@ -40,6 +40,9 @@ on:
           description: "Xcode Version Override - e.g. '15.2'"
           type: string
 
+permissions:
+  contents: read
+
 jobs:
   version:
     name: Calculate Version Name and Number

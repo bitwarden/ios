@@ -55,6 +55,8 @@ jobs:
   calculate-version:
     name: Calculate Version Name and Number
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     outputs:
       version_name: ${{ steps.calc-version-name.outputs.version_name }}
       version_number: ${{ steps.calc-version-number.outputs.version_number }}
