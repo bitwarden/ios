@@ -66,15 +66,15 @@ jobs:
       - name: Check if version is already released
         if: steps.get_latest_draft.outputs.is_latest_draft == 'true'
         id: check_version
+        env:
+            LATEST_DRAFT_VERSION: ${{ steps.get_latest_draft.outputs.latest_draft_version }}
+            APPSTORE_VERSION: ${{ steps.appstore_version.outputs.appstore_version }}
         run: |
-          latest_draft_version=${{ steps.get_latest_draft.outputs.latest_draft_version }}
-          appstore_version=${{ steps.appstore_version.outputs.appstore_version }}
-
-          if [ "$latest_draft_version" == "$appstore_version" ]; then
-              echo "Version $latest_draft_version is already released on App Store"
+          if [ "$LATEST_DRAFT_VERSION" == "$APPSTORE_VERSION" ]; then
+              echo "Version $LATEST_DRAFT_VERSION is already released on App Store"
               echo "version_released=true" >> $GITHUB_OUTPUT
           else
-              echo "Version $latest_draft_version is not released on App Store"
+              echo "Version $LATEST_DRAFT_VERSION is not released on App Store"
               echo "version_released=false" >> $GITHUB_OUTPUT
           fi
 
