@@ -77,7 +77,7 @@ public enum SettingsRoute: Equatable, Hashable {
     case selectLanguage(currentLanguage: LanguageOption)
 
     /// A route to the settings screen.
-    case settings
+    case settings(SettingsPresentationMode)
 
     /// A route to the share sheet to share a URL.
     case shareURL(URL)

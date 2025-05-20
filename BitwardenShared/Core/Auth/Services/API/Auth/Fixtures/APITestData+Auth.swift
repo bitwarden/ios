@@ -23,4 +23,7 @@ extension APITestData {
     static let identityTokenTwoFactorError = loadFromJsonBundle(resource: "IdentityTokenTwoFactorFailure")
     static let preValidateSingleSignOn = loadFromJsonBundle(resource: "preValidateSingleSignOn")
     static let identityTokenNewDeviceError = loadFromJsonBundle(resource: "IdentityTokenNewDeviceError")
+    static let identityTokenEncryptionKeyMigrationError = loadFromJsonBundle(
+        resource: "IdentityTokenEncryptionKeyMigrationError"
+    )
 }

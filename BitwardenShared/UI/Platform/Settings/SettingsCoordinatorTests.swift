@@ -1,3 +1,4 @@
+import BitwardenKitMocks
 import SwiftUI
 import XCTest
 
@@ -142,9 +143,10 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_navigateTo_deleteAccount() throws {
         subject.navigate(to: .deleteAccount)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<DeleteAccountView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is DeleteAccountView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.didDeleteAccount(otherAccounts:)` calls the delegate method
@@ -178,9 +180,8 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<EnableFlightRecorderView>)
+        XCTAssertTrue(action.view is EnableFlightRecorderView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.exportVault` presents the export vault to file view when
@@ -195,12 +196,13 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await waitForAsync { [weak self] in
             guard let self else { return true }
-            return stackNavigator.actions.last?.view is UINavigationController
+            return stackNavigator.actions.last?.view is ExportVaultView
         }
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is ExportVaultView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.exportVault` presents the export settings view when
@@ -228,12 +230,13 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         try await waitForAsync { [weak self] in
             guard let self else { return true }
-            return stackNavigator.actions.last?.view is UINavigationController
+            return stackNavigator.actions.last?.view is ExportVaultView
         }
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is ExportVaultView)
+        XCTAssertEqual(action.embedInNavigationController, true)
 
         #endif
     }
@@ -243,9 +246,10 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_navigateTo_exportVaultToFile() throws {
         subject.navigate(to: .exportVaultToFile)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ExportVaultView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is ExportVaultView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.exportVaultToApp` presents the export vault
@@ -279,9 +283,8 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<FlightRecorderLogsView>)
+        XCTAssertTrue(action.view is FlightRecorderLogsView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.lockVault` navigates the user to the login view.
@@ -378,9 +381,10 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_navigateTo_pendingLoginRequests() throws {
         subject.navigate(to: .pendingLoginRequests)
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<PendingRequestsView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is PendingRequestsView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.selectLanguage()` presents the select language view.
@@ -388,15 +392,16 @@ class SettingsCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_navigateTo_selectLanguage() throws {
         subject.navigate(to: .selectLanguage(currentLanguage: .default))
 
-        let navigationController = try XCTUnwrap(stackNavigator.actions.last?.view as? UINavigationController)
-        XCTAssertTrue(stackNavigator.actions.last?.view is UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<SelectLanguageView>)
+        let action = try XCTUnwrap(stackNavigator.actions.last)
+        XCTAssertEqual(action.type, .presented)
+        XCTAssertTrue(action.view is SelectLanguageView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `navigate(to:)` with `.settings` pushes the settings view onto the stack navigator.
     @MainActor
     func test_navigateTo_settings() throws {
-        subject.navigate(to: .settings)
+        subject.navigate(to: .settings(.tab))
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .replaced)

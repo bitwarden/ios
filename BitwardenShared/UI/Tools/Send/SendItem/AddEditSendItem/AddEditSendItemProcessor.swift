@@ -165,6 +165,12 @@ class AddEditSendItemProcessor:
         if state.maximumAccessCount != 0 {
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
         }
+
+        do {
+            state.hasPremium = try await services.sendRepository.doesActiveAccountHavePremium()
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// A method to respond to a `ProfileSwitcherAction`

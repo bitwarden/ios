@@ -10,7 +10,7 @@ import OSLog
 /// A protocol for a service which can temporarily be enabled to collect logs for debugging to a
 /// local file.
 ///
-protocol FlightRecorder: Sendable {
+protocol FlightRecorder: Sendable, BitwardenLogger {
     /// A publisher which publishes the active log of the flight recorder.
     ///
     /// - Returns: A publisher for the active log of the flight recorder.
@@ -69,6 +69,12 @@ protocol FlightRecorder: Sendable {
 extension FlightRecorder {
     func log(_ message: String, file: String = #file, line: UInt = #line) async {
         await log(message, file: file, line: line)
+    }
+
+    nonisolated func log(_ message: String, file: String, line: UInt) {
+        Task {
+            await log(message, file: file, line: line)
+        }
     }
 }
 
@@ -446,15 +452,5 @@ extension DefaultFlightRecorder: FlightRecorder {
         guard var data = await getFlightRecorderData(), data.activeLog != nil else { return }
         data.activeLog?.bannerDismissedByUserIds.append(userId)
         await setFlightRecorderData(data)
-    }
-}
-
-// MARK: DefaultFlightRecorder + BitwardenLogger
-
-extension DefaultFlightRecorder: BitwardenLogger {
-    nonisolated func log(_ message: String, file: String, line: UInt) {
-        Task {
-            await log(message, file: file, line: line)
-        }
     }
 }

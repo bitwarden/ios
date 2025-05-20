@@ -1,3 +1,4 @@
+import BitwardenKit
 import SwiftUI
 
 // MARK: - FlightRecorderLogsView
@@ -46,13 +47,12 @@ struct FlightRecorderLogsView: View {
         if !store.state.logs.isEmpty {
             logsList
         } else {
-            EmptyContentView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.secureDevices.swiftUIImage,
-                text: Localizations.noLogsRecorded,
-                buttonContent: {
-                    EmptyView()
-                }
+                style: .mediumImage,
+                message: Localizations.noLogsRecorded
             )
+            .scrollView(centerContentVertically: true)
         }
     }
 

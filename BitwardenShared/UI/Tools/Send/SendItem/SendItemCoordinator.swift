@@ -71,21 +71,23 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SendItemRoute, context: AnyObject?) {
         switch route {
-        case let .add(content, hasPremium):
-            showAddItem(content: content, hasPremium: hasPremium)
+        case let .add(content):
+            showAddItem(content: content)
         case .cancel:
             delegate?.sendItemCancelled()
         case .deleted:
             delegate?.sendItemDeleted()
         case let .complete(sendView):
             delegate?.sendItemCompleted(with: sendView)
-        case let .edit(sendView, hasPremium):
-            showEditItem(for: sendView, hasPremium: hasPremium)
+        case let .edit(sendView):
+            showEditItem(for: sendView)
         case let .fileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
             showFileSelection(route: route, delegate: delegate)
         case let .share(url):
             showShareSheet(for: [url])
+        case let .view(sendView):
+            showViewItem(for: sendView)
         }
     }
 
@@ -95,14 +97,10 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the add item screen.
     ///
-    /// - Parameters:
-    ///   - content: Optional content to pre-fill the add item screen.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter content: Optional content to pre-fill the add item screen.
     ///
-    private func showAddItem(content: AddSendContentType?, hasPremium: Bool) {
-        var state = AddEditSendItemState(
-            hasPremium: hasPremium
-        )
+    private func showAddItem(content: AddSendContentType?) {
+        var state = AddEditSendItemState()
         switch content {
         case let .file(fileName, fileData):
             state.fileName = fileName
@@ -130,15 +128,10 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the edit item screen.
     ///
-    /// - Parameters:
-    ///   - sendView: The send to edit.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter sendView: The send to edit.
     ///
-    private func showEditItem(for sendView: SendView, hasPremium: Bool) {
-        let state = AddEditSendItemState(
-            sendView: sendView,
-            hasPremium: hasPremium
-        )
+    private func showEditItem(for sendView: SendView) {
+        let state = AddEditSendItemState(sendView: sendView)
         let processor = AddEditSendItemProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
@@ -178,6 +171,20 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
             applicationActivities: nil
         )
         stackNavigator?.present(viewController)
+    }
+
+    /// Shows the view item screen.
+    ///
+    /// - Parameter sendView: The send to view.
+    ///
+    private func showViewItem(for sendView: SendView) {
+        let state = ViewSendItemState(sendView: sendView)
+        let processor = ViewSendItemProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: state
+        )
+        stackNavigator?.replace(ViewSendItemView(store: Store(processor: processor)))
     }
 }
 

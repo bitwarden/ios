@@ -15,6 +15,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         & ExtensionSetupModule
         & FileSelectionModule
         & LoginRequestModule
+        & NavigatorBuilderModule
         & SendItemModule
         & TabModule
         & VaultModule
@@ -172,7 +173,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             coordinator.navigate(to: authRoute)
         } else {
             guard let rootNavigator else { return }
-            let navigationController = UINavigationController()
+            let navigationController = module.makeNavigationController()
             let coordinator = module.makeAuthCoordinator(
                 delegate: self,
                 rootNavigator: rootNavigator,
@@ -193,7 +194,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         if let coordinator = childCoordinator as? AnyCoordinator<ExtensionSetupRoute, Void> {
             coordinator.navigate(to: route)
         } else {
-            let stackNavigator = UINavigationController()
+            let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeExtensionSetupCoordinator(
                 stackNavigator: stackNavigator
             )
@@ -212,7 +213,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         if let coordinator = childCoordinator as? AnyCoordinator<SendItemRoute, Void> {
             coordinator.navigate(to: route)
         } else {
-            let stackNavigator = UINavigationController()
+            let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeSendItemCoordinator(
                 delegate: self,
                 stackNavigator: stackNavigator
@@ -260,7 +261,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             guard !(currentView is UIHostingController<LoginRequestView>) else { return }
 
             // Create the login request view.
-            let navigationController = UINavigationController()
+            let navigationController = self.module.makeNavigationController()
             let coordinator = self.module.makeLoginRequestCoordinator(stackNavigator: navigationController)
             coordinator.start()
             coordinator.navigate(to: .loginRequest(loginRequest), context: self)
@@ -292,7 +293,7 @@ class AppCoordinator: Coordinator, HasRootNavigator {
         if let coordinator = childCoordinator as? AnyCoordinator<VaultRoute, AuthAction> {
             coordinator.navigate(to: route)
         } else {
-            let stackNavigator = UINavigationController()
+            let stackNavigator = module.makeNavigationController()
             let coordinator = module.makeVaultCoordinator(
                 delegate: self,
                 stackNavigator: stackNavigator

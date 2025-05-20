@@ -73,7 +73,7 @@ struct AboutView: View {
                     accessibilityIdentifier: "FlightRecorderSwitch"
                 )
 
-                SettingsListItem(Localizations.viewRecordedLogs, hasDivider: false) {
+                SettingsListItem(Localizations.viewRecordedLogs) {
                     store.send(.viewFlightRecorderLogsTapped)
                 }
             }
@@ -91,7 +91,7 @@ struct AboutView: View {
 
             externalLinkRow(Localizations.learnOrg, action: .learnAboutOrganizationsTapped)
 
-            SettingsListItem(store.state.version, hasDivider: false) {
+            SettingsListItem(store.state.version) {
                 store.send(.versionTapped)
             } trailingContent: {
                 Asset.Images.copy24.swiftUIImage
@@ -122,7 +122,7 @@ struct AboutView: View {
     /// - Returns: A `SettingsListItem` configured for an external web link.
     ///
     private func externalLinkRow(_ name: String, action: AboutAction) -> some View {
-        SettingsListItem(name, hasDivider: false) {
+        SettingsListItem(name) {
             store.send(action)
         } trailingContent: {
             Asset.Images.externalLink24.swiftUIImage

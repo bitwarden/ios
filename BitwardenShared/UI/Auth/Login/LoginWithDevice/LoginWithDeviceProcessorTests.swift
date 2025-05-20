@@ -268,4 +268,24 @@ class LoginWithDeviceProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(errorReporter.errors as? [IdentityTokenRequestError], [.newDeviceNotVerified])
     }
+
+    /// `checkForResponse()` records an error when result fails with encryptionKeyMigrationRequired error
+    @MainActor
+    func test_checkForResponse_errorEncryptionKeyMigrationRequired() throws {
+        let approvedLoginRequest = LoginRequest.fixture(requestApproved: true, responseDate: .now)
+        authService.initiateLoginWithDeviceResult = .success((.fixture(fingerprint: "fingerprint"), "id"))
+        authService.checkPendingLoginRequestResult = .success(approvedLoginRequest)
+        authService.loginWithDeviceResult = .failure(
+            IdentityTokenRequestError.encryptionKeyMigrationRequired
+        )
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(!errorReporter.errors.isEmpty)
+        task.cancel()
+
+        XCTAssertEqual(errorReporter.errors as? [IdentityTokenRequestError], [.encryptionKeyMigrationRequired])
+    }
 }

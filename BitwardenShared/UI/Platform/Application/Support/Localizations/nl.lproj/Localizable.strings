@@ -1164,7 +1164,7 @@
 "ViewRecordedLogs" = "Logopnames bekijken";
 "RecordedLogs" = "Logopnames";
 "NoLogsRecorded" = "Geen logs opgenomen";
-"ExpiresAtXTime" = "Verloopt op %1$@";
+"ExpiresAtXTime" = "Verloopt om %1$@";
 "ExpiresOnXDate" = "Verloopt op %1$@";
 "ExpiresTomorrow" = "Verloopt morgen";
 "DateRangeXToY" = "%1$@ tot %2$@";
@@ -1172,5 +1172,15 @@
 "AllowUniversalClipboard" = "Universeel klembord toestaan";
 "UseUniversalClipboardToCopyDescriptionLong" = "Gebruik Universeel Klembord om hier te kopiëren en te plakken op andere apparaten die zijn ingelogd met hetzelfde Apple-ID.";
 "YourPINMustBeAtLeastXCharactersDescriptionLong" = "Je PINmoet tenminste %1$@ tekens bevatten. Je PIN-instellingen worden gereset als je je ooit volledig uitlogt.";
+"RemoveMasterPasswordMessage" = "%1$@ gebruikt SSO met een zelf-gehoste sleutelserver. Leden van deze organisatie kunnen zonder hoofdwachtwoord inloggen.";
+"RemoveMasterPasswordConfirmDomain" = "Voor leden van de volgende organisatie is een hoofdwachtwoord niet langer nodig. Bevestig het domein hieronder met de beheerder van je organisatie.";
+"ConfirmKeyConnectorDomain" = "Key Connector-domein bevestigen";
+"KeyConnectorDomain" = "Key Connector-domein:";
+"KeyConnectorOrganization" = "Organisatie:";
+"KeyConnectorConfirmDomainWithAdmin" = "Bevestig het onderstaande domein met je organisatiebeheerder.\n\nKey Connector domein:\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "Weet je zeker dat je dit log wilt verwijderen?";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Weet je zeker dat je alle logs wilt verwijderen?";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Dit account wordt binnenkort verwijderd. Log in op %1$@ om Bitwarden te blijven gebruiken.";
+"AppSettings" = "App-instellingen";
+"ViewFileSend" = "Send (bestand) bekijken";
+"ViewTextSend" = "Send (tekst) bekijken";
