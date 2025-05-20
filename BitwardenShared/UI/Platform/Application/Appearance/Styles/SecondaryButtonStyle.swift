@@ -75,7 +75,7 @@ struct SecondaryButtonStyle: ButtonStyle {
 extension ButtonStyle where Self == SecondaryButtonStyle {
     /// The style for all secondary buttons in this application.
     ///
-    /// - Parameters
+    /// - Parameters:
     ///   - isDestructive: Whether the button is destructive.
     ///   - isReversed: Whether the button's colors are reversed.
     ///   - shouldFillWidth: A flag indicating if this button should fill all available space.
@@ -97,7 +97,7 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
 }
 
 #if DEBUG
-#Preview {
+#Preview("States") {
     VStack {
         Group {
             Button("Hello World!") {}
@@ -118,5 +118,19 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
     }
     .padding()
     .background(Asset.Colors.backgroundAlert.swiftUIColor)
+}
+
+#Preview("Sizes") {
+    VStack {
+        Button("Small") {}
+            .buttonStyle(.secondary(size: .small))
+
+        Button("Medium") {}
+            .buttonStyle(.secondary(size: .medium))
+
+        Button("Large") {}
+            .buttonStyle(.secondary(size: .large))
+    }
+    .padding()
 }
 #endif

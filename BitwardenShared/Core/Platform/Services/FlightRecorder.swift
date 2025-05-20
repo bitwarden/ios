@@ -161,7 +161,7 @@ actor DefaultFlightRecorder {
 
         if !disableLogLifecycleTimerForTesting {
             Task {
-                await dataSubject.send(stateService.getFlightRecorderData())
+                _ = await getFlightRecorderData() // Load the flight recorder data to the subject.
                 await self.configureLogLifecycleTimer()
             }
         }
@@ -434,11 +434,17 @@ extension DefaultFlightRecorder: FlightRecorder {
     }
 
     func log(_ message: String, file: String, line: UInt) async {
-        guard let log = await getFlightRecorderData()?.activeLog else { return }
+        guard var data = await getFlightRecorderData(), let log = data.activeLog else { return }
         do {
             let timestampedMessage = "\(dateFormatter.string(from: timeProvider.presentTime)): \(message)\n"
             try await append(message: timestampedMessage, to: log)
         } catch {
+            // If there's an error writing to the file, disable the flight recorder. This prevents
+            // an infinite loop by logging an error to the error reporter which then tries again to
+            // log to the flight recorder, and so on.
+            data.activeLog = nil
+            await setFlightRecorderData(data)
+
             let fileName = URL(fileURLWithPath: file).lastPathComponent
             errorReporter.log(error: BitwardenError.generalError(
                 type: "Flight Recorder Log Error",

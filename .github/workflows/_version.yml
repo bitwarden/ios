@@ -27,6 +27,8 @@ jobs:
   calculate-version:
     name: Calculate Version Name and Number
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
     steps:
       - name: Log inputs to job summary
         run: |

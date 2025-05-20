@@ -476,14 +476,14 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertEqual(coordinator.routes.last, .editItem(sendView))
     }
 
-    /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the edit send route.
+    /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the view send route.
     @MainActor
     func test_receive_sendListItemRow_sendListItemPressed_withSendView() {
         let sendView = SendView.fixture()
         let item = SendListItem(sendView: sendView)!
         subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
-        XCTAssertEqual(coordinator.routes.last, .editItem(sendView))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(sendView))
     }
 
     /// `receive(_:)` with `.sendListItemRow(.sendListItemPressed())` navigates to the group send route.
@@ -493,6 +493,15 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         subject.receive(.sendListItemRow(.sendListItemPressed(item)))
 
         XCTAssertEqual(coordinator.routes.last, .group(.file))
+    }
+
+    /// `receive(_:)` with `.sendListItemRow(.viewSend())` navigates to the view send route.
+    @MainActor
+    func test_receive_sendListItemRow_viewSend() {
+        let sendView = SendView.fixture()
+        subject.receive(.sendListItemRow(.viewSend(sendView)))
+
+        XCTAssertEqual(coordinator.routes.last, .viewItem(sendView))
     }
 
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.

@@ -13,7 +13,7 @@ enum ButtonStyleSize {
     var fontStyle: StyleGuideFont {
         switch self {
         case .small: .subheadlineSemibold
-        case .medium: .calloutBold
+        case .medium: .calloutSemibold
         case .large: .bodyBold
         }
     }
