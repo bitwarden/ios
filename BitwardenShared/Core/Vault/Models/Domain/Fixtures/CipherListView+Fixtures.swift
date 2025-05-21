@@ -51,7 +51,7 @@ extension CipherListView {
         collectionIds: [String] = [],
         key: String? = nil,
         login: LoginListView,
-        name: String = "Example",
+        name: String = "Bitwarden",
         subtitle: String = "",
         favorite: Bool = false,
         reprompt: BitwardenSdk.CipherRepromptType = .none,
