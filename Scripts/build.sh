@@ -63,8 +63,7 @@ case "$MODE" in
       -scheme "${BUILD_SCHEME}" \
       -configuration Debug \
       -destination "generic/platform=iOS Simulator" \
-      -derivedDataPath "${DERIVED_DATA_PATH}" \
-      | xcbeautify --renderer github-actions
+      -derivedDataPath "${DERIVED_DATA_PATH}"
     ;;
   "Device")
     echo "📦 Performing Xcode archive"
@@ -73,15 +72,13 @@ case "$MODE" in
       -scheme "${BUILD_SCHEME}" \
       -configuration Release \
       -archivePath "${ARCHIVE_PATH}" \
-      -derivedDataPath "${DERIVED_DATA_PATH}" \
-      | xcbeautify --renderer github-actions
+      -derivedDataPath "${DERIVED_DATA_PATH}"
 
     echo "🚚 Performing Xcode archive export"
     xcrun xcodebuild -exportArchive \
       -archivePath "${ARCHIVE_PATH}" \
       -exportPath "${EXPORT_PATH}" \
-      -exportOptionsPlist "Configs/export_options.plist" \
-      | xcbeautify --renderer github-actions
+      -exportOptionsPlist "Configs/export_options.plist"
     ;;
   *)
     echo >&2 "Invalid build mode: ${bold}${MODE}${normal}"
