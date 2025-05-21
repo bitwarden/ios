@@ -57,7 +57,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
         XCTAssertNotNil(
             VaultListItem(
-                cipherListView: .fixture(id: ":)", type: .login(.fixture())),
+                cipherListView: .fixture(id: ":)", login: .fixture()),
                 fido2CredentialAutofillView: .fixture()
             )
         )
@@ -126,12 +126,12 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             Asset.Images.idCard24.name
         )
         XCTAssertEqual(
-            VaultListItem(cipherListView: .fixture(type: .login(.fixture())))?.icon.name,
+            VaultListItem(cipherListView: .fixture(login: .fixture()))?.icon.name,
             Asset.Images.globe24.name
         )
         XCTAssertEqual(
             VaultListItem(
-                cipherListView: .fixture(type: .login(.fixture())),
+                cipherListView: .fixture(login: .fixture()),
                 fido2CredentialAutofillView: .fixture()
             )?.icon.name,
             Asset.Images.passkey24.name
@@ -203,12 +203,12 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             "IdentityCipherIcon"
         )
         XCTAssertEqual(
-            VaultListItem(cipherListView: .fixture(type: .login(.fixture())))?.iconAccessibilityId,
+            VaultListItem(cipherListView: .fixture(login: .fixture()))?.iconAccessibilityId,
             "LoginCipherIcon"
         )
         XCTAssertEqual(
             VaultListItem(
-                cipherListView: .fixture(type: .login(.fixture())),
+                cipherListView: .fixture(login: .fixture()),
                 fido2CredentialAutofillView: .fixture()
             )?.iconAccessibilityId,
             "LoginCipherIcon"
@@ -236,7 +236,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `getter:vaultItemAccessibilityId` gets the appropriate id for each vault item.
     func test_vaultItemAccessibilityId() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
-            VaultListItem(cipherListView: .fixture(type: .login(.fixture())))?.vaultItemAccessibilityId,
+            VaultListItem(cipherListView: .fixture(login: .fixture()))?.vaultItemAccessibilityId,
             "CipherCell"
         )
         XCTAssertEqual(

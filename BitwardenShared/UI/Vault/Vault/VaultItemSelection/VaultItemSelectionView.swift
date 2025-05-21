@@ -278,13 +278,13 @@ private struct VaultItemSelectionSearchableView: View {
         let ciphers: [CipherListView] = [
             .fixture(
                 id: "1",
-                name: "Apple",
-                type: .login(.fixture(username: "user@bitwarden.com"))
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Apple"
             ),
             .fixture(
                 id: "2",
-                name: "Bitwarden",
-                type: .login(.fixture(username: "user@bitwarden.com"))
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Bitwarden"
             ),
             .fixture(
                 id: "3",
@@ -292,13 +292,13 @@ private struct VaultItemSelectionSearchableView: View {
             ),
             .fixture(
                 id: "4",
-                name: "Apple",
-                type: .login(.fixture(username: "user@bitwarden.com"))
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Apple"
             ),
             .fixture(
                 id: "5",
-                name: "Bitwarden",
-                type: .login(.fixture(username: "user@bitwarden.com"))
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Bitwarden"
             ),
             .fixture(
                 id: "6",
@@ -306,13 +306,13 @@ private struct VaultItemSelectionSearchableView: View {
             ),
             .fixture(
                 id: "7",
-                name: "Apple",
-                type: .login(.fixture(username: "user@bitwarden.com"))
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Apple"
             ),
             .fixture(
                 id: "8",
-                name: "Bitwarden",
-                type: .login(.fixture(username: "user@bitwarden.com"))
+                login: .fixture(username: "user@bitwarden.com"),
+                name: "Bitwarden"
             ),
             .fixture(
                 id: "9",

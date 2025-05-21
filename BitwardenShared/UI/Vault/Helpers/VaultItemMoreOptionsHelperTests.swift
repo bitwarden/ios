@@ -532,7 +532,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.userHasMasterPassword = [account.profile.userId: true]
 
         vaultRepository.fetchCipherResult = .success(.fixture(type: .login))
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(type: .login(.fixture()))))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(login: .fixture())))
 
         // If the login item has no username, password, or url, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.loginFixture())

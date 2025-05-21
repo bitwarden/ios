@@ -131,13 +131,10 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
-        guard errorReporter.errors.count == 1 else {
-            XCTFail("No errors reported.")
-            return
-        }
-        let nsError = errorReporter.errors[0] as NSError
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let nsError = errorReporter.errors.first as? NSError
         XCTAssertEqual(
-            nsError.userInfo["ErrorMessage"] as? String,
+            nsError?.userInfo["ErrorMessage"] as? String,
             "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired."
         )
     }

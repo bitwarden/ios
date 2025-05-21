@@ -147,7 +147,7 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
         let task = Task {
             try await subject.handleCipherForAutofill(
                 cipherListView: CipherListView.fixture(
-                    type: .login(.fixture(totp: "123456"))
+                    login: .fixture(totp: "123456")
                 )
             )
         }
@@ -189,7 +189,7 @@ class TextAutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this typ
         let task = Task {
             try await subject.handleCipherForAutofill(
                 cipherListView: CipherListView.fixture(
-                    type: .login(.fixture(totp: "123456"))
+                    login: .fixture(totp: "123456")
                 )
             )
         }

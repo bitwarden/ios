@@ -199,8 +199,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                         VaultListItem(
                             cipherListView: .fixture(
                                 id: "2",
+                                login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                                 name: "Example",
-                                type: .login(.fixture(uris: [.fixture(uri: "https://example.com", match: .exact)])),
                                 creationDate: Date(year: 2024, month: 1, day: 1),
                                 revisionDate: Date(year: 2024, month: 1, day: 1)
                             )
@@ -401,8 +401,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     VaultListItem(
                         cipherListView: .fixture(
                             id: "2",
+                            login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
-                            type: .login(.fixture(uris: [.fixture(uri: "https://example.com", match: .exact)])),
                             creationDate: Date(year: 2024, month: 1, day: 1),
                             revisionDate: Date(year: 2024, month: 1, day: 1)
                         )
@@ -489,8 +489,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     VaultListItem(
                         cipherListView: .fixture(
                             id: "2",
+                            login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
-                            type: .login(.fixture(uris: [.fixture(uri: "https://example.com", match: .exact)])),
                             creationDate: Date(year: 2024, month: 1, day: 1),
                             revisionDate: Date(year: 2024, month: 1, day: 1)
                         )
@@ -575,8 +575,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     VaultListItem(
                         cipherListView: .fixture(
                             id: "2",
+                            login: .fixture(uris: [.fixture(uri: "https://example.com", match: .exact)]),
                             name: "Example",
-                            type: .login(.fixture(uris: [.fixture(uri: "https://example.com", match: .exact)])),
                             creationDate: Date(year: 2024, month: 1, day: 1),
                             revisionDate: Date(year: 2024, month: 1, day: 1)
                         )

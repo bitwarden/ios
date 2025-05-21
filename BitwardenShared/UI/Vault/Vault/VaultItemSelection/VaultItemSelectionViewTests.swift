@@ -98,23 +98,19 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         let ciphers: [CipherListView] = [
             .fixture(
                 id: "1",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
                 name: "Example",
-                subtitle: "user@bitwarden.com",
-                type: .login(
-                    .fixture(
-                        username: "user@bitwarden.com"
-                    )
-                )
+                subtitle: "user@bitwarden.com"
             ),
             .fixture(
                 id: "2",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
                 name: "Example Co",
-                subtitle: "user@bitwarden.com",
-                type: .login(
-                    .fixture(
-                        username: "user@bitwarden.com"
-                    )
-                )
+                subtitle: "user@bitwarden.com"
             ),
         ]
         processor.state.vaultListSections = [
@@ -136,23 +132,19 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
         let ciphers: [CipherListView] = [
             .fixture(
                 id: "1",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
                 name: "Example",
-                subtitle: "user@bitwarden.com",
-                type: .login(
-                    .fixture(
-                        username: "user@bitwarden.com"
-                    )
-                )
+                subtitle: "user@bitwarden.com"
             ),
             .fixture(
                 id: "2",
+                login: .fixture(
+                    username: "user@bitwarden.com"
+                ),
                 name: "Example Co",
-                subtitle: "user@bitwarden.com",
-                type: .login(
-                    .fixture(
-                        username: "user@bitwarden.com"
-                    )
-                )
+                subtitle: "user@bitwarden.com"
             ),
         ]
         processor.state.searchResults = ciphers.compactMap(VaultListItem.init)

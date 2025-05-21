@@ -86,14 +86,14 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(cipherListView: .fixture(
             organizationId: "org",
-            type: .login(.fixture(
+            login: .fixture(
                 uris: [
                     .fixture(
                         uri: "Test",
                         match: nil
                     ),
                 ]
-            ))
+            )
         ))
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -104,14 +104,14 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(
             cipherListView: .fixture(
-                type: .login(.fixture(
+                login: .fixture(
                     uris: [
                         .fixture(
                             uri: "Test",
                             match: nil
                         ),
                     ]
-                ))
+                )
             )
         )
         assertSnapshot(of: subject, as: .fixedSize())
@@ -123,8 +123,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(
             cipherListView: .fixture(
-                subtitle: "username",
-                type: .login(.fixture(
+                login: .fixture(
                     username: "username",
                     uris: [
                         .fixture(
@@ -132,7 +131,8 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                             match: nil
                         ),
                     ]
-                ))
+                ),
+                subtitle: "username"
             )
         )
         assertSnapshot(of: subject, as: .fixedSize())
@@ -144,8 +144,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(
             cipherListView: .fixture(
-                name: "myApp.com",
-                type: .login(.fixture(
+                login: .fixture(
                     fido2Credentials: [
                         .fixture(),
                     ],
@@ -156,7 +155,8 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                             match: nil
                         ),
                     ]
-                ))
+                ),
+                name: "myApp.com"
             ),
             fido2CredentialAutofillView: .fixture(
                 rpId: "myApp.com",
@@ -173,8 +173,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
         processor.state.iconBaseURL = .example
         processor.state.item = .fixture(
             cipherListView: .fixture(
-                name: "MyApp",
-                type: .login(.fixture(
+                login: .fixture(
                     fido2Credentials: [
                         .fixture(),
                     ],
@@ -185,7 +184,8 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                             match: nil
                         ),
                     ]
-                ))
+                ),
+                name: "MyApp"
             ),
             fido2CredentialAutofillView: .fixture(
                 rpId: "myApp.com",

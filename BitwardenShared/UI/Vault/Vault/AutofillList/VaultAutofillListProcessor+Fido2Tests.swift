@@ -555,7 +555,7 @@ class VaultAutofillListProcessorFido2Tests: BitwardenTestCase { // swiftlint:dis
     @MainActor
     func test_perform_vaultItemTapped_fido2PickedForCreationNoFido2Options() async throws {
         let expectedResult = CipherListView.fixture(
-            type: .login(.fixture(fido2Credentials: [.fixture()]))
+            login: .fixture(fido2Credentials: [.fixture()])
         )
         let vaultListItem = VaultListItem(
             cipherListView: expectedResult,

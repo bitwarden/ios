@@ -52,13 +52,7 @@ class VaultListSectionTests: BitwardenTestCase {
             VaultListSection(
                 id: "5",
                 items: [
-                    .fixture(
-                        cipherListView: .fixture(
-                            type: .login(
-                                .fixture()
-                            )
-                        )
-                    ),
+                    .fixture(cipherListView: .fixture(login: .fixture())),
                 ],
                 name: "Items"
             ),

@@ -127,6 +127,48 @@ extension CipherListView {
             revisionDate: revisionDate
         )
     }
+
+    static func fixture(
+        id: Uuid? = "1",
+        organizationId: Uuid? = nil,
+        folderId: Uuid? = nil,
+        collectionIds: [Uuid] = [],
+        key: EncString? = nil,
+        login: LoginListView,
+        name: String = "Bitwarden",
+        subtitle: String = "",
+        favorite: Bool = false,
+        reprompt: BitwardenSdk.CipherRepromptType = .none,
+        organizationUseTotp: Bool = false,
+        edit: Bool = false,
+        permissions: CipherPermissions? = nil,
+        viewPassword: Bool = false,
+        attachments: UInt32 = 0,
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        deletedDate: DateTime? = nil,
+        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+    ) -> CipherListView {
+        .init(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            subtitle: subtitle,
+            type: .login(login),
+            favorite: favorite,
+            reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            permissions: permissions,
+            viewPassword: viewPassword,
+            attachments: attachments,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate
+        )
+    }
 }
 
 extension CipherView {

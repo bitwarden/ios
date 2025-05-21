@@ -269,10 +269,8 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
         let vaultListItem = VaultListItem(
             cipherListView: CipherListView.fixture(
                 id: "1",
-                type: .login(
-                    .fixture(
-                        username: "user@bitwarden.com"
-                    )
+                login: .fixture(
+                    username: "user@bitwarden.com"
                 )
             )
         )!
@@ -287,10 +285,10 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
         let vaultListItem = VaultListItem(
             cipherListView: CipherListView.fixture(
                 id: "1",
-                name: "Test",
-                type: .login(.fixture(
+                login: .fixture(
                     username: "user@bitwarden.com"
-                ))
+                ),
+                name: "Test"
             )
         )!
         textAutofillHelper.handleCipherForAutofillError = BitwardenTestError.example

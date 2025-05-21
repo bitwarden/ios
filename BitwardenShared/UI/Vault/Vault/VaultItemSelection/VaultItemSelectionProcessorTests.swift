@@ -320,7 +320,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_vaultListItemTapped_error() async throws {
         let cipher = CipherListView.fixture(
-            type: .login(.fixture()),
+            login: .fixture(),
             reprompt: BitwardenSdk.CipherRepromptType.password
         )
         let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
@@ -336,7 +336,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_vaultListItemTapped_errorCancellation() async throws {
         let cipher = CipherListView.fixture(
-            type: .login(.fixture()),
+            login: .fixture(),
             reprompt: BitwardenSdk.CipherRepromptType.password
         )
         let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
@@ -376,7 +376,7 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_vaultListItemTapped_masterPasswordRepromptInvalid() async throws {
         let cipher = CipherListView.fixture(
-            type: .login(.fixture()),
+            login: .fixture(),
             reprompt: BitwardenSdk.CipherRepromptType.password
         )
         let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))

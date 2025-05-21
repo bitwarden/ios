@@ -291,8 +291,8 @@ private struct VaultAutofillListSearchableView: View {
                                     .init(
                                         cipherListView: .fixture(
                                             id: String(id),
-                                            name: "Bitwarden",
-                                            type: .login(.fixture())
+                                            login: .fixture(),
+                                            name: "Bitwarden"
                                         )
                                     )!
                                 },
@@ -321,8 +321,8 @@ private struct VaultAutofillListSearchableView: View {
                                     .init(
                                         cipherListView: .fixture(
                                             id: String(id),
-                                            name: "Bitwarden",
-                                            type: .login(.fixture())
+                                            login: .fixture(),
+                                            name: "Bitwarden"
                                         )
                                     )!
                                 },
@@ -350,30 +350,30 @@ private struct VaultAutofillListSearchableView: View {
                                 items: [
                                     .init(cipherListView: .fixture(
                                         id: "1",
-                                        name: "Apple",
-                                        type: .login(.fixture(username: "user@bitwarden.com"))
+                                        login: .fixture(username: "user@bitwarden.com"),
+                                        name: "Apple"
                                     ), fido2CredentialAutofillView: .fixture(
                                         rpId: "apple.com",
                                         userNameForUi: "user"
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "4",
-                                        name: "myApp.com",
-                                        type: .login(.fixture(
+                                        login: .fixture(
                                             fido2Credentials: [.fixture()],
                                             username: "user@bitwarden.com"
-                                        ))
+                                        ),
+                                        name: "myApp.com"
                                     ), fido2CredentialAutofillView: .fixture(
                                         rpId: "myApp.com",
                                         userNameForUi: "user"
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "5",
-                                        name: "Testing something really long to see how it looks",
-                                        type: .login(.fixture(
+                                        login: .fixture(
                                             fido2Credentials: [.fixture()],
                                             username: "user@test.com"
-                                        ))
+                                        ),
+                                        name: "Testing something really long to see how it looks",
                                     ), fido2CredentialAutofillView: .fixture(
                                         rpId: "someApp",
                                         userNameForUi: "user"
@@ -386,17 +386,17 @@ private struct VaultAutofillListSearchableView: View {
                                 items: [
                                     .init(cipherListView: .fixture(
                                         id: "1",
-                                        name: "Apple",
-                                        type: .login(.fixture(
-                                            username: "user@bitwarden.com")
-                                        )
+                                        login: .fixture(
+                                            username: "user@bitwarden.com"
+                                        ),
+                                        name: "Apple"
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "2",
+                                        login: .fixture(
+                                            username: "user@bitwarden.com"
+                                        ),
                                         name: "Bitwarden",
-                                        type: .login(.fixture(
-                                            username: "user@bitwarden.com")
-                                        )
                                     ))!,
                                     .init(cipherListView: .fixture(
                                         id: "3",

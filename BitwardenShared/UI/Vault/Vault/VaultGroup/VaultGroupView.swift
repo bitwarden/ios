@@ -316,17 +316,17 @@ struct VaultGroupView: View {
                                     items: [
                                         .init(cipherListView: .fixture(
                                             id: "1",
-                                            name: "Example",
-                                            type: .login(.fixture(
-                                                username: "email@example.com")
-                                            )
+                                            login: .fixture(
+                                                username: "email@example.com"
+                                            ),
+                                            name: "Example"
                                         ))!,
                                         .init(cipherListView: .fixture(
                                             id: "2",
-                                            name: "Example 2",
-                                            type: .login(.fixture(
-                                                username: "email2@example.com")
-                                            )
+                                            login: .fixture(
+                                                username: "email2@example.com"
+                                            ),
+                                            name: "Example 2"
                                         ))!,
                                     ],
                                     name: "Items"
