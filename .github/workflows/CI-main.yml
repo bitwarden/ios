@@ -24,13 +24,12 @@ env:
 
 permissions:
   contents: read
+  actions: write #required for dispatch-and-download.yml
 
 jobs:
   resolve-values:
     name: "Resolve values"
     runs-on: ubuntu-22.04
-    permissions:
-      actions: write #required for dispatch-and-download.yml
     outputs:
       version_name: ${{ steps.version_info.outputs.version_name }}
       version_number: ${{ steps.version_info.outputs.version_number }}
