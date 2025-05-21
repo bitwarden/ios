@@ -42,7 +42,7 @@ struct PrimaryButtonStyle: ButtonStyle {
             .multilineTextAlignment(.center)
             .styleGuide(size.fontStyle, includeLinePadding: false, includeLineSpacing: false)
             .padding(.vertical, size.verticalPadding)
-            .padding(.horizontal, 20)
+            .padding(.horizontal, size.horizontalPadding)
             .frame(maxWidth: shouldFillWidth ? .infinity : nil, minHeight: size.minimumHeight)
             .background(backgroundColor)
             .clipShape(Capsule())

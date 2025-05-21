@@ -106,6 +106,7 @@ final class TabCoordinator: Coordinator, HasTabNavigator {
             // TODO: BIT-327 Add show generation function for navigation to a generator route
             break
         case let .settings(settingsRoute):
+            settingsCoordinator?.start()
             settingsCoordinator?.navigate(to: settingsRoute, context: context)
         }
     }

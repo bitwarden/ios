@@ -50,6 +50,25 @@ private struct SearchableVaultListView: View {
             ),
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
         )
+        .toastBanner(
+            title: Localizations.flightRecorderOn,
+            subtitle: {
+                guard let log = store.state.activeFlightRecorderLog else { return "" }
+                return Localizations.flightRecorderWillBeActiveUntilDescriptionLong(
+                    log.formattedEndDate,
+                    log.formattedEndTime
+                )
+            }(),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
+            isVisible: store.bindingAsync(
+                get: \.isFlightRecorderToastBannerVisible,
+                perform: { _ in .dismissFlightRecorderToastBanner }
+            )
+        ) {
+            Button(Localizations.goToSettings) {
+                store.send(.navigateToFlightRecorderSettings)
+            }
+        }
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -372,6 +391,9 @@ struct VaultListView: View {
         }
         .task {
             await store.perform(.streamAccountSetupProgress)
+        }
+        .task {
+            await store.perform(.streamFlightRecorderLog)
         }
         .task {
             await store.perform(.streamOrganizations)

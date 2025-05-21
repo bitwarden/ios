@@ -12,6 +12,9 @@ struct SecondaryButtonStyle: ButtonStyle {
     /// Whether the button is destructive.
     var isDestructive = false
 
+    /// Whether the button's colors are reversed.
+    var isReversed = false
+
     /// If this button should fill to take up as much width as possible.
     var shouldFillWidth = true
 
@@ -24,6 +27,8 @@ struct SecondaryButtonStyle: ButtonStyle {
     var borderColor: Color {
         if isDestructive {
             Asset.Colors.error.swiftUIColor
+        } else if isReversed {
+            Asset.Colors.buttonOutlinedBorderReversed.swiftUIColor
         } else {
             isEnabled
                 ? Asset.Colors.buttonOutlinedBorder.swiftUIColor
@@ -36,6 +41,8 @@ struct SecondaryButtonStyle: ButtonStyle {
     var foregroundColor: Color {
         if isDestructive {
             Asset.Colors.error.swiftUIColor
+        } else if isReversed {
+            Asset.Colors.buttonOutlinedForegroundReversed.swiftUIColor
         } else {
             isEnabled
                 ? Asset.Colors.buttonOutlinedForeground.swiftUIColor
@@ -70,16 +77,19 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
     ///
     /// - Parameters:
     ///   - isDestructive: Whether the button is destructive.
+    ///   - isReversed: Whether the button's colors are reversed.
     ///   - shouldFillWidth: A flag indicating if this button should fill all available space.
     ///   - size: The size of the button. Defaults to `large`.
     ///
     static func secondary(
         isDestructive: Bool = false,
+        isReversed: Bool = false,
         shouldFillWidth: Bool = true,
         size: ButtonStyleSize = .large
     ) -> SecondaryButtonStyle {
         SecondaryButtonStyle(
             isDestructive: isDestructive,
+            isReversed: isReversed,
             shouldFillWidth: shouldFillWidth,
             size: size
         )
@@ -101,6 +111,13 @@ extension ButtonStyle where Self == SecondaryButtonStyle {
             .buttonStyle(.secondary(isDestructive: true))
     }
     .padding()
+
+    VStack {
+        Button("Hello World!") {}
+            .buttonStyle(.secondary(isReversed: true))
+    }
+    .padding()
+    .background(Asset.Colors.backgroundAlert.swiftUIColor)
 }
 
 #Preview("Sizes") {

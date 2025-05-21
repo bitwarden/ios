@@ -19,6 +19,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
+    var flightRecorder: MockFlightRecorder!
     var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
@@ -44,6 +45,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        flightRecorder = MockFlightRecorder()
         notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
@@ -58,6 +60,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
             authService: authService,
             configService: configService,
             errorReporter: errorReporter,
+            flightRecorder: flightRecorder,
             notificationService: notificationService,
             pasteboardService: pasteboardService,
             policyService: policyService,
@@ -83,6 +86,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         configService = nil
         coordinator = nil
         errorReporter = nil
+        flightRecorder = nil
         pasteboardService = nil
         policyService = nil
         reviewPromptService = nil
@@ -420,6 +424,30 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
+    /// `perform(_:)` with `.dismissFlightRecorderToastBanner` hides the flight recorder toast banner.
+    @MainActor
+    func test_perform_dismissFlightRecorderToastBanner() async {
+        stateService.activeAccount = .fixture()
+        subject.state.isFlightRecorderToastBannerVisible = true
+
+        await subject.perform(.dismissFlightRecorderToastBanner)
+
+        XCTAssertFalse(subject.state.isFlightRecorderToastBannerVisible)
+        XCTAssertEqual(flightRecorder.setFlightRecorderBannerDismissedUserIds, ["1"])
+    }
+
+    /// `perform(_:)` with `.dismissFlightRecorderToastBanner` logs an error if one occurs.
+    @MainActor
+    func test_perform_dismissFlightRecorderToastBanner_error() async {
+        subject.state.isFlightRecorderToastBannerVisible = true
+
+        await subject.perform(.dismissFlightRecorderToastBanner)
+
+        XCTAssertFalse(subject.state.isFlightRecorderToastBannerVisible)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedUserIds.isEmpty)
+    }
+
     /// `perform(_:)` with `.dismissImportLoginsActionCard` sets the user's import logins setup
     /// progress to complete.
     @MainActor
@@ -744,6 +772,52 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.streamAccountSetupProgress)
 
         XCTAssertNil(subject.state.importLoginsSetupProgress)
+    }
+
+    /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log and displays
+    /// the flight recorder banner if the user hasn't dismissed it previously.
+    @MainActor
+    func test_perform_streamFlightRecorderLog() async throws {
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamFlightRecorderLog)
+        }
+        defer { task.cancel() }
+
+        flightRecorder.activeLogSubject.send(FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now))
+        try await waitForAsync { self.subject.state.isFlightRecorderToastBannerVisible }
+        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, true)
+
+        flightRecorder.activeLogSubject.send(nil)
+        try await waitForAsync { !self.subject.state.isFlightRecorderToastBannerVisible }
+        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
+    }
+
+    /// `perform(_:)` with `.streamFlightRecorderLog` logs an error if one occurs.
+    @MainActor
+    func test_perform_streamFlightRecorderLog_error() async throws {
+        await subject.perform(.streamFlightRecorderLog)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
+    /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log but doesn't
+    /// display the flight recorder banner if the user has dismissed it previously.
+    @MainActor
+    func test_perform_streamFlightRecorderLog_userDismissed() async throws {
+        stateService.activeAccount = .fixture()
+
+        let task = Task {
+            await subject.perform(.streamFlightRecorderLog)
+        }
+        defer { task.cancel() }
+
+        var log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        log.bannerDismissedByUserIds = ["1"]
+        flightRecorder.activeLogSubject.send(log)
+
+        try await waitForAsync { self.subject.state.activeFlightRecorderLog != nil }
+        XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
     }
 
     /// `perform(_:)` with `.streamOrganizations` updates the state's organizations whenever it changes.
@@ -1289,6 +1363,14 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         subject.receive(.itemPressed(item: .fixtureTOTP(totp: .fixture())))
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123"))
+    }
+
+    /// `receive(_:)` with `.navigateToFlightRecorderSettings` navigates to the flight recorder settings.
+    @MainActor
+    func test_receive_navigateToFlightRecorderSettings() {
+        subject.receive(.navigateToFlightRecorderSettings)
+
+        XCTAssertEqual(coordinator.routes.last, .flightRecorderSettings)
     }
 
     /// `receive(_:)` with `ProfileSwitcherAction.backgroundPressed` turns off the Profile Switcher Visibility.
