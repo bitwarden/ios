@@ -760,6 +760,7 @@ extension DefaultAuthRepository: AuthRepository {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
         // Clear all user data.
+        try await stateService.setSyncToAuthenticator(false, userId: userId)
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         try await keychainService.deleteItems(for: userId)
         await vaultTimeoutService.remove(userId: userId)
