@@ -56,4 +56,16 @@ class URLTests: BitwardenTestCase {
             URL(string: "https://google.com/search?q=bitwarden")
         )
     }
+
+    /// `withoutScheme` returns a string of the URL with the scheme removed.
+    func test_withoutScheme() {
+        XCTAssertEqual(URL(string: "https://bitwarden.com")?.withoutScheme, "bitwarden.com")
+        XCTAssertEqual(URL(string: "https://bitwarden.com/vault")?.withoutScheme, "bitwarden.com/vault")
+        XCTAssertEqual(
+            URL(string: "https://bitwarden.com/vault?q=https://bitwarden.com")?.withoutScheme,
+            "bitwarden.com/vault?q=https://bitwarden.com"
+        )
+        XCTAssertEqual(URL(string: "https://send.bitwarden.com/39ngaol3")?.withoutScheme, "send.bitwarden.com/39ngaol3")
+        XCTAssertEqual(URL(string: "send.bitwarden.com/39ngaol3")?.withoutScheme, "send.bitwarden.com/39ngaol3")
+    }
 }
