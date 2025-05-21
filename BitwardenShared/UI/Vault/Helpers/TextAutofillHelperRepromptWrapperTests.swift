@@ -53,7 +53,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     /// `handleCipherForAutofill(cipherView:)` handles the cipher for autofill with the inner helper
     /// when cipher reprompt value is not password.
     func test_handleCipherForAutofill_noReprompt() async throws {
-        try await subject.handleCipherForAutofill(cipherView: .fixture(
+        try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
             reprompt: .none
         ))
@@ -68,7 +68,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     /// when cipher reprompt value is password but user doesn't have master password.
     func test_handleCipherForAutofill_cipherRepromptButNoMasterPassword() async throws {
         authRepository.hasMasterPasswordResult = .success(false)
-        try await subject.handleCipherForAutofill(cipherView: .fixture(
+        try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
             reprompt: .password
         ))
@@ -85,7 +85,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     func test_handleCipherForAutofill_cipherRepromptHasMasterPasswordAndVerified() async throws {
         authRepository.hasMasterPasswordResult = .success(true)
         userVerificationHelper.verifyMasterPasswordResult = .success(.verified)
-        try await subject.handleCipherForAutofill(cipherView: .fixture(
+        try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
             reprompt: .password
         ))
@@ -102,7 +102,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     func test_handleCipherForAutofill_cipherRepromptHasMasterPasswordAndNotVerified() async throws {
         authRepository.hasMasterPasswordResult = .success(true)
         userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
-        try await subject.handleCipherForAutofill(cipherView: .fixture(
+        try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
             reprompt: .password
         ))
@@ -116,7 +116,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     func test_handleCipherForAutofill_cipherRepromptHasMasterPasswordAndUnableToPerform() async throws {
         authRepository.hasMasterPasswordResult = .success(true)
         userVerificationHelper.verifyMasterPasswordResult = .success(.unableToPerform)
-        try await subject.handleCipherForAutofill(cipherView: .fixture(
+        try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
             reprompt: .password
         ))
@@ -130,7 +130,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     func test_handleCipherForAutofill_cipherRepromptHasMasterPasswordAndUserCancelled() async throws {
         authRepository.hasMasterPasswordResult = .success(true)
         userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
-        try await subject.handleCipherForAutofill(cipherView: .fixture(
+        try await subject.handleCipherForAutofill(cipherListView: .fixture(
             id: "1",
             reprompt: .password
         ))
@@ -145,7 +145,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
         authRepository.hasMasterPasswordResult = .success(true)
         userVerificationHelper.verifyMasterPasswordResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.handleCipherForAutofill(cipherView: .fixture(
+            try await subject.handleCipherForAutofill(cipherListView: .fixture(
                 id: "1",
                 reprompt: .password
             ))
@@ -159,7 +159,7 @@ class TextAutofillHelperRepromptWrapperTests: BitwardenTestCase {
     func test_handleCipherForAutofill_cipherRepromptCheckHasMasterPasswordThrows() async throws {
         authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
         await assertAsyncThrows(error: BitwardenTestError.example) {
-            try await subject.handleCipherForAutofill(cipherView: .fixture(
+            try await subject.handleCipherForAutofill(cipherListView: .fixture(
                 id: "1",
                 reprompt: .password
             ))

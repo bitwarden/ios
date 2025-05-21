@@ -342,9 +342,29 @@ extension BitwardenSdk.Cipher {
     }
 }
 
-extension BitwardenSdk.CipherListView: @retroactive Identifiable {}
+extension BitwardenSdk.CipherListView: @retroactive Identifiable, Fido2UserVerifiableCipherView {}
 
-extension BitwardenSdk.CipherView: @retroactive Identifiable {
+extension BitwardenSdk.CipherListViewType {
+    /// Whether the type is login.
+    var isLogin: Bool {
+        switch self {
+        case .login:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// The `LoginListView` if this type is a `.login`, otherwise `nil`.
+    var loginListView: BitwardenSdk.LoginListView? {
+        guard case let .login(loginListView) = self else {
+            return nil
+        }
+        return loginListView
+    }
+}
+
+extension BitwardenSdk.CipherView: @retroactive Identifiable, Fido2UserVerifiableCipherView {
     /// Initializes a new `CipherView` based on a `Fido2CredentialNewView`
     /// - Parameters:
     ///   - fido2CredentialNewView: The `Fido2CredentialNewView` for the Fido2 creation flow
@@ -519,6 +539,10 @@ extension BitwardenSdk.LoginUri {
         )
     }
 }
+
+extension BitwardenSdk.LoginListView: CipherDecorativeIconDataView {}
+
+extension BitwardenSdk.LoginView: CipherDecorativeIconDataView {}
 
 extension BitwardenSdk.PasswordHistory {
     init(cipherPasswordHistoryModel model: CipherPasswordHistoryModel) {

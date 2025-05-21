@@ -71,7 +71,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     func test_snapshot_totp() {
         processor.state.item = .fixtureTOTP(
             totp: .fixture(
-                loginView: .fixture(
+                loginListView: .fixture(
                     username: "username",
                     totp: .standardTotpKey
                 )
@@ -84,7 +84,8 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_organization() {
         processor.state.iconBaseURL = .example
-        processor.state.item = .fixture(cipherView: .fixture(
+        processor.state.item = .fixture(cipherListView: .fixture(
+            organizationId: "org",
             login: .fixture(
                 uris: [
                     .fixture(
@@ -92,8 +93,7 @@ class VaultListItemRowViewTests: BitwardenTestCase {
                         match: nil
                     ),
                 ]
-            ),
-            organizationId: "org"
+            )
         ))
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -102,12 +102,18 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_showWebIcon() {
         processor.state.iconBaseURL = .example
-        processor.state.item = .fixture(cipherView: .fixture(login: .fixture(uris: [
-            .fixture(
-                uri: "Test",
-                match: nil
-            ),
-        ])))
+        processor.state.item = .fixture(
+            cipherListView: .fixture(
+                login: .fixture(
+                    uris: [
+                        .fixture(
+                            uri: "Test",
+                            match: nil
+                        ),
+                    ]
+                )
+            )
+        )
         assertSnapshot(of: subject, as: .fixedSize())
     }
 
@@ -115,15 +121,20 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_subtitle() {
         processor.state.iconBaseURL = .example
-        processor.state.item = .fixture(cipherView: .fixture(login: .fixture(
-            uris: [
-                .fixture(
-                    uri: "Test",
-                    match: nil
+        processor.state.item = .fixture(
+            cipherListView: .fixture(
+                login: .fixture(
+                    username: "username",
+                    uris: [
+                        .fixture(
+                            uri: "Test",
+                            match: nil
+                        ),
+                    ]
                 ),
-            ],
-            username: "username"
-        )))
+                subtitle: "username"
+            )
+        )
         assertSnapshot(of: subject, as: .fixedSize())
     }
 
@@ -131,21 +142,27 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_fido2Subtitle() {
         processor.state.iconBaseURL = .example
-        processor.state.item = .fixture(cipherView: .fixture(
-            login: .fixture(
-                fido2Credentials: [
-                    .fixture(),
-                ],
-                uris: [
-                    .fixture(
-                        uri: "Test",
-                        match: nil
-                    ),
-                ],
-                username: "username"
+        processor.state.item = .fixture(
+            cipherListView: .fixture(
+                login: .fixture(
+                    fido2Credentials: [
+                        .fixture(),
+                    ],
+                    username: "username",
+                    uris: [
+                        .fixture(
+                            uri: "Test",
+                            match: nil
+                        ),
+                    ]
+                ),
+                name: "myApp.com"
             ),
-            name: "myApp.com"
-        ), fido2CredentialAutofillView: .fixture(rpId: "myApp.com", userNameForUi: "another user"))
+            fido2CredentialAutofillView: .fixture(
+                rpId: "myApp.com",
+                userNameForUi: "another user"
+            )
+        )
         processor.state.isFromExtension = true
         assertSnapshot(of: subject, as: .fixedSize())
     }
@@ -154,21 +171,27 @@ class VaultListItemRowViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_fido2RpIdAndsubtitle() {
         processor.state.iconBaseURL = .example
-        processor.state.item = .fixture(cipherView: .fixture(
-            login: .fixture(
-                fido2Credentials: [
-                    .fixture(),
-                ],
-                uris: [
-                    .fixture(
-                        uri: "Test",
-                        match: nil
-                    ),
-                ],
-                username: "username"
+        processor.state.item = .fixture(
+            cipherListView: .fixture(
+                login: .fixture(
+                    fido2Credentials: [
+                        .fixture(),
+                    ],
+                    username: "username",
+                    uris: [
+                        .fixture(
+                            uri: "Test",
+                            match: nil
+                        ),
+                    ]
+                ),
+                name: "MyApp"
             ),
-            name: "MyApp"
-        ), fido2CredentialAutofillView: .fixture(rpId: "myApp.com", userNameForUi: "another user"))
+            fido2CredentialAutofillView: .fixture(
+                rpId: "myApp.com",
+                userNameForUi: "another user"
+            )
+        )
         processor.state.isFromExtension = true
         assertSnapshot(of: subject, as: .fixedSize())
     }

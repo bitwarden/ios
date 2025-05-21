@@ -47,20 +47,23 @@ class AutofillHelper {
     /// Handles autofill for a selected cipher.
     ///
     /// - Parameters:
-    ///   - cipherView: The `CipherView` to use for autofill.
+    ///   - cipherView: The `CipherListView` to use for autofill.
     ///   - showToast: A closure that when called will display a toast to the user.
     ///
-    func handleCipherForAutofill(cipherView: CipherView, showToast: @escaping (String) -> Void) async {
+    func handleCipherForAutofill(cipherListView: CipherListView, showToast: @escaping (String) -> Void) async {
         do {
-            if cipherView.reprompt == .password, try await services.authRepository.hasMasterPassword() {
+            if cipherListView.reprompt == .password, try await services.authRepository.hasMasterPassword() {
                 presentMasterPasswordRepromptAlert {
                     await self.handleCipherForAutofillAfterRepromptIfRequired(
-                        cipherView: cipherView,
+                        cipherListView: cipherListView,
                         showToast: showToast
                     )
                 }
             } else {
-                await handleCipherForAutofillAfterRepromptIfRequired(cipherView: cipherView, showToast: showToast)
+                await handleCipherForAutofillAfterRepromptIfRequired(
+                    cipherListView: cipherListView,
+                    showToast: showToast
+                )
             }
         } catch {
             services.errorReporter.log(error: error)
@@ -68,46 +71,11 @@ class AutofillHelper {
         }
     }
 
-    /// Handles autofill for a selected cipher.
-    ///
-    /// - Parameters
-    ///   - cipherListView: The `CipherListView` to use for autofill.
-    ///   - showToast: A closure that when called will display a toast to the user.
-    ///
-    func handleCipherForAutofill(cipherListView: CipherListView, showToast: @escaping (String) -> Void) async {
-        guard let cipherId = cipherListView.id else {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            return
-        }
-
-        guard let cipherView = try? await services.vaultRepository.fetchCipher(withId: cipherId) else {
-            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
-            return
-        }
-
-        await handleCipherForAutofill(cipherView: cipherView, showToast: showToast)
-    }
-
     // MARK: Private
 
-    /// Handles autofill for a cipher after the master password reprompt has been confirmed, if it's
-    /// required by the cipher.
-    ///
-    /// - Parameters
-    ///   - cipherView: The `CipherView` to use for autofill.
-    ///   - showToast: A closure that when called will display a toast to the user.
-    ///
-    private func handleCipherForAutofillAfterRepromptIfRequired(
-        cipherView: CipherView,
-        showToast: @escaping (String) -> Void
-    ) async {
-        guard appExtensionDelegate?.canAutofill ?? false,
-              let username = cipherView.login?.username, !username.isEmpty,
-              let password = cipherView.login?.password, !password.isEmpty else {
-            handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
-            return
-        }
-
+    /// Copies the cipher's TOTP code to the clipboard if needed.
+    /// - Parameter cipherView: The cipher to generate the TOTP from.
+    private func copyTotpIfNeeded(cipherView: CipherView) async {
         do {
             let disableAutoTotpCopy = try await services.vaultRepository.getDisableAutoTotpCopy()
             let accountHasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
@@ -122,22 +90,59 @@ class AutofillHelper {
         } catch {
             services.errorReporter.log(error: error)
         }
+    }
 
-        let fields: [(String, String)]? = cipherView.fields?.compactMap { field in
-            guard let name = field.name, let value = field.value else { return nil }
-            return (name, value)
+    /// Handles autofill for a cipher after the master password reprompt has been confirmed, if it's
+    /// required by the cipher.
+    ///
+    /// - Parameters
+    ///   - cipherView: The `CipherView` to use for autofill.
+    ///   - showToast: A closure that when called will display a toast to the user.
+    ///
+    private func handleCipherForAutofillAfterRepromptIfRequired(
+        cipherListView: CipherListView,
+        showToast: @escaping (String) -> Void
+    ) async {
+        do {
+            guard let cipherId = cipherListView.id,
+                  let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
+                services.errorReporter.log(
+                    error: BitwardenError.dataError(
+                        "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired."
+                    )
+                )
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                return
+            }
+
+            guard appExtensionDelegate?.canAutofill ?? false,
+                  let username = cipherView.login?.username, !username.isEmpty,
+                  let password = cipherView.login?.password, !password.isEmpty else {
+                handleMissingValueForAutofill(cipherView: cipherView, showToast: showToast)
+                return
+            }
+
+            await copyTotpIfNeeded(cipherView: cipherView)
+
+            let fields: [(String, String)]? = cipherView.fields?.compactMap { field in
+                guard let name = field.name, let value = field.value else { return nil }
+                return (name, value)
+            }
+
+            await services.eventService.collect(
+                eventType: .cipherClientAutofilled,
+                cipherId: cipherView.id
+            )
+
+            appExtensionDelegate?.completeAutofillRequest(
+                username: username,
+                password: password,
+                fields: fields
+            )
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
-
-        await services.eventService.collect(
-            eventType: .cipherClientAutofilled,
-            cipherId: cipherView.id
-        )
-
-        appExtensionDelegate?.completeAutofillRequest(
-            username: username,
-            password: password,
-            fields: fields
-        )
     }
 
     /// Handles the case where the username or password is missing for the cipher which prevents it

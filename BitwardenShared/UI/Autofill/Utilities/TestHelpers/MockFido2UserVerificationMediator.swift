@@ -15,7 +15,7 @@ class MockFido2UserVerificationMediator: Fido2UserVerificationMediator {
 
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: BitwardenSdk.CipherView
+        credential: Fido2UserVerifiableCipherView
     ) async throws -> BitwardenSdk.CheckUserResult {
         try checkUserResult.get()
     }

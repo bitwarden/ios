@@ -3,7 +3,7 @@ import XCTest
 
 @testable import BitwardenShared
 
-class AlertAuthTests: BitwardenTestCase {
+class AlertAuthTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     /// `accountOptions(_:lockAction:logoutAction:removeAccountAction:)`
     func test_accountOptions() async throws {
         var actions = [String]()
