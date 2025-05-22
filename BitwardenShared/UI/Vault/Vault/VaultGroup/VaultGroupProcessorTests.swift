@@ -228,8 +228,8 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search() async {
-        let searchResult: [CipherView] = [.fixture(name: "example")]
-        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherView: $0) }
+        let searchResult: [CipherListView] = [.fixture(name: "example")]
+        vaultRepository.searchVaultListSubject.value = searchResult.compactMap { VaultListItem(cipherListView: $0) }
         subject.state.searchVaultFilterType = .organization(.fixture(id: "id1"))
         await subject.perform(.search("example"))
         XCTAssertEqual(subject.state.searchResults.count, 1)
@@ -239,7 +239,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         )
         XCTAssertEqual(
             subject.state.searchResults,
-            try [VaultListItem.fixture(cipherView: XCTUnwrap(searchResult.first))]
+            try [VaultListItem.fixture(cipherListView: XCTUnwrap(searchResult.first))]
         )
     }
 
@@ -260,14 +260,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search_expiredTOTP() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .standardTotpKey)
+        let loginListView = LoginListView.fixture(totp: .standardTotpKey)
         let refreshed = VaultListItem(
             id: "1",
             itemType: .totp(
                 name: "refreshed totp",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    loginListView: loginListView,
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "654321",
@@ -291,7 +291,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    loginListView: loginListView,
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
@@ -308,7 +308,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    loginListView: loginListView,
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
@@ -340,7 +340,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(.search)` with a keyword should update search results in state.
     @MainActor
     func test_perform_search_expiredTOTP_error() { // swiftlint:disable:this function_body_length
-        let loginView = LoginView.fixture(totp: .standardTotpKey)
+        let loginListView = LoginListView.fixture(totp: .standardTotpKey)
         vaultRepository.refreshTOTPCodesResult = .failure(BitwardenTestError.example)
         let task = Task {
             await subject.perform(.search("example"))
@@ -351,7 +351,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    loginListView: loginListView,
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
@@ -368,7 +368,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginView: loginView,
+                    loginListView: loginListView,
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
@@ -687,7 +687,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
     @MainActor
     func test_receive_itemPressed_cipher() {
-        subject.receive(.itemPressed(.fixture(cipherView: .fixture(id: "id"))))
+        subject.receive(.itemPressed(.fixture(cipherListView: .fixture(id: "id"))))
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
     }
 

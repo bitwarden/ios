@@ -418,4 +418,4 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         verifyOtpOpt = otp
         try verifyOtpResult.get()
     }
-}
+} // swiftlint:disable:this file_length

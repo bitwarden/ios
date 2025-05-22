@@ -7,6 +7,8 @@ import XCTest
 
 @testable import BitwardenShared
 
+// swiftlint:disable file_length
+
 // MARK: - VaultListViewTests
 
 class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
@@ -203,6 +205,16 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: result))
     }
 
+    /// Tapping the go to settings button in the flight recorder toast banner dispatches the
+    /// `.navigateToFlightRecorderSettings` action.
+    @MainActor
+    func test_toastBannerGoToSettings_tap() async throws {
+        processor.state.isFlightRecorderToastBannerVisible = true
+        let button = try subject.inspect().find(button: Localizations.goToSettings)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions, [.navigateToFlightRecorderSettings])
+    }
+
     /// Tapping the try again button dispatches the `.tryAgainTapped` action.
     @MainActor
     func test_tryAgainButton_tap() async throws {
@@ -274,6 +286,17 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     }
 
     @MainActor
+    func test_snapshot_flightRecorderToastBanner() {
+        processor.state.loadingState = .data([])
+        processor.state.isFlightRecorderToastBannerVisible = true
+        processor.state.activeFlightRecorderLog = FlightRecorderData.LogMetadata(
+            duration: .twentyFourHours,
+            startDate: Date(year: 2025, month: 4, day: 3)
+        )
+        assertSnapshot(of: subject, as: .defaultPortrait)
+    }
+
+    @MainActor
     func test_snapshot_loading() {
         processor.state.loadingState = .loading(nil)
         assertSnapshot(of: subject, as: .defaultPortrait)
@@ -285,17 +308,19 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             VaultListSection(
                 id: "",
                 items: [
-                    .fixture(cipherView: .fixture(
+                    .fixture(cipherListView: .fixture(
                         login: .fixture(username: "email@example.com"),
-                        name: "Example"
+                        name: "Example",
+                        subtitle: "email@example.com",
                     )),
-                    .fixture(cipherView: .fixture(id: "12", name: "Example", type: .secureNote)),
-                    .fixture(cipherView: .loginFixture(
-                        attachments: [.fixture()],
+                    .fixture(cipherListView: .fixture(id: "12", name: "Example", type: .secureNote)),
+                    .fixture(cipherListView: .fixture(
                         id: "13",
+                        organizationId: "1",
                         login: .fixture(username: "user@bitwarden.com"),
                         name: "Bitwarden",
-                        organizationId: "1"
+                        subtitle: "user@bitwarden.com",
+                        attachments: 1
                     )),
                 ],
                 name: "Favorites"
@@ -333,7 +358,7 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_snapshot_withSearchResult() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
@@ -345,22 +370,22 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     func test_snapshot_withMultipleSearchResults() {
         processor.state.searchText = "Exam"
         processor.state.searchResults = [
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 id: "1",
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 id: "2",
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 id: "3",
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 id: "4",
                 login: .fixture(username: "email@example.com"),
                 name: "Example"

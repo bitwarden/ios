@@ -78,6 +78,40 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
+    /// `activeLogPublisher()` publishes the active log of the flight recorder when there's an
+    /// existing active log.
+    func test_activeLogPublisher_existingActiveLog() async throws {
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+        subject = makeSubject()
+
+        var initialPublisher = await subject.activeLogPublisher().values.makeAsyncIterator()
+        let firstLog = await initialPublisher.next()
+        XCTAssertEqual(firstLog, activeLog)
+
+        // Once the data is cached by the flight recorder, it isn't re-read from state service on
+        // subsequent subscriptions. We can test this by modifying the flight recorder data in state
+        // service and observing that the flight recorder is still enabled.
+        stateService.flightRecorderData = nil
+
+        var secondPublisher = await subject.activeLogPublisher().values.makeAsyncIterator()
+        let secondLog = await secondPublisher.next()
+        XCTAssertEqual(secondLog, activeLog)
+    }
+
+    /// `activeLogPublisher()` publishes the active log of the flight recorder when there's no
+    /// existing flight recorder data.
+    func test_activeLogPublisher_noFlightRecorderData() async throws {
+        var publishedValues = [FlightRecorderData.LogMetadata?]()
+        let publisher = await subject.activeLogPublisher().sink { publishedValues.append($0) }
+        defer { publisher.cancel() }
+
+        try await subject.enableFlightRecorder(duration: .eightHours)
+        await subject.disableFlightRecorder()
+
+        let inactiveLog = try XCTUnwrap(stateService.flightRecorderData?.inactiveLogs.first)
+        XCTAssertEqual(publishedValues, [nil, inactiveLog, nil])
+    }
+
     /// `deleteInactiveLogs()` deletes all of the inactive logs and associated metadata.
     func test_deleteInactiveLogs() async throws {
         stateService.flightRecorderData = FlightRecorderData(
@@ -594,6 +628,27 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_log_noLogData() async {
         stateService.flightRecorderData = nil
         await subject.log("Hello world!")
+        XCTAssertNil(stateService.flightRecorderData)
+    }
+
+    /// `setFlightRecorderBannerDismissed(userId:)` sets that the flight recorder banner was
+    /// dismissed by the user.
+    func test_setFlightRecorderBannerDismissed() async {
+        stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
+        await subject.setFlightRecorderBannerDismissed(userId: "123")
+
+        var activeLogWithDismissedBanner = activeLog
+        activeLogWithDismissedBanner.bannerDismissedByUserIds.append("123")
+        XCTAssertEqual(
+            stateService.flightRecorderData,
+            FlightRecorderData(activeLog: activeLogWithDismissedBanner)
+        )
+    }
+
+    /// `setFlightRecorderBannerDismissed(userId:)` doesn't modify the flight recorder data if
+    /// there's no flight recorder data.
+    func test_setFlightRecorderBannerDismissed_noFlightRecorderData() async {
+        await subject.setFlightRecorderBannerDismissed(userId: "123")
         XCTAssertNil(stateService.flightRecorderData)
     }
 

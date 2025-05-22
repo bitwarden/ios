@@ -50,6 +50,25 @@ private struct SearchableVaultListView: View {
             ),
             additionalBottomPadding: FloatingActionButton.bottomOffsetPadding
         )
+        .toastBanner(
+            title: Localizations.flightRecorderOn,
+            subtitle: {
+                guard let log = store.state.activeFlightRecorderLog else { return "" }
+                return Localizations.flightRecorderWillBeActiveUntilDescriptionLong(
+                    log.formattedEndDate,
+                    log.formattedEndTime
+                )
+            }(),
+            additionalBottomPadding: FloatingActionButton.bottomOffsetPadding,
+            isVisible: store.bindingAsync(
+                get: \.isFlightRecorderToastBannerVisible,
+                perform: { _ in .dismissFlightRecorderToastBanner }
+            )
+        ) {
+            Button(Localizations.goToSettings) {
+                store.send(.navigateToFlightRecorderSettings)
+            }
+        }
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
             openURL(url)
@@ -374,6 +393,9 @@ struct VaultListView: View {
             await store.perform(.streamAccountSetupProgress)
         }
         .task {
+            await store.perform(.streamFlightRecorderLog)
+        }
+        .task {
             await store.perform(.streamOrganizations)
         }
         .task {
@@ -519,12 +541,13 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "1",
                                     items: [
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             login: .fixture(username: "email@example.com"),
-                                            name: "Example"
+                                            name: "Example",
+                                            subtitle: "email@example.com"
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
                                             name: "Example 2",
                                             type: .secureNote
@@ -596,47 +619,54 @@ struct VaultListView_Previews: PreviewProvider {
                                 VaultListSection(
                                     id: "CollectionItems",
                                     items: [
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
+                                            organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            organizationId: "1"
+                                            subtitle: "email@example.com"
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
+                                            organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            organizationId: "1"
+                                            subtitle: "email@example.com"
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
+                                            organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            organizationId: "1"
+                                            subtitle: "email@example.com"
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
+                                            organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            organizationId: "1"
+                                            subtitle: "email@example.com"
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
+                                            organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            organizationId: "1"
+                                            subtitle: "email@example.com"
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
+                                            organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            organizationId: "1"
+                                            subtitle: "email@example.com"
                                         ))!,
-                                        .init(cipherView: .fixture(
+                                        .init(cipherListView: .fixture(
                                             id: UUID().uuidString,
+                                            organizationId: "1",
                                             login: .fixture(username: "email@example.com"),
                                             name: "Example",
-                                            organizationId: "1"
+                                            subtitle: "email@example.com"
                                         ))!,
                                     ],
                                     name: "Items"
@@ -679,10 +709,11 @@ struct VaultListView_Previews: PreviewProvider {
                                 isVisible: false
                             ),
                             searchResults: [
-                                .init(cipherView: .fixture(
+                                .init(cipherListView: .fixture(
                                     id: UUID().uuidString,
                                     login: .fixture(username: "email@example.com"),
-                                    name: "Example"
+                                    name: "Example",
+                                    subtitle: "email@example.com"
                                 ))!,
                             ],
                             searchText: "Exam"
@@ -700,20 +731,23 @@ struct VaultListView_Previews: PreviewProvider {
                     processor: StateProcessor(
                         state: VaultListState(
                             searchResults: [
-                                .init(cipherView: .fixture(
+                                .init(cipherListView: .fixture(
                                     id: UUID().uuidString,
                                     login: .fixture(username: "email@example.com"),
-                                    name: "Example"
+                                    name: "Example",
+                                    subtitle: "email@example.com"
                                 ))!,
-                                .init(cipherView: .fixture(
+                                .init(cipherListView: .fixture(
                                     id: UUID().uuidString,
                                     login: .fixture(username: "email2@example.com"),
-                                    name: "Example 2"
+                                    name: "Example 2",
+                                    subtitle: "email2@example.com"
                                 ))!,
-                                .init(cipherView: .fixture(
+                                .init(cipherListView: .fixture(
                                     id: UUID().uuidString,
                                     login: .fixture(username: "email3@example.com"),
-                                    name: "Example 3"
+                                    name: "Example 3",
+                                    subtitle: "email3@example.com"
                                 ))!,
                             ],
                             searchText: "Exam"

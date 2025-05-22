@@ -7,7 +7,7 @@ import XCTest
 
 // MARK: - VaultGroupViewTests
 
-class VaultGroupViewTests: BitwardenTestCase {
+class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var processor: MockProcessor<VaultGroupState, VaultGroupAction, VaultGroupEffect>!
@@ -81,7 +81,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     /// Tapping a vault item dispatches the `.itemPressed` action.
     @MainActor
     func test_vaultItem_tap() throws {
-        let item = VaultListItem.fixture(cipherView: .fixture(name: "Item"))
+        let item = VaultListItem.fixture(cipherListView: .fixture(name: "Item"))
         let section = VaultListSection(id: "Items", items: [item], name: Localizations.items)
         processor.state.loadingState = .data([section])
         let button = try subject.inspect().find(button: "Item")
@@ -188,36 +188,52 @@ class VaultGroupViewTests: BitwardenTestCase {
     }
 
     @MainActor
-    func test_snapshot_multipleItems() {
+    func test_snapshot_multipleItems() { // swiftlint:disable:this function_body_length
         processor.state.loadingState = .data(
             [
                 VaultListSection(
                     id: "Items",
                     items: [
                         .fixture(
-                            cipherView: .fixture(
+                            cipherListView: .fixture(
                                 id: "1",
-                                login: .fixture(username: "email@example.com"),
-                                name: "Example"
+                                login: .fixture(
+                                    username: "email@example.com"
+                                ),
+                                name: "Example",
+                                subtitle: "email@example.com"
                             )
                         ),
-                        .fixture(cipherView: .fixture(
-                            id: "2",
-                            login: .fixture(
-                                username: "An equally long subtitle that should also take up more than one line"
-                            ),
-                            name: "An extra long name that should take up more than one line"
-                        )),
-                        .fixture(cipherView: .fixture(
-                            id: "3",
-                            login: .fixture(username: "email@example.com"),
-                            name: "Example"
-                        )),
-                        .fixture(cipherView: .fixture(
-                            id: "4",
-                            login: .fixture(username: "email@example.com"),
-                            name: "Example"
-                        )),
+                        .fixture(
+                            cipherListView: .fixture(
+                                id: "2",
+                                login: .fixture(
+                                    username: "An equally long subtitle that should also take up more than one line"
+                                ),
+                                name: "An extra long name that should take up more than one line",
+                                subtitle: "An equally long subtitle that should also take up more than one line"
+                            )
+                        ),
+                        .fixture(
+                            cipherListView: .fixture(
+                                id: "3",
+                                login: .fixture(
+                                    username: "email@example.com"
+                                ),
+                                name: "Example",
+                                subtitle: "email@example.com"
+                            )
+                        ),
+                        .fixture(
+                            cipherListView: .fixture(
+                                id: "4",
+                                login: .fixture(
+                                    username: "email@example.com"
+                                ),
+                                name: "Example",
+                                subtitle: "email@example.com"
+                            )
+                        ),
                     ],
                     name: Localizations.items
                 ),
@@ -233,7 +249,7 @@ class VaultGroupViewTests: BitwardenTestCase {
                 VaultListSection(
                     id: "Items",
                     items: [
-                        .fixture(cipherView: .fixture(
+                        .fixture(cipherListView: .fixture(
                             login: .fixture(username: "email@example.com"),
                             name: "Example"
                         )),
@@ -249,7 +265,7 @@ class VaultGroupViewTests: BitwardenTestCase {
     func test_snapshot_search_oneItem() {
         processor.state.isSearching = true
         processor.state.searchResults = [
-            .fixture(cipherView: .fixture(
+            .fixture(cipherListView: .fixture(
                 login: .fixture(username: "email@example.com"),
                 name: "Example"
             )),
@@ -272,7 +288,7 @@ class VaultGroupViewTests: BitwardenTestCase {
             .fixtureTOTP(
                 name: "Example Name",
                 totp: .fixture(
-                    loginView: .fixture(
+                    loginListView: .fixture(
                         username: "username"
                     ),
                     totpCode: .init(

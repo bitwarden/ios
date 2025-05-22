@@ -77,8 +77,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// autofill request.
     @MainActor
     func test_perform_vaultItemTapped() async {
+        vaultRepository.fetchCipherResult = .success(CipherView.fixture(
+            login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
+        )
         let vaultListItem = VaultListItem(
-            cipherView: CipherView.fixture(login: .fixture(password: "PASSWORD", username: "user@bitwarden.com"))
+            cipherListView: .fixture()
         )!
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -91,8 +94,11 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// if a cipher value was copied instead of autofilled.
     @MainActor
     func test_perform_vaultItemTapped_showToast() async throws {
+        vaultRepository.fetchCipherResult = .success(CipherView.fixture(
+            login: .fixture(password: "PASSWORD", username: nil))
+        )
         let vaultListItem = VaultListItem(
-            cipherView: CipherView.fixture(login: .fixture(password: "PASSWORD", username: nil))
+            cipherListView: .fixture()
         )!
         await subject.perform(.vaultItemTapped(vaultListItem))
 
@@ -173,10 +179,10 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// `perform(_:)` with `.search()` performs a cipher search and updates the state with the results.
     @MainActor
     func test_perform_search() {
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
         let expectedSection = VaultListSection(
             id: "",
-            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
         vaultRepository.searchCipherAutofillSubject.value = [expectedSection]
@@ -233,10 +239,10 @@ class VaultAutofillListProcessorTests: BitwardenTestCase { // swiftlint:disable:
     /// `perform(_:)` with `.streamAutofillItems` streams the list of autofill ciphers.
     @MainActor
     func test_perform_streamAutofillItems() {
-        let ciphers: [CipherView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
+        let ciphers: [CipherListView] = [.fixture(id: "1"), .fixture(id: "2"), .fixture(id: "3")]
         let expectedSection = VaultListSection(
             id: "",
-            items: ciphers.compactMap { VaultListItem(cipherView: $0) },
+            items: ciphers.compactMap { VaultListItem(cipherListView: $0) },
             name: ""
         )
         vaultRepository.ciphersAutofillSubject.value = [expectedSection]

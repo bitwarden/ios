@@ -8,8 +8,8 @@ import BitwardenSdk
 protocol TextAutofillHelper: AnyObject {
     /// Handles autofilling text to insert from a cipher by presenting options for the user
     /// to choose which field they want to use for autofilling text.
-    /// - Parameter cipherView: The cipher to present options and get text to autofill.
-    func handleCipherForAutofill(cipherView: CipherView) async throws
+    /// - Parameter cipherListView: The cipher to present options and get text to autofill.
+    func handleCipherForAutofill(cipherListView: CipherListView) async throws
 
     /// Sets the delegate to used with this helper.
     func setTextAutofillHelperDelegate(_ delegate: TextAutofillHelperDelegate)
@@ -92,7 +92,22 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
 
     // MARK: Methods
 
-    func handleCipherForAutofill(cipherView: CipherView) async throws {
+    func handleCipherForAutofill(cipherListView: CipherListView) async throws {
+        guard let cipherId = cipherListView.id,
+              let cipherView = try await vaultRepository.fetchCipher(withId: cipherId) else {
+            errorReporter.log(
+                error: BitwardenError.generalError(
+                    type: "TextAutofill: Handle Cipher For Autofill",
+                    message: "Cipher Id was not set or cipher could not be fetched"
+                )
+            )
+            await textAutofillHelperDelegate?.showAlert(.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.genericErrorMessage
+            ))
+            return
+        }
+
         let options = await textAutofillOptionsHelperFactory
             .create(cipherView: cipherView)
             .getTextAutofillOptions(cipherView: cipherView)
@@ -218,7 +233,7 @@ class DefaultTextAutofillHelper: TextAutofillHelper {
 
 /// Helper to be used on iOS less than 18.0 given that we don't have autofilling text feature available.
 class NoOpTextAutofillHelper: TextAutofillHelper {
-    func handleCipherForAutofill(cipherView: BitwardenSdk.CipherView) async {
+    func handleCipherForAutofill(cipherListView: CipherListView) async {
         // No-op
     }
 

@@ -21,6 +21,7 @@ final class VaultListProcessor: StateProcessor<
         & HasConfigService
         & HasErrorReporter
         & HasEventService
+        & HasFlightRecorder
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
@@ -81,6 +82,8 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .dismissFlightRecorderToastBanner:
+            await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
@@ -103,6 +106,8 @@ final class VaultListProcessor: StateProcessor<
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
@@ -138,6 +143,8 @@ final class VaultListProcessor: StateProcessor<
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
+        case .navigateToFlightRecorderSettings:
+            coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
         case let .searchStateChanged(isSearching: isSearching):
@@ -226,6 +233,19 @@ extension VaultListProcessor {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
+    }
+
+    /// Dismisses the flight recorder toast banner for the active user.
+    ///
+    private func dismissFlightRecorderToastBanner() async {
+        state.isFlightRecorderToastBannerVisible = false
+
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            await services.flightRecorder.setFlightRecorderBannerDismissed(userId: userId)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Entry point to handling things around push notifications.
@@ -384,6 +404,20 @@ extension VaultListProcessor {
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the flight recorder enabled status.
+    ///
+    private func streamFlightRecorderLog() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            for await log in await services.flightRecorder.activeLogPublisher().values {
+                state.activeFlightRecorderLog = log
+                state.isFlightRecorderToastBannerVisible = !(log?.bannerDismissedByUserIds.contains(userId) ?? true)
             }
         } catch {
             services.errorReporter.log(error: error)

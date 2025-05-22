@@ -11,12 +11,12 @@ enum IconImageHelper {
     /// a URL to an icon image for each URI. The first successfully constructed URL is returned.
     ///
     /// - Parameters:
-    ///   - loginView: The `LoginView` containing the URIs to process.
+    ///   - dataView: The `CipherDecorativeIconDataView` containing the URIs to process.
     ///   - baseIconUrl: A base URL to use when constructing icon image URLs.
     ///
     /// - Returns: A URL to an icon image if one can be constructed; otherwise, nil.
-    static func getIconImage(for loginView: BitwardenSdk.LoginView, from baseIconUrl: URL) -> URL? {
-        guard let uris = loginView.uris else {
+    static func getIconImage(for dataView: CipherDecorativeIconDataView, from baseIconUrl: URL) -> URL? {
+        guard let uris = dataView.uris else {
             return nil
         }
 

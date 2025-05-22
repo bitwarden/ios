@@ -491,10 +491,6 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
             .restrictCipherItemDeletion: true,
         ]
 
-        let cipherItem = CipherView.loginFixture(
-            id: "id"
-        )
-
         let task = Task {
             await subject.perform(.appeared)
         }
