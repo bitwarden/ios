@@ -1188,3 +1188,7 @@
 "FlightRecorderOn" = "Flight recorder on";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
 "GoToSettings" = "Go to settings";
+"NewFileSend" = "New file Send";
+"NewTextSend" = "New text Send";
+"EditFileSend" = "Edit file Send";
+"EditTextSend" = "Edit text Send";

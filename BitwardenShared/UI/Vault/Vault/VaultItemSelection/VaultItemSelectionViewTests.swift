@@ -35,9 +35,11 @@ class VaultItemSelectionViewTests: BitwardenTestCase {
 
     /// Tapping the add item floating action button dispatches the `.addTapped` action.`
     @MainActor
-    func test_addFloatingActionButton_tap() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
-        try fab.button().tap()
+    func test_addFloatingActionButton_tap() async throws {
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+        )
+        try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped)
     }
 

@@ -35,9 +35,11 @@ class VaultAutofillListViewTests: BitwardenTestCase { // swiftlint:disable:this 
 
     /// Tapping the add item floating action button dispatches the `.addItemPressed` action.`
     @MainActor
-    func test_addItemFloatingActionButton_tap() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "AddItemFloatingActionButton")
-        try fab.button().tap()
+    func test_addItemFloatingActionButton_tap() async throws {
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+        )
+        try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .addTapped(fromFAB: true))
     }
 

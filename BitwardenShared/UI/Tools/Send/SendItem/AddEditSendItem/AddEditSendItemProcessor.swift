@@ -119,8 +119,6 @@ class AddEditSendItemProcessor:
                 onNextToastClear?()
                 onNextToastClear = nil
             }
-        case let .typeChanged(newValue):
-            updateType(newValue)
         }
     }
 
@@ -164,12 +162,6 @@ class AddEditSendItemProcessor:
 
         if state.maximumAccessCount != 0 {
             state.maximumAccessCountText = "\(state.maximumAccessCount)"
-        }
-
-        do {
-            state.hasPremium = try await services.sendRepository.doesActiveAccountHavePremium()
-        } catch {
-            services.errorReporter.log(error: error)
         }
     }
 
@@ -218,7 +210,7 @@ class AddEditSendItemProcessor:
         coordinator.showLoadingOverlay(LoadingOverlayState(title: Localizations.removingSendPassword))
         do {
             let newSend = try await services.sendRepository.removePassword(from: sendView)
-            var newState = AddEditSendItemState(sendView: newSend, hasPremium: state.hasPremium)
+            var newState = AddEditSendItemState(sendView: newSend)
             newState.isOptionsExpanded = state.isOptionsExpanded
             state = newState
 
@@ -282,20 +274,6 @@ class AddEditSendItemProcessor:
         else { return }
 
         coordinator.navigate(to: .share(url: url))
-    }
-
-    /// Attempts to update the send type. If the new value requires premium access and the active
-    /// account does not have premium access, this method will display an alert informing the user
-    /// that they do not have access to this feature.
-    ///
-    /// - Parameter newValue: The new value for the Send's type that will be attempted to be set.
-    ///
-    private func updateType(_ newValue: SendType) {
-        guard !newValue.requiresPremium || state.hasPremium else {
-            coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
-            return
-        }
-        state.type = newValue
     }
 
     /// Validates that the content in the state comprises a valid send. If any validation issue is

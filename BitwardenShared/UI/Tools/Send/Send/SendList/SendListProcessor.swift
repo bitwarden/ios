@@ -46,6 +46,8 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     override func perform(_ effect: SendListEffect) async {
         switch effect {
+        case let .addItemPressed(sendType):
+            await addNewSend(sendType: sendType)
         case .loadData:
             await loadData()
         case let .search(text):
@@ -79,8 +81,6 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
 
     override func receive(_ action: SendListAction) {
         switch action {
-        case .addItemPressed:
-            coordinator.navigate(to: .addItem(type: state.type), context: self)
         case .clearInfoUrl:
             state.infoUrl = nil
         case .infoButtonPressed:
@@ -113,6 +113,30 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     }
 
     // MARK: Private Methods
+
+    /// Navigates to the add new send view. If the user is trying to add a new send type which
+    /// requires premium and they don't have premium this will instead show an error alert to the
+    /// user.
+    ///
+    /// - Parameter sendType: The type of send the user is trying to add.
+    ///
+    private func addNewSend(sendType: SendType) async {
+        if sendType.requiresPremium {
+            let hasPremium: Bool
+            do {
+                hasPremium = try await services.sendRepository.doesActiveAccountHavePremium()
+            } catch {
+                hasPremium = false
+                services.errorReporter.log(error: error)
+            }
+
+            guard hasPremium else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))
+                return
+            }
+        }
+        coordinator.navigate(to: .addItem(type: sendType), context: self)
+    }
 
     /// Refreshes the user's vault, including sends.
     ///

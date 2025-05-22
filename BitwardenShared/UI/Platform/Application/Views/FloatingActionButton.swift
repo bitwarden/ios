@@ -15,12 +15,12 @@ struct FloatingActionButton: View {
     let image: Image
 
     /// A closure that defines the action to be performed when the button is tapped.
-    let action: () -> Void
+    let action: () async -> Void
 
     // MARK: View
 
     var body: some View {
-        Button(action: action) {
+        AsyncButton(action: action) {
             image.imageStyle(.floatingActionButton)
         }
         .buttonStyle(CircleButtonStyle(diameter: 50))

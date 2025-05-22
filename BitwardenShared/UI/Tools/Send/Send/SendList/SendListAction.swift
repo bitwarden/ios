@@ -3,9 +3,6 @@
 /// Actions that can be processed by a `SendListProcessor`.
 ///
 enum SendListAction: Equatable, Sendable {
-    /// The add item button was pressed.
-    case addItemPressed
-
     /// Clears the info URL after the web app has been opened.
     case clearInfoUrl
 

@@ -56,6 +56,55 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
     // MARK: Tests
 
+    /// `perform(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    @MainActor
+    func test_perform_addItemPressed_fileType() async {
+        subject.state.type = .file
+        await subject.perform(.addItemPressed(.file))
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .file))
+    }
+
+    /// `perform(_:)` with `.addItemPressed` shows an alert if attempting to add a file send and
+    /// there's an error determining if the user has premium.
+    @MainActor
+    func test_perform_addItemPressed_fileType_error() async throws {
+        sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
+        subject.state.type = .file
+        await subject.perform(.addItemPressed(.file))
+
+        XCTAssertEqual(
+            coordinator.alertShown,
+            [.defaultAlert(title: Localizations.sendFilePremiumRequired)]
+        )
+        XCTAssertTrue(coordinator.routes.isEmpty)
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `.addItemPressed` shows an alert if attempting to add a file send and
+    /// the user doesn't have premium.
+    @MainActor
+    func test_perform_addItemPressed_fileType_withoutPremium() async throws {
+        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        subject.state.type = .file
+        await subject.perform(.addItemPressed(.file))
+
+        XCTAssertEqual(
+            coordinator.alertShown,
+            [.defaultAlert(title: Localizations.sendFilePremiumRequired)]
+        )
+        XCTAssertTrue(coordinator.routes.isEmpty)
+    }
+
+    /// `perform(_:)` with `.addItemPressed` navigates to the `.addItem` route.
+    @MainActor
+    func test_perform_addItemPressed_textType() async {
+        subject.state.type = .text
+        await subject.perform(.addItemPressed(.text))
+
+        XCTAssertEqual(coordinator.routes.last, .addItem(type: .text))
+    }
+
     /// `perform(_:)` with `loadData` loads the policy data for the view.
     @MainActor
     func test_perform_loadData_policies() async {
@@ -411,33 +460,6 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
 
         let sections = try XCTUnwrap(subject.state.loadingState.data)
         XCTAssertTrue(sections.isEmpty)
-    }
-
-    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
-    @MainActor
-    func test_receive_addItemPressed_nilType() {
-        subject.state.type = nil
-        subject.receive(.addItemPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .addItem(type: nil))
-    }
-
-    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
-    @MainActor
-    func test_receive_addItemPressed_fileType() {
-        subject.state.type = .file
-        subject.receive(.addItemPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .addItem(type: .file))
-    }
-
-    /// `receive(_:)` with `.addItemPressed` navigates to the `.addItem` route.
-    @MainActor
-    func test_receive_addItemPressed_textType() {
-        subject.state.type = .text
-        subject.receive(.addItemPressed)
-
-        XCTAssertEqual(coordinator.routes.last, .addItem(type: .text))
     }
 
     /// `receive(_:)` with `.clearInfoUrl` clears the info url.

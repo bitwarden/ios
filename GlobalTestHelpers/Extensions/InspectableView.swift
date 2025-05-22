@@ -82,6 +82,17 @@ struct BitwardenUITextViewType: BaseViewType {
     ]
 }
 
+/// A generic type wrapper around `FloatingActionButton` to allow `ViewInspector` to find instances
+/// of `FloatingActionButton` without needing to know the details of it's implementation.
+///
+struct FloatingActionButtonType: BaseViewType {
+    static var typePrefix: String = "FloatingActionButton"
+
+    static var namespacedPrefixes: [String] = [
+        "BitwardenShared.FloatingActionButton",
+    ]
+}
+
 /// A generic type wrapper around `LoadingView` to allow `ViewInspector` to find instances of
 /// `LoadingView` without needing to know the details of it's implementation.
 ///
@@ -181,6 +192,21 @@ extension InspectableView {
         locale: Locale = .testsDefault
     ) throws -> InspectableView<BitwardenTextFieldType> {
         try find(BitwardenTextFieldType.self, containing: title, locale: locale)
+    }
+
+    /// Attempts to locate an floating action button with the provided accessibility identifier.
+    ///
+    /// - Parameter accessibilityIdentifier: The accessibility identifier to use while searching for
+    ///     a floating action button.
+    /// - Returns: A floating action button, if one can be located.
+    /// - Throws: Throws an error if a view was unable to be located.
+    ///
+    func find(
+        floatingActionButtonWithAccessibilityIdentifier accessibilityIdentifier: String
+    ) throws -> InspectableView<FloatingActionButtonType> {
+        try find(FloatingActionButtonType.self) { view in
+            try view.accessibilityIdentifier() == accessibilityIdentifier
+        }
     }
 
     /// Attempts to locate a generic view with the provided accessibility label.
@@ -410,5 +436,16 @@ extension InspectableView where View == BitwardenStepperType {
     func increment() throws {
         let button = try find(buttonWithId: "increment")
         try button.tap()
+    }
+}
+
+extension InspectableView where View == FloatingActionButtonType {
+    /// Simulates a tap on an `AsyncButton` within a `FloatingActionButton`. This method is
+    /// asynchronous and allows the entire `async` `action` on the button to run before returning.
+    ///
+    @MainActor
+    func tap() async throws {
+        let button = try find(AsyncButtonType.self)
+        try await button.tap()
     }
 }
