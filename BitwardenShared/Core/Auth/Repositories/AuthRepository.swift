@@ -1105,6 +1105,7 @@ extension DefaultAuthRepository: AuthRepository {
 
         try await clientService.crypto().initializeUserCrypto(
             req: InitUserCryptoRequest(
+                userId: account.profile.userId,
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
                 privateKey: encryptionKeys.encryptedPrivateKey,

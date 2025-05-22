@@ -18,18 +18,22 @@ enum CipherAPIServiceError: Error {
 protocol CipherAPIService {
     /// Performs an API request to add a new cipher to the user's vault.
     ///
-    /// - Parameter cipher: The cipher that the user is adding.
+    /// - Parameters:
+    ///   - cipher: The cipher that the user is adding.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was added to the user's vault.
     ///
-    func addCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
+    func addCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to add a new cipher contained within one or more collections to the
     /// user's vault.
     ///
-    /// - Parameter cipher: The cipher that the user is adding.
+    /// - Parameters:
+    ///   - cipher: The cipher that the user is adding.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was added to the user's vault.
     ///
-    func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
+    func addCipherWithCollections(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to delete an existing attachment in the user's vault.
     ///
@@ -99,10 +103,12 @@ protocol CipherAPIService {
 
     /// Performs an API request to share a cipher with an organization.
     ///
-    /// - Parameter cipher: The cipher to share.
+    /// - Parameters:
+    ///   - cipher: The cipher to share.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was shared with the organization.
     ///
-    func shareCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
+    func shareCipher(_ cipher: Cipher, encryptedFor: String) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to soft delete an existing cipher in the user's vault.
     ///
@@ -113,10 +119,12 @@ protocol CipherAPIService {
 
     /// Performs an API request to update an existing cipher in the user's vault.
     ///
-    /// - Parameter cipher: The cipher that the user is updating.
+    /// - Parameters:
+    ///   - cipher: The cipher that the user is updating.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was updated in the user's vault.
     ///
-    func updateCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel
+    func updateCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to update the collections that a cipher is included in.
     ///
@@ -133,12 +141,12 @@ protocol CipherAPIService {
 }
 
 extension APIService: CipherAPIService {
-    func addCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
-        try await apiService.send(AddCipherRequest(cipher: cipher))
+    func addCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(AddCipherRequest(cipher: cipher, encryptedFor: encryptedFor))
     }
 
-    func addCipherWithCollections(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
-        try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher))
+    func addCipherWithCollections(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(AddCipherWithCollectionsRequest(cipher: cipher, encryptedFor: encryptedFor))
     }
 
     func deleteAttachment(withID attachmentId: String, cipherId: String) async throws -> EmptyResponse {
@@ -179,16 +187,16 @@ extension APIService: CipherAPIService {
         ))
     }
 
-    func shareCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
-        try await apiService.send(ShareCipherRequest(cipher: cipher))
+    func shareCipher(_ cipher: Cipher, encryptedFor: String) async throws -> CipherDetailsResponseModel {
+        try await apiService.send(ShareCipherRequest(cipher: cipher, encryptedFor: encryptedFor))
     }
 
     func softDeleteCipher(withID id: String) async throws -> EmptyResponse {
         try await apiService.send(SoftDeleteCipherRequest(id: id))
     }
 
-    func updateCipher(_ cipher: Cipher) async throws -> CipherDetailsResponseModel {
-        let updateRequest = try UpdateCipherRequest(cipher: cipher)
+    func updateCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
+        let updateRequest = try UpdateCipherRequest(cipher: cipher, encryptedFor: encryptedFor)
         return try await apiService.send(updateRequest)
     }
 

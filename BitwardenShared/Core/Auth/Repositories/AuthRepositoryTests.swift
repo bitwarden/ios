@@ -1279,6 +1279,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
             InitUserCryptoRequest(
+                userId: "1",
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
                 privateKey: "private",
@@ -1754,6 +1755,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
             InitUserCryptoRequest(
+                userId: "1",
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
@@ -1929,6 +1931,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
             InitUserCryptoRequest(
+                userId: "1",
                 kdfParams: KdfConfig().sdkKdf,
                 email: "user@bitwarden.com",
                 privateKey: "private",
@@ -1979,6 +1982,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
             InitUserCryptoRequest(
+                userId: "1",
                 kdfParams: KdfConfig().sdkKdf,
                 email: "user@bitwarden.com",
                 privateKey: "private",
@@ -2168,6 +2172,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
             InitUserCryptoRequest(
+                userId: "1",
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
@@ -2197,6 +2202,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
             InitUserCryptoRequest(
+                userId: "1",
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
@@ -2229,6 +2235,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(
             clientService.mockCrypto.initializeUserCryptoRequest,
             InitUserCryptoRequest(
+                userId: "1",
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
