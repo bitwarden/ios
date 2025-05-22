@@ -19,6 +19,34 @@ on:
       skip_checkout:
         description: "Skip checking out the repository"
         type: boolean
+  workflow_call:
+    inputs:
+      base_version_number:
+        description: "Base Version Number - Will be added to the calculated version number"
+        type: number
+        default: 0
+      version_name:
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      version_number:
+        description: "Version Number Override - e.g. '1021'"
+        type: string
+      patch_version:
+        description: "Patch Version Override - e.g. '999'"
+        type: string
+      distinct_id:
+        description: "Unique ID for this dispatch, used by dispatch-and-download.yml"
+        type: string
+      skip_checkout:
+        description: "Skip checking out the repository"
+        type: boolean
+    outputs:
+      version_name:
+        description: "Version Name"
+        value: ${{ jobs.calculate-version.outputs.version_name }}
+      version_number:
+        description: "Version Number"
+        value: ${{ jobs.calculate-version.outputs.version_number }}
 
 env:
   BASE_VERSION_NUMBER: ${{ inputs.base_version_number || 0 }}
@@ -29,6 +57,9 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       contents: read
+    outputs:
+      version_name: ${{ steps.calc-version-name.outputs.version_name }}
+      version_number: ${{ steps.calc-version-number.outputs.version_number }}
     steps:
       - name: Log inputs to job summary
         run: |
