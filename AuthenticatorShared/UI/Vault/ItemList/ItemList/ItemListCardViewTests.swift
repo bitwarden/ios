@@ -18,7 +18,7 @@ class ItemListCardViewTests: BitwardenTestCase {
                 as: [
                     "\(name)-portrait": .defaultPortrait,
                     "\(name)-portraitDark": .defaultPortraitDark,
-                    "\(name)-portraitAX5": .defaultPortraitAX5,
+                    "\(name)-portraitAX5": .tallPortraitAX5(heightMultiple: 3),
                 ]
             )
         }

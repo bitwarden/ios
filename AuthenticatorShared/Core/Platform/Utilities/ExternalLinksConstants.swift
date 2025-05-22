@@ -58,4 +58,7 @@ enum ExternalLinksConstants {
 
     /// A markdown link to Bitwarden's terms of service.
     static let termsOfService = URL(string: "https://bitwarden.com/terms/")!
+
+    /// A link to the Bitwarden Help Center page for syncing TOTP codes between PM and Authenticator.
+    static let totpSyncHelp = URL(string: "https://bitwarden.com/help/totp-sync/")!
 }
