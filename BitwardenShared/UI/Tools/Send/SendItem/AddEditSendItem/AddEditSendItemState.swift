@@ -18,19 +18,6 @@ struct AddEditSendItemState: Equatable, Sendable {
 
         /// A mode for adding a new send using the share extension.
         case shareExtension(ProfileSwitcherState)
-
-        /// The navigation title to use for this mode.
-        var navigationTitle: String {
-            switch self {
-            case .add,
-                 .shareExtension:
-                Localizations.newSend.capitalized(
-                    with: Locale(identifier: UI.initialLanguageCode ?? "")
-                )
-            case .edit:
-                Localizations.editSend
-            }
-        }
     }
 
     // MARK: Properties
@@ -125,6 +112,27 @@ struct AddEditSendItemState: Equatable, Sendable {
             [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays]
         case .edit:
             [.oneHour, .oneDay, .twoDays, .threeDays, .sevenDays, .thirtyDays, .custom(customDeletionDate)]
+        }
+    }
+
+    /// The navigation title to use for the view.
+    var navigationTitle: String {
+        switch mode {
+        case .add,
+             .shareExtension:
+            switch type {
+            case .file:
+                Localizations.newFileSend
+            case .text:
+                Localizations.newTextSend
+            }
+        case .edit:
+            switch type {
+            case .file:
+                Localizations.editFileSend
+            case .text:
+                Localizations.editTextSend
+            }
         }
     }
 }

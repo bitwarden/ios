@@ -44,7 +44,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
         .backport.dismissKeyboardInteractively()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationBar(
-            title: store.state.mode.navigationTitle,
+            title: store.state.navigationTitle,
             titleDisplayMode: .inline
         )
         .toolbar {
