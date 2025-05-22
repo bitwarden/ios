@@ -50,7 +50,7 @@ class MockCryptoClient: CryptoClientProtocol {
         try derivePinUserKeyResult.get()
     }
 
-    func enrollAdminPasswordReset(publicKey: String) throws -> AsymmetricEncString {
+    func enrollAdminPasswordReset(publicKey: String) throws -> UnsignedSharedKey {
         enrollAdminPasswordPublicKey = publicKey
         return try enrollAdminPasswordResetResult.get()
     }

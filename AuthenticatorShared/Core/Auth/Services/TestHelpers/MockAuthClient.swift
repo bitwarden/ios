@@ -5,7 +5,7 @@ import Foundation
 
 class MockAuthClient: AuthClientProtocol {
     var approveAuthRequestPublicKey: String?
-    var approveAuthRequestResult: Result<AsymmetricEncString, Error> = .success("")
+    var approveAuthRequestResult: Result<UnsignedSharedKey, Error> = .success("")
 
     var hashPasswordEmail: String?
     var hashPasswordPassword: String?
@@ -86,7 +86,7 @@ class MockAuthClient: AuthClientProtocol {
         )
     )
 
-    func approveAuthRequest(publicKey: String) throws -> AsymmetricEncString {
+    func approveAuthRequest(publicKey: String) throws -> UnsignedSharedKey {
         approveAuthRequestPublicKey = publicKey
         return try approveAuthRequestResult.get()
     }

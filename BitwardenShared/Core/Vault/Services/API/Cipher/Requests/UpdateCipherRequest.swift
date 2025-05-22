@@ -31,12 +31,13 @@ struct UpdateCipherRequest: Request {
 
     /// Initialize an `UpdateCipherRequest` for a `Cipher`.
     ///
-    /// - Parameter cipher: The `Cipher` to update in the user's vault.
-    ///
-    init(cipher: Cipher) throws {
+    /// - Parameters:
+    ///   - cipher: The `Cipher` to update in the user's vault.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
+    init(cipher: Cipher, encryptedFor: String?) throws {
         guard let id = cipher.id,
               !id.isEmpty else { throw CipherAPIServiceError.updateMissingId }
         self.id = id
-        requestModel = CipherRequestModel(cipher: cipher)
+        requestModel = CipherRequestModel(cipher: cipher, encryptedFor: encryptedFor)
     }
 }

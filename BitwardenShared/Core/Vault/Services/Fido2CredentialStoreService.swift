@@ -90,11 +90,11 @@ class Fido2CredentialStoreService: Fido2CredentialStore {
 
     /// Saves a cipher credential that contains a Fido2 credential, either creating it or updating it to server.
     /// - Parameter cred: Cipher/Credential to add/update.
-    func saveCredential(cred: BitwardenSdk.Cipher) async throws {
-        if cred.id == nil {
-            try await cipherService.addCipherWithServer(cred)
+    func saveCredential(cred: BitwardenSdk.EncryptionContext) async throws {
+        if cred.cipher.id == nil {
+            try await cipherService.addCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
         } else {
-            try await cipherService.updateCipherWithServer(cred)
+            try await cipherService.updateCipherWithServer(cred.cipher, encryptedFor: cred.encryptedFor)
         }
     }
 }
@@ -140,10 +140,10 @@ class DebuggingFido2CredentialStoreService: Fido2CredentialStore {
         }
     }
 
-    func saveCredential(cred: BitwardenSdk.Cipher) async throws {
+    func saveCredential(cred: BitwardenSdk.EncryptionContext) async throws {
         do {
             try await fido2CredentialStore.saveCredential(cred: cred)
-            Fido2DebuggingReportBuilder.builder.withSaveCredentialCipher(.success(cred))
+            Fido2DebuggingReportBuilder.builder.withSaveCredentialCipher(.success(cred.cipher))
         } catch {
             Fido2DebuggingReportBuilder.builder.withFindCredentialsResult(.failure(error))
             throw error

@@ -34,7 +34,10 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     func test_addCipher() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        let response = try await subject.addCipher(.fixture())
+        let response = try await subject.addCipher(
+            .fixture(),
+            encryptedFor: "1"
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -85,7 +88,10 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     func test_addCipherWithCollections() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        let response = try await subject.addCipherWithCollections(.fixture(collectionIds: ["1", "2", "3"]))
+        let response = try await subject.addCipherWithCollections(
+            .fixture(collectionIds: ["1", "2", "3"]),
+            encryptedFor: "1"
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)
@@ -268,7 +274,10 @@ class CipherAPIServiceTests: XCTestCase { // swiftlint:disable:this type_body_le
     func test_shareCipher() async throws {
         client.result = .httpSuccess(testData: .cipherResponse)
 
-        let response = try await subject.shareCipher(.fixture(collectionIds: ["1", "2", "3"], id: "1"))
+        let response = try await subject.shareCipher(
+            .fixture(collectionIds: ["1", "2", "3"], id: "1"),
+            encryptedFor: "1"
+        )
 
         XCTAssertEqual(client.requests.count, 1)
         XCTAssertNotNil(client.requests[0].body)

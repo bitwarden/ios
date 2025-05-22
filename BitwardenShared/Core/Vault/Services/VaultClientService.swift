@@ -7,19 +7,19 @@ import Foundation
 protocol VaultClientService: AnyObject {
     /// Returns an object that handles encryption and decryption for attachments.
     ///
-    func attachments() -> ClientAttachmentsProtocol
+    func attachments() -> AttachmentsClientProtocol
 
     /// Returns an object that handles encryption and decryption for ciphers.
     ///
-    func ciphers() -> ClientCiphersProtocol
+    func ciphers() -> CiphersClientProtocol
 
     /// Returns an object that handles encryption and decryption for collections.
     ///
-    func collections() -> ClientCollectionsProtocol
+    func collections() -> CollectionsClientProtocol
 
     /// Returns an object that handles encryption and decryption for folders.
     ///
-    func folders() -> ClientFoldersProtocol
+    func folders() -> FoldersClientProtocol
 
     /// Returns a TOTP Code for a key.
     ///
@@ -32,26 +32,26 @@ protocol VaultClientService: AnyObject {
 
     /// Returns an object that handles encryption and decryption for password history.
     ///
-    func passwordHistory() -> ClientPasswordHistoryProtocol
+    func passwordHistory() -> PasswordHistoryClientProtocol
 }
 
 // MARK: - VaultClient
 
 extension VaultClient: VaultClientService {
-    func attachments() -> ClientAttachmentsProtocol {
-        attachments() as ClientAttachments
+    func attachments() -> AttachmentsClientProtocol {
+        attachments() as AttachmentsClient
     }
 
-    func ciphers() -> ClientCiphersProtocol {
-        ciphers() as ClientCiphers
+    func ciphers() -> CiphersClientProtocol {
+        ciphers() as CiphersClient
     }
 
-    func collections() -> ClientCollectionsProtocol {
-        collections() as ClientCollections
+    func collections() -> CollectionsClientProtocol {
+        collections() as CollectionsClient
     }
 
-    func folders() -> ClientFoldersProtocol {
-        folders() as ClientFolders
+    func folders() -> FoldersClientProtocol {
+        folders() as FoldersClient
     }
 
     func generateTOTPCode(for key: String, date: Date? = nil) throws -> TOTPCodeModel {
@@ -64,7 +64,7 @@ extension VaultClient: VaultClientService {
         )
     }
 
-    func passwordHistory() -> ClientPasswordHistoryProtocol {
-        passwordHistory() as ClientPasswordHistory
+    func passwordHistory() -> PasswordHistoryClientProtocol {
+        passwordHistory() as PasswordHistoryClient
     }
 }
