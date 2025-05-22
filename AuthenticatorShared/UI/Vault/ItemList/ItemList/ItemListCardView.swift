@@ -96,38 +96,40 @@ struct ItemListCardView<ImageContent: View>: View {
 #if DEBUG
 struct ItemListCardView_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
-            ItemListCardView(
-                bodyText: Localizations
-                    .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
-                buttonText: Localizations.takeMeToTheAppSettings,
-                leftImage: {
-                    Image(decorative: Asset.Images.syncArrow)
-                        .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
-                        .frame(width: 24, height: 24)
-                },
-                titleText: Localizations.syncWithTheBitwardenApp,
-                actionTapped: {},
-                closeTapped: {}
-            )
+        ScrollView {
+            VStack {
+                ItemListCardView(
+                    bodyText: Localizations
+                        .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
+                    buttonText: Localizations.takeMeToTheAppSettings,
+                    leftImage: {
+                        Image(decorative: Asset.Images.syncArrow)
+                            .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                            .frame(width: 24, height: 24)
+                    },
+                    titleText: Localizations.syncWithTheBitwardenApp,
+                    actionTapped: {},
+                    closeTapped: {}
+                )
 
-            ItemListCardView(
-                bodyText: Localizations
-                    .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
-                buttonText: Localizations.takeMeToTheAppSettings,
-                leftImage: {
-                    Image(decorative: Asset.Images.syncArrow)
-                        .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
-                        .frame(width: 24, height: 24)
-                },
-                secondaryButtonText: Localizations.learnMore,
-                titleText: Localizations.syncWithTheBitwardenApp,
-                actionTapped: {},
-                closeTapped: {},
-                secondaryActionTapped: {}
-            )
+                ItemListCardView(
+                    bodyText: Localizations
+                        .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
+                    buttonText: Localizations.takeMeToTheAppSettings,
+                    leftImage: {
+                        Image(decorative: Asset.Images.syncArrow)
+                            .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                            .frame(width: 24, height: 24)
+                    },
+                    secondaryButtonText: Localizations.learnMore,
+                    titleText: Localizations.syncWithTheBitwardenApp,
+                    actionTapped: {},
+                    closeTapped: {},
+                    secondaryActionTapped: {}
+                )
+            }
+            .padding(16)
         }
-        .padding(16)
     }
 }
 #endif
