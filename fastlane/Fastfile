@@ -31,4 +31,12 @@ platform :ios do |options|
         }
     )
     end
+
+    desc "Get latest published version"
+    lane :get_latest_version do
+        app_store_build_number(
+            api_key_path: options[:api_key_path]
+        )
+        puts lane_context[SharedValues::LATEST_VERSION]
+    end
 end
