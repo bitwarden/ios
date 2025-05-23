@@ -53,7 +53,7 @@ class ShareViewController: UIViewController {
     ///
     private func initializeApp(with content: AddSendContentType) async {
         let errorReporter = OSLogErrorReporter()
-        let services = ServiceContainer(errorReporter: errorReporter)
+        let services = ServiceContainer(appContext: .appExtension, errorReporter: errorReporter)
         let appModule = DefaultAppModule(appExtensionDelegate: self, services: services)
         let appProcessor = AppProcessor(appModule: appModule, services: services)
         self.appProcessor = appProcessor

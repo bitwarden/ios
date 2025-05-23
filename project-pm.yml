@@ -164,6 +164,7 @@ targets:
         buildPhase: none
       - path: swiftgen-pm.yml
         buildPhase: none
+      - path: BitwardenShared/UI/Platform/Application/Support/Localizations  # Needed for AppIntent.
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension

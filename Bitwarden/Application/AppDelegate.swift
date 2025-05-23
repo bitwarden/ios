@@ -38,15 +38,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         UNUserNotificationCenter.current().delegate = self
 
-        #if DEBUG
-        let errorReporter = OSLogErrorReporter()
-        #else
-        let errorReporter = CrashlyticsErrorReporter()
-        #endif
-
         let services = ServiceContainer(
             application: UIApplication.shared,
-            errorReporter: errorReporter,
+            errorReporter: ErrorReporterFactory.makeDefaultErrorReporter(),
             nfcReaderService: DefaultNFCReaderService()
         )
         let appModule = DefaultAppModule(services: services)

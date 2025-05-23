@@ -346,7 +346,7 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
             guard let route = appExtensionDelegate.authCompletionRoute else { return }
             navigate(to: route)
-        case .mainApp:
+        case .appIntent, .mainApp:
             showTab(route: .vault(.list))
 
             if let rehydratableTarget {

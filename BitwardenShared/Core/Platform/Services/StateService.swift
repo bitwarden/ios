@@ -278,6 +278,10 @@ protocol StateService: AnyObject {
     ///
     func getPasswordGenerationOptions(userId: String?) async throws -> PasswordGenerationOptions?
 
+    /// Gets the pending actions from `AppIntent`s.
+    /// - Returns: The pending actions to execute.
+    func getPendingAppIntentActions() async -> [PendingAppIntentAction]?
+
     /// Gets the environment URLs used by the app prior to the user authenticating.
     ///
     /// - Returns: The environment URLs used prior to user authentication.
@@ -613,6 +617,10 @@ protocol StateService: AnyObject {
     ///
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws
 
+    /// Sets the pending actions from `AppIntent`s.
+    /// - Parameter actions: Actions pending to be executed.
+    func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async
+
     /// Set's the pin keys.
     ///
     /// - Parameters:
@@ -784,6 +792,16 @@ protocol StateService: AnyObject {
 }
 
 extension StateService {
+    /// Appends the `action` to the current pending `AppIntent` actions.
+    func addPendingAppIntentAction(_ action: PendingAppIntentAction) async {
+        var actions = await getPendingAppIntentActions() ?? []
+        guard !actions.contains(action) else {
+            return
+        }
+        actions.append(action)
+        await setPendingAppIntentActions(actions: actions)
+    }
+
     /// Gets the account encryptions keys for the active account.
     ///
     /// - Returns: The account encryption keys.
@@ -1579,6 +1597,10 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         return appSettingsStore.passwordGenerationOptions(userId: userId)
     }
 
+    func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
+        appSettingsStore.pendingAppIntentActions
+    }
+
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
         appSettingsStore.preAuthEnvironmentURLs
     }
@@ -1872,6 +1894,15 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setPasswordGenerationOptions(options, userId: userId)
+    }
+
+    func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async {
+        guard !actions.isEmptyOrNil else {
+            appSettingsStore.pendingAppIntentActions = nil
+            return
+        }
+
+        appSettingsStore.pendingAppIntentActions = actions
     }
 
     func setPinKeys(
