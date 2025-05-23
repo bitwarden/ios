@@ -1,4 +1,4 @@
-"About" = "О нас";
+"About" = "О приложении";
 "Add" = "Добавить";
 "AnErrorHasOccurred" = "Произошла ошибка.";
 "Cancel" = "Отменить";
@@ -44,7 +44,7 @@
 "FaceID" = "Face ID";
 "UseFaceIDToUnlock" = "Используйте Face ID для разблокировки";
 "Default" = "По умолчанию";
-"TryAgain" = "Попробуйте еще раз";
+"TryAgain" = "Попробуйте еще";
 "Dark" = "Темная";
 "Light" = "Светлая";
 "FiveMinutes" = "5 минут";
