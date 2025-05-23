@@ -47,6 +47,9 @@ public enum VaultRoute: Equatable, Hashable {
     /// A route to dismiss the screen currently presented modally.
     case dismiss
 
+    /// A route to the flight recorder settings in the settings tab.
+    case flightRecorderSettings
+
     /// A route to the vault item list screen for the specified group.
     case group(_ group: VaultListGroup, filter: VaultFilterType)
 
@@ -64,13 +67,6 @@ public enum VaultRoute: Equatable, Hashable {
     /// - Parameter loginRequest: The login request to display.
     ///
     case loginRequest(_ loginRequest: LoginRequest)
-
-    /// A route to the two-factor notice screen.
-    ///
-    /// - Parameters:
-    ///   - allowDelay: Whether the user has a button to delay setting up two-factor authentication.
-    ///   - emailAddress: The email address of the user.
-    case twoFactorNotice(allowDelay: Bool, emailAddress: String)
 
     /// A route to switch accounts.
     ///

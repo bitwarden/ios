@@ -45,6 +45,10 @@ protocol AuthRepository: AnyObject {
     ///
     func clearPins() async throws
 
+    /// Convert new user to key connector.
+    ///
+    func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws
+
     /// Create new account for a JIT sso user .
     ///
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws
@@ -106,6 +110,12 @@ protocol AuthRepository: AnyObject {
     /// - Returns: `true` user is managed by an organization, `false` otherwise.
     ///
     func isUserManagedByOrganization() async throws -> Bool
+
+    /// User leaves organization
+    ///
+    /// - Parameters:
+    ///   - organizationId: The ID of the organization the user is leaving.
+    func leaveOrganization(organizationId: String) async throws
 
     /// Locks all vaults and clears decrypted data from memory
     /// - Parameter isManuallyLocking: Whether the user is manually locking the account.
@@ -577,6 +587,13 @@ extension DefaultAuthRepository: AuthRepository {
         }
     }
 
+    func convertNewUserToKeyConnector(keyConnectorURL: URL, orgIdentifier: String) async throws {
+        try await keyConnectorService.convertNewUserToKeyConnector(
+            keyConnectorUrl: keyConnectorURL,
+            orgIdentifier: orgIdentifier
+        )
+    }
+
     func createNewSsoUser(orgIdentifier: String, rememberDevice: Bool) async throws {
         let account = try await stateService.getActiveAccount()
         let enrollStatus = try await organizationAPIService.getOrganizationAutoEnrollStatus(identifier: orgIdentifier)
@@ -762,10 +779,15 @@ extension DefaultAuthRepository: AuthRepository {
         try await keyConnectorService.migrateUser(password: password)
     }
 
+    func leaveOrganization(organizationId: String) async throws {
+        try await organizationAPIService.leaveOrganization(organizationId: organizationId)
+    }
+
     func logout(userId: String?, userInitiated: Bool) async throws {
         let userId = try await stateService.getAccountIdOrActiveId(userId: userId)
 
         // Clear all user data.
+        try await stateService.setSyncToAuthenticator(false, userId: userId)
         try await biometricsRepository.setBiometricUnlockKey(authKey: nil)
         try await keychainService.deleteItems(for: userId)
         await vaultTimeoutService.remove(userId: userId)
@@ -979,18 +1001,7 @@ extension DefaultAuthRepository: AuthRepository {
     func unlockVaultWithKeyConnectorKey(keyConnectorURL: URL, orgIdentifier: String) async throws {
         let account = try await stateService.getActiveAccount()
 
-        let encryptionKeys: AccountEncryptionKeys
-        do {
-            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        } catch StateServiceError.noEncryptedPrivateKey {
-            // If the private key doesn't exist, this is a new user and we need to convert them to
-            // use key connector.
-            try await keyConnectorService.convertNewUserToKeyConnector(
-                keyConnectorUrl: keyConnectorURL,
-                orgIdentifier: orgIdentifier
-            )
-            encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
-        }
+        let encryptionKeys = try await stateService.getAccountEncryptionKeys(userId: account.profile.userId)
 
         guard let encryptedUserKey = encryptionKeys.encryptedUserKey else { throw StateServiceError.noEncUserKey }
 

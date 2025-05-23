@@ -8,7 +8,7 @@ import XCTest
 @testable import BitwardenShared
 
 @available(iOS 18.0, *)
-class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_body_length type_name line_length
+class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swiftlint:disable:this type_name line_length
     // MARK: Properties
 
     var appExtensionDelegate: MockAutofillAppExtensionDelegate!
@@ -104,7 +104,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 id: "1",
                 itemType: .cipher(
                     .fixture(
-                        card: .fixture(cardholderName: "Cardholder Bit"),
                         id: "1",
                         type: .card
                     )
@@ -115,7 +114,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        identity: .fixture(firstName: "BitFirst", lastName: "Last"),
                         type: .identity
                     )
                 )
@@ -148,7 +146,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 id: "1",
                 itemType: .cipher(
                     .fixture(
-                        card: .fixture(cardholderName: "Cardholder Bit"),
                         id: "1",
                         type: .card
                     )
@@ -158,7 +155,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 id: "2",
                 itemType: .cipher(
                     .fixture(
-                        card: .fixture(cardholderName: "Cardholder Bit 2"),
                         id: "2",
                         type: .card
                     )
@@ -193,7 +189,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 id: "1",
                 itemType: .cipher(
                     .fixture(
-                        card: .fixture(cardholderName: "Cardholder Bit"),
                         id: "1",
                         type: .card
                     )
@@ -204,7 +199,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        identity: .fixture(firstName: "BitFirst", lastName: "Last"),
                         type: .identity
                     )
                 )
@@ -235,7 +229,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 id: "1",
                 itemType: .cipher(
                     .fixture(
-                        card: .fixture(cardholderName: "Cardholder Bit"),
                         id: "1",
                         type: .card
                     )
@@ -245,7 +238,6 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 id: "2",
                 itemType: .cipher(
                     .fixture(
-                        card: .fixture(cardholderName: "Cardholder Bit 2"),
                         id: "2",
                         type: .card
                     )
@@ -275,10 +267,9 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
     @MainActor
     func test_perform_vaultItemTapped() async {
         let vaultListItem = VaultListItem(
-            cipherView: CipherView.fixture(
+            cipherListView: CipherListView.fixture(
                 id: "1",
                 login: .fixture(
-                    password: "PASSWORD",
                     username: "user@bitwarden.com"
                 )
             )
@@ -292,10 +283,9 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
     @MainActor
     func test_perform_vaultItemTappedThrows() async throws {
         let vaultListItem = VaultListItem(
-            cipherView: CipherView.fixture(
+            cipherListView: CipherListView.fixture(
                 id: "1",
                 login: .fixture(
-                    password: "PASSWORD",
                     username: "user@bitwarden.com"
                 ),
                 name: "Test"

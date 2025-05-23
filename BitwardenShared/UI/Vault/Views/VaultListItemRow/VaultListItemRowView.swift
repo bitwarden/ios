@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -45,7 +46,7 @@ struct VaultListItemRowView: View {
                                         .accessibilityIdentifier("CipherInCollectionIcon")
                                 }
 
-                                if cipherItem.attachments?.isEmpty == false {
+                                if cipherItem.attachments > 0 {
                                     Asset.Images.paperclip16.swiftUIImage
                                         .imageStyle(.accessoryIcon16(
                                             color: Asset.Colors.textSecondary.swiftUIColor,
@@ -130,7 +131,7 @@ struct VaultListItemRowView: View {
                 .styleGuide(.body)
                 .lineLimit(1)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            if let username = model.loginView.username {
+            if let username = model.loginListView.username {
                 Text(username)
                     .styleGuide(.subheadline)
                     .lineLimit(1)

@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import BitwardenSdk
 import Combine
 import Foundation
@@ -328,45 +330,5 @@ class MockVaultRepository: VaultRepository {
         filter _: BitwardenShared.VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         vaultListGroupSubject.eraseToAnyPublisher().values
-    }
-}
-
-// MARK: - MockTimeProvider
-
-class MockTimeProvider {
-    enum TimeConfig {
-        case currentTime
-        case mockTime(Date)
-
-        var date: Date {
-            switch self {
-            case .currentTime:
-                return .now
-            case let .mockTime(fixedDate):
-                return fixedDate
-            }
-        }
-    }
-
-    var timeConfig: TimeConfig
-
-    init(_ timeConfig: TimeConfig) {
-        self.timeConfig = timeConfig
-    }
-}
-
-extension MockTimeProvider: Equatable {
-    static func == (_: MockTimeProvider, _: MockTimeProvider) -> Bool {
-        true
-    }
-}
-
-extension MockTimeProvider: TimeProvider {
-    var presentTime: Date {
-        timeConfig.date
-    }
-
-    func timeSince(_ date: Date) -> TimeInterval {
-        presentTime.timeIntervalSince(date)
     }
 }

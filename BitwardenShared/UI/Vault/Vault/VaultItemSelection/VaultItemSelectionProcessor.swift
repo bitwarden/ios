@@ -192,18 +192,24 @@ class VaultItemSelectionProcessor: StateProcessor<
     ///     to add the OTP key to.
     ///
     private func showEditForNewOtpKey(vaultListItem: VaultListItem) async {
-        guard case let .cipher(cipherView, _) = vaultListItem.itemType,
-              cipherView.type == .login,
-              let login = cipherView.login else {
+        guard case let .cipher(cipher, _) = vaultListItem.itemType,
+              cipher.type.isLogin else {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
             return
         }
 
         do {
-            if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipherView.reprompt) {
+            if try await services.authRepository.shouldPerformMasterPasswordReprompt(reprompt: cipher.reprompt) {
                 guard try await userVerificationHelper.verifyMasterPassword() == .verified else {
                     return
                 }
+            }
+
+            guard let cipherId = cipher.id,
+                  let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId),
+                  let login = cipherView.login else {
+                coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+                return
             }
 
             let updatedCipherView = cipherView.update(login: login.update(totp: state.totpKeyModel.rawAuthenticatorKey))

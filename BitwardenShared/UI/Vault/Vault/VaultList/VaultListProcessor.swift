@@ -21,6 +21,7 @@ final class VaultListProcessor: StateProcessor<
         & HasConfigService
         & HasErrorReporter
         & HasEventService
+        & HasFlightRecorder
         & HasNotificationService
         & HasPasteboardService
         & HasPolicyService
@@ -40,9 +41,6 @@ final class VaultListProcessor: StateProcessor<
     /// The services used by this processor.
     private let services: Services
 
-    /// The helper to handle the two-factor notice.
-    private let twoFactorNoticeHelper: TwoFactorNoticeHelper
-
     /// The helper to handle the more options menu for a vault item.
     private let vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
 
@@ -60,12 +58,10 @@ final class VaultListProcessor: StateProcessor<
         coordinator: AnyCoordinator<VaultRoute, AuthAction>,
         services: Services,
         state: VaultListState,
-        twoFactorNoticeHelper: TwoFactorNoticeHelper,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
         self.services = services
-        self.twoFactorNoticeHelper = twoFactorNoticeHelper
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
         super.init(state: state)
     }
@@ -86,6 +82,8 @@ final class VaultListProcessor: StateProcessor<
             } else {
                 state.isEligibleForAppReview = false
             }
+        case .dismissFlightRecorderToastBanner:
+            await dismissFlightRecorderToastBanner()
         case .dismissImportLoginsActionCard:
             await setImportLoginsProgress(.setUpLater)
         case let .morePressed(item):
@@ -108,6 +106,8 @@ final class VaultListProcessor: StateProcessor<
             state.searchResults = await searchVault(for: text)
         case .streamAccountSetupProgress:
             await streamAccountSetupProgress()
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
         case .streamOrganizations:
             await streamOrganizations()
         case .streamShowWebIcons:
@@ -143,6 +143,8 @@ final class VaultListProcessor: StateProcessor<
             case let .totp(_, model):
                 coordinator.navigate(to: .viewItem(id: model.id))
             }
+        case .navigateToFlightRecorderSettings:
+            coordinator.navigate(to: .flightRecorderSettings)
         case let .profileSwitcher(profileAction):
             handleProfileSwitcherAction(profileAction)
         case let .searchStateChanged(isSearching: isSearching):
@@ -199,7 +201,6 @@ extension VaultListProcessor {
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
-        await twoFactorNoticeHelper.maybeShowTwoFactorNotice()
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -232,6 +233,19 @@ extension VaultListProcessor {
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
+    }
+
+    /// Dismisses the flight recorder toast banner for the active user.
+    ///
+    private func dismissFlightRecorderToastBanner() async {
+        state.isFlightRecorderToastBannerVisible = false
+
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            await services.flightRecorder.setFlightRecorderBannerDismissed(userId: userId)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
     }
 
     /// Entry point to handling things around push notifications.
@@ -374,12 +388,7 @@ extension VaultListProcessor {
         reviewPromptTask = Task {
             do {
                 try await Task.sleep(nanoseconds: Constants.appReviewPromptDelay)
-                if await services.configService.getFeatureFlag(.appReviewPrompt) {
-                    state.isEligibleForAppReview = true
-                }
-                if await services.configService.getFeatureFlag(.enableDebugAppReviewPrompt) {
-                    state.toast = Toast(title: Constants.appReviewPromptEligibleDebugMessage)
-                }
+                state.isEligibleForAppReview = true
             } catch is CancellationError {
                 // Task was cancelled, no need to handle this error
             } catch {
@@ -395,6 +404,20 @@ extension VaultListProcessor {
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.importLoginsSetupProgress = badgeState.importLoginsSetupProgress
+            }
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+    }
+
+    /// Streams the flight recorder enabled status.
+    ///
+    private func streamFlightRecorderLog() async {
+        do {
+            let userId = try await services.stateService.getActiveAccountId()
+            for await log in await services.flightRecorder.activeLogPublisher().values {
+                state.activeFlightRecorderLog = log
+                state.isFlightRecorderToastBannerVisible = !(log?.bannerDismissedByUserIds.contains(userId) ?? true)
             }
         } catch {
             services.errorReporter.log(error: error)

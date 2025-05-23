@@ -177,9 +177,9 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_search() throws {
         let vaultItems: [VaultListItem] = try [
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "1"))),
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "2"))),
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "3"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "1"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "2"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "3"))),
         ]
         vaultRepository.searchVaultListSubject.value = vaultItems
 
@@ -236,9 +236,9 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     @MainActor
     func test_perform_streamVaultItems() throws {
         let vaultItems: [VaultListItem] = try [
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "1"))),
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "2"))),
-            XCTUnwrap(VaultListItem(cipherView: .fixture(id: "3"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "1"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "2"))),
+            XCTUnwrap(VaultListItem(cipherListView: .fixture(id: "3"))),
         ]
         vaultRepository.searchVaultListSubject.value = vaultItems
 
@@ -299,8 +299,14 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// with the OTP key added.
     @MainActor
     func test_perform_vaultListItemTapped() async throws {
-        let cipher = CipherView.loginFixture()
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let rawCipher = Cipher.fixture(
+            id: "8675",
+            login: .fixture(),
+            type: .login
+        )
+        let cipher = CipherListView(cipher: rawCipher)
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: rawCipher))
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
 
@@ -313,8 +319,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `perform(_:)` with `.vaultListItemTapped` displays an alert and logs an error if one occurs.
     @MainActor
     func test_perform_vaultListItemTapped_error() async throws {
-        let cipher = CipherView.loginFixture(reprompt: .password)
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let cipher = CipherListView.fixture(
+            login: .fixture(),
+            reprompt: BitwardenSdk.CipherRepromptType.password
+        )
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
         userVerificationHelper.verifyMasterPasswordResult = .failure(BitwardenTestError.example)
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
@@ -326,8 +335,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `perform(_:)` with `.vaultListItemTapped` doesn't show an alert if user verification was cancelled.
     @MainActor
     func test_perform_vaultListItemTapped_errorCancellation() async throws {
-        let cipher = CipherView.loginFixture(reprompt: .password)
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let cipher = CipherListView.fixture(
+            login: .fixture(),
+            reprompt: BitwardenSdk.CipherRepromptType.password
+        )
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
         userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
@@ -340,8 +352,15 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// necessary before navigating to the edit item screen.
     @MainActor
     func test_perform_vaultListItemTapped_masterPasswordReprompt() async throws {
-        let cipher = CipherView.loginFixture(reprompt: .password)
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let rawCipher = Cipher.fixture(
+            id: "8675",
+            login: .fixture(),
+            reprompt: .password,
+            type: .login
+        )
+        let cipher = CipherListView(cipher: rawCipher)
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
+        vaultRepository.fetchCipherResult = .success(CipherView(cipher: rawCipher))
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
 
@@ -356,8 +375,11 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// user's master password couldn't be verified.
     @MainActor
     func test_perform_vaultListItemTapped_masterPasswordRepromptInvalid() async throws {
-        let cipher = CipherView.loginFixture(reprompt: .password)
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: cipher))
+        let cipher = CipherListView.fixture(
+            login: .fixture(),
+            reprompt: BitwardenSdk.CipherRepromptType.password
+        )
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: cipher))
         userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
@@ -368,7 +390,9 @@ class VaultItemSelectionProcessorTests: BitwardenTestCase { // swiftlint:disable
     /// `perform(_:)` with `.vaultListItemTapped` shows an alert if the vault list item doesn't contain a login.
     @MainActor
     func test_perform_vaultListItemTapped_notLogin() async throws {
-        let vaultListItem = try XCTUnwrap(VaultListItem(cipherView: .cardFixture()))
+        let vaultListItem = try XCTUnwrap(VaultListItem(cipherListView: .fixture(
+            type: .card
+        )))
 
         await subject.perform(.vaultListItemTapped(vaultListItem))
 

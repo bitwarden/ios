@@ -479,6 +479,10 @@ extension CipherItemState: ViewVaultItemState {
         }
     }
 
+    var cipherDecorativeIconDataView: CipherDecorativeIconDataView? {
+        loginView
+    }
+
     var icon: ImageAsset {
         switch cipher.type {
         case .card:

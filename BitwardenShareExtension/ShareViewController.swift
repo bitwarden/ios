@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenShared
 import Social
 import UIKit
@@ -13,7 +14,7 @@ class ShareViewController: UIViewController {
     /// The app's theme.
     var appTheme: AppTheme = .default
 
-    var authCompletionRoute: AppRoute? = .sendItem(.add(content: nil, hasPremium: false))
+    var authCompletionRoute: AppRoute? = .sendItem(.add(content: nil))
 
     /// The processor that manages application level logic.
     private var appProcessor: AppProcessor?
@@ -57,9 +58,7 @@ class ShareViewController: UIViewController {
         let appProcessor = AppProcessor(appModule: appModule, services: services)
         self.appProcessor = appProcessor
 
-        let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-
-        authCompletionRoute = .sendItem(.add(content: content, hasPremium: hasPremium ?? false))
+        authCompletionRoute = .sendItem(.add(content: content))
 
         Task {
             await appProcessor.start(

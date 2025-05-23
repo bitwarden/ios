@@ -10,12 +10,14 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var accountSetupVaultUnlock = [String: AccountSetupProgress]()
     var addSitePromptShown = false
     var allowSyncOnRefreshes = [String: Bool]()
+    var allowUniversalClipboardByUserId = [String: Bool]()
     var appId: String?
     var appLocale: String?
     var appRehydrationState = [String: AppRehydrationState]()
     var appTheme: String?
     var cachedActiveUserId: String?
     var disableWebIcons = false
+    var flightRecorderData: FlightRecorderData?
     var introCarouselShown = false
     var lastUserShouldConnectToWatch = false
     var learnGeneratorActionCardStatus: AccountSetupProgress = .incomplete
@@ -25,7 +27,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var overrideDebugFeatureFlagCalled = false
     var pendingAppIntentActions: [PendingAppIntentAction]?
     var preAuthEnvironmentURLs: EnvironmentURLData?
-    var preAuthServerConfig: BitwardenShared.ServerConfig?
+    var preAuthServerConfig: ServerConfig?
     var rememberedEmail: String?
     var rememberedOrgIdentifier: String?
     var reviewPromptData: BitwardenShared.ReviewPromptData?
@@ -53,7 +55,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var shouldTrustDevice = [String: Bool?]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
-    var twoFactorNoticeDisplayState = [String: TwoFactorNoticeDisplayState]()
     var twoFactorTokens = [String: String]()
     var usesKeyConnector = [String: Bool]()
     var vaultTimeout = [String: Int]()
@@ -82,6 +83,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func allowSyncOnRefresh(userId: String) -> Bool {
         allowSyncOnRefreshes[userId] ?? false
+    }
+
+    func allowUniversalClipboard(userId: String) -> Bool {
+        allowUniversalClipboardByUserId[userId] ?? false
     }
 
     func appRehydrationState(userId: String) -> BitwardenShared.AppRehydrationState? {
@@ -187,6 +192,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool?, userId: String) {
         allowSyncOnRefreshes[userId] = allowSyncOnRefresh
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool?, userId: String) {
+        allowUniversalClipboardByUserId[userId] = allowUniversalClipboard
     }
 
     func setAppRehydrationState(_ state: BitwardenShared.AppRehydrationState?, userId: String) {
@@ -295,14 +304,6 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func setTimeoutAction(key: SessionTimeoutAction, userId: String) {
         timeoutAction[userId] = key.rawValue
-    }
-
-    func setTwoFactorNoticeDisplayState(_ state: TwoFactorNoticeDisplayState, userId: String) {
-        twoFactorNoticeDisplayState[userId] = state
-    }
-
-    func twoFactorNoticeDisplayState(userId: String) -> TwoFactorNoticeDisplayState {
-        twoFactorNoticeDisplayState[userId] ?? .hasNotSeen
     }
 
     func setTwoFactorToken(_ token: String?, email: String) {

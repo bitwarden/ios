@@ -72,8 +72,8 @@ class VaultFilterTypeTests: BitwardenTestCase {
     func test_folderFilter_allVaults_emptyFolder() {
         let folder = FolderView.fixture(id: "1")
         let ciphers = [
-            CipherView.fixture(folderId: "2"),
-            CipherView.fixture(folderId: "3"),
+            CipherListView.fixture(folderId: "2"),
+            CipherListView.fixture(folderId: "3"),
         ]
         XCTAssertTrue(VaultFilterType.allVaults.folderFilter(folder, ciphers: ciphers))
     }
@@ -82,8 +82,8 @@ class VaultFilterTypeTests: BitwardenTestCase {
     func test_folderFilter_allVaults_nonemptyFolder() {
         let folder = FolderView.fixture(id: "1")
         let ciphers = [
-            CipherView.fixture(folderId: "1"),
-            CipherView.fixture(folderId: "2"),
+            CipherListView.fixture(folderId: "1"),
+            CipherListView.fixture(folderId: "2"),
         ]
         XCTAssertTrue(VaultFilterType.allVaults.folderFilter(folder, ciphers: ciphers))
     }
@@ -92,8 +92,8 @@ class VaultFilterTypeTests: BitwardenTestCase {
     func test_folderFilter_myVault_emptyFolder() {
         let folder = FolderView.fixture(id: "1")
         let ciphers = [
-            CipherView.fixture(folderId: "2"),
-            CipherView.fixture(folderId: "3"),
+            CipherListView.fixture(folderId: "2"),
+            CipherListView.fixture(folderId: "3"),
         ]
         XCTAssertFalse(VaultFilterType.myVault.folderFilter(folder, ciphers: ciphers))
     }
@@ -102,8 +102,8 @@ class VaultFilterTypeTests: BitwardenTestCase {
     func test_folderFilter_myVault_nonemptyFolders() {
         let folder = FolderView.fixture(id: "1")
         let ciphers = [
-            CipherView.fixture(folderId: "1"),
-            CipherView.fixture(folderId: "2"),
+            CipherListView.fixture(folderId: "1"),
+            CipherListView.fixture(folderId: "2"),
         ]
         XCTAssertTrue(VaultFilterType.myVault.folderFilter(folder, ciphers: ciphers))
     }
@@ -112,8 +112,8 @@ class VaultFilterTypeTests: BitwardenTestCase {
     func test_folderFilter_organization_emptyFolder() {
         let folder = FolderView.fixture(id: "1")
         let ciphers = [
-            CipherView.fixture(folderId: "2"),
-            CipherView.fixture(folderId: "3"),
+            CipherListView.fixture(folderId: "2"),
+            CipherListView.fixture(folderId: "3"),
         ]
         XCTAssertFalse(VaultFilterType.organization(.fixture()).folderFilter(folder, ciphers: ciphers))
     }
@@ -122,8 +122,8 @@ class VaultFilterTypeTests: BitwardenTestCase {
     func test_folderFilter_organization_nonemptyFolder() {
         let folder = FolderView.fixture(id: "1")
         let ciphers = [
-            CipherView.fixture(folderId: "1"),
-            CipherView.fixture(folderId: "2"),
+            CipherListView.fixture(folderId: "1"),
+            CipherListView.fixture(folderId: "2"),
         ]
         XCTAssertTrue(VaultFilterType.organization(.fixture()).folderFilter(folder, ciphers: ciphers))
     }

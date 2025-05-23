@@ -63,6 +63,15 @@ class SettingsViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.dispatchedActions.last, .autoFillPressed)
     }
 
+    /// Tapping the close button dispatches the `.dismiss` action.
+    @MainActor
+    func test_close_tap() throws {
+        processor.state.presentationMode = .preLogin
+        let button = try subject.inspect().find(button: Localizations.close)
+        try button.tap()
+        XCTAssertEqual(processor.dispatchedActions.last, .dismiss)
+    }
+
     /// Tapping the other button dispatches the `.otherPressed` action.
     @MainActor
     func test_otherButton_tap() throws {
@@ -83,7 +92,14 @@ class SettingsViewTests: BitwardenTestCase {
 
     /// Tests the view renders correctly.
     func test_viewRender() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
+    }
+
+    /// Tests the view renders correctly for the pre-login mode.
+    @MainActor
+    func test_viewRender_preLogin() {
+        processor.state.presentationMode = .preLogin
+        assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
     /// Tests the view renders correctly with badges.
@@ -95,7 +111,7 @@ class SettingsViewTests: BitwardenTestCase {
             vaultUnlockSetupProgress: .setUpLater
         )
         assertSnapshots(
-            of: subject,
+            of: subject.navStackWrapped,
             as: [.defaultPortrait, .defaultPortraitDark, .defaultPortraitAX5]
         )
     }

@@ -35,7 +35,9 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
     // MARK: Types
 
     /// The module types required by this coordinator for creating child coordinators.
-    typealias Module = PasswordAutoFillModule
+    typealias Module = NavigatorBuilderModule
+        & PasswordAutoFillModule
+        & SettingsModule
 
     typealias Router = AnyRouter<AuthEvent, AuthRoute>
 
@@ -202,10 +204,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             showMasterPasswordGuidance(delegate: context as? MasterPasswordUpdateDelegate)
         case let .masterPasswordHint(username):
             showMasterPasswordHint(for: username)
+        case .preLoginSettings:
+            showPreLoginSettings()
         case .preventAccountLock:
             showPreventAccountLock()
-        case let .removeMasterPassword(organizationName):
-            showRemoveMasterPassword(organizationName: organizationName)
+        case let .removeMasterPassword(
+            organizationName: organizationName,
+            organizationId: organizationId,
+            keyConnectorUrl: keyConnectorUrl
+        ):
+            showRemoveMasterPassword(
+                organizationName: organizationName,
+                organizationId: organizationId,
+                keyConnectorUrl: keyConnectorUrl
+            )
         case let .selfHosted(region):
             showSelfHostedView(delegate: context as? SelfHostedProcessorDelegate, currentRegion: region)
         case let .setMasterPassword(organizationIdentifier):
@@ -347,8 +359,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 )
             )
         )
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the create account screen.
@@ -363,8 +374,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 )
             )
         )
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the complete registration screen.
@@ -387,8 +397,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 )
             )
         )
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the Duo 2FA screen.
@@ -445,9 +454,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 )
             )
         )
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        navController.isModalInPresentation = true
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view, isModalInPresentation: true)
     }
 
     /// Shows the enterprise single sign-on screen.
@@ -462,9 +469,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let store = Store(processor: processor)
         let view = SingleSignOnView(store: store)
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the intro carousel screen.
@@ -555,9 +560,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let store = Store(processor: processor)
         let view = LoginWithDeviceView(store: store)
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the login decryption options screen.
@@ -613,9 +616,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let store = Store(processor: processor)
         let view = MasterPasswordGuidanceView(store: store)
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the master password hint screen for the provided username.
@@ -630,9 +631,20 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
         let store = Store(processor: processor)
         let view = PasswordHintView(store: store)
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view)
+    }
+
+    /// Shows the pre-login settings.
+    ///
+    private func showPreLoginSettings() {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeSettingsCoordinator(
+            delegate: nil, // Delegate not needed for pre-login settings.
+            stackNavigator: navigationController
+        )
+        coordinator.start()
+        coordinator.navigate(to: .settings(.preLogin))
+        stackNavigator?.present(navigationController, overFullscreen: true)
     }
 
     /// Shows the prevent account lock screen.
@@ -641,21 +653,21 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         let processor = PreventAccountLockProcessor(coordinator: asAnyCoordinator())
         let store = Store(processor: processor)
         let view = PreventAccountLockView(store: store)
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the remove master password screen.
     ///
     /// - Parameter organizationName: The organization's name.
     ///
-    private func showRemoveMasterPassword(organizationName: String) {
+    private func showRemoveMasterPassword(organizationName: String, organizationId: String, keyConnectorUrl: String) {
         let processor = RemoveMasterPasswordProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
             state: RemoveMasterPasswordState(
-                organizationName: organizationName
+                organizationName: organizationName,
+                organizationId: organizationId,
+                keyConnectorUrl: keyConnectorUrl
             )
         )
         let view = RemoveMasterPasswordView(store: Store(processor: processor))
@@ -689,8 +701,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             state: state
         )
         let view = SelfHostedView(store: Store(processor: processor))
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the set master password view.
@@ -704,11 +715,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             state: SetMasterPasswordState(organizationIdentifier: organizationIdentifier)
         )
         let view = SetMasterPasswordView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        navigationController.isModalInPresentation = true
-
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view, isModalInPresentation: true)
     }
 
     /// Shows the single sign on screen.
@@ -773,8 +780,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
                 processor: processor
             )
         )
-        let navController = UINavigationController(rootViewController: UIHostingController(rootView: view))
-        stackNavigator?.present(navController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the start registration screen from expired link screen.
@@ -824,9 +830,7 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
         )
 
         let view = TwoFactorAuthView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        stackNavigator?.present(navigationController)
+        stackNavigator?.present(view)
     }
 
     /// Shows the update master password view.
@@ -837,14 +841,8 @@ final class AuthCoordinator: NSObject, // swiftlint:disable:this type_body_lengt
             state: .init()
         )
         let store = Store(processor: processor)
-        let view = UpdateMasterPasswordView(
-            store: store
-        )
-        let viewController = UIHostingController(rootView: view)
-        let navigationController = UINavigationController(rootViewController: viewController)
-        navigationController.isModalInPresentation = true
-
-        stackNavigator?.present(navigationController)
+        let view = UpdateMasterPasswordView(store: store)
+        stackNavigator?.present(view, isModalInPresentation: true)
     }
 
     /// Shows the vault unlock view.

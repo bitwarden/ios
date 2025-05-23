@@ -64,7 +64,12 @@ final class EnableFlightRecorderProcessor: StateProcessor<
     /// Saves the logging duration and enables the flight recorder.
     ///
     private func saveAndEnableFlightRecorder() async {
-        await services.flightRecorder.enableFlightRecorder(duration: state.loggingDuration)
-        coordinator.navigate(to: .dismiss)
+        do {
+            try await services.flightRecorder.enableFlightRecorder(duration: state.loggingDuration)
+            coordinator.navigate(to: .dismiss)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
     }
 }

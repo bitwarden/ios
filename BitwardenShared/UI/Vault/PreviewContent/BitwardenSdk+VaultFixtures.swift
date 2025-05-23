@@ -85,6 +85,92 @@ extension Cipher {
     }
 }
 
+extension CipherListView {
+    static func fixture(
+        id: Uuid? = "1",
+        organizationId: Uuid? = nil,
+        folderId: Uuid? = nil,
+        collectionIds: [Uuid] = [],
+        key: EncString? = nil,
+        name: String = "Bitwarden",
+        subtitle: String = "",
+        type: CipherListViewType = .login(.fixture()),
+        favorite: Bool = false,
+        reprompt: BitwardenSdk.CipherRepromptType = .none,
+        organizationUseTotp: Bool = false,
+        edit: Bool = false,
+        permissions: CipherPermissions? = nil,
+        viewPassword: Bool = false,
+        attachments: UInt32 = 0,
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        deletedDate: DateTime? = nil,
+        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+    ) -> CipherListView {
+        .init(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            subtitle: subtitle,
+            type: type,
+            favorite: favorite,
+            reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            permissions: permissions,
+            viewPassword: viewPassword,
+            attachments: attachments,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate
+        )
+    }
+
+    static func fixture(
+        id: Uuid? = "1",
+        organizationId: Uuid? = nil,
+        folderId: Uuid? = nil,
+        collectionIds: [Uuid] = [],
+        key: EncString? = nil,
+        login: LoginListView,
+        name: String = "Bitwarden",
+        subtitle: String = "",
+        favorite: Bool = false,
+        reprompt: BitwardenSdk.CipherRepromptType = .none,
+        organizationUseTotp: Bool = false,
+        edit: Bool = false,
+        permissions: CipherPermissions? = nil,
+        viewPassword: Bool = false,
+        attachments: UInt32 = 0,
+        creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        deletedDate: DateTime? = nil,
+        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+    ) -> CipherListView {
+        .init(
+            id: id,
+            organizationId: organizationId,
+            folderId: folderId,
+            collectionIds: collectionIds,
+            key: key,
+            name: name,
+            subtitle: subtitle,
+            type: .login(login),
+            favorite: favorite,
+            reprompt: reprompt,
+            organizationUseTotp: organizationUseTotp,
+            edit: edit,
+            permissions: permissions,
+            viewPassword: viewPassword,
+            attachments: attachments,
+            creationDate: creationDate,
+            deletedDate: deletedDate,
+            revisionDate: revisionDate
+        )
+    }
+}
+
 extension CipherView {
     static func fixture(
         attachments: [AttachmentView]? = nil,
@@ -379,6 +465,24 @@ extension BitwardenSdk.Fido2CredentialAutofillView {
     }
 }
 
+extension Fido2CredentialListView {
+    static func fixture(
+        credentialId: String = "1",
+        rpId: String = "myApp.com",
+        userHandle: String? = nil,
+        userName: String? = nil,
+        userDisplayName: String? = nil
+    ) -> Fido2CredentialListView {
+        .init(
+            credentialId: credentialId,
+            rpId: rpId,
+            userHandle: userHandle,
+            userName: userName,
+            userDisplayName: userDisplayName
+        )
+    }
+}
+
 extension Fido2CredentialView {
     static func fixture(
         counter: String = "",
@@ -491,6 +595,24 @@ extension BitwardenSdk.Login {
             totp: totp,
             autofillOnPageLoad: autofillOnPageLoad,
             fido2Credentials: fido2Credentials
+        )
+    }
+}
+
+extension BitwardenSdk.LoginListView {
+    static func fixture(
+        fido2Credentials: [Fido2CredentialListView]? = nil,
+        hasFido2: Bool = false,
+        username: String? = nil,
+        totp: EncString? = nil,
+        uris: [LoginUriView]? = nil
+    ) -> LoginListView {
+        .init(
+            fido2Credentials: fido2Credentials,
+            hasFido2: hasFido2,
+            username: username,
+            totp: totp,
+            uris: uris
         )
     }
 }

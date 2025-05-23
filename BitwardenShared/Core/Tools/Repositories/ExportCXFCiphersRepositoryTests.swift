@@ -1,6 +1,8 @@
 #if SUPPORTS_CXP
 import AuthenticationServices
+import BitwardenKitMocks
 import InlineSnapshotTesting
+import TestHelpers
 import XCTest
 
 @testable import BitwardenShared

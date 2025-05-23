@@ -12,6 +12,8 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
     typealias Module = FileSelectionModule
+        & NavigatorBuilderModule
+        & SendItemModule
 
     typealias Services = HasAuthRepository
         & HasErrorAlertServices.ErrorAlertServices
@@ -71,21 +73,25 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     func navigate(to route: SendItemRoute, context: AnyObject?) {
         switch route {
-        case let .add(content, hasPremium):
-            showAddItem(content: content, hasPremium: hasPremium)
+        case let .add(content):
+            showAddItem(content: content)
         case .cancel:
             delegate?.sendItemCancelled()
         case .deleted:
             delegate?.sendItemDeleted()
+        case let .dismiss(dismissAction):
+            stackNavigator?.dismiss(completion: dismissAction?.action)
         case let .complete(sendView):
             delegate?.sendItemCompleted(with: sendView)
-        case let .edit(sendView, hasPremium):
-            showEditItem(for: sendView, hasPremium: hasPremium)
+        case let .edit(sendView):
+            showEditItem(for: sendView)
         case let .fileSelection(route):
             guard let delegate = context as? FileSelectionDelegate else { return }
             showFileSelection(route: route, delegate: delegate)
         case let .share(url):
             showShareSheet(for: [url])
+        case let .view(sendView):
+            showViewItem(for: sendView)
         }
     }
 
@@ -93,16 +99,28 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     // MARK: Private methods
 
+    /// Present a child `SendItemCoordinator` on top of the existing coordinator.
+    ///
+    /// Presenting a view on top of an already presented view within the same coordinator causes
+    /// problems when dismissing only the top view. So instead, present a new coordinator and
+    /// show the view to navigate to within that coordinator's navigator.
+    ///
+    /// - Parameter route: The route to navigate to in the presented coordinator.
+    ///
+    private func presentChildSendItemCoordinator(route: SendItemRoute, context: AnyObject?) {
+        let navigationController = module.makeNavigationController()
+        let coordinator = module.makeSendItemCoordinator(delegate: self, stackNavigator: navigationController)
+        coordinator.navigate(to: route, context: context)
+        coordinator.start()
+        stackNavigator?.present(navigationController)
+    }
+
     /// Shows the add item screen.
     ///
-    /// - Parameters:
-    ///   - content: Optional content to pre-fill the add item screen.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter content: Optional content to pre-fill the add item screen.
     ///
-    private func showAddItem(content: AddSendContentType?, hasPremium: Bool) {
-        var state = AddEditSendItemState(
-            hasPremium: hasPremium
-        )
+    private func showAddItem(content: AddSendContentType?) {
+        var state = AddEditSendItemState()
         switch content {
         case let .file(fileName, fileData):
             state.fileName = fileName
@@ -130,22 +148,22 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
 
     /// Shows the edit item screen.
     ///
-    /// - Parameters:
-    ///   - sendView: The send to edit.
-    ///   - hasPremium: A flag indicating if the active account has premium access.
+    /// - Parameter sendView: The send to edit.
     ///
-    private func showEditItem(for sendView: SendView, hasPremium: Bool) {
-        let state = AddEditSendItemState(
-            sendView: sendView,
-            hasPremium: hasPremium
-        )
-        let processor = AddEditSendItemProcessor(
-            coordinator: asAnyCoordinator(),
-            services: services,
-            state: state
-        )
-        let view = AddEditSendItemView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
+    private func showEditItem(for sendView: SendView) {
+        guard let stackNavigator else { return }
+        if stackNavigator.isEmpty {
+            let state = AddEditSendItemState(sendView: sendView)
+            let processor = AddEditSendItemProcessor(
+                coordinator: asAnyCoordinator(),
+                services: services,
+                state: state
+            )
+            let view = AddEditSendItemView(store: Store(processor: processor))
+            stackNavigator.replace(view)
+        } else {
+            presentChildSendItemCoordinator(route: .edit(sendView), context: nil)
+        }
     }
 
     /// Navigates to the specified `FileSelectionRoute`.
@@ -179,10 +197,60 @@ final class SendItemCoordinator: Coordinator, HasStackNavigator {
         )
         stackNavigator?.present(viewController)
     }
+
+    /// Shows the view item screen.
+    ///
+    /// - Parameter sendView: The send to view.
+    ///
+    private func showViewItem(for sendView: SendView) {
+        let state = ViewSendItemState(sendView: sendView)
+        let processor = ViewSendItemProcessor(
+            coordinator: asAnyCoordinator(),
+            services: services,
+            state: state
+        )
+        stackNavigator?.replace(ViewSendItemView(store: Store(processor: processor)))
+    }
 }
 
 // MARK: - HasErrorAlertServices
 
 extension SendItemCoordinator: HasErrorAlertServices {
     var errorAlertServices: ErrorAlertServices { services }
+}
+
+// MARK: - SendItemDelegate
+
+extension SendItemCoordinator: SendItemDelegate {
+    func handle(_ authAction: AuthAction) async {
+        await delegate?.handle(authAction)
+    }
+
+    func sendItemCancelled() {
+        stackNavigator?.dismiss()
+    }
+
+    func sendItemCompleted(with sendView: SendView) {
+        // The dismiss and share sheet presentation needs to occur here rather than passing it onto
+        // the delegate to handle the case where the edit view is presented on the view Send view.
+        // The edit view is dismissed and the share sheet is presented on the view Send view.
+        Task {
+            do {
+                guard let url = try await self.services.sendRepository.shareURL(for: sendView) else {
+                    navigate(to: .dismiss(nil))
+                    return
+                }
+                navigate(to: .dismiss(DismissAction {
+                    self.navigate(to: .share(url: url))
+                }))
+            } catch {
+                services.errorReporter.log(error: error)
+                navigate(to: .dismiss(nil))
+            }
+        }
+    }
+
+    func sendItemDeleted() {
+        delegate?.sendItemDeleted()
+    }
 }

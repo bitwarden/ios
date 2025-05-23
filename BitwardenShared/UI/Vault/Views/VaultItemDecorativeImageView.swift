@@ -24,10 +24,10 @@ struct VaultItemDecorativeImageView<PlaceholderContent: View>: View {
         // This allows automated tests to detect the image's accessibility ID even though the image itself
         // is excluded from the accessibility tree.
         Group {
-            if showWebIcons, let loginView = item.loginView, let iconBaseURL {
+            if showWebIcons, let cipherDecorativeIconDataView = item.cipherDecorativeIconDataView, let iconBaseURL {
                 AsyncImage(
                     url: IconImageHelper.getIconImage(
-                        for: loginView,
+                        for: cipherDecorativeIconDataView,
                         from: iconBaseURL
                     ),
                     content: { image in

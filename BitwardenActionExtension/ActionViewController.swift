@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenShared
 import MobileCoreServices
 import UIKit

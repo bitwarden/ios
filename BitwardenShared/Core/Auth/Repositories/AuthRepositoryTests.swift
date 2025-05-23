@@ -2061,6 +2061,20 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = .fixture()
         stateService.getAccountEncryptionKeysError = StateServiceError.noEncryptedPrivateKey
 
+        await assertAsyncThrows(error: StateServiceError.noEncryptedPrivateKey) {
+            try await subject.unlockVaultWithKeyConnectorKey(
+                keyConnectorURL: URL(string: "https://example.com")!,
+                orgIdentifier: "org-id"
+            )
+        }
+
+        await assertAsyncDoesNotThrow {
+            try await subject.convertNewUserToKeyConnector(
+                keyConnectorURL: URL(string: "https://example.com")!,
+                orgIdentifier: "org-id"
+            )
+        }
+
         await assertAsyncDoesNotThrow {
             try await subject.unlockVaultWithKeyConnectorKey(
                 keyConnectorURL: URL(string: "https://example.com")!,
@@ -2079,6 +2093,33 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         )
         XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
         XCTAssertTrue(vaultTimeoutService.unlockVaultHadUserInteraction)
+    }
+
+    /// `convertNewUserToKeyConnector()` converts a new user to use key connector.
+    func test_convertNewUserToKeyconnector() async {
+        clientService.mockCrypto.initializeUserCryptoResult = .success(())
+        keyConnectorService.convertNewUserToKeyConnectorHandler = { [weak self] in
+            self?.stateService.accountEncryptionKeys["1"] = AccountEncryptionKeys(
+                encryptedPrivateKey: "private",
+                encryptedUserKey: "user"
+            )
+            self?.stateService.getAccountEncryptionKeysError = nil
+        }
+        keyConnectorService.getMasterKeyFromKeyConnectorResult = .success("key")
+        stateService.activeAccount = .fixture()
+        stateService.getAccountEncryptionKeysError = StateServiceError.noEncryptedPrivateKey
+
+        await assertAsyncDoesNotThrow {
+            try await subject.convertNewUserToKeyConnector(
+                keyConnectorURL: URL(string: "https://example.com")!,
+                orgIdentifier: "org-id"
+            )
+        }
+        XCTAssertTrue(keyConnectorService.convertNewUserToKeyConnectorCalled)
+        XCTAssertEqual(keyConnectorService.convertNewUserToKeyConnectorOrganizationId,
+                       "org-id")
+        XCTAssertEqual(keyConnectorService.convertNewUserToKeyConnectorKeyConnectorUrl,
+                       URL(string: "https://example.com"))
     }
 
     /// `unlockVaultWithKeyConnectorKey()` throws an error if the user is missing an encrypted user key.
@@ -2150,6 +2191,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository.setBiometricUnlockKeyError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
+        stateService.syncToAuthenticatorByUserId["1"] = true
 
         try await subject.logout(userInitiated: true)
 
@@ -2160,6 +2202,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
         XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
+        XCTAssertEqual(stateService.syncToAuthenticatorByUserId["1"], false)
     }
 
     /// `logout` successfully logs out a user clearing pins because of policy Remove unlock with pin being enabled.

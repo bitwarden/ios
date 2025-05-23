@@ -72,7 +72,7 @@ fastlane/README.md
 /*.xcodeproj
 
 # Local xcconfig
-Configs/Local.xcconfig
+Configs/Local*.xcconfig
 
 # Local export options
 Configs/export_options.plist

@@ -31,15 +31,8 @@ class APIService {
     /// necessary.
     private let accountTokenProvider: AccountTokenProvider
 
-    /// The underlying `HTTPClient` that performs the network request.
-    private let client: HTTPClient
-
-    /// A `RequestHandler` that applies default headers (user agent, client type & name, etc) to requests.
-    private let defaultHeadersRequestHandler: DefaultHeadersRequestHandler
-
-    /// A `ResponseHandler` that validates that HTTP responses contain successful (2XX) HTTP status
-    /// codes or tries to parse the error otherwise.
-    private let responseValidationHandler = ResponseValidationHandler()
+    /// A builder for building an `HTTPService`.
+    private let httpServiceBuilder: HTTPServiceBuilder
 
     // MARK: Initialization
 
@@ -49,6 +42,7 @@ class APIService {
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
+    ///   - flightRecorder: The service used by the application for recording temporary debug logs.
     ///   - stateService: The service used by the application to manage account state.
     ///   - tokenService: The `TokenService` which manages accessing and updating the active
     ///     account's tokens.
@@ -56,60 +50,47 @@ class APIService {
     init(
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
+        flightRecorder: FlightRecorder,
         stateService: StateService,
         tokenService: TokenService
     ) {
-        self.client = client
         self.stateService = stateService
 
-        defaultHeadersRequestHandler = DefaultHeadersRequestHandler(
-            appName: "Bitwarden_Mobile",
-            appVersion: Bundle.main.appVersion,
-            buildNumber: Bundle.main.buildNumber,
-            systemDevice: UIDevice.current
+        httpServiceBuilder = HTTPServiceBuilder(
+            client: client,
+            defaultHeadersRequestHandler: DefaultHeadersRequestHandler(
+                appName: "Bitwarden_Mobile",
+                appVersion: Bundle.main.appVersion,
+                buildNumber: Bundle.main.buildNumber,
+                systemDevice: UIDevice.current
+            ),
+            loggers: [
+                FlightRecorderHTTPLogger(flightRecorder: flightRecorder),
+                OSLogHTTPLogger(),
+            ]
         )
 
         accountTokenProvider = AccountTokenProvider(
-            httpService: HTTPService(
-                baseURLGetter: { environmentService.identityURL },
-                client: client,
-                requestHandlers: [defaultHeadersRequestHandler],
-                responseHandlers: [responseValidationHandler]
-            ),
+            httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
             tokenService: tokenService
         )
 
-        apiService = HTTPService(
+        apiService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.apiURL },
-            client: client,
-            requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler],
             tokenProvider: accountTokenProvider
         )
-        apiUnauthenticatedService = HTTPService(
-            baseURLGetter: { environmentService.apiURL },
-            client: client,
-            requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler]
+        apiUnauthenticatedService = httpServiceBuilder.makeService(
+            baseURLGetter: { environmentService.apiURL }
         )
-        eventsService = HTTPService(
+        eventsService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.eventsURL },
-            client: client,
-            requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler],
             tokenProvider: accountTokenProvider
         )
-        hibpService = HTTPService(
-            baseURL: URL(string: "https://api.pwnedpasswords.com")!,
-            client: client,
-            requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler]
+        hibpService = httpServiceBuilder.makeService(
+            baseURLGetter: { URL(string: "https://api.pwnedpasswords.com")! }
         )
-        identityService = HTTPService(
-            baseURLGetter: { environmentService.identityURL },
-            client: client,
-            requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler]
+        identityService = httpServiceBuilder.makeService(
+            baseURLGetter: { environmentService.identityURL }
         )
     }
 
@@ -121,11 +102,8 @@ class APIService {
     /// - Returns: A `HTTPService` to communicate with the key connector API.
     ///
     func buildKeyConnectorService(baseURL: URL) -> HTTPService {
-        HTTPService(
-            baseURL: baseURL,
-            client: client,
-            requestHandlers: [defaultHeadersRequestHandler],
-            responseHandlers: [responseValidationHandler],
+        httpServiceBuilder.makeService(
+            baseURLGetter: { baseURL },
             tokenProvider: accountTokenProvider
         )
     }

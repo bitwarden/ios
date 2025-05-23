@@ -25,7 +25,7 @@ protocol Fido2UserVerificationMediator: AnyObject {
     /// master password reprompt was performed and failed.
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: BitwardenSdk.CipherView
+        credential: Fido2UserVerifiableCipherView
     ) async throws -> CheckUserResult
 
     /// Whether any verification method is enabled.
@@ -35,6 +35,14 @@ protocol Fido2UserVerificationMediator: AnyObject {
     /// Sets up the delegate to use on Fido2 user verification flows.
     /// - Parameter fido2UserVerificationMediatorDelegate: The delegate to use.
     func setupDelegate(fido2UserVerificationMediatorDelegate: Fido2UserVerificationMediatorDelegate)
+}
+
+// MARK: - Fido2UserVerifiableCipherView
+
+/// A protocol to be used by `Fido2UserVerificationMediator` when checking user on FIdo2 flows allowing to access
+/// some cipher data.
+protocol Fido2UserVerifiableCipherView {
+    var reprompt: BitwardenSdk.CipherRepromptType { get }
 }
 
 // MARK: - DefaultFido2UserVerificationMediator
@@ -93,7 +101,7 @@ class DefaultFido2UserVerificationMediator {
 
 extension DefaultFido2UserVerificationMediator: Fido2UserVerificationMediator {
     func checkUser(userVerificationPreference: BitwardenSdk.Verification,
-                   credential: BitwardenSdk.CipherView) async throws -> CheckUserResult {
+                   credential: Fido2UserVerifiableCipherView) async throws -> CheckUserResult {
         if try await authRepository.shouldPerformMasterPasswordReprompt(reprompt: credential.reprompt) {
             try await fido2UserVerificationMediatorDelegate?.onNeedsUserInteraction()
 

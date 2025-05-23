@@ -11,7 +11,8 @@ import SwiftUI
 final class SendCoordinator: Coordinator, HasStackNavigator {
     // MARK: Types
 
-    typealias Module = SendItemCoordinator.Module
+    typealias Module = NavigatorBuilderModule
+        & SendItemCoordinator.Module
         & SendItemModule
 
     typealias Services = HasErrorAlertServices.ErrorAlertServices
@@ -63,30 +64,26 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
         switch route {
         case let .addItem(type):
             guard let delegate = context as? SendItemDelegate else { return }
-            Task {
-                let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                let route: SendItemRoute
-                if let type {
-                    route = .add(content: .type(type), hasPremium: hasPremium ?? false)
-                } else {
-                    route = .add(content: nil, hasPremium: hasPremium ?? false)
-                }
-                showItem(route: route, delegate: delegate)
+            let route: SendItemRoute = if let type {
+                .add(content: .type(type))
+            } else {
+                .add(content: nil)
             }
+            showItem(route: route, delegate: delegate)
         case let .dismiss(dismissAction):
             stackNavigator?.dismiss(completion: dismissAction?.action)
         case let .editItem(sendView):
             guard let delegate = context as? SendItemDelegate else { return }
-            Task {
-                let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-                showItem(route: .edit(sendView, hasPremium: hasPremium ?? false), delegate: delegate)
-            }
+            showItem(route: .edit(sendView), delegate: delegate)
         case let .group(type):
             showGroup(type)
         case .list:
             showList()
         case let .share(url):
             showShareSheet(for: [url])
+        case let .viewItem(sendView):
+            guard let delegate = context as? SendItemDelegate else { return }
+            showItem(route: .view(sendView), delegate: delegate)
         }
     }
 
@@ -132,7 +129,7 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     ///   - delegate: The delegate for this navigation.
     ///
     private func showItem(route: SendItemRoute, delegate: SendItemDelegate) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         if case .add = route {
             navigationController.removeHairlineDivider()
         }
