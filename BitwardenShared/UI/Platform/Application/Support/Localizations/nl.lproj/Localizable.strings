@@ -1184,3 +1184,7 @@
 "AppSettings" = "App-instellingen";
 "ViewFileSend" = "Send (bestand) bekijken";
 "ViewTextSend" = "Send (tekst) bekijken";
+"DeleteSend" = "Send verwijderen";
+"FlightRecorderOn" = "Flight recorder aan";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight Recorder zal actief zijn tot %1$@ om %2$@. Terug naar instellingen om nu te deactiveren.";
+"GoToSettings" = "Ga naar instellingen";

@@ -1184,3 +1184,7 @@
 "AppSettings" = "Definições da app";
 "ViewFileSend" = "Ver Send de ficheiro";
 "ViewTextSend" = "Ver Send de texto";
+"DeleteSend" = "Eliminar Send";
+"FlightRecorderOn" = "Gravador de voo ativado";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "O gravador de voo estará ativo até %1$@ a %2$@. Regresse às definições para o desativar agora.";
+"GoToSettings" = "Ir para as definições";

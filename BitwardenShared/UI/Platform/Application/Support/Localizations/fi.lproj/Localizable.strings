@@ -11,7 +11,7 @@
 "CopyUsername" = "Kopioi käyttäjätunnus";
 "Credits" = "Kiitokset";
 "Delete" = "Poista";
-"DeleteAll" = "Delete all";
+"DeleteAll" = "Poista kaikki";
 "Deleting" = "Poistetaan...";
 "DoYouReallyWantToDelete" = "Haluatko varmasti poistaa? Toiminnon peruminen ei ole mahdollista.";
 "Edit" = "Muokkaa";
@@ -333,8 +333,8 @@
 "VaultIsLocked" = "Holvi on lukittu";
 "GoToMyVault" = "Mene holviin";
 "Collections" = "Kokoelmat";
-"NoItemsCollection" = "There are no items in this collection";
-"NoItemsFolder" = "There are no items in this folder";
+"NoItemsCollection" = "Kokoelmassa ei ole kohteita";
+"NoItemsFolder" = "Kansiossa ei ole kohteita";
 "NoItemsTrash" = "Roskakorissa ei ole kohteita.";
 "AutofillAccessibilityService" = "Automaattitäytön esteettömyyspalvelu";
 "AutofillServiceDescription" = "Bitwardenin automaattitäytön palvelu käyttää Android Autofill Framework -rajapintaa kirjautumistietojen täyttöön laitteen muissa apeissa.";
@@ -415,7 +415,7 @@
 "ItemShared" = "Kohde on jaettu.";
 "SelectOneCollection" = "Valitse ainakin yksi kokoelma.";
 "Share" = "Jaa";
-"ShareAll" = "Share all";
+"ShareAll" = "Jaa kaikki";
 "ShareItem" = "Jaa kohde";
 "MoveToOrganization" = "Siirrä organisaatiolle";
 "NoOrgsToList" = "Ei näytettäviä organisaatioita.";
@@ -1178,9 +1178,13 @@
 "KeyConnectorDomain" = "Key Connector domain:";
 "KeyConnectorOrganization" = "Organization:";
 "KeyConnectorConfirmDomainWithAdmin" = "Please confirm the domain below with your organization administrator.\n\nKey Connector domain:\n%1$@";
-"DoYouReallyWantToDeleteThisLog" = "Do you really want to delete this log?";
-"DoYouReallyWantToDeleteAllRecordedLogs" = "Do you really want to delete all recorded logs?";
+"DoYouReallyWantToDeleteThisLog" = "Haluatko varmasti poistaa tämän lokin?";
+"DoYouReallyWantToDeleteAllRecordedLogs" = "Haluatko varmasti poistaa kaikki tallennetut lokit?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "This account will soon be deleted. Log in at %1$@ to continue using Bitwarden.";
-"AppSettings" = "App settings";
-"ViewFileSend" = "View file Send";
-"ViewTextSend" = "View text Send";
+"AppSettings" = "Sovelluksen asetukset";
+"ViewFileSend" = "Tarkastele tiedosto-Sendiä";
+"ViewTextSend" = "Tarkastele teksti-Sendiä";
+"DeleteSend" = "Delete Send";
+"FlightRecorderOn" = "Flight recorder on";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
+"GoToSettings" = "Go to settings";

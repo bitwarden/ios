@@ -1188,3 +1188,7 @@
 "AppSettings" = "App settings";
 "ViewFileSend" = "View file Send";
 "ViewTextSend" = "View text Send";
+"DeleteSend" = "Delete Send";
+"FlightRecorderOn" = "Flight recorder on";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
+"GoToSettings" = "Go to settings";

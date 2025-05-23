@@ -1184,3 +1184,7 @@
 "AppSettings" = "Lietotnes iestatījumi";
 "ViewFileSend" = "Apskatīt datnes Send";
 "ViewTextSend" = "Apskatīt teksta Send";
+"DeleteSend" = "Izdzēst Send";
+"FlightRecorderOn" = "Melnā kaste ieslēgta";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Melnā kasta būs ieslēgta līdz %1$@ plkst. %2$@. Jāatgriežas iestatījumos, lai to tagad izslēgtu.";
+"GoToSettings" = "Doties uz iestatījumiem";

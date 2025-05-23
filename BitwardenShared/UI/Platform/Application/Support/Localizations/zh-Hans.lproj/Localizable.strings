@@ -1180,7 +1180,11 @@
 "KeyConnectorConfirmDomainWithAdmin" = "请与您的组织管理员确认下面的域名。\n\nKey Connector 域名：\n%1$@";
 "DoYouReallyWantToDeleteThisLog" = "您确定要删除此日志吗？";
 "DoYouReallyWantToDeleteAllRecordedLogs" = "您确定要删除所有记录的日志吗？";
-"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "此账户将很快被删除。请在 %1$@ 前登录以继续使用 Bitwarden。";
+"ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "此账户即将被删除。请在 %1$@ 前登录以继续使用 Bitwarden。";
 "AppSettings" = "App 设置";
 "ViewFileSend" = "查看文件 Send";
 "ViewTextSend" = "查看文本 Send";
+"DeleteSend" = "删除 Send";
+"FlightRecorderOn" = "Flight recorder on";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
+"GoToSettings" = "Go to settings";

@@ -1021,7 +1021,7 @@
 "SaveAndProtectYourData" = "Speicher und schütze deine Daten";
 "TheVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere" = "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sicher Zugangsdaten, Ausweise, Karten und Notizen.";
 "SendSensitiveInformationSafely" = "Sensible Informationen sicher versenden";
-"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben End-zu-Ende-Verschlüsselt, während die Verbreitung begrenzt wird.";
+"ShareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted" = "Teile Dateien und Daten sicher mit jedem auf jeder Plattform. Deine Informationen bleiben Ende-zu-Ende-Verschlüsselt, während die Verbreitung begrenzt wird.";
 "NewLogin" = "Neue Zugangsdaten";
 "NewCard" = "Neue Karte";
 "NewIdentity" = "Neue Identität";
@@ -1184,3 +1184,7 @@
 "AppSettings" = "App-Einstellungen";
 "ViewFileSend" = "Datei-Send anzeigen";
 "ViewTextSend" = "Text-Send anzeigen";
+"DeleteSend" = "Send löschen";
+"FlightRecorderOn" = "Flugschreiber eingeschaltet";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Der Flugschreiber wird bis zum %1$@ um %2$@ aktiv sein. Gehe zurück zu den Einstellungen, um ihn jetzt zu deaktivieren.";
+"GoToSettings" = "Gehe zu den Einstellungen";

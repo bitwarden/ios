@@ -1184,3 +1184,7 @@
 "AppSettings" = "Ustawienia aplikacji";
 "ViewFileSend" = "Zobacz wysłany plik";
 "ViewTextSend" = "Zobacz wysyłany tekst";
+"DeleteSend" = "Usuń wysyłkę";
+"FlightRecorderOn" = "Czarna Skrzynka włączona";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Czarna skrzynka będzie aktywna do %1$@ - %2$@. Wróć do ustawień, aby wyłączyć teraz.";
+"GoToSettings" = "Przejdź do ustawień";

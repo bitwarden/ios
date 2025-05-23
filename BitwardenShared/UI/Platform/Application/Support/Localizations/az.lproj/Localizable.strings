@@ -1182,5 +1182,9 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Həqiqətən yazılmış bütün jurnalları silmək istəyirsiniz?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Bu hesab tezliklə silinəcək. Bitwarden-i istifadə etməyə davam etmək üçün %1$@ üzərindən giriş edin.";
 "AppSettings" = "Tətbiq ayarları";
-"ViewFileSend" = "View file Send";
-"ViewTextSend" = "View text Send";
+"ViewFileSend" = "Send faylına bax";
+"ViewTextSend" = "Send mətninə bax";
+"DeleteSend" = "\"Send\"i sil";
+"FlightRecorderOn" = "Uçuş yazıcısı açıqdır";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Uçuş yazıcısı bu müddətə qədər açıqdır: %1$@ %2$@. İndi deaktiv etmək üçün ayarlara qayıdın.";
+"GoToSettings" = "Ayarlara get";
