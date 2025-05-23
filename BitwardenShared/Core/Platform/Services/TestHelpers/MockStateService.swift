@@ -76,6 +76,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var setManuallyLockedAccountError: Error?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
+    var siriAndShortcutsAccess = [String: Bool]()
     var timeoutAction = [String: SessionTimeoutAction]()
     var serverConfig = [String: ServerConfig]()
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
@@ -351,6 +352,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getShowWebIcons() async -> Bool {
         showWebIcons
+    }
+
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return siriAndShortcutsAccess[userId] ?? false
     }
 
     func getSyncToAuthenticator(userId: String?) async throws -> Bool {
@@ -657,6 +663,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setShowWebIcons(_ showWebIcons: Bool) async {
         self.showWebIcons = showWebIcons
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.siriAndShortcutsAccess[userId] = siriAndShortcutsAccess
     }
 
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {

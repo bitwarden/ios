@@ -455,6 +455,14 @@ protocol AppSettingsStore: AnyObject {
     ///
     func setShouldTrustDevice(shouldTrustDevice: Bool?, userId: String)
 
+    /// Sets the Siri & Shortcuts access setting for the user.
+    ///
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether the Siri & Shortcuts access access is enabled.
+    ///   - userId: The user ID.
+    ///
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String)
+
     /// Sets the sync to Authenticator setting for the user.
     ///
     /// - Parameters:
@@ -516,6 +524,13 @@ protocol AppSettingsStore: AnyObject {
     /// - Returns: Whether to trust the device.
     ///
     func shouldTrustDevice(userId: String) -> Bool?
+
+    /// Gets the Siri & Shortcuts access setting for the user.
+    ///
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    ///
+    func siriAndShortcutsAccess(userId: String) -> Bool
 
     /// Gets the sync to Authenticator setting for the user.
     ///
@@ -736,6 +751,7 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
         case reviewPromptData
         case serverConfig(userId: String)
         case shouldTrustDevice(userId: String)
+        case siriAndShortcutsAccess(userId: String)
         case syncToAuthenticator(userId: String)
         case state
         case twoFactorToken(email: String)
@@ -841,6 +857,8 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
                 key = "shouldTrustDevice_\(userId)"
             case .state:
                 key = "state"
+            case let .siriAndShortcutsAccess(userId):
+                key = "siriAndShortcutsAccess_\(userId)"
             case let .syncToAuthenticator(userId):
                 key = "shouldSyncToAuthenticator_\(userId)"
             case let .twoFactorToken(email):
@@ -1202,6 +1220,14 @@ extension DefaultAppSettingsStore: AppSettingsStore, ConfigSettingsStore {
 
     func setVaultTimeout(minutes: Int, userId: String) {
         store(minutes, for: .vaultTimeout(userId: userId))
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
+        store(siriAndShortcutsAccess, for: .siriAndShortcutsAccess(userId: userId))
+    }
+
+    func siriAndShortcutsAccess(userId: String) -> Bool {
+        fetch(for: .siriAndShortcutsAccess(userId: userId))
     }
 
     func syncToAuthenticator(userId: String) -> Bool {

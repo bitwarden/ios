@@ -68,6 +68,8 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             state.isAllowUniversalClipboardToggleOn = isOn
         case let .toggleConnectToWatch(isOn):
             updateConnectToWatch(isOn)
+        case let .toggleSiriAndShortcutsAccessToggleOn(isOn):
+            updateSiriAndShortcutsAccess(isOn)
         }
     }
 
@@ -80,7 +82,9 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             state.isAllowUniversalClipboardToggleOn = services.settingsRepository.allowUniversalClipboard
             state.isAllowSyncOnRefreshToggleOn = try await services.settingsRepository.getAllowSyncOnRefresh()
             state.isConnectToWatchToggleOn = try await services.settingsRepository.getConnectToWatch()
+            state.isSiriAndShortcutsAccessToggleOn = try await services.settingsRepository.getSiriAndShortcutsAccess()
             state.shouldShowConnectToWatchToggle = services.watchService.isSupported()
+            state.shouldShowSiriAndShortcutsAccess = await services.configService.getFeatureFlag(.appIntents)
         } catch {
             services.errorReporter.log(error: error)
         }
@@ -133,6 +137,18 @@ final class OtherSettingsProcessor: StateProcessor<OtherSettingsState, OtherSett
             do {
                 try await services.settingsRepository.updateConnectToWatch(newValue)
                 state.isConnectToWatchToggleOn = newValue
+            } catch {
+                services.errorReporter.log(error: error)
+            }
+        }
+    }
+
+    /// Update the value of the Siri & Shortcuts access setting.
+    private func updateSiriAndShortcutsAccess(_ newValue: Bool) {
+        Task {
+            do {
+                try await services.settingsRepository.updateSiriAndShortcutsAccess(newValue)
+                state.isSiriAndShortcutsAccessToggleOn = newValue
             } catch {
                 services.errorReporter.log(error: error)
             }

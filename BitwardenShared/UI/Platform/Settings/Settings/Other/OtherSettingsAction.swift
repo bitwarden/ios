@@ -17,4 +17,7 @@ enum OtherSettingsAction: Equatable {
 
     /// The connect to watch toggle value changed.
     case toggleConnectToWatch(Bool)
+
+    /// The Siri & Shortcuts access toggle value changed.
+    case toggleSiriAndShortcutsAccessToggleOn(Bool)
 }

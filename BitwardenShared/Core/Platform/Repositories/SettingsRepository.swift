@@ -50,6 +50,9 @@ protocol SettingsRepository: AnyObject {
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
 
+    /// Get the current value of the Siri & Shortcut access setting.
+    func getSiriAndShortcutsAccess() async throws -> Bool
+
     /// Get the current value of the sync to Authenticator setting.
     ///
     func getSyncToAuthenticator() async throws -> Bool
@@ -83,6 +86,10 @@ protocol SettingsRepository: AnyObject {
     /// - Parameter disableAutoTotpCopy: Whether a cipher's TOTP should be auto-copied during autofill.
     ///
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws
+
+    /// Update the cached value of the Siri & Shortcuts setting.
+    /// - Parameter siriAndShortcutsAccess: Whether access is enabled.
+    func updateSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws
 
     /// Update the cached value of the sync to authenticator setting.
     ///
@@ -207,6 +214,10 @@ extension DefaultSettingsRepository: SettingsRepository {
         try await stateService.getDisableAutoTotpCopy()
     }
 
+    func getSiriAndShortcutsAccess() async throws -> Bool {
+        try await stateService.getSiriAndShortcutsAccess()
+    }
+
     func getSyncToAuthenticator() async throws -> Bool {
         try await stateService.getSyncToAuthenticator()
     }
@@ -229,6 +240,10 @@ extension DefaultSettingsRepository: SettingsRepository {
 
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         try await stateService.setDisableAutoTotpCopy(disableAutoTotpCopy)
+    }
+
+    func updateSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws {
+        try await stateService.setSiriAndShortcutsAccess(siriAndShortcutsAccess)
     }
 
     func updateSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
