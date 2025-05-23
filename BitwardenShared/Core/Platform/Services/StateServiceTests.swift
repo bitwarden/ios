@@ -961,6 +961,20 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(value)
     }
 
+    /// `getSiriAndShortcutsAccess` gets the Siri & Shortcuts access value.
+    func test_getSiriAndShortcutsAccess() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        await subject.addAccount(.fixture())
+
+        appSettingsStore.siriAndShortcutsAccess["1"] = true
+        appSettingsStore.siriAndShortcutsAccess["2"] = true
+        let value = try await subject.getSiriAndShortcutsAccess()
+        XCTAssertTrue(value)
+
+        let valueWithUserId = try await subject.getSiriAndShortcutsAccess(userId: "2")
+        XCTAssertTrue(valueWithUserId)
+    }
+
     /// `getSyncToAuthenticator()` returns the sync to authenticator value for the active account.
     func test_getSyncToAuthenticator() async throws {
         await subject.addAccount(.fixture())
@@ -2026,6 +2040,18 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_setShowWebIcons() async {
         await subject.setShowWebIcons(false)
         XCTAssertTrue(appSettingsStore.disableWebIcons)
+    }
+
+    /// `setSiriAndShortcutsAccess(_:userId:)` saves the Siri & Shortcuts access value.
+    func test_setSiriAndShortcutsAccess() async throws {
+        await subject.addAccount(.fixture(profile: .fixture(userId: "2")))
+        await subject.addAccount(.fixture())
+
+        try await subject.setSiriAndShortcutsAccess(true)
+        XCTAssertTrue(appSettingsStore.siriAndShortcutsAccess(userId: "1"))
+
+        try await subject.setSiriAndShortcutsAccess(true, userId: "2")
+        XCTAssertTrue(appSettingsStore.siriAndShortcutsAccess(userId: "2"))
     }
 
     /// `setSyncToAuthenticator(_:userId:)` sets the sync to authenticator value for a user.

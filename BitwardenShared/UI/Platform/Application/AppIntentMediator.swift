@@ -53,7 +53,16 @@ struct DefaultAppIntentMediator: AppIntentMediator {
     }
 
     func canRunAppIntents() async -> Bool {
-        await configService.getFeatureFlag(.appIntents)
+        guard await configService.getFeatureFlag(.appIntents) else {
+            return false
+        }
+
+        do {
+            return try await stateService.getSiriAndShortcutsAccess()
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
