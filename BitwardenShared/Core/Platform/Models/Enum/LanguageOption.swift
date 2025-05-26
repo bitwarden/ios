@@ -66,16 +66,6 @@ public enum LanguageOption: Equatable, Sendable {
 
     // MARK: Properties
 
-    /// Whether the language option is the last one in the list.
-    var isLast: Bool {
-        switch self {
-        case .default:
-            false
-        case let .custom(languageCode: languageCode):
-            languageCode == LanguageOption.allCases.last?.value
-        }
-    }
-
     /// The title of the language option as it appears in the list of options.
     var title: String {
         switch self {

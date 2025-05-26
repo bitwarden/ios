@@ -49,7 +49,7 @@ class CipherMatchingHelper {
     ///   - ciphers: The list of ciphers to filter.
     /// - Returns: The list of ciphers that match the URI.
     ///
-    func ciphersMatching(uri: String?, ciphers: [CipherView]) async -> [CipherView] {
+    func ciphersMatching(uri: String?, ciphers: [CipherListView]) async -> [CipherListView] {
         guard let uri else { return [] }
 
         let matchURL = URL(string: uri)
@@ -66,7 +66,7 @@ class CipherMatchingHelper {
         let defaultMatchType = await (try? stateService.getDefaultUriMatchType()) ?? .domain
 
         let matchingCiphers = ciphers.reduce(
-            into: (exact: [CipherView], fuzzy: [CipherView])([], [])
+            into: (exact: [CipherListView], fuzzy: [CipherListView])([], [])
         ) { result, cipher in
             let match = checkForCipherMatch(
                 cipher: cipher,
@@ -138,15 +138,14 @@ class CipherMatchingHelper {
     /// - Returns: The result of the match for the cipher and URI.
     ///
     private func checkForCipherMatch( // swiftlint:disable:this function_parameter_count
-        cipher: CipherView,
+        cipher: CipherListView,
         defaultMatchType: UriMatchType,
         isApp: Bool,
         matchUri: String,
         matchingDomains: Set<String>,
         matchingFuzzyDomains: Set<String>
     ) -> MatchResult {
-        guard cipher.type == .login,
-              let login = cipher.login,
+        guard let login = cipher.type.loginListView,
               let loginUris = login.uris,
               cipher.deletedDate == nil else {
             return .none

@@ -73,7 +73,7 @@ private struct MainSendListView: View {
 
                     Spacer()
 
-                    PageHeaderView(
+                    IllustratedMessageView(
                         image: Asset.Images.Illustrations.send,
                         title: Localizations.sendSensitiveInformationSafely,
                         message: Localizations
@@ -93,6 +93,8 @@ private struct MainSendListView: View {
                         .padding(.horizontal, 24)
                     }
                     .buttonStyle(.primary(shouldFillWidth: false))
+                    // Disable from VoiceOver in favor of the FAB which provides the same functionality.
+                    .accessibilityHidden(true)
 
                     Spacer()
                 }

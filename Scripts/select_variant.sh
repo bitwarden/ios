@@ -26,7 +26,7 @@ compiler_flags=${2:-''}
 
 echo "🧱 Setting build variant to ${bold}${variant}${normal}."
 
-local_xcconfig_file="Configs/Local.xcconfig"
+local_xcconfig_file="Configs/Local-bwpm.xcconfig"
 export_options_file="Configs/export_options.plist"
 
 case $variant in

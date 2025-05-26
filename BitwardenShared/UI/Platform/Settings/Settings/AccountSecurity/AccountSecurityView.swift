@@ -80,7 +80,6 @@ struct AccountSecurityView: View {
             ContentBlock(dividerLeadingPadding: 16) {
                 SettingsListItem(
                     Localizations.accountFingerprintPhrase,
-                    hasDivider: false,
                     accessibilityIdentifier: "AccountFingerprintPhraseLabel"
                 ) {
                     Task {
@@ -90,7 +89,6 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(
                     Localizations.twoStepLogin,
-                    hasDivider: false,
                     accessibilityIdentifier: "TwoStepLoginLinkItemView"
                 ) {
                     store.send(.twoStepLoginPressed)
@@ -102,7 +100,6 @@ struct AccountSecurityView: View {
                 if store.state.isLockNowVisible {
                     SettingsListItem(
                         Localizations.lockNow,
-                        hasDivider: false,
                         accessibilityIdentifier: "LockNowLabel"
                     ) {
                         Task {
@@ -113,7 +110,6 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(
                     Localizations.logOut,
-                    hasDivider: false,
                     accessibilityIdentifier: "LogOutLabel"
                 ) {
                     store.send(.logout)
@@ -121,7 +117,6 @@ struct AccountSecurityView: View {
 
                 SettingsListItem(
                     Localizations.deleteAccount,
-                    hasDivider: false,
                     accessibilityIdentifier: "DeleteAccountLabel"
                 ) {
                     store.send(.deleteAccountPressed)
@@ -135,7 +130,6 @@ struct AccountSecurityView: View {
         SectionView(Localizations.approveLoginRequests) {
             SettingsListItem(
                 Localizations.pendingLogInRequests,
-                hasDivider: false,
                 accessibilityIdentifier: "PendingLogInRequestsLabel"
             ) {
                 store.send(.pendingLoginRequestsTapped)

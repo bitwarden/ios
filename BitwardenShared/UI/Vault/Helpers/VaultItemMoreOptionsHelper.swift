@@ -68,7 +68,11 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
     ) async {
         do {
             // Only ciphers have more options.
-            guard case let .cipher(cipherView, _) = item.itemType else { return }
+            guard case let .cipher(cipherListView, _) = item.itemType,
+                  let cipherId = cipherListView.id,
+                  let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
+                return
+            }
 
             let hasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()

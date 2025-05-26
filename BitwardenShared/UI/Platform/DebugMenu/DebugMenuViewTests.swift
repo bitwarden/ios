@@ -1,3 +1,4 @@
+import BitwardenKit
 import SnapshotTesting
 import XCTest
 
@@ -88,15 +89,11 @@ class DebugMenuViewTests: BitwardenTestCase {
     @MainActor
     func test_snapshot_debugMenuWithFeatureFlags() {
         processor.state.featureFlags = [
-            .init(
-                feature: .emailVerification,
-                isEnabled: true
-            ),
-            .init(
-                feature: .nativeCarouselFlow,
-                isEnabled: false
-            ),
+            .init(feature: .emailVerification, isEnabled: true),
         ]
-        assertSnapshot(of: subject, as: .defaultPortrait)
+        assertSnapshot(
+            of: subject,
+            as: .defaultPortrait
+        )
     }
 }

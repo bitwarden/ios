@@ -392,6 +392,14 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             keychainRepository: keychainRepository
         )
 
+        let flightRecorder = DefaultFlightRecorder(
+            appInfoService: appInfoService,
+            errorReporter: errorReporter,
+            stateService: stateService,
+            timeProvider: timeProvider
+        )
+        errorReporter.add(logger: flightRecorder)
+
         let rehydrationHelper = DefaultRehydrationHelper(
             errorReporter: errorReporter,
             stateService: stateService,
@@ -404,6 +412,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let tokenService = DefaultTokenService(keychainRepository: keychainRepository, stateService: stateService)
         let apiService = APIService(
             environmentService: environmentService,
+            flightRecorder: flightRecorder,
             stateService: stateService,
             tokenService: tokenService
         )
@@ -480,13 +489,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             clientService: clientService,
             errorReporter: errorReporter,
             folderService: folderService,
-            stateService: stateService,
-            timeProvider: timeProvider
-        )
-
-        let flightRecorder = DefaultFlightRecorder(
-            appInfoService: appInfoService,
-            errorReporter: errorReporter,
             stateService: stateService,
             timeProvider: timeProvider
         )

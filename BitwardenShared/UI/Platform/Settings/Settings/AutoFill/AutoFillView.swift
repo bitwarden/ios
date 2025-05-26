@@ -81,14 +81,11 @@ struct AutoFillView: View {
     private var autoFillSection: some View {
         SectionView(Localizations.autofill, contentSpacing: 8) {
             ContentBlock(dividerLeadingPadding: 16) {
-                SettingsListItem(Localizations.passwordAutofill, hasDivider: false) {
+                SettingsListItem(Localizations.passwordAutofill) {
                     store.send(.passwordAutoFillTapped)
                 }
 
-                SettingsListItem(
-                    Localizations.appExtension,
-                    hasDivider: false
-                ) {
+                SettingsListItem(Localizations.appExtension) {
                     store.send(.appExtensionTapped)
                 }
             }

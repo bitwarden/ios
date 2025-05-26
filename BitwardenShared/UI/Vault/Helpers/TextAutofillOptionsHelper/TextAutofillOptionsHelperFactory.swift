@@ -4,6 +4,8 @@ import BitwardenSdk
 /// Protocol for a factory to create `TextAutofillOptionsHelper` for each cipher type.
 protocol TextAutofillOptionsHelperFactory {
     /// Creates a `TextAutofillOptionsHelper` for a cipher depending on the type.
+    /// - Parameter cipherView: The cipher to create the helper from.
+    /// - Returns: A `TextAutofillOptionsHelper` depending on the cipher's type.
     func create(cipherView: CipherView) -> TextAutofillOptionsHelper
 }
 

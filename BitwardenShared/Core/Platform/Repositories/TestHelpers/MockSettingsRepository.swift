@@ -9,6 +9,7 @@ class MockSettingsRepository: SettingsRepository {
     var addFolderResult: Result<FolderView, Error> = .success(.fixture())
     var allowSyncOnRefresh = false
     var allowSyncOnRefreshResult: Result<Void, Error> = .success(())
+    var allowUniversalClipboard: Bool = false
     var connectToWatch = false
     var connectToWatchResult: Result<Void, Error> = .success(())
     var deletedFolderId: String?
@@ -16,6 +17,7 @@ class MockSettingsRepository: SettingsRepository {
     var editedFolderName: String?
     var editFolderResult: Result<Void, Error> = .success(())
     var fetchSyncCalled = false
+    var fetchSyncForceSync: Bool?
     var fetchSyncResult: Result<Void, Error> = .success(())
     var foldersListError: Error?
     var getDefaultUriMatchTypeResult: Result<BitwardenShared.UriMatchType, Error> = .success(.domain)
@@ -49,8 +51,9 @@ class MockSettingsRepository: SettingsRepository {
         try editFolderResult.get()
     }
 
-    func fetchSync() async throws {
+    func fetchSync(forceSync: Bool) async throws {
         fetchSyncCalled = true
+        fetchSyncForceSync = forceSync
         try fetchSyncResult.get()
     }
 

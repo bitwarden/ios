@@ -1,3 +1,5 @@
+import BitwardenKit
+import BitwardenKitMocks
 import Combine
 import Foundation
 import TestHelpers
@@ -5,6 +7,7 @@ import TestHelpers
 @testable import AuthenticatorShared
 
 class MockStateService: StateService {
+    var activeAccountId: String = "localtest"
     var appId: String = "mockAppId"
     var appLanguage: LanguageOption = .default
     var hasSeenWelcomeTutorial: Bool = false
@@ -30,7 +33,7 @@ class MockStateService: StateService {
     lazy var appThemeSubject = CurrentValueSubject<AppTheme, Never>(self.appTheme ?? .default)
 
     func getActiveAccountId() async -> String {
-        "localtest"
+        activeAccountId
     }
 
     func getAppTheme() async -> AppTheme {

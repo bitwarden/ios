@@ -63,7 +63,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.activeAccount = account
         stateService.userHasMasterPassword = [account.profile.userId: true]
 
-        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .card)))
+        var item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(type: .card)))
 
         // If the card item has no number or code, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.cardFixture())
@@ -86,7 +86,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             code: "123",
             number: "123456789"
         ))
-        item = try XCTUnwrap(VaultListItem(cipherView: cardWithData))
+        vaultRepository.fetchCipherResult = .success(cardWithData)
+        item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -142,7 +143,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             ),
             reprompt: .password
         )
-        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+        vaultRepository.fetchCipherResult = .success(loginWithData)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -197,7 +199,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             ),
             reprompt: .password
         )
-        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+        vaultRepository.fetchCipherResult = .success(loginWithData)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -250,15 +253,12 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(totp: "totpKey"),
+            reprompt: .password
+        ))
 
-        let item = try XCTUnwrap(
-            VaultListItem(
-                cipherView: .fixture(
-                    login: .fixture(totp: "totpKey"),
-                    reprompt: .password
-                )
-            )
-        )
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
@@ -297,15 +297,11 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
                 codeModel: TOTPCodeModel(code: "123321", codeGenerationDate: Date(), period: 30)
             )
         )
-
-        let item = try XCTUnwrap(
-            VaultListItem(
-                cipherView: .fixture(
-                    login: .fixture(totp: "totpKey"),
-                    reprompt: .password
-                )
-            )
-        )
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(totp: "totpKey"),
+            reprompt: .password
+        ))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -341,14 +337,12 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             )
         )
 
-        let item = try XCTUnwrap(
-            VaultListItem(
-                cipherView: .fixture(
-                    login: .fixture(totp: "totpKey"),
-                    organizationUseTotp: true
-                )
-            )
-        )
+        vaultRepository.fetchCipherResult = .success(.fixture(
+            login: .fixture(totp: "totpKey"),
+            organizationUseTotp: true
+
+        ))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         var toastToDisplay: Toast?
         await subject.showMoreOptionsAlert(
@@ -377,7 +371,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         )
 
         let cipherView = CipherView.fixture(login: .fixture(totp: "totpKey"))
-        let item = try XCTUnwrap(VaultListItem(cipherView: cipherView))
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -399,7 +394,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         vaultRepository.refreshTOTPCodeResult = .failure(BitwardenTestError.example)
 
         let cipherView = CipherView.fixture(login: .fixture(totp: "totpKey"))
-        let item = try XCTUnwrap(VaultListItem(cipherView: cipherView))
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -420,7 +416,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.activeAccount = .fixture()
         vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
 
-        let item = try XCTUnwrap(VaultListItem(cipherView: .fixture()))
+        vaultRepository.fetchCipherResult = .success(.fixture())
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
@@ -438,7 +435,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.activeAccount = .fixture()
 
         let cipherView = CipherView.fixture(reprompt: .password)
-        let item = try XCTUnwrap(VaultListItem(cipherView: cipherView))
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -465,7 +463,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.activeAccount = .fixture()
 
         let cipherView = CipherView.fixture(reprompt: .password)
-        let item = try XCTUnwrap(VaultListItem(cipherView: cipherView))
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -493,7 +492,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.activeAccount = account
         stateService.userHasMasterPassword = [account.profile.userId: true]
 
-        let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .identity)))
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(type: .identity)))
 
         // An identity option can be viewed or edited.
         vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
@@ -531,7 +531,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.activeAccount = account
         stateService.userHasMasterPassword = [account.profile.userId: true]
 
-        let item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .login)))
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .login))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(login: .fixture())))
 
         // If the login item has no username, password, or url, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.loginFixture())
@@ -553,6 +554,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a login cipher.
     @MainActor
     func test_showMoreOptionsAlert_morePressed_login_full() async throws {
+        // swiftlint:disable:previous function_body_length
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.userHasMasterPassword = [account.profile.userId: true]
@@ -570,7 +572,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
             username: "username",
             totp: "totpKey"
         ))
-        let item = try XCTUnwrap(VaultListItem(cipherView: loginWithData))
+        vaultRepository.fetchCipherResult = .success(loginWithData)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         var urlToOpen: URL?
         await subject.showMoreOptionsAlert(
@@ -633,10 +636,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // Although the cipher calls for a password reprompt, it won't be shown
         // because the user has no password.
         let login = CipherView.fixture(reprompt: .password)
-        let item = try XCTUnwrap(VaultListItem(cipherView: login))
-
-        // An identity option can be viewed or edited.
-        vaultRepository.fetchCipherResult = .success(.fixture(type: .identity))
+        vaultRepository.fetchCipherResult = .success(login)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(reprompt: .password)))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -664,7 +665,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.activeAccount = .fixture()
 
         let cipherView = CipherView.fixture(login: .fixture(password: "password"), reprompt: .password)
-        let item = try XCTUnwrap(VaultListItem(cipherView: cipherView))
+        vaultRepository.fetchCipherResult = .success(cipherView)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
         await subject.showMoreOptionsAlert(
             for: item,
             handleDisplayToast: { _ in },
@@ -689,7 +691,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         stateService.activeAccount = account
         stateService.userHasMasterPassword = [account.profile.userId: true]
 
-        var item = try XCTUnwrap(VaultListItem(cipherView: .fixture(type: .secureNote)))
+        vaultRepository.fetchCipherResult = .success(.fixture(type: .secureNote))
+        var item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         // If the secure note has no value, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.fixture(type: .secureNote))
@@ -709,7 +712,8 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
 
         // A note with data should show the copy action.
         let noteWithData = CipherView.fixture(notes: "Test Note", type: .secureNote)
-        item = try XCTUnwrap(VaultListItem(cipherView: noteWithData))
+        vaultRepository.fetchCipherResult = .success(noteWithData)
+        item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
 
         await subject.showMoreOptionsAlert(
             for: item,
@@ -741,6 +745,38 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         let copyNoteAction = try XCTUnwrap(alert.alertActions[2])
         await copyNoteAction.handler?(copyNoteAction, [])
         XCTAssertEqual(pasteboardService.copiedString, "Test Note")
+    }
+
+    /// `showMoreOptionsAlert()` does not show the password re-prompt alert when the cipher fetched is `nil`.
+    @MainActor
+    func test_showMoreOptionsAlert_noCipher() async throws {
+        vaultRepository.fetchCipherResult = .success(nil)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { _ in },
+            handleOpenURL: { _ in }
+        )
+
+        XCTAssertTrue(coordinator.alertShown.isEmpty)
+    }
+
+    /// `showMoreOptionsAlert()` does not show the password re-prompt alert when fetching cipher throws.
+    @MainActor
+    func test_showMoreOptionsAlert_fetchCipherThrows() async throws {
+        vaultRepository.fetchCipherResult = .failure(BitwardenTestError.example)
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
+
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { _ in },
+            handleOpenURL: { _ in }
+        )
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, Localizations.anErrorHasOccurred)
     }
 }
 

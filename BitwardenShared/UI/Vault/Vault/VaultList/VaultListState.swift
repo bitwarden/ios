@@ -7,6 +7,9 @@ import Foundation
 struct VaultListState: Equatable {
     // MARK: Properties
 
+    /// The active flight recorder log metadata, or `nil` if the flight recorder isn't active.
+    var activeFlightRecorderLog: FlightRecorderData.LogMetadata?
+
     /// Whether the vault filter can be shown.
     var canShowVaultFilter = true
 
@@ -21,6 +24,9 @@ struct VaultListState: Equatable {
 
     /// Whether the user is eligible for an app review prompt.
     var isEligibleForAppReview: Bool = false
+
+    /// Whether the flight recorder toast banner is visible.
+    var isFlightRecorderToastBannerVisible = false
 
     /// The loading state of the My Vault screen.
     var loadingState: LoadingState<[VaultListSection]> = .loading(nil)

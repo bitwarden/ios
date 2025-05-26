@@ -1,5 +1,6 @@
 // swiftlint:disable:this file_name
 
+import BitwardenKitMocks
 import BitwardenSdk
 import XCTest
 
@@ -66,6 +67,34 @@ class BitwardenSdkVaultCipherDetailsResponseModelTests: BitwardenTestCase { // s
         XCTAssertEqual(responseModel.sshKey?.privateKey, cipher.sshKey?.privateKey)
         XCTAssertEqual(responseModel.sshKey?.publicKey, cipher.sshKey?.publicKey)
         XCTAssertEqual(responseModel.sshKey?.keyFingerprint, cipher.sshKey?.fingerprint)
+    }
+}
+
+// MARK: - CipherListViewType
+
+class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
+    // MARK: Tests
+
+    /// `isLogin` returns whether the type is a login.
+    func test_isLogin() {
+        XCTAssertTrue(CipherListViewType.login(.fixture()).isLogin)
+        XCTAssertFalse(CipherListViewType.card.isLogin)
+        XCTAssertFalse(CipherListViewType.identity.isLogin)
+        XCTAssertFalse(CipherListViewType.secureNote.isLogin)
+        XCTAssertFalse(CipherListViewType.sshKey.isLogin)
+    }
+
+    /// `loginListView` returns the `LoginListView` when the type is `.login`.
+    func test_loginListView() {
+        let expectedResult = LoginListView.fixture(fido2Credentials: [.fixture()], hasFido2: true)
+        XCTAssertEqual(
+            CipherListViewType.login(expectedResult).loginListView,
+            expectedResult
+        )
+        XCTAssertNil(CipherListViewType.card.loginListView)
+        XCTAssertNil(CipherListViewType.identity.loginListView)
+        XCTAssertNil(CipherListViewType.secureNote.loginListView)
+        XCTAssertNil(CipherListViewType.sshKey.loginListView)
     }
 }
 
