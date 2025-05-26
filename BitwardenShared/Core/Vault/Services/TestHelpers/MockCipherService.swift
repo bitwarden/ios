@@ -22,6 +22,7 @@ class MockCipherService: CipherService {
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
 
     var fetchCipherId: String?
+    var fetchCipherByIdResult: ((String) -> Result<Cipher?, Error>)?
     var fetchCipherResult: Result<Cipher?, Error> = .success(nil)
 
     var fetchAllCiphersCalled = false
@@ -96,7 +97,10 @@ class MockCipherService: CipherService {
 
     func fetchCipher(withId id: String) async throws -> Cipher? {
         fetchCipherId = id
-        return try fetchCipherResult.get()
+        guard let fetchCipherByIdResult else {
+            return try fetchCipherResult.get()
+        }
+        return try fetchCipherByIdResult(id).get()
     }
 
     func replaceCiphers(_ ciphers: [CipherDetailsResponseModel], userId: String) async throws {

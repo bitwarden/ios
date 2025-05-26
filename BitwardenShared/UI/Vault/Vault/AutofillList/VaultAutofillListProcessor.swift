@@ -133,7 +133,7 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
                 } else if autofillListMode == .all {
                     await handleCipherForTextAutofill(cipher: cipher)
                 } else {
-                    await autofillHelper.handleCipherForAutofill(cipherView: cipher) { [weak self] toastText in
+                    await autofillHelper.handleCipherForAutofill(cipherListView: cipher) { [weak self] toastText in
                         self?.state.toast = Toast(title: toastText)
                     }
                 }
@@ -257,9 +257,9 @@ class VaultAutofillListProcessor: StateProcessor<// swiftlint:disable:this type_
 
     /// Handles text autofill for cipher.
     /// - Parameter cipher: The cipher selected to autofill some text from it.
-    private func handleCipherForTextAutofill(cipher: CipherView) async {
+    private func handleCipherForTextAutofill(cipher: CipherListView) async {
         do {
-            try await textAutofillHelper?.handleCipherForAutofill(cipherView: cipher)
+            try await textAutofillHelper?.handleCipherForAutofill(cipherListView: cipher)
         } catch {
             services.errorReporter.log(error: error)
             coordinator.showAlert(
@@ -631,7 +631,7 @@ extension VaultAutofillListProcessor {
 
     /// Picks a cipher to use for the Fido2 process
     /// - Parameter cipher: Cipher to use.
-    func onCipherForFido2CredentialPicked(cipher: CipherView) async {
+    func onCipherForFido2CredentialPicked(cipher: CipherListView) async {
         guard let autofillAppExtensionDelegate else {
             return
         }
@@ -651,7 +651,7 @@ extension VaultAutofillListProcessor {
                 return
             }
 
-            if cipher.hasFido2Credentials {
+            if cipher.type.loginListView?.hasFido2 == true {
                 let alert = Alert.confirmation(
                     title: Localizations.thisItemAlreadyContainsAPasskeyAreYouSureYouWantToOverwriteTheCurrentPasskey
                 ) { [weak self] in
@@ -666,9 +666,24 @@ extension VaultAutofillListProcessor {
 
             await checkUserAndDoPickedCredentialForCreation(for: cipher, fido2CreationOptions: fido2CreationOptions)
         } else if autofillAppExtensionDelegate.isAutofillingFido2CredentialFromList {
-            services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(
-                result: .success(cipher)
-            )
+            do {
+                guard let cipherId = cipher.id,
+                      let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
+                    services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(
+                        result: .failure(
+                            BitwardenError.dataError("Cipher not found when autofilling Fido2 credential from list.")
+                        )
+                    )
+                    return
+                }
+                services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(
+                    result: .success(cipherView)
+                )
+            } catch {
+                services.fido2UserInterfaceHelper.pickedCredentialForAuthentication(
+                    result: .failure(error)
+                )
+            }
         }
     }
 
@@ -686,6 +701,26 @@ extension VaultAutofillListProcessor {
         )
 
         await checkUserAndDoPickedCredentialForCreation(for: newCipher, fido2CreationOptions: fido2CreationOptions)
+    }
+
+    /// Checks user and executes `pickedCredentialForCreation` for the Fido2 flow.
+    /// - Parameters:
+    ///   - cipher: Cipher to verify and pick.
+    ///   - fido2CreationOptions: The options for checking the user on the Fido2 flow.
+    func checkUserAndDoPickedCredentialForCreation(
+        for cipher: CipherListView,
+        fido2CreationOptions: BitwardenSdk.CheckUserOptions
+    ) async {
+        do {
+            let cipherView = try await services.vaultRepository.fetchCipher(from: cipher)
+            await checkUserAndDoPickedCredentialForCreation(
+                for: cipherView,
+                fido2CreationOptions: fido2CreationOptions
+            )
+        } catch {
+            services.errorReporter.log(error: error)
+            coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
+        }
     }
 
     /// Checks user and executes `pickedCredentialForCreation` for the Fido2 flow.

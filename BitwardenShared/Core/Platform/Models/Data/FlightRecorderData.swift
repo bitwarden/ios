@@ -1,9 +1,10 @@
+import BitwardenKit
 import Foundation
 
 // MARK: - FlightRecorderData
 
 /// A data model containing the persisted data necessary for the flight recorder. This stores the
-/// metadata for the active and any archived logs.
+/// metadata for the active and any inactive logs.
 ///
 struct FlightRecorderData: Codable, Equatable {
     // MARK: Properties
@@ -11,20 +12,27 @@ struct FlightRecorderData: Codable, Equatable {
     /// The current log, if the flight recorder is active.
     var activeLog: LogMetadata? {
         didSet {
-            guard let oldValue else { return }
-            archivedLogs.append(oldValue)
+            guard let oldValue, oldValue.id != activeLog?.id else { return }
+            inactiveLogs.insert(oldValue, at: 0)
         }
     }
 
     /// A list of previously recorded and inactive logs, which remain available on device until they
     /// are deleted by the user or expire and are deleted by the app.
-    var archivedLogs: [LogMetadata] = []
+    var inactiveLogs: [LogMetadata] = []
 
     // MARK: Computed Properties
 
-    /// The full list of logs containing the active and any archived logs.
+    /// The full list of logs containing the active and any inactive logs.
     var allLogs: [LogMetadata] {
-        ([activeLog] + archivedLogs).compactMap { $0 }
+        ([activeLog] + inactiveLogs).compactMap { $0 }
+    }
+
+    /// The upcoming date in which either the active log needs to end logging or an inactive log
+    /// expires and needs to be removed.
+    var nextLogLifecycleDate: Date? {
+        let dates = [activeLog?.endDate].compactMap { $0 } + inactiveLogs.map(\.expirationDate)
+        return dates.min()
     }
 }
 
@@ -34,8 +42,14 @@ extension FlightRecorderData {
     struct LogMetadata: Codable, Equatable, Identifiable {
         // MARK: Properties
 
+        /// A list of user IDs that have seen and dismissed the flight recorder toast banner for this log.
+        var bannerDismissedByUserIds: [String]
+
         /// The duration for how long the flight recorder was enabled for the log.
         let duration: FlightRecorderLoggingDuration
+
+        /// The date when the logging will end.
+        let endDate: Date
 
         /// The file name of the file on disk.
         let fileName: String
@@ -44,6 +58,31 @@ extension FlightRecorderData {
         let startDate: Date
 
         // MARK: Computed Properties
+
+        /// The date when the flight recorder log will expire and be deleted.
+        var expirationDate: Date {
+            Calendar.current.date(
+                byAdding: .day,
+                value: Constants.flightRecorderLogExpirationDays,
+                to: endDate
+            ) ?? endDate
+        }
+
+        /// The formatted end date for the log.
+        var formattedEndDate: String {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .short
+            dateFormatter.timeStyle = .none
+            return dateFormatter.string(from: endDate)
+        }
+
+        /// The formatted end time for the log.
+        var formattedEndTime: String {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateStyle = .none
+            dateFormatter.timeStyle = .short
+            return dateFormatter.string(from: endDate)
+        }
 
         var id: String {
             fileName
@@ -58,8 +97,11 @@ extension FlightRecorderData {
         ///   - startDate: The date the logging was started.
         ///
         init(duration: FlightRecorderLoggingDuration, startDate: Date) {
+            bannerDismissedByUserIds = []
             self.duration = duration
             self.startDate = startDate
+
+            endDate = Calendar.current.date(byAdding: duration, to: startDate) ?? startDate
 
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd-HH-mm-ss"

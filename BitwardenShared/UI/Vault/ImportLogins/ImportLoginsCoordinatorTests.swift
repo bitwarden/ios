@@ -73,8 +73,8 @@ class ImportLoginsCoordinatorTests: BitwardenTestCase {
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.viewControllers.first is UIHostingController<ImportLoginsSuccessView>)
+        XCTAssertTrue(action.view is ImportLoginsSuccessView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `start()` has no effect.

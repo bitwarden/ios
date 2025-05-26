@@ -1,4 +1,4 @@
-#include "./Common.xcconfig"
-#include? "./Local.xcconfig"
+#include "./Common-bwpm.xcconfig"
+#include? "./Local-bwpm.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = $(ORGANIZATION_IDENTIFIER).networking

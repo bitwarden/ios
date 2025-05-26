@@ -1,6 +1,6 @@
 import Foundation
 
-extension JSONEncoder {
+public extension JSONEncoder {
     // MARK: Static Properties
 
     /// The default `JSONEncoder` used to encode JSON payloads throughout the app.

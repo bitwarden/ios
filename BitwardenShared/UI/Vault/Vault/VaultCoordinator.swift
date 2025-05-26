@@ -48,6 +48,12 @@ public protocol VaultCoordinatorDelegate: AnyObject {
     ///     accounts and vault unlock
     ///
     func switchAccount(userId: String, isAutomatic: Bool, authCompletionRoute: AppRoute?)
+
+    /// Called when the user needs to switch to the settings tab and navigate to a `SettingsRoute`.
+    ///
+    /// - Parameter route: The route to navigate to in the settings tab.
+    ///
+    func switchToSettingsTab(route: SettingsRoute)
 }
 
 // MARK: - VaultCoordinator
@@ -61,6 +67,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & GeneratorModule
         & ImportCXFModule
         & ImportLoginsModule
+        & NavigatorBuilderModule
         & VaultItemModule
 
     typealias Services = HasApplication
@@ -73,6 +80,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         & HasEnvironmentService
         & HasErrorAlertServices.ErrorAlertServices
         & HasErrorReporter
+        & HasFlightRecorder
         & HasFido2CredentialStore
         & HasFido2UserInterfaceHelper
         & HasLocalAuthService
@@ -196,6 +204,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             }
         case .dismiss:
             stackNavigator?.dismiss()
+        case .flightRecorderSettings:
+            delegate?.switchToSettingsTab(route: .about)
         case let .group(group, filter):
             showGroup(group, filter: filter)
         case let .importCXF(cxfRoute):
@@ -222,7 +232,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// Shows the add folder screen.
     ///
     private func showAddFolder() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeAddEditFolderCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: .addEditFolder(folder: nil))
@@ -321,7 +331,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// - Parameter route: The `ImportCXFRoute` to show.
     ///
     private func showImportCXF(route: ImportCXFRoute) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeImportCXFCoordinator(
             stackNavigator: navigationController
         )
@@ -333,7 +343,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// Shows the import login items screen.
     ///
     private func showImportLogins() {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         navigationController.modalPresentationStyle = .fullScreen
         let coordinator = module.makeImportLoginsCoordinator(
             delegate: self,
@@ -376,7 +386,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// - Parameter route: The route to navigate to in the coordinator.
     ///
     private func showVaultItem(route: VaultItemRoute, delegate: CipherItemOperationDelegate?) {
-        let navigationController = UINavigationController()
+        let navigationController = module.makeNavigationController()
         let coordinator = module.makeVaultItemCoordinator(stackNavigator: navigationController)
         coordinator.start()
         coordinator.navigate(to: route, context: delegate)
@@ -410,9 +420,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             )
         )
 
-        let view = VaultItemSelectionView(store: Store(processor: processor))
-        let viewController = UIHostingController(rootView: view)
-        stackNavigator?.present(UINavigationController(rootViewController: viewController))
+        stackNavigator?.present(VaultItemSelectionView(store: Store(processor: processor)))
     }
 }
 

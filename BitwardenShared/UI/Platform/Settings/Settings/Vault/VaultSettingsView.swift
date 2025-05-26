@@ -22,7 +22,7 @@ struct VaultSettingsView: View {
             vaultSettings
         }
         .animation(.easeInOut, value: store.state.badgeState?.importLoginsSetupProgress == .complete)
-        .scrollView()
+        .scrollView(padding: 12)
         .navigationBar(title: Localizations.vault, titleDisplayMode: .inline)
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }
@@ -56,7 +56,7 @@ struct VaultSettingsView: View {
 
     /// The vault settings section.
     private var vaultSettings: some View {
-        VStack(spacing: 0) {
+        ContentBlock(dividerLeadingPadding: 16) {
             SettingsListItem(Localizations.folders) {
                 store.send(.foldersTapped)
             }
@@ -67,7 +67,7 @@ struct VaultSettingsView: View {
             }
             .accessibilityIdentifier("ExportVaultLabel")
 
-            SettingsListItem(Localizations.importItems, hasDivider: false) {
+            SettingsListItem(Localizations.importItems) {
                 store.send(.importItemsTapped)
             } trailingContent: {
                 Image(asset: Asset.Images.externalLink24)
@@ -75,7 +75,6 @@ struct VaultSettingsView: View {
             }
             .accessibilityIdentifier("ImportItemsLinkItemView")
         }
-        .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
 

@@ -180,6 +180,14 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(action.type, .dismissed)
     }
 
+    /// `navigate(to:)` with `.flightRecorderSettings` notifies the delegate to switch to the about
+    /// screen in the settings tab.
+    @MainActor
+    func test_navigateTo_flightRecorderSettings() throws {
+        subject.navigate(to: .flightRecorderSettings)
+        XCTAssertEqual(delegate.switchToSettingsTabRoute, .about)
+    }
+
     /// `navigate(to:)` with `.autofillListForGroup` pushes the vault autofill list view
     /// onto the stack navigator filtered by a group.
     @MainActor
@@ -327,8 +335,8 @@ class VaultCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         let action = try XCTUnwrap(stackNavigator.actions.last)
         XCTAssertEqual(action.type, .presented)
-        let navigationController = try XCTUnwrap(action.view as? UINavigationController)
-        XCTAssertTrue(navigationController.topViewController is UIHostingController<VaultItemSelectionView>)
+        XCTAssertTrue(action.view is VaultItemSelectionView)
+        XCTAssertEqual(action.embedInNavigationController, true)
     }
 
     /// `.navigate(to:)` with `.viewItem` presents the view item screen.
@@ -379,6 +387,7 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
     var switchAccountIsAutomatic = false
     var switchAccountUserId: String?
     var switchedAccounts = false
+    var switchToSettingsTabRoute: SettingsRoute?
     var userInitiated: Bool?
 
     func lockVault(userId: String?, isManuallyLocking: Bool) {
@@ -409,5 +418,9 @@ class MockVaultCoordinatorDelegate: VaultCoordinatorDelegate {
         switchAccountIsAutomatic = isAutomatic
         switchAccountUserId = userId
         switchedAccounts = true
+    }
+
+    func switchToSettingsTab(route: SettingsRoute) {
+        switchToSettingsTabRoute = route
     }
 } // swiftlint:disable:this file_length

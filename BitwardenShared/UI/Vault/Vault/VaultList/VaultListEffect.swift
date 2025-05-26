@@ -8,6 +8,9 @@ enum VaultListEffect: Equatable {
     /// Check if the user is eligible for an app review prompt.
     case checkAppReviewEligibility
 
+    /// The flight recorder toast banner was dismissed.
+    case dismissFlightRecorderToastBanner
+
     /// The user tapped the dismiss button on the import logins action card.
     case dismissImportLoginsActionCard
 
@@ -31,6 +34,9 @@ enum VaultListEffect: Equatable {
 
     /// Stream the user's accounts setup progress.
     case streamAccountSetupProgress
+
+    /// Stream the active flight recorder log.
+    case streamFlightRecorderLog
 
     /// Stream the list of organizations for the user.
     case streamOrganizations

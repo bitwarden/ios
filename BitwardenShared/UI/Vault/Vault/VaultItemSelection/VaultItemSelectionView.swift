@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -150,9 +151,9 @@ private struct VaultItemSelectionSearchableView: View {
     @ViewBuilder
     private func contentView() -> some View {
         if store.state.vaultListSections.isEmpty {
-            EmptyContentView(
+            IllustratedMessageView(
                 image: Asset.Images.Illustrations.items.swiftUIImage,
-                text: emptyViewMessage
+                message: emptyViewMessage
             ) {
                 Button {
                     store.send(.addTapped)
@@ -167,7 +168,9 @@ private struct VaultItemSelectionSearchableView: View {
                             ))
                     }
                 }
+                .buttonStyle(.primary(shouldFillWidth: false))
             }
+            .scrollView(centerContentVertically: true)
         } else {
             matchingItemsView()
         }
@@ -272,7 +275,7 @@ private struct VaultItemSelectionSearchableView: View {
 
 #Preview("Matching Items") {
     NavigationView {
-        let ciphers: [CipherView] = [
+        let ciphers: [CipherListView] = [
             .fixture(
                 id: "1",
                 login: .fixture(username: "user@bitwarden.com"),

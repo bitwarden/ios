@@ -14,7 +14,7 @@ class MockFileManager: FileManagerProtocol {
     var createDirectoryCreateIntermediates: Bool?
     var createDirectoryResult: Result<Void, Error> = .success(())
 
-    var removeItemURL: URL?
+    var removeItemURLs = [URL]()
     var removeItemResult: Result<Void, Error> = .success(())
 
     var setIsExcludedFromBackupValue: Bool?
@@ -43,7 +43,7 @@ class MockFileManager: FileManagerProtocol {
     }
 
     func removeItem(at url: URL) throws {
-        removeItemURL = url
+        removeItemURLs.append(url)
         try removeItemResult.get()
     }
 

@@ -120,6 +120,13 @@ protocol StateService: AnyObject {
     ///
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool
 
+    /// Gets the Universal Clipboard setting for a user account.
+    ///
+    /// - Parameter userId: The user ID of the account. Defaults to the active account if `nil`.
+    /// - Returns: A Boolean value indicating whether Universal Clipboard is allowed.
+    ///
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool
+
     /// Gets the app rehydration state.
     /// - Parameter userId: The user ID associated with this state.
     /// - Returns: The rehydration state.
@@ -284,22 +291,11 @@ protocol StateService: AnyObject {
     ///
     func getAccountCreationEnvironmentURLs(email: String) async -> EnvironmentURLData?
 
-    /// Gets the server config used by the app prior to the user authenticating.
-    /// - Returns: The server config used prior to user authentication.
-    func getPreAuthServerConfig() async -> ServerConfig?
-
     /// Gets the App Review Prompt data.
     ///
     /// - Returns: The App Review Prompt data.
     ///
     func getReviewPromptData() async -> ReviewPromptData?
-
-    /// Gets the server config for a user ID, as set by the server.
-    ///
-    /// - Parameter userId: The user ID associated with the server config. Defaults to the active account if `nil`.
-    /// - Returns: The user's server config.
-    ///
-    func getServerConfig(userId: String?) async throws -> ServerConfig?
 
     /// Get whether the device should be trusted.
     ///
@@ -463,6 +459,14 @@ protocol StateService: AnyObject {
     ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
     ///
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws
+
+    /// Sets the Universal Clipboard setting for a user account.
+    ///
+    /// - Parameters:
+    ///   - allowUniversalClipboard: A Boolean value indicating whether Universal Clipboard should be allowed.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    ///
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws
 
     /// Sets the app theme.
     ///
@@ -641,10 +645,6 @@ protocol StateService: AnyObject {
     ///
     func setAccountCreationEnvironmentURLs(urls: EnvironmentURLData, email: String) async
 
-    /// Sets the server config used prior to user authentication
-    /// - Parameter config: The server config to use prior to user authentication.
-    func setPreAuthServerConfig(config: ServerConfig) async
-
     /// Sets the app rehydration state for the active account.
     /// - Parameters:
     ///   - rehydrationState: The app rehydration state.
@@ -656,14 +656,6 @@ protocol StateService: AnyObject {
     /// - Parameter data: The App Review Prompt data.
     ///
     func setReviewPromptData(_ data: ReviewPromptData) async
-
-    /// Sets the server configuration as provided by a server for a user ID.
-    ///
-    /// - Parameters:
-    ///   - configModel: The config values to set as provided by the server.
-    ///   - userId: The user ID associated with the server config.
-    ///
-    func setServerConfig(_ config: ServerConfig?, userId: String?) async throws
 
     /// Set whether to trust the device.
     ///
@@ -868,6 +860,14 @@ extension StateService {
         try await getAllowSyncOnRefresh(userId: nil)
     }
 
+    /// Gets the Universal Clipboard setting for the active account.
+    ///
+    /// - Returns: A Boolean value indicating whether Universal Clipboard is allowed.
+    ///
+    func getAllowUniversalClipboard() async throws -> Bool {
+        try await getAllowUniversalClipboard(userId: nil)
+    }
+
     /// Gets the app rehydration state for the active account.
     /// - Returns: The rehydration state.
     func getAppRehydrationState() async throws -> AppRehydrationState? {
@@ -972,14 +972,6 @@ extension StateService {
     ///
     func getPasswordGenerationOptions() async throws -> PasswordGenerationOptions? {
         try await getPasswordGenerationOptions(userId: nil)
-    }
-
-    /// Gets the server config for the active account.
-    ///
-    /// - Returns: The server config sent by the server for the active account.
-    ///
-    func getServerConfig() async throws -> ServerConfig? {
-        try await getServerConfig(userId: nil)
     }
 
     /// Gets the sync to authenticator value for the active account.
@@ -1112,6 +1104,14 @@ extension StateService {
         try await setAllowSyncOnRefresh(allowSyncOnRefresh, userId: nil)
     }
 
+    /// Sets the Universal Clipboard setting for the active account.
+    ///
+    /// - Parameter allowUniversalClipboard: A Boolean value indicating whether Universal Clipboard should be allowed.
+    ///
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool) async throws {
+        try await setAllowUniversalClipboard(allowUniversalClipboard, userId: nil)
+    }
+
     /// Sets the clear clipboard value for the active account.
     ///
     /// - Parameter clearClipboardValue: The time after which to clear the clipboard.
@@ -1210,14 +1210,6 @@ extension StateService {
         try await setAppRehydrationState(rehydrationState, userId: nil)
     }
 
-    /// Sets the server config for the active account.
-    ///
-    /// - Parameter config: The server config.
-    ///
-    func setServerConfig(_ config: ServerConfig?) async throws {
-        try await setServerConfig(config, userId: nil)
-    }
-
     /// Sets the sync to authenticator value for the active account.
     ///
     /// - Parameter syncToAuthenticator: Whether to sync TOTP codes to the Authenticator app.
@@ -1301,7 +1293,7 @@ enum StateServiceError: LocalizedError {
 
 /// A default implementation of `StateService`.
 ///
-actor DefaultStateService: StateService { // swiftlint:disable:this type_body_length
+actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     /// The language option currently selected for the app.
@@ -1485,6 +1477,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func getAllowSyncOnRefresh(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.allowSyncOnRefresh(userId: userId)
+    }
+
+    func getAllowUniversalClipboard(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.allowUniversalClipboard(userId: userId)
     }
 
     func getAppRehydrationState(userId: String?) async throws -> AppRehydrationState? {
@@ -1770,6 +1767,11 @@ actor DefaultStateService: StateService { // swiftlint:disable:this type_body_le
     func setAllowSyncOnRefresh(_ allowSyncOnRefresh: Bool, userId: String?) async throws {
         let userId = try userId ?? getActiveAccountUserId()
         appSettingsStore.setAllowSyncOnRefresh(allowSyncOnRefresh, userId: userId)
+    }
+
+    func setAllowUniversalClipboard(_ allowUniversalClipboard: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setAllowUniversalClipboard(allowUniversalClipboard, userId: userId)
     }
 
     func setAppTheme(_ appTheme: AppTheme) async {

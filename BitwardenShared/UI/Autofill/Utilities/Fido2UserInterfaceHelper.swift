@@ -52,7 +52,7 @@ protocol Fido2UserInterfaceHelper: Fido2UserInterface {
     /// verification fails.
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: BitwardenSdk.CipherView,
+        credential: Fido2UserVerifiableCipherView,
         shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> CheckUserResult
 
@@ -132,7 +132,7 @@ class DefaultFido2UserInterfaceHelper: Fido2UserInterfaceHelper {
 
     func checkUser(
         userVerificationPreference: BitwardenSdk.Verification,
-        credential: BitwardenSdk.CipherView,
+        credential: Fido2UserVerifiableCipherView,
         shouldThrowEnforcingRequiredVerification: Bool
     ) async throws -> CheckUserResult {
         let result = try await fido2UserVerificationMediator.checkUser(

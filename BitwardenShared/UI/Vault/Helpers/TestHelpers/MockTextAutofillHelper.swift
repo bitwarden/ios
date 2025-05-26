@@ -4,11 +4,11 @@ import BitwardenSdk
 
 class MockTextAutofillHelper: TextAutofillHelper {
     var handleCipherForAutofillError: Error?
-    var handleCipherForAutofillCalledWithCipher: CipherView?
+    var handleCipherForAutofillCalledWithCipher: CipherListView?
     var textAutofillHelperDelegate: (any TextAutofillHelperDelegate)?
 
-    func handleCipherForAutofill(cipherView: CipherView) async throws {
-        handleCipherForAutofillCalledWithCipher = cipherView
+    func handleCipherForAutofill(cipherListView: CipherListView) async throws {
+        handleCipherForAutofillCalledWithCipher = cipherListView
         if let handleCipherForAutofillError {
             throw handleCipherForAutofillError
         }

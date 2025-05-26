@@ -133,6 +133,19 @@ class IdentityTokenRequestTests: BitwardenTestCase {
         }
     }
 
+    /// `validate(_:)` with a `400` status code and encryption key migration in the response body throws a
+    /// `.encryptionKeyMigrationRequired` error.
+    func test_validate_with400EncryptionKeyMigrationError() {
+        let response = HTTPResponse.failure(
+            statusCode: 400,
+            body: APITestData.identityTokenEncryptionKeyMigrationError.data
+        )
+
+        XCTAssertThrowsError(try subjectAuthorizationCode.validate(response)) { error in
+            XCTAssertEqual(error as? IdentityTokenRequestError, .encryptionKeyMigrationRequired)
+        }
+    }
+
     /// `validate(_:)` with a `400` status code and two-factor error in the response body throws a `.twoFactorRequired`
     /// error.
     func test_validate_with400TwoFactorError() {

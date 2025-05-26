@@ -130,7 +130,7 @@ final class ExportVaultProcessor: StateProcessor<ExportVaultState, ExportVaultAc
         }
 
         let fileURL = try await services.exportVaultService.exportVault(format: exportFormat)
-        coordinator.navigate(to: .shareExportedVault(fileURL))
+        coordinator.navigate(to: .shareURL(fileURL))
     }
 
     /// Load any initial data for the view.

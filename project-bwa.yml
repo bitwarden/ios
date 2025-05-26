@@ -16,6 +16,10 @@ options:
 settings:
   MARKETING_VERSION: 2024.6.1
   CURRENT_PROJECT_VERSION: 1
+include:
+  - path: Configs/local-sdk.yml
+    relativePaths: false
+    enable: ${LOCAL_SDK}
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
@@ -23,16 +27,16 @@ packages:
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.8.1
+    exactVersion: 11.12.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     exactVersion: 1.18.3
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
-    exactVersion: 1.26.0
+    exactVersion: 1.29.0
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
-    exactVersion: 0.10.0
+    exactVersion: 0.10.1
 projectReferences:
   BitwardenKit:
     path: BitwardenKit.xcodeproj
@@ -78,8 +82,8 @@ targets:
     type: application
     platform: iOS
     configFiles:
-      Debug: Configs-bwa/Authenticator-Debug.xcconfig
-      Release: Configs-bwa/Authenticator-Release.xcconfig
+      Debug: Configs/Authenticator-Debug.xcconfig
+      Release: Configs/Authenticator-Release.xcconfig
     settings:
       base:
         INFOPLIST_FILE: Authenticator/Application/Support/Info.plist
@@ -157,8 +161,8 @@ targets:
     type: framework
     platform: iOS
     configFiles:
-      Debug: Configs-bwa/AuthenticatorShared-Debug.xcconfig
-      Release: Configs-bwa/AuthenticatorShared-Release.xcconfig
+      Debug: Configs/AuthenticatorShared-Debug.xcconfig
+      Release: Configs/AuthenticatorShared-Release.xcconfig
     settings:
       base:
         APPLICATION_EXTENSION_API_ONLY: true

@@ -57,6 +57,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     /// The services used by this processor.
     private let services: Services
 
+    /// The task that streams cipher details.
+    private(set) var streamCipherDetailsTask: Task<Void, Never>?
+
     // MARK: Initialization
 
     /// Creates a new `ViewItemProcessor`.
@@ -95,7 +98,10 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
     override func perform(_ effect: ViewItemEffect) async {
         switch effect {
         case .appeared:
-            await streamCipherDetails()
+            streamCipherDetailsTask?.cancel()
+            streamCipherDetailsTask = Task {
+                await streamCipherDetails()
+            }
         case .checkPasswordPressed:
             do {
                 guard let password = state.loadingState.data?.cipher.login?.password else { return }
@@ -155,6 +161,9 @@ final class ViewItemProcessor: StateProcessor<ViewItemState, ViewItemAction, Vie
                     )
                 }
             }
+        case .disappeared:
+            streamCipherDetailsTask?.cancel()
+            streamCipherDetailsTask = nil
         case .dismissPressed:
             coordinator.navigate(to: .dismiss())
         case let .downloadAttachment(attachment):

@@ -106,7 +106,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         authRepository.hasMasterPasswordResult = .failure(BitwardenTestError.example)
         vaultRepository.fetchCipherResult = .success(.fixture(reprompt: .password))
 
-        let cipher = CipherListView.fixture(id: "1")
+        let cipher = CipherListView.fixture(id: "1", reprompt: .password)
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
@@ -117,6 +117,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     @MainActor
     func test_handleCipherForAutofill_fetchCipherError() async {
         let cipher = CipherListView.fixture()
+        vaultRepository.fetchCipherResult = .failure(BitwardenTestError.example)
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
@@ -130,6 +131,32 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        XCTAssertEqual(errorReporter.errors.count, 1)
+        let nsError = errorReporter.errors.first as? NSError
+        XCTAssertEqual(
+            nsError?.userInfo["ErrorMessage"] as? String,
+            "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired."
+        )
+    }
+
+    /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher couldn't be fetched.
+    @MainActor
+    func test_handleCipherForAutofill_fetchNoCipher() async {
+        let cipher = CipherListView.fixture(id: "1")
+        vaultRepository.fetchCipherResult = .success(nil)
+
+        await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
+
+        XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
+        guard errorReporter.errors.count == 1 else {
+            XCTFail("No errors reported.")
+            return
+        }
+        let nsError = errorReporter.errors[0] as NSError
+        XCTAssertEqual(
+            nsError.userInfo["ErrorMessage"] as? String,
+            "No cipher found on AutofillHelper handleCipherForAutofillAfterRepromptIfRequired."
+        )
     }
 
     /// `handleCipherForAutofill(cipherListView:)` shows an alert if the cipher is missing a password.
@@ -260,7 +287,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             reprompt: .password
         ))
 
-        let cipher = CipherListView.fixture(id: "1")
+        let cipher = CipherListView.fixture(id: "1", reprompt: .password)
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
@@ -285,7 +312,7 @@ class AutofillHelperTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         ))
         authRepository.validatePasswordResult = .success(false)
 
-        let cipher = CipherListView.fixture(id: "1")
+        let cipher = CipherListView.fixture(id: "1", reprompt: .password)
         await subject.handleCipherForAutofill(cipherListView: cipher) { _ in }
 
         var alert = try XCTUnwrap(coordinator.alertShown.last)

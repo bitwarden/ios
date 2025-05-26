@@ -86,6 +86,9 @@ jobs:
   build:
     name: Build
     runs-on: macos-15
+    permissions:
+      contents: read
+      actions: write #required for dispatch-and-download.yml
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
@@ -141,7 +144,7 @@ jobs:
 
       - name: Upload version info artifact
         if: ${{ inputs.upload_version_info }}
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: version-info
           path: version-info/version_info.json
@@ -159,7 +162,7 @@ jobs:
 
       - name: Cache Mint packages
         id: mint-cache
-        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4.2.3
         with:
           path: .mint
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -329,22 +332,14 @@ jobs:
 
       - name: Configure Ruby
         if: env._BUILD_MODE == 'Device'
-        uses: ruby/setup-ruby@4a9ddd6f338a97768b8006bf671dfbad383215f4 # v1.207.0
+        uses: ruby/setup-ruby@eaecf785f6a34567a6d97f686bbb7bccc1ac1e5c # v1.237.0
         with:
           bundler-cache: true
 
-      - name: Update homebrew
+      - name: Install Homebrew Dependencies
         run: |
           brew update
-
-      - name: Install Fastlane
-        if: env._BUILD_MODE == 'Device'
-        run: |
-          brew install fastlane
-
-      - name: Install Mint
-        run: |
-          brew install mint
+          brew bundle
 
       - name: Install Mint packages
         if: steps.mint-cache.outputs.cache-hit != 'true'
@@ -366,7 +361,7 @@ jobs:
 
       - name: Build iOS app
         run: |
-          ./Scripts/build.sh ${{ env._BUILD_MODE }}
+          ./Scripts/build.sh project-pm.yml Bitwarden ${{ env._BUILD_MODE }}
 
       - name: Prepare artifacts for upload to GitHub
         run: |
@@ -387,7 +382,7 @@ jobs:
           esac
 
       - name: Upload artifacts to GitHub
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: Bitwarden iOS ${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }}) ${{ env._BUILD_VARIANT }} ${{ env._XCODE_VERSION }} ${{ env._BUILD_MODE }} ${{ env._COMPILER_FLAGS }}
           path: export

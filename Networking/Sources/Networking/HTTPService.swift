@@ -14,8 +14,8 @@ public final class HTTPService: Sendable {
     /// The underlying `HTTPClient` that performs the network request.
     let client: HTTPClient
 
-    /// A logger used to log HTTP request and responses.
-    let logger = HTTPLogger()
+    /// The loggers used to log HTTP request and responses.
+    let loggers: [HTTPLogger]
 
     /// A list of `RequestHandler`s that have the option to view or modify the request prior to it
     /// being sent. Handlers are applied in the order of the items in the handler list.
@@ -36,6 +36,7 @@ public final class HTTPService: Sendable {
     /// - Parameters:
     ///   - baseURL: The URL against which requests are resolved.
     ///   - client: The underlying `HTTPClient` that performs the network request.
+    ///   - loggers: The loggers used to log HTTP request and responses.
     ///   - requestHandlers: A list of `RequestHandler`s that have the option to view or modify the
     ///     request prior to it being sent.
     ///   - responseHandlers: A list of `ResponseHandler`s that have the option to view or modify
@@ -45,12 +46,14 @@ public final class HTTPService: Sendable {
     public init(
         baseURL: URL,
         client: HTTPClient = URLSession.shared,
+        loggers: [HTTPLogger] = [OSLogHTTPLogger()],
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = [],
         tokenProvider: TokenProvider? = nil
     ) {
         baseURLGetter = { baseURL }
         self.client = client
+        self.loggers = loggers
         self.requestHandlers = requestHandlers
         self.responseHandlers = responseHandlers
         self.tokenProvider = tokenProvider
@@ -62,6 +65,7 @@ public final class HTTPService: Sendable {
     ///   - baseURLGetter: A getter function for dynamically retrieving the base url against which
     ///     requests are resolved.
     ///   - client: The underlying `HTTPClient` that performs the network request.
+    ///   - loggers: The loggers used to log HTTP request and responses.
     ///   - requestHandlers: A list of `RequestHandler`s that have the option to view or modify the
     ///     request prior to it being sent.
     ///   - responseHandlers: A list of `ResponseHandler`s that have the option to view or modify
@@ -71,12 +75,14 @@ public final class HTTPService: Sendable {
     public init(
         baseURLGetter: @escaping @Sendable () -> URL,
         client: HTTPClient = URLSession.shared,
+        loggers: [HTTPLogger] = [OSLogHTTPLogger()],
         requestHandlers: [RequestHandler] = [],
         responseHandlers: [ResponseHandler] = [],
         tokenProvider: TokenProvider? = nil
     ) {
         self.baseURLGetter = baseURLGetter
         self.client = client
+        self.loggers = loggers
         self.requestHandlers = requestHandlers
         self.responseHandlers = responseHandlers
         self.tokenProvider = tokenProvider
@@ -129,10 +135,14 @@ public final class HTTPService: Sendable {
     ) async throws -> HTTPResponse {
         var httpRequest = httpRequest
         try await applyRequestHandlers(&httpRequest)
-        logger.logRequest(httpRequest)
+        for logger in loggers {
+            await logger.logRequest(httpRequest)
+        }
 
         var httpResponse = try await client.send(httpRequest)
-        logger.logResponse(httpResponse)
+        for logger in loggers {
+            await logger.logResponse(httpResponse)
+        }
 
         if let tokenProvider, httpResponse.statusCode == 401, shouldRetryIfUnauthorized {
             try await tokenProvider.refreshToken()

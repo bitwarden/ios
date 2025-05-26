@@ -582,12 +582,16 @@ extension AppProcessor: SyncServiceDelegate {
         }
     }
 
-    func removeMasterPassword(organizationName: String) {
+    func removeMasterPassword(organizationName: String, organizationId: String, keyConnectorUrl: String) {
         // Don't show the remove master password screen if running in an app extension.
         guard appExtensionDelegate?.isInAppExtension != true else { return }
 
         coordinator?.hideLoadingOverlay()
-        coordinator?.navigate(to: .auth(.removeMasterPassword(organizationName: organizationName)))
+        coordinator?.navigate(to: .auth(.removeMasterPassword(
+            organizationName: organizationName,
+            organizationId: organizationId,
+            keyConnectorUrl: keyConnectorUrl
+        )))
     }
 
     func securityStampChanged(userId: String) async {

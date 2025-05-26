@@ -1,4 +1,5 @@
 import AuthenticatorShared
+import BitwardenKit
 import UIKit
 
 /// A protocol for an `AppDelegate` that can be used by the `SceneDelegate` to look up the

@@ -15,7 +15,7 @@ struct ImportCXFView: View {
     var body: some View {
         Group {
             VStack(spacing: 16) {
-                PageHeaderView(
+                IllustratedMessageView(
                     image: Image(decorative: store.state.mainIcon),
                     style: .largeTextTintedIcon,
                     title: store.state.title,

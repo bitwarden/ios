@@ -26,7 +26,7 @@ class VaultListSectionTests: BitwardenTestCase {
         XCTAssertFalse(subjectLoginsEmpty.hasLoginItems)
 
         let subjectCiphersNoLogins = [
-            VaultListSection(id: "5", items: [.fixture(cipherView: .fixture(type: .identity))], name: "Items"),
+            VaultListSection(id: "5", items: [.fixture(cipherListView: .fixture(type: .identity))], name: "Items"),
         ]
         XCTAssertFalse(subjectCiphersNoLogins.hasLoginItems)
     }
@@ -49,7 +49,13 @@ class VaultListSectionTests: BitwardenTestCase {
 
         let subjectWithCipher = [
             VaultListSection(id: "2", items: [.fixtureGroup(group: .card, count: 2)], name: "Cards"),
-            VaultListSection(id: "5", items: [.fixture(cipherView: .fixture(type: .login))], name: "Items"),
+            VaultListSection(
+                id: "5",
+                items: [
+                    .fixture(cipherListView: .fixture(login: .fixture())),
+                ],
+                name: "Items"
+            ),
         ]
         XCTAssertTrue(subjectWithCipher.hasLoginItems)
 

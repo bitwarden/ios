@@ -88,30 +88,6 @@ extension View {
         ))
     }
 
-    /// Applies the `ScrollViewModifier` to a view.
-    ///
-    /// - Parameters:
-    ///   - addVerticalPadding: Whether or not to add vertical padding. Defaults to `true`.
-    ///   - backgroundColor: The background color to apply to the scroll view. Defaults to `backgroundPrimary`.
-    ///   - padding: The amount of padding to apply around the content.
-    ///   - showsIndicators: Whether or not the scroll indicators are shown.
-    ///
-    /// - Returns: A view within a `ScrollView`.
-    ///
-    func scrollView(
-        addVerticalPadding: Bool = true,
-        backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
-        padding: CGFloat = 16,
-        showsIndicators: Bool = true
-    ) -> some View {
-        modifier(ScrollViewModifier(
-            addVerticalPadding: addVerticalPadding,
-            backgroundColor: backgroundColor,
-            padding: padding,
-            showsIndicators: showsIndicators
-        ))
-    }
-
     /// Returns a floating action button positioned at the bottom-right corner of the screen.
     ///
     /// - Parameters:
