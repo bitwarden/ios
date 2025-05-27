@@ -458,7 +458,7 @@ protocol AppSettingsStore: AnyObject {
     /// Sets the Siri & Shortcuts access setting for the user.
     ///
     /// - Parameters:
-    ///   - siriAndShortcutsAccess: Whether the Siri & Shortcuts access access is enabled.
+    ///   - siriAndShortcutsAccess: Whether the Siri & Shortcuts access is enabled.
     ///   - userId: The user ID.
     ///
     func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String)
