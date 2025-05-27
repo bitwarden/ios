@@ -35,6 +35,7 @@ struct PrimaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .foregroundColor(foregroundColor)
+            .multilineTextAlignment(.center)
             .padding(.vertical, 14)
             .padding(.horizontal, 20)
             .frame(maxWidth: shouldFillWidth ? .infinity : nil)

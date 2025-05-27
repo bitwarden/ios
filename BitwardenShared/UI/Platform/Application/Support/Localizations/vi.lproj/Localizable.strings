@@ -559,7 +559,7 @@
 "Sends" = "Gửi";
 "Text" = "Văn bản";
 "TypeText" = "Văn bản";
-"HideTextByDefault" = "Khi truy cập vào phần Gửi, văn bản sẽ được ẩn theo mặc định";
+"HideTextByDefault" = "Khi truy cập vào mục Gửi, văn bản sẽ được ẩn theo mặc định";
 "TypeFile" = "Tập tin";
 "FileTypeIsSelected" = "Loại tập tin được chọn.";
 "FileTypeIsNotSelected" = "Loại tập tin chưa được chọn, nhấn để chọn.";
@@ -587,7 +587,7 @@
 "SendLink" = "Liên kết Gửi";
 "SearchSends" = "Tìm kiếm mục Gửi";
 "EditSend" = "Sửa mục Gửi";
-"NewSend" = "Gửi mục mới";
+"NewSend" = "Mục Gửi mới";
 "AreYouSureDeleteSend" = "Bạn có chắc muốn mục Gửi này?";
 "SendDeleted" = "Đã xóa mục Gửi";
 "SendUpdated" = "Đã lưu mục Gửi";
@@ -722,7 +722,7 @@
 "SimpleLogin" = "SimpleLogin";
 "DuckDuckGo" = "DuckDuckGo";
 "Fastmail" = "Fastmail";
-"ForwardEmail" = "ForwardEmail";
+"ForwardEmail" = "Forward Email";
 "APIAccessToken" = "Khoá truy cập API";
 "AreYouSureYouWantToOverwriteTheCurrentUsername" = "Bạn có chắc muốn ghi đè lên tên người dùng hiện tại không?";
 "GenerateUsername" = "Tạo tên người dùng";
@@ -1120,8 +1120,8 @@
 "ThisIsTakingLongerThanExpected" = "Quá trình này mất nhiều thời gian hơn dự kiến";
 "ItemsToExport" = "Những mục sẽ xuất";
 "TextToShare" = "Nội dung chia sẻ";
-"SendDetails" = "Chi tiết gửi";
-"SendNameRequired" = "Tên người gửi (bắt buộc)";
+"SendDetails" = "Chi tiết Gửi";
+"SendNameRequired" = "Tên mục Gửi (bắt buộc)";
 "CheckPasswordForDataBreaches" = "Kiểm tra mật khẩu để tránh lộ dữ liệu";
 "PrivateNote" = "Ghi chú riêng";
 "XItems" = "%1$@ mục";
@@ -1182,5 +1182,9 @@
 "DoYouReallyWantToDeleteAllRecordedLogs" = "Bạn muốn xoá tất cả nhật ký?";
 "ThisAccountWillSoonBeDeletedLogInAtXToContinueUsingBitwarden" = "Tài khoản này sẽ sớm bị xóa. Đăng nhập %1$@ để tiếp tục sử dụng Bitwarden.";
 "AppSettings" = "Cài đặt ứng dụng";
-"ViewFileSend" = "Xem file Gửi";
+"ViewFileSend" = "Xem tập tin Gửi";
 "ViewTextSend" = "Xem văn bản Gửi";
+"DeleteSend" = "Xóa mục Gửi";
+"FlightRecorderOn" = "Bộ lưu chuyến bay bật";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Bộ lưu chuyến bay sẽ kích hoạt cho tới %1$@ vào %2$@. Đến Cài đặt để hủy kích hoạt ngay.";
+"GoToSettings" = "Chuyển đến Cài đặt";
