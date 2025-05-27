@@ -16,6 +16,9 @@ struct ItemListCardView<ImageContent: View>: View {
     /// The image to display in the card.
     @ViewBuilder let leftImage: ImageContent
 
+    /// The button text for the secondary button in the card.
+    var secondaryButtonText: String?
+
     /// The title text to display in the card.
     var titleText: String
 
@@ -27,43 +30,58 @@ struct ItemListCardView<ImageContent: View>: View {
     /// The close callback to perform.
     var closeTapped: () -> Void
 
+    /// The action to perform when the secondary button is tapped.
+    var secondaryActionTapped: (() -> Void)?
+
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
-            leftImage
-                .padding(.leading, 16)
+        VStack(spacing: 16) {
+            HStack(alignment: .top, spacing: 16) {
+                leftImage
 
-            VStack(alignment: .leading, spacing: 0) {
-                Group {
-                    Text(titleText)
-                        .styleGuide(.headline)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                VStack(alignment: .leading, spacing: 0) {
+                    Group {
+                        Text(titleText)
+                            .styleGuide(.headline)
+                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
 
-                    Text(bodyText)
-                        .styleGuide(.subheadline)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-
-                    Button {
-                        actionTapped()
-                    } label: {
-                        Text(buttonText)
-                            .foregroundColor(Asset.Colors.primaryBitwarden.swiftUIColor)
-                            .styleGuide(.subheadline, weight: .semibold)
+                        Text(bodyText)
+                            .styleGuide(.subheadline)
+                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     }
-                    .padding(.top, 8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+
+                Button {
+                    closeTapped()
+                } label: {
+                    Image(decorative: Asset.Images.cancel)
+                        .padding(16) // Add padding to increase tappable area...
+                }
+                .padding(-16) // ...but remove it to not affect layout.
+                .buttonStyle(PlainButtonStyle())
+                .accessibilityLabel(Localizations.close)
             }
 
-            Button {
-                closeTapped()
-            } label: {
-                Image(decorative: Asset.Images.cancel)
-                    .padding(.trailing, 16)
+            VStack(spacing: 0) {
+                Button {
+                    actionTapped()
+                } label: {
+                    Text(buttonText)
+                }
+                .buttonStyle(.primary())
+
+                if let secondaryButtonText, let secondaryActionTapped {
+                    Button {
+                        secondaryActionTapped()
+                    } label: {
+                        Text(secondaryButtonText)
+                    }
+                    .buttonStyle(.bitwardenBorderless)
+                    .padding(.bottom, -8) // Remove extra padding below the borderless button.
+                }
             }
-            .buttonStyle(PlainButtonStyle())
-            .accessibilityLabel(Localizations.close)
         }
-        .padding(.vertical, 16)
+        .padding(16)
         .background {
             Asset.Colors.backgroundPrimary.swiftUIColor
                 .clipShape(.rect(cornerRadius: 16))
@@ -78,20 +96,40 @@ struct ItemListCardView<ImageContent: View>: View {
 #if DEBUG
 struct ItemListCardView_Previews: PreviewProvider {
     static var previews: some View {
-        ItemListCardView(
-            bodyText: Localizations
-                .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
-            buttonText: Localizations.takeMeToTheAppSettings,
-            leftImage: {
-                Image(decorative: Asset.Images.syncArrow)
-                    .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
-                    .frame(width: 24, height: 24)
-            },
-            titleText: Localizations.syncWithTheBitwardenApp,
-            actionTapped: {},
-            closeTapped: {}
-        )
-        .padding(16)
+        ScrollView {
+            VStack {
+                ItemListCardView(
+                    bodyText: Localizations
+                        .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
+                    buttonText: Localizations.takeMeToTheAppSettings,
+                    leftImage: {
+                        Image(decorative: Asset.Images.syncArrow)
+                            .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                            .frame(width: 24, height: 24)
+                    },
+                    titleText: Localizations.syncWithTheBitwardenApp,
+                    actionTapped: {},
+                    closeTapped: {}
+                )
+
+                ItemListCardView(
+                    bodyText: Localizations
+                        .allowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere,
+                    buttonText: Localizations.takeMeToTheAppSettings,
+                    leftImage: {
+                        Image(decorative: Asset.Images.syncArrow)
+                            .foregroundColor(Asset.Colors.primaryBitwardenLight.swiftUIColor)
+                            .frame(width: 24, height: 24)
+                    },
+                    secondaryButtonText: Localizations.learnMore,
+                    titleText: Localizations.syncWithTheBitwardenApp,
+                    actionTapped: {},
+                    closeTapped: {},
+                    secondaryActionTapped: {}
+                )
+            }
+            .padding(16)
+        }
     }
 }
 #endif
