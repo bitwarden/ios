@@ -18,15 +18,16 @@ struct LogoutAllAccountsIntent: AppIntent {
                 appContext: .appIntent(.logOutAll),
                 errorReporter: errorReporter
             )
-            let appProcessor = AppProcessor(appModule: DefaultAppModule(services: services), services: services)
-            let appIntentMediator = appProcessor.getAppIntentMediator()
+            let appIntentMediator = services.getAppIntentMediator()
 
-            guard await appIntentMediator.canRunAppIntents() else {
+            guard try await appIntentMediator.canRunAppIntents() else {
                 return .result(dialog: "ThisOperationIsNotAllowedOnThisAccount")
             }
 
             try await appIntentMediator.logoutAllUsers()
             return .result(dialog: "AllAccountsHaveBeenLoggedOut")
+        } catch let error as BitwardenShared.AppIntentError {
+            throw error
         } catch {
             errorReporter.log(error: error)
             return .result(dialog: "AnErrorOccurredWhileTryingToLogOutAllAccounts")

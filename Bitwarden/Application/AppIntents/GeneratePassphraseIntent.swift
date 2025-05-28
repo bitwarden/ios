@@ -37,11 +37,10 @@ struct GeneratePassphraseIntent: AppIntent {
             appContext: .appIntent(.generatePassphrase),
             errorReporter: ErrorReporterFactory.makeDefaultErrorReporter()
         )
-        let appProcessor = AppProcessor(appModule: DefaultAppModule(services: services), services: services)
-        let appIntentMediator = appProcessor.getAppIntentMediator()
+        let appIntentMediator = services.getAppIntentMediator()
 
-        guard await appIntentMediator.canRunAppIntents() else {
-            throw AppIntentError.notAllowed
+        guard try await appIntentMediator.canRunAppIntents() else {
+            throw BitwardenShared.AppIntentError.notAllowed
         }
 
         guard let numberOfWords else {

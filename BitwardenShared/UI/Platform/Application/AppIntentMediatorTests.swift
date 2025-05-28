@@ -52,40 +52,41 @@ class AppIntentMediatorTests: BitwardenTestCase {
 
     /// `canRunAppIntents()` returns `true` when it can run app intents.
     @MainActor
-    func test_canRunAppIntents_true() async {
+    func test_canRunAppIntents_true() async throws {
         configService.featureFlagsBool[.appIntents] = true
         stateService.activeAccount = .fixture()
         stateService.siriAndShortcutsAccess["1"] = true
-        let canRunAppIntents = await subject.canRunAppIntents()
+        let canRunAppIntents = try await subject.canRunAppIntents()
         XCTAssertTrue(canRunAppIntents)
     }
 
     /// `canRunAppIntents()` returns `false` when it can't run app intents when the flag is not enabled.
     @MainActor
-    func test_canRunAppIntents_falseBecauseOfFeatureFlag() async {
+    func test_canRunAppIntents_falseBecauseOfFeatureFlag() async throws {
         configService.featureFlagsBool[.appIntents] = false
-        let canRunAppIntents = await subject.canRunAppIntents()
+        let canRunAppIntents = try await subject.canRunAppIntents()
         XCTAssertFalse(canRunAppIntents)
     }
 
     /// `canRunAppIntents()` returns `false` when it can't run app intents when the setting is not enabled.
     @MainActor
-    func test_canRunAppIntents_falseBecauseOfSiriAndShortcutsSettingDisabled() async {
+    func test_canRunAppIntents_falseBecauseOfSiriAndShortcutsSettingDisabled() async throws {
         configService.featureFlagsBool[.appIntents] = true
         stateService.activeAccount = .fixture()
         stateService.siriAndShortcutsAccess["1"] = false
-        let canRunAppIntents = await subject.canRunAppIntents()
+        let canRunAppIntents = try await subject.canRunAppIntents()
         XCTAssertFalse(canRunAppIntents)
     }
 
-    /// `canRunAppIntents()` returns `false` when it can't run app intents when getting the setting throws.
+    /// `canRunAppIntents()` throws an `AppIntentError` when it can't run app intents when getting the setting throws.
+    @available(iOS 16, *)
     @MainActor
-    func test_canRunAppIntents_falseBecauseGettingSiriAndShortcutsSettingThrows() async {
+    func test_canRunAppIntents_throwsBecauseGettingSiriAndShortcutsSettingThrows() async throws {
         configService.featureFlagsBool[.appIntents] = true
         stateService.activeAccount = nil
-        let canRunAppIntents = await subject.canRunAppIntents()
-        XCTAssertFalse(canRunAppIntents)
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+        await assertAsyncThrows(error: BitwardenShared.AppIntentError.noActiveAccount) {
+            _ = try await subject.canRunAppIntents()
+        }
     }
 
     /// `generatePassphrase(settings:)` calls the repository to generate a passhprase with the request.

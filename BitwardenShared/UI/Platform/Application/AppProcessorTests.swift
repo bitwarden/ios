@@ -177,12 +177,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(errorReporter.errors.last as? BitwardenTestError, .example)
     }
 
-    @MainActor
-    func test_getAppIntentMediator() {
-        let mediator = subject.getAppIntentMediator()
-        XCTAssertTrue(mediator is MockAppIntentMediator)
-    }
-
     /// `init()` subscribes to will enter foreground events and handles an active user timeout.
     @MainActor
     func test_init_appForeground_activeUserTimeout() {

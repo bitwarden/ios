@@ -14,9 +14,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable/disable `AppIntent` execution.
     static let appIntents = FeatureFlag(rawValue: "app-intents")
 
-    /// A feature flag to enable/disable the app review prompt.
-    static let appReviewPrompt = FeatureFlag(rawValue: "app-review-prompt")
-
     /// Flag to enable/disable Credential Exchange export flow.
     static let cxpExportMobile = FeatureFlag(rawValue: "cxp-export-mobile")
 
@@ -84,7 +81,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .accountDeprovisioning,
             .anonAddySelfHostAlias,
             .appIntents,
-            .appReviewPrompt,
             .cxpExportMobile,
             .cxpImportMobile,
             .cipherKeyEncryption,

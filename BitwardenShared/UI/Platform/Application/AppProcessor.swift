@@ -86,10 +86,6 @@ public class AppProcessor {
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Bundle.main.preferredLocalizations.first
         UI.applyDefaultAppearances()
 
-        guard !services.appContextHelper.appContext.isAppIntent() else {
-            return
-        }
-
         Task {
             for await _ in services.notificationCenterService.willEnterForegroundPublisher() {
                 startEventTimer()
@@ -340,18 +336,6 @@ public class AppProcessor {
     ///
     public func failedToRegister(_ error: Error) {
         services.errorReporter.log(error: error)
-    }
-
-    /// Gets the `AppIntentMediator` to handle `AppIntent` actions.
-    public func getAppIntentMediator() -> AppIntentMediator {
-        appIntentMediator
-            ?? DefaultAppIntentMediator(
-                authRepository: services.authRepository,
-                configService: services.configService,
-                errorReporter: services.errorReporter,
-                generatorRepository: services.generatorRepository,
-                stateService: services.stateService
-            )
     }
 
     /// Called when the app has received data from a push notification.

@@ -1,10 +1,12 @@
 import BitwardenKit
 import BitwardenSdk
+import Foundation
 
 /// A mediator to process `AppIntent` actions.
 public protocol AppIntentMediator {
     /// Whether app intents can be run.
-    func canRunAppIntents() async -> Bool
+    @available(iOSApplicationExtension 16, *)
+    func canRunAppIntents() async throws -> Bool
 
     /// Generates a passphrase.
     func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String
@@ -52,13 +54,16 @@ struct DefaultAppIntentMediator: AppIntentMediator {
         self.stateService = stateService
     }
 
-    func canRunAppIntents() async -> Bool {
+    @available(iOSApplicationExtension 16, *)
+    func canRunAppIntents() async throws -> Bool {
         guard await configService.getFeatureFlag(.appIntents) else {
             return false
         }
 
         do {
             return try await stateService.getSiriAndShortcutsAccess()
+        } catch StateServiceError.noAccounts, StateServiceError.noActiveAccount {
+            throw AppIntentError.noActiveAccount
         } catch {
             errorReporter.log(error: error)
             return false
@@ -92,5 +97,21 @@ struct DefaultAppIntentMediator: AppIntentMediator {
 
     func openGenerator() async {
         await stateService.addPendingAppIntentAction(.openGenerator)
+    }
+}
+
+/// The errors that can be thrown by app intents.
+@available(iOS 16, *)
+public enum AppIntentError: Error, CustomLocalizedStringResourceConvertible {
+    case noActiveAccount
+    case notAllowed
+
+    public var localizedStringResource: LocalizedStringResource {
+        switch self {
+        case .noActiveAccount:
+            "ThereIsNoActiveAccount"
+        case .notAllowed:
+            "ThisOperationIsNotAllowedOnThisAccount"
+        }
     }
 }

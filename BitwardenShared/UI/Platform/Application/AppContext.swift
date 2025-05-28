@@ -12,16 +12,6 @@ public enum AppContext: Equatable {
     /// The main app is running.
     case mainApp
 
-    /// Whether the current context is from an `AppIntent`.
-    /// - Returns: `true` if the context is from an `AppIntent`, `false` otherwise.
-    func isAppIntent() -> Bool {
-        return if case .appIntent = self {
-            true
-        } else {
-            false
-        }
-    }
-
     /// Whether the current context is from an `AppIntent` and the action is the one provided.
     /// - Parameter action: The action to check if it's the current one.
     /// - Returns: `true` if the intent action is the one being passed, `false` otherwise.

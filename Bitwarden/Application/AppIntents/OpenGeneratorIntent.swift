@@ -16,10 +16,9 @@ struct OpenGeneratorIntent: AppIntent {
             appContext: .appIntent(.generatePassphrase),
             errorReporter: ErrorReporterFactory.makeDefaultErrorReporter()
         )
-        let appProcessor = AppProcessor(appModule: DefaultAppModule(services: services), services: services)
-        let appIntentMediator = appProcessor.getAppIntentMediator()
+        let appIntentMediator = services.getAppIntentMediator()
 
-        guard await appIntentMediator.canRunAppIntents() else {
+        guard try await appIntentMediator.canRunAppIntents() else {
             return .result()
         }
 

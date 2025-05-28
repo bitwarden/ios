@@ -882,6 +882,17 @@ extension ServiceContainer {
         apiService
     }
 
+    /// Gets the mediator to be used by an App Intent.
+    public func getAppIntentMediator() -> AppIntentMediator {
+        DefaultAppIntentMediator(
+            authRepository: authRepository,
+            configService: configService,
+            errorReporter: errorReporter,
+            generatorRepository: generatorRepository,
+            stateService: stateService
+        )
+    }
+
     var organizationAPIService: OrganizationAPIService {
         apiService
     }

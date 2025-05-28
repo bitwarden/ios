@@ -1202,6 +1202,7 @@
 "GoToSettings" = "Go to settings";
 "SiriAndShortcutsAccess" = "Siri & Shortcuts access";
 "EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Enable to allow the app to respond to Siri and Shortcuts using App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
 "NewFileSend" = "New file Send";
 "NewTextSend" = "New text Send";
 "EditFileSend" = "Edit file Send";
