@@ -1,15 +1,80 @@
 name: CI / Authenticator
+run-name: ${{ github.event_name == 'workflow_dispatch' && format('Manual - Authenticator ({0})', inputs.build-mode) || 'CI - Authenticator' }}
 
 on:
   workflow_dispatch:
+    inputs:
+      build-mode:
+        description: "Build Mode"
+        required: true
+        default: "Device"
+        type: choice
+        options:
+          - Device
+          - Simulator
+      version-name:
+        description: "Version Name Override - e.g. '2024.8.1'"
+        type: string
+      version-number:
+        description: "Version Number Override - e.g. '1021'"
+        type: string
+      compiler-flags:
+        description: "Compiler Flags - e.g. 'DEBUG_MENU FEATURE2'"
+        type: string
+      patch_version:
+        description: "Order 999 - Overrides Patch version"
+        type: boolean
+      distribute:
+        description: "Distribute to TestFlight"
+        type: boolean
+        default: true
+      xcode-version:
+          description: "Xcode Version Override - e.g. '15.2'"
+          type: string
+
+permissions:
+  contents: read
 
 jobs:
+  version:
+    name: Calculate Version Name and Number
+    uses: bitwarden/ios/.github/workflows/_version.yml@main
+    with:
+      base_version_number: 10
+      version_name: ${{ inputs.version-name }}
+      version_number: ${{ inputs.version-number }}
+      patch_version: ${{ inputs.patch_version && '999' || '' }}
+    secrets: inherit
+
   build-manual:
-    name: Build Manual
+    name: Build Manual - ${{ inputs.build-mode }}
+    needs: version
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    uses: bitwarden/ios/.github/workflows/_build-any.yml@main
+    with:
+      bw-env: bwa_prod
+      build-mode: ${{ inputs.build-mode }}
+      version-name: ${{ needs.version.outputs.version_name }}
+      version-number: ${{ needs.version.outputs.version_number }} #TODO: refactor all inputs to be consistent with - or _
+      compiler-flags: ${{ inputs.compiler-flags }}
+      distribute: ${{ inputs.distribute }}
+    secrets: inherit
+
+  build-public:
+    name: Build CI
+    needs: version
+    if: ${{ github.event_name == 'push' }}
     uses: bitwarden/ios/.github/workflows/_build-any.yml@main
     strategy:
       matrix:
-        env: [bwa_prod]
+        include:
+          - bw-env: bwa_prod
+            build-mode: Device
+          - bw-env: bwa_prod
+            build-mode: Simulator
     with:
-      environment: ${{ matrix.env }}
+      bw-env: ${{ matrix.bw-env }}
+      build-mode: ${{ matrix.build-mode }}
+      version-name: ${{ needs.version.outputs.version_name }}
+      version-number: ${{ needs.version.outputs.version_number }}
     secrets: inherit
