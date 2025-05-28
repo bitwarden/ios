@@ -108,7 +108,7 @@ protocol CipherAPIService {
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
     /// - Returns: The cipher that was shared with the organization.
     ///
-    func shareCipher(_ cipher: Cipher, encryptedFor: String) async throws -> CipherDetailsResponseModel
+    func shareCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel
 
     /// Performs an API request to soft delete an existing cipher in the user's vault.
     ///
@@ -187,7 +187,7 @@ extension APIService: CipherAPIService {
         ))
     }
 
-    func shareCipher(_ cipher: Cipher, encryptedFor: String) async throws -> CipherDetailsResponseModel {
+    func shareCipher(_ cipher: Cipher, encryptedFor: String?) async throws -> CipherDetailsResponseModel {
         try await apiService.send(ShareCipherRequest(cipher: cipher, encryptedFor: encryptedFor))
     }
 

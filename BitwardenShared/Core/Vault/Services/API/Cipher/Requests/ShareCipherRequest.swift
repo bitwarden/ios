@@ -39,7 +39,7 @@ struct ShareCipherRequest: Request {
     /// - Parameters:
     ///   - cipher: The `Cipher` to share with an organization.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.
-    init(cipher: Cipher, encryptedFor: String) throws {
+    init(cipher: Cipher, encryptedFor: String?) throws {
         guard let id = cipher.id else { throw ShareCipherRequestError.missingCipherId }
         self.id = id
         requestModel = CipherCreateRequestModel(cipher: cipher, encryptedFor: encryptedFor)
