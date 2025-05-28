@@ -150,6 +150,7 @@
 "VaultTimeout" = "Vault timeout";
 "ThirtyMinutes" = "30 minutes";
 "OnRestart" = "On app restart";
+"Custom" = "Custom";
 "SessionTimeout" = "Session timeout";
 "FileCouldNotBeProcessed" = "File could not be processed";
 "EnsureItsValidJsonAndTryAgain" = "Ensure it’s valid JSON and try again.";
