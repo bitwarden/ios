@@ -36,6 +36,12 @@ ARTIFACT_EXTENSION = {
 
 platform :ios do |options|
     before_all do
+        # Support running independent lanes without --env argument
+        if !lane_context[:ENVIRONMENT]
+            UI.important("--env argument is missing, skipping setting up fastlane environment...")
+            next
+        end
+
         ensure_env_vars(
             env_vars: ['_APP']
         )
