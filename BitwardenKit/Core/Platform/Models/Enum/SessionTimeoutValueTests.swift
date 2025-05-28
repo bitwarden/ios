@@ -15,7 +15,7 @@ final class SessionTimeoutValueTests: BitwardenTestCase {
         XCTAssertEqual(SessionTimeoutValue.fourHours, SessionTimeoutValue(rawValue: 240))
         XCTAssertEqual(SessionTimeoutValue.onAppRestart, SessionTimeoutValue(rawValue: -1))
         XCTAssertEqual(SessionTimeoutValue.never, SessionTimeoutValue(rawValue: -2))
-        XCTAssertEqual(SessionTimeoutValue.never, SessionTimeoutValue(rawValue: 12345))
+        XCTAssertEqual(SessionTimeoutValue.custom(12345), SessionTimeoutValue(rawValue: 12345))
     }
 
     /// `rawValue` returns the correct values.
@@ -29,5 +29,6 @@ final class SessionTimeoutValueTests: BitwardenTestCase {
         XCTAssertEqual(SessionTimeoutValue.fourHours.rawValue, 240)
         XCTAssertEqual(SessionTimeoutValue.onAppRestart.rawValue, -1)
         XCTAssertEqual(SessionTimeoutValue.never.rawValue, -2)
+        XCTAssertEqual(SessionTimeoutValue.custom(12345).rawValue, 12345)
     }
 }

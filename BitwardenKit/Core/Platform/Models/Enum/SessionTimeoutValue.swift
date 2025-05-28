@@ -2,35 +2,36 @@
 
 /// An enumeration of session timeout values to choose from.
 ///
-/// Note: This is imported from the PM app, but the `custom` case has been removed.
-///
 public enum SessionTimeoutValue: RawRepresentable, Equatable, Hashable, Sendable {
-    /// Timeout immediately.
+    /// Time out immediately.
     case immediately
 
-    /// Timeout after 1 minute.
+    /// Time out after 1 minute.
     case oneMinute
 
-    /// Timeout after 5 minutes.
+    /// Time out after 5 minutes.
     case fiveMinutes
 
-    /// Timeout after 15 minutes.
+    /// Time out after 15 minutes.
     case fifteenMinutes
 
-    /// Timeout after 30 minutes.
+    /// Time out after 30 minutes.
     case thirtyMinutes
 
-    /// Timeout after 1 hour.
+    /// Time out after 1 hour.
     case oneHour
 
-    /// Timeout after 4 hours.
+    /// Time out after 4 hours.
     case fourHours
 
-    /// Timeout on app restart.
+    /// Time out on app restart.
     case onAppRestart
 
-    /// Never timeout the session.
+    /// Never time out the session.
     case never
+
+    /// A custom timeout value.
+    case custom(Int)
 
     /// The session timeout value in seconds.
     public var seconds: Int {
@@ -49,6 +50,7 @@ public enum SessionTimeoutValue: RawRepresentable, Equatable, Hashable, Sendable
         case .fourHours: 240
         case .onAppRestart: -1
         case .never: -2
+        case let .custom(customValue): customValue
         }
     }
 
@@ -73,7 +75,7 @@ public enum SessionTimeoutValue: RawRepresentable, Equatable, Hashable, Sendable
         case -2:
             self = .never
         default:
-            self = .never
+            self = .custom(rawValue)
         }
     }
 }
