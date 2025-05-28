@@ -104,6 +104,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
 
         XCTAssertEqual(cipherService.addCipherWithServerCiphers.last, Cipher(cipherView: cipher))
+        XCTAssertEqual(cipherService.addCipherWithServerEncryptedFor, "1")
     }
 
     /// `addCipher()` throws an error if encrypting the cipher fails.
@@ -2514,6 +2515,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
+        XCTAssertEqual(cipherService.shareCipherWithServerEncryptedFor, "1")
     }
 
     /// `shareCipher()` migrates any attachments without an attachment key.
@@ -2622,6 +2624,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.updateCipher(cipher)
 
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `cipherDetailsPublisher(id:)` returns a publisher for the details of a cipher in the vault.
@@ -2716,12 +2719,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
         let cipherView = CipherView.fixture(deletedDate: .now)
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         try await subject.restoreCipher(cipherView)
 
         XCTAssertEqual(cipherService.restoredCipher, cipher)
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `saveAttachment(cipherView:fileData:fileName:)` saves the attachment to the cipher.
@@ -2746,7 +2750,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_saveAttachment_updatesMigratedCipher() async throws {
         cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         let updatedCipher = try await subject.saveAttachment(
             cipherView: .fixture(),
@@ -2759,6 +2763,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, cipher)
         XCTAssertEqual(updatedCipher.id, "42")
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `softDeleteCipher()` throws on id errors.
@@ -2788,7 +2793,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
         let cipherView = CipherView.fixture(deletedDate: .now)
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         try await subject.softDeleteCipher(cipherView)
 
