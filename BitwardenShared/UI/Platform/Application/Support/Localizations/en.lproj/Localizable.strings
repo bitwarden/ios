@@ -1192,3 +1192,5 @@
 "NewTextSend" = "New text Send";
 "EditFileSend" = "Edit file Send";
 "EditTextSend" = "Edit text Send";
+"LogDeleted" = "Log deleted";
+"AllLogsDeleted" = "All logs deleted";

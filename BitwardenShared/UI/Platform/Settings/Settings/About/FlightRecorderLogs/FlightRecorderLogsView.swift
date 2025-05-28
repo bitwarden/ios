@@ -21,6 +21,10 @@ struct FlightRecorderLogsView: View {
         content
             .navigationBar(title: Localizations.recordedLogs, titleDisplayMode: .inline)
             .task { await store.perform(.loadData) }
+            .toast(store.binding(
+                get: \.toast,
+                send: FlightRecorderLogsAction.toastShown
+            ))
             .toolbar {
                 closeToolbarItem {
                     store.send(.dismiss)
