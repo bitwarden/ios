@@ -119,11 +119,7 @@ struct SettingsView: View {
                     }
 
                     if store.state.shouldShowSyncButton {
-                        externalLinkRow(
-                            Localizations.syncWithBitwardenApp,
-                            action: .syncWithBitwardenAppTapped,
-                            hasDivider: store.state.shouldShowDefaultSaveOption
-                        )
+                        syncWithPasswordManagerRow(hasDivider: store.state.shouldShowDefaultSaveOption)
                         defaultSaveOption
                     }
                 }
@@ -249,6 +245,44 @@ struct SettingsView: View {
             Asset.Images.externalLink2.swiftUIImage
                 .imageStyle(.rowIcon)
         }
+    }
+
+    /// The settings row for syncing with the Password Manager app.
+    private func syncWithPasswordManagerRow(hasDivider: Bool) -> some View {
+        Button {
+            store.send(.syncWithBitwardenAppTapped)
+        } label: {
+            VStack(spacing: 0) {
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(Localizations.syncWithBitwardenApp)
+                            .styleGuide(.body)
+                            .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+
+                        Text(LocalizedStringKey(
+                            Localizations.thisFeatureIsNotYetAvailableForSelfHostedUsers(
+                                ExternalLinksConstants.totpSyncHelp
+                            )
+                        ))
+                        .styleGuide(.subheadline)
+                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                        .tint(Asset.Colors.primaryBitwarden.swiftUIColor)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .multilineTextAlignment(.leading)
+
+                    Asset.Images.externalLink2.swiftUIImage
+                        .imageStyle(.rowIcon)
+                }
+                .padding(16)
+
+                if hasDivider {
+                    Divider()
+                        .padding(.leading, 16)
+                }
+            }
+        }
+        .background(Asset.Colors.backgroundPrimary.swiftUIColor)
     }
 }
 

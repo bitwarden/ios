@@ -158,3 +158,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Need help? Visit our Help Center for guidance.";
 "UnexpectedDataFormat" = "Unexpected Data Format";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "The data format provided doesn’t match what’s expected. Please check your file and ensure the correct data types are used.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";

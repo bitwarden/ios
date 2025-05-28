@@ -150,27 +150,6 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         subject.state.maximumAccessCountText = ""
     }
 
-    /// `perform(_:)` with `loadData` loads whether the user has premium.
-    @MainActor
-    func test_perform_loadData_hasPremium() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
-        await subject.perform(.loadData)
-        XCTAssertTrue(subject.state.hasPremium)
-
-        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
-        await subject.perform(.loadData)
-        XCTAssertFalse(subject.state.hasPremium)
-    }
-
-    /// `perform(_:)` with `loadData` logs an error if checking if the user has premium fails.
-    @MainActor
-    func test_perform_loadData_hasPremium_error() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
-        await subject.perform(.loadData)
-        XCTAssertFalse(subject.state.hasPremium)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
     /// `perform(_:)` with `sendListItemRow(removePassword())` uses the send repository to remove
     /// the password from a send.
     @MainActor
@@ -639,34 +618,11 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(subject.state.text, "Text")
     }
 
-    /// `receive(_:)` with `.typeChanged` and premium access updates the type.
-    @MainActor
-    func test_receive_typeChanged_hasPremium() {
-        subject.state.hasPremium = true
-        subject.state.type = .text
-        subject.receive(.typeChanged(.file))
-
-        XCTAssertEqual(subject.state.type, .file)
-    }
-
     /// `receive(_:)` with `.toastShown` updates the toast value in the state.
     @MainActor
     func test_receive_toastShown() {
         subject.state.toast = Toast(title: "toasty")
         subject.receive(.toastShown(nil))
         XCTAssertNil(subject.state.toast)
-    }
-
-    /// `receive(_:)` with `.typeChanged` and no premium access does not update the type.
-    @MainActor
-    func test_receive_typeChanged_notHasPremium() {
-        subject.state.hasPremium = false
-        subject.state.type = .text
-        subject.receive(.typeChanged(.file))
-
-        XCTAssertEqual(coordinator.alertShown, [
-            .defaultAlert(title: Localizations.sendFilePremiumRequired),
-        ])
-        XCTAssertEqual(subject.state.type, .text)
     }
 } // swiftlint:disable:this file_length

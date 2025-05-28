@@ -2089,6 +2089,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         biometricsRepository.setBiometricUnlockKeyError = nil
         stateService.pinProtectedUserKeyValue["1"] = "1"
         stateService.encryptedPinByUserId["1"] = "1"
+        stateService.syncToAuthenticatorByUserId["1"] = true
 
         try await subject.logout(userInitiated: true)
 
@@ -2099,6 +2100,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(vaultTimeoutService.removedIds, [anneAccount.profile.userId])
         XCTAssertEqual(stateService.pinProtectedUserKeyValue["1"], "1")
         XCTAssertEqual(stateService.encryptedPinByUserId["1"], "1")
+        XCTAssertEqual(stateService.syncToAuthenticatorByUserId["1"], false)
     }
 
     /// `logout` successfully logs out a user clearing pins because of policy Remove unlock with pin being enabled.
