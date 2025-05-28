@@ -283,7 +283,7 @@
 "Number" = "Номер";
 "SecurityCode" = "Код безопасности";
 "TypeCard" = "Карта";
-"TypeIdentity" = "Личность";
+"TypeIdentity" = "Личная информация";
 "TypeLogin" = "Логин";
 "TypeSecureNote" = "Защищенная заметка";
 "Address1" = "Строка адреса 1";
@@ -388,7 +388,7 @@
 "BitwardenAutofillAlert2" = "Самый простой способ добавлять новые логины в хранилище - использовать расширение автозаполнения паролей Bitwarden. Дополнительные сведения об использовании расширения автозаполнения паролей Bitwarden находятся в разделе 'Настройки'.";
 "InvalidEmail" = "Неверный адрес email.";
 "Cards" = "Карты";
-"Identities" = "Личные данные";
+"Identities" = "Личная информация";
 "Logins" = "Логины";
 "SecureNotes" = "Защищенные заметки";
 "AllItems" = "Все элементы";
@@ -396,7 +396,7 @@
 "CheckPassword" = "Проверьте, не скомпрометирован ли пароль.";
 "PasswordExposed" = "Этот пароль был скомпрометирован %1$@ раз(а). Вам следует его изменить.";
 "PasswordSafe" = "Этот пароль не обнаружен в известных базах утечек. Можно продолжать его использовать.";
-"IdentityName" = "Название личности";
+"IdentityName" = "Название личной информации";
 "Value" = "Значение";
 "PasswordHistory" = "История паролей";
 "Types" = "Типы элементов";
@@ -783,7 +783,7 @@
 "ThereAreNoLoginsInYourVault" = "В вашем хранилище нет логинов";
 "ThereAreNoCardsInYourVault" = "В вашем хранилище нет карт";
 "ThereAreNoNotesInYourVault" = "В вашем хранилище нет заметок";
-"ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личностей";
+"ThereAreNoIdentitiesInYourVault" = "В вашем хранилище нет личной информации";
 "ThereAreNoSSHKeysInYourVault" = "В вашем хранилище нет ключей SSH";
 "US" = "США";
 "EU" = "Европа";
@@ -947,7 +947,7 @@
 "LearnMoreAboutGeneratingSecureLoginCredentialsWithAGuidedTour" = "Узнайте больше о создании надежных учетных данных, просмотрев гид.";
 "ExportVaultFilePwProtectInfo" = "Экспорт этого файла будет защищен паролем, и для расшифровки потребуется пароль файла.";
 "IntroCarouselPage1Title" = "Безопасность, приоритет";
-"IntroCarouselPage1Message" = "Сохраняйте логины, карты и личные данные в своем защищенном хранилище. Bitwarden использует сквозное шифрование, чтобы защитить то, что для вас важно.";
+"IntroCarouselPage1Message" = "Сохраняйте логины, карты и личную информацию в своем защищенном хранилище. Bitwarden использует сквозное шифрование, чтобы защитить то, что для вас важно.";
 "IntroCarouselPage2Title" = "Быстрая и простая авторизация";
 "IntroCarouselPage2Message" = "Настройте биометрическую разблокировку и автозаполнение, чтобы входить в свои аккаунты, не набирая ни одной буквы.";
 "IntroCarouselPage3Title" = "Сделайте авторизацию еще проще";
@@ -1186,3 +1186,7 @@
 "AppSettings" = "Настройки приложения";
 "ViewFileSend" = "Просмотр файловой Send";
 "ViewTextSend" = "Просмотр тестовой Send";
+"DeleteSend" = "Удалить Send";
+"FlightRecorderOn" = "Бортовой самописец включен";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Бортовой самописец будет активен до %1$@ %2$@. Вернитесь к настройкам, чтобы отключить его сейчас.";
+"GoToSettings" = "Перейдите к настройкам";

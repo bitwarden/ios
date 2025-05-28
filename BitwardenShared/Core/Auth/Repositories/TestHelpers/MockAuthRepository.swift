@@ -1,3 +1,4 @@
+import BitwardenKit
 import Foundation
 
 @testable import BitwardenShared
@@ -322,7 +323,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         return sessionTimeoutAction[userId] ?? .lock
     }
 
-    func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
         guard let value = try vaultTimeout[unwrapUserId(userId)] else {
             throw (userId == nil)
                 ? StateServiceError.noActiveAccount
@@ -346,7 +347,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try setMasterPasswordResult.get()
     }
 
-    func setVaultTimeout(value: BitwardenShared.SessionTimeoutValue, userId: String?) async throws {
+    func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         try vaultTimeout[unwrapUserId(userId)] = value
         if let setVaultTimeoutError {
             throw setVaultTimeoutError

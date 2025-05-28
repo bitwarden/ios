@@ -110,7 +110,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             deletionDate: deletionDate,
             expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
         )
-        let subject = AddEditSendItemState(sendView: sendView, hasPremium: true)
+        let subject = AddEditSendItemState(sendView: sendView)
         XCTAssertEqual(subject.id, "ID")
         XCTAssertEqual(subject.accessId, "ACCESS_ID")
         XCTAssertEqual(subject.name, "Name")
@@ -152,7 +152,7 @@ class AddEditSendItemStateTests: BitwardenTestCase {
             deletionDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 11),
             expirationDate: Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41, second: 22)
         )
-        let subject = AddEditSendItemState(sendView: sendView, hasPremium: true)
+        let subject = AddEditSendItemState(sendView: sendView)
         XCTAssertEqual(subject.id, "ID")
         XCTAssertEqual(subject.accessId, "ACCESS_ID")
         XCTAssertEqual(subject.name, "Name")

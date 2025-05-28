@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenKitMocks
 import Combine
 import Foundation
@@ -61,7 +62,7 @@ class MockVaultTimeoutService: VaultTimeoutService {
         removedIds.append(userId)
     }
 
-    func sessionTimeoutValue(userId: String?) async throws -> BitwardenShared.SessionTimeoutValue {
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
         if let sessionTimeoutValueError {
             throw sessionTimeoutValueError
         }
