@@ -17,4 +17,7 @@ enum FlightRecorderLogsAction: Equatable {
 
     /// Share all flight recorder logs.
     case shareAll
+
+    /// The toast was shown or hidden.
+    case toastShown(Toast?)
 }

@@ -85,6 +85,7 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(flightRecorder.deleteLogLogs, [log])
         XCTAssertTrue(flightRecorder.fetchLogsCalled)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.logDeleted))
     }
 
     /// `receive(_:)` with `.delete` logs an error and shows an error alert if an error occurs.
@@ -101,6 +102,7 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive(_:)` with `.deleteAll` shows a confirmation alert and then deletes the inactive logs.
@@ -118,6 +120,7 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
 
         XCTAssertTrue(flightRecorder.deleteInactiveLogsCalled)
         XCTAssertTrue(flightRecorder.fetchLogsCalled)
+        XCTAssertEqual(subject.state.toast, Toast(title: Localizations.allLogsDeleted))
     }
 
     /// `receive(_:)` with `.deleteAll` logs an error and shows an error alert if an error occurs.
@@ -134,6 +137,7 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
 
         XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertNil(subject.state.toast)
     }
 
     /// `receive(_:)` with `.dismiss` dismisses the view.
@@ -168,5 +172,16 @@ class FlightRecorderLogsProcessorTests: BitwardenTestCase {
                 URL(fileURLWithPath: "/FlightRecorderLogs/2.txt"),
             ])
         )
+    }
+
+    /// `receive(_:)` with `.toastShown` updates the state's toast value.
+    @MainActor
+    func test_receive_toastShown() {
+        let toast = Toast(title: "toast!")
+        subject.receive(.toastShown(toast))
+        XCTAssertEqual(subject.state.toast, toast)
+
+        subject.receive(.toastShown(nil))
+        XCTAssertNil(subject.state.toast)
     }
 }
