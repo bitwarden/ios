@@ -30,12 +30,21 @@ protocol SendDataStore: AnyObject {
     ///
     func fetchSend(id: String, userId: String) async throws -> Send?
 
+    /// A publisher for a single `Send` for a user.
+    ///
+    /// - Parameters:
+    ///   - id: The ID of the `Send` to publish updates for.
+    ///   - userId: The user ID of the user to associated with the object to fetch.
+    /// - Returns: A publisher for the user's send.
+    ///
+    func sendPublisher(id: String, userId: String) -> AnyPublisher<Send?, Error>
+
     /// A publisher for a user's send objects.
     ///
     /// - Parameter userId: The user ID of the user to associated with the objects to fetch.
     /// - Returns: A publisher for the user's sends.
     ///
-    func sendPublisher(userId: String) -> AnyPublisher<[Send], Error>
+    func sendsPublisher(userId: String) -> AnyPublisher<[Send], Error>
 
     /// Replaces a list of `Send` objects for a user.
     ///
@@ -74,7 +83,20 @@ extension DataStore: SendDataStore {
             .first
     }
 
-    func sendPublisher(userId: String) -> AnyPublisher<[Send], Error> {
+    func sendPublisher(id: String, userId: String) -> AnyPublisher<Send?, Error> {
+        let fetchRequest = SendData.fetchByIdRequest(id: id, userId: userId)
+        fetchRequest.fetchLimit = 1
+        // A sort descriptor is needed by `NSFetchedResultsController`.
+        fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \SendData.id, ascending: true)]
+        return FetchedResultsPublisher(
+            context: persistentContainer.viewContext,
+            request: fetchRequest
+        )
+        .tryMap { try $0.first.map(Send.init) }
+        .eraseToAnyPublisher()
+    }
+
+    func sendsPublisher(userId: String) -> AnyPublisher<[Send], Error> {
         let fetchRequest = SendData.fetchByUserIdRequest(userId: userId)
         // A sort descriptor is needed by `NSFetchedResultsController`.
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \SendData.id, ascending: true)]
