@@ -16,7 +16,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     var body: some View {
         ZStack {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 16) {
                 if store.state.isSendDisabled {
                     InfoContainer(Localizations.sendDisabledWarning)
                         .accessibilityIdentifier("DisabledSendPolicyLabel")
@@ -28,6 +28,10 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 sendDetails
 
                 additionalOptions
+
+                if store.state.mode == .edit {
+                    deleteSendButton
+                }
             }
             .scrollView(padding: 12)
             .disabled(store.state.isSendDisabled)
@@ -87,10 +91,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                                     await store.perform(.removePassword)
                                 }
                             }
-                        }
-
-                        AsyncButton(Localizations.delete, role: .destructive) {
-                            await store.perform(.deletePressed)
                         }
                     }
                 }
@@ -157,7 +157,16 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 )
             )
         }
-        .padding(.top, 8)
+    }
+
+    /// The button to delete the send.
+    private var deleteSendButton: some View {
+        AsyncButton {
+            await store.perform(.deletePressed)
+        } label: {
+            Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
+        }
+        .buttonStyle(.secondary(isDestructive: true, size: .medium))
     }
 
     /// The deletion date field.
