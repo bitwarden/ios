@@ -25,13 +25,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .accessibilityIdentifier("HideEmailAddressPolicyLabel")
                 }
 
-                switch store.state.type {
-                case .text:
-                    textSendAttributes
-                case .file:
-                    fileSendAttributes
-                }
-
                 sendDetails
 
                 additionalOptions
@@ -190,7 +183,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a file type send.
     @ViewBuilder private var fileSendAttributes: some View {
-        SectionView(Localizations.file, contentSpacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             switch store.state.mode {
             case .add, .shareExtension:
                 if let fileName = store.state.fileName {
@@ -209,7 +202,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         }
                         .buttonStyle(.secondary())
                         .accessibilityIdentifier("SendChooseFileButton")
-                        .padding(.top, 4)
                     }
 
                     Text(Localizations.maxFileSize)
@@ -239,7 +231,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 }
             }
         }
-        .padding(.top, 8)
     }
 
     /// The name field.
@@ -279,6 +270,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var sendDetails: some View {
         SectionView(Localizations.sendDetails, contentSpacing: 8) {
             nameField
+
+            switch store.state.type {
+            case .text:
+                textSendAttributes
+            case .file:
+                fileSendAttributes
+            }
 
             if store.state.type == .text {
                 ContentBlock {
