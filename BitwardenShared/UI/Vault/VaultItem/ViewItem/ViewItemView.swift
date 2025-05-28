@@ -68,17 +68,11 @@ struct ViewItemView: View {
             }
 
             ToolbarItemGroup(placement: .navigationBarTrailing) {
-                if let state = store.state.loadingState.data {
-                    if isRestoredEnabled {
-                        toolbarButton(Localizations.restore) {
-                            await store.perform(.restorePressed)
-                        }
-                        .accessibilityIdentifier("RestoreButton")
-                    } else {
-                        editToolbarButton {
-                            store.send(.editPressed)
-                        }
+                if isRestoredEnabled {
+                    toolbarButton(Localizations.restore) {
+                        await store.perform(.restorePressed)
                     }
+                    .accessibilityIdentifier("RestoreButton")
                 }
 
                 VaultItemManagementMenuView(
