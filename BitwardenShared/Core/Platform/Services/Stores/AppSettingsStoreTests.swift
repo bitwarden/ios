@@ -979,6 +979,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:hasPerformedSyncAfterLogin_1"))
     }
 
+    /// `siriAndShortcutsAccess(userId:)` returns false if there isn't a previously stored value.
+    func test_siriAndShortcutsAccess_isInitiallyFalse() {
+        XCTAssertFalse(subject.siriAndShortcutsAccess(userId: "0"))
+    }
+
+    /// `siriAndShortcutsAccess(userId:)` can be used to get the Siri & Shortcuts access value for a user.
+    func test_siriAndShortcutsAccess_withValue() {
+        subject.setSiriAndShortcutsAccess(true, userId: "1")
+        subject.setSiriAndShortcutsAccess(false, userId: "2")
+
+        XCTAssertTrue(subject.siriAndShortcutsAccess(userId: "1"))
+        XCTAssertFalse(subject.siriAndShortcutsAccess(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:siriAndShortcutsAccess_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:siriAndShortcutsAccess_2"))
+    }
+
     /// `syncToAuthenticator(userId:)` returns false if there isn't a previously stored value.
     func test_syncToAuthenticator_isInitiallyFalse() {
         XCTAssertFalse(subject.syncToAuthenticator(userId: "0"))

@@ -319,6 +319,11 @@ protocol StateService: AnyObject {
     ///
     func getShowWebIcons() async -> Bool
 
+    /// Gets whether Siri & Shortcuts access is enabled.
+    /// - Parameter userId: The user ID.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool
+
     /// Gets the sync to Authenticator value for an account.
     ///
     /// - Parameter userId: The user ID associated with the sync to Authenticator value. Defaults to the active
@@ -677,6 +682,13 @@ protocol StateService: AnyObject {
     ///
     func setShowWebIcons(_ showWebIcons: Bool) async
 
+    /// Set whether to allow access to Siri & Shortcuts using `AppIntent`.
+    ///
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether access is enabled.
+    ///   - userId: The user ID of the account. Defaults to the active account if `nil`.
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws
+
     /// Sets the sync to authenticator value for an account.
     ///
     /// - Parameters:
@@ -992,6 +1004,12 @@ extension StateService {
         try await getPasswordGenerationOptions(userId: nil)
     }
 
+    /// Gets whether Siri & Shortcuts access is enabled for the active account.
+    /// - Returns: Whether Siri & Shortcuts access is enabled.
+    func getSiriAndShortcutsAccess() async throws -> Bool {
+        try await getSiriAndShortcutsAccess(userId: nil)
+    }
+
     /// Gets the sync to authenticator value for the active account.
     ///
     /// - Returns: Whether to sync TOTP codes to the Authenticator app.
@@ -1226,6 +1244,14 @@ extension StateService {
     ///
     func setAppRehydrationState(_ rehydrationState: AppRehydrationState?) async throws {
         try await setAppRehydrationState(rehydrationState, userId: nil)
+    }
+
+    /// Set whether to allow access to Siri & Shortcuts using `AppIntent` for the active account.
+    ///
+    /// - Parameters:
+    ///   - siriAndShortcutsAccess: Whether access is enabled.
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws {
+        try await setSiriAndShortcutsAccess(siriAndShortcutsAccess, userId: nil)
     }
 
     /// Sets the sync to authenticator value for the active account.
@@ -1638,6 +1664,11 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         !appSettingsStore.disableWebIcons
     }
 
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool {
+        let userId = try userId ?? getActiveAccountUserId()
+        return appSettingsStore.siriAndShortcutsAccess(userId: userId)
+    }
+
     func getSyncToAuthenticator(userId: String?) async throws -> Bool {
         let userId = try userId ?? getActiveAccountUserId()
         return appSettingsStore.syncToAuthenticator(userId: userId)
@@ -1961,6 +1992,11 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setShowWebIcons(_ showWebIcons: Bool) async {
         appSettingsStore.disableWebIcons = !showWebIcons
         showWebIconsSubject.send(showWebIcons)
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws {
+        let userId = try userId ?? getActiveAccountUserId()
+        appSettingsStore.setSiriAndShortcutsAccess(siriAndShortcutsAccess, userId: userId)
     }
 
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {

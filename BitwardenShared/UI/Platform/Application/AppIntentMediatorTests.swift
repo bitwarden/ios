@@ -54,21 +54,43 @@ class AppIntentMediatorTests: BitwardenTestCase {
     @MainActor
     func test_canRunAppIntents_true() async {
         configService.featureFlagsBool[.appIntents] = true
+        stateService.activeAccount = .fixture()
+        stateService.siriAndShortcutsAccess["1"] = true
         let canRunAppIntents = await subject.canRunAppIntents()
         XCTAssertTrue(canRunAppIntents)
     }
 
-    /// `canRunAppIntents()` returns `false` when it can't run app intents.
+    /// `canRunAppIntents()` returns `false` when it can't run app intents when the flag is not enabled.
     @MainActor
-    func test_canRunAppIntents_false() async {
+    func test_canRunAppIntents_falseBecauseOfFeatureFlag() async {
         configService.featureFlagsBool[.appIntents] = false
         let canRunAppIntents = await subject.canRunAppIntents()
         XCTAssertFalse(canRunAppIntents)
     }
 
+    /// `canRunAppIntents()` returns `false` when it can't run app intents when the setting is not enabled.
+    @MainActor
+    func test_canRunAppIntents_falseBecauseOfSiriAndShortcutsSettingDisabled() async {
+        configService.featureFlagsBool[.appIntents] = true
+        stateService.activeAccount = .fixture()
+        stateService.siriAndShortcutsAccess["1"] = false
+        let canRunAppIntents = await subject.canRunAppIntents()
+        XCTAssertFalse(canRunAppIntents)
+    }
+
+    /// `canRunAppIntents()` returns `false` when it can't run app intents when getting the setting throws.
+    @MainActor
+    func test_canRunAppIntents_falseBecauseGettingSiriAndShortcutsSettingThrows() async {
+        configService.featureFlagsBool[.appIntents] = true
+        stateService.activeAccount = nil
+        let canRunAppIntents = await subject.canRunAppIntents()
+        XCTAssertFalse(canRunAppIntents)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
     /// `generatePassphrase(settings:)` calls the repository to generate a passhprase with the request.
     func test_generatePassphrase() async throws {
-        var request = PassphraseGeneratorRequest(
+        let request = PassphraseGeneratorRequest(
             numWords: 6,
             wordSeparator: "-",
             capitalize: false,
@@ -83,7 +105,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
     /// `generatePassphrase(settings:)` throws when the repository throws
     /// trying to generate a passhprase with the request.
     func test_generatePassphrase_throws() async throws {
-        var request = PassphraseGeneratorRequest(
+        let request = PassphraseGeneratorRequest(
             numWords: 6,
             wordSeparator: "-",
             capitalize: false,

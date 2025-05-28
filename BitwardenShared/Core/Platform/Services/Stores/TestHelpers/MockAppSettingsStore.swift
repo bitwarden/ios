@@ -53,6 +53,7 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
     var serverConfig = [String: ServerConfig]()
     var shouldTrustDevice = [String: Bool?]()
+    var siriAndShortcutsAccess = [String: Bool]()
     var syncToAuthenticatorByUserId = [String: Bool]()
     var timeoutAction = [String: Int]()
     var twoFactorTokens = [String: String]()
@@ -298,6 +299,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
         self.shouldTrustDevice[userId] = shouldTrustDevice
     }
 
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String) {
+        self.siriAndShortcutsAccess[userId] = siriAndShortcutsAccess
+    }
+
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String) {
         syncToAuthenticatorByUserId[userId] = syncToAuthenticator
     }
@@ -332,6 +337,10 @@ class MockAppSettingsStore: AppSettingsStore { // swiftlint:disable:this type_bo
 
     func shouldTrustDevice(userId: String) -> Bool? {
         shouldTrustDevice[userId] ?? false
+    }
+
+    func siriAndShortcutsAccess(userId: String) -> Bool {
+        siriAndShortcutsAccess[userId] ?? false
     }
 
     func syncToAuthenticator(userId: String) -> Bool {
