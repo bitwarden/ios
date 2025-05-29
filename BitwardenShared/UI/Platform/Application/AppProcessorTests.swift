@@ -12,6 +12,7 @@ import XCTest
 class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var appIntentMediator: MockAppIntentMediator!
     var appModule: MockAppModule!
     var authRepository: MockAuthRepository!
     var authenticatorSyncService: MockAuthenticatorSyncService!
@@ -43,6 +44,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         super.setUp()
 
         router = MockRouter(routeForEvent: { _ in .landing })
+        appIntentMediator = MockAppIntentMediator()
         appModule = MockAppModule()
         authRepository = MockAuthRepository()
         authenticatorSyncService = MockAuthenticatorSyncService()
@@ -66,6 +68,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         vaultTimeoutService = MockVaultTimeoutService()
 
         subject = AppProcessor(
+            appIntentMediator: appIntentMediator,
             appModule: appModule,
             debugDidEnterBackground: { [weak self] in self?.didEnterBackgroundCalled += 1 },
             debugWillEnterForeground: { [weak self] in self?.willEnterForegroundCalled += 1 },
@@ -218,7 +221,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     }
 
     /// `init()` subscribes to will enter foreground events and handles accountBecameActive if the
-    /// never timeout account is unlocked in extension.
+    /// never timeout account is unlocked in extension and there is no pending `AppIntent` actions.
     @MainActor
     func test_init_appForeground_checkAccountBecomeActive() async throws {
         // The processor checks for switched accounts when entering the foreground. Wait for the
@@ -237,6 +240,66 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 2 }
 
         XCTAssertEqual(
+            coordinator.events.last,
+            AppEvent.accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
+    /// `init()` subscribes to will enter foreground events and handles accountBecameActive if the
+    /// never timeout account is unlocked in extension and there is an empty collection of pending `AppIntent` actions.
+    @MainActor
+    func test_init_appForeground_checkAccountBecomeActivePendingAppIntentActionsEmpty() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        let account: Account = .fixture(profile: .fixture(userId: "2"))
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+        authRepository.vaultTimeout = [userId: .never]
+        authRepository.isLockedResult = .success(true)
+        stateService.manuallyLockedAccounts = [userId: false]
+        stateService.pendingAppIntentActions = []
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertEqual(
+            coordinator.events.last,
+            AppEvent.accountBecameActive(
+                account,
+                attemptAutomaticBiometricUnlock: true,
+                didSwitchAccountAutomatically: false
+            )
+        )
+    }
+
+    /// `init()` subscribes to will enter foreground events and doesn't handle accountBecameActive if the
+    /// never timeout account is unlocked in extension but there's a pending `.lockAll` `AppIntent`.
+    @MainActor
+    func test_init_appForeground_checkAccountBecomeActiveEventDoesntHappenWhenPendingLockAllAppIntent() async throws {
+        // The processor checks for switched accounts when entering the foreground. Wait for the
+        // initial check to finish when the test starts before continuing.
+        try await waitForAsync { self.willEnterForegroundCalled == 1 }
+        let account: Account = .fixture(profile: .fixture(userId: "2"))
+        let userId = account.profile.userId
+        stateService.activeAccount = account
+        authRepository.activeAccount = account
+        stateService.didAccountSwitchInExtensionResult = .success(true)
+        authRepository.vaultTimeout = [userId: .never]
+        authRepository.isLockedResult = .success(true)
+        stateService.manuallyLockedAccounts = [userId: false]
+        stateService.pendingAppIntentActions = [.lockAll]
+
+        notificationCenterService.willEnterForegroundSubject.send()
+        try await waitForAsync { self.willEnterForegroundCalled == 2 }
+
+        XCTAssertNotEqual(
             coordinator.events.last,
             AppEvent.accountBecameActive(
                 account,
@@ -463,6 +526,88 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await assertAsyncDoesNotThrow {
             try await subject.onNeedsUserInteraction()
         }
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles event `.accountBecameActive` when
+    /// pending app intent action is `.lockAll` and `data` is an account.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_lockAll() async {
+        let account = Account.fixture()
+        await subject.onPendingAppIntentActionSuccess(.lockAll, data: account)
+        XCTAssertEqual(
+            coordinator.events,
+            [
+                .accountBecameActive(
+                    account,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
+                ),
+            ]
+        )
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` doesn't handle event `.accountBecameActive` when
+    /// pending app intent action is `.lockAll` and `data` is `nil`.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_lockAllNoData() async {
+        await subject.onPendingAppIntentActionSuccess(.lockAll, data: nil)
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` doesn't handle event `.accountBecameActive` when
+    /// pending app intent action is `.lockAll` and `data` is not an `Account`.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_lockAllDataNoAccount() async {
+        await subject.onPendingAppIntentActionSuccess(.lockAll, data: "noAccount")
+        XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` sets `setAuthCompletionRoute` as the generator when
+    /// pending app intent action is `.openGenerator` and the vault is locked.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultLocked() async throws {
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles navigation to the generator screen when
+    /// pending app intent action is `.openGenerator` and the vault is unlocked.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlocked() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.routes.last, .tab(.generator(.generator())))
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles receiving a pending AppIntent action for  `.openGenerator`
+    /// and setting an auth completion route on the coordinator if the the user's vault is unlocked
+    /// but will be timing out as the app is foregrounded.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlockedTimeout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeout[account.profile.userId] = true
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles receiving a pending AppIntent action for  `.openGenerator`
+    /// and setting an auth completion route on the coordinator if the the user's vault is unlocked
+    /// but checking timing out as throws an error.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_openGeneratorVaultUnlockedTimeoutError() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = .fixture()
+        vaultTimeoutService.isClientLocked[account.profile.userId] = false
+        vaultTimeoutService.shouldSessionTimeoutError = BitwardenTestError.example
+
+        await subject.onPendingAppIntentActionSuccess(.openGenerator, data: nil)
+        XCTAssertEqual(coordinator.events, [.setAuthCompletionRoute(.tab(.generator(.generator())))])
     }
 
     /// `openUrl(_:)` handles receiving a bitwarden deep link and setting an auth completion route on the
