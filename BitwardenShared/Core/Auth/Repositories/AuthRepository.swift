@@ -741,10 +741,6 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func isUserManagedByOrganization() async throws -> Bool {
-        guard await configService.getFeatureFlag(.accountDeprovisioning) else {
-            return false
-        }
-
         let orgs = try await organizationService.fetchAllOrganizations()
         return orgs.contains { $0.userIsManagedByOrganization }
     }
