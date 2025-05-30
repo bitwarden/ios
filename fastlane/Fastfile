@@ -37,6 +37,8 @@ platform :ios do |options|
         app_store_build_number(
             api_key_path: options[:api_key_path]
         )
-        puts lane_context[SharedValues::LATEST_VERSION]
+        latest_version = lane_context[SharedValues::LATEST_VERSION]
+
+        sh("echo STORE_VERSION=#{latest_version} >> $GITHUB_ENV")
     end
 end
