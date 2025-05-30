@@ -16,7 +16,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     var body: some View {
         ZStack {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 16) {
                 if store.state.isSendDisabled {
                     InfoContainer(Localizations.sendDisabledWarning)
                         .accessibilityIdentifier("DisabledSendPolicyLabel")
@@ -25,16 +25,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .accessibilityIdentifier("HideEmailAddressPolicyLabel")
                 }
 
-                switch store.state.type {
-                case .text:
-                    textSendAttributes
-                case .file:
-                    fileSendAttributes
-                }
-
                 sendDetails
 
                 additionalOptions
+
+                if store.state.mode == .edit {
+                    deleteSendButton
+                }
             }
             .scrollView(padding: 12)
             .disabled(store.state.isSendDisabled)
@@ -94,10 +91,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                                     await store.perform(.removePassword)
                                 }
                             }
-                        }
-
-                        AsyncButton(Localizations.delete, role: .destructive) {
-                            await store.perform(.deletePressed)
                         }
                     }
                 }
@@ -164,7 +157,16 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 )
             )
         }
-        .padding(.top, 8)
+    }
+
+    /// The button to delete the send.
+    private var deleteSendButton: some View {
+        AsyncButton {
+            await store.perform(.deletePressed)
+        } label: {
+            Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
+        }
+        .buttonStyle(.secondary(isDestructive: true, size: .medium))
     }
 
     /// The deletion date field.
@@ -190,7 +192,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
 
     /// The attributes for a file type send.
     @ViewBuilder private var fileSendAttributes: some View {
-        SectionView(Localizations.file, contentSpacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             switch store.state.mode {
             case .add, .shareExtension:
                 if let fileName = store.state.fileName {
@@ -209,7 +211,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         }
                         .buttonStyle(.secondary())
                         .accessibilityIdentifier("SendChooseFileButton")
-                        .padding(.top, 4)
                     }
 
                     Text(Localizations.maxFileSize)
@@ -239,7 +240,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 }
             }
         }
-        .padding(.top, 8)
     }
 
     /// The name field.
@@ -279,6 +279,13 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
     @ViewBuilder private var sendDetails: some View {
         SectionView(Localizations.sendDetails, contentSpacing: 8) {
             nameField
+
+            switch store.state.type {
+            case .text:
+                textSendAttributes
+            case .file:
+                fileSendAttributes
+            }
 
             if store.state.type == .text {
                 ContentBlock {
