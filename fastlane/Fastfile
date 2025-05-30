@@ -428,4 +428,14 @@ platform :ios do |options|
             file.write(project_yaml.to_yaml)
         end
     end
+
+    desc "Get latest published version"
+    lane :get_latest_version do
+        app_store_build_number(
+            api_key_path: options[:api_key_path]
+        )
+        latest_version = lane_context[SharedValues::LATEST_VERSION]
+
+        sh("echo STORE_VERSION=#{latest_version} >> $GITHUB_ENV")
+    end
 end
