@@ -1144,6 +1144,12 @@
 "Identification" = "تعريف";
 "Owner" = "المالك";
 "VerifyYourIdentity" = "تحقق من هويتك";
+"LockCurrentAccount" = "Lock current account";
+"ThisOperationIsNotAllowedOnThisAccount" = "This operation is not allowed on this account";
+"AnErrorOccurredWhileTryingToLockTheCurrentUser" = "An error occurred while trying to lock the current user";
+"LockAllAccounts" = "Lock all accounts";
+"AllAccountsHaveBeenLocked" = "All accounts have been locked";
+"AnErrorOccurredWhileTryingToLockAllAccounts" = "An error occurred while trying to lock all accounts";
 "ShareErrorDetails" = "مشاركة تفاصيل الخطأ";
 "FlightRecorder" = "مسجل الرحلة";
 "EnableFlightRecorder" = "تمكين مسجل الطيران";
@@ -1168,7 +1174,13 @@
 "ExpiresOnXDate" = "تنتهي في %1$@";
 "ExpiresTomorrow" = "تنتهي غدا";
 "DateRangeXToY" = "%1$@ إلى %2$@";
+"LogOutAllAccounts" = "Log out all accounts";
+"AllAccountsHaveBeenLoggedOut" = "All accounts have been logged out";
+"AnErrorOccurredWhileTryingToLogOutAllAccounts" = "An error occurred while trying to log out all accounts";
 "SelfHostServerURL" = "رابط خادم الاستضافة الذاتية";
+"OpenGenerator" = "Open generator";
+"OpenPasswordGenerator" = "Open password generator";
+"GeneratePassphrase" = "Generate passphrase";
 "AllowUniversalClipboard" = "السماح بالحافظة العامة";
 "UseUniversalClipboardToCopyDescriptionLong" = "استخدم الحافظة العامة للنسخ هنا وللصق على أجهزة أخرى مسجلة بنفس معرف آبل.
 ";
@@ -1189,3 +1201,12 @@
 "FlightRecorderOn" = "Flight recorder on";
 "FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
 "GoToSettings" = "Go to settings";
+"SiriAndShortcutsAccess" = "Siri & Shortcuts access";
+"EnableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents" = "Enable to allow the app to respond to Siri and Shortcuts using App Intents.";
+"ThereIsNoActiveAccount" = "There is no active account.";
+"NewFileSend" = "New file Send";
+"NewTextSend" = "New text Send";
+"EditFileSend" = "Edit file Send";
+"EditTextSend" = "Edit text Send";
+"LogDeleted" = "Log deleted";
+"AllLogsDeleted" = "All logs deleted";
