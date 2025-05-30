@@ -138,28 +138,30 @@ struct ViewItemView: View {
 
 #if DEBUG
 struct ViewItemView_Previews: PreviewProvider {
-    static var cipher = CipherView.fixture(
-        attachments: [
-            .fixture(
-                fileName: "selfieWithACat.png",
-                id: "1",
-                sizeName: "11.2 MB"
-            ),
-            .fixture(
-                fileName: "selfieWithAPotato.png",
-                id: "2",
-                sizeName: "18.7 MB"
-            ),
-        ],
-        id: "123",
-        login: .fixture(),
-        type: .login,
-        viewPassword: false
-    )
+    static func cipher(forType: BitwardenSdk.CipherType = .login) -> CipherView {
+        CipherView.fixture(
+            attachments: [
+                .fixture(
+                    fileName: "selfieWithACat.png",
+                    id: "1",
+                    sizeName: "11.2 MB"
+                ),
+                .fixture(
+                    fileName: "selfieWithAPotato.png",
+                    id: "2",
+                    sizeName: "18.7 MB"
+                ),
+            ],
+            id: "123",
+            login: .fixture(),
+            type: forType,
+            viewPassword: false
+        )
+    }
 
     static var cardState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .card),
             hasPremium: true
         )!
         state.type = CipherType.card
@@ -179,7 +181,7 @@ struct ViewItemView_Previews: PreviewProvider {
 
     static var loginState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .login),
             hasPremium: true
         )!
         state.customFieldsState.customFields = [
@@ -216,7 +218,7 @@ struct ViewItemView_Previews: PreviewProvider {
 
     static var secureNoteState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .secureNote),
             hasPremium: true
         )!
         state.notes = "secure note"
@@ -226,7 +228,7 @@ struct ViewItemView_Previews: PreviewProvider {
 
     static var sshKeyState: CipherItemState {
         var state = CipherItemState(
-            existing: cipher,
+            existing: cipher(forType: .sshKey),
             hasPremium: true
         )!
         state.name = "Example"
