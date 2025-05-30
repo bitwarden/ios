@@ -53,8 +53,8 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
         switch effect {
         case .loadData:
             await loadData()
-        case .streamFlightRecorderEnabled:
-            await streamFlightRecorderEnabled()
+        case .streamFlightRecorderLog:
+            await streamFlightRecorderLog()
         case let .toggleFlightRecorder(isOn):
             if isOn {
                 coordinator.navigate(to: .enableFlightRecorder)
@@ -113,10 +113,10 @@ final class AboutProcessor: StateProcessor<AboutState, AboutAction, AboutEffect>
         state.isFlightRecorderFeatureFlagEnabled = await services.configService.getFeatureFlag(.flightRecorder)
     }
 
-    /// Streams the enabled status of the flight recorder.
-    private func streamFlightRecorderEnabled() async {
-        for await isEnabled in await services.flightRecorder.isEnabledPublisher().values {
-            state.isFlightRecorderToggleOn = isEnabled
+    /// Streams the flight recorder's active log metadata.
+    private func streamFlightRecorderLog() async {
+        for await activeLog in await services.flightRecorder.activeLogPublisher().values {
+            state.flightRecorderActiveLog = activeLog
         }
     }
 }

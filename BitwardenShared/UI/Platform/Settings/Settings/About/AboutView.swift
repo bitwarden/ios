@@ -25,13 +25,14 @@ struct AboutView: View {
 
             copyrightNotice
         }
+        .animation(.default, value: store.state.flightRecorderActiveLog)
         .scrollView(padding: 12)
         .navigationBar(title: Localizations.about, titleDisplayMode: .inline)
         .task {
             await store.perform(.loadData)
         }
         .task {
-            await store.perform(.streamFlightRecorderEnabled)
+            await store.perform(.streamFlightRecorderLog)
         }
         .toast(store.binding(
             get: \.toast,
@@ -65,13 +66,34 @@ struct AboutView: View {
         if store.state.isFlightRecorderFeatureFlagEnabled {
             ContentBlock(dividerLeadingPadding: 16) {
                 BitwardenToggle(
-                    Localizations.flightRecorder,
                     isOn: store.bindingAsync(
-                        get: \.isFlightRecorderToggleOn,
+                        get: { $0.flightRecorderActiveLog != nil },
                         perform: AboutEffect.toggleFlightRecorder
                     ),
-                    accessibilityIdentifier: "FlightRecorderSwitch"
-                )
+                    accessibilityIdentifier: "FlightRecorderSwitch",
+                    accessibilityLabel: store.state.flightRecorderToggleAccessibilityLabel
+                ) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack(spacing: 8) {
+                            Text(Localizations.flightRecorder)
+
+                            Button {
+                                openURL(ExternalLinksConstants.flightRecorderHelp)
+                            } label: {
+                                Asset.Images.questionCircle16.swiftUIImage
+                                    .scaledFrame(width: 16, height: 16)
+                                    .accessibilityLabel(Localizations.learnMore)
+                            }
+                            .buttonStyle(.fieldLabelIcon)
+                        }
+
+                        if let log = store.state.flightRecorderActiveLog {
+                            Text(Localizations.loggingEndsOnDateAtTime(log.formattedEndDate, log.formattedEndTime))
+                                .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                                .styleGuide(.subheadline)
+                        }
+                    }
+                }
 
                 SettingsListItem(Localizations.viewRecordedLogs) {
                     store.send(.viewFlightRecorderLogsTapped)
@@ -134,5 +156,11 @@ struct AboutView: View {
 // MARK: - Previews
 
 #Preview {
-    AboutView(store: Store(processor: StateProcessor(state: AboutState())))
+    AboutView(store: Store(processor: StateProcessor(state: AboutState(
+        flightRecorderActiveLog: FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: Date(timeIntervalSinceNow: 60 * 60 * -4)
+        ),
+        isFlightRecorderFeatureFlagEnabled: true
+    ))))
 }
