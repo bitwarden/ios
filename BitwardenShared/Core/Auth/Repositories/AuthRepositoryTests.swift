@@ -1114,20 +1114,8 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertFalse(value)
     }
 
-    /// `isUserManagedByOrganization` returns false when the feature flag is off.
-    func test_isUserManagedByOrganization_true_featureFlagOff() async throws {
-        stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
-        try await stateService.setActiveAccount(userId: "1")
-        organizationService.fetchAllOrganizationsResult =
-            .success([.fixture(id: "One", userIsManagedByOrganization: true)])
-
-        let value = try await subject.isUserManagedByOrganization()
-        XCTAssertFalse(value)
-    }
-
     /// `isUserManagedByOrganization` returns false when the user isn't managed by an organization.
-    func test_isUserManagedByOrganization_false_featureFlagON() async throws {
-        configService.featureFlagsBool[.accountDeprovisioning] = true
+    func test_isUserManagedByOrganization_false() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "One")])
@@ -1137,8 +1125,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `isUserManagedByOrganization` returns false when the user doesn't belong to an organization.
-    func test_isUserManagedByOrganization_noOrgs_featureFlagON() async throws {
-        configService.featureFlagsBool[.accountDeprovisioning] = true
+    func test_isUserManagedByOrganization_noOrgs() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult = .success([])
@@ -1148,8 +1135,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `isUserManagedByOrganization` returns true if the user is managed by an organization.
-    func test_isUserManagedByOrganization_true_featureFlagON() async throws {
-        configService.featureFlagsBool[.accountDeprovisioning] = true
+    func test_isUserManagedByOrganization_true() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult =
@@ -1160,8 +1146,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `isUserManagedByOrganization` returns true if the user is managed by at least one organization.
-    func test_isUserManagedByOrganization_true_multipleOrgs_featureON() async throws {
-        configService.featureFlagsBool[.accountDeprovisioning] = true
+    func test_isUserManagedByOrganization_true_multipleOrgs() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
         try await stateService.setActiveAccount(userId: "1")
         organizationService.fetchAllOrganizationsResult =
