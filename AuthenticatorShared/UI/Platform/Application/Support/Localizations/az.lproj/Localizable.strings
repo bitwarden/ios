@@ -150,6 +150,7 @@
 "VaultTimeout" = "Seyf vaxtının bitməsi";
 "ThirtyMinutes" = "30 dəqiqə";
 "OnRestart" = "Tətbiq yenidən başladılanda";
+"Custom" = "Custom";
 "SessionTimeout" = "Seans vaxt bitməsi";
 "FileCouldNotBeProcessed" = "Fayl emal oluna bilmədi";
 "EnsureItsValidJsonAndTryAgain" = "Yararlı JSON olduğuna əmin olub yenidən sınayın.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Kömək lazımdır? Rəhbərlik üçün Kömək Mərkəzimizi ziyarət edin.";
 "UnexpectedDataFormat" = "Gözlənilməz data formatı";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Təqdim edilən data formatı gözlənilənlə uyuşmur. Lütfən faylınızı yoxlayın və düzgün data növünün istifadə olunduğuna əmin olun.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";

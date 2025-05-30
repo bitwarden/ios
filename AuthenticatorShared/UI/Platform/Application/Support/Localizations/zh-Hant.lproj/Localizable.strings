@@ -150,6 +150,7 @@
 "VaultTimeout" = "密碼庫逾時";
 "ThirtyMinutes" = "30 分鐘";
 "OnRestart" = "應用程式重新啟動時";
+"Custom" = "Custom";
 "SessionTimeout" = "工作階段逾時";
 "FileCouldNotBeProcessed" = "無法處理檔案";
 "EnsureItsValidJsonAndTryAgain" = "請確保檔案為有效的 JSON 格式，然後再試一次。";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "需要協助嗎？請造訪我們的說明中心以取得指引。";
 "UnexpectedDataFormat" = "非預期的資料格式";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "提供的資料格式與預期不符，請檢查您的檔案並確保使用正確的資料類型。";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";

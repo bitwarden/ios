@@ -150,6 +150,7 @@
 "VaultTimeout" = "Тајмаут сефа";
 "ThirtyMinutes" = "30 минута";
 "OnRestart" = "На поновно покретање";
+"Custom" = "Custom";
 "SessionTimeout" = "Истек сесије";
 "FileCouldNotBeProcessed" = "Није могуће обрадити датотеку";
 "EnsureItsValidJsonAndTryAgain" = "Уверите се да је JSON важећи и покушајте поново.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Треба ли помоћ? Посетите наш центар за помоћ за упутства.";
 "UnexpectedDataFormat" = "Неочекивани формат података";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Наведени формат података не одговара очекиваном. Проверите своју датотеку и уверите се да се користе исправни типови података.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";

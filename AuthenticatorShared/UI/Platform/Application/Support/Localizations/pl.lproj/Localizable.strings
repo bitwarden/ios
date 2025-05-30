@@ -150,6 +150,7 @@
 "VaultTimeout" = "Limit czasu sejfu";
 "ThirtyMinutes" = "30 minut";
 "OnRestart" = "Po restarcie aplikacji";
+"Custom" = "Niestandardowe";
 "SessionTimeout" = "Limit czasu sesji";
 "FileCouldNotBeProcessed" = "Plik nie może zostać przetworzony";
 "EnsureItsValidJsonAndTryAgain" = "Upewnij się, że JSON jest poprawny i spróbuj ponownie.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Potrzebujesz pomocy? Odwiedź nasze Centrum Pomocy po porady.";
 "UnexpectedDataFormat" = "Nieoczekiwany format danych";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Podany format danych nie pasuje do oczekiwanych. Sprawdź swój plik i upewnij się, że użyto poprawnych typów danych.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Ta funkcja nie jest jeszcze dostępna dla użytkowników korzystających z hostingu samodzielnego. [Learn more](%1$@)";
