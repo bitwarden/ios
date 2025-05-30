@@ -13,7 +13,9 @@ class MockSendDataStore: SendDataStore {
     var fetchSendUserId: String?
     var fetchSendResult: Result<Send?, Error> = .success(nil)
 
-    var sendSubject = CurrentValueSubject<[Send], Error>([])
+    var sendSubject = CurrentValueSubject<Send?, Error>(nil)
+
+    var sendsSubject = CurrentValueSubject<[Send], Error>([])
 
     var replaceSendsValue: [Send]?
     var replaceSendsUserId: String?
@@ -36,8 +38,12 @@ class MockSendDataStore: SendDataStore {
         return try fetchSendResult.get()
     }
 
-    func sendPublisher(userId: String) -> AnyPublisher<[Send], Error> {
+    func sendPublisher(id: String, userId: String) -> AnyPublisher<Send?, Error> {
         sendSubject.eraseToAnyPublisher()
+    }
+
+    func sendsPublisher(userId: String) -> AnyPublisher<[Send], Error> {
+        sendsSubject.eraseToAnyPublisher()
     }
 
     func replaceSends(_ sends: [Send], userId: String) async throws {

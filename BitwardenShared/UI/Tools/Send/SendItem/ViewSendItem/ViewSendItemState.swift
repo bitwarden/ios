@@ -12,7 +12,7 @@ struct ViewSendItemState: Equatable {
     var isAdditionalOptionsExpanded = false
 
     /// The send to show the details of.
-    let sendView: SendView
+    var sendView: SendView
 
     /// A URL for sharing the send.
     var shareURL: URL?

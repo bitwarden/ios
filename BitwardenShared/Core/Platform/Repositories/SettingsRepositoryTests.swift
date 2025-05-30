@@ -173,6 +173,18 @@ class SettingsRepositoryTests: BitwardenTestCase {
         XCTAssertTrue(value)
     }
 
+    /// `getSiriAndShortcutsAccess()` returns the Siri & Shortcuts access value.
+    func test_getSiriAndShortcutsAccess() async throws {
+        stateService.activeAccount = .fixture()
+
+        let initialValue = try await subject.getSiriAndShortcutsAccess()
+        XCTAssertFalse(initialValue)
+
+        stateService.siriAndShortcutsAccess["1"] = true
+        let value = try await subject.getSiriAndShortcutsAccess()
+        XCTAssertTrue(value)
+    }
+
     /// `getSyncToAuthenticator()` returns the expected value.
     func test_getSyncToAuthenticator() async throws {
         stateService.activeAccount = .fixture()
@@ -280,6 +292,15 @@ class SettingsRepositoryTests: BitwardenTestCase {
         try await subject.updateDisableAutoTotpCopy(true)
 
         try XCTAssertTrue(XCTUnwrap(stateService.disableAutoTotpCopyByUserId["1"]))
+    }
+
+    /// `updateSiriAndShortcutsAccess(_:)` updates the state service's Siri & Shortcuts access value
+    func test_updateSiriAndShortcutsAccess() async throws {
+        stateService.activeAccount = .fixture()
+
+        try await subject.updateSiriAndShortcutsAccess(true)
+
+        try XCTAssertTrue(XCTUnwrap(stateService.siriAndShortcutsAccess["1"]))
     }
 
     /// `updateSyncToAuthenticator()` updates the value in the state service.

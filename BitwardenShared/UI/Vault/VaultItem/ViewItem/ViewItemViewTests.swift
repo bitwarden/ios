@@ -695,7 +695,8 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
     private func sshKeyCipherItemState(canViewPrivateKey: Bool, isPrivateKeyVisible: Bool) -> CipherItemState {
         var state = CipherItemState(
             existing: .fixture(
-                id: "fake-id"
+                id: "fake-id",
+                type: .sshKey
             ),
             hasPremium: true
         )!

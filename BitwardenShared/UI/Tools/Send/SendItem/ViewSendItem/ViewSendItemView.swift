@@ -22,6 +22,7 @@ struct ViewSendItemView: View {
                 }
             }
             .task { await store.perform(.loadData) }
+            .task { await store.perform(.streamSend) }
             .toast(
                 store.binding(
                     get: \.toast,
