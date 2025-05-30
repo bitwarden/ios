@@ -37,6 +37,8 @@ class MockSendService: SendService {
     var syncSendWithServerId: String?
     var syncSendWithServerResult: Result<Void, Error> = .success(())
 
+    var sendSubject = CurrentValueSubject<Send?, Error>(nil)
+
     var sendsSubject = CurrentValueSubject<[Send], Error>([])
 
     // MARK: Methods
@@ -85,6 +87,10 @@ class MockSendService: SendService {
     func syncSendWithServer(id: String) async throws {
         syncSendWithServerId = id
         return try syncSendWithServerResult.get()
+    }
+
+    func sendPublisher(id: String) async throws -> AnyPublisher<Send?, Error> {
+        sendSubject.eraseToAnyPublisher()
     }
 
     func sendsPublisher() async throws -> AnyPublisher<[Send], Error> {

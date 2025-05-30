@@ -2,8 +2,6 @@ import BitwardenKit
 @preconcurrency import BitwardenSdk
 import Foundation
 
-// swiftlint:disable file_length
-
 // MARK: - AddEditSendItemProcessor
 
 /// The processor used to manage state and handle actions for the add/edit send item screen.

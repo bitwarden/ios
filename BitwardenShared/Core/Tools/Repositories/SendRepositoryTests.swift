@@ -345,6 +345,49 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
+    /// `sendListPublisher()` returns a publisher for a single send.
+    func test_sendPublisher() async throws {
+        let send1 = Send.fixture(name: "Initial")
+        sendService.sendSubject.send(send1)
+
+        var iterator = try await subject.sendPublisher(id: "1").makeAsyncIterator()
+
+        var sendView = try await iterator.next()
+        XCTAssertEqual(sendView, SendView(send: send1))
+        XCTAssertEqual(clientService.mockSends.decryptedSends, [send1])
+
+        let send2 = Send.fixture(name: "Updated")
+        sendService.sendSubject.send(send2)
+        sendView = try await iterator.next()
+        XCTAssertEqual(sendView, SendView(send: send2))
+        XCTAssertEqual(clientService.mockSends.decryptedSends, [send1, send2])
+    }
+
+    /// `sendListPublisher()` throws an error if underlying publisher returns an error.
+    func test_sendPublisher_error() async throws {
+        sendService.sendSubject.send(completion: .failure(BitwardenTestError.example))
+
+        var iterator = try await subject.sendPublisher(id: "1").makeAsyncIterator()
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await iterator.next()
+        }
+    }
+
+    /// `sendListPublisher()` passes along a `nil` send.
+    func test_sendPublisher_nilSend() async throws {
+        sendService.sendSubject.send(nil)
+
+        var iterator = try await subject.sendPublisher(id: "1").makeAsyncIterator()
+
+        var sendView = try await iterator.next()
+        XCTAssertEqual(sendView, Optional(Optional(nil)))
+
+        let send = Send.fixture()
+        sendService.sendSubject.send(send)
+        sendView = try await iterator.next()
+        XCTAssertEqual(sendView, SendView(send: send))
+    }
+
     /// `shareURL()` successfully generates a share url for the send view.
     func test_shareURL() async throws {
         let sendView = SendView.fixture(accessId: "ACCESS_ID", key: "KEY")

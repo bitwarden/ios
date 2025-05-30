@@ -24,6 +24,8 @@ class MockSendRepository: SendRepository {
 
     var sendListSubject = CurrentValueSubject<[SendListSection], Error>([])
 
+    var sendSubject = CurrentValueSubject<SendView?, Error>(nil)
+
     var sendTypeListPublisherType: BitwardenShared.SendType?
     var sendTypeListSubject = CurrentValueSubject<[SendListItem], Error>([])
 
@@ -100,6 +102,12 @@ class MockSendRepository: SendRepository {
 
     func sendListPublisher() -> AsyncThrowingPublisher<AnyPublisher<[SendListSection], Error>> {
         sendListSubject
+            .eraseToAnyPublisher()
+            .values
+    }
+
+    func sendPublisher(id: String) async throws -> AsyncThrowingPublisher<AnyPublisher<SendView?, Error>> {
+        sendSubject
             .eraseToAnyPublisher()
             .values
     }

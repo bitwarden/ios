@@ -55,10 +55,29 @@ class SendDataStoreTests: BitwardenTestCase {
         )
     }
 
-    /// `sendPublisher(userId:)` returns a publisher for a user's send objects.
+    /// `sendPublisher(userId:)` returns a publisher for a single send.
     func test_sendPublisher() async throws {
+        var publishedValues = [Send?]()
+        let publisher = subject.sendPublisher(id: "1", userId: "1")
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    publishedValues.append(value)
+                }
+            )
+        defer { publisher.cancel() }
+
+        try await subject.replaceSends(sends, userId: "1")
+
+        waitFor { publishedValues.count == 2 }
+        XCTAssertNil(publishedValues[0])
+        XCTAssertEqual(publishedValues[1], Send.fixture(id: "1", name: "SEND1"))
+    }
+
+    /// `sendsPublisher(userId:)` returns a publisher for a user's send objects.
+    func test_sendsPublisher() async throws {
         var publishedValues = [[Send]]()
-        let publisher = subject.sendPublisher(userId: "1")
+        let publisher = subject.sendsPublisher(userId: "1")
             .sink(
                 receiveCompletion: { _ in },
                 receiveValue: { values in

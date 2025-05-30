@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - MainSendListView
 
 /// The main content of the `SendListView`. Broken out into it's own view so that the
