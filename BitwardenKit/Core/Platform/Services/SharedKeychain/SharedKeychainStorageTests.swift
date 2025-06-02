@@ -55,7 +55,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
 
         keychainService.setSearchResultData(data)
 
-        let returnData = try await subject.getValue(for: .authenticatorKey)
+        let returnData: Data = try await subject.getValue(for: .authenticatorKey)
         XCTAssertEqual(returnData, data)
 
         let query = try XCTUnwrap(keychainService.searchQuery as? [CFString: Any])
@@ -78,7 +78,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
         keychainService.searchResult = .success([kSecValueData as String: NSObject()] as AnyObject)
 
         await assertAsyncThrows(error: error) {
-            _ = try await subject.getValue(for: .authenticatorKey)
+            let _: Data = try await subject.getValue(for: .authenticatorKey)
         }
     }
 
@@ -90,7 +90,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
         keychainService.searchResult = .success(nil)
 
         await assertAsyncThrows(error: error) {
-            _ = try await subject.getValue(for: .authenticatorKey)
+            let _: Data = try await subject.getValue(for: .authenticatorKey)
         }
     }
 
@@ -102,7 +102,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
         keychainService.searchResult = .failure(error)
 
         await assertAsyncThrows(error: error) {
-            _ = try await subject.getValue(for: .authenticatorKey)
+            let _: Data = try await subject.getValue(for: .authenticatorKey)
         }
     }
 

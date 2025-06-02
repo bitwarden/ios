@@ -28,13 +28,17 @@ public enum SharedKeychainItem: Equatable, Hashable {
     }
 }
 
+/// A storage layer for managing keychain items that are shared between Password Manager
+/// and Authenticator. In particular, it is able to construct the appropriate queries to
+/// talk with a `SharedKeychainService`.
+///
 public protocol SharedKeychainStorage {
     /// Retrieve the value for the specific item from the Keychain Service.
     ///
     /// - Parameter item: the keychain item for which to retrieve a value.
     /// - Returns: The value (Data) stored in the keychain for the given item.
     ///
-    func getValue(for item: SharedKeychainItem) async throws -> Data
+    func getValue<T: Codable>(for item: SharedKeychainItem) async throws -> T
 
     /// Store a given value into the keychain for the given item.
     ///
@@ -42,7 +46,7 @@ public protocol SharedKeychainStorage {
     ///   - value: The value (Data) to be stored into the keychain
     ///   - item: The item for which to store the value in the keychain.
     ///
-    func setValue(_ value: Data, for item: SharedKeychainItem) async throws
+    func setValue<T: Codable>(_ value: T, for item: SharedKeychainItem) async throws
 
     /// Deletes the value in the keychain for the given item.
     ///
@@ -83,7 +87,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
 
     // MARK: Methods
 
-    public func getValue(for item: SharedKeychainItem) async throws -> Data {
+    public func getValue<T: Codable>(for item: SharedKeychainItem) async throws -> T {
         let foundItem = try keychainService.search(
             query: [
                 kSecMatchLimit: kSecMatchLimitOne,
@@ -97,14 +101,14 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
         )
 
         guard let resultDictionary = foundItem as? [String: Any],
-              let data = resultDictionary[kSecValueData as String] as? Data else {
+              let data = resultDictionary[kSecValueData as String] as? T else {
             throw AuthenticatorKeychainServiceError.keyNotFound(item)
         }
 
         return data
     }
 
-    public func setValue(_ value: Data, for item: SharedKeychainItem) async throws {
+    public func setValue<T: Codable>(_ value: T, for item: SharedKeychainItem) async throws {
         let query = [
             kSecValueData: value,
             kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
