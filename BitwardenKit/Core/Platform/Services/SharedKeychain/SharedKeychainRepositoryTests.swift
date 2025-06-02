@@ -15,10 +15,10 @@ final class SharedKeychainRepositoryTests: AuthenticatorBridgeKitTestCase {
 
     override func setUp() {
         keychainService = MockAuthenticatorKeychainService()
-        subject = DefaultSharedKeychainRepository(
-            sharedAppGroupIdentifier: accessGroup,
-            keychainService: keychainService
-        )
+//        subject = DefaultSharedKeychainRepository(
+//            sharedAppGroupIdentifier: accessGroup,
+//            keychainService: keychainService
+//        )
     }
 
     override func tearDown() {
@@ -31,7 +31,7 @@ final class SharedKeychainRepositoryTests: AuthenticatorBridgeKitTestCase {
     /// Verify that `deleteAuthenticatorKey()` issues a delete with the correct search attributes specified.
     ///
     func test_deleteAuthenticatorKey_success() async throws {
-        try subject.deleteAuthenticatorKey()
+        try await subject.deleteAuthenticatorKey()
 
         let queries = try XCTUnwrap(keychainService.deleteQueries as? [[CFString: Any]])
         XCTAssertEqual(queries.count, 1)

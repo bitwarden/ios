@@ -4,9 +4,15 @@ import Foundation
 
 /// Enumeration of support Keychain Items that can be placed in the `SharedKeychainRepository`
 ///
-public enum SharedKeychainItem: Equatable {
+public enum SharedKeychainItem: Equatable, Hashable {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
+
+    /// The last time a user was active in a given application
+    case lastActiveTime(application: SharedTimeoutApplication, userId: String)
+
+    /// The length of time before a user times out for an application
+    case vaultTimeout(application: SharedTimeoutApplication, userId: String)
 
     /// The storage key for this keychain item.
     ///
@@ -14,37 +20,21 @@ public enum SharedKeychainItem: Equatable {
         switch self {
         case .authenticatorKey:
             "authenticatorKey"
+        case let .lastActiveTime(application: application, userId: userId):
+            "lastActiveTime_\(application.rawValue)_\(userId)"
+        case let .vaultTimeout(application, userId):
+            "vaultTimeout_\(application.rawValue)_\(userId)"
         }
     }
 }
 
-// MARK: - SharedKeychainRepository
-
-/// A repository for managing keychain items to be shared between the main Bitwarden app and the Authenticator app.
-///
-public protocol SharedKeychainRepository: AnyObject {
-    /// Attempts to delete the authenticator key from the keychain.
-    ///
-    func deleteAuthenticatorKey() throws
-
-    /// Gets the authenticator key.
-    ///
-    /// - Returns: Data representing the authenticator key.
-    ///
-    func getAuthenticatorKey() async throws -> Data
-
-    /// Stores the access token for a user in the keychain.
-    ///
-    /// - Parameter value: The authenticator key to store.
-    ///
-    func setAuthenticatorKey(_ value: Data) async throws
+public protocol SharedKeychainStorage {
+    func getValue(for item: SharedKeychainItem) async throws -> Data
+    func setValue(_ value: Data, for item: SharedKeychainItem) async throws
+    func deleteValue(for item: SharedKeychainItem) async throws
 }
 
-// MARK: - DefaultKeychainRepository
-
-/// A concrete implementation of the `SharedKeychainRepository` protocol.
-///
-public class DefaultSharedKeychainRepository: SharedKeychainRepository {
+class DefaultSharedKeychainStorage: SharedKeychainStorage {
     // MARK: Properties
 
     /// An identifier for the shared access group used by the application.
@@ -79,7 +69,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     /// - Parameter item: the keychain item for which to retrieve a value.
     /// - Returns: The value (Data) stored in the keychain for the given item.
     ///
-    private func getSharedValue(for item: SharedKeychainItem) async throws -> Data {
+    func getValue(for item: SharedKeychainItem) async throws -> Data {
         let foundItem = try keychainService.search(
             query: [
                 kSecMatchLimit: kSecMatchLimitOne,
@@ -106,7 +96,7 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
     ///   - value: The value (Data) to be stored into the keychain
     ///   - item: The item for which to store the value in the keychain.
     ///
-    private func setSharedValue(_ value: Data, for item: SharedKeychainItem) async throws {
+    func setValue(_ value: Data, for item: SharedKeychainItem) async throws {
         let query = [
             kSecValueData: value,
             kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
@@ -121,35 +111,16 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
             attributes: query
         )
     }
-}
 
-public extension DefaultSharedKeychainRepository {
-    /// Attempts to delete the authenticator key from the keychain.
-    ///
-    func deleteAuthenticatorKey() throws {
+    func deleteValue(for item: SharedKeychainItem) async throws {
         try keychainService.delete(
             query: [
                 kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                 kSecAttrAccessGroup: sharedAppGroupIdentifier,
-                kSecAttrAccount: SharedKeychainItem.authenticatorKey.unformattedKey,
+                kSecAttrAccount: item.unformattedKey,
                 kSecClass: kSecClassGenericPassword,
             ] as CFDictionary
         )
-    }
 
-    /// Gets the authenticator key.
-    ///
-    /// - Returns: Data representing the authenticator key.
-    ///
-    func getAuthenticatorKey() async throws -> Data {
-        try await getSharedValue(for: .authenticatorKey)
-    }
-
-    /// Stores the access token for a user in the keychain.
-    ///
-    /// - Parameter value: The authenticator key to store.
-    ///
-    func setAuthenticatorKey(_ value: Data) async throws {
-        try await setSharedValue(value, for: .authenticatorKey)
     }
 }
