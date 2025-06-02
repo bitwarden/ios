@@ -61,6 +61,7 @@ struct ViewSendItemView: View {
             deleteSendButton
         }
         .animation(.default, value: store.state.isAdditionalOptionsExpanded)
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
     }
 
     /// The expandable additional options section.
@@ -77,6 +78,7 @@ struct ViewSendItemView: View {
                 if let maxAccessCount = store.state.sendView.maxAccessCount {
                     SendItemAccessCountStepper(
                         currentAccessCount: Int(store.state.sendView.accessCount),
+                        displayInfoText: false,
                         maximumAccessCount: .constant(Int(maxAccessCount))
                     )
                     .disabled(true)
