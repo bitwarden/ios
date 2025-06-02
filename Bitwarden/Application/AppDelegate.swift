@@ -45,7 +45,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)
-        AppIntentRegistry.register() // register app intents preventing to be stripped out by release optimization.
         return true
     }
 
