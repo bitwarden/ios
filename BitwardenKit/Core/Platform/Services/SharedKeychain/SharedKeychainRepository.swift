@@ -1,5 +1,10 @@
 import Foundation
 
+public enum SharedTimeoutApplication: String {
+    case authenticator = "bwa"
+    case passwordManager = "pm"
+}
+
 // MARK: - SharedKeychainRepository
 
 public protocol SharedKeychainRepository {
@@ -17,13 +22,13 @@ public protocol SharedKeychainRepository {
     ///
     func setAuthenticatorKey(_ value: Data) async throws
 
-    func getLastActiveTime(application: SharedTimeoutApplication, userId: String) async throws -> Date?
-
-    func setLastActiveTime(_ value: Date?, application: SharedTimeoutApplication, userId: String) async throws
-
-    func getVaultTimeout(application: SharedTimeoutApplication, userId: String) async throws -> SessionTimeoutValue?
-
-    func setVaultTimeout(_ value: SessionTimeoutValue?, application: SharedTimeoutApplication, userId: String) async throws
+//    func getLastActiveTime(application: SharedTimeoutApplication, userId: String) async throws -> Date?
+//
+//    func setLastActiveTime(_ value: Date?, application: SharedTimeoutApplication, userId: String) async throws
+//
+//    func getVaultTimeout(application: SharedTimeoutApplication, userId: String) async throws -> SessionTimeoutValue?
+//
+//    func setVaultTimeout(_ value: SessionTimeoutValue?, application: SharedTimeoutApplication, userId: String) async throws
 }
 
 public class DefaultSharedKeychainRepository: SharedKeychainRepository {

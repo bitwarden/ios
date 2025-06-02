@@ -9,6 +9,22 @@ class MockSharedKeychainRepository {
 }
 
 extension MockSharedKeychainRepository: SharedKeychainRepository {
+//    func getLastActiveTime(application: BitwardenKit.SharedTimeoutApplication, userId: String) async throws -> Date? {
+//        nil
+//    }
+//    
+//    func setLastActiveTime(_ value: Date?, application: BitwardenKit.SharedTimeoutApplication, userId: String) async throws {
+//
+//    }
+//    
+//    func getVaultTimeout(application: BitwardenKit.SharedTimeoutApplication, userId: String) async throws -> BitwardenKit.SessionTimeoutValue? {
+//        nil
+//    }
+//    
+//    func setVaultTimeout(_ value: BitwardenKit.SessionTimeoutValue?, application: BitwardenKit.SharedTimeoutApplication, userId: String) async throws {
+//
+//    }
+    
     func generateKeyData() -> Data {
         let key = SymmetricKey(size: .bits256)
         return key.withUnsafeBytes { Data(Array($0)) }

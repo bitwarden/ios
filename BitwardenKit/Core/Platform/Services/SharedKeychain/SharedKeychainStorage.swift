@@ -34,7 +34,7 @@ public protocol SharedKeychainStorage {
     func deleteValue(for item: SharedKeychainItem) async throws
 }
 
-class DefaultSharedKeychainStorage: SharedKeychainStorage {
+public class DefaultSharedKeychainStorage: SharedKeychainStorage {
     // MARK: Properties
 
     /// An identifier for the shared access group used by the application.
@@ -69,7 +69,7 @@ class DefaultSharedKeychainStorage: SharedKeychainStorage {
     /// - Parameter item: the keychain item for which to retrieve a value.
     /// - Returns: The value (Data) stored in the keychain for the given item.
     ///
-    func getValue(for item: SharedKeychainItem) async throws -> Data {
+    public func getValue(for item: SharedKeychainItem) async throws -> Data {
         let foundItem = try keychainService.search(
             query: [
                 kSecMatchLimit: kSecMatchLimitOne,
@@ -96,7 +96,7 @@ class DefaultSharedKeychainStorage: SharedKeychainStorage {
     ///   - value: The value (Data) to be stored into the keychain
     ///   - item: The item for which to store the value in the keychain.
     ///
-    func setValue(_ value: Data, for item: SharedKeychainItem) async throws {
+    public func setValue(_ value: Data, for item: SharedKeychainItem) async throws {
         let query = [
             kSecValueData: value,
             kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
@@ -112,7 +112,7 @@ class DefaultSharedKeychainStorage: SharedKeychainStorage {
         )
     }
 
-    func deleteValue(for item: SharedKeychainItem) async throws {
+    public func deleteValue(for item: SharedKeychainItem) async throws {
         try keychainService.delete(
             query: [
                 kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
