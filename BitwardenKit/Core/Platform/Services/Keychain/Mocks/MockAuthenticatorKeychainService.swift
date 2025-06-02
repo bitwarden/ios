@@ -1,6 +1,6 @@
 import Foundation
 
-@testable import AuthenticatorBridgeKit
+@testable import BitwardenKit
 
 class MockAuthenticatorKeychainService {
     // MARK: Properties

@@ -1,7 +1,7 @@
 import CryptoKit
 import Foundation
 
-@testable import AuthenticatorBridgeKit
+@testable import BitwardenKit
 
 class MockSharedKeychainRepository {
     var authenticatorKey: Data?
