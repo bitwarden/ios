@@ -16,7 +16,7 @@ public enum SharedKeychainItem: Equatable, Hashable {
 
     /// The storage key for this keychain item.
     ///
-    var unformattedKey: String {
+    public var unformattedKey: String {
         switch self {
         case .authenticatorKey:
             "authenticatorKey"
@@ -29,8 +29,27 @@ public enum SharedKeychainItem: Equatable, Hashable {
 }
 
 public protocol SharedKeychainStorage {
+    /// Retrieve the value for the specific item from the Keychain Service.
+    ///
+    /// - Parameter item: the keychain item for which to retrieve a value.
+    /// - Returns: The value (Data) stored in the keychain for the given item.
+    ///
     func getValue(for item: SharedKeychainItem) async throws -> Data
+
+    /// Store a given value into the keychain for the given item.
+    ///
+    /// - Parameters:
+    ///   - value: The value (Data) to be stored into the keychain
+    ///   - item: The item for which to store the value in the keychain.
+    ///
     func setValue(_ value: Data, for item: SharedKeychainItem) async throws
+
+    /// Deletes the value in the keychain for the given item.
+    ///
+    /// - Parameters:
+    ///   - value: The value (Data) to be stored into the keychain
+    ///   - item: The item for which to store the value in the keychain.
+    ///
     func deleteValue(for item: SharedKeychainItem) async throws
 }
 
@@ -64,11 +83,6 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
 
     // MARK: Methods
 
-    /// Retrieve the value for the specific item from the Keychain Service.
-    ///
-    /// - Parameter item: the keychain item for which to retrieve a value.
-    /// - Returns: The value (Data) stored in the keychain for the given item.
-    ///
     public func getValue(for item: SharedKeychainItem) async throws -> Data {
         let foundItem = try keychainService.search(
             query: [
@@ -90,12 +104,6 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
         return data
     }
 
-    /// Store a given value into the keychain for the given item.
-    ///
-    /// - Parameters:
-    ///   - value: The value (Data) to be stored into the keychain
-    ///   - item: The item for which to store the value in the keychain.
-    ///
     public func setValue(_ value: Data, for item: SharedKeychainItem) async throws {
         let query = [
             kSecValueData: value,
@@ -121,6 +129,5 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
                 kSecClass: kSecClassGenericPassword,
             ] as CFDictionary
         )
-
     }
 }

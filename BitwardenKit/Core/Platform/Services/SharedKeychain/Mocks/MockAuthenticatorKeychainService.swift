@@ -5,12 +5,14 @@ import Foundation
 public class MockAuthenticatorKeychainService {
     // MARK: Properties
 
-    var addAttributes: CFDictionary?
-    var addResult: Result<Void, AuthenticatorKeychainServiceError> = .success(())
-    var deleteQueries = [CFDictionary]()
-    var deleteResult: Result<Void, AuthenticatorKeychainServiceError> = .success(())
-    var searchQuery: CFDictionary?
-    var searchResult: Result<AnyObject?, AuthenticatorKeychainServiceError> = .success(nil)
+    public var addAttributes: CFDictionary?
+    public var addResult: Result<Void, AuthenticatorKeychainServiceError> = .success(())
+    public var deleteQueries = [CFDictionary]()
+    public var deleteResult: Result<Void, AuthenticatorKeychainServiceError> = .success(())
+    public var searchQuery: CFDictionary?
+    public var searchResult: Result<AnyObject?, AuthenticatorKeychainServiceError> = .success(nil)
+
+    public init() {}
 }
 
 // MARK: KeychainService
