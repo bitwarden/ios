@@ -2,7 +2,7 @@ import Foundation
 
 @testable import BitwardenKit
 
-class MockAuthenticatorKeychainService {
+public class MockAuthenticatorKeychainService {
     // MARK: Properties
 
     var addAttributes: CFDictionary?
@@ -16,24 +16,24 @@ class MockAuthenticatorKeychainService {
 // MARK: KeychainService
 
 extension MockAuthenticatorKeychainService: AuthenticatorKeychainService {
-    func add(attributes: CFDictionary) throws {
+    public func add(attributes: CFDictionary) throws {
         addAttributes = attributes
         try addResult.get()
     }
 
-    func delete(query: CFDictionary) throws {
+    public func delete(query: CFDictionary) throws {
         deleteQueries.append(query)
         try deleteResult.get()
     }
 
-    func search(query: CFDictionary) throws -> AnyObject? {
+    public func search(query: CFDictionary) throws -> AnyObject? {
         searchQuery = query
         return try searchResult.get()
     }
 }
 
 extension MockAuthenticatorKeychainService {
-    func setSearchResultData(_ data: Data) {
+    public func setSearchResultData(_ data: Data) {
         let dictionary = [kSecValueData as String: data]
         searchResult = .success(dictionary as AnyObject)
     }
