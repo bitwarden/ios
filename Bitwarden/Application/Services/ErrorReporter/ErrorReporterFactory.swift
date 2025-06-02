@@ -10,7 +10,7 @@ enum ErrorReporterFactory {
         #if DEBUG
         OSLogErrorReporter()
         #else
-        CrashlyticsErrorReporter()
+        CrashlyticsErrorReporter.shared
         #endif
     }
 }
