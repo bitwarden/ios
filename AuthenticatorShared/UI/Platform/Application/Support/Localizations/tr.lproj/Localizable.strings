@@ -150,6 +150,7 @@
 "VaultTimeout" = "Kasa zaman aşımı";
 "ThirtyMinutes" = "30 dakika";
 "OnRestart" = "Uygulama yeniden başlatılınca";
+"Custom" = "Özel";
 "SessionTimeout" = "Oturum zaman aşımı";
 "FileCouldNotBeProcessed" = "Dosya işleme alınamadı";
 "EnsureItsValidJsonAndTryAgain" = "Geçerli JSON olduğundan emin olun ve tekrar deneyin.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Yardıma mı ihtiyacınız var? Rehberlik için Yardım Merkezimizi ziyaret edin.";
 "UnexpectedDataFormat" = "Beklenmeyen Veri Formatı";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Sağlanan veri biçimi beklenenle eşleşmiyor. Lütfen dosyanızı kontrol edin ve doğru veri türlerinin kullanıldığından emin olun.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Bu özellik, kendi kendine barındırılan kullanıcılar için henüz mevcut değil. [Daha fazla bilgi edinin](%1$@)";
