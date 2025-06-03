@@ -634,7 +634,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         ) else {
             errorReporter.log(
                 error: TOTPServiceError
-                    .unableToGenerateCode("Unable to create TOTP code for key \(key) for cipher id \(id)")
+                    .unableToGenerateCode("Unable to create TOTP code for cipher id \(id)")
             )
             return nil
         }
