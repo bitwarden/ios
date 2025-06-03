@@ -930,7 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "Open email app";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Finish creating your account for %1$@ by setting a password.";
 "VerifyingEmail" = "Verifying email";
 "EmailVerified" = "Email verified";
 "AccountSuccessfullyCreated" = "Account successfully created!";
