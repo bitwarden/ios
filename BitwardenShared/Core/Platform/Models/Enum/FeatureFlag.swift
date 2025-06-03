@@ -5,11 +5,11 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
-    /// A feature flag to enable/disable account deprovisioning.
-    static let accountDeprovisioning = FeatureFlag(rawValue: "pm-10308-account-deprovisioning")
-
     /// A feature flag to enable/disable the ability to add a custom domain for anonAddy users.
     static let anonAddySelfHostAlias = FeatureFlag(rawValue: "anon-addy-self-host-alias")
+
+    /// A feature flag to enable/disable `AppIntent` execution.
+    static let appIntents = FeatureFlag(rawValue: "app-intents")
 
     /// Flag to enable/disable Credential Exchange export flow.
     static let cxpExportMobile = FeatureFlag(rawValue: "cxp-export-mobile")
@@ -72,8 +72,8 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
-            .accountDeprovisioning,
             .anonAddySelfHostAlias,
+            .appIntents,
             .cxpExportMobile,
             .cxpImportMobile,
             .cipherKeyEncryption,

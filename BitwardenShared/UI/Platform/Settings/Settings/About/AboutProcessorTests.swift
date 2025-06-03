@@ -91,29 +91,33 @@ class AboutProcessorTests: BitwardenTestCase {
         XCTAssertFalse(subject.state.isFlightRecorderFeatureFlagEnabled)
     }
 
-    /// `perform(_:)` with `.streamFlightRecorderEnabled` subscribes to the flight recorder enabled status.
+    /// `perform(_:)` with `.streamFlightRecorderLog` subscribes to the active flight recorder log.
     @MainActor
-    func test_perform_streamFlightRecorderEnabled() async throws {
-        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+    func test_perform_streamFlightRecorderLog() async throws {
+        XCTAssertNil(subject.state.flightRecorderActiveLog)
 
         let task = Task {
-            await subject.perform(.streamFlightRecorderEnabled)
+            await subject.perform(.streamFlightRecorderLog)
         }
         defer { task.cancel() }
 
-        flightRecorder.isEnabledSubject.send(true)
-        try await waitForAsync { self.subject.state.isFlightRecorderToggleOn }
-        XCTAssertTrue(subject.state.isFlightRecorderToggleOn)
+        let log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
+        flightRecorder.activeLogSubject.send(log)
+        try await waitForAsync { self.subject.state.flightRecorderActiveLog != nil }
+        XCTAssertEqual(subject.state.flightRecorderActiveLog, log)
 
-        flightRecorder.isEnabledSubject.send(false)
-        try await waitForAsync { !self.subject.state.isFlightRecorderToggleOn }
-        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+        flightRecorder.activeLogSubject.send(nil)
+        try await waitForAsync { self.subject.state.flightRecorderActiveLog == nil }
+        XCTAssertNil(subject.state.flightRecorderActiveLog)
     }
 
     /// `perform(_:)` with `.toggleFlightRecorder(false)` disables the flight recorder when toggled off.
     @MainActor
     func test_perform_toggleFlightRecorder_off() async throws {
-        subject.state.isFlightRecorderToggleOn = true
+        subject.state.flightRecorderActiveLog = FlightRecorderData.LogMetadata(
+            duration: .eightHours,
+            startDate: .now
+        )
 
         await subject.perform(.toggleFlightRecorder(false))
 
@@ -124,7 +128,7 @@ class AboutProcessorTests: BitwardenTestCase {
     /// recorder screen when toggled on.
     @MainActor
     func test_perform_toggleFlightRecorder_on() async {
-        XCTAssertFalse(subject.state.isFlightRecorderToggleOn)
+        XCTAssertNil(subject.state.flightRecorderActiveLog)
 
         await subject.perform(.toggleFlightRecorder(true))
 

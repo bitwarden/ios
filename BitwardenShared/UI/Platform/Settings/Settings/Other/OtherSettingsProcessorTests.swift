@@ -7,6 +7,7 @@ import XCTest
 class OtherSettingsProcessorTests: BitwardenTestCase {
     // MARK: Properties
 
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<SettingsRoute, SettingsEvent>!
     var errorReporter: MockErrorReporter!
     var settingsRepository: MockSettingsRepository!
@@ -18,6 +19,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        configService = MockConfigService()
         coordinator = MockCoordinator<SettingsRoute, SettingsEvent>()
         errorReporter = MockErrorReporter()
         settingsRepository = MockSettingsRepository()
@@ -25,6 +27,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         subject = OtherSettingsProcessor(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                configService: configService,
                 errorReporter: errorReporter,
                 settingsRepository: settingsRepository,
                 watchService: watchService
@@ -36,6 +39,7 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     override func tearDown() {
         super.tearDown()
 
+        configService = nil
         coordinator = nil
         errorReporter = nil
         settingsRepository = nil
@@ -58,9 +62,11 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.loadInitialValues` fetches the allow sync on refresh value.
     @MainActor
     func test_perform_loadInitialValues_success() async {
+        configService.featureFlagsBool[.appIntents] = true
         settingsRepository.allowSyncOnRefresh = true
         settingsRepository.clearClipboardValue = .thirtySeconds
         settingsRepository.connectToWatch = true
+        settingsRepository.getSiriAndShortcutsAccessResult = .success(true)
         watchService.isSupportedValue = true
 
         await subject.perform(.loadInitialValues)
@@ -68,7 +74,9 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         XCTAssertEqual(subject.state.clearClipboardValue, .thirtySeconds)
         XCTAssertTrue(subject.state.isAllowSyncOnRefreshToggleOn)
         XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
+        XCTAssertTrue(subject.state.isSiriAndShortcutsAccessToggleOn)
         XCTAssertTrue(subject.state.shouldShowConnectToWatchToggle)
+        XCTAssertTrue(subject.state.shouldShowSiriAndShortcutsAccess)
     }
 
     /// `perform(_:)` with `.streamLastSyncTime` updates the state's last sync time whenever it changes.
@@ -201,5 +209,33 @@ class OtherSettingsProcessorTests: BitwardenTestCase {
         task.cancel()
         XCTAssertTrue(settingsRepository.connectToWatch)
         XCTAssertTrue(subject.state.isConnectToWatchToggleOn)
+    }
+
+    /// `receive(_:)` with `toggleSiriAndShortcutsAccessToggleOn` updates the value in the state
+    /// and records an error if it failed to update the cached data.
+    @MainActor
+    func test_receive_toggleSiriAndShortcutsAccessToggleOn_error() {
+        settingsRepository.siriAndShortcutsAccessResult = .failure(BitwardenTestError.example)
+
+        subject.receive(.toggleSiriAndShortcutsAccessToggleOn(true))
+
+        XCTAssertFalse(subject.state.isSiriAndShortcutsAccessToggleOn)
+        waitFor { self.errorReporter.errors.isEmpty == false }
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+    }
+
+    /// `receive(_:)` with `toggleSiriAndShortcutsAccessToggleOn` updates the value in the state and the repository
+    @MainActor
+    func test_receive_toggleSiriAndShortcutsAccessToggleOn_success() {
+        XCTAssertFalse(subject.state.isSiriAndShortcutsAccessToggleOn)
+
+        let task = Task {
+            subject.receive(.toggleSiriAndShortcutsAccessToggleOn(true))
+        }
+
+        waitFor(subject.state.isSiriAndShortcutsAccessToggleOn)
+        task.cancel()
+        XCTAssertTrue(settingsRepository.siriAndShortcutsAccess)
+        XCTAssertTrue(subject.state.isSiriAndShortcutsAccessToggleOn)
     }
 }

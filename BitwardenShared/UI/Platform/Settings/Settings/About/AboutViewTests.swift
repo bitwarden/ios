@@ -60,7 +60,7 @@ class AboutViewTests: BitwardenTestCase {
         XCTAssertEqual(processor.effects, [.toggleFlightRecorder(true)])
         processor.effects.removeAll()
 
-        processor.state.isFlightRecorderToggleOn = true
+        processor.state.flightRecorderActiveLog = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
         try toggle.tap()
         try await waitForAsync { !self.processor.effects.isEmpty }
         XCTAssertEqual(processor.effects, [.toggleFlightRecorder(false)])

@@ -17,10 +17,11 @@ struct CipherCreateRequestModel: JSONRequestBody {
 extension CipherCreateRequestModel {
     /// Initialize a `CipherCreateRequestModel` from a `Cipher`.
     ///
-    /// - Parameter cipher: The `Cipher` used to initialize a `CipherCreateRequestModel`.
-    ///
-    init(cipher: Cipher) {
-        self.cipher = CipherRequestModel(cipher: cipher)
+    /// - Parameters:
+    ///   - cipher: The `Cipher` used to initialize a `CipherCreateRequestModel`.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
+    init(cipher: Cipher, encryptedFor: String?) {
+        self.cipher = CipherRequestModel(cipher: cipher, encryptedFor: encryptedFor)
         collectionIds = cipher.collectionIds
     }
 }

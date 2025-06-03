@@ -773,6 +773,32 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
         XCTAssertEqual(subject.passwordGenerationOptions(userId: "2"), options2)
     }
 
+    /// `pendingAppIntentActions`is initially `nil`.
+    func test_pendingAppIntentActions_isInitiallyNil() {
+        XCTAssertNil(subject.pendingAppIntentActions)
+    }
+
+    /// `pendingAppIntentActions` can be used to get and set the persisted pending app intent actions in user defaults.
+    func test_pendingAppIntentActions_withValue() throws {
+        subject.pendingAppIntentActions = [.lockAll]
+        XCTAssertEqual(subject.pendingAppIntentActions, [.lockAll])
+        try XCTAssertEqual(
+            JSONDecoder().decode(
+                [PendingAppIntentAction].self,
+                from: XCTUnwrap(
+                    userDefaults
+                        .string(forKey: "bwPreferencesStorage:pendingAppIntentActions")?
+                        .data(using: .utf8)
+                )
+            ),
+            [.lockAll]
+        )
+
+        subject.pendingAppIntentActions = nil
+        XCTAssertNil(subject.pendingAppIntentActions)
+        XCTAssertNil(userDefaults.string(forKey: "bwPreferencesStorage:pendingAppIntentActions"))
+    }
+
     /// `.pinProtectedUserKey(userId:)` can be used to get the pin protected user key for a user.
     func test_pinProtectedUserKey() {
         let userId = Account.fixture().profile.userId
@@ -951,6 +977,22 @@ class AppSettingsStoreTests: BitwardenTestCase { // swiftlint:disable:this type_
 
         subject.setHasPerformedSyncAfterLogin(nil, userId: "1")
         XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:hasPerformedSyncAfterLogin_1"))
+    }
+
+    /// `siriAndShortcutsAccess(userId:)` returns false if there isn't a previously stored value.
+    func test_siriAndShortcutsAccess_isInitiallyFalse() {
+        XCTAssertFalse(subject.siriAndShortcutsAccess(userId: "0"))
+    }
+
+    /// `siriAndShortcutsAccess(userId:)` can be used to get the Siri & Shortcuts access value for a user.
+    func test_siriAndShortcutsAccess_withValue() {
+        subject.setSiriAndShortcutsAccess(true, userId: "1")
+        subject.setSiriAndShortcutsAccess(false, userId: "2")
+
+        XCTAssertTrue(subject.siriAndShortcutsAccess(userId: "1"))
+        XCTAssertFalse(subject.siriAndShortcutsAccess(userId: "2"))
+        XCTAssertTrue(userDefaults.bool(forKey: "bwPreferencesStorage:siriAndShortcutsAccess_1"))
+        XCTAssertFalse(userDefaults.bool(forKey: "bwPreferencesStorage:siriAndShortcutsAccess_2"))
     }
 
     /// `syncToAuthenticator(userId:)` returns false if there isn't a previously stored value.

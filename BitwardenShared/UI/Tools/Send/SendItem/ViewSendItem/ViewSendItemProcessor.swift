@@ -46,6 +46,8 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
             })
         case .loadData:
             await loadData()
+        case .streamSend:
+            await streamSend()
         }
     }
 
@@ -96,6 +98,23 @@ class ViewSendItemProcessor: StateProcessor<ViewSendItemState, ViewSendItemActio
     private func loadData() async {
         do {
             state.shareURL = try await services.sendRepository.shareURL(for: state.sendView)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
+    }
+
+    /// Streams the details of the send, so the view updates if the send changes.
+    ///
+    private func streamSend() async {
+        do {
+            guard let sendId = state.sendView.id else {
+                throw BitwardenError.dataError("View Send: send ID is nil, can't stream updates to send")
+            }
+            for try await sendView in try await services.sendRepository.sendPublisher(id: sendId) {
+                guard let sendView else { return }
+                state.sendView = sendView
+            }
         } catch {
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)

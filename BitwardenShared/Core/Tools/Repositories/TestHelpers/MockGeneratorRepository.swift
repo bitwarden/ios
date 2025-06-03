@@ -62,7 +62,7 @@ class MockGeneratorRepository: GeneratorRepository {
         return try masterPasswordGeneratorResult.get()
     }
 
-    func generatePassphrase(settings: PassphraseGeneratorRequest) async throws -> String {
+    func generatePassphrase(settings: PassphraseGeneratorRequest, isPreAuth: Bool) async throws -> String {
         passphraseGeneratorRequest = settings
         return try passphraseResult.get()
     }

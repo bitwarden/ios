@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - MainSendListView
 
 /// The main content of the `SendListView`. Broken out into it's own view so that the
@@ -34,8 +36,14 @@ private struct MainSendListView: View {
             content
                 .hidden(isSearching)
                 .overlay(alignment: .bottomTrailing) {
-                    addItemFloatingActionButton {
-                        store.send(.addItemPressed)
+                    if let sendType = store.state.type {
+                        addItemFloatingActionButton {
+                            await store.perform(.addItemPressed(sendType))
+                        }
+                    } else {
+                        addSendItemFloatingActionMenu { sendType in
+                            await store.perform(.addItemPressed(sendType))
+                        }
                     }
                 }
 
@@ -81,16 +89,25 @@ private struct MainSendListView: View {
                     )
                     .padding(.horizontal, 16)
 
-                    Button {
-                        store.send(.addItemPressed)
-                    } label: {
-                        HStack {
-                            Image(decorative: Asset.Images.plus16)
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                            Text(Localizations.newSend)
+                    Group {
+                        let newSendLabel = Label(Localizations.newSend, image: Asset.Images.plus16.swiftUIImage)
+                        if let sendType = store.state.type {
+                            AsyncButton {
+                                await store.perform(.addItemPressed(sendType))
+                            } label: {
+                                newSendLabel
+                            }
+                        } else {
+                            Menu {
+                                ForEach(SendType.allCases.reversed()) { sendType in
+                                    AsyncButton(sendType.localizedName) {
+                                        await store.perform(.addItemPressed(sendType))
+                                    }
+                                }
+                            } label: {
+                                newSendLabel
+                            }
                         }
-                        .padding(.horizontal, 24)
                     }
                     .buttonStyle(.primary(shouldFillWidth: false))
                     // Disable from VoiceOver in favor of the FAB which provides the same functionality.

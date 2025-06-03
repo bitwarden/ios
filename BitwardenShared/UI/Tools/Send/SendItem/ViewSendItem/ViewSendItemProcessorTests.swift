@@ -108,6 +108,49 @@ class ViewSendItemProcessorTests: BitwardenTestCase {
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 
+    /// `perform(_:)` with `loadData` updates the state with any new updates to the send.
+    @MainActor
+    func test_perform_streamSend() async throws {
+        let task = Task {
+            await subject.perform(.streamSend)
+        }
+        defer { task.cancel() }
+
+        let updatedSendView = SendView.fixture(name: "Updated Send")
+        sendRepository.sendSubject.send(updatedSendView)
+
+        try await waitForAsync { self.subject.state.sendView == updatedSendView }
+        XCTAssertEqual(subject.state.sendView, updatedSendView)
+    }
+
+    /// `perform(_:)` with `loadData` logs an error if one occurs streaming the send.
+    @MainActor
+    func test_perform_streamSend_error() async throws {
+        sendRepository.sendSubject.send(completion: .failure(BitwardenTestError.example))
+
+        await subject.perform(.streamSend)
+
+        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertEqual(coordinator.errorAlertsShown as? [BitwardenTestError], [.example])
+    }
+
+    /// `perform(_:)` with `loadData` logs an error if the send has a `nil` ID.
+    @MainActor
+    func test_perform_streamSend_sendIdNil() async throws {
+        subject.state.sendView = .fixture(id: nil)
+
+        await subject.perform(.streamSend)
+
+        let errorMessage = "View Send: send ID is nil, can't stream updates to send"
+        XCTAssertEqual((errorReporter.errors.last as? NSError)?.domain, "Data Error")
+        XCTAssertEqual((errorReporter.errors.last as? NSError)?.userInfo["ErrorMessage"] as? String, errorMessage)
+        XCTAssertEqual((coordinator.errorAlertsShown.last as? NSError)?.domain, "Data Error")
+        XCTAssertEqual(
+            (coordinator.errorAlertsShown.last as? NSError)?.userInfo["ErrorMessage"] as? String,
+            errorMessage
+        )
+    }
+
     /// `receive(_:)` with `.copyNotes` copies the send's notes and displays a toast.
     @MainActor
     func test_receive_copyNotes() {

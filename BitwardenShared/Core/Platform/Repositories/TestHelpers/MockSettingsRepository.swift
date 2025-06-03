@@ -22,8 +22,11 @@ class MockSettingsRepository: SettingsRepository {
     var foldersListError: Error?
     var getDefaultUriMatchTypeResult: Result<BitwardenShared.UriMatchType, Error> = .success(.domain)
     var getDisableAutoTotpCopyResult: Result<Bool, Error> = .success(false)
+    var getSiriAndShortcutsAccessResult: Result<Bool, Error> = .success(false)
     var lastSyncTimeError: Error?
     var lastSyncTimeSubject = CurrentValueSubject<Date?, Never>(nil)
+    var siriAndShortcutsAccess = false
+    var siriAndShortcutsAccessResult: Result<Void, Error> = .success(())
     var syncToAuthenticator = false
     var syncToAuthenticatorResult: Result<Void, Error> = .success(())
     var updateDefaultUriMatchTypeValue: BitwardenShared.UriMatchType?
@@ -75,6 +78,10 @@ class MockSettingsRepository: SettingsRepository {
         try getDisableAutoTotpCopyResult.get()
     }
 
+    func getSiriAndShortcutsAccess() async throws -> Bool {
+        try getSiriAndShortcutsAccessResult.get()
+    }
+
     func lastSyncTimePublisher() async throws -> AsyncPublisher<AnyPublisher<Date?, Never>> {
         if let lastSyncTimeError {
             throw lastSyncTimeError
@@ -105,6 +112,11 @@ class MockSettingsRepository: SettingsRepository {
     func updateDisableAutoTotpCopy(_ disableAutoTotpCopy: Bool) async throws {
         updateDisableAutoTotpCopyValue = disableAutoTotpCopy
         try updateDisableAutoTotpCopyResult.get()
+    }
+
+    func updateSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool) async throws {
+        self.siriAndShortcutsAccess = siriAndShortcutsAccess
+        try siriAndShortcutsAccessResult.get()
     }
 
     func updateSyncToAuthenticator(_ syncToAuthenticator: Bool) async throws {
