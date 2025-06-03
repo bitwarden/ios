@@ -56,7 +56,7 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
     ///
     func test_decryptAuthenticatorItems_throwsKeyMissingError() async throws {
         let encryptedItems = try await subject.encryptAuthenticatorItems(items)
-        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        let error = SharedKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
 
         try sharedKeychainRepository.deleteAuthenticatorKey()
         await assertAsyncThrows(error: error) {
@@ -110,7 +110,7 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
     /// when the `SharedKeyRepository` authenticator key is missing.
     ///
     func test_encryptAuthenticatorItems_throwsKeyMissingError() async throws {
-        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        let error = SharedKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
 
         try sharedKeychainRepository.deleteAuthenticatorKey()
         await assertAsyncThrows(error: error) {

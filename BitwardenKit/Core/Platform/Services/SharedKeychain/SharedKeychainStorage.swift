@@ -68,7 +68,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
 
     /// The keychain service used by the repository
     ///
-    private let keychainService: AuthenticatorKeychainService
+    private let keychainService: SharedKeychainService
 
     // MARK: Initialization
 
@@ -79,7 +79,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
     ///   - keychainService: The keychain service used by the repository
     public init(
         sharedAppGroupIdentifier: String,
-        keychainService: AuthenticatorKeychainService
+        keychainService: SharedKeychainService
     ) {
         self.sharedAppGroupIdentifier = sharedAppGroupIdentifier
         self.keychainService = keychainService
@@ -102,7 +102,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
 
         guard let resultDictionary = foundItem as? [String: Any],
               let data = resultDictionary[kSecValueData as String] as? T else {
-            throw AuthenticatorKeychainServiceError.keyNotFound(item)
+            throw SharedKeychainServiceError.keyNotFound(item)
         }
 
         return data

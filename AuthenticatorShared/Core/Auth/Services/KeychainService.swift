@@ -113,6 +113,6 @@ class DefaultKeychainService: KeychainService {
     }
 }
 
-// MARK: - AuthenticatorKeychainService
+// MARK: - SharedKeychainService
 
-extension DefaultKeychainService: AuthenticatorKeychainService {}
+extension DefaultKeychainService: SharedKeychainService {}

@@ -2,22 +2,22 @@ import Foundation
 
 @testable import BitwardenKit
 
-public class MockAuthenticatorKeychainService {
+public class MockSharedKeychainService {
     // MARK: Properties
 
     public var addAttributes: CFDictionary?
-    public var addResult: Result<Void, AuthenticatorKeychainServiceError> = .success(())
+    public var addResult: Result<Void, SharedKeychainServiceError> = .success(())
     public var deleteQueries = [CFDictionary]()
-    public var deleteResult: Result<Void, AuthenticatorKeychainServiceError> = .success(())
+    public var deleteResult: Result<Void, SharedKeychainServiceError> = .success(())
     public var searchQuery: CFDictionary?
-    public var searchResult: Result<AnyObject?, AuthenticatorKeychainServiceError> = .success(nil)
+    public var searchResult: Result<AnyObject?, SharedKeychainServiceError> = .success(nil)
 
     public init() {}
 }
 
 // MARK: KeychainService
 
-extension MockAuthenticatorKeychainService: AuthenticatorKeychainService {
+extension MockSharedKeychainService: SharedKeychainService {
     public func add(attributes: CFDictionary) throws {
         addAttributes = attributes
         try addResult.get()
@@ -34,7 +34,7 @@ extension MockAuthenticatorKeychainService: AuthenticatorKeychainService {
     }
 }
 
-extension MockAuthenticatorKeychainService {
+extension MockSharedKeychainService {
     public func setSearchResultData(_ data: Data) {
         let dictionary = [kSecValueData as String: data]
         searchResult = .success(dictionary as AnyObject)

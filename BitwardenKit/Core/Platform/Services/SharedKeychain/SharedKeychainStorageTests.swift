@@ -8,13 +8,13 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden"
-    var keychainService: MockAuthenticatorKeychainService!
+    var keychainService: MockSharedKeychainService!
     var subject: SharedKeychainStorage!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
-        keychainService = MockAuthenticatorKeychainService()
+        keychainService = MockSharedKeychainService()
         subject = DefaultSharedKeychainStorage(
             sharedAppGroupIdentifier: accessGroup,
             keychainService: keychainService
@@ -74,7 +74,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     /// result is returned instead of the key data from the keychain
     ///
     func test_getValue_badResult() async throws {
-        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        let error = SharedKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .success([kSecValueData as String: NSObject()] as AnyObject)
 
         await assertAsyncThrows(error: error) {
@@ -86,7 +86,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     /// result is returned instead of the key data from the keychain
     ///
     func test_getValue_nilResult() async throws {
-        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        let error = SharedKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .success(nil)
 
         await assertAsyncThrows(error: error) {
@@ -98,7 +98,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     /// present in the keychain
     ///
     func test_getAuthenticatorKey_keyNotFound() async throws {
-        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        let error = SharedKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .failure(error)
 
         await assertAsyncThrows(error: error) {

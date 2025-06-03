@@ -12,7 +12,7 @@ public class MockSharedKeychainStorage: SharedKeychainStorage {
     
     public func getValue<T>(for item: SharedKeychainItem) async throws -> T where T: Codable {
         guard let stored = storage[item] as? T else {
-            throw AuthenticatorKeychainServiceError.keyNotFound(item)
+            throw SharedKeychainServiceError.keyNotFound(item)
         }
         return stored
     }
