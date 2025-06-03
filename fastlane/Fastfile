@@ -34,15 +34,15 @@ platform :ios do |options|
 
     desc "Get latest published version"
     lane :get_latest_version do
-        app_store_build_number(
+        app_STORE_VERSION_NUMBER(
             api_key_path: options[:api_key_path]
         )
-        latest_version = lane_context[SharedValues::LATEST_VERSION]
-        latest_build_number = lane_context[SharedValues::LATEST_BUILD_NUMBER]
+        latest_version_name = lane_context[SharedValues::LATEST_VERSION]
+        latest_version_number = lane_context[SharedValues::LATEST_BUILD_NUMBER]
 
-        sh("echo STORE_VERSION=#{latest_version} >> $GITHUB_ENV")
-        sh("echo STORE_BUILD_NUMBER=#{latest_build_number} >> $GITHUB_ENV")
-        UI.message("Latest version: #{latest_version}")
-        UI.message("Latest build number: #{latest_build_number}")
+        sh("echo STORE_VERSION_NAME=#{latest_version_name} >> $GITHUB_ENV")
+        sh("echo STORE_VERSION_NUMBER=#{latest_build_number} >> $GITHUB_ENV")
+        UI.message("Latest version: #{latest_version_name}")
+        UI.message("Latest build number: #{latest_version_number}")
     end
 end
