@@ -38,19 +38,36 @@ public class MockSharedKeychainRepository: SharedKeychainRepository {
         authenticatorKey = value
     }
 
-    public func getLastActiveTime(application: SharedTimeoutApplication, userId: String) async throws -> Date? {
+    public func getLastActiveTime(
+        application: SharedTimeoutApplication,
+        userId: String
+    ) async throws -> Date? {
         lastActiveTime[SharedKeychainItem.lastActiveTime(application: application, userId: userId).unformattedKey]
     }
 
-    public func setLastActiveTime(_ value: Date?, application: SharedTimeoutApplication, userId: String) async throws {
-        lastActiveTime[SharedKeychainItem.lastActiveTime(application: application, userId: userId).unformattedKey] = value
+    public func setLastActiveTime(
+        _ value: Date?,
+        application: SharedTimeoutApplication,
+        userId: String
+    ) async throws {
+        let entry = SharedKeychainItem.lastActiveTime(application: application, userId: userId)
+        lastActiveTime[entry.unformattedKey] = value
     }
 
-    public func getVaultTimeout(application: SharedTimeoutApplication, userId: String) async throws -> SessionTimeoutValue? {
-        vaultTimeout[SharedKeychainItem.vaultTimeout(application: application, userId: userId).unformattedKey]
+    public func getVaultTimeout(
+        application: SharedTimeoutApplication,
+        userId: String
+    ) async throws -> SessionTimeoutValue? {
+        let entry = SharedKeychainItem.vaultTimeout(application: application, userId: userId)
+        return vaultTimeout[entry.unformattedKey]
     }
 
-    public func setVaultTimeout(_ value: SessionTimeoutValue?, application: SharedTimeoutApplication, userId: String) async throws {
-        vaultTimeout[SharedKeychainItem.vaultTimeout(application: application, userId: userId).unformattedKey] = value
+    public func setVaultTimeout(
+        _ value: SessionTimeoutValue?,
+        application: SharedTimeoutApplication,
+        userId: String
+    ) async throws {
+        let entry = SharedKeychainItem.vaultTimeout(application: application, userId: userId)
+        vaultTimeout[entry.unformattedKey] = value
     }
 }

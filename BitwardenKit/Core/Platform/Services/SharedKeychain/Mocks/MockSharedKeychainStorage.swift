@@ -9,7 +9,7 @@ public class MockSharedKeychainStorage: SharedKeychainStorage {
     public func deleteValue(for item: SharedKeychainItem) async throws {
         storage[item] = nil
     }
-    
+
     public func getValue<T>(for item: SharedKeychainItem) async throws -> T where T: Codable {
         guard let stored = storage[item] as? T else {
             throw SharedKeychainServiceError.keyNotFound(item)

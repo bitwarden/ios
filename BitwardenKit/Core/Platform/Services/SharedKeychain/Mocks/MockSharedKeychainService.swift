@@ -2,7 +2,7 @@ import Foundation
 
 @testable import BitwardenKit
 
-public class MockSharedKeychainService {
+public class MockSharedKeychainService: SharedKeychainService {
     // MARK: Properties
 
     public var addAttributes: CFDictionary?
@@ -13,11 +13,7 @@ public class MockSharedKeychainService {
     public var searchResult: Result<AnyObject?, SharedKeychainServiceError> = .success(nil)
 
     public init() {}
-}
 
-// MARK: KeychainService
-
-extension MockSharedKeychainService: SharedKeychainService {
     public func add(attributes: CFDictionary) throws {
         addAttributes = attributes
         try addResult.get()
@@ -32,9 +28,7 @@ extension MockSharedKeychainService: SharedKeychainService {
         searchQuery = query
         return try searchResult.get()
     }
-}
 
-extension MockSharedKeychainService {
     public func setSearchResultData(_ data: Data) {
         let dictionary = [kSecValueData as String: data]
         searchResult = .success(dictionary as AnyObject)

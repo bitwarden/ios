@@ -68,7 +68,8 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
     /// `getVaultTimeout()` retrieves the vault timeout from storage.
     func test_getVaultTimeout_success() async throws {
         storage.storage[.vaultTimeout(application: .authenticator, userId: "1")] = SessionTimeoutValue.oneHour
-        let vaultTimeout: SessionTimeoutValue = try await subject.getVaultTimeout(application: .authenticator, userId: "1") ?? .fifteenMinutes
+        let vaultTimeout: SessionTimeoutValue
+        vaultTimeout = try await subject.getVaultTimeout(application: .authenticator, userId: "1") ?? .fifteenMinutes
         XCTAssertEqual(vaultTimeout, .oneHour)
     }
 
