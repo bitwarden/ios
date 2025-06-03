@@ -8,6 +8,8 @@ public enum SharedTimeoutApplication: String {
 // MARK: - SharedKeychainRepository
 
 public protocol SharedKeychainRepository {
+    /// Deletes the authenticator key.
+    ///
     func deleteAuthenticatorKey() async throws
 
     /// Gets the authenticator key.
@@ -22,13 +24,27 @@ public protocol SharedKeychainRepository {
     ///
     func setAuthenticatorKey(_ value: Data) async throws
 
-//    func getLastActiveTime(application: SharedTimeoutApplication, userId: String) async throws -> Date?
-//
-//    func setLastActiveTime(_ value: Date?, application: SharedTimeoutApplication, userId: String) async throws
-//
-//    func getVaultTimeout(application: SharedTimeoutApplication, userId: String) async throws -> SessionTimeoutValue?
-//
-//    func setVaultTimeout(_ value: SessionTimeoutValue?, application: SharedTimeoutApplication, userId: String) async throws
+    /// Gets the last active time the user used the specified application.
+    ///
+    /// - Parameters:
+    ///   - application: The application to get the value for
+    /// - Returns: The user's last active time in a specified application, if known
+    ///
+    func getLastActiveTime(application: SharedTimeoutApplication, userId: String) async throws -> Date?
+
+    /// Sets the last active time for a user using the specified application.
+    ///
+    /// - Parameters:
+    ///   - value: the date to save for a user's last active time for an application
+    ///   - application: The application to set the value for
+    ///
+    func setLastActiveTime(_ value: Date?, application: SharedTimeoutApplication, userId: String) async throws
+
+    /// g
+    func getVaultTimeout(application: SharedTimeoutApplication, userId: String) async throws -> SessionTimeoutValue?
+
+    /// g
+    func setVaultTimeout(_ value: SessionTimeoutValue?, application: SharedTimeoutApplication, userId: String) async throws
 }
 
 public class DefaultSharedKeychainRepository: SharedKeychainRepository {
