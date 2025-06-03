@@ -1184,3 +1184,7 @@
 "AppSettings" = "Nastavení aplikace";
 "ViewFileSend" = "Zobrazit soubor ze Send";
 "ViewTextSend" = "Zobrazit text ze Send";
+"DeleteSend" = "Smazat Send";
+"FlightRecorderOn" = "Letový zapisovač zapnutý";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Letový zapisovač bude aktivní do %1$@ v %2$@. Pro deaktivování se vraťte do nastavení.";
+"GoToSettings" = "Přejít do nastavení";

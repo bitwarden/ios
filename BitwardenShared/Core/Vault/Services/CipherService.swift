@@ -9,9 +9,10 @@ import Foundation
 protocol CipherService {
     /// Adds a cipher for the current user both in the backend and in local storage.
     ///
-    /// - Parameter cipher: The cipher to add.
-    ///
-    func addCipherWithServer(_ cipher: Cipher) async throws
+    /// - Parameters:
+    ///   - cipher: The cipher to add.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
+    func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws
 
     /// Returns the count of ciphers in the data store for the current user.
     ///
@@ -99,9 +100,10 @@ protocol CipherService {
 
     /// Shares a cipher with an organization and updates the locally stored data.
     ///
-    /// - Parameter cipher: The cipher to share.
-    ///
-    func shareCipherWithServer(_ cipher: Cipher) async throws
+    /// - Parameters:
+    ///   - cipher: The cipher to share.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
+    func shareCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws
 
     /// Soft deletes a cipher for the current user both in the backend and in local storage.
     ///
@@ -117,9 +119,10 @@ protocol CipherService {
 
     /// Updates the cipher for the current user both in the backend and in local storage.
     ///
-    /// - Parameter cipher: The cipher to update.
-    ///
-    func updateCipherWithServer(_ cipher: Cipher) async throws
+    /// - Parameters:
+    ///   - cipher: The cipher to update.
+    ///   - encryptedFor: The user ID who encrypted the `cipher`.
+    func updateCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws
 
     /// Updates the cipher for the current user in local storage only.
     ///
@@ -177,15 +180,15 @@ class DefaultCipherService: CipherService {
 }
 
 extension DefaultCipherService {
-    func addCipherWithServer(_ cipher: Cipher) async throws {
+    func addCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Add the cipher in the backend.
         var response: CipherDetailsResponseModel
         if cipher.collectionIds.isEmpty {
-            response = try await cipherAPIService.addCipher(cipher)
+            response = try await cipherAPIService.addCipher(cipher, encryptedFor: encryptedFor)
         } else {
-            response = try await cipherAPIService.addCipherWithCollections(cipher)
+            response = try await cipherAPIService.addCipherWithCollections(cipher, encryptedFor: encryptedFor)
         }
 
         // The API doesn't return the collectionIds, so manually add them back.
@@ -309,11 +312,11 @@ extension DefaultCipherService {
         return updatedCipher
     }
 
-    func shareCipherWithServer(_ cipher: Cipher) async throws {
+    func shareCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Share the cipher from the backend.
-        var response = try await cipherAPIService.shareCipher(cipher)
+        var response = try await cipherAPIService.shareCipher(cipher, encryptedFor: encryptedFor)
 
         // The API doesn't return the collectionIds, so manually add them back.
         response.collectionIds = cipher.collectionIds
@@ -342,12 +345,12 @@ extension DefaultCipherService {
         try await cipherDataStore.upsertCipher(cipher, userId: userId)
     }
 
-    func updateCipherWithServer(_ cipher: Cipher) async throws {
+    func updateCipherWithServer(_ cipher: Cipher, encryptedFor: String) async throws {
         let userId = try await stateService.getActiveAccountId()
 
         // Update the cipher in the backend.
         var response: CipherDetailsResponseModel = if cipher.edit {
-            try await cipherAPIService.updateCipher(cipher)
+            try await cipherAPIService.updateCipher(cipher, encryptedFor: encryptedFor)
         } else {
             // if the cipher is not editable, update the favorite status and folder only.
             try await cipherAPIService.updateCipherPreference(cipher)

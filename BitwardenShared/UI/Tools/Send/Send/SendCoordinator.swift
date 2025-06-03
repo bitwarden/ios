@@ -130,9 +130,6 @@ final class SendCoordinator: Coordinator, HasStackNavigator {
     ///
     private func showItem(route: SendItemRoute, delegate: SendItemDelegate) {
         let navigationController = module.makeNavigationController()
-        if case .add = route {
-            navigationController.removeHairlineDivider()
-        }
         let coordinator = module.makeSendItemCoordinator(
             delegate: delegate,
             stackNavigator: navigationController

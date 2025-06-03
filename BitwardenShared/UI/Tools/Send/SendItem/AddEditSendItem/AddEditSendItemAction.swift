@@ -46,7 +46,4 @@ enum AddEditSendItemAction: Equatable {
 
     /// The toast was shown or hidden.
     case toastShown(Toast?)
-
-    /// The type picker was changed.
-    case typeChanged(SendType)
 }

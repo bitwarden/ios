@@ -969,7 +969,7 @@
 "CombineThoseWordsTogetherDescriptionLong" = "Put the words together in any order to form your passphrase. **Use hyphens, spaces, or leave them as one long word**—your choice!";
 "MakeItYours" = "Make it yours";
 "MakeItYoursDescriptionLong" = "**Add a number or symbol** to make it even stronger. Now you have a unique, secure, and memorable passphrase!";
-"NeedSomeInspiration?" = "Need some inspiration?";
+"NeedSomeInspiration?" = "需要一些靈感嗎？";
 "CheckOutThePassphraseGenerator" = "Check out the passphrase generator";
 "WhatMakesAPasswordStrong" = "一個強密碼具有哪些特性？";
 "PreventAccountLockout" = "避免帳號被鎖定";
@@ -1184,3 +1184,7 @@
 "AppSettings" = "App settings";
 "ViewFileSend" = "View file Send";
 "ViewTextSend" = "View text Send";
+"DeleteSend" = "Delete Send";
+"FlightRecorderOn" = "Flight recorder on";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Flight recorder will be active until %1$@ at %2$@. Return to settings to deactivate now.";
+"GoToSettings" = "Go to settings";

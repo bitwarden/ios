@@ -24,7 +24,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: ce330bb3cb873c47041eb0e86f5c065b8799caa2
+    revision: 6324c3ab661606ef0ce7dd90ade730615ee9e2c8
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -164,6 +164,7 @@ targets:
         buildPhase: none
       - path: swiftgen-pm.yml
         buildPhase: none
+      - path: BitwardenShared/UI/Platform/Application/Support/Localizations  # Needed for AppIntent.
     dependencies:
       - target: BitwardenShared
       - target: BitwardenActionExtension

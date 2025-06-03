@@ -46,9 +46,11 @@ class ViewSendItemViewTests: BitwardenTestCase {
 
     /// Tapping the edit button sends the `.editItem` action.
     @MainActor
-    func test_editItemFloatingActionButton_tap() throws {
-        let fab = try subject.inspect().find(viewWithAccessibilityIdentifier: "EditItemFloatingActionButton")
-        try fab.button().tap()
+    func test_editItemFloatingActionButton_tap() async throws {
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+        )
+        try await fab.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .editItem)
     }
 
@@ -98,6 +100,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
                 name: "My text send",
                 notes: "Private notes for the send",
                 text: .fixture(text: "Some text to send"),
+                maxAccessCount: 3,
             ),
             shareURL: URL(string: "send.bitwarden.com/39ngaol3")
         )

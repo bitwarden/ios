@@ -167,6 +167,7 @@ struct BitwardenTextField<FooterContent: View, TrailingContent: View>: View {
                     .id(title)
                     .introspect(.textField, on: .iOS(.v15, .v16, .v17, .v18)) { textField in
                         textField.smartDashesType = isPassword ? .no : .default
+                        textField.smartQuotesType = isPassword ? .no : .default
                     }
                     .accessibilityLabel(title ?? "")
                     .foregroundStyle(
