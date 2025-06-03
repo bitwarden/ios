@@ -33,7 +33,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     deleteSendButton
                 }
             }
-            .scrollView(padding: 12)
+            .scrollView()
             .disabled(store.state.isSendDisabled)
 
             profileSwitcher

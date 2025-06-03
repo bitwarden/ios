@@ -14,7 +14,7 @@ struct SettingsView: View {
 
     var body: some View {
         settingsItems
-            .scrollView(padding: 12)
+            .scrollView()
             .navigationBar(
                 title: Localizations.settings,
                 titleDisplayMode: store.state.presentationMode == .preLogin ? .inline : .large
