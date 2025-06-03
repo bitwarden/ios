@@ -99,7 +99,6 @@ final class AutoFillProcessor: StateProcessor<AutoFillState, AutoFillAction, Aut
     /// Streams the state of the badges in the settings tab.
     ///
     private func streamSettingsBadge() async {
-        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.badgeState = badgeState

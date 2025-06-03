@@ -28,19 +28,12 @@ struct PasswordAutoFillView: View {
 
     var body: some View {
         Group {
-            if store.state.nativeCreateAccountFeatureFlag {
-                contentView
-            } else {
-                legacyContentView
-            }
+            contentView
         }
         .navigationBar(
             title: store.state.navigationBarTitle,
             titleDisplayMode: .inline
         )
-        .task {
-            await store.perform(.appeared)
-        }
         .task {
             await store.perform(.checkAutofillOnForeground)
         }
@@ -103,24 +96,6 @@ struct PasswordAutoFillView: View {
             }
         }
         .scrollView(addVerticalPadding: false)
-    }
-
-    /// The legacy content view.
-    private var legacyContentView: some View {
-        GeometryReader { geometry in
-            VStack(alignment: .center) {
-                instructionsContent
-
-                Spacer()
-
-                imageView
-
-                Spacer()
-            }
-            .padding(.vertical, 16)
-            .frame(minHeight: geometry.size.height)
-            .scrollView(addVerticalPadding: false)
-        }
     }
 
     /// The view used for displaying the gif content.
@@ -238,8 +213,7 @@ struct PasswordAutoFillView: View {
         store: Store(
             processor: StateProcessor(
                 state: .init(
-                    mode: .settings,
-                    nativeCreateAccountFeatureFlag: true
+                    mode: .settings
                 )
             )
         )
@@ -251,8 +225,7 @@ struct PasswordAutoFillView: View {
         store: Store(
             processor: StateProcessor(
                 state: .init(
-                    mode: .onboarding,
-                    nativeCreateAccountFeatureFlag: true
+                    mode: .onboarding
                 )
             )
         )

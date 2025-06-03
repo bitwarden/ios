@@ -205,10 +205,8 @@ final class GeneratorProcessor: StateProcessor<GeneratorState, GeneratorAction, 
     /// Checks the eligibility of the generator Login action card.
     ///
     private func checkLearnGeneratorActionCardEligibility() async {
-        if await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
-            state.isLearnGeneratorActionCardEligible = await services.stateService
-                .getLearnGeneratorActionCardStatus() == .incomplete
-        }
+        state.isLearnGeneratorActionCardEligible = await services.stateService
+            .getLearnGeneratorActionCardStatus() == .incomplete
     }
 
     /// Generate a new passphrase.
