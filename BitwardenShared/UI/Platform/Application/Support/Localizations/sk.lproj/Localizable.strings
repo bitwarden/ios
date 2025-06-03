@@ -1184,3 +1184,7 @@
 "AppSettings" = "Nastavenia aplikácie";
 "ViewFileSend" = "Zobraziť súborový Send";
 "ViewTextSend" = "Zobraziť textový Send";
+"DeleteSend" = "Odstrániť Send";
+"FlightRecorderOn" = "Čierna skrinka zapnutá";
+"FlightRecorderWillBeActiveUntilDescriptionLong" = "Čierna skrinka bude aktívna do %1$@ %2$@.";
+"GoToSettings" = "Prejsť do nastavení";

@@ -1,3 +1,5 @@
+import BitwardenKit
+
 // MARK: - SettingsEffect
 
 /// Effects that can be processed by an `SettingsProcessor`.

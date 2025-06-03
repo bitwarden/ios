@@ -109,13 +109,13 @@
 "Export" = "Export";
 "Key" = "Key";
 "KeyReadError" = "Cannot read key.";
-"CannotAddAuthenticatorKey" = "Cannot add authenticator key?";
+"CannotAddAuthenticatorKey" = "Ei suuda autentimise võtit lisada?";
 "Import" = "Import";
 "Steam" = "Steam";
 "OtpType" = "OTP Type";
 "CreateVerificationCode" = "Create verification code";
 "ItemsExported" = "Verification codes exported";
-"ItemsImported" = "Vertification codes imported";
+"ItemsImported" = "Verification codes imported";
 "VerificationCodeAdded" = "Verification code added";
 "Data" = "Data";
 "Backup" = "Backup";
@@ -126,7 +126,7 @@
 "AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Allow Authenticator app syncing in settings to view all your verification codes here.";
 "TakeMeToTheAppSettings" = "Take me to the app settings";
 "SyncWithTheBitwardenApp" = "Sync with the Bitwarden app";
-"SyncWithBitwardenApp" = "Sync with Bitwarden app";
+"SyncWithBitwardenApp" = "Sünkroniseeri Bitwardeni rakendusega";
 "LocalCodes" = "Local codes";
 "AccountsSyncedFromBitwardenApp" = "Accounts synced from Bitwarden app";
 "CopyToBitwarden" = "Copy to Bitwarden";
