@@ -696,20 +696,6 @@ extension DefaultAuthRepository: AuthRepository {
             return nil
         }
 
-        guard await configService.getFeatureFlag(.refactorSsoDetailsEndpoint) else {
-            let response = try await organizationAPIService.getSingleSignOnDetails(email: email)
-
-            // If there is already an organization identifier associated with the user's email,
-            // attempt to start the single sign on process with that identifier.
-            guard response.ssoAvailable,
-                  response.verifiedDate != nil,
-                  let organizationIdentifier = response.organizationIdentifier,
-                  !organizationIdentifier.isEmpty else {
-                return nil
-            }
-            return organizationIdentifier
-        }
-
         let verifiedDomainsResponse = try await organizationAPIService.getSingleSignOnVerifiedDomains(email: email)
         return verifiedDomainsResponse.verifiedDomains?.first?.organizationIdentifier?.nilIfEmpty
     }

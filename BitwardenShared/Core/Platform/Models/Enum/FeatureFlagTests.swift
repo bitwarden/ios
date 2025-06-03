@@ -21,7 +21,6 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertTrue(FeatureFlag.enableAuthenticatorSync.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.importLoginsFlow.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.nativeCreateAccountFlow.isRemotelyConfigured)
-        XCTAssertTrue(FeatureFlag.refactorSsoDetailsEndpoint.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.restrictCipherItemDeletion.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.simpleLoginSelfHostAlias.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.mobileErrorReporting.isRemotelyConfigured)
