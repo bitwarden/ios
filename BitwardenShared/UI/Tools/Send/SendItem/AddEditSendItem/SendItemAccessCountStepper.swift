@@ -10,6 +10,9 @@ struct SendItemAccessCountStepper: View {
     /// The number of times the send has been accessed.
     let currentAccessCount: Int?
 
+    /// Whether the maximum access count info text should be displayed in the footer.
+    let displayInfoText: Bool
+
     /// A binding for changing the maximum access account for the send in the stepper.
     @Binding var maximumAccessCount: Int
 
@@ -28,9 +31,11 @@ struct SendItemAccessCountStepper: View {
                     .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
             } footer: {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(Localizations.maximumAccessCountInfo)
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    if displayInfoText {
+                        Text(Localizations.maximumAccessCountInfo)
+                            .styleGuide(.footnote)
+                            .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
+                    }
 
                     if let currentAccessCount {
                         // Wrap these texts in a group so that the style guide can be set on
@@ -47,6 +52,21 @@ struct SendItemAccessCountStepper: View {
             }
             .accessibilityIdentifier("SendMaxAccessCountEntry")
         }
+    }
+
+    // MARK: Initialization
+
+    /// Initialize a `SendItemAccessCountStepper`.
+    ///
+    /// - Parameters:
+    ///   - currentAccessCount: The number of times the send has been accessed.
+    ///   - displayInfoText: Whether the maximum access count info text should be displayed in the footer.
+    ///   - maximumAccessCount: A binding for changing the maximum access account for the send in the stepper.
+    ///
+    init(currentAccessCount: Int?, displayInfoText: Bool = true, maximumAccessCount: Binding<Int>) {
+        self.currentAccessCount = currentAccessCount
+        self.displayInfoText = displayInfoText
+        _maximumAccessCount = maximumAccessCount
     }
 }
 

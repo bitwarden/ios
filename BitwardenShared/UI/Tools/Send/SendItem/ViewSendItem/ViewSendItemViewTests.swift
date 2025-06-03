@@ -100,6 +100,7 @@ class ViewSendItemViewTests: BitwardenTestCase {
                 name: "My text send",
                 notes: "Private notes for the send",
                 text: .fixture(text: "Some text to send"),
+                maxAccessCount: 3,
             ),
             shareURL: URL(string: "send.bitwarden.com/39ngaol3")
         )
