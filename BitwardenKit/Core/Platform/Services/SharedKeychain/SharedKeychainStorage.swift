@@ -33,6 +33,14 @@ public enum SharedKeychainItem: Equatable, Hashable {
 /// talk with a `SharedKeychainService`.
 ///
 public protocol SharedKeychainStorage {
+    /// Deletes the value in the keychain for the given item.
+    ///
+    /// - Parameters:
+    ///   - value: The value (Data) to be stored into the keychain
+    ///   - item: The item for which to store the value in the keychain.
+    ///
+    func deleteValue(for item: SharedKeychainItem) async throws
+
     /// Retrieve the value for the specific item from the Keychain Service.
     ///
     /// - Parameter item: the keychain item for which to retrieve a value.
@@ -47,14 +55,6 @@ public protocol SharedKeychainStorage {
     ///   - item: The item for which to store the value in the keychain.
     ///
     func setValue<T: Codable>(_ value: T, for item: SharedKeychainItem) async throws
-
-    /// Deletes the value in the keychain for the given item.
-    ///
-    /// - Parameters:
-    ///   - value: The value (Data) to be stored into the keychain
-    ///   - item: The item for which to store the value in the keychain.
-    ///
-    func deleteValue(for item: SharedKeychainItem) async throws
 }
 
 public class DefaultSharedKeychainStorage: SharedKeychainStorage {
@@ -72,7 +72,7 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
 
     // MARK: Initialization
 
-    /// Initialize a `DefaultSharedKeychainRepository`.
+    /// Initialize a `DefaultSharedKeychainStorage`.
     ///
     /// - Parameters:
     ///   - sharedAppGroupIdentifier: An identifier for the shared access group used by the application.

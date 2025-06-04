@@ -73,8 +73,13 @@ public protocol SharedKeychainRepository {
 }
 
 public class DefaultSharedKeychainRepository: SharedKeychainRepository {
+    /// The shared keychain storage used by the repository.
     let storage: SharedKeychainStorage
 
+    /// Initialize a `DefaultSharedKeychainStorage`.
+    ///
+    /// - Parameters:
+    ///   - storage: The shared keychain storage used by the repository
     public init(storage: SharedKeychainStorage) {
         self.storage = storage
     }
