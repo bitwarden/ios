@@ -66,13 +66,13 @@ extension VaultClient: VaultClientService {
     func generateTOTPCode(for key: String, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
         let response = try generateTotp(key: key, time: calculationDate)
-        return getTOTPCodeModel(from: response, calculationDate: calculationDate)
+        return totpCodeModel(from: response, calculationDate: calculationDate)
     }
 
     func generateTOTPCode(for cipherListView: CipherListView, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
         let response = try generateTotpCipherView(view: cipherListView, time: calculationDate)
-        return getTOTPCodeModel(from: response, calculationDate: calculationDate)
+        return totpCodeModel(from: response, calculationDate: calculationDate)
     }
 
     func passwordHistory() -> PasswordHistoryClientProtocol {
@@ -86,7 +86,7 @@ extension VaultClient: VaultClientService {
     ///   - response: The response to base the code model.
     ///   - calculationDate: The calculation to base the code model.
     /// - Returns: The TOTP code model.
-    private func getTOTPCodeModel(from response: TotpResponse, calculationDate: Date) -> TOTPCodeModel {
+    private func totpCodeModel(from response: TotpResponse, calculationDate: Date) -> TOTPCodeModel {
         TOTPCodeModel(
             code: response.code,
             codeGenerationDate: calculationDate,
