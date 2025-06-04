@@ -79,7 +79,11 @@ targets:
     sources:
       - path: AuthenticatorBridgeKit
         excludes:
+          - "**/Fixtures/*"
+          - "**/Mocks/*"
           - "**/Tests/*"
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
     dependencies:
       - target: BitwardenKit
   AuthenticatorBridgeKitTests:
@@ -92,11 +96,29 @@ targets:
       - path: AuthenticatorBridgeKit
         includes:
           - "**/Tests/*"
+          - "**/*Tests.*"
+          - "**/TestHelpers/*"
     dependencies:
       - target: AuthenticatorBridgeKit
       - target: BitwardenKitMocks
       - target: TestHelpers
     randomExecutionOrder: true
+  AuthenticatorBridgeKitMocks:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        ENABLE_TESTING_SEARCH_PATHS: YES
+        INFOPLIST_FILE: AuthenticatorBridgeKit/MocksInfo.plist
+    sources:
+      - path: AuthenticatorBridgeKit
+        includes:
+          - "**/Fixtures/*"
+          - "**/Mocks/*"
+    dependencies:
+      - target: AuthenticatorBridgeKit
+      - target: BitwardenKit
+      - target: TestHelpers
   BitwardenKit:
     type: framework
     platform: iOS
