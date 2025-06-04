@@ -1257,7 +1257,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
-            loginListView: .fixture(),
+            cipherListView: .fixture(),
             requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
@@ -1287,7 +1287,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
-            loginListView: .fixture(totp: .standardTotpKey),
+            cipherListView: .fixture(type: .login(.fixture(totp: .standardTotpKey))),
             requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
@@ -1301,7 +1301,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         switch newItem.itemType {
         case let .totp(_, model):
             XCTAssertEqual(model.id, totpModel.id)
-            XCTAssertEqual(model.loginListView, totpModel.loginListView)
+            XCTAssertEqual(model.cipherListView, totpModel.cipherListView)
             XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
             XCTAssertNotEqual(model.totpCode.codeGenerationDate, totpModel.totpCode.codeGenerationDate)
             XCTAssertEqual(model.totpCode.period, totpModel.totpCode.period)
@@ -2392,7 +2392,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
         let totpCipher = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
-        guard case let .login(loginListView) = totpCipher.type else {
+        guard case .login = totpCipher.type else {
             XCTFail("Cipher type should be login.")
             return
         }
@@ -2404,7 +2404,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     name: "one time cafefe",
                     totpModel: .init(
                         id: "6",
-                        loginListView: XCTUnwrap(loginListView),
+                        cipherListView: XCTUnwrap(totpCipher),
                         requiresMasterPassword: false,
                         totpCode: .init(
                             code: "123456",
