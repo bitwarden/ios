@@ -100,6 +100,8 @@ targets:
           - "**/TestHelpers/*"
     dependencies:
       - target: AuthenticatorBridgeKit
+      - target: AuthenticatorBridgeKitMocks
+      - target: BitwardenKit
       - target: BitwardenKitMocks
       - target: TestHelpers
     randomExecutionOrder: true

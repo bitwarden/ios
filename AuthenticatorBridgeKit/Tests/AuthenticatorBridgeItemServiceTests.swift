@@ -1,3 +1,5 @@
+import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import Foundation

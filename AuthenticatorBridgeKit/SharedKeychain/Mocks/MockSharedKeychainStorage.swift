@@ -1,4 +1,4 @@
-import BitwardenKit
+import AuthenticatorBridgeKit
 import Foundation
 
 public class MockSharedKeychainStorage: SharedKeychainStorage {
