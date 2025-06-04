@@ -624,12 +624,11 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///
     private func totpItem(for cipherListView: CipherListView) async throws -> VaultListItem? {
         guard let id = cipherListView.id,
-              let login = cipherListView.type.loginListView,
-              let key = login.totp else {
+              cipherListView.type.loginListView?.totp != nil else {
             return nil
         }
         guard let code = try? await clientService.vault().generateTOTPCode(
-            for: key,
+            for: cipherListView,
             date: timeProvider.presentTime
         ) else {
             errorReporter.log(
@@ -641,7 +640,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         let listModel = VaultListTOTP(
             id: id,
-            loginListView: login,
+            cipherListView: cipherListView,
             requiresMasterPassword: cipherListView.reprompt == .password,
             totpCode: code
         )
@@ -1159,9 +1158,9 @@ extension DefaultVaultRepository: VaultRepository {
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         await items.asyncMap { item in
             guard case let .totp(name, model) = item.itemType,
-                  let key = model.loginListView.totp,
+                  model.cipherListView.type.loginListView?.totp != nil,
                   let vault = try? await clientService.vault(),
-                  let code = try? vault.generateTOTPCode(for: key, date: timeProvider.presentTime)
+                  let code = try? vault.generateTOTPCode(for: model.cipherListView, date: timeProvider.presentTime)
             else {
                 errorReporter.log(error: TOTPServiceError
                     .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))

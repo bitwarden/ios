@@ -131,7 +131,7 @@ struct VaultListItemRowView: View {
                 .styleGuide(.body)
                 .lineLimit(1)
                 .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-            if let username = model.loginListView.username {
+            if let username = model.cipherListView.type.loginListView?.username {
                 Text(username)
                     .styleGuide(.subheadline)
                     .lineLimit(1)
