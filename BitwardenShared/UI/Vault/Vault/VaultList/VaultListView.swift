@@ -84,47 +84,40 @@ private struct SearchableVaultListView: View {
 
     /// A view that displays the empty vault interface.
     @ViewBuilder private var emptyVault: some View {
-        GeometryReader { reader in
-            ScrollView {
-                VStack(spacing: 24) {
-                    Group {
-                        importLoginsActionCard
+        VStack(spacing: 24) {
+            Group {
+                importLoginsActionCard
 
-                        vaultFilterRow
-                    }
-                    .padding(.top, 16)
-
-                    Spacer()
-
-                    IllustratedMessageView(
-                        image: Asset.Images.Illustrations.items,
-                        title: Localizations.saveAndProtectYourData,
-                        message: Localizations
-                            .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere
-                    )
-                    .padding(.horizontal, 16)
-
-                    Button {
-                        store.send(.addItemPressed(.login))
-                    } label: {
-                        HStack {
-                            Image(decorative: Asset.Images.plus16)
-                                .resizable()
-                                .frame(width: 16, height: 16)
-                            Text(Localizations.newLogin)
-                        }
-                        .padding(.horizontal, 24)
-                    }
-                    .buttonStyle(.primary(shouldFillWidth: false))
-
-                    Spacer()
-                }
-                .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .setUpLater)
-                .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .complete)
-                .padding(.horizontal, 16)
-                .frame(minHeight: reader.size.height)
+                vaultFilterRow
             }
+
+            Spacer()
+
+            IllustratedMessageView(
+                image: Asset.Images.Illustrations.items,
+                title: Localizations.saveAndProtectYourData,
+                message: Localizations
+                    .theVaultProtectsMoreThanJustPasswordsStoreSecureLoginsIdsCardsAndNotesSecurelyHere
+            ) {
+                Button {
+                    store.send(.addItemPressed(.login))
+                } label: {
+                    HStack {
+                        Image(decorative: Asset.Images.plus16)
+                            .resizable()
+                            .frame(width: 16, height: 16)
+                        Text(Localizations.newLogin)
+                    }
+                }
+                .buttonStyle(.primary(shouldFillWidth: false))
+                .padding(.top, 8)
+            }
+
+            Spacer()
         }
+        .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .setUpLater)
+        .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .complete)
+        .scrollView(centerContentVertically: true, padding: 12)
     }
 
     /// The action card for importing login items.
@@ -233,30 +226,25 @@ private struct SearchableVaultListView: View {
     ///
     @ViewBuilder
     private func errorViewWithRetry(errorMessage: String) -> some View {
-        GeometryReader { reader in
-            ScrollView {
-                VStack(spacing: 24) {
-                    Text(errorMessage)
-                        .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
-                        .styleGuide(.body)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 12)
+        VStack(spacing: 24) {
+            Text(errorMessage)
+                .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                .styleGuide(.body)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 12)
 
-                    AsyncButton {
-                        await store.perform(.tryAgainTapped)
-                    } label: {
-                        Text(Localizations.tryAgain)
-                    }
-                    .buttonStyle(
-                        .primary(
-                            shouldFillWidth: false
-                        )
-                    )
-                }
-                .padding(12)
-                .frame(maxWidth: .infinity, minHeight: reader.size.height)
+            AsyncButton {
+                await store.perform(.tryAgainTapped)
+            } label: {
+                Text(Localizations.tryAgain)
             }
+            .buttonStyle(
+                .primary(
+                    shouldFillWidth: false
+                )
+            )
         }
+        .scrollView(centerContentVertically: true, padding: 12)
     }
 
     /// A view that displays the main vault interface, including sections for groups and
@@ -266,23 +254,21 @@ private struct SearchableVaultListView: View {
     ///
     @ViewBuilder
     private func vaultContents(with sections: [VaultListSection]) -> some View {
-        ScrollView {
-            LazyVStack(spacing: 20) {
-                vaultFilterRow
+        LazyVStack(spacing: 20) {
+            vaultFilterRow
 
-                ForEach(sections) { section in
-                    VaultListSectionView(section: section) { item in
-                        Button {
-                            store.send(.itemPressed(item: item))
-                        } label: {
-                            vaultItemRow(for: item, isLastInSection: section.items.last == item)
-                        }
+            ForEach(sections) { section in
+                VaultListSectionView(section: section) { item in
+                    Button {
+                        store.send(.itemPressed(item: item))
+                    } label: {
+                        vaultItemRow(for: item, isLastInSection: section.items.last == item)
                     }
                 }
             }
-            .padding(16)
-            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView(padding: 12)
     }
 
     /// Creates a row in the list for the provided item.

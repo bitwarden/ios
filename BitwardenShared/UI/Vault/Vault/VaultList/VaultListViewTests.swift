@@ -232,8 +232,10 @@ class VaultListViewTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         let item = VaultListItem(id: "1", itemType: .group(.login, 123))
         processor.state.loadingState = .data([VaultListSection(id: "1", items: [item], name: "Group")])
         let button = try subject.inspect().find(LoadingViewType.self)
-            .find(ViewType.ScrollView.self)
-            .find(button: Localizations.typeLogin)
+            .find(ViewType.Button.self) { view in
+                _ = try view.find { try $0.accessibilityIdentifier() == "ItemFilterCell" }
+                return true
+            }
         try button.tap()
         XCTAssertEqual(processor.dispatchedActions.last, .itemPressed(item: item))
     }

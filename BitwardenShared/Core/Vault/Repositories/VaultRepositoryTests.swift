@@ -737,7 +737,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(sections.isEmpty)
         XCTAssertEqual(
             errorReporter.errors as? [TOTPServiceError],
-            [.unableToGenerateCode("Unable to create TOTP code for key 123 for cipher id 2")]
+            [.unableToGenerateCode("Unable to create TOTP code for cipher id 2")]
         )
     }
 
@@ -1944,7 +1944,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(sections.isEmpty)
         XCTAssertEqual(
             errorReporter.errors as? [TOTPServiceError],
-            [.unableToGenerateCode("Unable to create TOTP code for key 123 for cipher id 4")]
+            [.unableToGenerateCode("Unable to create TOTP code for cipher id 4")]
         )
     }
 

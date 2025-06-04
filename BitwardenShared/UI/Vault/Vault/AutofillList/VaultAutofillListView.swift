@@ -135,7 +135,7 @@ private struct VaultAutofillListSearchableView: View {
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView()
+        .scrollView(padding: 12)
     }
 
     /// A view for displaying a list of sections with ciphers.
@@ -234,7 +234,7 @@ private struct VaultAutofillListSearchableView: View {
                             .buttonStyle(.primary(shouldFillWidth: false))
                         }
                     }
-                    .scrollView(centerContentVertically: true)
+                    .scrollView(centerContentVertically: true, padding: 12)
                 } else {
                     cipherListView(store.state.vaultListSections)
                 }
