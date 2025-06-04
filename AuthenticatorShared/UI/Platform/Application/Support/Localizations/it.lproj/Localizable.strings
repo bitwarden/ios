@@ -150,6 +150,7 @@
 "VaultTimeout" = "Timeout cassaforte";
 "ThirtyMinutes" = "30 minuti";
 "OnRestart" = "Al riavvio dell'app";
+"Custom" = "Custom";
 "SessionTimeout" = "Timeout della sessione";
 "FileCouldNotBeProcessed" = "Il file non può essere processato";
 "EnsureItsValidJsonAndTryAgain" = "Assicurati che sia un JSON valido e riprova.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Hai bisogno di aiuto? Visita il nostro Centro Assistenza per la guida.";
 "UnexpectedDataFormat" = "Formato Dati Inatteso";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Il formato dei dati fornito non corrisponde a quello atteso. Si prega di controllare il file e assicurarsi che i tipi di dati corretti siano utilizzati.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "This feature is not yet available for self-hosted users. [Learn more](%1$@)";

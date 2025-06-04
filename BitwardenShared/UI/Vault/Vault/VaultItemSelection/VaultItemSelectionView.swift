@@ -170,7 +170,7 @@ private struct VaultItemSelectionSearchableView: View {
                 }
                 .buttonStyle(.primary(shouldFillWidth: false))
             }
-            .scrollView(centerContentVertically: true)
+            .scrollView(centerContentVertically: true, padding: 12)
         } else {
             matchingItemsView()
         }
@@ -189,7 +189,7 @@ private struct VaultItemSelectionSearchableView: View {
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView()
+        .scrollView(padding: 12)
     }
 
     /// A view for displaying the cipher search results.

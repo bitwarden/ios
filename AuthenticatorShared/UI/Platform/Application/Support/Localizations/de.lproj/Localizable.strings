@@ -150,6 +150,7 @@
 "VaultTimeout" = "Tresor-Timeout";
 "ThirtyMinutes" = "30 Minuten";
 "OnRestart" = "Beim Neustart der App";
+"Custom" = "Benutzerdefiniert";
 "SessionTimeout" = "Sitzungs-Timeout";
 "FileCouldNotBeProcessed" = "Datei konnte nicht verarbeitet werden";
 "EnsureItsValidJsonAndTryAgain" = "Stelle sicher, dass es sich um ein gültiges JSON handelt und versuche es erneut.";
@@ -158,3 +159,4 @@
 "NeedHelpVisitOurHelpCenterForGuidance" = "Benötigst du Hilfe? Besuch unser Hilfe-Zentrum für Unterstützung.";
 "UnexpectedDataFormat" = "Unerwartetes Datenformat";
 "TheDataFormatProvidedDoesntMatchWhatsExpected" = "Das angegebene Datenformat entspricht nicht den Erwartungen. Bitte überprüfe deine Datei und stelle sicher, dass die korrekten Datentypen verwendet werden.";
+"ThisFeatureIsNotYetAvailableForSelfHostedUsers" = "Diese Funktion ist für selbst gehostete Benutzer noch nicht verfügbar. [Mehr erfahren](%1$@)";
