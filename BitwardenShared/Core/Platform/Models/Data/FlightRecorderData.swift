@@ -42,9 +42,6 @@ extension FlightRecorderData {
     struct LogMetadata: Codable, Equatable, Identifiable {
         // MARK: Properties
 
-        /// A list of user IDs that have seen and dismissed the flight recorder toast banner for this log.
-        var bannerDismissedByUserIds: [String]
-
         /// The duration for how long the flight recorder was enabled for the log.
         let duration: FlightRecorderLoggingDuration
 
@@ -53,6 +50,9 @@ extension FlightRecorderData {
 
         /// The file name of the file on disk.
         let fileName: String
+
+        /// Whether the flight recorder toast banner has been dismissed for this log.
+        @DefaultFalse var isBannerDismissed = false
 
         /// The date the logging was started.
         let startDate: Date
@@ -97,7 +97,6 @@ extension FlightRecorderData {
         ///   - startDate: The date the logging was started.
         ///
         init(duration: FlightRecorderLoggingDuration, startDate: Date) {
-            bannerDismissedByUserIds = []
             self.duration = duration
             self.startDate = startDate
 

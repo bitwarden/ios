@@ -61,9 +61,7 @@ protocol FlightRecorder: Sendable, BitwardenLogger {
     /// Sets a flag indicating that the flight recorder banner for the active log was viewed and
     /// dismissed by the active user.
     ///
-    /// - Parameter userId: The ID of the user who dismissed the banner.
-    ///
-    func setFlightRecorderBannerDismissed(userId: String) async
+    func setFlightRecorderBannerDismissed() async
 }
 
 extension FlightRecorder {
@@ -454,9 +452,9 @@ extension DefaultFlightRecorder: FlightRecorder {
         }
     }
 
-    func setFlightRecorderBannerDismissed(userId: String) async {
+    func setFlightRecorderBannerDismissed() async {
         guard var data = await getFlightRecorderData(), data.activeLog != nil else { return }
-        data.activeLog?.bannerDismissedByUserIds.append(userId)
+        data.activeLog?.isBannerDismissed = true
         await setFlightRecorderData(data)
     }
 }
