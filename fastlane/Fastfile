@@ -40,9 +40,7 @@ platform :ios do |options|
         latest_version_name = lane_context[SharedValues::LATEST_VERSION]
         latest_version_number = lane_context[SharedValues::LATEST_BUILD_NUMBER]
 
-        sh("echo STORE_VERSION_NAME=#{latest_version_name} >> $GITHUB_ENV")
-        sh("echo STORE_VERSION_NUMBER=#{latest_build_number} >> $GITHUB_ENV")
-        UI.message("Latest version: #{latest_version_name}")
-        UI.message("Latest build number: #{latest_version_number}")
+        UI.message("version_name: #{latest_version_name}")
+        UI.message("version_number: #{latest_version_number}")
     end
 end
