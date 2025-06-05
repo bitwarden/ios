@@ -164,6 +164,16 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(processor.dispatchedActions.last, .editPressed)
     }
 
+    /// The edit item FAB is hidden if the item has been deleted.
+    @MainActor
+    func test_editItemFloatingActionButton_hidden_cipherDeleted() async throws {
+        processor.state.loadingState = .data(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: true)!)
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "EditItemFloatingActionButton"
+        )
+        XCTAssertTrue(fab.isHidden())
+    }
+
     /// Tapping the password history button dispatches the `passwordHistoryPressed` action.
     @MainActor
     func test_passwordHistoryButton_tap() throws {
