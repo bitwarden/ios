@@ -213,7 +213,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .accessibilityIdentifier("SendChooseFileButton")
                     }
 
-                    Text(Localizations.maxFileSize)
+                    Text(Localizations.requiredMaxFileSize)
                         .styleGuide(.subheadline)
                         .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                         .padding(.leading, 12)
