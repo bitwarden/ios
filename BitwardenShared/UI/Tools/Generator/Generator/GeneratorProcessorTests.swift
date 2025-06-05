@@ -456,30 +456,18 @@ class GeneratorProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     }
 
     /// `perform(:)` with `.appeared` should set the `isLearnGeneratorActionCardEligible` to `true`
-    /// if the `learnGeneratorActionCardStatus` is `incomplete`, and feature flag is enabled.
+    /// if the `learnGeneratorActionCardStatus` is `incomplete`.
     @MainActor
     func test_perform_checkLearnNewLoginActionCardEligibility() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.learnGeneratorActionCardStatus = .incomplete
         await subject.perform(.appeared)
         XCTAssertTrue(subject.state.isLearnGeneratorActionCardEligible)
     }
 
     /// `perform(:)` with `.appeared` should not set the `isLearnNewLoginActionCardEligible` to `true`
-    /// if the feature flag `nativeCreateAccountFlow` is `false`.
-    @MainActor
-    func test_perform_checkLearnNewLoginActionCardEligibility_false() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
-        stateService.learnGeneratorActionCardStatus = .incomplete
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)
-    }
-
-    /// `perform(:)` with `.appeared` should not set the `isLearnNewLoginActionCardEligible` to `true`
     /// if the `learnGeneratorActionCardStatus` is `complete`.
     @MainActor
     func test_perform_checkLearnNewLoginActionCardEligibility_false_complete() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.learnGeneratorActionCardStatus = .complete
         await subject.perform(.appeared)
         XCTAssertFalse(subject.state.isLearnGeneratorActionCardEligible)

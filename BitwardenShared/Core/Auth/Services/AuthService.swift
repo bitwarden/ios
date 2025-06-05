@@ -610,7 +610,7 @@ class DefaultAuthService: AuthService { // swiftlint:disable:this type_body_leng
             username: username
         )
 
-        if isNewAccount, await configService.getFeatureFlag(.nativeCreateAccountFlow) {
+        if isNewAccount {
             do {
                 let isAutofillEnabled = await credentialIdentityStore.isAutofillEnabled()
                 try await stateService.setAccountSetupAutofill(isAutofillEnabled ? .complete : .incomplete)

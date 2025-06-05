@@ -28,9 +28,6 @@ struct PasswordAutoFillState: Equatable {
     /// The current mode the view should display.
     var mode: Mode
 
-    /// Whether the native create account feature flag is on.
-    var nativeCreateAccountFeatureFlag: Bool = false
-
     /// The title of the navigation bar.
     var navigationBarTitle: String {
         switch mode {

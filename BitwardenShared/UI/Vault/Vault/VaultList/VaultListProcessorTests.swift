@@ -873,7 +873,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// login items.
     @MainActor
     func test_perform_streamVaultList_coachMarkDismiss_vaultContainsLogins() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -897,7 +896,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// no login items.
     @MainActor
     func test_perform_streamVaultList_coachMarkDismiss_vaultWithoutLogins() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -945,7 +943,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// vault list isn't empty.
     @MainActor
     func test_perform_streamVaultList_dismissImportLoginsActionCard() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupImportLogins["1"] = .incomplete
 
@@ -965,7 +962,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// vault list is empty.
     @MainActor
     func test_perform_streamVaultList_emptyImportLoginsActionCard() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupImportLogins["1"] = .incomplete
 

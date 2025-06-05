@@ -26,9 +26,18 @@ protocol VaultClientService: AnyObject {
     ///  - Parameters:
     ///    - key: The key used to generate the code.
     ///    - date: The date used to generate the code
-    ///  - Returns: A TOTPCodeState model.
+    ///  - Returns: A `TOTPCodeModel` model.
     ///
     func generateTOTPCode(for key: String, date: Date?) throws -> TOTPCodeModel
+
+    /// Returns a TOTP Code for a cipher of type `CipherListView`.
+    ///
+    ///  - Parameters:
+    ///    - cipherListView: The cipher used to generate the code.
+    ///    - date: The date used to generate the code
+    ///  - Returns: A `TOTPCodeModel` model.
+    ///
+    func generateTOTPCode(for cipherListView: CipherListView, date: Date?) throws -> TOTPCodeModel
 
     /// Returns an object that handles encryption and decryption for password history.
     ///
@@ -57,14 +66,31 @@ extension VaultClient: VaultClientService {
     func generateTOTPCode(for key: String, date: Date? = nil) throws -> TOTPCodeModel {
         let calculationDate: Date = date ?? Date()
         let response = try generateTotp(key: key, time: calculationDate)
-        return TOTPCodeModel(
-            code: response.code,
-            codeGenerationDate: calculationDate,
-            period: response.period
-        )
+        return totpCodeModel(from: response, calculationDate: calculationDate)
+    }
+
+    func generateTOTPCode(for cipherListView: CipherListView, date: Date? = nil) throws -> TOTPCodeModel {
+        let calculationDate: Date = date ?? Date()
+        let response = try generateTotpCipherView(view: cipherListView, time: calculationDate)
+        return totpCodeModel(from: response, calculationDate: calculationDate)
     }
 
     func passwordHistory() -> PasswordHistoryClientProtocol {
         passwordHistory() as PasswordHistoryClient
+    }
+
+    // MARK: Private methods
+
+    /// Gets the `TOTPCodeModel` based on the `TotpResponse` and the calculation date.
+    /// - Parameters:
+    ///   - response: The response to base the code model.
+    ///   - calculationDate: The calculation to base the code model.
+    /// - Returns: The TOTP code model.
+    private func totpCodeModel(from response: TotpResponse, calculationDate: Date) -> TOTPCodeModel {
+        TOTPCodeModel(
+            code: response.code,
+            codeGenerationDate: calculationDate,
+            period: response.period
+        )
     }
 }

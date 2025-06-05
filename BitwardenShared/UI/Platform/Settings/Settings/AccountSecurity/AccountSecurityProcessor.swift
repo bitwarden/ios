@@ -132,12 +132,10 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
         }
     }
 
-    /// If the native create account feature flag is enabled, this marks the user's vault unlock
-    /// account setup complete. This should be called whenever PIN or biometrics unlock has been
-    /// turned on.
+    /// This marks the user's vault unlock account setup complete.
+    /// This should be called whenever PIN or biometrics unlock has been turned on.
     ///
     private func completeAccountSetupVaultUnlockIfNeeded() async {
-        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
         do {
             guard let progress = try await services.stateService.getAccountSetupVaultUnlock(),
                   progress != .complete
@@ -353,7 +351,6 @@ final class AccountSecurityProcessor: StateProcessor<// swiftlint:disable:this t
     /// Streams the state of the badges in the settings tab.
     ///
     private func streamSettingsBadge() async {
-        guard await services.configService.getFeatureFlag(.nativeCreateAccountFlow) else { return }
         do {
             for await badgeState in try await services.stateService.settingsBadgePublisher().values {
                 state.badgeState = badgeState
