@@ -379,7 +379,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [
             .defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.requiredMaxFileSize
+                message: Localizations.maxFileSize
             ),
         ])
     }
