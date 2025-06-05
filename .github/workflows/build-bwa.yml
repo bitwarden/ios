@@ -32,6 +32,7 @@ jobs:
     runs-on: macos-15
     permissions:
       contents: read
+      id-token: write
     env:
       MINT_PATH: .mint/lib
       MINT_LINK_PATH: .mint/bin
@@ -60,10 +61,20 @@ jobs:
           sudo installer -pkg yeetd-normal.pkg -target /
           yeetd &
 
-      - name: Log in to Azure
-        uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
+      - name: Azure Login
+        id: azure-login
+        uses: bitwarden/gh-actions/azure-login@main
         with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get KV secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-ios
+          secrets: "IOS_KEYCHAIN_PASSWORD, APP_STORE_CONNECT_AUTH_KEY, APP_STORE_CONNECT_TEAM_ISSUER"
 
       - name: Retrieve secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
@@ -104,9 +115,12 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
             jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
 
+      - name: Azure Logout
+        uses: bitwarden/gh-actions/azure-logout@main
+
       - name: Configure Keychain Access
         env:
-          KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.IOS_KEYCHAIN_PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -172,7 +186,7 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
-          ${{ secrets.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP_STORE_CONNECT_AUTH_KEY }}
           EOF
 
       - name: Validate app with App Store Connect
@@ -181,7 +195,7 @@ jobs:
             --type ios \
             --file "build/Authenticator/Authenticator.ipa" \
             --apiKey "J46C83CB96" \
-            --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
+            --apiIssuer "${{ steps.get-kv-secrets.outputs.APP_STORE_CONNECT_TEAM_ISSUER }}"
 
       - name: Upload app to TestFlight
         run: |
@@ -189,4 +203,4 @@ jobs:
             --type ios \
             --file "build/Authenticator/Authenticator.ipa" \
             --apiKey "J46C83CB96" \
-            --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
+            --apiIssuer "${{ steps.get-kv-secrets.outputs.APP_STORE_CONNECT_TEAM_ISSUER }}"
