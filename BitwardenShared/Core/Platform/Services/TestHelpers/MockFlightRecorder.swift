@@ -17,7 +17,7 @@ final class MockFlightRecorder: FlightRecorder {
     var fetchLogsResult: Result<[FlightRecorderLogMetadata], Error> = .success([])
     var isEnabledSubject = CurrentValueSubject<Bool, Never>(false)
     var logMessages = [String]()
-    var setFlightRecorderBannerDismissedUserIds = [String]()
+    var setFlightRecorderBannerDismissedCalled = false
 
     nonisolated init() {}
 
@@ -58,7 +58,7 @@ final class MockFlightRecorder: FlightRecorder {
         logMessages.append(message)
     }
 
-    func setFlightRecorderBannerDismissed(userId: String) async {
-        setFlightRecorderBannerDismissedUserIds.append(userId)
+    func setFlightRecorderBannerDismissed() async {
+        setFlightRecorderBannerDismissedCalled = true
     }
 }

@@ -105,10 +105,9 @@ class FlightRecorderDataTests: BitwardenTestCase {
         var log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
         subject.activeLog = log
 
-        subject.activeLog?.bannerDismissedByUserIds.append("123")
-        subject.activeLog?.bannerDismissedByUserIds.append("456")
+        subject.activeLog?.isBannerDismissed = true
 
-        log.bannerDismissedByUserIds.append(contentsOf: ["123", "456"])
+        log.isBannerDismissed = true
         XCTAssertEqual(subject, FlightRecorderData(activeLog: log))
     }
 
