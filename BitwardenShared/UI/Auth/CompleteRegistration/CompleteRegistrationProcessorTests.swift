@@ -191,36 +191,6 @@ class CompleteRegistrationProcessorTests: BitwardenTestCase {
         )
     }
 
-    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to true
-    @MainActor
-    func test_perform_appeared_loadFeatureFlag_true() async {
-        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = true
-        subject.state.nativeCreateAccountFeatureFlag = false
-
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.nativeCreateAccountFeatureFlag)
-    }
-
-    /// `perform(.appeared)` with feature flag for .nativeCreateAccountFlow set to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_false() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
-        subject.state.nativeCreateAccountFeatureFlag = true
-
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
-    }
-
-    /// `perform(.appeared)` with feature flag defaulting to false
-    @MainActor
-    func test_perform_appeared_loadsFeatureFlag_nil() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = nil
-        subject.state.nativeCreateAccountFeatureFlag = true
-
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.nativeCreateAccountFeatureFlag)
-    }
-
     /// `perform(_:)` with `.completeRegistration` will still make the `CompleteRegistrationRequest` when the HIBP
     /// network request fails.
     @MainActor

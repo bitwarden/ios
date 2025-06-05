@@ -69,7 +69,7 @@ struct CipherRequestModel: JSONRequestBody {
 
 extension CipherRequestModel {
     /// Initialize a `CipherRequestModel` from a `Cipher`.
-    ///  
+    ///
     /// - Parameters:
     ///   - cipher: The `Cipher` used to initialize a `CipherRequestModel`.
     ///   - encryptedFor: The user ID who encrypted the `cipher`.

@@ -43,7 +43,7 @@ extension VaultListItem {
     ///     Used to sort the TOTP code items after a refresh.
     var name: String {
         guard case let .totp(name, model) = itemType else { return "" }
-        return name + (model.loginListView.username ?? "") + "\(model.id)"
+        return name + (model.cipherListView.type.loginListView?.username ?? "") + "\(model.id)"
     }
 }
 
@@ -174,7 +174,7 @@ extension VaultListItem {
         case .group:
             return nil
         case let .totp(_, totpModel):
-            return totpModel.loginListView
+            return totpModel.cipherListView.type.loginListView
         }
     }
 
@@ -211,9 +211,9 @@ public struct VaultListTOTP: Equatable, Sendable {
     ///
     let id: String
 
-    /// The `BitwardenSdk.LoginListView` used to populate the view.
+    /// The `BitwardenSdk.CipherListView` used to populate the view and regenerate codes.
     ///
-    let loginListView: BitwardenSdk.LoginListView
+    let cipherListView: BitwardenSdk.CipherListView
 
     /// Whether seeing the TOTP code requires a master password.
     let requiresMasterPassword: Bool

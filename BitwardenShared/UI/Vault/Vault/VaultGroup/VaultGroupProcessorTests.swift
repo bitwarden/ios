@@ -267,7 +267,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "refreshed totp",
                 totpModel: .init(
                     id: "1",
-                    loginListView: loginListView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "654321",
@@ -291,7 +291,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginListView: loginListView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
@@ -308,7 +308,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginListView: loginListView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",
@@ -351,7 +351,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "expiredTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginListView: loginListView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "098765",
@@ -368,7 +368,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
                 name: "stableTOTP",
                 totpModel: .init(
                     id: "1",
-                    loginListView: loginListView,
+                    cipherListView: .fixture(type: .login(loginListView)),
                     requiresMasterPassword: false,
                     totpCode: .init(
                         code: "111222",

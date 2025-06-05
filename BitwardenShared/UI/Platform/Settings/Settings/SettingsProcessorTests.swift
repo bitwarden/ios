@@ -58,7 +58,6 @@ class SettingsProcessorTests: BitwardenTestCase {
     /// count when it changes.
     @MainActor
     func test_init_subscribesToBadgePublisher() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         setUpSubject()
 
@@ -88,7 +87,6 @@ class SettingsProcessorTests: BitwardenTestCase {
     /// `init()` subscribes to the badge publisher and logs an error if one occurs.
     @MainActor
     func test_init_subscribesToBadgePublisher_error() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         setUpSubject()
 
         stateService.settingsBadgeSubject.send(SettingsBadgeState.fixture(badgeValue: "1"))

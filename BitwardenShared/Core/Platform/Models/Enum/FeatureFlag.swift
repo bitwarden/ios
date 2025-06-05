@@ -53,9 +53,6 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable additional error reporting.
     static let mobileErrorReporting = FeatureFlag(rawValue: "mobile-error-reporting")
 
-    /// A feature flag for the create account flow.
-    static let nativeCreateAccountFlow = FeatureFlag(rawValue: "native-create-account-flow")
-
     /// A feature flag for the pre-login settings.
     static let preLoginSettings = FeatureFlag(
         rawValue: "enable-pm-prelogin-settings",
@@ -87,7 +84,6 @@ extension FeatureFlag: @retroactive CaseIterable {
             .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
             .mobileErrorReporting,
-            .nativeCreateAccountFlow,
             .preLoginSettings,
             .refactorSsoDetailsEndpoint,
             .restrictCipherItemDeletion,

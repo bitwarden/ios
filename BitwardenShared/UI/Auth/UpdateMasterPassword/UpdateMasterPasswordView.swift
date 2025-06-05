@@ -56,8 +56,7 @@ struct UpdateMasterPasswordView: View {
                         PasswordStrengthIndicator(
                             passwordStrengthScore: store.state.passwordStrengthScore,
                             passwordTextCount: store.state.masterPassword.count,
-                            requiredTextCount: store.state.requiredPasswordCount,
-                            nativeCreateAccountFlow: true
+                            requiredTextCount: store.state.requiredPasswordCount
                         )
                         .padding(.vertical, 12)
                     }

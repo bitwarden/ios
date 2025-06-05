@@ -50,7 +50,6 @@ class CompleteRegistrationProcessor: StateProcessor<
         & HasAuthRepository
         & HasAuthService
         & HasClientService
-        & HasConfigService
         & HasEnvironmentService
         & HasErrorReporter
         & HasStateService
@@ -88,7 +87,6 @@ class CompleteRegistrationProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await setRegion()
-            await loadFeatureFlag()
             await verifyUserEmail()
         case .completeRegistration:
             await checkPasswordAndCompleteRegistration()
@@ -283,15 +281,6 @@ class CompleteRegistrationProcessor: StateProcessor<
         } catch {
             coordinator.showAlert(.defaultAlert(title: Localizations.anErrorHasOccurred))
         }
-    }
-
-    /// Sets the feature flag value to be used.
-    ///
-    private func loadFeatureFlag() async {
-        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
-            .nativeCreateAccountFlow,
-            isPreAuth: true
-        )
     }
 
     /// Shows a `CompleteRegistrationError` alert.

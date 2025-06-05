@@ -16,8 +16,7 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
     override func setUp() {
         processor = MockProcessor(
             state: PasswordAutoFillState(
-                mode: .settings,
-                nativeCreateAccountFeatureFlag: false
+                mode: .settings
             )
         )
         subject = PasswordAutoFillView(store: Store(processor: processor))
@@ -35,7 +34,6 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
     @MainActor
     func test_turnOnAutoFillLaterButton_tap() async throws {
         processor.state.mode = .onboarding
-        processor.state.nativeCreateAccountFeatureFlag = true
         let button = try subject.inspect().find(asyncButton: Localizations.turnOnLater)
         try await button.tap()
         XCTAssertEqual(processor.effects.last, .turnAutoFillOnLaterButtonTapped)
@@ -45,7 +43,6 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
     @MainActor
     func test_turnOnAutoFillLaterButton_doesntExist() async throws {
         processor.state.mode = .settings
-        processor.state.nativeCreateAccountFeatureFlag = true
         XCTAssertThrowsError(try subject.inspect().find(asyncButton: Localizations.turnOnLater))
     }
 
@@ -61,10 +58,9 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
         )
     }
 
-    /// The view renders correctly with the feature flag on and mode set to onboarding.
+    /// The view renders correctly with the mode set to onboarding.
     @MainActor
-    func test_view_rendersWithFeatureFlag_withOnboardingMode() {
-        processor.state.nativeCreateAccountFeatureFlag = true
+    func test_view_renders_withOnboardingMode() {
         processor.state.mode = .onboarding
 
         assertSnapshots(
@@ -78,10 +74,9 @@ class PasswordAutoFillViewTests: BitwardenTestCase {
         )
     }
 
-    /// The view renders correctly with the feature flag on and mode set to settings.
+    /// The view renders correctly with mode set to settings.
     @MainActor
-    func test_view_rendersWithFeatureFlag_withSettingsMode() {
-        processor.state.nativeCreateAccountFeatureFlag = true
+    func test_view_renders_withSettingsMode() {
         processor.state.mode = .settings
 
         assertSnapshots(

@@ -209,7 +209,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 1 }
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
@@ -1060,7 +1059,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { willEnterForegroundCalled == 1 }
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
@@ -1075,23 +1073,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_start_completeAutofillAccountSetupIfEnabled_autofillDisabled() async {
         autofillCredentialService.isAutofillCredentialsEnabled = false
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
-        stateService.activeAccount = .fixture()
-        stateService.accounts = [.fixture()]
-        stateService.accountSetupAutofill["1"] = .setUpLater
-
-        let rootNavigator = MockRootNavigator()
-        await subject.start(appContext: .mainApp, navigator: rootNavigator, window: nil)
-
-        XCTAssertEqual(stateService.accountSetupAutofill, ["1": .setUpLater])
-    }
-
-    /// `start(navigator:)` doesn't complete the accounts autofill setup if the native create
-    /// account flow feature flag is disabled.
-    @MainActor
-    func test_start_completeAutofillAccountSetupIfEnabled_featureFlagDisabled() async {
-        autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
@@ -1110,7 +1091,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 1 }
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
         stateService.accountSetupAutofillError = BitwardenTestError.example
@@ -1127,7 +1107,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     @MainActor
     func test_start_completeAutofillAccountSetupIfEnabled_noProgress() async {
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
 
@@ -1146,7 +1125,6 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         try await waitForAsync { self.willEnterForegroundCalled == 1 }
 
         autofillCredentialService.isAutofillCredentialsEnabled = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accounts = [.fixture()]
         stateService.accountSetupAutofill["1"] = .setUpLater
