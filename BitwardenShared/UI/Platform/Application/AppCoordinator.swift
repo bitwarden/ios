@@ -92,6 +92,8 @@ class AppCoordinator: Coordinator, HasRootNavigator {
             )
         case let .didLogout(userId, userInitiated):
             await handleAuthEvent(.didLogout(userId: userId, userInitiated: userInitiated))
+        case .didLogOutAll:
+            await handleAuthEvent(.action(.logout(userId: nil, userInitiated: true)))
         case .didStart:
             await handleAuthEvent(.didStart)
         case let .didTimeout(userId):
@@ -346,7 +348,7 @@ extension AppCoordinator: AuthCoordinatorDelegate {
 
             guard let route = appExtensionDelegate.authCompletionRoute else { return }
             navigate(to: route)
-        case .appIntent, .mainApp:
+        case .mainApp:
             showTab(route: .vault(.list))
 
             if let rehydratableTarget {

@@ -79,6 +79,7 @@ struct DefaultAppIntentMediator: AppIntentMediator {
 
     func lockAllUsers() async throws {
         try await authRepository.lockAllVaults(isManuallyLocking: true)
+        await stateService.addPendingAppIntentAction(.lockAll)
     }
 
     func logoutAllUsers() async throws {
@@ -86,12 +87,18 @@ struct DefaultAppIntentMediator: AppIntentMediator {
             return
         }
 
+        var allAccountsLoggedOut = true
         for account in accounts {
             do {
                 try await authRepository.logout(userId: account.profile.userId, userInitiated: true)
             } catch {
+                allAccountsLoggedOut = false
                 errorReporter.log(error: error)
             }
+        }
+
+        if allAccountsLoggedOut {
+            await stateService.addPendingAppIntentAction(.logOutAll)
         }
     }
 

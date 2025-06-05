@@ -17,6 +17,11 @@ import UIKit
 ///     }
 ///
 public class ServiceContainer: Services { // swiftlint:disable:this type_body_length
+    // MARK: Static properties
+
+    /// The singleton instance of the `ServiceContainer`.
+    private static var sharedInstance: ServiceContainer?
+
     // MARK: Properties
 
     /// The service used by the application to make API requests.
@@ -858,6 +863,36 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService,
             watchService: watchService
         )
+    }
+
+    // MARK: Static methods
+
+    /// Creates a singleton instance of the `ServiceContainer` or returns one if it has already been created.
+    /// - Parameters:
+    ///   - appContext: The context in which the app is running.
+    ///   - application: The application instance.
+    ///   - errorReporter: The closure to get a service used by the application to report non-fatal errors.
+    ///   - nfcReaderService: The closure to get a service used by the application to read NFC tags.
+    /// - Returns: Singleton `ServiceContainer`.
+    @MainActor
+    public static func shared(
+        appContext: AppContext = .mainApp,
+        application: Application? = nil,
+        errorReporter: () -> ErrorReporter,
+        nfcReaderService: () -> NFCReaderService? = { nil }
+    ) -> ServiceContainer {
+        if let sharedInstance {
+            return sharedInstance
+        }
+
+        let serviceContainer = ServiceContainer(
+            appContext: appContext,
+            application: application,
+            errorReporter: errorReporter(),
+            nfcReaderService: nfcReaderService()
+        )
+        sharedInstance = serviceContainer
+        return serviceContainer
     }
 }
 

@@ -26,6 +26,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     var migrationService: MockMigrationService!
     var notificationCenterService: MockNotificationCenterService!
     var notificationService: MockNotificationService!
+    var pendingAppIntentActionMediator: MockPendingAppIntentActionMediator!
     var policyService: MockPolicyService!
     var router: MockRouter<AuthEvent, AuthRoute>!
     var stateService: MockStateService!
@@ -60,6 +61,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         migrationService = MockMigrationService()
         notificationCenterService = MockNotificationCenterService()
         notificationService = MockNotificationService()
+        pendingAppIntentActionMediator = MockPendingAppIntentActionMediator()
         policyService = MockPolicyService()
         stateService = MockStateService()
         syncService = MockSyncService()
@@ -83,6 +85,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
                 fido2UserInterfaceHelper: fido2UserInterfaceHelper,
                 migrationService: migrationService,
                 notificationService: notificationService,
+                pendingAppIntentActionMediator: pendingAppIntentActionMediator,
                 policyService: policyService,
                 notificationCenterService: notificationCenterService,
                 stateService: stateService,
@@ -109,6 +112,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         migrationService = nil
         notificationCenterService = nil
         notificationService = nil
+        pendingAppIntentActionMediator = nil
         policyService = nil
         router = nil
         stateService = nil
@@ -495,6 +499,17 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         errorReporter.errors.removeAll()
     }
 
+    /// `init()` subscribes to will pending App Intent actions publisher and handles an active user timeout.
+    @MainActor
+    func test_init_pendingAppIntentActionsTask() {
+        // Wait and reset for the first publisher default values which are `nil`.
+        waitFor(pendingAppIntentActionMediator.executePendingAppIntentActionsCalled)
+        pendingAppIntentActionMediator.executePendingAppIntentActionsCalled = false
+
+        stateService.pendingAppIntentActionsSubject.send([.lockAll])
+        waitFor(pendingAppIntentActionMediator.executePendingAppIntentActionsCalled)
+    }
+
     /// `init()` starts the upload-event timer and attempts to upload events.
     @MainActor
     func test_init_uploadEvents() {
@@ -559,6 +574,17 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
     func test_onPendingAppIntentActionSuccess_lockAllDataNoAccount() async {
         await subject.onPendingAppIntentActionSuccess(.lockAll, data: "noAccount")
         XCTAssertTrue(coordinator.events.isEmpty)
+    }
+
+    /// `onPendingAppIntentActionSuccess(_:data:)` handles event `.didLogOutAll` when
+    /// pending app intent action is `.logOutAll`.
+    @MainActor
+    func test_onPendingAppIntentActionSuccess_logOutAll() async {
+        await subject.onPendingAppIntentActionSuccess(.logOutAll, data: nil)
+        XCTAssertEqual(
+            coordinator.events,
+            [.didLogOutAll]
+        )
     }
 
     /// `onPendingAppIntentActionSuccess(_:data:)` sets `setAuthCompletionRoute` as the generator when
