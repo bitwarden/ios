@@ -89,7 +89,7 @@ struct ViewItemView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            editItemFloatingActionButton {
+            editItemFloatingActionButton(hidden: !store.state.canEdit) {
                 store.send(.editPressed)
             }
         }
