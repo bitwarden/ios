@@ -5,7 +5,7 @@
 class ExtensionActivationProcessor: StateProcessor<
     ExtensionActivationState,
     ExtensionActivationAction,
-    ExtensionActivationEffect
+    Void
 > {
     // MARK: Types
 
@@ -40,28 +40,10 @@ class ExtensionActivationProcessor: StateProcessor<
 
     // MARK: Methods
 
-    override func perform(_ effect: ExtensionActivationEffect) async {
-        switch effect {
-        case .appeared:
-            await loadFeatureFlag()
-        }
-    }
-
     override func receive(_ action: ExtensionActivationAction) {
         switch action {
         case .cancelTapped:
             appExtensionDelegate?.didCancel()
         }
-    }
-
-    // MARK: Private
-
-    /// Sets the feature flag value to be used.
-    ///
-    private func loadFeatureFlag() async {
-        state.isNativeCreateAccountFeatureFlagEnabled = await services.configService.getFeatureFlag(
-            .nativeCreateAccountFlow,
-            isPreAuth: true
-        )
     }
 }

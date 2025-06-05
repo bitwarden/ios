@@ -18,8 +18,7 @@ protocol SettingsProcessorDelegate: AnyObject {
 final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Void> {
     // MARK: Types
 
-    typealias Services = HasConfigService
-        & HasErrorReporter
+    typealias Services = HasErrorReporter
         & HasStateService
 
     // MARK: Private Properties
@@ -61,7 +60,6 @@ final class SettingsProcessor: StateProcessor<SettingsState, SettingsAction, Voi
         // Kick off this task in init so that the tab bar badge will be updated immediately when
         // the tab bar is shown vs once the user navigates to the settings tab.
         badgeUpdateTask = Task { @MainActor [weak self] in
-            guard await self?.services.configService.getFeatureFlag(.nativeCreateAccountFlow) == true else { return }
             do {
                 guard let publisher = try await self?.services.stateService.settingsBadgePublisher() else { return }
                 for await badgeState in publisher.values {

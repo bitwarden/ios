@@ -11,9 +11,6 @@ struct StartRegistrationState: Equatable {
     /// The text in the email text field.
     var emailText: String = ""
 
-    /// Whether the native create account feature flag is on.
-    var isCreateAccountFeatureFlagEnabled = false
-
     /// Whether the terms and privacy toggle is on.
     var isReceiveMarketingToggleOn: Bool = false
 

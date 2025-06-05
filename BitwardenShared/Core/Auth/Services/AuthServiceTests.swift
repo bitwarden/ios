@@ -408,7 +408,6 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appSettingsStore.appId = "App id"
         clientService.mockAuth.hashPasswordResult = .success("hashed password")
         configService.featureFlagsBool[.importLoginsFlow] = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         credentialIdentityStore.state.mockIsEnabled = false
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"
@@ -481,7 +480,6 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         ]
         appSettingsStore.appId = "App id"
         clientService.mockAuth.hashPasswordResult = .success("hashed password")
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         credentialIdentityStore.state.mockIsEnabled = true
         stateService.accountSetupAutofillError = BitwardenTestError.example
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
@@ -514,7 +512,6 @@ class AuthServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_
         appSettingsStore.appId = "App id"
         clientService.mockAuth.hashPasswordResult = .success("hashed password")
         configService.featureFlagsBool[.importLoginsFlow] = true
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         credentialIdentityStore.state.mockIsEnabled = true
         stateService.preAuthEnvironmentURLs = EnvironmentURLData(base: URL(string: "https://vault.bitwarden.com"))
         systemDevice.modelIdentifier = "Model id"

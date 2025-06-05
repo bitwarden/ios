@@ -92,13 +92,6 @@ class StartRegistrationViewTests: BitwardenTestCase {
     /// Tests the view renders correctly when the text fields are all empty.
     @MainActor
     func test_snapshot_empty() {
-        assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    /// Tests the view renders correctly for the native create account feature flag.
-    @MainActor
-    func test_snapshot_nativeCreateAccountFeatureFlag() {
-        processor.state.isCreateAccountFeatureFlagEnabled = true
         assertSnapshots(of: subject, as: [.defaultPortrait, .defaultPortraitDark])
     }
 

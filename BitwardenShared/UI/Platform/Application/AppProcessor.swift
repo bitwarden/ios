@@ -429,7 +429,6 @@ extension AppProcessor {
         // Don't mark the user's progress as complete in the extension, otherwise the app may not
         // see that the user's progress needs to be updated to publish new values to subscribers.
         guard appExtensionDelegate?.isInAppExtension != true,
-              await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
               await services.autofillCredentialService.isAutofillCredentialsEnabled()
         else { return }
         do {
