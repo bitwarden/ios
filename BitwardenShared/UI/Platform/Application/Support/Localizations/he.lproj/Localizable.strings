@@ -932,8 +932,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "אין דוא\"ל? **[חזור](https://)** כדי לערוך את כתובת הדוא\"ל שלך.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "או **[היכנס](https://)**, ייתכן שכבר יש לך חשבון.";
 "OpenEmailApp" = "פתח יישום דוא\"ל";
-"SetPassword" = "הגדר סיסמה";
-"FinishCreatingYourAccountForXBySettingAPassword." = "סיים ליצור את החשבון שלך עבור %1$@ על ידי הגדרת סיסמה.";
 "VerifyingEmail" = "מאמת דוא\"ל";
 "EmailVerified" = "דוא\"ל אומת";
 "AccountSuccessfullyCreated" = "החשבון נוצר בהצלחה!";
@@ -1211,3 +1209,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
