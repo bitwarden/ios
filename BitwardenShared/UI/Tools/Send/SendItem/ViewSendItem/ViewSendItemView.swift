@@ -143,8 +143,10 @@ struct ViewSendItemView: View {
     /// The send details section, containing the send's name, content, and deletion date.
     @ViewBuilder private var sendDetailsSection: some View {
         SectionView(Localizations.sendDetails, contentSpacing: 8) {
-            // swiftlint:disable:next line_length
-            BitwardenTextValueField(title: Localizations.sendNameRequired, value: store.state.sendView.name, valueAccessibilityIdentifier: "ViewSendNameField")
+            BitwardenTextValueField(
+                title: Localizations.sendNameRequired,
+                value: store.state.sendView.name,
+                valueAccessibilityIdentifier: "ViewSendNameField")
 
             switch store.state.sendView.type {
             case .file:
@@ -169,8 +171,10 @@ struct ViewSendItemView: View {
                 }
             case .text:
                 if let text = store.state.sendView.text?.text {
-                    // swiftlint:disable:next line_length
-                    BitwardenTextValueField(title: Localizations.textToShare, value: text, valueAccessibilityIdentifier: "ViewSendContentText")
+                    BitwardenTextValueField(
+                        title: Localizations.textToShare,
+                        value: text,
+                        valueAccessibilityIdentifier: "ViewSendContentText")
                 }
             }
 
