@@ -17,6 +17,7 @@ jobs:
       release_name: "Password Manager"
       workflow_name: "publish-github-release.yml"
       credentials_filename: "appstoreconnect-fastlane.json"
+      project_type: ios
       check_release_command: >
         bundle exec fastlane ios get_latest_version api_key_path:$CREDENTIALS_PATH
     secrets: inherit
@@ -28,6 +29,7 @@ jobs:
       release_name: "Authenticator"
       workflow_name: "publish-github-release.yml"
       credentials_filename: "appstoreconnect-fastlane.json"
+      project_type: ios
       check_release_command: >
         bundle exec fastlane ios get_latest_version_authenticator api_key_path:$CREDENTIALS_PATH
     secrets: inherit
