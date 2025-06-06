@@ -772,9 +772,13 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             storeType: .persisted
         )
 
-        let sharedKeychainRepository = DefaultSharedKeychainRepository(
+        let sharedKeychainStorage = DefaultSharedKeychainStorage(
             sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
             keychainService: keychainService
+        )
+
+        let sharedKeychainRepository = DefaultSharedKeychainRepository(
+            storage: sharedKeychainStorage
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
