@@ -263,7 +263,7 @@
 "FileSource" = "File Source";
 "FeatureUnavailable" = "Feature unavailable";
 "MaxFileSize" = "Maximum file size is 100 MB.";
-"RequiredMaxFileSize" = "Required. Maximum file size is 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "You cannot use this feature until you update your encryption key.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Learn more";
