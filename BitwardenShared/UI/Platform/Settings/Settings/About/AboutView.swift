@@ -26,7 +26,7 @@ struct AboutView: View {
             copyrightNotice
         }
         .animation(.default, value: store.state.flightRecorderActiveLog)
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.about, titleDisplayMode: .inline)
         .task {
             await store.perform(.loadData)

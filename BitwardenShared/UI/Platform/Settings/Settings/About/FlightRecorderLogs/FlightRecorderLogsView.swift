@@ -67,7 +67,7 @@ struct FlightRecorderLogsView: View {
                 logRow(for: log)
             }
         }
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// A row view for a single log within the logs list.

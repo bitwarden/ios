@@ -117,7 +117,7 @@ private struct SearchableVaultListView: View {
         }
         .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .setUpLater)
         .animation(.easeInOut, value: store.state.importLoginsSetupProgress == .complete)
-        .scrollView(centerContentVertically: true, padding: 12)
+        .scrollView(centerContentVertically: true)
     }
 
     /// The action card for importing login items.
@@ -244,7 +244,7 @@ private struct SearchableVaultListView: View {
                 )
             )
         }
-        .scrollView(centerContentVertically: true, padding: 12)
+        .scrollView(centerContentVertically: true)
     }
 
     /// A view that displays the main vault interface, including sections for groups and
@@ -268,7 +268,7 @@ private struct SearchableVaultListView: View {
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.

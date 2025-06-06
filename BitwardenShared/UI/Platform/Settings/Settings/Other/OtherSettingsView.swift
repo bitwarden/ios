@@ -35,7 +35,7 @@ struct OtherSettingsView: View {
                 }
             }
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.other, titleDisplayMode: .inline)
         .toast(store.binding(
             get: \.toast,

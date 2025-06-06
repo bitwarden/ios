@@ -13,17 +13,14 @@ struct PendingRequestsView: View {
     // MARK: View
 
     var body: some View {
-        GeometryReader { geometry in
-            LoadingView(state: store.state.loadingState) { pendingRequests in
-                if pendingRequests.isEmpty {
-                    empty
-                } else {
-                    pendingRequestsList(pendingRequests)
-                }
+        LoadingView(state: store.state.loadingState) { pendingRequests in
+            if pendingRequests.isEmpty {
+                empty
+                    .scrollView(centerContentVertically: true)
+            } else {
+                pendingRequestsList(pendingRequests)
+                    .scrollView()
             }
-            .padding(.vertical, 16)
-            .frame(minHeight: geometry.size.height)
-            .scrollView(addVerticalPadding: false)
         }
         .navigationBar(title: Localizations.pendingLogInRequests, titleDisplayMode: .inline)
         .toolbar {
@@ -86,17 +83,14 @@ struct PendingRequestsView: View {
     /// - Parameter pendingRequests: The pending login requests to display.
     ///
     private func pendingRequestsList(_ pendingRequests: [LoginRequest]) -> some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 0) {
+        VStack(spacing: 24) {
+            ContentBlock(dividerLeadingPadding: 16) {
                 ForEach(pendingRequests) { pendingRequest in
                     pendingRequestRow(pendingRequest, hasDivider: pendingRequest != pendingRequests.last)
                 }
             }
-            .cornerRadius(10)
 
             declineAllRequests
-
-            Spacer()
         }
     }
 

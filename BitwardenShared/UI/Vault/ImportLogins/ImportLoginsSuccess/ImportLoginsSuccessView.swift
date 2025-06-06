@@ -16,6 +16,7 @@ struct ImportLoginsSuccessView: View {
         VStack(spacing: 24) {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.devices,
+                style: .mediumImage,
                 title: Localizations.importSuccessful,
                 message: Localizations.manageYourLoginsFromAnywhereWithBitwardenToolsForWebAndDesktop
             )
@@ -46,7 +47,7 @@ struct ImportLoginsSuccessView: View {
             }
             .buttonStyle(.primary())
         }
-        .padding(.top, 8)
+        .padding(.top, 12)
         .scrollView()
         .navigationBar(title: Localizations.bitwardenTools, titleDisplayMode: .inline)
         .toolbar {

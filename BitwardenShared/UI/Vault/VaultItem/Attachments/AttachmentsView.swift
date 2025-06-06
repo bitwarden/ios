@@ -19,7 +19,7 @@ struct AttachmentsView: View {
 
             addAttachmentView
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.attachments, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {

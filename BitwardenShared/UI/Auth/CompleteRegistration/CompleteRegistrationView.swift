@@ -47,7 +47,7 @@ struct CompleteRegistrationView: View {
             title: Localizations.createAccount,
             titleDisplayMode: .inline
         )
-        .scrollView(padding: 12)
+        .scrollView()
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)

@@ -104,7 +104,7 @@ struct UpdateMasterPasswordView: View {
                 )
             }
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationTitle(Localizations.updateMasterPassword)
         .navigationBarTitleDisplayMode(.inline)

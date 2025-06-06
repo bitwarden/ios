@@ -20,7 +20,7 @@ struct LoginView: View {
 
             loggedInAs
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor.ignoresSafeArea())
         .navigationTitle(Localizations.bitwarden)
         .navigationBarTitleDisplayMode(.inline)

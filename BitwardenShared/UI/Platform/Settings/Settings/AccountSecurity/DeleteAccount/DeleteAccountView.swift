@@ -17,7 +17,7 @@ struct DeleteAccountView: View {
             viewContent
         }
         .navigationBar(title: Localizations.deleteAccount, titleDisplayMode: .inline)
-        .scrollView(padding: 12)
+        .scrollView()
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)

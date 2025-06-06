@@ -67,7 +67,7 @@ extension View {
         addVerticalPadding: Bool = true,
         backgroundColor: Color = Asset.Colors.backgroundPrimary.swiftUIColor,
         centerContentVertically: Bool = false,
-        padding: CGFloat = 16,
+        padding: CGFloat = 12,
         showsIndicators: Bool = true
     ) -> some View {
         modifier(ScrollViewModifier(

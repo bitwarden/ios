@@ -49,7 +49,7 @@ struct MasterPasswordGuidanceView: View {
                 }
             )
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.masterPasswordHelp, titleDisplayMode: .inline)
         .toolbar {
             closeToolbarItem {

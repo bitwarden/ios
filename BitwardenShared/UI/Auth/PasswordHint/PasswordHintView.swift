@@ -22,7 +22,7 @@ struct PasswordHintView: View {
             )
             .textFieldConfiguration(.email)
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
         .navigationBar(title: Localizations.passwordHint, titleDisplayMode: .inline)
         .toolbar {

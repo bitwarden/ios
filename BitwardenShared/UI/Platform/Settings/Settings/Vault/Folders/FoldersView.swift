@@ -19,7 +19,7 @@ struct FoldersView: View {
                     .background(Color(asset: Asset.Colors.backgroundPrimary))
             } else {
                 folders
-                    .scrollView(padding: 12)
+                    .scrollView()
             }
         }
         .navigationBar(title: Localizations.folders, titleDisplayMode: .inline)

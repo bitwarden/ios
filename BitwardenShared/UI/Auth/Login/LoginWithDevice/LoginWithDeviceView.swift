@@ -30,7 +30,7 @@ struct LoginWithDeviceView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(.top, 12)
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: store.state.navBarText, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {

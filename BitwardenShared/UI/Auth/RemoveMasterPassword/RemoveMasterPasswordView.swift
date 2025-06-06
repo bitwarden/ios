@@ -69,7 +69,7 @@ struct RemoveMasterPasswordView: View {
         }
         .navigationBar(title: Localizations.removeMasterPassword, titleDisplayMode: .inline)
         .padding(.top, 12)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 }
 

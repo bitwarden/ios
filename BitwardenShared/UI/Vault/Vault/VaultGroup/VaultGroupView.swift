@@ -109,7 +109,7 @@ struct VaultGroupView: View {
                 .buttonStyle(.primary(shouldFillWidth: false))
             }
         }
-        .scrollView(centerContentVertically: true, padding: 12)
+        .scrollView(centerContentVertically: true)
     }
 
     /// A view that displays either the group or empty interface.
@@ -214,7 +214,7 @@ struct VaultGroupView: View {
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// Creates a row in the list for the provided item.

@@ -65,7 +65,7 @@ struct ExportCXFView: View {
                 .buttonStyle(.secondary())
                 .accessibilityIdentifier("CancelButton")
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 12)
             .background(Asset.Colors.backgroundSecondary.swiftUIColor)
         }
         .transition(.opacity)

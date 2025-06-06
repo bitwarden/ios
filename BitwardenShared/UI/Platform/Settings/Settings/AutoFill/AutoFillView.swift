@@ -21,7 +21,7 @@ struct AutoFillView: View {
             additionalOptionsSection
         }
         .animation(.easeInOut, value: store.state.badgeState?.autofillSetupProgress == .complete)
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.autofill, titleDisplayMode: .inline)
         .task {
             await store.perform(.fetchSettingValues)

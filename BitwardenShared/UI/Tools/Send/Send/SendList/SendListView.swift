@@ -113,7 +113,7 @@ private struct MainSendListView: View {
 
             Spacer()
         }
-        .scrollView(centerContentVertically: true, padding: 12)
+        .scrollView(centerContentVertically: true)
     }
 
     /// A view that displays the search interface, including search results, an empty search
@@ -128,7 +128,7 @@ private struct MainSendListView: View {
                     )
                 }
             }
-            .scrollView(padding: 12)
+            .scrollView()
         } else {
             SearchNoResultsView()
         }
@@ -150,7 +150,7 @@ private struct MainSendListView: View {
             }
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// Creates a section that appears in the sends list.

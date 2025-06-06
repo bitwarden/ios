@@ -76,7 +76,7 @@ struct PasswordHistoryListView: View {
                 passwordHistoryRow(passwordHistory)
             }
         }
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// Return a view for a single row in the password history list.

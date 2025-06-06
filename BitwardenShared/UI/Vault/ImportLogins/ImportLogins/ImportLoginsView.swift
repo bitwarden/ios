@@ -43,7 +43,7 @@ struct ImportLoginsView: View {
     /// The intro page view.
     @ViewBuilder
     private func intro() -> some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 24) {
             IllustratedMessageView(
                 image: Asset.Images.Illustrations.import,
                 title: Localizations.giveYourVaultAHeadStart,
@@ -64,7 +64,7 @@ struct ImportLoginsView: View {
                 }
             }
         }
-        .padding(.top, 8)
+        .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .scrollView()
     }
@@ -115,7 +115,7 @@ struct ImportLoginsView: View {
         title: String,
         @ViewBuilder list: () -> some View
     ) -> some View {
-        VStack(spacing: 32) {
+        VStack(spacing: 24) {
             VStack(spacing: 12) {
                 Text(Localizations.stepXOfY(step, totalSteps))
                     .styleGuide(.subheadline, weight: .bold)
@@ -147,6 +147,7 @@ struct ImportLoginsView: View {
             }
         }
         .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+        .padding(.top, 12)
         .frame(maxWidth: .infinity)
         .scrollView()
     }

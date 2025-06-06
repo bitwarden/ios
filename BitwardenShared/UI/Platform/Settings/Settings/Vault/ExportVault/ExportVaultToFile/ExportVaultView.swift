@@ -24,7 +24,7 @@ struct ExportVaultView: View {
         }
         .animation(.default, value: store.state.filePasswordStrengthScore)
         .disabled(store.state.disableIndividualVaultExport)
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.exportVault, titleDisplayMode: .inline)
         .task {
             await store.perform(.loadData)

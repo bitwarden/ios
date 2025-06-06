@@ -32,7 +32,7 @@ struct AccountSecurityView: View {
             otherSection
         }
         .animation(.easeInOut, value: store.state.badgeState?.vaultUnlockSetupProgress == .complete)
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.accountSecurity, titleDisplayMode: .inline)
         .onChange(of: store.state.twoStepLoginUrl) { newValue in
             guard let url = newValue else { return }

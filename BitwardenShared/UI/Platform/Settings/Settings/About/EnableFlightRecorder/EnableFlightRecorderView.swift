@@ -21,7 +21,7 @@ struct EnableFlightRecorderView: View {
             footer
         }
         .navigationBar(title: Localizations.enableFlightRecorder, titleDisplayMode: .inline)
-        .scrollView(padding: 12)
+        .scrollView()
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismiss)
