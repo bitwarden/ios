@@ -47,7 +47,7 @@ public enum AppEvent: Equatable {
     ///
     case didLogout(userId: String, userInitiated: Bool)
 
-    /// Whent he user logs all their accounts.
+    /// When the user logs out all their accounts.
     case didLogOutAll
 
     /// When the app has started.
