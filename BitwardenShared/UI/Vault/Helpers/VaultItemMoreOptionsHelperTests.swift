@@ -524,6 +524,29 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertEqual(coordinator.routes.last, .editItem(.fixture(type: .identity)))
     }
 
+    /// `showMoreOptionsAlert()` shows the appropriate more options alert for a deleted login cipher.
+    @MainActor
+    func test_showMoreOptionsAlert_login_deleted() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.userHasMasterPassword = [account.profile.userId: true]
+
+        vaultRepository.fetchCipherResult = .success(.fixture(deletedDate: .now, type: .login))
+        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(login: .fixture())))
+
+        await subject.showMoreOptionsAlert(
+            for: item,
+            handleDisplayToast: { _ in },
+            handleOpenURL: { _ in }
+        )
+
+        let alert = try XCTUnwrap(coordinator.alertShown.last)
+        XCTAssertEqual(alert.title, "Bitwarden")
+        XCTAssertEqual(alert.alertActions.count, 2)
+        XCTAssertEqual(alert.alertActions[0].title, Localizations.view)
+        XCTAssertEqual(alert.alertActions[1].title, Localizations.cancel)
+    }
+
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a login cipher.
     @MainActor
     func test_showMoreOptionsAlert_login_minimal() async throws {

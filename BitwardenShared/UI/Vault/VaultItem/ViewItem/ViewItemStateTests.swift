@@ -42,6 +42,22 @@ class ViewItemStateTests: BitwardenTestCase {
         XCTAssertFalse(subject.canClone)
     }
 
+    /// `canEdit` returns `true` for a cipher that isn't deleted.
+    func test_canEdit() throws {
+        let subject = try ViewItemState(loadingState: .data(
+            XCTUnwrap(CipherItemState(existing: .fixture(), hasPremium: false))
+        ))
+        XCTAssertTrue(subject.canEdit)
+    }
+
+    /// `canEdit` returns `false` for a cipher that is deleted.
+    func test_canEdit_deleted() throws {
+        let subject = try ViewItemState(loadingState: .data(
+            XCTUnwrap(CipherItemState(existing: .fixture(deletedDate: .now), hasPremium: false))
+        ))
+        XCTAssertFalse(subject.canEdit)
+    }
+
     /// `isMasterPasswordRequired` is false when the user has no password.
     func test_isMasterPasswordRequired_repromptOff_noPassword() {
         let subject = ViewItemState(
