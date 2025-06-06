@@ -931,8 +931,6 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "NoEmailGoBackToEditYourEmailAddress" = "Ingen e-post? **[Gå tillbaka](https://)** för att redigera din e-postadress.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Eller **[logga in](https://)**, du kanske redan har ett konto.";
 "OpenEmailApp" = "Öppna e-postappen";
-"SetPassword" = "Ställ in lösenord";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Finish creating your account for %1$@ by setting a password.";
 "VerifyingEmail" = "Verifierar e-postadressen";
 "EmailVerified" = "E-post verifierad";
 "AccountSuccessfullyCreated" = "Ditt konto har skapats!";
@@ -1210,3 +1208,4 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";

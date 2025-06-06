@@ -930,8 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "Κανένα μήνυμα ηλ. ταχυδρομείου; **[Πηγαίνετε πίσω](https://)** για να επεξεργαστείτε τη διεύθυνση ηλ. ταχυδρομείου σας.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Ή **[συνδεθείτε](https://)**, μπορεί να έχετε ήδη λογαριασμό.";
 "OpenEmailApp" = "Άνοιγμα εφαρμογής ηλ. ταχυδρομείου";
-"SetPassword" = "Ορισμός κωδικού πρόσβασης";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Ολοκληρώστε τη δημιουργία του λογαριασμού σας για το %1$@ ορίζοντας έναν κωδικό πρόσβασης.";
 "VerifyingEmail" = "Επαλήθευση ηλ. ταχυδρομείου";
 "EmailVerified" = "Η διεύθυνση ηλ. ταχυδρομείου επιβεβαιώθηκε";
 "AccountSuccessfullyCreated" = "Επιτυχής δημιουργία λογαριασμού!";
@@ -1209,3 +1207,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";

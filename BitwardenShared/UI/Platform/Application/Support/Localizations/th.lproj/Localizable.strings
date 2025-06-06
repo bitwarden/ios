@@ -934,8 +934,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "No email? **[Go back](https://)** to edit your email address.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Or **[log in](https://)**, you may already have an account.";
 "OpenEmailApp" = "Open email app";
-"SetPassword" = "Set password";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Finish creating your account for %1$@ by setting a password.";
 "VerifyingEmail" = "Verifying email";
 "EmailVerified" = "Email verified";
 "AccountSuccessfullyCreated" = "Account successfully created!";
@@ -1213,3 +1211,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";

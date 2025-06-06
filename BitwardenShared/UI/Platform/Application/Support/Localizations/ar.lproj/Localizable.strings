@@ -930,8 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "لا يوجد بريد إلكتروني؟ **[رجوع إلى](https://)** لتحرير عنوان بريدك الإلكتروني.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "أو **[تسجيل الدخول](https://)**، قد يكون لديك حساب بالفعل.";
 "OpenEmailApp" = "افتح تطبيق البريد الإلكتروني";
-"SetPassword" = "تعيين كلمة مرور";
-"FinishCreatingYourAccountForXBySettingAPassword." = "إنهاء إنشاء حسابك لـ %1$@ عن طريق تعيين كلمة مرور.";
 "VerifyingEmail" = "التحقق من البريد الإلكتروني";
 "EmailVerified" = "تم التحقق من البريد الإلكتروني";
 "AccountSuccessfullyCreated" = "تم إنشاء الحساب بنجاح!";
@@ -1210,3 +1208,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";

@@ -930,8 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "Ingen e-mail? **[Gå tilbage](https://)** for at redigere e-mailadressen.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Eller **[log ind](https://)**, da en konto muligvis allerede eksisterer.";
 "OpenEmailApp" = "Åbn e-mail app";
-"SetPassword" = "Indstil adgangskode";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Afslut kontooprettelsen for %1$@ med at opsætte en adgangskode.";
 "VerifyingEmail" = "Bekræfter e-mail";
 "EmailVerified" = "E-mail bekræftet";
 "AccountSuccessfullyCreated" = "Kontoen er hermed oprettet!";
@@ -1209,3 +1207,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";

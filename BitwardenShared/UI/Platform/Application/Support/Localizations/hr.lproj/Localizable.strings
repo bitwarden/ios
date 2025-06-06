@@ -931,8 +931,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "e-pošta nije stigla? **[Vrati se](https://)** na unos adrese.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Ili se, ako već imaš račun, **[prijavi](https://)** .";
 "OpenEmailApp" = "Otvori aplikaciju za e-poštu";
-"SetPassword" = "Postavi lozinku";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Dovrši stvaranje svog računa za %1$@ postavljanjem lozinke.";
 "VerifyingEmail" = "Potvrda adrese e-pošte";
 "EmailVerified" = "e-pošta potvrđena";
 "AccountSuccessfullyCreated" = "Račun je uspješno stvoren!";
@@ -1210,3 +1208,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
