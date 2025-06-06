@@ -125,6 +125,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
         try await subject.lockAllUsers()
         XCTAssertTrue(authRepository.hasLockedAllVaults)
         XCTAssertTrue(authRepository.hasManuallyLocked)
+        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.lockAll) == true)
     }
 
     /// `lockAllUsers()` throws when trying to lock all user vaults.
@@ -133,6 +134,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
         await assertAsyncThrows(error: BitwardenTestError.example) {
             try await subject.lockAllUsers()
         }
+        XCTAssertTrue(stateService.pendingAppIntentActions.isEmptyOrNil)
     }
 
     /// `logoutAllUsers()` logs out all accounts.
@@ -144,6 +146,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
         ]
         try await subject.logoutAllUsers()
         XCTAssertEqual(authRepository.logoutUserIds, ["1", "2", "3"])
+        XCTAssertTrue(stateService.pendingAppIntentActions?.contains(.logOutAll) == true)
     }
 
     /// `logoutAllUsers()` logs out some accounts because one of them throws.
@@ -157,6 +160,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
         try await subject.logoutAllUsers()
         XCTAssertEqual(authRepository.logoutUserIds, ["1", "3"])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(stateService.pendingAppIntentActions.isEmptyOrNil)
     }
 
     /// `logoutAllUsers()` does nothing when there are no accounts.
@@ -165,6 +169,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
         try await subject.logoutAllUsers()
         XCTAssertTrue(authRepository.logoutUserIds.isEmpty)
         XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertTrue(stateService.pendingAppIntentActions.isEmptyOrNil)
     }
 
     /// `logoutAllUsers()` does nothing when getting accounts throw.
@@ -173,6 +178,7 @@ class AppIntentMediatorTests: BitwardenTestCase {
         try await subject.logoutAllUsers()
         XCTAssertTrue(authRepository.logoutUserIds.isEmpty)
         XCTAssertFalse(authRepository.logoutCalled)
+        XCTAssertTrue(stateService.pendingAppIntentActions.isEmptyOrNil)
     }
 
     /// `openGenerator()` adds the appropriate pending AppIntent action to open the generator.

@@ -1486,6 +1486,40 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertEqual(appSettingsStore.state?.activeUserId, "1")
     }
 
+    /// `pendingAppIntentActionsPublisher()` returns a publisher for the pending App Intent actions.
+    func test_pendingAppIntentActionsPublisher() async throws {
+        var publishedValues: [[PendingAppIntentAction]?] = []
+        let publisher = await subject.pendingAppIntentActionsPublisher()
+            .sink(receiveValue: { pendingActions in
+                publishedValues.append(pendingActions)
+            })
+        defer { publisher.cancel() }
+
+        await subject.addPendingAppIntentAction(.lockAll)
+
+        XCTAssertEqual(publishedValues, [nil, [.lockAll]])
+    }
+
+    /// `pendingAppIntentActionsPublisher()` gets the initial stored value if a cached pending actions don't exist.
+    func test_pendingAppIntentActionsPublisher_fetchesInitialValue() async throws {
+        let initialPendingActions: [PendingAppIntentAction]? = [.lockAll]
+        appSettingsStore.pendingAppIntentActions = initialPendingActions
+
+        var publishedValues: [[PendingAppIntentAction]?] = []
+        let publisher = await subject.pendingAppIntentActionsPublisher()
+            .sink(receiveValue: { pendingActions in
+                publishedValues.append(pendingActions)
+            })
+        defer { publisher.cancel() }
+
+        await subject.addPendingAppIntentAction(.logOutAll)
+
+        XCTAssertEqual(
+            publishedValues,
+            [initialPendingActions, [.lockAll, .logOutAll]]
+        )
+    }
+
     /// `pinProtectedUserKey(userId:)` returns the pin protected user key.
     func test_pinProtectedUserKey() async throws {
         await subject.addAccount(.fixture(profile: .fixture(userId: "1")))

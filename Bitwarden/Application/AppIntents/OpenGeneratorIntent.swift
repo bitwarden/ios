@@ -12,9 +12,8 @@ struct OpenGeneratorIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let services = ServiceContainer(
-            appContext: .appIntent(.generatePassphrase),
-            errorReporter: ErrorReporterFactory.makeDefaultErrorReporter()
+        let services = ServiceContainer.shared(
+            errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() }
         )
         let appIntentMediator = services.getAppIntentMediator()
 

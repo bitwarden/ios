@@ -66,6 +66,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
     var pendingAppIntentActions: [PendingAppIntentAction]?
+    var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentURLs: EnvironmentURLData?
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
@@ -762,6 +763,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
+    }
+
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never> {
+        pendingAppIntentActionsSubject.eraseToAnyPublisher()
     }
 
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {

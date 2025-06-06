@@ -784,6 +784,12 @@ protocol StateService: AnyObject {
     ///
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never>
 
+    /// A publisher for the pending App Intent actions.
+    ///
+    /// - Returns: A publisher for the pending App Intent actions.
+    ///
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never>
+
     /// A publisher for showing badges in the settings tab.
     ///
     /// - Returns: A publisher for showing badges in the settings tab.
@@ -1375,6 +1381,9 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     /// A service used to access data in the keychain.
     private let keychainRepository: KeychainRepository
 
+    /// A subject containing the pending App Intent actions.
+    private var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
+
     /// A subject containing the settings badge value mapped to user ID.
     private let settingsBadgeByUserIdSubject = CurrentValueSubject<[String: SettingsBadgeState], Never>([:])
 
@@ -1930,10 +1939,12 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async {
         guard !actions.isEmptyOrNil else {
             appSettingsStore.pendingAppIntentActions = nil
+            pendingAppIntentActionsSubject.send(nil)
             return
         }
 
         appSettingsStore.pendingAppIntentActions = actions
+        pendingAppIntentActionsSubject.send(actions)
     }
 
     func setPinKeys(
@@ -2094,6 +2105,13 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
             lastSyncTimeByUserIdSubject.value[userId] = appSettingsStore.lastSyncTime(userId: userId)
         }
         return lastSyncTimeByUserIdSubject.map { $0[userId] }.eraseToAnyPublisher()
+    }
+
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never> {
+        if pendingAppIntentActionsSubject.value == nil {
+            pendingAppIntentActionsSubject.value = appSettingsStore.pendingAppIntentActions
+        }
+        return pendingAppIntentActionsSubject.eraseToAnyPublisher()
     }
 
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {

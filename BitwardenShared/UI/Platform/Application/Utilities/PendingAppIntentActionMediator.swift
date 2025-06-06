@@ -72,6 +72,12 @@ class DefaultPendingAppIntentActionMediator: PendingAppIntentActionMediator {
             return
         }
 
+        if actions.contains(.logOutAll) {
+            await executeLogOutAll(currentActions: &actions)
+            await stateService.setPendingAppIntentActions(actions: actions)
+            return
+        }
+
         if actions.contains(.openGenerator) {
             actions.removeAll(where: { $0 == .openGenerator })
             await stateService.setPendingAppIntentActions(actions: actions)
@@ -101,5 +107,13 @@ class DefaultPendingAppIntentActionMediator: PendingAppIntentActionMediator {
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    /// Executes the `.logOutAll` pending action.
+    /// - Parameter currentActions: The current pending actions to update if necessary.
+    private func executeLogOutAll(currentActions: inout [PendingAppIntentAction]) async {
+        await delegate?.onPendingAppIntentActionSuccess(.logOutAll, data: nil)
+
+        currentActions.removeAll(where: { $0 == .logOutAll })
     }
 }

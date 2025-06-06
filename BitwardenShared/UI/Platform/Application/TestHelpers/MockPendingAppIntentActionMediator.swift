@@ -2,10 +2,10 @@
 
 class MockPendingAppIntentActionMediator: PendingAppIntentActionMediator {
     var delegate: PendingAppIntentActionMediatorDelegate?
-    var executePendingAppIntentActions = false
+    var executePendingAppIntentActionsCalled = false
 
     func executePendingAppIntentActions() async {
-        executePendingAppIntentActions = true
+        executePendingAppIntentActionsCalled = true
     }
 
     func setDelegate(_ delegate: PendingAppIntentActionMediatorDelegate) {

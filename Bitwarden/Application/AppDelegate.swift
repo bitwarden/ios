@@ -38,10 +38,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         UNUserNotificationCenter.current().delegate = self
 
-        let services = ServiceContainer(
+        let services = ServiceContainer.shared(
             application: UIApplication.shared,
-            errorReporter: ErrorReporterFactory.makeDefaultErrorReporter(),
-            nfcReaderService: DefaultNFCReaderService()
+            errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() },
+            nfcReaderService: { DefaultNFCReaderService() }
         )
         let appModule = DefaultAppModule(services: services)
         appProcessor = AppProcessor(appModule: appModule, services: services)

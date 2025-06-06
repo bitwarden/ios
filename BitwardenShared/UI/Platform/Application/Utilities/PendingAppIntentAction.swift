@@ -6,6 +6,9 @@ public enum PendingAppIntentAction: Codable, Equatable {
     /// Lock all accounts.
     case lockAll
 
+    /// Logs out all accounts.
+    case logOutAll
+
     /// Opens the generator view.
     case openGenerator
 }
