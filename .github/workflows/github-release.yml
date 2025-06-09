@@ -155,13 +155,12 @@ jobs:
 
       - name: Add Release Summary
         env:
-          RELEASE_ID: ${{ steps.create_release.outputs.release_id }}
-          RELEASE_TAG: "v${{ steps.version_info.outputs.version_name }}"
+          RELEASE_TAG: ${{ steps.get_release_info.outputs.tag_name }}
           RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
-          LAST_RELEASE_TAG: ${{ steps.get_last_tag.outputs.last_release_id }}
-          RELEASE_URL: ${{ steps.update_release_description.outputs.release_url }}
-          VERSION_NAME: ${{ steps.version_info.outputs.version_name }}
-          VERSION_NUMBER: ${{ steps.version_info.outputs.version_number }}
+          LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
+          RELEASE_URL: ${{ steps.create_release.outputs.url }}
+          VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
+          VERSION_NUMBER: ${{ steps.get_release_info.outputs.version_number }}
         run: |
           echo "# :fish_cake: Release ready at:" >> $GITHUB_STEP_SUMMARY
           echo "$RELEASE_URL" >> $GITHUB_STEP_SUMMARY
