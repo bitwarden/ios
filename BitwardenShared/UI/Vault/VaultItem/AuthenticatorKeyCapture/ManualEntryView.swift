@@ -60,7 +60,7 @@ struct ManualEntryView: View {
                 .ignoresSafeArea()
         )
         .padding(.top, 12)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// A view to wrap the button for triggering `.scanCodePressed`.

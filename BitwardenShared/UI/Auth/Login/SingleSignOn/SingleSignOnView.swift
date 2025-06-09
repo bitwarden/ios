@@ -18,7 +18,7 @@ struct SingleSignOnView: View {
             identifierTextField
         }
         .padding(.top, 12)
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.bitwarden, titleDisplayMode: .inline)
         .toolbar {
             cancelToolbarItem {

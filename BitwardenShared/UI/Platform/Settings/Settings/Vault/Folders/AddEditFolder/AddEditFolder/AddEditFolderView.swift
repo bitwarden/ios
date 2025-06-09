@@ -66,7 +66,7 @@ struct AddEditFolderView: View {
         VStack(alignment: .leading, spacing: 20) {
             nameEntryTextField
         }
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// The name entry text field.
