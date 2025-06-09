@@ -70,26 +70,21 @@ jobs:
         env:
           _APP_NAME_SUFFIX: ${{ steps.get_release_branch.outputs.app_name_suffix }}
         run: |
-          if [ ! -f ARTIFACTS_PATH/version_info.zip ]; then
-            echo "::warning::version-version.zip not found. Confirm why the build workflow skipped uploading it. Using default values - 0.0.0 (0)"
-
+          if [ -f "$ARTIFACTS_PATH/version-info.zip" ]; then
+            echo "🔖 version-info.zip was found, extracting info"
+            unzip -o "$ARTIFACTS_PATH/version-info.zip" -d "tmp"
+            filepath="tmp/version-info/version_info.json"
+            version_name=$(jq -r '.version_name' "$filepath")
+            version_number=$(jq -r '.version_number' "$filepath")
+            rm -rf tmp
+          else
+            echo "::warning::version-info.zip not found. Confirm why the build workflow skipped uploading it. Using default values - 0.0.0 (0)"
             version_name="0.0.0"
             version_number="0"
-
-            echo "version_number=$version_number" >> $GITHUB_OUTPUT
-            echo "version_name=$version_name" >> $GITHUB_OUTPUT
-            echo "🔖 Version: $version_name ($version_number)"
-            exit 0
           fi
 
-          # version-info.zip was found, extracting info
-          unzip -o "$ARTIFACTS_PATH/version-info.zip" -d "tmp"
-          filepath="tmp/version-info/version_info.json"
-          version_name=$(jq -r '.version_name' "$filepath")
-          version_number=$(jq -r '.version_number' "$filepath")
           echo "version_number=$version_number" >> $GITHUB_OUTPUT
           echo "version_name=$version_name" >> $GITHUB_OUTPUT
-          rm -rf tmp
           echo "🔖 Version: $version_name ($version_number)"
 
           tag_name="v$version_name-$_APP_NAME_SUFFIX" # e.g. v2025.6.0-bwpm
