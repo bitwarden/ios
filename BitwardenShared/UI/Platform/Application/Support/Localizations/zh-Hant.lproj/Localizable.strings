@@ -930,8 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "沒有電子郵件？**[回前頁](https://)** 以編輯您的電子郵件地址";
 "OrLogInYouMayAlreadyHaveAnAccount." = "或者 **[登入](https://)**，您已經擁有的帳戶。";
 "OpenEmailApp" = "開啟電子郵件 App";
-"SetPassword" = "設定密碼";
-"FinishCreatingYourAccountForXBySettingAPassword." = "設定密碼以完成創建您的 %1$@ 帳戶。";
 "VerifyingEmail" = "正在驗證電子郵件";
 "EmailVerified" = "電子郵件已驗證";
 "AccountSuccessfullyCreated" = "已成功建立帳號！";
@@ -1209,3 +1207,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
