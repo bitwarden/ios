@@ -40,7 +40,6 @@ jobs:
             exit 1
           fi
 
-
           echo "release_branch=$release_branch" >> $GITHUB_OUTPUT
           echo "workflow_name=$workflow_name" >> $GITHUB_OUTPUT
 
@@ -100,9 +99,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           _APP_NAME: ${{ steps.get_release_branch.outputs.app_name }}
-          _VERSION_NAME: ${{ steps.get_release_branch.outputs.version_name }}
-          _VERSION_NUMBER: ${{ steps.get_release_branch.outputs.version_number }}
           _RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
+          _VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
+          _VERSION_NUMBER: ${{ steps.get_release_info.outputs.version_number }}
           _TAG_NAME: ${{ steps.get_release_info.outputs.tag_name }}
           _LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
         run: |
