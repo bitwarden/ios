@@ -39,16 +39,14 @@ public enum AppEvent: Equatable {
         attemptAutomaticBiometricUnlock: Bool,
         didSwitchAccountAutomatically: Bool
     )
+
     /// When the user logs out from an account.
     ///
     /// - Parameters:
-    ///   - userId: The userId of the account that was logged out.
+    ///   - userId: The userId of the account that was logged out. If `nil` all accounts have been logged out.
     ///   - userInitiated: Did a user action trigger the account switch?
     ///
-    case didLogout(userId: String, userInitiated: Bool)
-
-    /// When the user logs out all their accounts.
-    case didLogOutAll
+    case didLogout(userId: String?, userInitiated: Bool)
 
     /// When the app has started.
     case didStart

@@ -50,10 +50,10 @@ public enum AuthEvent: Equatable {
     /// When the user logs out from an account.
     ///
     /// - Parameters:
-    ///   - userId: The userId of the account that was logged out.
+    ///   - userId: The userId of the account that was logged out. If `nil` all accounts haven been logged out.
     ///   - isUserInitiated: Did a user action trigger the account switch?
     ///
-    case didLogout(userId: String, userInitiated: Bool)
+    case didLogout(userId: String?, userInitiated: Bool)
 
     /// When the app starts
     case didStart

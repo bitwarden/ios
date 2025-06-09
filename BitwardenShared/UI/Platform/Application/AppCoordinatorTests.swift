@@ -248,13 +248,6 @@ class AppCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(module.authCoordinator.routes, [.landing])
     }
 
-    /// `handleEvent(_:)` with `didLogOutAll` navigates the user to the auth landing view.
-    @MainActor
-    func test_handleEvent_didLogOutAll() async {
-        await subject.handleEvent(.didLogOutAll)
-        XCTAssertEqual(module.authCoordinator.routes, [.landing])
-    }
-
     /// `handleEvent(_:)` with `.switchAccounts` has the router handle switching accounts.
     @MainActor
     func test_handleEvent_switchAccounts() async {

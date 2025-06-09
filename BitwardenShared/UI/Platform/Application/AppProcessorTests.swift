@@ -583,7 +583,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
         await subject.onPendingAppIntentActionSuccess(.logOutAll, data: nil)
         XCTAssertEqual(
             coordinator.events,
-            [.didLogOutAll]
+            [.didLogout(userId: nil, userInitiated: true)]
         )
     }
 

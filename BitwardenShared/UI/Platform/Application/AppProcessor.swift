@@ -728,7 +728,7 @@ extension AppProcessor: PendingAppIntentActionMediatorDelegate {
                 )
             )
         case .logOutAll:
-            await coordinator?.handleEvent(.didLogOutAll)
+            await coordinator?.handleEvent(.didLogout(userId: nil, userInitiated: true))
         case .openGenerator:
             await checkIfLockedAndPerformNavigation(route: .tab(.generator(.generator())))
         }
