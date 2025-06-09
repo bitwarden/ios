@@ -1,11 +1,6 @@
 import BitwardenKit
 import Foundation
 
-public enum SharedTimeoutApplication: String {
-    case authenticator = "bwa"
-    case passwordManager = "pm"
-}
-
 // MARK: - SharedKeychainRepository
 
 /// A repository for managing keychain items to be shared between Password Manager and Authenticator.

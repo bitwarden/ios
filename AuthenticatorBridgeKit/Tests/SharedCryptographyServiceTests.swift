@@ -18,7 +18,7 @@ final class SharedCryptographyServiceTests: AuthenticatorBridgeKitTestCase {
     override func setUp() {
         super.setUp()
         sharedKeychainRepository = MockSharedKeychainRepository()
-        sharedKeychainRepository.authenticatorKey = sharedKeychainRepository.generateKeyData()
+        sharedKeychainRepository.authenticatorKey = sharedKeychainRepository.generateMockKeyData()
         subject = DefaultAuthenticatorCryptographyService(
             sharedKeychainRepository: sharedKeychainRepository
         )

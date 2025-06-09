@@ -172,7 +172,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     /// Verify that `isSyncOn` returns true when the key is present in the keychain.
     ///
     func test_isSyncOn_true() async throws {
-        let key = keychainRepository.generateKeyData()
+        let key = keychainRepository.generateMockKeyData()
         try await keychainRepository.setAuthenticatorKey(key)
         let sync = await subject.isSyncOn()
         XCTAssertTrue(sync)

@@ -10,7 +10,9 @@ public class MockSharedKeychainRepository: SharedKeychainRepository {
 
     public init() {}
 
-    public func generateKeyData() -> Data {
+    /// Generates a `Data` object that looks like the key used for encrypting shared items.
+    /// Useful for tests that want reasonably authentic-looking data.
+    public func generateMockKeyData() -> Data {
         let key = SymmetricKey(size: .bits256)
         return key.withUnsafeBytes { Data(Array($0)) }
     }
