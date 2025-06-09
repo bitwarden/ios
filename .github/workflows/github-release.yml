@@ -47,9 +47,11 @@ jobs:
           case "$workflow_name" in
             *"Password Manager"* | "Build")
               echo "app_name=Password Manager" >> $GITHUB_OUTPUT
+              echo "app_name_suffix=bwpm" >> $GITHUB_OUTPUT
               ;;
             *"Authenticator"*)
               echo "app_name=Authenticator" >> $GITHUB_OUTPUT
+              echo "app_name_suffix=bwa" >> $GITHUB_OUTPUT
               ;;
             *)
               echo "::error::Unknown workflow name: $workflow_name"
