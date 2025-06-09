@@ -76,6 +76,7 @@ jobs:
             version_name=$(jq -r '.version_name' "$filepath")
             version_number=$(jq -r '.version_number' "$filepath")
             rm -rf tmp
+            rm "$ARTIFACTS_PATH/version-info.zip"
           else
             echo "::warning::version-info.zip not found. Confirm why the build workflow skipped uploading it. Using default values - 0.0.0 (0)"
             version_name="0.0.0"
