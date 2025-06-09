@@ -124,7 +124,7 @@ struct ViewItemView: View {
             )
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 }
 

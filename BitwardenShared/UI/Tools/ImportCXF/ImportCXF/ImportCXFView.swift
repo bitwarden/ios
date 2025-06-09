@@ -63,7 +63,7 @@ struct ImportCXFView: View {
                         .accessibilityIdentifier("CancelButton")
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 12)
                 .background(Asset.Colors.backgroundSecondary.swiftUIColor)
             }
         }

@@ -16,7 +16,7 @@ struct MoveToOrganizationView: View {
     var body: some View {
         content
             .navigationBar(title: Localizations.moveToOrganization, titleDisplayMode: .inline)
-            .scrollView(padding: 12)
+            .scrollView()
             .task { await store.perform(.fetchCipherOptions) }
             .toolbar {
                 cancelToolbarItem {
