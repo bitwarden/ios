@@ -930,8 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "Etkö saanut viestiä? **[Palaa takaisin](https://)** muokataksesi sähköpostiosoitettasi.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Tai **[kirjaudu sisään](https://)**, sinulla saattaa jo olla tili.";
 "OpenEmailApp" = "Avaa sähköpostappi";
-"SetPassword" = "Aseta salasana";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Viimeistele %1$@ -tilin luonti asettamalla salasana.";
 "VerifyingEmail" = "Vahvistetaan sähköpostiosoitetta";
 "EmailVerified" = "Sähköpostiosoite on vahvistettu";
 "AccountSuccessfullyCreated" = "Tilin luonti onnistui!";
@@ -1209,3 +1207,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
