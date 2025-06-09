@@ -119,15 +119,9 @@ jobs:
           release_id_from_url=$(echo "$release_url" | sed 's/.*\/tag\///')
           echo "release_id_from_url=$release_id_from_url" >> $GITHUB_OUTPUT
 
-          # Get release info for outputs
-          release_data=$(gh release view "$_TAG_NAME" --json id)
-          release_id=$(echo "$release_data" | jq -r .id)
-
-          echo "id=$release_id" >> $GITHUB_OUTPUT
           echo "url=$release_url" >> $GITHUB_OUTPUT
 
           echo "✅ Release created: $release_url"
-          echo "🔖 Release ID: $release_id"
           echo "🔖 Release ID from URL: $release_id_from_url"
           echo "🔖 Release URL: $release_url"
 
