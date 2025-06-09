@@ -13,18 +13,18 @@ struct LockAllAccountsIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let errorReporter = ErrorReporterFactory.makeDefaultErrorReporter()
-        do {
-            let services = ServiceContainer(
-                appContext: .appIntent(.lockAll),
-                errorReporter: errorReporter
-            )
-            let appIntentMediator = services.getAppIntentMediator()
+        let services = ServiceContainer.shared(
+            errorReporter: { errorReporter }
+        )
+        let appIntentMediator = services.getAppIntentMediator()
 
+        do {
             guard try await appIntentMediator.canRunAppIntents() else {
                 return .result(dialog: "ThisOperationIsNotAllowedOnThisAccount")
             }
 
             try await appIntentMediator.lockAllUsers()
+
             return .result(dialog: "AllAccountsHaveBeenLocked")
         } catch let error as BitwardenShared.AppIntentError {
             throw error

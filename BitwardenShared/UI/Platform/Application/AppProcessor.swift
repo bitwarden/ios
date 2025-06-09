@@ -96,7 +96,6 @@ public class AppProcessor {
                     await self?.coordinator?.handleEvent(.didTimeout(userId: activeUserId))
                 }
                 await handleNeverTimeOutAccountBecameActive()
-                await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
                 await completeAutofillAccountSetupIfEnabled()
                 #if DEBUG
                 debugWillEnterForeground?()
@@ -118,6 +117,14 @@ public class AppProcessor {
                 #if DEBUG
                 debugDidEnterBackground?()
                 #endif
+            }
+        }
+
+        // PM-19400: We need to listen to the changes on pending app intent actions
+        // so they get executed and update the navigation/UI accordingly.
+        Task {
+            for await _ in await services.stateService.pendingAppIntentActionsPublisher().values {
+                await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
             }
         }
     }
@@ -720,6 +727,8 @@ extension AppProcessor: PendingAppIntentActionMediatorDelegate {
                     didSwitchAccountAutomatically: false
                 )
             )
+        case .logOutAll:
+            await coordinator?.handleEvent(.didLogout(userId: nil, userInitiated: true))
         case .openGenerator:
             await checkIfLockedAndPerformNavigation(route: .tab(.generator(.generator())))
         }
