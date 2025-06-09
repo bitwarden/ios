@@ -41,7 +41,7 @@ class AppProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_body
 
     // MARK: Setup & Teardown
 
-    override func setUp() {
+    override func setUp() { // swiftlint:disable:this function_body_length
         super.setUp()
 
         router = MockRouter(routeForEvent: { _ in .landing })

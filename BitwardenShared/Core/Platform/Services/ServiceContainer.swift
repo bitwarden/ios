@@ -897,6 +897,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 }
 
 extension ServiceContainer {
+    // MARK: Properties
+
     var accountAPIService: AccountAPIService {
         apiService
     }
@@ -917,6 +919,12 @@ extension ServiceContainer {
         apiService
     }
 
+    var organizationAPIService: OrganizationAPIService {
+        apiService
+    }
+
+    // MARK: Methods
+
     /// Gets the mediator to be used by an App Intent.
     public func getAppIntentMediator() -> AppIntentMediator {
         DefaultAppIntentMediator(
@@ -926,9 +934,5 @@ extension ServiceContainer {
             generatorRepository: generatorRepository,
             stateService: stateService
         )
-    }
-
-    var organizationAPIService: OrganizationAPIService {
-        apiService
     }
 }

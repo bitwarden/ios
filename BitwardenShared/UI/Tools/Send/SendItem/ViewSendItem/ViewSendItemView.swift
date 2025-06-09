@@ -146,7 +146,8 @@ struct ViewSendItemView: View {
             BitwardenTextValueField(
                 title: Localizations.sendNameRequired,
                 value: store.state.sendView.name,
-                valueAccessibilityIdentifier: "ViewSendNameField")
+                valueAccessibilityIdentifier: "ViewSendNameField"
+            )
 
             switch store.state.sendView.type {
             case .file:
@@ -174,7 +175,8 @@ struct ViewSendItemView: View {
                     BitwardenTextValueField(
                         title: Localizations.textToShare,
                         value: text,
-                        valueAccessibilityIdentifier: "ViewSendContentText")
+                        valueAccessibilityIdentifier: "ViewSendContentText"
+                    )
                 }
             }
 

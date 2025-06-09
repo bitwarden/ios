@@ -1,5 +1,5 @@
-import Foundation
 import BitwardenKit
+import Foundation
 
 // MARK: - IdentityTokenErrors
 
