@@ -7,6 +7,10 @@ on:
         description: 'GitHub Action Run ID containing artifacts'
         required: true
         type: string
+      release-ticket-id:
+        description: 'Release Ticket ID - e.g. RELEASE-1762'
+        required: true
+        type: string
 
 env:
     ARTIFACTS_PATH: artifacts
@@ -95,6 +99,29 @@ jobs:
           echo "🔖 Last release tag: $last_release_tag"
           echo "last_release_tag=$last_release_tag" >> $GITHUB_OUTPUT
 
+      - name: Get product release notes
+        id: get_release_notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+          _VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
+          _RELEASE_TICKET_ID: ${{ inputs.release-ticket-id }}
+          _JIRA_API_EMAIL: ${{ secrets.JIRA_API_EMAIL }}
+          _JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          echo "Getting product release notes"
+          product_release_notes=$(python3 .github/scripts/jira-get-release-notes/jira_release_notes.py $_RELEASE_TICKET_ID $_JIRA_API_EMAIL $_JIRA_API_TOKEN)
+
+          if [[ -z "$product_release_notes" || $product_release_notes == "Error checking"* ]]; then
+            echo "::warning::Failed to fetch release notes from Jira. Output: $product_release_notes"
+            product_release_notes="<insert product release notes here>"
+          else
+            echo "✅ Product release notes:"
+            echo "$product_release_notes"
+          fi
+
+          echo "$product_release_notes" > product_release_notes.txt
+
       - name: Create GitHub Release
         id: create_release
         env:
@@ -129,18 +156,25 @@ jobs:
         id: update_release_description
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ steps.create_release.outputs.release_id_from_url }}
-          ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
+          _RELEASE_ID: ${{ steps.create_release.outputs.release_id_from_url }}
+          _ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
         run: |
-          # Add builds source to the end of the release description
-          current_body=$(gh release view $RELEASE_ID --json body --jq .body)
-          updated_body="${current_body}
+          echo "Getting current release body. Release ID: $_RELEASE_ID"
+          current_body=$(gh release view "$_RELEASE_ID" --json body --jq .body)
+
+          product_release_notes=$(cat product_release_notes.txt)
+
+          # Update release description with product release notes and builds source
+          updated_body="# Overview
+          ${product_release_notes}
+
+          ${current_body}
           **Builds Source:** https://github.com/${{ github.repository }}/actions/runs/$ARTIFACT_RUN_ID"
-          new_url=$(gh release edit $RELEASE_ID --notes "$updated_body")
+
+          new_release_url=$(gh release edit "$_RELEASE_ID" --notes "$updated_body")
 
           # draft release links change after editing
-          echo "release_url=$new_url" >> $GITHUB_OUTPUT
-          echo "🔖 New Release URL: $new_url"
+          echo "release_url=$new_release_url" >> $GITHUB_OUTPUT
 
       - name: Add Release Summary
         env:
