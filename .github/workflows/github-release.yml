@@ -152,7 +152,7 @@ jobs:
           _RELEASE_TAG: ${{ steps.get_release_info.outputs.tag_name }}
           _RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
           _LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
-          _RELEASE_URL: ${{ steps.create_release.outputs.url }}
+          _RELEASE_URL: ${{ steps.update_release_description.outputs.release_url }}
           _VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
           _VERSION_NUMBER: ${{ steps.get_release_info.outputs.version_number }}
         run: |
