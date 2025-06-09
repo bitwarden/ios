@@ -74,7 +74,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     /// result is returned instead of the key data from the keychain
     ///
     func test_getValue_badResult() async throws {
-        let key = SharedKeychainItem.lastActiveTime(application: .passwordManager, userId: "1")
+        let key = SharedKeychainItem.accountAutoLogout(userId: "1")
         let error = SharedKeychainServiceError.keyNotFound(key)
         keychainService.searchResult = .success([kSecValueData as String: NSObject()] as AnyObject)
 
@@ -87,7 +87,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     /// result is returned instead of the key data from the keychain
     ///
     func test_getValue_nilResult() async throws {
-        let key = SharedKeychainItem.vaultTimeout(application: .passwordManager, userId: "1")
+        let key = SharedKeychainItem.accountAutoLogout(userId: "1")
         let error = SharedKeychainServiceError.keyNotFound(key)
         keychainService.searchResult = .success(nil)
 

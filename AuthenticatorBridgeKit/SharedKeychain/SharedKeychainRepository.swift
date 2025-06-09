@@ -33,8 +33,7 @@ public protocol SharedKeychainRepository {
     ///   - application: The application to get the value for
     /// - Returns: The user's last active time in a specified application, if known
     ///
-    func getLastActiveTime(
-        application: SharedTimeoutApplication,
+    func getAccountAutoLogoutTime(
         userId: String
     ) async throws -> Date?
 
@@ -44,31 +43,8 @@ public protocol SharedKeychainRepository {
     ///   - value: the date to save for a user's last active time for an application
     ///   - application: The application to set the value for
     ///
-    func setLastActiveTime(
+    func setAccountAutoLogoutTime(
         _ value: Date?,
-        application: SharedTimeoutApplication,
-        userId: String
-    ) async throws
-
-    /// Gets the vault timeout value for a user using the specified application.
-    /// - Parameters:
-    ///   - application: The application to get the value for
-    /// - Returns: The user's vault timeout value in a specified application, if known
-    ///
-    func getVaultTimeout(
-        application: SharedTimeoutApplication,
-        userId: String
-    ) async throws -> SessionTimeoutValue?
-
-    /// Sets the vault timeout for a user using the specified application.
-    ///
-    /// - Parameters:
-    ///   - value: the date to save for a user's last active time for an application
-    ///   - application: The application to set the value for
-    ///
-    func setVaultTimeout(
-        _ value: SessionTimeoutValue?,
-        application: SharedTimeoutApplication,
         userId: String
     ) async throws
 }
@@ -105,33 +81,14 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
         try await storage.setValue(value, for: .authenticatorKey)
     }
 
-    public func getLastActiveTime(
-        application: SharedTimeoutApplication,
-        userId: String
-    ) async throws -> Date? {
-        try await storage.getValue(for: .lastActiveTime(application: application, userId: userId))
+    public func getAccountAutoLogoutTime(userId: String) async throws -> Date? {
+        try await storage.getValue(for: .accountAutoLogout(userId: userId))
     }
 
-    public func setLastActiveTime(
+    public func setAccountAutoLogoutTime(
         _ value: Date?,
-        application: SharedTimeoutApplication,
         userId: String
     ) async throws {
-        try await storage.setValue(value, for: .lastActiveTime(application: application, userId: userId))
-    }
-
-    public func getVaultTimeout(
-        application: SharedTimeoutApplication,
-        userId: String
-    ) async throws -> SessionTimeoutValue? {
-        try await storage.getValue(for: .vaultTimeout(application: application, userId: userId))
-    }
-
-    public func setVaultTimeout(
-        _ value: SessionTimeoutValue?,
-        application: SharedTimeoutApplication,
-        userId: String
-    ) async throws {
-        try await storage.setValue(value, for: .vaultTimeout(application: application, userId: userId))
+        try await storage.setValue(value, for: .accountAutoLogout(userId: userId))
     }
 }

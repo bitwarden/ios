@@ -8,14 +8,8 @@ public enum SharedKeychainItem: Equatable, Hashable {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
 
-    /// The last time a user was active in a given application
-    case lastActiveTime(application: SharedTimeoutApplication, userId: String)
-
     /// A date at which a PM account automatically logs out.
-    case pmAccountAutoLogout(userId: String)
-
-    /// The length of time before a user times out for an application
-    case vaultTimeout(application: SharedTimeoutApplication, userId: String)
+    case accountAutoLogout(userId: String)
 
     /// The storage key for this keychain item.
     ///
@@ -23,12 +17,8 @@ public enum SharedKeychainItem: Equatable, Hashable {
         switch self {
         case .authenticatorKey:
             "authenticatorKey"
-        case let .lastActiveTime(application: application, userId: userId):
-            "lastActiveTime_\(application.rawValue)_\(userId)"
-        case let .pmAccountAutoLogout(userId: userId):
-            "pmAccountAutoLogout_\(userId)"
-        case let .vaultTimeout(application, userId):
-            "vaultTimeout_\(application.rawValue)_\(userId)"
+        case let .accountAutoLogout(userId: userId):
+            "accountAutoLogout_\(userId)"
         }
     }
 }
