@@ -16,8 +16,8 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     override func setUp() {
         keychainService = MockSharedKeychainService()
         subject = DefaultSharedKeychainStorage(
-            sharedAppGroupIdentifier: accessGroup,
-            keychainService: keychainService
+            keychainService: keychainService,
+            sharedAppGroupIdentifier: accessGroup
         )
     }
 

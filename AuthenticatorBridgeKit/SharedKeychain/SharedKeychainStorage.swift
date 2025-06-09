@@ -55,32 +55,43 @@ public protocol SharedKeychainStorage {
 public class DefaultSharedKeychainStorage: SharedKeychainStorage {
     // MARK: Properties
 
+    /// The keychain service used by the repository
+    ///
+    private let keychainService: SharedKeychainService
+
     /// An identifier for the shared access group used by the application.
     ///
     /// Example: "group.com.8bit.bitwarden"
     ///
     private let sharedAppGroupIdentifier: String
 
-    /// The keychain service used by the repository
-    ///
-    private let keychainService: SharedKeychainService
-
     // MARK: Initialization
 
     /// Initialize a `DefaultSharedKeychainStorage`.
     ///
     /// - Parameters:
-    ///   - sharedAppGroupIdentifier: An identifier for the shared access group used by the application.
     ///   - keychainService: The keychain service used by the repository
+    ///   - sharedAppGroupIdentifier: An identifier for the shared access group used by the application.
     public init(
-        sharedAppGroupIdentifier: String,
-        keychainService: SharedKeychainService
+        keychainService: SharedKeychainService,
+        sharedAppGroupIdentifier: String
     ) {
-        self.sharedAppGroupIdentifier = sharedAppGroupIdentifier
         self.keychainService = keychainService
+        self.sharedAppGroupIdentifier = sharedAppGroupIdentifier
     }
 
     // MARK: Methods
+
+    public func deleteValue(for item: SharedKeychainItem) async throws {
+        try keychainService.delete(
+            query: [
+                kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+                kSecAttrAccessGroup: sharedAppGroupIdentifier,
+                kSecAttrAccount: item.unformattedKey,
+                kSecClass: kSecClassGenericPassword,
+            ] as CFDictionary
+        )
+    }
 
     public func getValue<T: Codable>(for item: SharedKeychainItem) async throws -> T {
         let foundItem = try keychainService.search(
@@ -116,17 +127,6 @@ public class DefaultSharedKeychainStorage: SharedKeychainStorage {
 
         try keychainService.add(
             attributes: query
-        )
-    }
-
-    public func deleteValue(for item: SharedKeychainItem) async throws {
-        try keychainService.delete(
-            query: [
-                kSecAttrAccessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-                kSecAttrAccessGroup: sharedAppGroupIdentifier,
-                kSecAttrAccount: item.unformattedKey,
-                kSecClass: kSecClassGenericPassword,
-            ] as CFDictionary
         )
     }
 }

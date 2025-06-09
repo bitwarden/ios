@@ -227,8 +227,8 @@ public class ServiceContainer: Services {
         )
 
         let sharedKeychainStorage = DefaultSharedKeychainStorage(
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
-            keychainService: keychainService
+            keychainService: keychainService,
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier
         )
 
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
