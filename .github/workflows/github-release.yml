@@ -104,19 +104,38 @@ jobs:
         id: create_release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          _APP_NAME: ${{ steps.get_release_branch.outputs.app_name }}
+          _VERSION_NAME: ${{ steps.get_release_branch.outputs.version_name }}
+          _VERSION_NUMBER: ${{ steps.get_release_branch.outputs.version_number }}
+          _RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
+          _TAG_NAME: ${{ steps.get_release_info.outputs.tag_name }}
+          _LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
         run: |
-          # Create release with generated notes
-          url=$(gh release create "v${{ steps.version_info.outputs.version_name }}" \
-            --title "${{ steps.version_info.outputs.version_name }} (${{ steps.version_info.outputs.version_number }})" \
-            --target ${{ steps.get_release_branch.outputs.release_branch }} \
+          echo "⌛️ Creating release for $_APP_NAME $_VERSION_NAME ($_VERSION_NUMBER) on $_RELEASE_BRANCH"
+          release_url=$(gh release create "$_TAG_NAME" \
+            --title "$_VERSION_NAME ($_VERSION_NUMBER)" \
+            --target $_RELEASE_BRANCH \
             --generate-notes \
-            --notes-start-tag "${{ steps.get_last_tag.outputs.last_release_id }}" \
-            --prerelease=${{ inputs.prerelease }} \
-            --draft=${{ inputs.draft }} \
+            --notes-start-tag "$_LAST_RELEASE_TAG" \
+            --draft \
             $ARTIFACTS_PATH/*)
+
           # Extract release tag from URL
-          release_id=$(echo "$url" | sed 's/.*\/tag\///')
-          echo "release_id=$release_id" >> $GITHUB_OUTPUT
+          release_id_from_url=$(echo "$release_url" | sed 's/.*\/tag\///')
+          echo "release_id_from_url=$release_id_from_url" >> $GITHUB_OUTPUT
+
+          # Get release info for outputs
+          release_data=$(gh release view "$_TAG_NAME" --json id)
+          release_id=$(echo "$release_data" | jq -r .id)
+
+          echo "id=$release_id" >> $GITHUB_OUTPUT
+          echo "url=$release_url" >> $GITHUB_OUTPUT
+
+          echo "✅ Release created: $release_url"
+          echo "🔖 Release ID: $release_id"
+          echo "🔖 Release ID from URL: $release_id_from_url"
+          echo "🔖 Release URL: $release_url"
+
 
       - name: Update Release Description
         id: update_release_description
