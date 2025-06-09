@@ -146,6 +146,7 @@ jobs:
 
           # draft release links change after editing
           echo "release_url=$new_url" >> $GITHUB_OUTPUT
+          echo "🔖 New Release URL: $new_url"
 
       - name: Add Release Summary
         env:
