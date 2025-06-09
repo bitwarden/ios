@@ -44,7 +44,7 @@ jobs:
           echo "workflow_name=$workflow_name" >> $GITHUB_OUTPUT
 
           case "$workflow_name" in
-            *"Password Manager"* | "Build")
+            *"Password Manager"* | "Build" | "CI - main")
               echo "app_name=Password Manager" >> $GITHUB_OUTPUT
               echo "app_name_suffix=bwpm" >> $GITHUB_OUTPUT
               ;;
