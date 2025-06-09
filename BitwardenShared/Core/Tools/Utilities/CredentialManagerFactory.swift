@@ -4,22 +4,22 @@ import Foundation
 // MARK: - CredentialManagerFactory
 
 protocol CredentialManagerFactory {
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func createExportManager(presentationAnchor: ASPresentationAnchor) -> CredentialExportManager
 
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func createImportManager() -> CredentialImportManager
 }
 
 // MARK: - DefaultCredentialManagerFactory
 
 struct DefaultCredentialManagerFactory: CredentialManagerFactory {
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func createExportManager(presentationAnchor: ASPresentationAnchor) -> any CredentialExportManager {
         ASCredentialExportManager(presentationAnchor: presentationAnchor)
     }
 
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func createImportManager() -> any CredentialImportManager {
         ASCredentialImportManager()
     }
@@ -28,14 +28,17 @@ struct DefaultCredentialManagerFactory: CredentialManagerFactory {
 // MARK: - CredentialExportManager
 
 protocol CredentialExportManager: AnyObject {
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func exportCredentials(_ credentialData: ASExportedCredentialData) async throws
+
+    @available(iOS 26.0, *)
+    func requestExport(for extensionBundleIdentifier: String?) async throws -> ASCredentialExportManager.ExportOptions
 }
 
 // MARK: - CredentialImportManager
 
 protocol CredentialImportManager: AnyObject {
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func importCredentials(token: UUID) async throws -> ASExportedCredentialData
 }
 
@@ -46,10 +49,10 @@ protocol CredentialImportManager: AnyObject {
 
 #if SUPPORTS_CXP
 
-@available(iOS 18.2, *)
+@available(iOS 26.0, *)
 extension ASCredentialExportManager: CredentialExportManager {}
 
-@available(iOS 18.2, *)
+@available(iOS 26.0, *)
 extension ASCredentialImportManager: CredentialImportManager {}
 
 #else
@@ -61,9 +64,16 @@ class ASCredentialImportManager: CredentialImportManager {
 }
 
 class ASCredentialExportManager: CredentialExportManager {
+    struct ExportOptions {}
+
     init(presentationAnchor: ASPresentationAnchor) {}
 
     func exportCredentials(_ credentialData: ASExportedCredentialData) async throws {}
+
+    @available(iOS 26.0, *)
+    func requestExport(for extensionBundleIdentifier: String?) async throws -> ASCredentialExportManager.ExportOptions {
+        ASCredentialExportManager.ExportOptions()
+    }
 }
 
 struct ASExportedCredentialData {}
