@@ -13,13 +13,12 @@ struct LogoutAllAccountsIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult & ProvidesDialog {
         let errorReporter = ErrorReporterFactory.makeDefaultErrorReporter()
-        do {
-            let services = ServiceContainer(
-                appContext: .appIntent(.logOutAll),
-                errorReporter: errorReporter
-            )
-            let appIntentMediator = services.getAppIntentMediator()
+        let services = ServiceContainer.shared(
+            errorReporter: { errorReporter }
+        )
+        let appIntentMediator = services.getAppIntentMediator()
 
+        do {
             guard try await appIntentMediator.canRunAppIntents() else {
                 return .result(dialog: "ThisOperationIsNotAllowedOnThisAccount")
             }

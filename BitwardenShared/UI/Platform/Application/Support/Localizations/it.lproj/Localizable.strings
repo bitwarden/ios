@@ -930,8 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "Non hai ricevuto l'email? **[Torna indietro](https://)** per modificare l'indirizzo email.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "oppure **[accedi](https://)**: potresti avere già un account.";
 "OpenEmailApp" = "Apri l'app email";
-"SetPassword" = "Imposta password";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Termina la creazione del tuo account per %1$@ impostando una password.";
 "VerifyingEmail" = "Verifica email";
 "EmailVerified" = "Email verificata";
 "AccountSuccessfullyCreated" = "Account creato con successo.";
@@ -1209,3 +1207,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
