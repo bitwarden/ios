@@ -1,4 +1,3 @@
-import BitwardenKit
 import CryptoKit
 import Foundation
 

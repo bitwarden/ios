@@ -27,21 +27,21 @@ public protocol SharedKeychainRepository {
     ///
     func setAuthenticatorKey(_ value: Data) async throws
 
-    /// Gets the last active time the user used the specified application.
+    /// Gets when a user account should automatically log out.
     ///
     /// - Parameters:
-    ///   - application: The application to get the value for
-    /// - Returns: The user's last active time in a specified application, if known
+    ///   - userId: The user ID of the account
+    /// - Returns: The time the user should be automatically logged out. If `nil`, then the user should not be.
     ///
     func getAccountAutoLogoutTime(
         userId: String
     ) async throws -> Date?
 
-    /// Sets the last active time for a user using the specified application.
+    /// Sets when a user account should automatically log out.
     ///
     /// - Parameters:
-    ///   - value: the date to save for a user's last active time for an application
-    ///   - application: The application to set the value for
+    ///   - value: when the user should be automatically logged out
+    ///   - userId: The user ID of the account
     ///
     func setAccountAutoLogoutTime(
         _ value: Date?,
@@ -81,10 +81,22 @@ public class DefaultSharedKeychainRepository: SharedKeychainRepository {
         try await storage.setValue(value, for: .authenticatorKey)
     }
 
+    /// Gets when a user account should automatically log out.
+    ///
+    /// - Parameters:
+    ///   - userId: The user ID of the account
+    /// - Returns: The time the user should be automatically logged out. If `nil`, then the user should not be.
+    ///
     public func getAccountAutoLogoutTime(userId: String) async throws -> Date? {
         try await storage.getValue(for: .accountAutoLogout(userId: userId))
     }
 
+    /// Sets when a user account should automatically log out.
+    ///
+    /// - Parameters:
+    ///   - value: when the user should be automatically logged out
+    ///   - userId: The user ID of the account
+    ///
     public func setAccountAutoLogoutTime(
         _ value: Date?,
         userId: String
