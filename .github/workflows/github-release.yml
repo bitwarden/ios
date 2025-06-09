@@ -131,12 +131,11 @@ jobs:
           echo "🔖 Release ID from URL: $release_id_from_url"
           echo "🔖 Release URL: $release_url"
 
-
       - name: Update Release Description
         id: update_release_description
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_ID: ${{ steps.create_release.outputs.release_id }}
+          RELEASE_ID: ${{ steps.create_release.outputs.release_id_from_url }}
           ARTIFACT_RUN_ID: ${{ inputs.artifact-run-id }}
         run: |
           # Add builds source to the end of the release description
