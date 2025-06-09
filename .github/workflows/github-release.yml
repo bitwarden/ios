@@ -155,27 +155,27 @@ jobs:
 
       - name: Add Release Summary
         env:
-          RELEASE_TAG: ${{ steps.get_release_info.outputs.tag_name }}
-          RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
-          LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
-          RELEASE_URL: ${{ steps.create_release.outputs.url }}
-          VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
-          VERSION_NUMBER: ${{ steps.get_release_info.outputs.version_number }}
+          _RELEASE_TAG: ${{ steps.get_release_info.outputs.tag_name }}
+          _RELEASE_BRANCH: ${{ steps.get_release_branch.outputs.release_branch }}
+          _LAST_RELEASE_TAG: ${{ steps.get_release_info.outputs.last_release_tag }}
+          _RELEASE_URL: ${{ steps.create_release.outputs.url }}
+          _VERSION_NAME: ${{ steps.get_release_info.outputs.version_name }}
+          _VERSION_NUMBER: ${{ steps.get_release_info.outputs.version_number }}
         run: |
           echo "# :fish_cake: Release ready at:" >> $GITHUB_STEP_SUMMARY
-          echo "$RELEASE_URL" >> $GITHUB_STEP_SUMMARY
+          echo "$_RELEASE_URL" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          if [[ "$VERSION_NAME" == "0.0.0" || "$VERSION_NUMBER" == "0" ]]; then
+          if [[ "$_VERSION_NAME" == "0.0.0" || "$_VERSION_NUMBER" == "0" ]]; then
             echo "> [!CAUTION]" >> $GITHUB_STEP_SUMMARY
             echo "> Version name or number wasn't previously found and a default value was used. You'll need to manually update the release Title, Tag and Description, specifically, the "Full Changelog" link." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
 
           echo ":clipboard: Confirm that the defined GitHub Release options are correct:"  >> $GITHUB_STEP_SUMMARY
-          echo " * :bookmark: New tag name: \`$RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
-          echo " * :palm_tree: Target branch: \`$RELEASE_BRANCH\`" >> $GITHUB_STEP_SUMMARY
-          echo " * :ocean: Previous tag set in the description \"Full Changelog\" link: \`$LAST_RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :bookmark: New tag name: \`$_RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :palm_tree: Target branch: \`$_RELEASE_BRANCH\`" >> $GITHUB_STEP_SUMMARY
+          echo " * :ocean: Previous tag set in the description \"Full Changelog\" link: \`$_LAST_RELEASE_TAG\`" >> $GITHUB_STEP_SUMMARY
           echo " * :white_check_mark: Description has automated release notes and they match the commits in the release branch" >> $GITHUB_STEP_SUMMARY
           echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
           echo "> Commits directly pushed to branches without a Pull Request won't appear in the automated release notes." >> $GITHUB_STEP_SUMMARY
