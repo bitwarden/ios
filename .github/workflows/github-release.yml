@@ -108,7 +108,7 @@ jobs:
         run: |
           echo "⌛️ Creating release for $_APP_NAME $_VERSION_NAME ($_VERSION_NUMBER) on $_RELEASE_BRANCH"
           release_url=$(gh release create "$_TAG_NAME" \
-            --title "$_VERSION_NAME ($_VERSION_NUMBER)" \
+            --title "$_APP_NAME $_VERSION_NAME ($_VERSION_NUMBER)" \
             --target $_RELEASE_BRANCH \
             --generate-notes \
             --notes-start-tag "$_LAST_RELEASE_TAG" \
