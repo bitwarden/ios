@@ -1,3 +1,5 @@
+import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import BitwardenKitMocks
 import BitwardenSdk
 import Combine
@@ -13,6 +15,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     var cancellables: Set<AnyCancellable>!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
+    var sharedTimeoutService: MockSharedTimeoutService!
     var stateService: MockStateService!
     var subject: DefaultVaultTimeoutService!
     var timeProvider: MockTimeProvider!
@@ -25,6 +28,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         cancellables = []
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
+        sharedTimeoutService = MockSharedTimeoutService()
         stateService = MockStateService()
         timeProvider = MockTimeProvider(
             .mockTime(
@@ -34,6 +38,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         subject = DefaultVaultTimeoutService(
             clientService: clientService,
             errorReporter: errorReporter,
+            sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider
         )
@@ -148,6 +153,24 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
 
         let shouldTimeout = try await subject.hasPassedSessionTimeout(userId: account.profile.userId)
         XCTAssertFalse(shouldTimeout)
+    }
+
+    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
+    func test_isPinUnlockAvailable_noValue() async throws {
+        stateService.activeAccount = .fixture()
+        let value = try await subject.isPinUnlockAvailable(userId: "1")
+        XCTAssertFalse(value)
+    }
+
+    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
+    func test_isPinUnlockAvailable_value() async throws {
+        let active = Account.fixture()
+        stateService.activeAccount = active
+        stateService.pinProtectedUserKeyValue = [
+            active.profile.userId: "123",
+        ]
+        let value = try await subject.isPinUnlockAvailable(userId: "1")
+        XCTAssertTrue(value)
     }
 
     /// `lockVault(userId:)` logs an error if one occurs.

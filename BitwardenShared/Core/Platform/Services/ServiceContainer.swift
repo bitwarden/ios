@@ -302,8 +302,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         rehydrationHelper: RehydrationHelper,
         reviewPromptService: ReviewPromptService,
         sendRepository: SendRepository,
-        sharedTimeoutService: SharedTimeoutService,
         settingsRepository: SettingsRepository,
+        sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         syncService: SyncService,
         systemDevice: SystemDevice,
@@ -544,9 +544,21 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             tokenService: tokenService
         )
 
+        let sharedKeychainStorage = DefaultSharedKeychainStorage(
+            keychainService: keychainService,
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier
+        )
+
+        let sharedKeychainRepository = DefaultSharedKeychainRepository(
+            storage: sharedKeychainStorage
+        )
+
+        let sharedTimeoutService = DefaultSharedTimeoutService()
+
         let vaultTimeoutService = DefaultVaultTimeoutService(
             clientService: clientService,
             errorReporter: errorReporter,
+            sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             timeProvider: timeProvider
         )
@@ -783,17 +795,6 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             storeType: .persisted
         )
 
-        let sharedKeychainStorage = DefaultSharedKeychainStorage(
-            keychainService: keychainService,
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier
-        )
-
-        let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            storage: sharedKeychainStorage
-        )
-
-        let sharedTimeoutService = DefaultSharedTimeoutService()
-
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
             sharedKeychainRepository: sharedKeychainRepository
         )
@@ -859,8 +860,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             rehydrationHelper: rehydrationHelper,
             reviewPromptService: reviewPromptService,
             sendRepository: sendRepository,
-            sharedTimeoutService: sharedTimeoutService,
             settingsRepository: settingsRepository,
+            sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             syncService: syncService,
             systemDevice: UIDevice.current,

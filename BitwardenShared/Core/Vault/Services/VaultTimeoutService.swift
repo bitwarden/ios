@@ -33,6 +33,12 @@ protocol VaultTimeoutService: AnyObject {
     ///
     func isLocked(userId: String) -> Bool
 
+    /// Whether pin unlock is available for a userId.
+    ///  - Parameter userId: The userId of the account.
+    ///  - Returns: Whether pin unlock is available.
+    ///
+    func isPinUnlockAvailable(userId: String?) async throws -> Bool
+
     /// Locks the user's vault
     ///
     /// - Parameter userId: The userId of the account to lock.
@@ -153,6 +159,10 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     func isLocked(userId: String) -> Bool {
         guard let isLocked = vaultLockStatusSubject.value[userId] else { return true }
         return isLocked
+    }
+
+    func isPinUnlockAvailable(userId: String?) async throws -> Bool {
+        try await stateService.pinProtectedUserKey(userId: userId) != nil
     }
 
     func lockVault(userId: String?) async {

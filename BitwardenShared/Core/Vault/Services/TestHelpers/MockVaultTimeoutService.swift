@@ -8,6 +8,7 @@ import Foundation
 class MockVaultTimeoutService: VaultTimeoutService {
     var account: Account = .fixture()
     var lastActiveTime = [String: Date]()
+    var pinUnlockAvailabilityResult: Result<[String: Bool], Error> = .success([:])
     var setLastActiveTimeError: Error?
     var shouldSessionTimeout = [String: Bool]()
     var shouldSessionTimeoutError: Error?
@@ -43,6 +44,14 @@ class MockVaultTimeoutService: VaultTimeoutService {
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         vaultTimeout[account.profile.userId] = value
+    }
+
+    func isPinUnlockAvailable(userId: String?) async throws -> Bool {
+        if let userId {
+            try pinUnlockAvailabilityResult.get()[userId] ?? false
+        } else {
+            throw StateServiceError.noActiveAccount
+        }
     }
 
     func hasPassedSessionTimeout(userId: String) async throws -> Bool {

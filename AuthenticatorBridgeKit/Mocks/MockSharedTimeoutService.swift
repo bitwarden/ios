@@ -14,4 +14,8 @@ public final class MockSharedTimeoutService: SharedTimeoutService {
     public func updateTimeout(forUserId userId: String, lastActiveDate: Date?, timeoutLength: SessionTimeoutValue) {
 
     }
+
+    public init () {
+
+    }
 }
