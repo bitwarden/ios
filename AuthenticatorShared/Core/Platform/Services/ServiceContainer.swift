@@ -226,9 +226,13 @@ public class ServiceContainer: Services {
             authenticatorItemDataStore: dataStore
         )
 
+        let sharedKeychainStorage = DefaultSharedKeychainStorage(
+            keychainService: keychainService,
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier
+        )
+
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
-            keychainService: keychainService
+            storage: sharedKeychainStorage
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
