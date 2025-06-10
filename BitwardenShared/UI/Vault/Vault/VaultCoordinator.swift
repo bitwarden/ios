@@ -117,6 +117,16 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// The stack navigator that is managed by this coordinator.
     private(set) weak var stackNavigator: StackNavigator?
 
+    // MARK: Computed Properties
+
+    /// The helper to handle master password reprompts.
+    var masterPasswordRepromptHelper: MasterPasswordRepromptHelper {
+        DefaultMasterPasswordRepromptHelper(
+            coordinator: asAnyCoordinator(),
+            services: services
+        )
+    }
+
     // MARK: Initialization
 
     /// Creates a new `VaultCoordinator`.
@@ -295,6 +305,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     private func showGroup(_ group: VaultListGroup, filter: VaultFilterType) {
         let processor = VaultGroupProcessor(
             coordinator: asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: services,
             state: VaultGroupState(
                 group: group,
@@ -303,6 +314,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             ),
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
+                masterPasswordRepromptHelper: masterPasswordRepromptHelper,
                 services: services
             )
         )
@@ -359,12 +371,14 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     private func showList() {
         let processor = VaultListProcessor(
             coordinator: asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: services,
             state: VaultListState(
                 iconBaseURL: services.environmentService.iconsURL
             ),
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
+                masterPasswordRepromptHelper: masterPasswordRepromptHelper,
                 services: services
             )
         )
@@ -416,6 +430,7 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             userVerificationHelper: userVerificationHelper,
             vaultItemMoreOptionsHelper: DefaultVaultItemMoreOptionsHelper(
                 coordinator: asAnyCoordinator(),
+                masterPasswordRepromptHelper: masterPasswordRepromptHelper,
                 services: services
             )
         )

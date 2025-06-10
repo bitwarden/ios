@@ -16,6 +16,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
+    var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
     var stateService: MockStateService!
@@ -32,6 +33,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
         stateService = MockStateService()
@@ -42,6 +44,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
                 errorReporter: errorReporter,
@@ -65,6 +68,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         authRepository = nil
         coordinator = nil
         errorReporter = nil
+        masterPasswordRepromptHelper = nil
         pasteboardService = nil
         policyService = nil
         stateService = nil
@@ -538,6 +542,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_receive_appeared_totpExpired_multi() throws { // swiftlint:disable:this function_body_length
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
@@ -686,9 +691,14 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `receive(_:)` with `.itemPressed` on a cipher navigates to the `.viewItem` route.
     @MainActor
-    func test_receive_itemPressed_cipher() {
-        subject.receive(.itemPressed(.fixture(cipherListView: .fixture(id: "id"))))
+    func test_receive_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture(id: "id")
+
+        subject.receive(.itemPressed(.fixture(cipherListView: cipherListView)))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.itemPressed` on a group navigates to the `.group` route.
@@ -700,10 +710,15 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route.
     @MainActor
-    func test_receive_itemPressed_totp() {
-        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture())
+    func test_receive_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
+
         subject.receive(.itemPressed(totpItem))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
+
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.searchTextChanged` and no value sets the state correctly.
@@ -773,6 +788,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     func test_receive_totpExpired_error() throws {
         subject = VaultGroupProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper(),
             services: ServiceContainer.withMocks(
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,

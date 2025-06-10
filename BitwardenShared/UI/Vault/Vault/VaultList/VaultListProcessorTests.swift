@@ -20,6 +20,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var flightRecorder: MockFlightRecorder!
+    var masterPasswordRepromptHelper: MockMasterPasswordRepromptHelper!
     var notificationService: MockNotificationService!
     var pasteboardService: MockPasteboardService!
     var policyService: MockPolicyService!
@@ -46,6 +47,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         flightRecorder = MockFlightRecorder()
+        masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
         notificationService = MockNotificationService()
         pasteboardService = MockPasteboardService()
         policyService = MockPolicyService()
@@ -72,6 +74,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
         subject = VaultListProcessor(
             coordinator: coordinator.asAnyCoordinator(),
+            masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: services,
             state: VaultListState(),
             vaultItemMoreOptionsHelper: vaultItemMoreOptionsHelper
@@ -87,6 +90,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         coordinator = nil
         errorReporter = nil
         flightRecorder = nil
+        masterPasswordRepromptHelper = nil
         pasteboardService = nil
         policyService = nil
         reviewPromptService = nil
@@ -1319,11 +1323,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.viewItem` route for a cipher.
     @MainActor
-    func test_receive_itemPressed_cipher() {
-        let item = VaultListItem.fixture()
+    func test_receive_itemPressed_cipher() async throws {
+        let cipherListView = CipherListView.fixture()
+        let item = VaultListItem.fixture(cipherListView: cipherListView)
+
         subject.receive(.itemPressed(item: item))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.group` route for a group.
@@ -1336,10 +1344,15 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
 
     /// `receive(_:)` with `.itemPressed` navigates to the `.totp` route for a totp code.
     @MainActor
-    func test_receive_itemPressed_totp() {
-        subject.receive(.itemPressed(item: .fixtureTOTP(totp: .fixture())))
+    func test_receive_itemPressed_totp() async throws {
+        let cipherListView = CipherListView.fixture()
+        let totpItem = VaultListItem.fixtureTOTP(totp: .fixture(cipherListView: cipherListView))
+
+        subject.receive(.itemPressed(item: totpItem))
+        try await waitForAsync { !self.coordinator.routes.isEmpty }
 
         XCTAssertEqual(coordinator.routes.last, .viewItem(id: "123"))
+        XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
     /// `receive(_:)` with `.navigateToFlightRecorderSettings` navigates to the flight recorder settings.
