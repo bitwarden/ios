@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenSdk
 
@@ -44,6 +45,7 @@ typealias Services = HasAPIService
     & HasRehydrationHelper
     & HasReviewPromptService
     & HasSendRepository
+    & HasSharedTimeoutService
     & HasSettingsRepository
     & HasStateService
     & HasSyncService
