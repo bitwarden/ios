@@ -227,8 +227,18 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             // Therefore we can't have one saved.
             sharedTimeoutService.clearTimeout(forUserId: userId)
         default:
-            let vaultTimeout = try await stateService.getVaultTimeout(userId: userId)
-            sharedTimeoutService.updateTimeout(forUserId: userId, lastActiveDate: now, timeoutLength: vaultTimeout)
+            let timeoutAction = try await sessionTimeoutAction(userId: userId)
+            switch timeoutAction {
+            case .lock:
+                sharedTimeoutService.clearTimeout(forUserId: userId)
+            case .logout:
+                let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
+                sharedTimeoutService.updateTimeout(
+                    forUserId: userId,
+                    lastActiveDate: now,
+                    timeoutLength: vaultTimeout
+                )
+            }
         }
     }
 
@@ -243,8 +253,18 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
                 // Therefore we can't have one saved.
                 sharedTimeoutService.clearTimeout(forUserId: userId)
             default:
-                let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
-                sharedTimeoutService.updateTimeout(forUserId: userId, lastActiveDate: lastActiveTime, timeoutLength: value)
+                let timeoutAction = try await sessionTimeoutAction(userId: userId)
+                switch timeoutAction {
+                case .lock:
+                    sharedTimeoutService.clearTimeout(forUserId: userId)
+                case .logout:
+                    let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
+                    sharedTimeoutService.updateTimeout(
+                        forUserId: userId,
+                        lastActiveDate: lastActiveTime,
+                        timeoutLength: value
+                    )
+                }
             }
         }
     }
