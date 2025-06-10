@@ -1,4 +1,5 @@
 import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import BitwardenKitMocks
 import BitwardenSdk
 import Combine
@@ -92,7 +93,7 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
     func test_createAuthenticatorKeyIfNeeded_keyAlreadyExists() async throws {
         setupInitialState()
         await subject.start()
-        let key = sharedKeychainRepository.generateKeyData()
+        let key = sharedKeychainRepository.generateMockKeyData()
         try await sharedKeychainRepository.setAuthenticatorKey(key)
 
         stateService.syncToAuthenticatorSubject.send(("1", true))

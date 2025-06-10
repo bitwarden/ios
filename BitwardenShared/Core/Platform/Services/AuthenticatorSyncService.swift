@@ -239,7 +239,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
                 return
             }
         }
-        try sharedKeychainRepository.deleteAuthenticatorKey()
+        try await sharedKeychainRepository.deleteAuthenticatorKey()
     }
 
     /// Determine if the given userId has sync turned on and an unlocked vault. This method serves as the
