@@ -1,5 +1,6 @@
 import BitwardenKit
 import Foundation
+import os
 
 // MARK: - HasSharedTimeoutService
 
@@ -30,11 +31,16 @@ public protocol SharedTimeoutService {
 public final class DefaultSharedTimeoutService: SharedTimeoutService {
     public init() {}
 
-    public func clearTimeout(forUserId userId: String) {}
-
-    public func hasPassedTimeout(userId: String) -> Bool {
-        false
+    public func clearTimeout(forUserId userId: String) {
+        Logger.application.debug("DefaultSharedTimeoutService: clearTimeout(forUserId:)")
     }
 
-    public func updateTimeout(forUserId userId: String, lastActiveDate: Date?, timeoutLength: SessionTimeoutValue) {}
+    public func hasPassedTimeout(userId: String) -> Bool {
+        Logger.application.debug("DefaultSharedTimeoutService: hasPassedTimeout(userId:)")
+        return false
+    }
+
+    public func updateTimeout(forUserId userId: String, lastActiveDate: Date?, timeoutLength: SessionTimeoutValue) {
+        Logger.application.debug("DefaultSharedTimeoutService: updateTimeout(forUserId:lastActiveDate:timeoutLength:)")
+    }
 }

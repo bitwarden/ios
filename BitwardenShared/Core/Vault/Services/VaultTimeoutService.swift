@@ -1,3 +1,4 @@
+import AuthenticatorBridgeKit
 import BitwardenKit
 import BitwardenSdk
 import Combine
@@ -93,6 +94,8 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    private let sharedTimeoutService: SharedTimeoutService
+
     /// The state service used by this Default Service.
     private let stateService: StateService
 
@@ -109,17 +112,20 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// - Parameters:
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
+    ///   - sharedTimeoutService: The service that manages account timeout between apps.
     ///   - stateService: The StateService used by DefaultVaultTimeoutService.
     ///   - timeProvider: Provides the current time.
     ///
     init(
         clientService: ClientService,
         errorReporter: ErrorReporter,
+        sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
         self.clientService = clientService
         self.errorReporter = errorReporter
+        self.sharedTimeoutService = sharedTimeoutService
         self.stateService = stateService
         self.timeProvider = timeProvider
     }
@@ -172,11 +178,36 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     }
 
     func setLastActiveTime(userId: String) async throws {
-        try await stateService.setLastActiveTime(timeProvider.presentTime, userId: userId)
+        let now = timeProvider.presentTime
+        try await stateService.setLastActiveTime(now, userId: userId)
+        let vaultTimeout = try await sessionTimeoutValue(userId: userId)
+        switch vaultTimeout {
+        case .never,
+             .onAppRestart:
+            // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
+            // Therefore we can't have one saved.
+            sharedTimeoutService.clearTimeout(forUserId: userId)
+        default:
+            let vaultTimeout = try await stateService.getVaultTimeout(userId: userId)
+            sharedTimeoutService.updateTimeout(forUserId: userId, lastActiveDate: now, timeoutLength: vaultTimeout)
+        }
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         try await stateService.setVaultTimeout(value: value, userId: userId)
+        if let userId {
+            let vaultTimeout = try await sessionTimeoutValue(userId: userId)
+            switch vaultTimeout {
+            case .never,
+                 .onAppRestart:
+                // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
+                // Therefore we can't have one saved.
+                sharedTimeoutService.clearTimeout(forUserId: userId)
+            default:
+                let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
+                sharedTimeoutService.updateTimeout(forUserId: userId, lastActiveDate: lastActiveTime, timeoutLength: value)
+            }
+        }
     }
 
     func unlockVault(userId: String?, hadUserInteraction: Bool) async throws {
