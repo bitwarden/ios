@@ -13,6 +13,8 @@ class MockVaultTimeoutService: VaultTimeoutService {
     var shouldSessionTimeout = [String: Bool]()
     var shouldSessionTimeoutError: Error?
     var timeProvider = MockTimeProvider(.currentTime)
+    var sessionTimeoutAction = [String: SessionTimeoutAction]()
+    var sessionTimeoutActionError: Error?
     var sessionTimeoutValueError: Error?
     var unlockVaultHadUserInteraction = false
     var vaultTimeout = [String: SessionTimeoutValue]()
@@ -61,14 +63,15 @@ class MockVaultTimeoutService: VaultTimeoutService {
         return shouldSessionTimeout[userId] ?? false
     }
 
-    func unlockVault(userId: String?, hadUserInteraction: Bool) async throws {
-        guard let userId else { return }
-        isClientLocked[userId] = false
-        unlockVaultHadUserInteraction = hadUserInteraction
-    }
-
     func remove(userId: String?) async {
         removedIds.append(userId)
+    }
+
+    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        if let sessionTimeoutActionError {
+            throw sessionTimeoutActionError
+        }
+        return sessionTimeoutAction[userId ?? account.profile.userId] ?? .lock
     }
 
     func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue {
@@ -76,6 +79,12 @@ class MockVaultTimeoutService: VaultTimeoutService {
             throw sessionTimeoutValueError
         }
         return vaultTimeout[userId ?? account.profile.userId] ?? .fifteenMinutes
+    }
+
+    func unlockVault(userId: String?, hadUserInteraction: Bool) async throws {
+        guard let userId else { return }
+        isClientLocked[userId] = false
+        unlockVaultHadUserInteraction = hadUserInteraction
     }
 
     func vaultLockStatusPublisher() async -> AnyPublisher<VaultLockStatus?, Never> {

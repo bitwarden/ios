@@ -52,6 +52,19 @@ protocol VaultTimeoutService: AnyObject {
     ///
     func remove(userId: String?) async
 
+    /// Gets the `SessionTimeoutAction` for a user.
+    ///
+    ///  - Parameter userId: The userId of the account. Defaults to the active user if nil.
+    ///
+    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction
+
+    /// Gets the `SessionTimeoutValue` for a user.
+    ///
+    ///  - Parameter userId: The userId of the account.
+    ///     Defaults to the active user if nil.
+    ///
+    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
+
     /// Sets the last active time within the app.
     ///
     /// - Parameter userId: The user ID associated with the last active time within the app.
@@ -75,13 +88,6 @@ protocol VaultTimeoutService: AnyObject {
     ///   or the never lock key was used.
     func unlockVault(userId: String?, hadUserInteraction: Bool) async throws
 
-    /// Gets the `SessionTimeoutValue` for a user.
-    ///
-    ///  - Parameter userId: The userId of the account.
-    ///     Defaults to the active user if nil.
-    ///
-    func sessionTimeoutValue(userId: String?) async throws -> SessionTimeoutValue
-
     /// A publisher containing the active user ID and whether their vault is locked.
     ///
     /// - Returns: A publisher for the active user ID whether their vault is locked.
@@ -93,6 +99,9 @@ protocol VaultTimeoutService: AnyObject {
 
 class DefaultVaultTimeoutService: VaultTimeoutService {
     // MARK: Private properties
+
+    /// The service to use system biometrics for vault unlock.
+    private let biometricsRepository: BiometricsRepository
 
     /// The service that handles common client functionality such as encryption and decryption.
     private let clientService: ClientService
@@ -116,6 +125,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Creates a new `DefaultVaultTimeoutService`.
     ///
     /// - Parameters:
+    ///   - biometricsRepository: The service to use system biometrics for vault unlock.
     ///   - clientService: The service that handles common client functionality such as encryption and decryption.
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///   - sharedTimeoutService: The service that manages account timeout between apps.
@@ -123,12 +133,14 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     ///   - timeProvider: Provides the current time.
     ///
     init(
+        biometricsRepository: BiometricsRepository,
         clientService: ClientService,
         errorReporter: ErrorReporter,
         sharedTimeoutService: SharedTimeoutService,
         stateService: StateService,
         timeProvider: TimeProvider
     ) {
+        self.biometricsRepository = biometricsRepository
         self.clientService = clientService
         self.errorReporter = errorReporter
         self.sharedTimeoutService = sharedTimeoutService
@@ -185,6 +197,23 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         } catch {
             errorReporter.log(error: error)
         }
+    }
+
+    func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
+        let hasMasterPassword = try await stateService.getUserHasMasterPassword(userId: userId)
+        let timeoutAction = try await stateService.getTimeoutAction(userId: userId)
+        guard hasMasterPassword else {
+            let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus().isEnabled
+            let isPinEnabled = try await isPinUnlockAvailable(userId: userId)
+            if isPinEnabled || isBiometricsEnabled {
+                return timeoutAction
+            } else {
+                // If the user doesn't have a master password and hasn't enabled a pin or
+                // biometrics, their timeout action needs to be logout.
+                return .logout
+            }
+        }
+        return timeoutAction
     }
 
     func setLastActiveTime(userId: String) async throws {

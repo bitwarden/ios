@@ -12,6 +12,7 @@ import XCTest
 final class VaultTimeoutServiceTests: BitwardenTestCase {
     // MARK: Properties
 
+    var biometricsRepository: MockBiometricsRepository!
     var cancellables: Set<AnyCancellable>!
     var clientService: MockClientService!
     var errorReporter: MockErrorReporter!
@@ -25,6 +26,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
+        biometricsRepository = MockBiometricsRepository()
         cancellables = []
         clientService = MockClientService()
         errorReporter = MockErrorReporter()
@@ -36,6 +38,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
             )
         )
         subject = DefaultVaultTimeoutService(
+            biometricsRepository: biometricsRepository,
             clientService: clientService,
             errorReporter: errorReporter,
             sharedTimeoutService: sharedTimeoutService,
@@ -47,6 +50,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
     override func tearDown() async throws {
         try await super.tearDown()
 
+        biometricsRepository = nil
         cancellables = nil
         clientService = nil
         errorReporter = nil
@@ -262,6 +266,65 @@ final class VaultTimeoutServiceTests: BitwardenTestCase {
         await subject.remove(userId: "random id")
         XCTAssertFalse(subject.isLocked(userId: userId))
         XCTAssertNotNil(clientService.userClientArray[userId])
+    }
+
+    /// `sessionTimeoutAction()` returns the session timeout action for a user.
+    func test_sessionTimeoutAction() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.accounts = [.fixture(profile: .fixture(userId: "2"))]
+        stateService.timeoutAction["1"] = .lock
+        stateService.timeoutAction["2"] = .logout
+
+        var timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .lock)
+
+        timeoutAction = try await subject.sessionTimeoutAction(userId: "2")
+        XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` defaults to logout if the user doesn't have a master password and
+    /// hasn't enabled pin or biometrics unlock.
+    func test_sessionTimeoutAction_noMasterPassword() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.timeoutAction["1"] = .lock
+        stateService.userHasMasterPassword["1"] = false
+
+        let timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` allows lock or logout if the user doesn't have a master password
+    /// and has biometrics unlock enabled.
+    func test_sessionTimeoutAction_noMasterPassword_biometricsEnabled() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.timeoutAction["1"] = .lock
+        stateService.userHasMasterPassword["1"] = false
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.faceID, enabled: true)
+        )
+
+        var timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .lock)
+
+        stateService.timeoutAction["1"] = .logout
+        timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` allows lock or logout if the user doesn't have a master password
+    /// and has pin unlock enabled.
+    func test_sessionTimeoutAction_noMasterPassword_pinEnabled() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        stateService.pinProtectedUserKeyValue["1"] = "KEY"
+        stateService.timeoutAction["1"] = .lock
+        stateService.userHasMasterPassword["1"] = false
+
+        var timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .lock)
+
+        stateService.timeoutAction["1"] = .logout
+        timeoutAction = try await subject.sessionTimeoutAction(userId: "1")
+        XCTAssertEqual(timeoutAction, .logout)
     }
 
     /// `.setLastActiveTime(userId:)` sets the user's last active time.
