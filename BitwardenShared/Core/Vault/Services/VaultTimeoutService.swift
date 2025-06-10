@@ -232,7 +232,6 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             case .lock:
                 sharedTimeoutService.clearTimeout(forUserId: userId)
             case .logout:
-                let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
                 sharedTimeoutService.updateTimeout(
                     forUserId: userId,
                     lastActiveDate: now,
