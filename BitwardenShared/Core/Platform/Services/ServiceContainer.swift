@@ -553,7 +553,9 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             storage: sharedKeychainStorage
         )
 
-        let sharedTimeoutService = DefaultSharedTimeoutService()
+        let sharedTimeoutService = DefaultSharedTimeoutService(
+            sharedKeychainRepository: sharedKeychainRepository
+        )
 
         let vaultTimeoutService = DefaultVaultTimeoutService(
             biometricsRepository: biometricsRepository,

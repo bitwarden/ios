@@ -225,14 +225,14 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
              .onAppRestart:
             // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
             // Therefore we can't have one saved.
-            sharedTimeoutService.clearTimeout(forUserId: userId)
+            try await sharedTimeoutService.clearTimeout(forUserId: userId)
         default:
             let timeoutAction = try await sessionTimeoutAction(userId: userId)
             switch timeoutAction {
             case .lock:
-                sharedTimeoutService.clearTimeout(forUserId: userId)
+                try await sharedTimeoutService.clearTimeout(forUserId: userId)
             case .logout:
-                sharedTimeoutService.updateTimeout(
+                try await sharedTimeoutService.updateTimeout(
                     forUserId: userId,
                     lastActiveDate: now,
                     timeoutLength: vaultTimeout
@@ -250,15 +250,15 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
                  .onAppRestart:
                 // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
                 // Therefore we can't have one saved.
-                sharedTimeoutService.clearTimeout(forUserId: userId)
+                try await sharedTimeoutService.clearTimeout(forUserId: userId)
             default:
                 let timeoutAction = try await sessionTimeoutAction(userId: userId)
                 switch timeoutAction {
                 case .lock:
-                    sharedTimeoutService.clearTimeout(forUserId: userId)
+                    try await sharedTimeoutService.clearTimeout(forUserId: userId)
                 case .logout:
                     let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
-                    sharedTimeoutService.updateTimeout(
+                    try await sharedTimeoutService.updateTimeout(
                         forUserId: userId,
                         lastActiveDate: lastActiveTime,
                         timeoutLength: value
