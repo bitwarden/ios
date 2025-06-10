@@ -104,6 +104,28 @@ class PendingAppIntentActionMediatorTests: BitwardenTestCase {
         XCTAssertEqual(stateService.pendingAppIntentActions, [])
     }
 
+    /// `executePendingAppIntentActions()` with `.logOutAll` action calls the delegate informing that
+    /// and updates the actions
+    func test_executePendingAppIntentActions_logOutAll() async throws {
+        stateService.pendingAppIntentActions = [.logOutAll]
+        subject.setDelegate(delegate)
+
+        await subject.executePendingAppIntentActions()
+
+        XCTAssertEqual(delegate.onPendingAppIntentActionSuccessAction, .logOutAll)
+        XCTAssertEqual(stateService.pendingAppIntentActions, [])
+    }
+
+    /// `executePendingAppIntentActions()` with `.logOutAll` action only updates the actions when there's no delegate.
+    func test_executePendingAppIntentActions_logOutAllNoDelegate() async throws {
+        stateService.pendingAppIntentActions = [.logOutAll]
+
+        await subject.executePendingAppIntentActions()
+
+        XCTAssertNil(delegate.onPendingAppIntentActionSuccessAction)
+        XCTAssertEqual(stateService.pendingAppIntentActions, [])
+    }
+
     /// `executePendingAppIntentActions()` with `.openGenerator` action calls the delegate informing that
     /// the generator screen needs to be opened.
     func test_executePendingAppIntentActions_openGenerator() async throws {

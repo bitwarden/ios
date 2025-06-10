@@ -14,7 +14,7 @@ struct ViewSendItemView: View {
 
     var body: some View {
         content
-            .scrollView(padding: 12)
+            .scrollView()
             .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
             .overlay(alignment: .bottomTrailing) {
                 editItemFloatingActionButton {
@@ -47,6 +47,7 @@ struct ViewSendItemView: View {
             Label(Localizations.deleteSend, image: Asset.Images.trash16.swiftUIImage, scaleImageDimension: 16)
         }
         .buttonStyle(.secondary(isDestructive: true, size: .medium))
+        .accessibilityIdentifier("ViewSendDeleteButton")
     }
 
     /// The main content of the view.
@@ -94,6 +95,7 @@ struct ViewSendItemView: View {
                             store.send(.copyNotes)
                         }
                     )
+                    .accessibilityIdentifier("ViewSendNotes")
                 }
             }
         }
@@ -112,6 +114,7 @@ struct ViewSendItemView: View {
                         .styleGuide(.subheadline)
                         .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                         .lineLimit(1)
+                        .accessibilityIdentifier("ViewSendShareLinkText")
                 }
             }
             .padding(16)
@@ -123,6 +126,7 @@ struct ViewSendItemView: View {
                     Label(Localizations.copy, image: Asset.Images.copy16.swiftUIImage, scaleImageDimension: 16)
                 }
                 .buttonStyle(.primary(size: .medium))
+                .accessibilityIdentifier("ViewSendCopyButton")
 
                 Button {
                     store.send(.shareSend)
@@ -130,6 +134,7 @@ struct ViewSendItemView: View {
                     Label(Localizations.share, image: Asset.Images.share16.swiftUIImage, scaleImageDimension: 16)
                 }
                 .buttonStyle(.secondary(size: .medium))
+                .accessibilityIdentifier("ViewSendShareButton")
             }
             .padding(16)
         }
@@ -138,7 +143,11 @@ struct ViewSendItemView: View {
     /// The send details section, containing the send's name, content, and deletion date.
     @ViewBuilder private var sendDetailsSection: some View {
         SectionView(Localizations.sendDetails, contentSpacing: 8) {
-            BitwardenTextValueField(title: Localizations.sendNameRequired, value: store.state.sendView.name)
+            BitwardenTextValueField(
+                title: Localizations.sendNameRequired,
+                value: store.state.sendView.name,
+                valueAccessibilityIdentifier: "ViewSendNameField"
+            )
 
             switch store.state.sendView.type {
             case .file:
@@ -148,6 +157,7 @@ struct ViewSendItemView: View {
                             Text(file.fileName)
                                 .styleGuide(.body)
                                 .foregroundStyle(Asset.Colors.textPrimary.swiftUIColor)
+                                .accessibilityIdentifier("ViewSendFileNameText")
 
                             if let fileSize = file.sizeName {
                                 Text(fileSize)
@@ -155,19 +165,25 @@ struct ViewSendItemView: View {
                                     .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
                                     .frame(maxWidth: .infinity, alignment: .trailing)
                                     .multilineTextAlignment(.trailing)
+                                    .accessibilityIdentifier("ViewSendFileSizeText")
                             }
                         }
                     }
                 }
             case .text:
                 if let text = store.state.sendView.text?.text {
-                    BitwardenTextValueField(title: Localizations.textToShare, value: text)
+                    BitwardenTextValueField(
+                        title: Localizations.textToShare,
+                        value: text,
+                        valueAccessibilityIdentifier: "ViewSendContentText"
+                    )
                 }
             }
 
             BitwardenTextValueField(
                 title: Localizations.deletionDate,
-                value: store.state.sendView.deletionDate.formatted(date: .abbreviated, time: .shortened)
+                value: store.state.sendView.deletionDate.formatted(date: .abbreviated, time: .shortened),
+                valueAccessibilityIdentifier: "ViewSendDeletionDateField"
             )
         }
     }

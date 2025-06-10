@@ -11,14 +11,14 @@ public struct CameraPreviewView {
 
     /// The UIView holding the `AVCaptureVideoPreviewLayer`.
     public class VideoPreviewView: UIView {
-        /// The `UIView.layer` cast as `AVCaptureVideoPreviewLayer`.
-        var videoPreviewLayer: AVCaptureVideoPreviewLayer {
-            layer as! AVCaptureVideoPreviewLayer // swiftlint:disable:this force_cast
-        }
-
         /// The layerClass, overrided to be an `AVCaptureVideoPreviewLayer`.
         override public class var layerClass: AnyClass {
             AVCaptureVideoPreviewLayer.self
+        }
+
+        /// The `UIView.layer` cast as `AVCaptureVideoPreviewLayer`.
+        var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+            layer as! AVCaptureVideoPreviewLayer // swiftlint:disable:this force_cast
         }
 
         override init(frame: CGRect) {
@@ -30,6 +30,10 @@ public struct CameraPreviewView {
         required init?(coder: NSCoder) {
             super.init(coder: coder)
             setupOrientationObserver()
+        }
+
+        deinit {
+            NotificationCenter.default.removeObserver(self)
         }
 
         /// Configures observation of device orientation changes.
@@ -68,10 +72,6 @@ public struct CameraPreviewView {
                     break
                 }
             }
-        }
-
-        deinit {
-            NotificationCenter.default.removeObserver(self)
         }
     }
 

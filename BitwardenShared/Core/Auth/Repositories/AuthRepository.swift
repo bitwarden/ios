@@ -740,10 +740,6 @@ extension DefaultAuthRepository: AuthRepository {
         for account in accounts {
             await lockVault(userId: account.profile.userId, isManuallyLocking: isManuallyLocking)
         }
-
-        if appContextHelper.appContext.isAppIntentAction(.lockAll) {
-            await stateService.addPendingAppIntentAction(.lockAll)
-        }
     }
 
     func lockVault(userId: String?, isManuallyLocking: Bool) async {

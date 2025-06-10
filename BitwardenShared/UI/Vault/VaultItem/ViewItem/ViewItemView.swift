@@ -89,7 +89,7 @@ struct ViewItemView: View {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            editItemFloatingActionButton {
+            editItemFloatingActionButton(hidden: !store.state.canEdit) {
                 store.send(.editPressed)
             }
         }
@@ -124,7 +124,7 @@ struct ViewItemView: View {
             )
         }
         .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 }
 
@@ -132,27 +132,6 @@ struct ViewItemView: View {
 
 #if DEBUG
 struct ViewItemView_Previews: PreviewProvider {
-    static func cipher(forType: BitwardenSdk.CipherType = .login) -> CipherView {
-        CipherView.fixture(
-            attachments: [
-                .fixture(
-                    fileName: "selfieWithACat.png",
-                    id: "1",
-                    sizeName: "11.2 MB"
-                ),
-                .fixture(
-                    fileName: "selfieWithAPotato.png",
-                    id: "2",
-                    sizeName: "18.7 MB"
-                ),
-            ],
-            id: "123",
-            login: .fixture(),
-            type: forType,
-            viewPassword: false
-        )
-    }
-
     static var cardState: CipherItemState {
         var state = CipherItemState(
             existing: cipher(forType: .card),
@@ -351,6 +330,27 @@ struct ViewItemView_Previews: PreviewProvider {
             )
         }
         .previewDisplayName("SSH Key")
+    }
+
+    static func cipher(forType: BitwardenSdk.CipherType = .login) -> CipherView {
+        CipherView.fixture(
+            attachments: [
+                .fixture(
+                    fileName: "selfieWithACat.png",
+                    id: "1",
+                    sizeName: "11.2 MB"
+                ),
+                .fixture(
+                    fileName: "selfieWithAPotato.png",
+                    id: "2",
+                    sizeName: "18.7 MB"
+                ),
+            ],
+            id: "123",
+            login: .fixture(),
+            type: forType,
+            viewPassword: false
+        )
     }
 }
 #endif

@@ -74,6 +74,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 return
             }
 
+            let canEdit = cipherView.deletedDate == nil
             let hasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
             let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
 
@@ -82,7 +83,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
                 cipherView: cipherView,
                 hasMasterPassword: hasMasterPassword,
                 id: item.id,
-                showEdit: true
+                showEdit: canEdit
             ) { action in
                 await self.handleMoreOptionsAction(
                     action,

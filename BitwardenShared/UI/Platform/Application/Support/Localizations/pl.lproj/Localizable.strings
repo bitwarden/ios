@@ -930,8 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "Brak wiadomości e-mail? **[Wróć](https://)**, aby edytować swój adres e-mail.";
 "OrLogInYouMayAlreadyHaveAnAccount." = "Lub **[zaloguj się](https://)**, możesz mieć już konto.";
 "OpenEmailApp" = "Otwórz aplikację poczty e-mail";
-"SetPassword" = "Ustaw hasło";
-"FinishCreatingYourAccountForXBySettingAPassword." = "Zakończ tworzenie konta %1$@ poprzez ustawienie hasła.";
 "VerifyingEmail" = "Weryfikacja adresu e-mail";
 "EmailVerified" = "E-mail zweryfikowany";
 "AccountSuccessfullyCreated" = "Konto pomyślnie utworzone!";
@@ -1209,3 +1207,4 @@
 "EditTextSend" = "Edytuj wysłany tekst";
 "LogDeleted" = "Logi usunięte";
 "AllLogsDeleted" = "Usunięto wszystkie logi";
+"LoggingEndsOnDateAtTime" = "Logowanie kończy się %1$@ o %2$@";
