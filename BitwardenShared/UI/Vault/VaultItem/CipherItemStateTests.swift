@@ -237,6 +237,15 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(state.hasOrganizations)
     }
 
+    /// `hasOrganizations` is false when ownership options are empty and organizationId is nil.
+    func test_hasOrganizations_whenCipherBelongsToPersonal_returnsSmth() throws {
+        let cipher = CipherView.fixture()
+        var state = try XCTUnwrap(CipherItemState(existing: cipher, hasPremium: true))
+        state.ownershipOptions = []
+
+        XCTAssertFalse(state.hasOrganizations)
+    }
+
     /// `restrictCipherItemDeletionFlagEnable` default value is false
     func test_restrictCipherItemDeletionFlagValue() throws {
         let cipher = CipherView.loginFixture(
