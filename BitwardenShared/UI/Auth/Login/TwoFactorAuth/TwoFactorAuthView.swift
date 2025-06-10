@@ -119,7 +119,7 @@ struct TwoFactorAuthView: View {
             }
         }
         .padding(.top, 12)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// The detailed instructions for the method.
@@ -156,7 +156,7 @@ struct TwoFactorAuthView: View {
             duoButton
         }
         .padding(.top, 12)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// The launch webAuthn button.
@@ -177,7 +177,7 @@ struct TwoFactorAuthView: View {
             webAuthnButton
         }
         .padding(.top, 12)
-        .scrollView(padding: 12)
+        .scrollView()
     }
 
     /// The remember me toggle.

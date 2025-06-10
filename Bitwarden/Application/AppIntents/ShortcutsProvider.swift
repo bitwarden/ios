@@ -1,7 +1,7 @@
 import AppIntents
 
 /// The app shortcuts provider.
-@available(iOS 16.0, *)
+@available(iOS 16.4, *)
 struct ShortcutsProvider: AppShortcutsProvider {
     /// The app shortcuts.
     static var appShortcuts: [AppShortcut] {

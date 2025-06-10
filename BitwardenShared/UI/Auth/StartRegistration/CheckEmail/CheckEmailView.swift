@@ -63,7 +63,7 @@ struct CheckEmailView: View {
             }
         }
         .navigationBar(title: Localizations.createAccount, titleDisplayMode: .inline)
-        .scrollView(padding: 12)
+        .scrollView()
         .toolbar {
             cancelToolbarItem {
                 store.send(.dismissTapped)

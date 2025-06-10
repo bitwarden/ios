@@ -17,6 +17,11 @@ struct ViewItemState: Equatable, Sendable {
         }
     }
 
+    /// Whether the cipher can be edited.
+    var canEdit: Bool {
+        loadingState.data?.cipher.deletedDate == nil
+    }
+
     /// The current state. If this state is not `.loading`, this value will contain an associated value with the
     /// appropriate internal state.
     var loadingState: LoadingState<CipherItemState> = .loading(nil)

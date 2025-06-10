@@ -6,7 +6,7 @@ struct DefaultFalse: Codable, Hashable {
     // MARK: Properties
 
     /// The wrapped value.
-    let wrappedValue: Bool
+    var wrappedValue: Bool
 
     // MARK: Initialization
 

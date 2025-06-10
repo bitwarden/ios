@@ -433,6 +433,13 @@ final class AuthRouterTests: BitwardenTestCase { // swiftlint:disable:this type_
     }
 
     /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
+    /// when no user ID is passed.
+    func test_handleAndRoute_didLogout_noUserID() async {
+        let route = await subject.handleAndRoute(.didLogout(userId: nil, userInitiated: false))
+        XCTAssertEqual(route, .landing)
+    }
+
+    /// `handleAndRoute(_ :)` redirects `.didLogout()` to `.landing`
     ///     when no accounts are present.
     func test_handleAndRoute_didLogout_automatic_alternateAccount() async {
         let alt = Account.fixtureAccountLogin()

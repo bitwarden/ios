@@ -1,3 +1,4 @@
+import BitwardenKit
 import BitwardenSdk
 import SwiftUI
 
@@ -33,7 +34,7 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                     deleteSendButton
                 }
             }
-            .scrollView(padding: 12)
+            .scrollView()
             .disabled(store.state.isSendDisabled)
 
             profileSwitcher
@@ -213,10 +214,12 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                         .accessibilityIdentifier("SendChooseFileButton")
                     }
 
-                    Text(Localizations.maxFileSize)
-                        .styleGuide(.subheadline)
-                        .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
-                        .padding(.leading, 12)
+                    Text(Localizations.requiredMaximumFileSizeIsX(
+                        ByteCountFormatter.string(fromByteCount: Int64(Constants.maxFileSizeBytes), countStyle: .binary)
+                    ))
+                    .styleGuide(.subheadline)
+                    .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
+                    .padding(.leading, 12)
                 }
 
             case .edit:
