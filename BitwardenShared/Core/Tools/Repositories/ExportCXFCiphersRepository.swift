@@ -16,7 +16,7 @@ protocol ExportCXFCiphersRepository {
     ///
     /// - Parameter data: Data to export.
     @available(iOS 26.0, *)
-    func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws
+    func exportCredentials(data: ASImportableAccount, presentationAnchor: () async -> ASPresentationAnchor) async throws
     #endif
 
     /// Gets all ciphers to export in Credential Exchange flow.
@@ -94,8 +94,11 @@ class DefaultExportCXFCiphersRepository: ExportCXFCiphersRepository {
     #if SUPPORTS_CXP
 
     @available(iOS 26.0, *)
-    func exportCredentials(data: ASImportableAccount, presentationAnchor: () -> ASPresentationAnchor) async throws {
-        let manager = credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
+    func exportCredentials(
+        data: ASImportableAccount,
+        presentationAnchor: () async -> ASPresentationAnchor
+    ) async throws {
+        let manager = await credentialManagerFactory.createExportManager(presentationAnchor: presentationAnchor())
 
         let options = try await manager.requestExport(for: nil)
 
