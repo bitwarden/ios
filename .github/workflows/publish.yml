@@ -4,6 +4,10 @@ name: Publish to iOS App Store
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: read
+
 jobs:
     publish:
       runs-on: ubuntu-24.04
