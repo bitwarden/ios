@@ -333,10 +333,48 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.activeAccount = account
         try await subject.setLastActiveTime(userId: account.profile.userId)
         XCTAssertEqual(
-            stateService.lastActiveTime[account.profile.userId]!.timeIntervalSince1970,
-            Date().timeIntervalSince1970,
-            accuracy: 1.0
+            stateService.lastActiveTime[account.profile.userId]!,
+            timeProvider.presentTime,
         )
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
+    }
+
+    /// `.setLastActiveTime(userId:)` clears shared timeout on a timeout of `.never` or `.onAppRestart`
+    func test_setLastActiveTime_neverOrOnAppRestart() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.vaultTimeout[account.profile.userId] = .never
+        try await subject.setLastActiveTime(userId: account.profile.userId)
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
+
+        stateService.vaultTimeout[account.profile.userId] = .onAppRestart
+        try await subject.setLastActiveTime(userId: account.profile.userId)
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1", "1"])
+    }
+
+    /// `.setLastActiveTime(userId:)` clears shared timeout if the user's action is `.lock`
+    func test_setLastActiveTime_lock() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.vaultTimeout[account.profile.userId] = .fifteenMinutes
+        stateService.timeoutAction[account.profile.userId] = .lock
+
+        try await subject.setLastActiveTime(userId: account.profile.userId)
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
+    }
+
+    /// `.setLastActiveTime(userId:)` updates shared timeout if the user's action is `.logout`
+    func test_setLastActiveTime_logout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.vaultTimeout[account.profile.userId] = .oneMinute
+        stateService.timeoutAction[account.profile.userId] = .logout
+
+        try await subject.setLastActiveTime(userId: account.profile.userId)
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, [])
+        XCTAssertEqual(sharedTimeoutService.updateTimeoutUserId, "1")
+        XCTAssertEqual(sharedTimeoutService.updateTimeoutLastActiveDate, timeProvider.presentTime)
+        XCTAssertEqual(sharedTimeoutService.updateTimeoutTimeoutLength, .oneMinute)
     }
 
     /// `.setVaultTimeout(value:userId:)` sets the user's vault timeout value.
@@ -345,6 +383,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.activeAccount = account
         try await subject.setVaultTimeout(value: .custom(120), userId: account.profile.userId)
         XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], .custom(120))
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
     }
 
     /// `.setVaultTimeout(value:userId:)` sets the user's vault timeout value to on app restart.
@@ -353,6 +392,7 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.activeAccount = account
         try await subject.setVaultTimeout(value: .onAppRestart, userId: account.profile.userId)
         XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], .onAppRestart)
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
     }
 
     /// `.setVaultTimeout(value:userId:)` sets the user's vault timeout value to never.
@@ -361,6 +401,31 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         stateService.activeAccount = account
         try await subject.setVaultTimeout(value: .never, userId: account.profile.userId)
         XCTAssertEqual(stateService.vaultTimeout[account.profile.userId], .never)
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
+    }
+
+    /// `.setVaultTimeout(value:userId:)` clears shared timeout if the user's action is `.lock`
+    func test_setVaultTimeout_lock() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.timeoutAction[account.profile.userId] = .lock
+
+        try await subject.setVaultTimeout(value: .oneMinute, userId: account.profile.userId)
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, ["1"])
+    }
+
+    /// `.setVaultTimeout(value:userId:)` updates shared timeout if the user's action is `.logout`
+    func test_setVaultTimeout_logout() async throws {
+        let account = Account.fixture()
+        stateService.activeAccount = account
+        stateService.lastActiveTime[account.profile.userId] = timeProvider.presentTime
+        stateService.timeoutAction[account.profile.userId] = .logout
+
+        try await subject.setVaultTimeout(value: .oneMinute, userId: account.profile.userId)
+        XCTAssertEqual(sharedTimeoutService.clearTimeoutUserIds, [])
+        XCTAssertEqual(sharedTimeoutService.updateTimeoutUserId, "1")
+        XCTAssertEqual(sharedTimeoutService.updateTimeoutLastActiveDate, timeProvider.presentTime)
+        XCTAssertEqual(sharedTimeoutService.updateTimeoutTimeoutLength, .oneMinute)
     }
 
     /// `unlockVault(userId: nil)` should unlock the active account.

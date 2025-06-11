@@ -3,12 +3,13 @@ import BitwardenKit
 import Foundation
 
 public final class MockSharedTimeoutService: SharedTimeoutService {
-    var clearTimeoutUserIds = [String]()
-    var clearTimeoutError: Error?
-    var hasPassedTimeoutResult: Result<[String: Bool], Error> = .success([:])
-    // swiftlint:disable:next large_tuple
-    var updateTimeoutCalls: [(forUserId: String, lastActiveDate: Date?, timeoutLength: SessionTimeoutValue)] = []
-    var updateTimeoutError: Error?
+    public var clearTimeoutUserIds = [String]()
+    public var clearTimeoutError: Error?
+    public var hasPassedTimeoutResult: Result<[String: Bool], Error> = .success([:])
+    public var updateTimeoutUserId: String?
+    public var updateTimeoutLastActiveDate: Date?
+    public var updateTimeoutTimeoutLength: SessionTimeoutValue?
+    public var updateTimeoutError: Error?
 
     public init() {}
 
@@ -31,6 +32,8 @@ public final class MockSharedTimeoutService: SharedTimeoutService {
         if let updateTimeoutError {
             throw updateTimeoutError
         }
-        updateTimeoutCalls.append((forUserId: userId, lastActiveDate: lastActiveDate, timeoutLength: timeoutLength))
+        updateTimeoutUserId = userId
+        updateTimeoutLastActiveDate = lastActiveDate
+        updateTimeoutTimeoutLength = timeoutLength
     }
 }

@@ -564,7 +564,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setLastActiveTime(_ date: Date?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
-        lastActiveTime[userId] = timeProvider.presentTime
+        lastActiveTime[userId] = date
     }
 
     func setLastSyncTime(_ date: Date?, userId: String?) async throws {
