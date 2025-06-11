@@ -1,8 +1,7 @@
 import BitwardenKit
-import CoreData
 import Combine
+import CoreData
 import Foundation
-import os
 
 // MARK: - AuthenticatorBridgeItemService
 
@@ -10,10 +9,6 @@ import os
 /// `AuthenticatorBridgeItemData` objects.
 ///
 public protocol AuthenticatorBridgeItemService {
-    /// Checks for logout by fetching all userIds currently in use in the Core Data database and logs them.
-    ///
-    func checkForLogout() async throws
-
     /// Removes all items that are owned by the specific userId
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
@@ -116,7 +111,6 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
                 dataStore: AuthenticatorBridgeDataStore,
                 sharedKeychainRepository: SharedKeychainRepository,
                 sharedTimeoutService: SharedTimeoutService) {
-        Logger.application.log("Initializing DefaultAuthenticatorBridgeItemService")
         self.cryptoService = cryptoService
         self.dataStore = dataStore
         self.sharedKeychainRepository = sharedKeychainRepository
@@ -125,30 +119,11 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
 
     // MARK: Methods
 
-    /// Checks for logout by fetching all userIds currently in use in the Core Data database and logs them.
-    ///
-    public func checkForLogout() async throws {
-        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: AuthenticatorBridgeItemData.entityName)
-        fetchRequest.propertiesToFetch = ["userId"]
-        fetchRequest.returnsDistinctResults = true
-        fetchRequest.resultType = .dictionaryResultType
-
-        let results = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
-        let userIds = results.compactMap { ($0 as? [String: Any])?["userId"] as? String }
-
-        try await userIds.asyncForEach { userId in
-            if try await sharedTimeoutService.hasPassedTimeout(userId: userId) {
-                try await deleteAllForUserId(userId)
-            }
-        }
-    }
-
     /// Removes all items that are owned by the specific userId
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
     ///
     public func deleteAllForUserId(_ userId: String) async throws {
-        Logger.application.log("Deleting all items for userId \(userId)")
         try await dataStore.executeBatchDelete(AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId))
     }
 
@@ -177,7 +152,6 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     }
 
     public func isSyncOn() async -> Bool {
-//        Logger.application.log("Checking if sync is on")
         let key = try? await sharedKeychainRepository.getAuthenticatorKey()
         return key != nil
     }
@@ -225,7 +199,6 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
 
     public func sharedItemsPublisher() async throws ->
         AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> {
-        Logger.application.log("Fetching all shared items")
         try await checkForLogout()
         let fetchRequest = AuthenticatorBridgeItemData.fetchRequest(
             predicate: NSPredicate(
@@ -241,9 +214,29 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             dataItems.compactMap(\.model)
         }
         .asyncTryMap { itemModel in
-            Logger.application.log("Decrypting \(itemModel.count) shared items")
             return try await self.cryptoService.decryptAuthenticatorItems(itemModel)
         }
         .eraseToAnyPublisher()
+    }
+
+    // MARK: Private Functions
+
+    /// Iterates through all of the users with shared items and determines if they've passed their
+    /// logout timeout. If so, then their shared items are deleted.
+    ///
+    private func checkForLogout() async throws {
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: AuthenticatorBridgeItemData.entityName)
+        fetchRequest.propertiesToFetch = ["userId"]
+        fetchRequest.returnsDistinctResults = true
+        fetchRequest.resultType = .dictionaryResultType
+
+        let results = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
+        let userIds = results.compactMap { ($0 as? [String: Any])?["userId"] as? String }
+
+        try await userIds.asyncForEach { userId in
+            if try await sharedTimeoutService.hasPassedTimeout(userId: userId) {
+                try await deleteAllForUserId(userId)
+            }
+        }
     }
 }
