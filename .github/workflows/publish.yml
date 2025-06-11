@@ -1,5 +1,5 @@
 
-name: Publish
+name: Publish to iOS App Store
 
 on:
   workflow_dispatch:
