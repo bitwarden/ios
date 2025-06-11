@@ -343,4 +343,40 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertEqual(results[0], initialItems)
         XCTAssertEqual(results[1], replacedItems)
     }
+
+    /// The shared items publisher deletes items if the user is timed out.
+    ///
+    func test_sharedItemsPublisher_deletesItemsOnTimeout() async throws {
+        let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        let otherUserItems = [AuthenticatorBridgeItemDataView.fixture(name: "New Item")]
+        try await subject.insertItems(initialItems, forUserId: "userId")
+        try await subject.replaceAllItems(with: otherUserItems, forUserId: "differentUserId")
+
+        sharedTimeoutService.hasPassedTimeoutResult = .success([
+            "userId": true,
+            "differentUserId": false,
+        ])
+
+        var results: [[AuthenticatorBridgeItemDataView]] = []
+        let publisher = try await subject.sharedItemsPublisher()
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    results.append(value)
+                }
+            )
+        defer { publisher.cancel() }
+
+        // Verify items are removed for "userId"
+        let deletedFetchResult = try await subject.fetchAllForUserId("userId")
+
+        XCTAssertNotNil(deletedFetchResult)
+        XCTAssertEqual(deletedFetchResult.count, 0)
+
+        // Verify items are still present for "differentUserId"
+        let result = try await subject.fetchAllForUserId("differentUserId")
+
+        XCTAssertNotNil(result)
+        XCTAssertEqual(result.count, otherUserItems.count)
+    }
 }

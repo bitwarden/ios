@@ -214,7 +214,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             dataItems.compactMap(\.model)
         }
         .asyncTryMap { itemModel in
-            return try await self.cryptoService.decryptAuthenticatorItems(itemModel)
+            try await self.cryptoService.decryptAuthenticatorItems(itemModel)
         }
         .eraseToAnyPublisher()
     }
