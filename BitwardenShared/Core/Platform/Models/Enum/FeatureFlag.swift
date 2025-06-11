@@ -34,10 +34,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     )
 
     /// A feature flag for the flight recorder, which can be enabled to collect app logs.
-    static let flightRecorder = FeatureFlag(
-        rawValue: "enable-pm-flight-recorder",
-        isRemotelyConfigured: false
-    )
+    static let flightRecorder = FeatureFlag(rawValue: "enable-pm-flight-recorder")
 
     /// A flag to ignore the environment check for the two-factor authentication
     /// notice. If this is on, then it will display even on self-hosted servers,
@@ -54,10 +51,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     static let mobileErrorReporting = FeatureFlag(rawValue: "mobile-error-reporting")
 
     /// A feature flag for the pre-login settings.
-    static let preLoginSettings = FeatureFlag(
-        rawValue: "enable-pm-prelogin-settings",
-        isRemotelyConfigured: false
-    )
+    static let preLoginSettings = FeatureFlag(rawValue: "enable-pm-prelogin-settings")
 
     /// A feature flag for the refactor on the SSO details endpoint.
     static let refactorSsoDetailsEndpoint = FeatureFlag(rawValue: "pm-12337-refactor-sso-details-endpoint")
