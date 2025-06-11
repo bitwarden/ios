@@ -1,6 +1,8 @@
 import BitwardenKit
+import CoreData
 import Combine
 import Foundation
+import os
 
 // MARK: - AuthenticatorBridgeItemService
 
@@ -8,6 +10,10 @@ import Foundation
 /// `AuthenticatorBridgeItemData` objects.
 ///
 public protocol AuthenticatorBridgeItemService {
+    /// Checks for logout by fetching all userIds currently in use in the Core Data database and logs them.
+    ///
+    func checkForLogout() async throws
+
     /// Removes all items that are owned by the specific userId
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
@@ -93,6 +99,9 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     /// The keychain repository for working with the shared key.
     let sharedKeychainRepository: SharedKeychainRepository
 
+    /// A service that manages account timeout between apps.
+    let sharedTimeoutService: SharedTimeoutService
+
     // MARK: Initialization
 
     /// Initialize a `DefaultAuthenticatorBridgeItemService`
@@ -101,16 +110,38 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     ///   - cryptoService: Cryptography service for encrypting/decrypting items.
     ///   - dataStore: The CoreData store for working with shared data
     ///   - sharedKeychainRepository: The keychain repository for working with the shared key.
+    ///   - sharedTimeoutService: The shared timeout service for managing session timeouts.
     ///
     public init(cryptoService: SharedCryptographyService,
                 dataStore: AuthenticatorBridgeDataStore,
-                sharedKeychainRepository: SharedKeychainRepository) {
+                sharedKeychainRepository: SharedKeychainRepository,
+                sharedTimeoutService: SharedTimeoutService) {
+        Logger.application.log("Initializing DefaultAuthenticatorBridgeItemService")
         self.cryptoService = cryptoService
         self.dataStore = dataStore
         self.sharedKeychainRepository = sharedKeychainRepository
+        self.sharedTimeoutService = sharedTimeoutService
     }
 
     // MARK: Methods
+
+    /// Checks for logout by fetching all userIds currently in use in the Core Data database and logs them.
+    ///
+    public func checkForLogout() async throws {
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: AuthenticatorBridgeItemData.entityName)
+        fetchRequest.propertiesToFetch = ["userId"]
+        fetchRequest.returnsDistinctResults = true
+        fetchRequest.resultType = .dictionaryResultType
+
+        let results = try dataStore.persistentContainer.viewContext.fetch(fetchRequest)
+        let userIds = results.compactMap { ($0 as? [String: Any])?["userId"] as? String }
+
+        try await userIds.asyncForEach { userId in
+            if try await sharedTimeoutService.hasPassedTimeout(userId: userId) {
+                try await deleteAllForUserId(userId)
+            }
+        }
+    }
 
     /// Removes all items that are owned by the specific userId
     ///
@@ -145,6 +176,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     }
 
     public func isSyncOn() async -> Bool {
+//        Logger.application.log("Checking if sync is on")
         let key = try? await sharedKeychainRepository.getAuthenticatorKey()
         return key != nil
     }
@@ -192,6 +224,8 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
 
     public func sharedItemsPublisher() async throws ->
         AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> {
+        Logger.application.log("Fetching all shared items")
+        try await checkForLogout()
         let fetchRequest = AuthenticatorBridgeItemData.fetchRequest(
             predicate: NSPredicate(
                 format: "userId != %@", DefaultAuthenticatorBridgeItemService.temporaryUserId
@@ -206,7 +240,8 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
             dataItems.compactMap(\.model)
         }
         .asyncTryMap { itemModel in
-            try await self.cryptoService.decryptAuthenticatorItems(itemModel)
+            Logger.application.log("Decrypting \(itemModel.count) shared items")
+            return try await self.cryptoService.decryptAuthenticatorItems(itemModel)
         }
         .eraseToAnyPublisher()
     }

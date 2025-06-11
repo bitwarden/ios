@@ -42,7 +42,7 @@ public final class DefaultSharedTimeoutService: SharedTimeoutService {
     }
 
     public func hasPassedTimeout(userId: String) async throws -> Bool {
-        Logger.application.debug("DefaultSharedTimeoutService: hasPassedTimeout(userId:)")
+        Logger.application.debug("DefaultSharedTimeoutService: hasPassedTimeout(userId:\(userId))")
         return false
     }
 

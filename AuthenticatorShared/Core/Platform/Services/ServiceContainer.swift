@@ -245,10 +245,15 @@ public class ServiceContainer: Services {
             storeType: .persisted
         )
 
+        let sharedTimeoutService = DefaultSharedTimeoutService(
+            sharedKeychainRepository: sharedKeychainRepository
+        )
+
         let sharedItemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: sharedCryptographyService,
             dataStore: sharedDataStore,
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
+            sharedTimeoutService: sharedTimeoutService
         )
 
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(

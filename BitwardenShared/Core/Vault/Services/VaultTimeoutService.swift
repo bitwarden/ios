@@ -109,6 +109,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// The service used by the application to report non-fatal errors.
     private let errorReporter: ErrorReporter
 
+    /// A service that manages account timeout between apps.
     private let sharedTimeoutService: SharedTimeoutService
 
     /// The state service used by this Default Service.
