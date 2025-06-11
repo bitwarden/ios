@@ -38,6 +38,7 @@ BUILD_DIR="build"
 DERIVED_DATA_PATH="${BUILD_DIR}/DerivedData"
 ARCHIVE_PATH="${BUILD_DIR}/${BUILD_SCHEME}.xcarchive"
 EXPORT_PATH="${BUILD_DIR}/${BUILD_SCHEME}"
+RESULT_BUNDLE_PATH="export/build.xcresult"
 
 echo "🧱 Building in ${bold}$(pwd)${normal}"
 echo "🧱 Project file ${bold}${PROJECT_FILE}${normal}"
@@ -64,6 +65,7 @@ case "$MODE" in
       -configuration Debug \
       -destination "generic/platform=iOS Simulator" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
+      -resultBundlePath "${RESULT_BUNDLE_PATH}" \
       -quiet
     ;;
   "Device")
@@ -74,6 +76,7 @@ case "$MODE" in
       -configuration Release \
       -archivePath "${ARCHIVE_PATH}" \
       -derivedDataPath "${DERIVED_DATA_PATH}" \
+      -resultBundlePath "${RESULT_BUNDLE_PATH}" \
       -quiet
 
     echo "🚚 Performing Xcode archive export"
@@ -81,6 +84,7 @@ case "$MODE" in
       -archivePath "${ARCHIVE_PATH}" \
       -exportPath "${EXPORT_PATH}" \
       -exportOptionsPlist "Configs/export_options.plist" \
+      -resultBundlePath "${RESULT_BUNDLE_PATH}" \
       -quiet
     ;;
   *)
