@@ -1,10 +1,9 @@
+import AuthenticatorBridgeKit
 import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import Foundation
 import XCTest
-
-@testable import AuthenticatorBridgeKit
 
 final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
