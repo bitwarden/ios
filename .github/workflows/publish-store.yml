@@ -11,7 +11,7 @@ permissions:
 jobs:
     publish:
       runs-on: ubuntu-24.04
-      name: Promote build to Production in Play Store
+      name: Promote build to Production in iOS App Store
 
       steps:
         - name: TEST STEP
