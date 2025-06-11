@@ -19,14 +19,14 @@ final class FeatureFlagTests: BitwardenTestCase {
         XCTAssertTrue(FeatureFlag.cxpImportMobile.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.emailVerification.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.enableAuthenticatorSync.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.flightRecorder.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.importLoginsFlow.isRemotelyConfigured)
+        XCTAssertTrue(FeatureFlag.preLoginSettings.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.restrictCipherItemDeletion.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.simpleLoginSelfHostAlias.isRemotelyConfigured)
         XCTAssertTrue(FeatureFlag.mobileErrorReporting.isRemotelyConfigured)
 
         XCTAssertFalse(FeatureFlag.enableCipherKeyEncryption.isRemotelyConfigured)
-        XCTAssertFalse(FeatureFlag.flightRecorder.isRemotelyConfigured)
         XCTAssertFalse(FeatureFlag.ignore2FANoticeEnvironmentCheck.isRemotelyConfigured)
-        XCTAssertFalse(FeatureFlag.preLoginSettings.isRemotelyConfigured)
     }
 }
