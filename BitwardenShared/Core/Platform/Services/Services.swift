@@ -45,8 +45,8 @@ typealias Services = HasAPIService
     & HasRehydrationHelper
     & HasReviewPromptService
     & HasSendRepository
-    & HasSharedTimeoutService
     & HasSettingsRepository
+    & HasSharedTimeoutService
     & HasStateService
     & HasSyncService
     & HasSystemDevice
