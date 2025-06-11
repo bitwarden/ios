@@ -262,6 +262,9 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             .eraseToAnyPublisher()
     }
 
+    /// Updates the shared timeout value in the SharedTimeoutService, so that BWA can log users out
+    /// on timeout. In the event that the user should not be automatically logged out after a time,
+    /// it will clear the timeout value.
     private func updateSharedTimeout(lastActiveTime: Date?, timeoutValue: SessionTimeoutValue, userId: String?) async throws {
         if let userId {
             let vaultTimeout = try await sessionTimeoutValue(userId: userId)
