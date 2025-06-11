@@ -9,6 +9,10 @@ class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
     var syncOn = false
     var tempItem: AuthenticatorBridgeItemDataView?
 
+    func checkForLogout() async throws {
+        
+    }
+
     func deleteAllForUserId(_ userId: String) async throws {
         guard errorToThrow == nil else { throw errorToThrow! }
         storedItems[userId] = []
