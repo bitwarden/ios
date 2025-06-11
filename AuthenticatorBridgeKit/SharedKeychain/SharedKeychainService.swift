@@ -1,11 +1,11 @@
 import Foundation
 
-// MARK: - AuthenticatorKeychainService
+// MARK: - SharedKeychainService
 
 /// A Service to provide a wrapper around the device keychain shared via App Group between
 /// the Authenticator and the main Bitwarden app.
 ///
-public protocol AuthenticatorKeychainService: AnyObject {
+public protocol SharedKeychainService: AnyObject {
     /// Adds a set of attributes.
     ///
     /// - Parameter attributes: Attributes to add.
@@ -26,10 +26,10 @@ public protocol AuthenticatorKeychainService: AnyObject {
     func search(query: CFDictionary) throws -> AnyObject?
 }
 
-// MARK: - AuthenticatorKeychainServiceError
+// MARK: - SharedKeychainServiceError
 
-/// Enum with possible error cases that can be thrown from `AuthenticatorKeychainService`.
-public enum AuthenticatorKeychainServiceError: Error, Equatable, CustomNSError {
+/// Enum with possible error cases that can be thrown from `SharedKeychainService`.
+public enum SharedKeychainServiceError: Error, Equatable, CustomNSError {
     /// When a `KeychainService` is unable to locate an auth key for a given storage key.
     ///
     /// - Parameter KeychainItem: The potential storage key for the auth key.

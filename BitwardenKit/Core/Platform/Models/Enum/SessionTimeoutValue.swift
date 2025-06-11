@@ -2,7 +2,7 @@
 
 /// An enumeration of session timeout values to choose from.
 ///
-public enum SessionTimeoutValue: RawRepresentable, Equatable, Hashable, Sendable {
+public enum SessionTimeoutValue: Codable, RawRepresentable, Equatable, Hashable, Sendable {
     /// Time out immediately.
     case immediately
 
