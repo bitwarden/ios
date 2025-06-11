@@ -9,7 +9,7 @@ import XCTest
 @testable import BitwardenShared
 
 @MainActor
-final class VaultTimeoutServiceTests: BitwardenTestCase {
+final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
     var biometricsRepository: MockBiometricsRepository!

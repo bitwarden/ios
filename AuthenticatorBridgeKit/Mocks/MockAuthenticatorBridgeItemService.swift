@@ -1,5 +1,4 @@
 import AuthenticatorBridgeKit
-import BitwardenShared
 import Combine
 
 public class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
