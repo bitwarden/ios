@@ -3,6 +3,10 @@ import BitwardenShared
 import Combine
 
 class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService {
+    func checkForLogout() async throws {
+
+    }
+    
     var errorToThrow: Error?
     var replaceAllCalled = false
     var sharedItemsSubject = CurrentValueSubject<[AuthenticatorBridgeItemDataView], Error>([])

@@ -554,7 +554,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         )
 
         let sharedTimeoutService = DefaultSharedTimeoutService(
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
+            timeProvider: timeProvider
         )
 
         let vaultTimeoutService = DefaultVaultTimeoutService(
@@ -805,7 +806,8 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
         let authBridgeItemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: sharedCryptographyService,
             dataStore: authenticatorDataStore,
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
+            sharedTimeoutService: sharedTimeoutService
         )
 
         let authenticatorSyncService = DefaultAuthenticatorSyncService(
