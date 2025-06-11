@@ -1,6 +1,5 @@
 import BitwardenKit
 import Foundation
-import os
 
 // MARK: - HasSharedTimeoutService
 
@@ -16,13 +15,24 @@ public protocol HasSharedTimeoutService {
 /// A service that manages account timeout between apps.
 ///
 public protocol SharedTimeoutService {
-    /// g
+    /// Clears the shared timeout for a user.
+    /// - Parameters:
+    ///   - userId: The user's ID
     func clearTimeout(forUserId userId: String) async throws
 
-    /// g
+    /// Determines if a user has passed their timeout, using the current time and the saved shared time.
+    /// If the current time is equal to the timeout time, then it is considered passed. If there is no
+    /// saved time, then this will always return false.
+    /// - Parameters:
+    ///   - userId: The user's ID
+    /// - Returns: whether or not the user has passed their timeout
     func hasPassedTimeout(userId: String) async throws -> Bool
 
-    /// g
+    /// Updates the shared timeout for a user.
+    /// - Parameters:
+    ///   - userId: The user's ID
+    ///   - lastActiveDate: The last time the user was active
+    ///   - timeoutLength: The user's preferred timeout length
     func updateTimeout(forUserId userId: String, lastActiveDate: Date?, timeoutLength: SessionTimeoutValue) async throws
 }
 
@@ -44,12 +54,10 @@ public final class DefaultSharedTimeoutService: SharedTimeoutService {
     }
 
     public func clearTimeout(forUserId userId: String) async throws {
-        Logger.application.debug("DefaultSharedTimeoutService: clearTimeout(forUserId:)")
         try await sharedKeychainRepository.setAccountAutoLogoutTime(nil, userId: userId)
     }
 
     public func hasPassedTimeout(userId: String) async throws -> Bool {
-        Logger.application.debug("DefaultSharedTimeoutService: hasPassedTimeout(userId:\(userId))")
         guard let autoLogoutTime = try await sharedKeychainRepository.getAccountAutoLogoutTime(userId: userId) else {
             return false
         }
@@ -61,8 +69,6 @@ public final class DefaultSharedTimeoutService: SharedTimeoutService {
         lastActiveDate: Date?,
         timeoutLength: SessionTimeoutValue
     ) async throws {
-        Logger.application.debug("DefaultSharedTimeoutService: updateTimeout(forUserId:lastActiveDate:timeoutLength:)")
-
         guard let lastActiveDate else {
             try await clearTimeout(forUserId: userId)
             return
