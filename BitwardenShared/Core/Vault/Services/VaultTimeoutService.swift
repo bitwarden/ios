@@ -221,52 +221,21 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
         let now = timeProvider.presentTime
         try await stateService.setLastActiveTime(now, userId: userId)
         let vaultTimeout = try await sessionTimeoutValue(userId: userId)
-        switch vaultTimeout {
-        case .never,
-             .onAppRestart:
-            // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
-            // Therefore we can't have one saved.
-            try await sharedTimeoutService.clearTimeout(forUserId: userId)
-        default:
-            let timeoutAction = try await sessionTimeoutAction(userId: userId)
-            switch timeoutAction {
-            case .lock:
-                try await sharedTimeoutService.clearTimeout(forUserId: userId)
-            case .logout:
-                try await sharedTimeoutService.updateTimeout(
-                    forUserId: userId,
-                    lastActiveDate: now,
-                    timeoutLength: vaultTimeout
-                )
-            }
-        }
+        try await updateSharedTimeout(
+            lastActiveTime: now,
+            timeoutValue: vaultTimeout,
+            userId: userId
+        )
     }
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         try await stateService.setVaultTimeout(value: value, userId: userId)
-        if let userId {
-            let vaultTimeout = try await sessionTimeoutValue(userId: userId)
-            switch vaultTimeout {
-            case .never,
-                 .onAppRestart:
-                // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
-                // Therefore we can't have one saved.
-                try await sharedTimeoutService.clearTimeout(forUserId: userId)
-            default:
-                let timeoutAction = try await sessionTimeoutAction(userId: userId)
-                switch timeoutAction {
-                case .lock:
-                    try await sharedTimeoutService.clearTimeout(forUserId: userId)
-                case .logout:
-                    let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
-                    try await sharedTimeoutService.updateTimeout(
-                        forUserId: userId,
-                        lastActiveDate: lastActiveTime,
-                        timeoutLength: value
-                    )
-                }
-            }
-        }
+        let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
+        try await updateSharedTimeout(
+            lastActiveTime: lastActiveTime,
+            timeoutValue: value,
+            userId: userId
+        )
     }
 
     func unlockVault(userId: String?, hadUserInteraction: Bool) async throws {
@@ -291,5 +260,30 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
             }
             .removeDuplicates()
             .eraseToAnyPublisher()
+    }
+
+    private func updateSharedTimeout(lastActiveTime: Date?, timeoutValue: SessionTimeoutValue, userId: String?) async throws {
+        if let userId {
+            let vaultTimeout = try await sessionTimeoutValue(userId: userId)
+            switch vaultTimeout {
+            case .never,
+                 .onAppRestart:
+                // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
+                // Therefore we can't have one saved.
+                try await sharedTimeoutService.clearTimeout(forUserId: userId)
+            default:
+                let timeoutAction = try await sessionTimeoutAction(userId: userId)
+                switch timeoutAction {
+                case .lock:
+                    try await sharedTimeoutService.clearTimeout(forUserId: userId)
+                case .logout:
+                    try await sharedTimeoutService.updateTimeout(
+                        forUserId: userId,
+                        lastActiveDate: lastActiveTime,
+                        timeoutLength: timeoutValue
+                    )
+                }
+            }
+        }
     }
 }
