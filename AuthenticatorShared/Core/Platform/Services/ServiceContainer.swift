@@ -246,7 +246,8 @@ public class ServiceContainer: Services {
         )
 
         let sharedTimeoutService = DefaultSharedTimeoutService(
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
+            timeProvider: timeProvider
         )
 
         let sharedItemService = DefaultAuthenticatorBridgeItemService(

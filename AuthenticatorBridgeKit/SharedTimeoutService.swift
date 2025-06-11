@@ -32,8 +32,15 @@ public final class DefaultSharedTimeoutService: SharedTimeoutService {
     /// A repository for managing keychain items to be shared between Password Manager and Authenticator.
     private let sharedKeychainRepository: SharedKeychainRepository
 
-    public init(sharedKeychainRepository: SharedKeychainRepository) {
+    /// A service for providing the current time.
+    private let timeProvider: TimeProvider
+
+    public init(
+        sharedKeychainRepository: SharedKeychainRepository,
+        timeProvider: TimeProvider
+    ) {
         self.sharedKeychainRepository = sharedKeychainRepository
+        self.timeProvider = timeProvider
     }
 
     public func clearTimeout(forUserId userId: String) async throws {
@@ -43,7 +50,10 @@ public final class DefaultSharedTimeoutService: SharedTimeoutService {
 
     public func hasPassedTimeout(userId: String) async throws -> Bool {
         Logger.application.debug("DefaultSharedTimeoutService: hasPassedTimeout(userId:\(userId))")
-        return false
+        guard let autoLogoutTime = try await sharedKeychainRepository.getAccountAutoLogoutTime(userId: userId) else {
+            return false
+        }
+        return timeProvider.presentTime >= autoLogoutTime
     }
 
     public func updateTimeout(

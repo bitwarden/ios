@@ -3,6 +3,7 @@ import BitwardenKit
 import BitwardenSdk
 import CryptoKit
 import Foundation
+import os
 
 // MARK: - AuthenticatorSyncService
 
@@ -249,6 +250,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
     /// - Parameter userId: The userId of the user whose sync status is being determined.
     ///
     private func determineSyncForUserId(_ userId: String) async throws {
+        Logger.application.log("Determining sync status for userId: \(userId)")
         guard
             await configService.getFeatureFlag(
                 FeatureFlag.enableAuthenticatorSync,

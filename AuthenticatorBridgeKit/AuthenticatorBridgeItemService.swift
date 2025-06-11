@@ -148,6 +148,7 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     /// - Parameter userId: the id of the user for which to delete all items.
     ///
     public func deleteAllForUserId(_ userId: String) async throws {
+        Logger.application.log("Deleting all items for userId \(userId)")
         try await dataStore.executeBatchDelete(AuthenticatorBridgeItemData.deleteByUserIdRequest(userId: userId))
     }
 
