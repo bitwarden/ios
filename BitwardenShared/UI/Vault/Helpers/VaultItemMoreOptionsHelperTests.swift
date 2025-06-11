@@ -112,7 +112,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // View navigates to the view item view.
         let viewAction = try XCTUnwrap(alert.alertActions[0])
         await viewAction.handler?(viewAction, [])
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
 
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
@@ -392,7 +392,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // View navigates to the view item view.
         let viewAction = try XCTUnwrap(alert.alertActions[0])
         await viewAction.handler?(viewAction, [])
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
 
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
@@ -452,7 +452,6 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     /// `showMoreOptionsAlert()` shows the appropriate more options alert for a login cipher.
     @MainActor
     func test_showMoreOptionsAlert_morePressed_login_full() async throws {
-        // swiftlint:disable:previous function_body_length
         let account = Account.fixture()
         stateService.activeAccount = account
 
@@ -495,7 +494,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // View navigates to the view item view.
         let viewAction = try XCTUnwrap(alert.alertActions[0])
         await viewAction.handler?(viewAction, [])
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
 
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])
@@ -603,7 +602,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         // View navigates to the view item view.
         let viewAction = try XCTUnwrap(alert.alertActions[0])
         await viewAction.handler?(viewAction, [])
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: item.id, masterPasswordRepromptCheckCompleted: true))
 
         // Edit navigates to the edit view.
         let editAction = try XCTUnwrap(alert.alertActions[1])

@@ -106,6 +106,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// A delegate used to communicate with the app extension.
     private weak var appExtensionDelegate: AppExtensionDelegate?
 
+    /// The helper to handle master password reprompts.
+    private let _masterPasswordRepromptHelper: MasterPasswordRepromptHelper?
+
     /// The module used by this coordinator to create child coordinators.
     private let module: Module
 
@@ -120,8 +123,8 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     // MARK: Computed Properties
 
     /// The helper to handle master password reprompts.
-    var masterPasswordRepromptHelper: MasterPasswordRepromptHelper {
-        DefaultMasterPasswordRepromptHelper(
+    private var masterPasswordRepromptHelper: MasterPasswordRepromptHelper {
+        _masterPasswordRepromptHelper ?? DefaultMasterPasswordRepromptHelper(
             coordinator: asAnyCoordinator(),
             services: services
         )
@@ -134,6 +137,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
     ///   - delegate: The delegate for this coordinator, relays user interactions with the profile switcher.
+    ///   - masterPasswordRepromptHelper: The helper to handle master password reprompts. Defaults
+    ///     to `nil`, which will create a `DefaultMasterPasswordRepromptHelper` internally, but can
+    ///     be overridden for testing.
     ///   - module: The module used by this coordinator to create child coordinators.
     ///   - services: The services used by this coordinator.
     ///   - stackNavigator: The stack navigator that is managed by this coordinator.
@@ -141,11 +147,13 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     init(
         appExtensionDelegate: AppExtensionDelegate?,
         delegate: VaultCoordinatorDelegate,
+        masterPasswordRepromptHelper: MasterPasswordRepromptHelper? = nil,
         module: Module,
         services: Services,
         stackNavigator: StackNavigator
     ) {
         self.appExtensionDelegate = appExtensionDelegate
+        _masterPasswordRepromptHelper = masterPasswordRepromptHelper
         self.module = module
         self.services = services
         self.stackNavigator = stackNavigator
@@ -228,8 +236,12 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             delegate?.presentLoginRequest(loginRequest)
         case let .vaultItemSelection(totpKeyModel):
             showVaultItemSelection(totpKeyModel: totpKeyModel)
-        case let .viewItem(id):
-            showVaultItem(route: .viewItem(id: id), delegate: context as? CipherItemOperationDelegate)
+        case let .viewItem(id, masterPasswordRepromptCheckCompleted):
+            showViewItem(
+                cipherId: id,
+                delegate: context as? CipherItemOperationDelegate,
+                masterPasswordRepromptCheckCompleted: masterPasswordRepromptCheckCompleted
+            )
         case let .switchAccount(userId: userId):
             delegate?.didTapAccount(userId: userId)
         }
@@ -436,6 +448,35 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
         )
 
         stackNavigator?.present(VaultItemSelectionView(store: Store(processor: processor)))
+    }
+
+    /// Shows the view vault item screen.
+    ///
+    /// - Parameters:
+    ///   - cipherId: The id of the item to display.
+    ///   - delegate: A `CipherItemOperationDelegate` that is notified if the item is updated from
+    ///     within the view.
+    ///   - masterPasswordRepromptCheckCompleted: Whether the master password reprompt check has
+    ///     already been completed.
+    ///
+    private func showViewItem(
+        cipherId: String,
+        delegate: CipherItemOperationDelegate?,
+        masterPasswordRepromptCheckCompleted: Bool
+    ) {
+        let navigate = { self.showVaultItem(route: .viewItem(id: cipherId), delegate: delegate) }
+
+        // If the master password reprompt check has already completed, skip reprompting again which
+        // avoids an extra database fetch, otherwise check if reprompting is necessary.
+        guard masterPasswordRepromptCheckCompleted else {
+            Task {
+                await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherId: cipherId) {
+                    navigate()
+                }
+            }
+            return
+        }
+        navigate()
     }
 }
 

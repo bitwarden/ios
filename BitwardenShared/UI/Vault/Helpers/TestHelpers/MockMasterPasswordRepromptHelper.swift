@@ -3,6 +3,7 @@ import BitwardenSdk
 @testable import BitwardenShared
 
 class MockMasterPasswordRepromptHelper: MasterPasswordRepromptHelper {
+    var repromptForMasterPasswordCipherId: String?
     var repromptForMasterPasswordCipherListView: CipherListView?
     var repromptForMasterPasswordCipherView: CipherView?
     var repromptForMasterPasswordCompletion: (@MainActor () async -> Void)?
@@ -11,6 +12,18 @@ class MockMasterPasswordRepromptHelper: MasterPasswordRepromptHelper {
     /// `repromptForMasterPasswordCompletion` closure. Otherwise, the completion closure will be
     /// called automatically.
     var repromptForMasterPasswordAutoComplete = true
+
+    func repromptForMasterPasswordIfNeeded(
+        cipherId: String,
+        completion: @escaping @MainActor () async -> Void
+    ) async {
+        repromptForMasterPasswordCipherId = cipherId
+        if repromptForMasterPasswordAutoComplete {
+            await completion()
+        } else {
+            repromptForMasterPasswordCompletion = completion
+        }
+    }
 
     func repromptForMasterPasswordIfNeeded(
         cipherListView: CipherListView,

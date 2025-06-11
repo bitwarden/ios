@@ -697,7 +697,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.receive(.itemPressed(.fixture(cipherListView: cipherListView)))
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id"))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: "id", masterPasswordRepromptCheckCompleted: true))
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 
@@ -717,7 +717,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         subject.receive(.itemPressed(totpItem))
         try await waitForAsync { !self.coordinator.routes.isEmpty }
 
-        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id))
+        XCTAssertEqual(coordinator.routes.last, .viewItem(id: totpItem.id, masterPasswordRepromptCheckCompleted: true))
         XCTAssertEqual(masterPasswordRepromptHelper.repromptForMasterPasswordCipherListView, cipherListView)
     }
 

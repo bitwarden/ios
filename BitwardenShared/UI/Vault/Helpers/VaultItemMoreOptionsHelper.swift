@@ -171,7 +171,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             handleOpenURL(url.sanitized)
         case let .view(id):
             await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
-                self.coordinator.navigate(to: .viewItem(id: id))
+                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
             }
         }
     }

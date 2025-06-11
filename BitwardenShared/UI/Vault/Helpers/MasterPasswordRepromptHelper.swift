@@ -10,12 +10,12 @@ protocol MasterPasswordRepromptHelper {
     /// enabled and the user has a master password.
     ///
     /// - Parameters:
-    ///   - cipherView: The `CipherView` used to determine if master password reprompt is enabled.
+    ///   - cipherId: The identifier for a cipher used to determine if master password reprompt is enabled.
     ///   - completion: A closure that is called if master password reprompt is successful or it
     ///     wasn't required. This *isn't* called if master password reprompt is unsuccessful.
     ///
     func repromptForMasterPasswordIfNeeded(
-        cipherView: CipherView,
+        cipherId: String,
         completion: @escaping @MainActor () async -> Void
     ) async
 
@@ -31,6 +31,19 @@ protocol MasterPasswordRepromptHelper {
         cipherListView: CipherListView,
         completion: @escaping @MainActor () async -> Void
     ) async
+
+    /// Reprompts the user for their master password if the cipher has master password reprompt
+    /// enabled and the user has a master password.
+    ///
+    /// - Parameters:
+    ///   - cipherView: The `CipherView` used to determine if master password reprompt is enabled.
+    ///   - completion: A closure that is called if master password reprompt is successful or it
+    ///     wasn't required. This *isn't* called if master password reprompt is unsuccessful.
+    ///
+    func repromptForMasterPasswordIfNeeded(
+        cipherView: CipherView,
+        completion: @escaping @MainActor () async -> Void
+    ) async
 }
 
 // MARK: - DefaultMasterPasswordRepromptHelper
@@ -43,6 +56,7 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
 
     typealias Services = HasAuthRepository
         & HasErrorReporter
+        & HasVaultRepository
 
     // MARK: Properties
 
@@ -68,6 +82,21 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
     }
 
     // MARK: Methods
+
+    func repromptForMasterPasswordIfNeeded(
+        cipherId: String,
+        completion: @escaping @MainActor () async -> Void
+    ) async {
+        do {
+            guard let cipherView = try await services.vaultRepository.fetchCipher(withId: cipherId) else {
+                throw BitwardenError.dataError("A cipher with the specified ID was not found.")
+            }
+            await repromptForMasterPasswordIfNeeded(reprompt: cipherView.reprompt, completion: completion)
+        } catch {
+            services.errorReporter.log(error: error)
+            await coordinator.showErrorAlert(error: error)
+        }
+    }
 
     func repromptForMasterPasswordIfNeeded(
         cipherListView: CipherListView,
