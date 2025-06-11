@@ -279,7 +279,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.notes,
                         value: notes,
-                        requiresMasterPasswordReprompt: false,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: nil
                     ))
