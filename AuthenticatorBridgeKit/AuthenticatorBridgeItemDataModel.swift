@@ -26,23 +26,4 @@ public struct AuthenticatorBridgeItemDataModel: Codable, Equatable {
 
     /// The username of the item.
     public let username: String?
-
-    /// Public version of synthesized initializer.
-    public init(
-        accountDomain: String?,
-        accountEmail: String?,
-        favorite: Bool,
-        id: String,
-        name: String,
-        totpKey: String?,
-        username: String?
-    ) {
-        self.accountDomain = accountDomain
-        self.accountEmail = accountEmail
-        self.favorite = favorite
-        self.id = id
-        self.name = name
-        self.totpKey = totpKey
-        self.username = username
-    }
 }

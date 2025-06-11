@@ -1,4 +1,3 @@
-import AuthenticatorBridgeKit
 import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
@@ -15,6 +14,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     var dataStore: AuthenticatorBridgeDataStore!
     var errorReporter: ErrorReporter!
     var keychainRepository: MockSharedKeychainRepository!
+    var sharedTimeoutService: MockSharedTimeoutService!
     var subject: AuthenticatorBridgeItemService!
 
     // MARK: Setup & Teardown
@@ -29,10 +29,12 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
             storeType: .memory
         )
         keychainRepository = MockSharedKeychainRepository()
+        sharedTimeoutService = MockSharedTimeoutService()
         subject = DefaultAuthenticatorBridgeItemService(
             cryptoService: cryptoService,
             dataStore: dataStore,
-            sharedKeychainRepository: keychainRepository
+            sharedKeychainRepository: keychainRepository,
+            sharedTimeoutService: sharedTimeoutService
         )
     }
 
@@ -41,6 +43,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         dataStore = nil
         errorReporter = nil
         keychainRepository = nil
+        sharedTimeoutService = nil
         subject = nil
         super.tearDown()
     }
