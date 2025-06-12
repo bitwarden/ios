@@ -39,6 +39,7 @@ DERIVED_DATA_PATH="${BUILD_DIR}/DerivedData"
 ARCHIVE_PATH="${BUILD_DIR}/${BUILD_SCHEME}.xcarchive"
 EXPORT_PATH="${BUILD_DIR}/${BUILD_SCHEME}"
 RESULT_BUNDLE_PATH="export/build.xcresult"
+RESULT_EXPORT_ARCHIVE_BUNDLE_PATH="export/buildExportArchive.xcresult"
 
 echo "🧱 Building in ${bold}$(pwd)${normal}"
 echo "🧱 Project file ${bold}${PROJECT_FILE}${normal}"
@@ -84,7 +85,7 @@ case "$MODE" in
       -archivePath "${ARCHIVE_PATH}" \
       -exportPath "${EXPORT_PATH}" \
       -exportOptionsPlist "Configs/export_options.plist" \
-      -resultBundlePath "${RESULT_BUNDLE_PATH}" \
+      -resultBundlePath "${RESULT_EXPORT_ARCHIVE_BUNDLE_PATH}" \
       -quiet
     ;;
   *)
