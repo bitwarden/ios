@@ -26,7 +26,7 @@ public class AuthenticatorBridgeItemData: NSManagedObject, CodableModelData {
     ///   - context: The managed object context to insert the initialized item
     ///   - userId: The ID of the user who owns the item
     ///   - authenticatorItem: the `AuthenticatorBridgeItemDataModel` used to create the item
-    public convenience init(
+    convenience init(
         context: NSManagedObjectContext,
         userId: String,
         authenticatorItem: AuthenticatorBridgeItemDataModel
