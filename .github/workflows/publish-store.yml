@@ -51,7 +51,6 @@ jobs:
             mkdir -p $HOME/secrets
             az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
                 --file $HOME/secrets/$FILE --output none
-            done
 
         - name: Download Fastlane credentials
           env:
