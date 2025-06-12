@@ -230,6 +230,7 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
 
     func setVaultTimeout(value: SessionTimeoutValue, userId: String?) async throws {
         try await stateService.setVaultTimeout(value: value, userId: userId)
+        guard let userId else { return }
         let lastActiveTime = try await stateService.getLastActiveTime(userId: userId)
         try await updateSharedTimeout(
             lastActiveTime: lastActiveTime,
@@ -265,27 +266,29 @@ class DefaultVaultTimeoutService: VaultTimeoutService {
     /// Updates the shared timeout value in the SharedTimeoutService, so that BWA can log users out
     /// on timeout. In the event that the user should not be automatically logged out after a time,
     /// it will clear the timeout value.
-    private func updateSharedTimeout(lastActiveTime: Date?, timeoutValue: SessionTimeoutValue, userId: String?) async throws {
-        if let userId {
-            let vaultTimeout = try await sessionTimeoutValue(userId: userId)
-            switch vaultTimeout {
-            case .never,
-                 .onAppRestart:
-                // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
-                // Therefore we can't have one saved.
+    private func updateSharedTimeout(
+        lastActiveTime: Date?,
+        timeoutValue: SessionTimeoutValue,
+        userId: String
+    ) async throws {
+        let vaultTimeout = try await sessionTimeoutValue(userId: userId)
+        switch vaultTimeout {
+        case .never,
+             .onAppRestart:
+            // For timeouts of `.never` or `.onAppRestart`, timeouts cannot be calculated.
+            // Therefore we can't have one saved.
+            try await sharedTimeoutService.clearTimeout(forUserId: userId)
+        default:
+            let timeoutAction = try await sessionTimeoutAction(userId: userId)
+            switch timeoutAction {
+            case .lock:
                 try await sharedTimeoutService.clearTimeout(forUserId: userId)
-            default:
-                let timeoutAction = try await sessionTimeoutAction(userId: userId)
-                switch timeoutAction {
-                case .lock:
-                    try await sharedTimeoutService.clearTimeout(forUserId: userId)
-                case .logout:
-                    try await sharedTimeoutService.updateTimeout(
-                        forUserId: userId,
-                        lastActiveDate: lastActiveTime,
-                        timeoutLength: timeoutValue
-                    )
-                }
+            case .logout:
+                try await sharedTimeoutService.updateTimeout(
+                    forUserId: userId,
+                    lastActiveDate: lastActiveTime,
+                    timeoutLength: timeoutValue
+                )
             }
         }
     }
