@@ -428,4 +428,20 @@ platform :ios do |options|
             file.write(project_yaml.to_yaml)
         end
     end
+
+    desc "Submit a build to the App Store"
+    lane :submit_release do |options|
+    # Set release metadata (you can customize more fields if needed)
+    deliver(
+      app_identifier: "com.8bit.bitwarden.beta",
+      edit_live: false,
+      version: "43080"
+      submit_for_review: true,
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: true,
+      release_notes: "test"
+      automatic_release: true
+    )
+  end
 end

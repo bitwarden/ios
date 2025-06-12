@@ -11,10 +11,10 @@ on:
           - Password Manager
           - Authenticator
       version-name:
-        description: "Version name to promote to production ex 2025.1.1"
+        description: "Version name to release ex 2025.1.1"
         type: string
       version-code:
-        description: "Build number to promote to production."
+        description: "Build number to be released."
         required: true
         type: number
       rollout-plan:
@@ -34,15 +34,163 @@ on:
         description: "Manual or Automatic Release"
         default: "Automatic"
 
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_ACTION_RUN_URL: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
 permissions:
   contents: read
   packages: read
 
 jobs:
     publish:
-      runs-on: ubuntu-24.04
-      name: Promote build to Production in iOS App Store
+      name: Publish build ${{ inputs.version-code }}
+      runs-on: macos-15
 
       steps:
-        - name: TEST STEP
-          run: exit 0
+
+        - name: Log inputs to job summary
+          run: |
+            echo "<details><summary>Job Inputs</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            echo '${{ toJson(inputs) }}' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+
+        - name: Check out repo
+          uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+        - name: Configure Ruby
+          uses: ruby/setup-ruby@ca041f971d66735f3e5ff1e21cc13e2d51e7e535 # v1.233.0
+          with:
+            bundler-cache: true
+
+        - name: Install Homebrew Dependencies
+          run: |
+            brew update
+            brew bundle
+
+        - name: Log in to Azure
+          uses: Azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
+          with:
+            creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+        - name: Setup secrets
+          run: |
+            az_download() {
+              local container_name=$1
+              local az_filename=$2
+              local local_filename=$3
+
+              az storage blob download --account-name bitwardenci --container-name $container_name --name $az_filename --file $local_filename --output none --only-show-errors --no-progress
+            }
+
+            mkdir -p $HOME/secrets
+
+            profiles_dir_path="$HOME/Library/MobileDevice/Provisioning Profiles"
+            mkdir -p "$profiles_dir_path"
+
+            IFS=',' read -ra profiles <<< "$_PROVISIONING_PROFILES"
+            for FILE in "${profiles[@]}"
+            do
+              echo "⌛️ Downloading provisioning profile $FILE..."
+              local_profile_path=$HOME/secrets/$FILE
+
+              az_download profiles $FILE $local_profile_path
+
+              profile_uuid=$(grep UUID -A1 -a $local_profile_path | grep -io "[-A-F0-9]\{36\}")
+              cp $local_profile_path "$profiles_dir_path/$profile_uuid.mobileprovision"
+            done
+
+            echo "⌛️ Downloading Google-Services.plist..."
+            az_download mobile $_AZ_CRASHLYTICS_FILE_NAME $_CRASHLYTICS_PATH
+
+            if [[ "$_APP" == "password_manager" ]]; then
+              echo "⌛️ Downloading Google-Services.plist for watchOS..."
+              az_download mobile $_AZ_CRASHLYTICS_FILE_NAME "BitwardenWatchApp/GoogleService-Info.plist"
+              plutil -replace BUNDLE_ID -string '$BUNDLE_ID.watchkitapp' BitwardenWatchApp/GoogleService-Info.plist
+            fi
+
+            echo "⌛️ Downloading fastlane credentials..."
+            az_download mobile appstoreconnect-fastlane.json $HOME/secrets/appstoreconnect-fastlane.json
+
+            echo "⌛️ Downloading distribution certificate..."
+            mkdir -p $HOME/certificates
+            az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
+              jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
+
+            echo "✅ All secrets downloaded!"
+
+        - name: Configure Keychain Access
+          env:
+            KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          run: |
+            security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+            security default-keychain -s build.keychain
+            security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+            security set-keychain-settings -lut 1200 build.keychain
+
+            security import $HOME/certificates/ios-distribution.p12 -k build.keychain -P "" -T /usr/bin/codesign \
+              -T /usr/bin/security
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+
+        - name: Upload via Fastlane
+          run: |
+            bundle exec fastlane submit_release \
+              api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json"
+
+        # - name: Retrieve production provisioning profiles
+        #   if: env.build-variant == 'Production'
+        #   env:
+        #     ACCOUNT_NAME: bitwardenci
+        #     CONTAINER_NAME: profiles
+        #   run: |
+        #     mkdir -p $HOME/secrets
+        #     profiles=(
+        #       "dist_authenticator.mobileprovision"
+        #     )
+
+        #     for FILE in "${profiles[@]}"
+        #     do
+        #       az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
+        #         --file $HOME/secrets/$FILE --output none
+        #     done
+
+        # - name: Retrieve certificates
+        #   run: |
+        #     mkdir -p $HOME/certificates
+        #     az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
+        #       jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
+
+        - name: Configure Keychain Access
+          env:
+            KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          run: |
+            security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
+            security default-keychain -s build.keychain
+            security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
+            security set-keychain-settings -lut 1200 build.keychain
+
+            security import $HOME/certificates/ios-distribution.p12 -k build.keychain -P "" -T /usr/bin/codesign \
+              -T /usr/bin/security
+            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
+
+        # - name: Configure production provisioning profiles
+        #   if: env.build-variant == 'Production'
+        #   run: |
+        #     AUTHENTICATOR_PROFILE_PATH=$HOME/secrets/dist_authenticator.mobileprovision
+        #     PROFILES_DIR_PATH=$HOME/Library/MobileDevice/Provisioning\ Profiles
+
+        #     mkdir -p "$PROFILES_DIR_PATH"
+
+        #     AUTHENTICATOR_UUID=$(grep UUID -A1 -a $AUTHENTICATOR_PROFILE_PATH | grep -io "[-A-F0-9]\{36\}")
+        #     cp $AUTHENTICATOR_PROFILE_PATH "$PROFILES_DIR_PATH/$AUTHENTICATOR_UUID.mobileprovision"
+
+        # - name: Validate app with App Store Connect
+        #   run: |
+        #     xcrun altool --validate-app \
+        #       --type ios \
+        #       --file "build/Authenticator/Authenticator.ipa" \
+        #       --apiKey "J46C83CB96" \
+        #       --apiIssuer "${{ secrets.APP_STORE_CONNECT_TEAM_ISSUER }}"
