@@ -440,7 +440,6 @@ platform :ios do |options|
       skip_binary_upload: true,
       skip_screenshots: true,
       skip_metadata: true,
-      release_notes: "test",
       automatic_release: true,
       api_key_path: options[:api_key_path],
     )
