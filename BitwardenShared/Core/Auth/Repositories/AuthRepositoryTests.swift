@@ -1100,6 +1100,16 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertTrue(value)
     }
 
+    /// `isPinUnlockAvailable` throws errors.
+    func test_isPinUnlockAvailable_error() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        vaultTimeoutService.pinUnlockAvailabilityResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.isPinUnlockAvailable(userId: "1")
+        }
+    }
+
     /// `isUserManagedByOrganization` returns false when the feature flag is off.
     func test_isUserManagedByOrganization_false_featureFlagOff() async throws {
         stateService.accounts = [.fixture(profile: .fixture(userId: "1"))]
@@ -1657,6 +1667,15 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
         timeoutAction = try await subject.sessionTimeoutAction(userId: "2")
         XCTAssertEqual(timeoutAction, .logout)
+    }
+
+    /// `sessionTimeoutAction()` throws errors.
+    func test_sessionTimeoutAction_error() async throws {
+        vaultTimeoutService.sessionTimeoutActionError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.sessionTimeoutAction(userId: "1")
+        }
     }
 
     /// `setActiveAccount(userId: )` loads the environment URLs for the active account.
