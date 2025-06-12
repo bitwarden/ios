@@ -14,7 +14,6 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
     var dataStore: AuthenticatorBridgeDataStore!
     var errorReporter: ErrorReporter!
     var itemService: AuthenticatorBridgeItemService!
-    var sharedTimeoutService: MockSharedTimeoutService!
     var subject: AuthenticatorBridgeItemData!
 
     // MARK: Setup & Teardown
@@ -28,12 +27,11 @@ final class AuthenticatorBridgeItemDataTests: AuthenticatorBridgeKitTestCase {
             groupIdentifier: accessGroup,
             storeType: .memory
         )
-        sharedTimeoutService = MockSharedTimeoutService()
         itemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: cryptoService,
             dataStore: dataStore,
             sharedKeychainRepository: MockSharedKeychainRepository(),
-            sharedTimeoutService: sharedTimeoutService
+            sharedTimeoutService: MockSharedTimeoutService()
         )
     }
 
