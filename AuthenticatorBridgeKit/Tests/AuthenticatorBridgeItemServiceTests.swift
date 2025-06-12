@@ -3,7 +3,10 @@ import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import Foundation
+import TestHelpers
 import XCTest
+
+// swiftlint:disable file_length type_body_length function_body_length
 
 final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
@@ -378,4 +381,29 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertNotNil(itemsForWithinTimeoutUser)
         XCTAssertEqual(itemsForWithinTimeoutUser.count, withinTimeoutItems.count)
     }
+
+    /// `sharedItemsPublisher()` throws if checking for logout throws
+    ///
+    func test_sharedItemsPublisher_logoutError() async throws {
+        let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(initialItems, forUserId: "userId")
+
+        sharedTimeoutService.hasPassedTimeoutResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            var results: [[AuthenticatorBridgeItemDataView]] = []
+            let publisher = try await subject.sharedItemsPublisher()
+                .sink(
+                    receiveCompletion: { _ in },
+                    receiveValue: { value in
+                        results.append(value)
+                    }
+                )
+            publisher.cancel()
+        }
+
+        XCTAssertFalse(cryptoService.decryptCalled)
+    }
 }
+
+// swiftlint:enable file_length type_body_length function_body_length
