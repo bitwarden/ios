@@ -177,6 +177,14 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertTrue(value)
     }
 
+    /// `isPinUnlockAvailable` throws errors.
+    func test_isPinUnlockAvailable_error() async throws {
+        stateService.pinProtectedUserKeyError = BitwardenTestError.example
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.isPinUnlockAvailable(userId: "1")
+        }
+    }
+
     /// `lockVault(userId:)` logs an error if one occurs.
     func test_lock_error() async {
         await subject.lockVault(userId: nil)
@@ -327,6 +335,14 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(timeoutAction, .logout)
     }
 
+    /// `sessionTimeoutAction()` throws errors.
+    func test_sessionTimeoutAction_error() async throws {
+        stateService.userHasMasterPasswordError = BitwardenTestError.example
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.sessionTimeoutAction(userId: "1")
+        }
+    }
+
     /// `.setLastActiveTime(userId:)` sets the user's last active time.
     func test_setLastActiveTime() async throws {
         let account = Account.fixture()
@@ -375,6 +391,15 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(sharedTimeoutService.updateTimeoutUserId, "1")
         XCTAssertEqual(sharedTimeoutService.updateTimeoutLastActiveDate, timeProvider.presentTime)
         XCTAssertEqual(sharedTimeoutService.updateTimeoutTimeoutLength, .oneMinute)
+    }
+
+    /// `.setLastActiveTime(userId:)` throws errors.
+    func test_setLastActive_time_error() async throws {
+        stateService.setLastActiveTimeError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setLastActiveTime(userId: "1")
+        }
     }
 
     /// `.setVaultTimeout(value:userId:)` sets the user's vault timeout value.
@@ -426,6 +451,15 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
         XCTAssertEqual(sharedTimeoutService.updateTimeoutUserId, "1")
         XCTAssertEqual(sharedTimeoutService.updateTimeoutLastActiveDate, timeProvider.presentTime)
         XCTAssertEqual(sharedTimeoutService.updateTimeoutTimeoutLength, .oneMinute)
+    }
+
+    /// `.setVaultTimeout(value:userId:)` throws errors.
+    func test_setVaultTimeout_error() async throws {
+        stateService.setVaultTimeoutError = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.setVaultTimeout(value: .fiveMinutes, userId: "1")
+        }
     }
 
     /// `unlockVault(userId: nil)` should unlock the active account.
