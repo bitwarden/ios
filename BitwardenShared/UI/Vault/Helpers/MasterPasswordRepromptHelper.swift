@@ -66,6 +66,9 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
     /// The services used by this helper.
     private let services: Services
 
+    /// The helper to execute user verification flows.
+    private let userVerificationHelper: UserVerificationHelper
+
     // MARK: Initialization
 
     /// Initialize a `DefaultMasterPasswordRepromptHelper`.
@@ -73,12 +76,15 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
     /// - Parameters:
     ///   - coordinator: The `Coordinator` that handles navigation.
     ///   - services: The services used by this helper.
+    ///   - userVerificationHelper: The helper to execute user verification flows.
     init(
         coordinator: AnyCoordinator<Route, Event>,
-        services: Services
+        services: Services,
+        userVerificationHelper: UserVerificationHelper
     ) {
         self.coordinator = coordinator
         self.services = services
+        self.userVerificationHelper = userVerificationHelper
     }
 
     // MARK: Methods
@@ -114,29 +120,6 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
 
     // MARK: Private
 
-    /// Presents the master password reprompt alert and calls the completion handler when the user's
-    /// master password has been confirmed.
-    ///
-    /// - Parameter completion: A completion handler that is called when the user's master password
-    ///     has been confirmed.
-    ///
-    private func presentMasterPasswordRepromptAlert(completion: @escaping () async -> Void) async {
-        let alert = Alert.masterPasswordPrompt { password in
-            do {
-                let isValid = try await self.services.authRepository.validatePassword(password)
-                guard isValid else {
-                    self.coordinator.showAlert(.defaultAlert(title: Localizations.invalidMasterPassword))
-                    return
-                }
-                await completion()
-            } catch {
-                self.services.errorReporter.log(error: error)
-                await self.coordinator.showErrorAlert(error: error)
-            }
-        }
-        coordinator.showAlert(alert)
-    }
-
     /// Reprompts the user for their master password if the reprompt type enables master password
     /// reprompt and the user has a master password.
     ///
@@ -154,7 +137,11 @@ class DefaultMasterPasswordRepromptHelper<Route, Event>: MasterPasswordRepromptH
                 await completion()
                 return
             }
-            await presentMasterPasswordRepromptAlert(completion: completion)
+
+            guard try await userVerificationHelper.verifyMasterPassword() == .verified else { return }
+            await completion()
+        } catch UserVerificationError.cancelled {
+            // No-op
         } catch {
             services.errorReporter.log(error: error)
             await coordinator.showErrorAlert(error: error)

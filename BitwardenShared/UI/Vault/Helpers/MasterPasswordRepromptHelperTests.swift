@@ -9,10 +9,10 @@ import XCTest
 class MasterPasswordRepromptHelperTests: BitwardenTestCase {
     // MARK: Properties
 
-    var authRepository: MockAuthRepository!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     var subject: MasterPasswordRepromptHelper!
+    var userVerificationHelper: MockUserVerificationHelper!
     var vaultRepository: MockVaultRepository!
 
     // MARK: Setup & Teardown
@@ -20,28 +20,28 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
     override func setUp() {
         super.setUp()
 
-        authRepository = MockAuthRepository()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
+        userVerificationHelper = MockUserVerificationHelper()
         vaultRepository = MockVaultRepository()
 
         subject = DefaultMasterPasswordRepromptHelper(
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
-                authRepository: authRepository,
                 errorReporter: errorReporter,
                 vaultRepository: vaultRepository
-            )
+            ),
+            userVerificationHelper: userVerificationHelper
         )
     }
 
     override func tearDown() async throws {
         try await super.tearDown()
 
-        authRepository = nil
         coordinator = nil
         errorReporter = nil
         subject = nil
+        userVerificationHelper = nil
         vaultRepository = nil
     }
 
@@ -58,12 +58,12 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         }
 
         XCTAssertTrue(completionCalled)
+        XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
-    /// `repromptForMasterPasswordIfNeeded(cipherId:)` logs an error and shows an alert if
-    /// checking if the master password can be verified fails.
-    func test_repromptForMasterPasswordIfNeeded_cipherId_passwordReprompt_errorCanVerifyMP() async throws {
-        authRepository.canVerifyMasterPasswordResult = .failure(BitwardenTestError.example)
+    /// `repromptForMasterPasswordIfNeeded(cipherId:)` doesn't log an error if the password prompt is cancelled.
+    func test_repromptForMasterPasswordIfNeeded_cipherId_passwordReprompt_cancelled() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(reprompt: .password))
 
         var completionCalled = false
@@ -72,8 +72,9 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         }
 
         XCTAssertFalse(completionCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(coordinator.errorAlertsShown.isEmpty)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherId:)` logs an error and shows an alert if fetching
@@ -89,28 +90,24 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         XCTAssertFalse(completionCalled)
         XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherId:)` logs an error and shows an alert if
     /// validating the password fails.
     func test_repromptForMasterPasswordIfNeeded_cipherId_passwordReprompt_errorValidatePassword() async throws {
-        authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
+        userVerificationHelper.verifyMasterPasswordResult = .failure(BitwardenTestError.example)
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(reprompt: .password))
-
-        let cipherId = CipherListView.fixture(reprompt: .password)
 
         var completionCalled = false
         await subject.repromptForMasterPasswordIfNeeded(cipherId: "1") {
             completionCalled = true
         }
 
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
         XCTAssertFalse(completionCalled)
         XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherId:)` logs an error and shows an alert if the
@@ -131,6 +128,7 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
 
     /// `repromptForMasterPasswordIfNeeded(cipherId:)` shows an alert if the entered password is invalid.
     func test_repromptForMasterPasswordIfNeeded_cipherId_passwordReprompt_invalidPassword() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(reprompt: .password))
 
         var completionCalled = false
@@ -138,21 +136,14 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
             completionCalled = true
         }
 
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-
-        authRepository.validatePasswordResult = .success(false)
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
-        let invalidMasterPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(invalidMasterPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
-
         XCTAssertFalse(completionCalled)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherId:)` calls the completion closure if the
     /// master password reprompt was completed successfully.
     func test_repromptForMasterPasswordIfNeeded_cipherId_passwordReprompt_success() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .success(.verified)
         vaultRepository.fetchCipherResult = .success(CipherView.fixture(reprompt: .password))
 
         var completionCalled = false
@@ -160,13 +151,8 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
             completionCalled = true
         }
 
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-
-        authRepository.validatePasswordResult = .success(true)
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
         XCTAssertTrue(completionCalled)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherListView:)` doesn't prompt the user and calls the
@@ -180,12 +166,12 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         }
 
         XCTAssertTrue(completionCalled)
+        XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
-    /// `repromptForMasterPasswordIfNeeded(cipherListView:)` logs an error and shows an alert if
-    /// checking if the master password can be verified fails.
-    func test_repromptForMasterPasswordIfNeeded_cipherListView_passwordReprompt_errorCanVerifyMP() async throws {
-        authRepository.canVerifyMasterPasswordResult = .failure(BitwardenTestError.example)
+    /// `repromptForMasterPasswordIfNeeded(cipherListView:)` doesn't log an error if the password prompt is cancelled.
+    func test_repromptForMasterPasswordIfNeeded_cipherListView_passwordReprompt_cancelled() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
 
         let cipherListView = CipherListView.fixture(reprompt: .password)
 
@@ -195,14 +181,15 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         }
 
         XCTAssertFalse(completionCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(coordinator.errorAlertsShown.isEmpty)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherListView:)` logs an error and shows an alert if
     /// validating the password fails.
     func test_repromptForMasterPasswordIfNeeded_cipherListView_passwordReprompt_errorValidatePassword() async throws {
-        authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
+        userVerificationHelper.verifyMasterPasswordResult = .failure(BitwardenTestError.example)
 
         let cipherListView = CipherListView.fixture(reprompt: .password)
 
@@ -210,18 +197,17 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         await subject.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
             completionCalled = true
         }
-
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-        try await repromptAlert.tapAction(title: Localizations.submit)
 
         XCTAssertFalse(completionCalled)
         XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherListView:)` shows an alert if the entered password is invalid.
     func test_repromptForMasterPasswordIfNeeded_cipherListView_passwordReprompt_invalidPassword() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
+
         let cipherListView = CipherListView.fixture(reprompt: .password)
 
         var completionCalled = false
@@ -229,21 +215,15 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
             completionCalled = true
         }
 
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-
-        authRepository.validatePasswordResult = .success(false)
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
-        let invalidMasterPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(invalidMasterPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
-
         XCTAssertFalse(completionCalled)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherListView:)` calls the completion closure if the
     /// master password reprompt was completed successfully.
     func test_repromptForMasterPasswordIfNeeded_cipherListView_passwordReprompt_success() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .success(.verified)
+
         let cipherListView = CipherListView.fixture(reprompt: .password)
 
         var completionCalled = false
@@ -251,13 +231,8 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
             completionCalled = true
         }
 
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-
-        authRepository.validatePasswordResult = .success(true)
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
         XCTAssertTrue(completionCalled)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherView:)` doesn't prompt the user and calls the
@@ -271,12 +246,12 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         }
 
         XCTAssertTrue(completionCalled)
+        XCTAssertFalse(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
-    /// `repromptForMasterPasswordIfNeeded(cipherView:)` logs an error and shows an alert if
-    /// checking if the master password can be verified fails.
-    func test_repromptForMasterPasswordIfNeeded_cipherView_passwordReprompt_errorCanVerifyMP() async throws {
-        authRepository.canVerifyMasterPasswordResult = .failure(BitwardenTestError.example)
+    /// `repromptForMasterPasswordIfNeeded(cipherView:)` doesn't log an error if the password prompt is cancelled.
+    func test_repromptForMasterPasswordIfNeeded_cipherView_passwordReprompt_cancelled() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .failure(UserVerificationError.cancelled)
 
         let cipherView = CipherView.fixture(reprompt: .password)
 
@@ -286,14 +261,15 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         }
 
         XCTAssertFalse(completionCalled)
-        XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(coordinator.errorAlertsShown.isEmpty)
+        XCTAssertTrue(errorReporter.errors.isEmpty)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherView:)` logs an error and shows an alert if
     /// validating the password fails.
     func test_repromptForMasterPasswordIfNeeded_cipherView_passwordReprompt_errorValidatePassword() async throws {
-        authRepository.validatePasswordResult = .failure(BitwardenTestError.example)
+        userVerificationHelper.verifyMasterPasswordResult = .failure(BitwardenTestError.example)
 
         let cipherView = CipherView.fixture(reprompt: .password)
 
@@ -301,18 +277,17 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
         await subject.repromptForMasterPasswordIfNeeded(cipherView: cipherView) {
             completionCalled = true
         }
-
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-        try await repromptAlert.tapAction(title: Localizations.submit)
 
         XCTAssertFalse(completionCalled)
         XCTAssertEqual(coordinator.errorAlertsShown.last as? BitwardenTestError, .example)
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherView:)` shows an alert if the entered password is invalid.
     func test_repromptForMasterPasswordIfNeeded_cipherView_passwordReprompt_invalidPassword() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .success(.notVerified)
+
         let cipherView = CipherView.fixture(reprompt: .password)
 
         var completionCalled = false
@@ -320,21 +295,15 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
             completionCalled = true
         }
 
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-
-        authRepository.validatePasswordResult = .success(false)
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
-        let invalidMasterPasswordAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(invalidMasterPasswordAlert, .defaultAlert(title: Localizations.invalidMasterPassword))
-
         XCTAssertFalse(completionCalled)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 
     /// `repromptForMasterPasswordIfNeeded(cipherView:)` calls the completion closure if the
     /// master password reprompt was completed successfully.
     func test_repromptForMasterPasswordIfNeeded_cipherView_passwordReprompt_success() async throws {
+        userVerificationHelper.verifyMasterPasswordResult = .success(.verified)
+
         let cipherView = CipherView.fixture(reprompt: .password)
 
         var completionCalled = false
@@ -342,12 +311,7 @@ class MasterPasswordRepromptHelperTests: BitwardenTestCase {
             completionCalled = true
         }
 
-        let repromptAlert = try XCTUnwrap(coordinator.alertShown.last)
-        XCTAssertEqual(repromptAlert, .masterPasswordPrompt { _ in })
-
-        authRepository.validatePasswordResult = .success(true)
-        try await repromptAlert.tapAction(title: Localizations.submit)
-
         XCTAssertTrue(completionCalled)
+        XCTAssertTrue(userVerificationHelper.verifyMasterPasswordCalled)
     }
 }

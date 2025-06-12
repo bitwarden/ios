@@ -126,8 +126,20 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     private var masterPasswordRepromptHelper: MasterPasswordRepromptHelper {
         _masterPasswordRepromptHelper ?? DefaultMasterPasswordRepromptHelper(
             coordinator: asAnyCoordinator(),
-            services: services
+            services: services,
+            userVerificationHelper: userVerificationHelper
         )
+    }
+
+    /// The helper to execute user verification flows.
+    private var userVerificationHelper: UserVerificationHelper {
+        let userVerificationHelper = DefaultUserVerificationHelper(
+            authRepository: services.authRepository,
+            errorReporter: services.errorReporter,
+            localAuthService: services.localAuthService
+        )
+        userVerificationHelper.userVerificationDelegate = self
+        return userVerificationHelper
     }
 
     // MARK: Initialization
@@ -425,13 +437,6 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
     /// - Parameter totpKeyModel: The parsed TOTP data to search for matching ciphers.
     ///
     func showVaultItemSelection(totpKeyModel: TOTPKeyModel) {
-        let userVerificationHelper = DefaultUserVerificationHelper(
-            authRepository: services.authRepository,
-            errorReporter: services.errorReporter,
-            localAuthService: services.localAuthService
-        )
-        userVerificationHelper.userVerificationDelegate = self
-
         let processor = VaultItemSelectionProcessor(
             coordinator: asAnyCoordinator(),
             services: services,
