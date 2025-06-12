@@ -442,6 +442,7 @@ platform :ios do |options|
       skip_metadata: true,
       automatic_release: true,
       api_key_path: options[:api_key_path],
+      run_precheck_before_submit: false
     )
   end
 end
