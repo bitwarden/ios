@@ -435,7 +435,7 @@ platform :ios do |options|
     deliver(
       app_identifier: "com.8bit.bitwarden.beta",
       edit_live: false,
-      build_version: "43080",
+      build_number: "43080",
       app_version: "2025.5.0",
       submit_for_review: true,
       skip_binary_upload: true,
