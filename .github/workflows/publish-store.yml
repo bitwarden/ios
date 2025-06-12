@@ -3,6 +3,36 @@ name: Publish to iOS App Store
 
 on:
   workflow_dispatch:
+    inputs:
+      product:
+        description: "Which app is being released."
+        type: choice
+        options:
+          - Password Manager
+          - Authenticator
+      version-name:
+        description: "Version name to promote to production ex 2025.1.1"
+        type: string
+      version-code:
+        description: "Build number to promote to production."
+        required: true
+        type: number
+      rollout-plan:
+          description: "Release to all users or phased over 7 days."
+          required: true
+          type: choice
+          options:
+            - Phased Release
+            - All Users
+          default: Phased Release
+      release-notes:
+        description: "Change notes to be included with this release."
+        type: string
+        default: "Bug fixes."
+        required: true
+      version-release:
+        description: "Manual or Automatic Release"
+        default: "Automatic"
 
 permissions:
   contents: read
