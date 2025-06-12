@@ -346,14 +346,14 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     /// The shared items publisher deletes items if the user is timed out.
     ///
     func test_sharedItemsPublisher_deletesItemsOnTimeout() async throws {
-        let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
-        let otherUserItems = [AuthenticatorBridgeItemDataView.fixture(name: "New Item")]
-        try await subject.insertItems(initialItems, forUserId: "userId")
-        try await subject.replaceAllItems(with: otherUserItems, forUserId: "differentUserId")
+        let pastTimeoutItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        let withinTimeoutItems = [AuthenticatorBridgeItemDataView.fixture(name: "New Item")]
+        try await subject.insertItems(pastTimeoutItems, forUserId: "pastTimeoutUserId")
+        try await subject.replaceAllItems(with: withinTimeoutItems, forUserId: "withinTimeoutUserId")
 
         sharedTimeoutService.hasPassedTimeoutResult = .success([
-            "userId": true,
-            "differentUserId": false,
+            "pastTimeoutUserId": true,
+            "withinTimeoutUserId": false,
         ])
 
         var results: [[AuthenticatorBridgeItemDataView]] = []
@@ -367,15 +367,15 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         defer { publisher.cancel() }
 
         // Verify items are removed for "userId"
-        let deletedFetchResult = try await subject.fetchAllForUserId("userId")
+        let itemsForPastTimeoutUser = try await subject.fetchAllForUserId("pastTimeoutUserId")
 
-        XCTAssertNotNil(deletedFetchResult)
-        XCTAssertEqual(deletedFetchResult.count, 0)
+        XCTAssertNotNil(itemsForPastTimeoutUser)
+        XCTAssertEqual(itemsForPastTimeoutUser.count, 0)
 
         // Verify items are still present for "differentUserId"
-        let result = try await subject.fetchAllForUserId("differentUserId")
+        let itemsForWithinTimeoutUser = try await subject.fetchAllForUserId("withinTimeoutUserId")
 
-        XCTAssertNotNil(result)
-        XCTAssertEqual(result.count, otherUserItems.count)
+        XCTAssertNotNil(itemsForWithinTimeoutUser)
+        XCTAssertEqual(itemsForWithinTimeoutUser.count, withinTimeoutItems.count)
     }
 }
