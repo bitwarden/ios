@@ -49,11 +49,9 @@ class MockVaultTimeoutService: VaultTimeoutService {
     }
 
     func isPinUnlockAvailable(userId: String?) async throws -> Bool {
-        if let userId {
-            try pinUnlockAvailabilityResult.get()[userId] ?? false
-        } else {
-            throw StateServiceError.noActiveAccount
-        }
+        guard let userId else { throw StateServiceError.noActiveAccount }
+
+        return try pinUnlockAvailabilityResult.get()[userId] ?? false
     }
 
     func hasPassedSessionTimeout(userId: String) async throws -> Bool {
