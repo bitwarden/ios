@@ -46,10 +46,11 @@ jobs:
           env:
             ACCOUNT_NAME: bitwardenci
             CONTAINER_NAME: profiles
+            FILE: dist_beta_bitwarden.mobileprovision
           run: |
             mkdir -p $HOME/secrets
             az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-                --file $HOME/secrets/dist_beta_autofill.mobileprovision --output none
+                --file $HOME/secrets/$FILE --output none
             done
 
         - name: Download Fastlane credentials
