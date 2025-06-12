@@ -21,9 +21,9 @@ struct OpenGeneratorIntent: ForegroundContinuableIntent {
             throw BitwardenShared.AppIntentError.notAllowed
         }
 
-        await appIntentMediator.openGenerator()
-
-        try await requestToContinueInForeground()
+        try await requestToContinueInForeground {
+            await appIntentMediator.openGenerator()
+        }
 
         return .result()
     }
