@@ -3,9 +3,10 @@ import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import Foundation
+import TestHelpers
 import XCTest
 
-@testable import AuthenticatorBridgeKit
+// swiftlint:disable file_length type_body_length function_body_length
 
 final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
@@ -15,6 +16,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     var dataStore: AuthenticatorBridgeDataStore!
     var errorReporter: ErrorReporter!
     var keychainRepository: MockSharedKeychainRepository!
+    var sharedTimeoutService: MockSharedTimeoutService!
     var subject: AuthenticatorBridgeItemService!
 
     // MARK: Setup & Teardown
@@ -29,10 +31,12 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
             storeType: .memory
         )
         keychainRepository = MockSharedKeychainRepository()
+        sharedTimeoutService = MockSharedTimeoutService()
         subject = DefaultAuthenticatorBridgeItemService(
             cryptoService: cryptoService,
             dataStore: dataStore,
-            sharedKeychainRepository: keychainRepository
+            sharedKeychainRepository: keychainRepository,
+            sharedTimeoutService: sharedTimeoutService
         )
     }
 
@@ -41,6 +45,7 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         dataStore = nil
         errorReporter = nil
         keychainRepository = nil
+        sharedTimeoutService = nil
         subject = nil
         super.tearDown()
     }
@@ -340,4 +345,65 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
         XCTAssertEqual(results[0], initialItems)
         XCTAssertEqual(results[1], replacedItems)
     }
+
+    /// The shared items publisher deletes items if the user is timed out.
+    ///
+    func test_sharedItemsPublisher_deletesItemsOnTimeout() async throws {
+        let pastTimeoutItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        let withinTimeoutItems = [AuthenticatorBridgeItemDataView.fixture(name: "New Item")]
+        try await subject.insertItems(pastTimeoutItems, forUserId: "pastTimeoutUserId")
+        try await subject.replaceAllItems(with: withinTimeoutItems, forUserId: "withinTimeoutUserId")
+
+        sharedTimeoutService.hasPassedTimeoutResult = .success([
+            "pastTimeoutUserId": true,
+            "withinTimeoutUserId": false,
+        ])
+
+        var results: [[AuthenticatorBridgeItemDataView]] = []
+        let publisher = try await subject.sharedItemsPublisher()
+            .sink(
+                receiveCompletion: { _ in },
+                receiveValue: { value in
+                    results.append(value)
+                }
+            )
+        defer { publisher.cancel() }
+
+        // Verify items are removed for "userId"
+        let itemsForPastTimeoutUser = try await subject.fetchAllForUserId("pastTimeoutUserId")
+
+        XCTAssertNotNil(itemsForPastTimeoutUser)
+        XCTAssertEqual(itemsForPastTimeoutUser.count, 0)
+
+        // Verify items are still present for "differentUserId"
+        let itemsForWithinTimeoutUser = try await subject.fetchAllForUserId("withinTimeoutUserId")
+
+        XCTAssertNotNil(itemsForWithinTimeoutUser)
+        XCTAssertEqual(itemsForWithinTimeoutUser.count, withinTimeoutItems.count)
+    }
+
+    /// `sharedItemsPublisher()` throws if checking for logout throws
+    ///
+    func test_sharedItemsPublisher_logoutError() async throws {
+        let initialItems = AuthenticatorBridgeItemDataView.fixtures().sorted { $0.id < $1.id }
+        try await subject.insertItems(initialItems, forUserId: "userId")
+
+        sharedTimeoutService.hasPassedTimeoutResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            var results: [[AuthenticatorBridgeItemDataView]] = []
+            let publisher = try await subject.sharedItemsPublisher()
+                .sink(
+                    receiveCompletion: { _ in },
+                    receiveValue: { value in
+                        results.append(value)
+                    }
+                )
+            publisher.cancel()
+        }
+
+        XCTAssertFalse(cryptoService.decryptCalled)
+    }
 }
+
+// swiftlint:enable file_length type_body_length function_body_length
