@@ -184,7 +184,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-ios
-          secrets: "IOS_KEYCHAIN_PASSWORD, APP_STORE_CONNECT_AUTH_KEY, APP_STORE_CONNECT_TEAM_ISSUER"
+          secrets: "IOS-KEYCHAIN-PASSWORD, APP-STORE-CONNECT-AUTH-KEY, APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Retrieve secrets
         if: env._BUILD_MODE == 'Device'
@@ -314,7 +314,7 @@ jobs:
       - name: Configure Keychain Access
         if: env._BUILD_MODE == 'Device'
         env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.IOS_KEYCHAIN_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.IOS-KEYCHAIN-PASSWORD }}
         run: |
           security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
           security default-keychain -s build.keychain
@@ -408,7 +408,7 @@ jobs:
         run: |
           mkdir ~/private_keys
           cat << EOF > ~/private_keys/AuthKey_J46C83CB96.p8
-          ${{ steps.get-kv-secrets.outputs.APP_STORE_CONNECT_AUTH_KEY }}
+          ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           EOF
 
       - name: Validate app with App Store Connect
@@ -418,7 +418,7 @@ jobs:
             --type ios \
             --file "export/Bitwarden.ipa" \
             --apiKey "J46C83CB96" \
-            --apiIssuer "${{ steps.get-kv-secrets.outputs.APP_STORE_CONNECT_TEAM_ISSUER }}"
+            --apiIssuer "${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}"
 
       - name: Upload dSYM files to Crashlytics
         if: ${{ env._BUILD_MODE == 'Device' }}
