@@ -122,7 +122,7 @@
 "BitwardenAuthenticatorDataIsBackedUpAndCanBeRestored" = "Es fa una còpia de seguretat de les dades de l'autenticador de Bitwarden i es poden restaurar amb les còpies de seguretat del dispositiu programades periòdicament.";
 "ImportingFromTwoFasPasswordProtectedNotSupported" = "No s'admet la importació de fitxers protegits amb contrasenya 2FAS. Torna-ho a provar amb un fitxer exportat que no estiga protegit amb contrasenya.";
 "StoreAllOfYourLoginsAndSyncVerificationCodesDirectlyWithTheAuthenticatorApp" = "Store all of your logins and sync verification codes directly with the Authenticator app.";
-"DownloadTheBitwardenApp" = "Download the Bitwarden app";
+"DownloadTheBitwardenApp" = "Descarrega l'aplicació Bitwarden";
 "AllowAuthenticatorAppSyncingInSettingsToViewAllYourVerificationCodesHere" = "Allow Authenticator app syncing in settings to view all your verification codes here.";
 "TakeMeToTheAppSettings" = "Take me to the app settings";
 "SyncWithTheBitwardenApp" = "Sync with the Bitwarden app";
