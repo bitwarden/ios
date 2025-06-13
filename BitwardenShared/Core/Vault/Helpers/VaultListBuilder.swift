@@ -27,34 +27,47 @@ struct DefaultVaultListBuilderFactory: VaultListBuilderFactory {
 
 /// A protocol for a vault list builder which helps build items and sections for the vault lists.
 protocol VaultListBuilder {
-    func appendTrashSection(
+    func addTrashSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder
 
-    func appendCollectionsSection(
+    func addCollectionsSection(
         from tempData: inout VualtListBuilderMetadata,
-        with collections: inout [Collection]
+        nestedCollectionId: String?
     ) async throws -> VaultListBuilder
 
-    func appendFavoritesSection(
+    func addFavoritesSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder
 
-    func appendFoldersSection(
+    func addFoldersSection(
         from tempData: inout VualtListBuilderMetadata,
-        havingCollections: Bool,
-        with folders: inout [Folder]
+        nestedFolderId: String?
     ) async throws -> VaultListBuilder
 
-    func appendTOTPSection(
+    func addTOTPSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder
 
-    func appendTypesSection(
+    func addTypesSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder
 
     func build() -> [VaultListSection]
+}
+
+extension VaultListBuilder {
+    func addCollectionsSection(
+        from tempData: inout VualtListBuilderMetadata
+    ) async throws -> VaultListBuilder {
+        try await addCollectionsSection(from: &tempData, nestedCollectionId: nil)
+    }
+
+    func addFoldersSection(
+        from tempData: inout VualtListBuilderMetadata
+    ) async throws -> VaultListBuilder {
+        try await addFoldersSection(from: &tempData, nestedFolderId: nil)
+    }
 }
 
 // MARK: - DefaultVaultListBuilder
@@ -77,7 +90,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
 
     // MARK: Methods
 
-    func appendTrashSection(
+    func addTrashSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder {
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, tempData.ciphersDeletedCount))
@@ -85,19 +98,26 @@ class DefaultVaultListBuilder: VaultListBuilder {
         return self
     }
 
-    func appendCollectionsSection(
+    func addCollectionsSection(
         from tempData: inout VualtListBuilderMetadata,
-        with collections: inout [Collection]
+        nestedCollectionId: String? = nil
     ) async throws -> VaultListBuilder {
-        guard !collections.isEmpty else {
+        guard !tempData.collections.isEmpty else {
             return self
         }
 
-        let nestedCollections = try await clientService.vault().collections()
-            .decryptList(collections: collections)
+        let collectionTree = try await clientService.vault().collections()
+            .decryptList(collections: tempData.collections)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             .asNestedNodes()
-            .rootNodes
+
+        let nestedCollections = if let nestedCollectionId {
+            collectionTree.getTreeNodeObject(with: nestedCollectionId)?.children
+        } else {
+            collectionTree.rootNodes
+        }
+
+        guard let nestedCollections else { return self }
 
         let collectionItems: [VaultListItem] = nestedCollections.compactMap { collectionNode in
             let collection = collectionNode.node
@@ -120,7 +140,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
         return self
     }
 
-    func appendFavoritesSection(
+    func addFavoritesSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder {
         sections.append(VaultListSection(
@@ -132,20 +152,28 @@ class DefaultVaultListBuilder: VaultListBuilder {
         return self
     }
 
-    func appendFoldersSection(
+    func addFoldersSection(
         from tempData: inout VualtListBuilderMetadata,
-        havingCollections: Bool,
-        with folders: inout [Folder]
+        nestedFolderId: String? = nil
     ) async throws -> VaultListBuilder {
-        guard !folders.isEmpty else {
+        guard !tempData.folders.isEmpty else {
             return self
         }
 
-        var foldersVaultListItems: [VaultListItem] = try await clientService.vault().folders()
-            .decryptList(folders: folders)
+        var folderTree = try await clientService.vault().folders()
+            .decryptList(folders: tempData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             .asNestedNodes()
-            .rootNodes
+
+        let folders: [TreeNode<FolderView>]? = if let nestedFolderId {
+            folderTree.getTreeNodeObject(with: nestedFolderId)?.children
+        } else {
+            folderTree.rootNodes
+        }
+
+        guard let folders else { return self }
+
+        var foldersVaultListItems: [VaultListItem] = folders
             .compactMap { folderNode in
                 guard let folderId = folderNode.node.id else {
                     self.errorReporter.log(
@@ -163,7 +191,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
             }
 
         // Add no folder to folders item if needed.
-        let showNoFolderCipherGroup = !havingCollections // tempCollections.isEmpty
+        let showNoFolderCipherGroup = tempData.collections.isEmpty
             && tempData.noFolderItems.count < Constants.noFolderListSize
         if !showNoFolderCipherGroup {
             foldersVaultListItems.append(
@@ -187,7 +215,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
         return self
     }
 
-    func appendTOTPSection(
+    func addTOTPSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder {
         sections.append(VaultListSection(
@@ -204,7 +232,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
         return self
     }
 
-    func appendTypesSection(
+    func addTypesSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder {
         let types = [

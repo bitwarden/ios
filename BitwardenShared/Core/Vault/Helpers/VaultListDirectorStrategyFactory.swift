@@ -9,13 +9,15 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
     let clientService: ClientService
     let errorReporter: ErrorReporter
     let stateService: StateService
+    let vaultListDataArranger: VaultListDataArranger
 
     func make() -> VaultListDirectorStrategy {
         DefaultVaultListDirectorStrategy(
             builderFactory: vaultListVBuilderFactory,
             clientService: clientService,
             errorReporter: errorReporter,
-            stateService: stateService
+            stateService: stateService,
+            vaultListDataArranger: vaultListDataArranger
         )
     }
 }
