@@ -79,7 +79,7 @@ class ImportCXFProcessor: StateProcessor<ImportCXFState, Void, ImportCXFEffect> 
     private func startImport() async {
         #if SUPPORTS_CXP
 
-        guard #available(iOS 18.2, *), let credentialImportToken = state.credentialImportToken else {
+        guard #available(iOS 26.0, *), let credentialImportToken = state.credentialImportToken else {
             coordinator.showAlert(
                 .defaultAlert(
                     title: Localizations.importError,
