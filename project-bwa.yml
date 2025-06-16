@@ -27,7 +27,7 @@ packages:
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.12.0
+    exactVersion: 11.14.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
     exactVersion: 1.18.3
