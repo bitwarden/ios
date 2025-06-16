@@ -65,6 +65,8 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var notificationsLastRegistrationDates = [String: Date]()
     var notificationsLastRegistrationError: Error?
     var passwordGenerationOptions = [String: PasswordGenerationOptions]()
+    var pendingAppIntentActions: [PendingAppIntentAction]?
+    var pendingAppIntentActionsSubject = CurrentValueSubject<[PendingAppIntentAction]?, Never>(nil)
     var pinProtectedUserKeyValue = [String: String]()
     var preAuthEnvironmentURLs: EnvironmentURLData?
     var accountCreationEnvironmentURLs = [String: EnvironmentURLData]()
@@ -72,8 +74,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var rememberedOrgIdentifier: String?
     var reviewPromptData: ReviewPromptData?
     var setHasPerformedSyncAfterLoginError: Error?
+    var setManuallyLockedAccountError: Error?
     var showWebIcons = true
     var showWebIconsSubject = CurrentValueSubject<Bool, Never>(true)
+    var siriAndShortcutsAccess = [String: Bool]()
     var timeoutAction = [String: SessionTimeoutAction]()
     var serverConfig = [String: ServerConfig]()
     var setAccountHasBeenUnlockedInteractivelyHasBeenCalled = false // swiftlint:disable:this identifier_name
@@ -318,6 +322,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         return passwordGenerationOptions[userId]
     }
 
+    func getPendingAppIntentActions() async -> [PendingAppIntentAction]? {
+        pendingAppIntentActions
+    }
+
     func getPreAuthEnvironmentURLs() async -> EnvironmentURLData? {
         preAuthEnvironmentURLs
     }
@@ -345,6 +353,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func getShowWebIcons() async -> Bool {
         showWebIcons
+    }
+
+    func getSiriAndShortcutsAccess(userId: String?) async throws -> Bool {
+        let userId = try unwrapUserId(userId)
+        return siriAndShortcutsAccess[userId] ?? false
     }
 
     func getSyncToAuthenticator(userId: String?) async throws -> Bool {
@@ -572,6 +585,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     }
 
     func setManuallyLockedAccount(_ isLocked: Bool, userId: String?) async throws {
+        if let setManuallyLockedAccountError {
+            throw setManuallyLockedAccountError
+        }
+
         let userId = try unwrapUserId(userId)
         manuallyLockedAccounts[userId] = isLocked
     }
@@ -589,6 +606,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     func setPasswordGenerationOptions(_ options: PasswordGenerationOptions?, userId: String?) async throws {
         let userId = try unwrapUserId(userId)
         passwordGenerationOptions[userId] = options
+    }
+
+    func setPendingAppIntentActions(actions: [PendingAppIntentAction]?) async {
+        pendingAppIntentActions = actions
     }
 
     func setPinKeys(
@@ -643,6 +664,11 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func setShowWebIcons(_ showWebIcons: Bool) async {
         self.showWebIcons = showWebIcons
+    }
+
+    func setSiriAndShortcutsAccess(_ siriAndShortcutsAccess: Bool, userId: String?) async throws {
+        let userId = try unwrapUserId(userId)
+        self.siriAndShortcutsAccess[userId] = siriAndShortcutsAccess
     }
 
     func setSyncToAuthenticator(_ syncToAuthenticator: Bool, userId: String?) async throws {
@@ -737,6 +763,10 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
 
     func lastSyncTimePublisher() async throws -> AnyPublisher<Date?, Never> {
         lastSyncTimeSubject.eraseToAnyPublisher()
+    }
+
+    func pendingAppIntentActionsPublisher() async -> AnyPublisher<[PendingAppIntentAction]?, Never> {
+        pendingAppIntentActionsSubject.eraseToAnyPublisher()
     }
 
     func settingsBadgePublisher() async throws -> AnyPublisher<SettingsBadgeState, Never> {

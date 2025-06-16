@@ -9,6 +9,7 @@ public protocol ManagedObject: AnyObject {
 }
 
 public extension ManagedObject where Self: NSManagedObject {
+    /// The entity name.
     static var entityName: String {
         String(describing: self)
     }

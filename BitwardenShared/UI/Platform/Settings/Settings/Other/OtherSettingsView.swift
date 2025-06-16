@@ -29,9 +29,13 @@ struct OtherSettingsView: View {
                 if store.state.shouldShowConnectToWatchToggle {
                     connectToWatch
                 }
+
+                if store.state.shouldShowSiriAndShortcutsAccess {
+                    siriAndShortcutsAccess
+                }
             }
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.other, titleDisplayMode: .inline)
         .toast(store.binding(
             get: \.toast,
@@ -104,6 +108,23 @@ struct OtherSettingsView: View {
                 send: OtherSettingsAction.toggleConnectToWatch
             )
         )
+        .contentBlock()
+    }
+
+    /// Whether to allow access to Siri & Shortcuts using `AppIntent`s.
+    private var siriAndShortcutsAccess: some View {
+        BitwardenToggle(
+            Localizations.siriAndShortcutsAccess,
+            isOn: store.binding(
+                get: \.isSiriAndShortcutsAccessToggleOn,
+                send: OtherSettingsAction.toggleSiriAndShortcutsAccessToggleOn
+            ),
+            accessibilityIdentifier: "SiriAndShortcutsAccessSwitch"
+        ) {
+            Text(Localizations.enableToAllowTheAppToRespondToSiriAndShortcutsUsingAppIntents)
+                .styleGuide(.footnote)
+                .foregroundColor(Color(asset: Asset.Colors.textSecondary))
+        }
         .contentBlock()
     }
 

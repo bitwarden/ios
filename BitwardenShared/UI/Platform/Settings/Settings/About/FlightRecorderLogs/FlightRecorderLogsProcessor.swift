@@ -63,6 +63,8 @@ final class FlightRecorderLogsProcessor: StateProcessor<
         case .shareAll:
             let urls = state.logs.map(\.url)
             coordinator.navigate(to: .shareURLs(urls))
+        case let .toastShown(newValue):
+            state.toast = newValue
         }
     }
 
@@ -85,6 +87,7 @@ final class FlightRecorderLogsProcessor: StateProcessor<
         confirmDeletion(isBulkDeletion: true) {
             do {
                 try await self.services.flightRecorder.deleteInactiveLogs()
+                self.state.toast = Toast(title: Localizations.allLogsDeleted)
                 await self.loadData()
             } catch {
                 self.services.errorReporter.log(error: error)
@@ -99,6 +102,7 @@ final class FlightRecorderLogsProcessor: StateProcessor<
         confirmDeletion(isBulkDeletion: false) {
             do {
                 try await self.services.flightRecorder.deleteLog(log)
+                self.state.toast = Toast(title: Localizations.logDeleted)
                 await self.loadData()
             } catch {
                 self.services.errorReporter.log(error: error)

@@ -1,6 +1,8 @@
 import BitwardenSdk
 import SwiftUI
 
+// swiftlint:disable file_length
+
 // MARK: - MainSendListView
 
 /// The main content of the `SendListView`. Broken out into it's own view so that the
@@ -69,71 +71,64 @@ private struct MainSendListView: View {
 
     /// The empty state for this view, displayed when there are no items.
     @ViewBuilder private var empty: some View {
-        GeometryReader { reader in
-            ScrollView {
-                VStack(spacing: 24) {
-                    if store.state.isSendDisabled {
-                        InfoContainer(Localizations.sendDisabledWarning)
-                            .accessibilityIdentifier("SendPolicyLabel")
-                    }
+        VStack(spacing: 24) {
+            if store.state.isSendDisabled {
+                InfoContainer(Localizations.sendDisabledWarning)
+                    .accessibilityIdentifier("SendPolicyLabel")
+            }
 
-                    Spacer()
+            Spacer()
 
-                    IllustratedMessageView(
-                        image: Asset.Images.Illustrations.send,
-                        title: Localizations.sendSensitiveInformationSafely,
-                        message: Localizations
-                            .shareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted
-                    )
-                    .padding(.horizontal, 16)
-
-                    Group {
-                        let newSendLabel = Label(Localizations.newSend, image: Asset.Images.plus16.swiftUIImage)
-                        if let sendType = store.state.type {
-                            AsyncButton {
-                                await store.perform(.addItemPressed(sendType))
-                            } label: {
-                                newSendLabel
-                            }
-                        } else {
-                            Menu {
-                                ForEach(SendType.allCases.reversed()) { sendType in
-                                    AsyncButton(sendType.localizedName) {
-                                        await store.perform(.addItemPressed(sendType))
-                                    }
+            IllustratedMessageView(
+                image: Asset.Images.Illustrations.send,
+                title: Localizations.sendSensitiveInformationSafely,
+                message: Localizations
+                    .shareFilesAndDataSecurelyWithAnyoneOnAnyPlatformYourInformationWillRemainEndToEndEncrypted
+            ) {
+                Group {
+                    let newSendLabel = Label(Localizations.newSend, image: Asset.Images.plus16.swiftUIImage)
+                    if let sendType = store.state.type {
+                        AsyncButton {
+                            await store.perform(.addItemPressed(sendType))
+                        } label: {
+                            newSendLabel
+                        }
+                    } else {
+                        Menu {
+                            ForEach(SendType.allCases.reversed()) { sendType in
+                                AsyncButton(sendType.localizedName) {
+                                    await store.perform(.addItemPressed(sendType))
                                 }
-                            } label: {
-                                newSendLabel
                             }
+                        } label: {
+                            newSendLabel
                         }
                     }
-                    .buttonStyle(.primary(shouldFillWidth: false))
-                    // Disable from VoiceOver in favor of the FAB which provides the same functionality.
-                    .accessibilityHidden(true)
-
-                    Spacer()
                 }
-                .padding(16)
-                .frame(minHeight: reader.size.height)
+                .buttonStyle(.primary(shouldFillWidth: false))
+                .padding(.top, 8)
+                // Disable from VoiceOver in favor of the FAB which provides the same functionality.
+                .accessibilityHidden(true)
             }
+
+            Spacer()
         }
+        .scrollView(centerContentVertically: true)
     }
 
     /// A view that displays the search interface, including search results, an empty search
     /// interface, and a message indicating that no results were found.
     @ViewBuilder private var search: some View {
         if store.state.searchText.isEmpty || !store.state.searchResults.isEmpty {
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    if !store.state.searchResults.isEmpty {
-                        sendItemSectionView(
-                            sectionName: nil,
-                            items: store.state.searchResults
-                        )
-                    }
+            LazyVStack(spacing: 0) {
+                if !store.state.searchResults.isEmpty {
+                    sendItemSectionView(
+                        sectionName: nil,
+                        items: store.state.searchResults
+                    )
                 }
-                .padding(16)
             }
+            .scrollView()
         } else {
             SearchNoResultsView()
         }
@@ -142,22 +137,20 @@ private struct MainSendListView: View {
     /// The list for this view, displayed when there is content to display.
     @ViewBuilder
     private func list(sections: [SendListSection]) -> some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 20) {
-                if store.state.isSendDisabled {
-                    InfoContainer(Localizations.sendDisabledWarning)
-                }
-
-                ForEach(sections) { section in
-                    sendItemSectionView(
-                        sectionName: section.name,
-                        items: section.items
-                    )
-                }
+        LazyVStack(alignment: .leading, spacing: 16) {
+            if store.state.isSendDisabled {
+                InfoContainer(Localizations.sendDisabledWarning)
             }
-            .padding(16)
-            .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+
+            ForEach(sections) { section in
+                sendItemSectionView(
+                    sectionName: section.name,
+                    items: section.items
+                )
+            }
         }
+        .padding(.bottom, FloatingActionButton.bottomOffsetPadding)
+        .scrollView()
     }
 
     /// Creates a section that appears in the sends list.

@@ -24,7 +24,7 @@ struct LoginDecryptionOptionsView: View {
 
             loggedInAs
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.loggingIn, titleDisplayMode: .inline)
         .navigationBarBackButtonHidden(true)
         .task {

@@ -32,6 +32,9 @@ public class AppProcessor {
     /// A delegate used to communicate with the app extension.
     private(set) weak var appExtensionDelegate: AppExtensionDelegate?
 
+    /// The mediator to handle `AppIntent` actions.
+    private let appIntentMediator: AppIntentMediator?
+
     /// The root module to use to create sub-coordinators.
     let appModule: AppModule
 
@@ -53,6 +56,7 @@ public class AppProcessor {
     ///
     /// - Parameters:
     ///   - appExtensionDelegate: A delegate used to communicate with the app extension.
+    ///   - appIntentMediator: The mediator to handle `AppIntent` actions.
     ///   - appModule: The root module to use to create sub-coordinators.
     ///   - debugDidEnterBackground: A closure that is called in debug builds for testing after the
     ///     processor finishes its work when the app enters the background.
@@ -62,16 +66,19 @@ public class AppProcessor {
     ///
     public init(
         appExtensionDelegate: AppExtensionDelegate? = nil,
+        appIntentMediator: AppIntentMediator? = nil,
         appModule: AppModule,
         debugDidEnterBackground: (() -> Void)? = nil,
         debugWillEnterForeground: (() -> Void)? = nil,
         services: ServiceContainer
     ) {
         self.appExtensionDelegate = appExtensionDelegate
+        self.appIntentMediator = appIntentMediator
         self.appModule = appModule
         self.services = services
 
         self.services.notificationService.setDelegate(self)
+        self.services.pendingAppIntentActionMediator.setDelegate(self)
         self.services.syncService.delegate = self
 
         startEventTimer()
@@ -110,6 +117,14 @@ public class AppProcessor {
                 #if DEBUG
                 debugDidEnterBackground?()
                 #endif
+            }
+        }
+
+        // PM-19400: We need to listen to the changes on pending app intent actions
+        // so they get executed and update the navigation/UI accordingly.
+        Task {
+            for await _ in await services.stateService.pendingAppIntentActionsPublisher().values {
+                await services.pendingAppIntentActionMediator.executePendingAppIntentActions()
             }
         }
     }
@@ -353,6 +368,16 @@ public class AppProcessor {
 extension AppProcessor {
     // MARK: Private Methods
 
+    /// Whether there are pending `AppIntent` lock actions.
+    private func hasLockPendingAppIntentAction() async -> Bool {
+        guard let actions = await services.stateService.getPendingAppIntentActions(),
+              !actions.isEmpty else {
+            return false
+        }
+
+        return actions.contains(where: { $0 == .lockAll })
+    }
+
     /// Handles unlocking the vault for a manually locked account that uses never lock
     /// and was previously unlocked in an extension.
     ///
@@ -362,6 +387,7 @@ extension AppProcessor {
             await (try? services.authRepository.isLocked()) == true,
             await (try? services.authRepository.sessionTimeoutValue()) == .never,
             await (try? services.stateService.getManuallyLockedAccount(userId: nil)) == false,
+            await !hasLockPendingAppIntentAction(),
             let account = try? await services.stateService.getActiveAccount()
         else { return }
 
@@ -410,7 +436,6 @@ extension AppProcessor {
         // Don't mark the user's progress as complete in the extension, otherwise the app may not
         // see that the user's progress needs to be updated to publish new values to subscribers.
         guard appExtensionDelegate?.isInAppExtension != true,
-              await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
               await services.autofillCredentialService.isAutofillCredentialsEnabled()
         else { return }
         do {
@@ -680,6 +705,33 @@ extension AppProcessor: Fido2UserInterfaceHelperDelegate {
 
     func showAlert(_ alert: Alert, onDismissed: (() -> Void)?) {
         coordinator?.showAlert(alert, onDismissed: onDismissed)
+    }
+}
+
+// MARK: - PendingAppIntentActionMediatorDelegate
+
+extension AppProcessor: PendingAppIntentActionMediatorDelegate {
+    func onPendingAppIntentActionSuccess(
+        _ pendingAppIntentAction: PendingAppIntentAction,
+        data: Any?
+    ) async {
+        switch pendingAppIntentAction {
+        case .lockAll:
+            guard let account = data as? Account else {
+                return
+            }
+            await coordinator?.handleEvent(
+                .accountBecameActive(
+                    account,
+                    attemptAutomaticBiometricUnlock: true,
+                    didSwitchAccountAutomatically: false
+                )
+            )
+        case .logOutAll:
+            await coordinator?.handleEvent(.didLogout(userId: nil, userInitiated: true))
+        case .openGenerator:
+            await checkIfLockedAndPerformNavigation(route: .tab(.generator(.generator())))
+        }
     }
 }
 

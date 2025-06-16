@@ -631,24 +631,24 @@ class FlightRecorderTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(stateService.flightRecorderData)
     }
 
-    /// `setFlightRecorderBannerDismissed(userId:)` sets that the flight recorder banner was
-    /// dismissed by the user.
+    /// `setFlightRecorderBannerDismissed()` sets that the flight recorder banner was dismissed by
+    /// the user.
     func test_setFlightRecorderBannerDismissed() async {
         stateService.flightRecorderData = FlightRecorderData(activeLog: activeLog)
-        await subject.setFlightRecorderBannerDismissed(userId: "123")
+        await subject.setFlightRecorderBannerDismissed()
 
         var activeLogWithDismissedBanner = activeLog
-        activeLogWithDismissedBanner.bannerDismissedByUserIds.append("123")
+        activeLogWithDismissedBanner.isBannerDismissed = true
         XCTAssertEqual(
             stateService.flightRecorderData,
             FlightRecorderData(activeLog: activeLogWithDismissedBanner)
         )
     }
 
-    /// `setFlightRecorderBannerDismissed(userId:)` doesn't modify the flight recorder data if
-    /// there's no flight recorder data.
+    /// `setFlightRecorderBannerDismissed()` doesn't modify the flight recorder data if there's no
+    /// flight recorder data.
     func test_setFlightRecorderBannerDismissed_noFlightRecorderData() async {
-        await subject.setFlightRecorderBannerDismissed(userId: "123")
+        await subject.setFlightRecorderBannerDismissed()
         XCTAssertNil(stateService.flightRecorderData)
     }
 

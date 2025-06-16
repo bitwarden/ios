@@ -484,8 +484,7 @@ final class AddEditItemProcessor: StateProcessor<// swiftlint:disable:this type_
     /// Checks the eligibility of the Learn New Login action card.
     ///
     private func checkLearnNewLoginActionCardEligibility() async {
-        if await services.configService.getFeatureFlag(.nativeCreateAccountFlow),
-           appExtensionDelegate == nil {
+        if appExtensionDelegate == nil {
             state.isLearnNewLoginActionCardEligible = await services.stateService
                 .getLearnNewLoginActionCardStatus() == .incomplete
         }

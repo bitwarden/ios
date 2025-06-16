@@ -19,6 +19,9 @@ struct OtherSettingsState {
     /// Whether the connect to watch toggle is on.
     var isConnectToWatchToggleOn: Bool = false
 
+    /// Whether Siri & Shortcuts access toggle is on.
+    var isSiriAndShortcutsAccessToggleOn: Bool = false
+
     /// The date of the last vault sync.
     var lastSyncDate: Date?
 
@@ -27,4 +30,7 @@ struct OtherSettingsState {
 
     /// Whether the connect to watch toggle should be shown.
     var shouldShowConnectToWatchToggle: Bool = false
+
+    /// Whether the Siri & Shortcuts access toggle should be shown.
+    var shouldShowSiriAndShortcutsAccess: Bool = false
 }

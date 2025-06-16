@@ -531,20 +531,6 @@ class StartRegistrationProcessorTests: BitwardenTestCase { // swiftlint:disable:
         XCTAssertNil(environmentService.setPreAuthEnvironmentURLsData)
     }
 
-    /// `perform(.appeared)` loads the feature flags needed by the processor.
-    @MainActor
-    func test_perform_appeared_loadFeatureFlags() async {
-        XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
-
-        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = true
-        await subject.perform(.appeared)
-        XCTAssertTrue(subject.state.isCreateAccountFeatureFlagEnabled)
-
-        configService.featureFlagsBoolPreAuth[.nativeCreateAccountFlow] = false
-        await subject.perform(.appeared)
-        XCTAssertFalse(subject.state.isCreateAccountFeatureFlagEnabled)
-    }
-
     /// `perform(.appeared)` with no pre-auth URLs defaults the region and URLs to the US environment.
     @MainActor
     func test_perform_appeared_loadsRegion_noPreAuthUrls() async {

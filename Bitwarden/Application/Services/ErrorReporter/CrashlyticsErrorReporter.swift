@@ -6,6 +6,11 @@ import FirebaseCrashlytics
 /// An `ErrorReporter` that logs non-fatal errors to Crashlytics for investigation.
 ///
 final class CrashlyticsErrorReporter: ErrorReporter {
+    // MARK: Static Properties
+
+    /// Shared singleton error reporter to make sure we don't configure Firebase twice, which throws an error.
+    static let shared = CrashlyticsErrorReporter()
+
     // MARK: Properties
 
     /// A list of additional loggers that errors will be logged to.
@@ -24,7 +29,7 @@ final class CrashlyticsErrorReporter: ErrorReporter {
 
     /// Initialize the `CrashlyticsErrorReporter`.
     ///
-    init() {
+    private init() {
         FirebaseApp.configure()
     }
 

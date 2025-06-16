@@ -433,19 +433,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         await subject.perform(.dismissFlightRecorderToastBanner)
 
         XCTAssertFalse(subject.state.isFlightRecorderToastBannerVisible)
-        XCTAssertEqual(flightRecorder.setFlightRecorderBannerDismissedUserIds, ["1"])
-    }
-
-    /// `perform(_:)` with `.dismissFlightRecorderToastBanner` logs an error if one occurs.
-    @MainActor
-    func test_perform_dismissFlightRecorderToastBanner_error() async {
-        subject.state.isFlightRecorderToastBannerVisible = true
-
-        await subject.perform(.dismissFlightRecorderToastBanner)
-
-        XCTAssertFalse(subject.state.isFlightRecorderToastBannerVisible)
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-        XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedUserIds.isEmpty)
+        XCTAssertTrue(flightRecorder.setFlightRecorderBannerDismissedCalled)
     }
 
     /// `perform(_:)` with `.dismissImportLoginsActionCard` sets the user's import logins setup
@@ -794,13 +782,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(subject.state.isFlightRecorderToastBannerVisible, false)
     }
 
-    /// `perform(_:)` with `.streamFlightRecorderLog` logs an error if one occurs.
-    @MainActor
-    func test_perform_streamFlightRecorderLog_error() async throws {
-        await subject.perform(.streamFlightRecorderLog)
-        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
     /// `perform(_:)` with `.streamFlightRecorderLog` streams the flight recorder log but doesn't
     /// display the flight recorder banner if the user has dismissed it previously.
     @MainActor
@@ -813,7 +794,7 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         defer { task.cancel() }
 
         var log = FlightRecorderData.LogMetadata(duration: .eightHours, startDate: .now)
-        log.bannerDismissedByUserIds = ["1"]
+        log.isBannerDismissed = true
         flightRecorder.activeLogSubject.send(log)
 
         try await waitForAsync { self.subject.state.activeFlightRecorderLog != nil }
@@ -873,7 +854,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// login items.
     @MainActor
     func test_perform_streamVaultList_coachMarkDismiss_vaultContainsLogins() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -897,7 +877,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// no login items.
     @MainActor
     func test_perform_streamVaultList_coachMarkDismiss_vaultWithoutLogins() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -945,7 +924,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// vault list isn't empty.
     @MainActor
     func test_perform_streamVaultList_dismissImportLoginsActionCard() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupImportLogins["1"] = .incomplete
 
@@ -965,7 +943,6 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
     /// vault list is empty.
     @MainActor
     func test_perform_streamVaultList_emptyImportLoginsActionCard() async throws {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
         stateService.accountSetupImportLogins["1"] = .incomplete
 

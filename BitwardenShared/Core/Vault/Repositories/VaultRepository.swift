@@ -441,14 +441,17 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     /// - Returns: The encrypted cipher.
     ///
     private func encryptAndUpdateCipher(_ cipherView: CipherView) async throws -> Cipher {
-        let cipher = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
+        let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
 
-        let didAddCipherKey = cipherView.key == nil && cipher.key != nil
+        let didAddCipherKey = cipherView.key == nil && cipherEncryptionContext.cipher.key != nil
         if didAddCipherKey {
-            try await cipherService.updateCipherWithServer(cipher)
+            try await cipherService.updateCipherWithServer(
+                cipherEncryptionContext.cipher,
+                encryptedFor: cipherEncryptionContext.encryptedFor
+            )
         }
 
-        return cipher
+        return cipherEncryptionContext.cipher
     }
 
     /// Downloads, re-encrypts, and re-uploads an attachment without an attachment key so that it
@@ -621,24 +624,23 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
     ///
     private func totpItem(for cipherListView: CipherListView) async throws -> VaultListItem? {
         guard let id = cipherListView.id,
-              let login = cipherListView.type.loginListView,
-              let key = login.totp else {
+              cipherListView.type.loginListView?.totp != nil else {
             return nil
         }
         guard let code = try? await clientService.vault().generateTOTPCode(
-            for: key,
+            for: cipherListView,
             date: timeProvider.presentTime
         ) else {
             errorReporter.log(
                 error: TOTPServiceError
-                    .unableToGenerateCode("Unable to create TOTP code for key \(key) for cipher id \(id)")
+                    .unableToGenerateCode("Unable to create TOTP code for cipher id \(id)")
             )
             return nil
         }
 
         let listModel = VaultListTOTP(
             id: id,
-            loginListView: login,
+            cipherListView: cipherListView,
             requiresMasterPassword: cipherListView.reprompt == .password,
             totpCode: code
         )
@@ -971,8 +973,11 @@ extension DefaultVaultRepository: VaultRepository {
     // MARK: Data Methods
 
     func addCipher(_ cipher: CipherView) async throws {
-        let cipher = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
-        try await cipherService.addCipherWithServer(cipher)
+        let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipher)
+        try await cipherService.addCipherWithServer(
+            cipherEncryptionContext.cipher,
+            encryptedFor: cipherEncryptionContext.encryptedFor
+        )
     }
 
     func canShowVaultFilter() async -> Bool {
@@ -1080,8 +1085,7 @@ extension DefaultVaultRepository: VaultRepository {
             throw BitwardenError.dataError("Unable to fetch cipher with ID \(cipherId)")
         }
 
-        guard let attachment = encryptedCipher.attachments?.first(where: { $0.id == attachmentId }),
-              let downloadedUrl = try await cipherService.downloadAttachment(withId: attachmentId, cipherId: cipherId)
+        guard let downloadedUrl = try await cipherService.downloadAttachment(withId: attachmentId, cipherId: cipherId)
         else { return nil }
 
         // Create a temporary location to write the decrypted data to.
@@ -1093,7 +1097,7 @@ extension DefaultVaultRepository: VaultRepository {
         // Decrypt the downloaded data and move it to the specified temporary location.
         try await clientService.vault().attachments().decryptFile(
             cipher: encryptedCipher,
-            attachment: attachment,
+            attachment: attachmentView,
             encryptedFilePath: downloadedUrl.path,
             decryptedFilePath: temporaryUrl.path
         )
@@ -1154,9 +1158,9 @@ extension DefaultVaultRepository: VaultRepository {
     func refreshTOTPCodes(for items: [VaultListItem]) async throws -> [VaultListItem] {
         await items.asyncMap { item in
             guard case let .totp(name, model) = item.itemType,
-                  let key = model.loginListView.totp,
+                  model.cipherListView.type.loginListView?.totp != nil,
                   let vault = try? await clientService.vault(),
-                  let code = try? vault.generateTOTPCode(for: key, date: timeProvider.presentTime)
+                  let code = try? vault.generateTOTPCode(for: model.cipherListView, date: timeProvider.presentTime)
             else {
                 errorReporter.log(error: TOTPServiceError
                     .unableToGenerateCode("Unable to refresh TOTP code for list view item: \(item.id)"))
@@ -1235,9 +1239,12 @@ extension DefaultVaultRepository: VaultRepository {
             )
             .update(collectionIds: newCollectionIds) // The SDK updates the cipher's organization ID.
 
-        let encryptedOrganizationCipher = try await clientService.vault().ciphers()
+        let organizationCipherEncryptionContext = try await clientService.vault().ciphers()
             .encrypt(cipherView: organizationCipher)
-        try await cipherService.shareCipherWithServer(encryptedOrganizationCipher)
+        try await cipherService.shareCipherWithServer(
+            organizationCipherEncryptionContext.cipher,
+            encryptedFor: organizationCipherEncryptionContext.encryptedFor
+        )
     }
 
     func softDeleteCipher(_ cipher: CipherView) async throws {
@@ -1248,8 +1255,11 @@ extension DefaultVaultRepository: VaultRepository {
     }
 
     func updateCipher(_ cipherView: CipherView) async throws {
-        let cipher = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
-        try await cipherService.updateCipherWithServer(cipher)
+        let cipherEncryptionContext = try await clientService.vault().ciphers().encrypt(cipherView: cipherView)
+        try await cipherService.updateCipherWithServer(
+            cipherEncryptionContext.cipher,
+            encryptedFor: cipherEncryptionContext.encryptedFor
+        )
     }
 
     func updateCipherCollections(_ cipherView: CipherView) async throws {

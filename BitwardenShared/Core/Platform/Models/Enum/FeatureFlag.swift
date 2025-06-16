@@ -5,11 +5,11 @@ import Foundation
 
 /// An enum to represent a feature flag sent by the server
 extension FeatureFlag: @retroactive CaseIterable {
-    /// A feature flag to enable/disable account deprovisioning.
-    static let accountDeprovisioning = FeatureFlag(rawValue: "pm-10308-account-deprovisioning")
-
     /// A feature flag to enable/disable the ability to add a custom domain for anonAddy users.
     static let anonAddySelfHostAlias = FeatureFlag(rawValue: "anon-addy-self-host-alias")
+
+    /// A feature flag to enable/disable `AppIntent` execution.
+    static let appIntents = FeatureFlag(rawValue: "app-intents")
 
     /// Flag to enable/disable Credential Exchange export flow.
     static let cxpExportMobile = FeatureFlag(rawValue: "cxp-export-mobile")
@@ -34,10 +34,7 @@ extension FeatureFlag: @retroactive CaseIterable {
     )
 
     /// A feature flag for the flight recorder, which can be enabled to collect app logs.
-    static let flightRecorder = FeatureFlag(
-        rawValue: "enable-pm-flight-recorder",
-        isRemotelyConfigured: false
-    )
+    static let flightRecorder = FeatureFlag(rawValue: "enable-pm-flight-recorder")
 
     /// A flag to ignore the environment check for the two-factor authentication
     /// notice. If this is on, then it will display even on self-hosted servers,
@@ -53,17 +50,8 @@ extension FeatureFlag: @retroactive CaseIterable {
     /// A feature flag to enable additional error reporting.
     static let mobileErrorReporting = FeatureFlag(rawValue: "mobile-error-reporting")
 
-    /// A feature flag for the create account flow.
-    static let nativeCreateAccountFlow = FeatureFlag(rawValue: "native-create-account-flow")
-
     /// A feature flag for the pre-login settings.
-    static let preLoginSettings = FeatureFlag(
-        rawValue: "enable-pm-prelogin-settings",
-        isRemotelyConfigured: false
-    )
-
-    /// A feature flag for the refactor on the SSO details endpoint.
-    static let refactorSsoDetailsEndpoint = FeatureFlag(rawValue: "pm-12337-refactor-sso-details-endpoint")
+    static let preLoginSettings = FeatureFlag(rawValue: "enable-pm-prelogin-settings")
 
     /// A feature flag for the use of new cipher permission properties.
     static let restrictCipherItemDeletion = FeatureFlag(
@@ -75,8 +63,8 @@ extension FeatureFlag: @retroactive CaseIterable {
 
     public static var allCases: [FeatureFlag] {
         [
-            .accountDeprovisioning,
             .anonAddySelfHostAlias,
+            .appIntents,
             .cxpExportMobile,
             .cxpImportMobile,
             .cipherKeyEncryption,
@@ -87,9 +75,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .ignore2FANoticeEnvironmentCheck,
             .importLoginsFlow,
             .mobileErrorReporting,
-            .nativeCreateAccountFlow,
             .preLoginSettings,
-            .refactorSsoDetailsEndpoint,
             .restrictCipherItemDeletion,
             .simpleLoginSelfHostAlias,
         ]

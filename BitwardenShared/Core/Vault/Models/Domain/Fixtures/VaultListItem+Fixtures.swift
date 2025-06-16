@@ -59,7 +59,7 @@ extension VaultListTOTP {
     ) -> VaultListTOTP {
         VaultListTOTP(
             id: id,
-            loginListView: loginListView,
+            cipherListView: .fixture(type: .login(loginListView)),
             requiresMasterPassword: requiresMasterPassword,
             totpCode: .init(
                 code: totpCode,
@@ -83,7 +83,7 @@ extension VaultListTOTP {
     ) -> VaultListTOTP {
         VaultListTOTP(
             id: id,
-            loginListView: loginListView,
+            cipherListView: .fixture(type: .login(loginListView)),
             requiresMasterPassword: requiresMasterPassword,
             totpCode: totpCode
         )

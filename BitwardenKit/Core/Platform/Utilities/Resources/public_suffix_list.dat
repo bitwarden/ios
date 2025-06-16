@@ -5,8 +5,8 @@
 // Please pull this list from, and only from https://publicsuffix.org/list/public_suffix_list.dat,
 // rather than any other VCS sites. Pulling from any other URL is not guaranteed to be supported.
 
-// VERSION: 2025-05-22_06-02-01_UTC
-// COMMIT: 76b8e30f1913de596c835ac65b2efe5b5fe9eb43
+// VERSION: 2025-06-07_22-01-00_UTC
+// COMMIT: 8d4a151ff8b0a401fb03d2fcec16c834cd454523
 
 // Instructions on pulling and using this list can be found at https://publicsuffix.org/list/.
 
@@ -1385,6 +1385,7 @@ biz.id
 co.id
 desa.id
 go.id
+kop.id
 mil.id
 my.id
 net.id
@@ -6791,7 +6792,7 @@ org.zw
 
 // newGTLDs
 
-// List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2025-05-17T15:16:58Z
+// List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2025-06-07T15:17:54Z
 // This list is auto-generated, don't edit it manually.
 // aaa : American Automobile Association, Inc.
 // https://www.iana.org/domains/root/db/aaa.html
@@ -8568,6 +8569,10 @@ hosting
 // hot : Amazon Registry Services, Inc.
 // https://www.iana.org/domains/root/db/hot.html
 hot
+
+// hotel : HOTEL Top-Level-Domain S.a.r.l
+// https://www.iana.org/domains/root/db/hotel.html
+hotel
 
 // hotels : Booking.com B.V.
 // https://www.iana.org/domains/root/db/hotels.html
@@ -12703,6 +12708,17 @@ dedyn.io
 deta.app
 deta.dev
 
+// Dfinity Foundation: https://dfinity.org/
+// Submitted by Dfinity Team <domains@dfinity.org>
+caffeine.ai
+id.ai
+icp-api.io
+icp0.io
+*.raw.icp0.io
+icp1.io
+*.raw.icp1.io
+caffeine.site
+
 // dhosting.pl Sp. z o.o. : https://dhosting.pl/
 // Submitted by Michal Kokoszkiewicz <bok@dhosting.pl>
 dfirma.pl
@@ -13636,6 +13652,7 @@ goip.de
 // Submitted by Shannon McCabe <public-suffix-editors@google.com>
 *.hosted.app
 *.run.app
+*.mtls.run.app
 web.app
 *.0emm.com
 appspot.com
@@ -13892,6 +13909,7 @@ botdash.xyz
 // Submitted by Henrik Willert <security@ionos.com>
 apps-1and1.com
 live-website.com
+webspace-host.com
 apps-1and1.net
 websitebuilder.online
 app-ionos.space
@@ -13926,6 +13944,7 @@ is-a.dev
 // Submitted by Kim Brodowski <info@iserv.de>
 iservschule.de
 mein-iserv.de
+schuldock.de
 schulplattform.de
 schulserver.de
 test-iserv.de
@@ -14221,6 +14240,10 @@ barsy.support
 barsy.uk
 barsy.co.uk
 barsyonline.co.uk
+
+// Lutra : https://lutra.ai
+// Submitted by Joshua Newman <public-suffix-list@lutra.ai>
+*.lutrausercontent.com
 
 // Luyani Inc. : https://luyani.com/
 // Submitted by Umut Gumeli <public-suffix-list@luyani.com>
@@ -15275,10 +15298,6 @@ srht.site
 apps.lair.io
 *.stolos.io
 
-// SparrowHost : https://sparrowhost.in/
-// Submitted by Anant Pandey <info@sparrowhost.in>
-ind.mom
-
 // SpeedPartner GmbH : https://www.speedpartner.de/
 // Submitted by Stefan Neufeind <info@speedpartner.de>
 customer.speedpartner.de
@@ -15454,6 +15473,10 @@ taveusercontent.com
 p.tawk.email
 p.tawkto.email
 
+// Tche.br : https://tche.br
+// Submitted by Bruno Lorensi <suporte@tche.br>
+tche.br
+
 // team.blue : https://team.blue
 // Submitted by Cedric Dubois <cedric.dubois@team.blue>
 site.tb-hosting.com
@@ -15625,11 +15648,12 @@ val.run
 web.val.run
 
 // Vercel, Inc : https://vercel.com/
-// Submitted by Max Leiter <security@vercel.com>
+// Submitted by Laurens Duijvesteijn <security@vercel.com>
 vercel.app
 v0.build
 vercel.dev
 vusercontent.net
+vercel.run
 now.sh
 
 // VeryPositive SIA : http://very.lv

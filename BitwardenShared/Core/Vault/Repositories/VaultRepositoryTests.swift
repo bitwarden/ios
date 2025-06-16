@@ -104,6 +104,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
 
         XCTAssertEqual(cipherService.addCipherWithServerCiphers.last, Cipher(cipherView: cipher))
+        XCTAssertEqual(cipherService.addCipherWithServerEncryptedFor, "1")
     }
 
     /// `addCipher()` throws an error if encrypting the cipher fails.
@@ -736,7 +737,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(sections.isEmpty)
         XCTAssertEqual(
             errorReporter.errors as? [TOTPServiceError],
-            [.unableToGenerateCode("Unable to create TOTP code for key 123 for cipher id 2")]
+            [.unableToGenerateCode("Unable to create TOTP code for cipher id 2")]
         )
     }
 
@@ -1256,7 +1257,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
-            loginListView: .fixture(),
+            cipherListView: .fixture(),
             requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
@@ -1286,7 +1287,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         clientService.mockVault.generateTOTPCodeResult = .success(newCode)
         let totpModel = VaultListTOTP(
             id: "123",
-            loginListView: .fixture(totp: .standardTotpKey),
+            cipherListView: .fixture(type: .login(.fixture(totp: .standardTotpKey))),
             requiresMasterPassword: false,
             totpCode: .init(
                 code: "123456",
@@ -1300,7 +1301,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         switch newItem.itemType {
         case let .totp(_, model):
             XCTAssertEqual(model.id, totpModel.id)
-            XCTAssertEqual(model.loginListView, totpModel.loginListView)
+            XCTAssertEqual(model.cipherListView, totpModel.cipherListView)
             XCTAssertNotEqual(model.totpCode.code, totpModel.totpCode.code)
             XCTAssertNotEqual(model.totpCode.codeGenerationDate, totpModel.totpCode.codeGenerationDate)
             XCTAssertEqual(model.totpCode.period, totpModel.totpCode.period)
@@ -1943,7 +1944,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(sections.isEmpty)
         XCTAssertEqual(
             errorReporter.errors as? [TOTPServiceError],
-            [.unableToGenerateCode("Unable to create TOTP code for key 123 for cipher id 4")]
+            [.unableToGenerateCode("Unable to create TOTP code for cipher id 4")]
         )
     }
 
@@ -2391,7 +2392,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
         let totpCipher = try CipherListView(cipher: XCTUnwrap(cipherService.ciphersSubject.value[3]))
-        guard case let .login(loginListView) = totpCipher.type else {
+        guard case .login = totpCipher.type else {
             XCTFail("Cipher type should be login.")
             return
         }
@@ -2403,7 +2404,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
                     name: "one time cafefe",
                     totpModel: .init(
                         id: "6",
-                        loginListView: XCTUnwrap(loginListView),
+                        cipherListView: XCTUnwrap(totpCipher),
                         requiresMasterPassword: false,
                         totpCode: .init(
                             code: "123456",
@@ -2514,6 +2515,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(clientCiphers.moveToOrganizationOrganizationId, "5")
 
         XCTAssertEqual(cipherService.shareCipherWithServerCiphers.last, Cipher(cipherView: updatedCipher))
+        XCTAssertEqual(cipherService.shareCipherWithServerEncryptedFor, "1")
     }
 
     /// `shareCipher()` migrates any attachments without an attachment key.
@@ -2622,6 +2624,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         try await subject.updateCipher(cipher)
 
         XCTAssertEqual(clientCiphers.encryptedCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `cipherDetailsPublisher(id:)` returns a publisher for the details of a cipher in the vault.
@@ -2716,12 +2719,13 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
         let cipherView = CipherView.fixture(deletedDate: .now)
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         try await subject.restoreCipher(cipherView)
 
         XCTAssertEqual(cipherService.restoredCipher, cipher)
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `saveAttachment(cipherView:fileData:fileName:)` saves the attachment to the cipher.
@@ -2746,7 +2750,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_saveAttachment_updatesMigratedCipher() async throws {
         cipherService.saveAttachmentWithServerResult = .success(.fixture(id: "42"))
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         let updatedCipher = try await subject.saveAttachment(
             cipherView: .fixture(),
@@ -2759,6 +2763,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(cipherService.updateCipherWithServerCiphers, [cipher])
         XCTAssertEqual(cipherService.saveAttachmentWithServerCipher, cipher)
         XCTAssertEqual(updatedCipher.id, "42")
+        XCTAssertEqual(cipherService.updateCipherWithServerEncryptedFor, "1")
     }
 
     /// `softDeleteCipher()` throws on id errors.
@@ -2788,7 +2793,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         stateService.activeAccount = .fixture()
         let cipherView = CipherView.fixture(deletedDate: .now)
         let cipher = Cipher.fixture(key: "new key")
-        clientCiphers.encryptCipherResult = .success(cipher)
+        clientCiphers.encryptCipherResult = .success(EncryptionContext(encryptedFor: "1", cipher: cipher))
 
         try await subject.softDeleteCipher(cipherView)
 

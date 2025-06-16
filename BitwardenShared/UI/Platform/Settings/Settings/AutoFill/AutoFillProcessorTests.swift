@@ -101,7 +101,6 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamSettingsBadge` updates the state's badge state whenever it changes.
     @MainActor
     func test_perform_streamSettingsBadge() {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
         stateService.activeAccount = .fixture()
 
         let task = Task {
@@ -119,24 +118,9 @@ class AutoFillProcessorTests: BitwardenTestCase {
     /// `perform(_:)` with `.streamSettingsBadge` logs an error if streaming the settings badge state fails.
     @MainActor
     func test_perform_streamSettingsBadge_error() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = true
-
         await subject.perform(.streamSettingsBadge)
 
         XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
-    }
-
-    /// `perform(_:)` with `.streamSettingsBadge` doesn't load the badge state if the create account
-    /// feature flag is disabled.
-    @MainActor
-    func test_perform_streamSettingsBadge_nativeCreateAccountFlowDisabled() async {
-        configService.featureFlagsBool[.nativeCreateAccountFlow] = false
-        stateService.activeAccount = .fixture()
-        stateService.settingsBadgeSubject.send(.fixture())
-
-        await subject.perform(.streamSettingsBadge)
-
-        XCTAssertNil(subject.state.badgeState)
     }
 
     /// `receive(_:)` with `.appExtensionTapped` navigates to the app extension view.

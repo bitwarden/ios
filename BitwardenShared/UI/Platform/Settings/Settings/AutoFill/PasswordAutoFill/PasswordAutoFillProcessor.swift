@@ -45,8 +45,6 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
 
     override func perform(_ effect: PasswordAutoFillEffect) async {
         switch effect {
-        case .appeared:
-            await loadFeatureFlag()
         case .checkAutofillOnForeground:
             await monitorAutofillCompletionDuringOnboarding()
         case .turnAutoFillOnLaterButtonTapped:
@@ -59,14 +57,6 @@ final class PasswordAutoFillProcessor: StateProcessor<PasswordAutoFillState, Voi
     }
 
     // MARK: Private Functions
-
-    /// Sets the feature flag value to be used.
-    ///
-    private func loadFeatureFlag() async {
-        state.nativeCreateAccountFeatureFlag = await services.configService.getFeatureFlag(
-            .nativeCreateAccountFlow
-        )
-    }
 
     /// Continues the set up unlock flow by navigating to autofill setup.
     ///

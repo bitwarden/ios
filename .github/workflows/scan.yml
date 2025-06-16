@@ -16,12 +16,15 @@ on:
     branches:
       - "main"
 
+permissions: {}
+
 jobs:
   check-run:
     name: Check PR run
     uses: bitwarden/gh-actions/.github/workflows/check-run.yml@main
-    permissions: read-all
-
+    permissions:
+      contents: read
+      
   sast:
     name: SAST scan
     runs-on: ubuntu-24.04

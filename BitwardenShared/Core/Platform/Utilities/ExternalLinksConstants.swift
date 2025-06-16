@@ -22,6 +22,9 @@ enum ExternalLinksConstants {
     /// A link to Bitwarden's help page for learning more about the account fingerprint phrase.
     static let fingerprintPhrase = URL(string: "https://bitwarden.com/help/fingerprint-phrase/")!
 
+    /// A link the Bitwarden's help page for the flight recorder.
+    static let flightRecorderHelp = URL(string: "https://bitwarden.com/help/flight-recorder")!
+
     /// A link to Bitwarden's help page for generating username types.
     static let generatorUsernameTypes = URL(string: "https://bitwarden.com/help/generator/#username-types")!
 

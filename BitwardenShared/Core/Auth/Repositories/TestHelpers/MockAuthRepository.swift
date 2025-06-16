@@ -29,6 +29,7 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var getAccountError: Error?
     var getSSOOrganizationIdentifierByResult: Result<String?, Error> = .success(nil)
     var handleActiveUserClosure: ((String) async -> Void)?
+    var hasLockedAllVaults = false
     var hasManuallyLocked = false
     var hasMasterPasswordResult = Result<Bool, Error>.success(true)
     var isLockedResult: Result<Bool, Error> = .success(true)
@@ -38,9 +39,13 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
     var leaveOrganizationCalled = false
     var leaveOrganizationOrganizationId: String?
     var leaveOrganizationResult: Result<Void, Error> = .success(())
+    var lockAllVaultsError: Error?
     var lockVaultUserId: String?
+    var lockVaultUserIds: [String?] = []
     var logoutCalled = false
+    var logoutErrorByUserId = [String?: Error]()
     var logoutUserId: String?
+    var logoutUserIds: [String?] = []
     var logoutUserInitiated = false
     var logoutResult: Result<Void, Error> = .success(())
     var migrateUserToKeyConnectorCalled = false
@@ -253,13 +258,26 @@ class MockAuthRepository: AuthRepository { // swiftlint:disable:this type_body_l
         try leaveOrganizationResult.get()
     }
 
+    func lockAllVaults(isManuallyLocking: Bool) async throws {
+        if let lockAllVaultsError {
+            throw lockAllVaultsError
+        }
+        hasLockedAllVaults = true
+        hasManuallyLocked = isManuallyLocking
+    }
+
     func lockVault(userId: String?, isManuallyLocking: Bool) async {
         lockVaultUserId = userId
+        lockVaultUserIds.append(userId)
         hasManuallyLocked = isManuallyLocking
     }
 
     func logout(userId: String?, userInitiated: Bool) async throws {
+        if let logoutError = logoutErrorByUserId[userId] {
+            throw logoutError
+        }
         logoutUserId = userId
+        logoutUserIds.append(userId)
         logoutUserInitiated = userInitiated
         try await logout()
     }

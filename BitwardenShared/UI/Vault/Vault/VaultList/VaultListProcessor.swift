@@ -239,13 +239,7 @@ extension VaultListProcessor {
     ///
     private func dismissFlightRecorderToastBanner() async {
         state.isFlightRecorderToastBannerVisible = false
-
-        do {
-            let userId = try await services.stateService.getActiveAccountId()
-            await services.flightRecorder.setFlightRecorderBannerDismissed(userId: userId)
-        } catch {
-            services.errorReporter.log(error: error)
-        }
+        await services.flightRecorder.setFlightRecorderBannerDismissed()
     }
 
     /// Entry point to handling things around push notifications.
@@ -413,14 +407,9 @@ extension VaultListProcessor {
     /// Streams the flight recorder enabled status.
     ///
     private func streamFlightRecorderLog() async {
-        do {
-            let userId = try await services.stateService.getActiveAccountId()
-            for await log in await services.flightRecorder.activeLogPublisher().values {
-                state.activeFlightRecorderLog = log
-                state.isFlightRecorderToastBannerVisible = !(log?.bannerDismissedByUserIds.contains(userId) ?? true)
-            }
-        } catch {
-            services.errorReporter.log(error: error)
+        for await log in await services.flightRecorder.activeLogPublisher().values {
+            state.activeFlightRecorderLog = log
+            state.isFlightRecorderToastBannerVisible = !(log?.isBannerDismissed ?? true)
         }
     }
 
@@ -456,11 +445,11 @@ extension VaultListProcessor {
                 }
 
                 // Dismiss the import logins action card once the vault has items in it.
-                if !value.isEmpty, await services.configService.getFeatureFlag(.nativeCreateAccountFlow) {
+                if !value.isEmpty {
                     await setImportLoginsProgress(.complete)
                 }
                 // Dismiss the coach mark action cards once the vault has at least one login item in it.
-                if await services.configService.getFeatureFlag(.nativeCreateAccountFlow), value.hasLoginItems {
+                if value.hasLoginItems {
                     await services.stateService.setLearnNewLoginActionCardStatus(.complete)
                     await services.stateService.setLearnGeneratorActionCardStatus(.complete)
                 }
