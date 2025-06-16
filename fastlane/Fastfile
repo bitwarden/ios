@@ -428,4 +428,29 @@ platform :ios do |options|
             file.write(project_yaml.to_yaml)
         end
     end
+
+    desc "Submit a build to the App Store"
+    lane :submit_release do |options|
+    # Set release metadata (you can customize more fields if needed)
+    deliver(
+      app_identifier: options[:app_identifier],
+      edit_live: false,
+      build_number: options[:build_number],
+      app_version: options[:app_version],
+      submit_for_review: true,
+      skip_binary_upload: true,
+      skip_screenshots: options[:skip_screenshots],
+      skip_metadata: true,
+      automatic_release: false,
+      api_key_path: api_key_path,
+      run_precheck_before_submit: false
+      phased_release: options[:phased_release]
+      changelog: options[:changelog],
+      localized_build_info: {
+          "default": {
+              whats_new: options[:changelog]
+        }
+      }
+    )
+  end
 end
