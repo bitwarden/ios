@@ -77,8 +77,7 @@ struct GeneratorView: View {
             }
             .coordinateSpace(name: "generatorView")
             .background(Asset.Colors.backgroundPrimary.swiftUIColor)
-            .navigationBarTitleDisplayMode(store.state.presentationMode == .inPlace ? .inline : .large)
-            .navigationTitle(Localizations.generator)
+            .navigationBar(title: Localizations.generator, titleDisplayMode: .inline)
             .task { await store.perform(.appeared) }
             .onChange(of: focusedFieldKeyPath) { newValue in
                 store.send(.textFieldFocusChanged(keyPath: newValue))
@@ -95,6 +94,11 @@ struct GeneratorView: View {
                         }
                     }
                 }
+
+                largeNavigationTitleToolbarItem(
+                    Localizations.generator,
+                    hidden: store.state.presentationMode != .tab
+                )
 
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if store.state.presentationMode.isSelectButtonVisible {
