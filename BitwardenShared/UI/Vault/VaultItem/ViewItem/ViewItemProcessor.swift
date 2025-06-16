@@ -493,6 +493,7 @@ private extension ViewItemProcessor {
                 guard let cipher else { continue }
 
                 let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+                let hasMasterPassword = try await services.stateService.getUserHasMasterPassword()
                 let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
                 var folder: FolderView?
                 if let folderId = cipher.folderId {
@@ -515,6 +516,7 @@ private extension ViewItemProcessor {
 
                 guard var newState = ViewItemState(
                     cipherView: cipher,
+                    hasMasterPassword: hasMasterPassword,
                     hasPremium: hasPremium,
                     iconBaseURL: services.environmentService.iconsURL,
                     restrictCipherItemDeletionFlagEnabled: restrictCipherItemDeletionFlagEnabled

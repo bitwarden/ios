@@ -248,6 +248,42 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         XCTAssertFalse(vaultRepository.fetchSyncCalled)
     }
 
+    /// `perform(_:)` with `.appeared` loads whether the user has a master password and allows the
+    /// TOTP to be visible if the user doesn't have a master password, but master password reprompt
+    /// is enabled.
+    @MainActor
+    func test_perform_appeared_masterPasswordReprompt_noMasterPassword_totpVisibility() {
+        stateService.activeAccount = .fixture()
+        stateService.userHasMasterPassword[Account.fixture().profile.userId] = false
+
+        let totpKey = TOTPKeyModel(authenticatorKey: .standardTotpKey)
+        let cipherItem = CipherView.loginFixture(
+            id: "id",
+            login: .fixture(totp: totpKey.rawAuthenticatorKey),
+            reprompt: .password
+        )
+        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.cipherDetailsSubject.send(cipherItem)
+
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.loadingState != .loading(nil))
+        task.cancel()
+
+        let expectedState = CipherItemState(
+            existing: cipherItem,
+            hasMasterPassword: false,
+            hasPremium: false,
+            iconBaseURL: URL(string: "https://example.com/icons")!
+        )!
+
+        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
+        XCTAssertEqual(subject.state.loadingState.data?.loginState.isTOTPCodeVisible, true)
+        XCTAssertFalse(vaultRepository.fetchSyncCalled)
+    }
+
     /// `perform(_:)` with `.appeared` observe the premium status of a user.
     @MainActor
     func test_perform_appeared_unknownPremium() {
