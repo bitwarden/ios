@@ -22,7 +22,7 @@ struct VaultSettingsView: View {
             vaultSettings
         }
         .animation(.easeInOut, value: store.state.badgeState?.importLoginsSetupProgress == .complete)
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(title: Localizations.vault, titleDisplayMode: .inline)
         .onChange(of: store.state.url) { newValue in
             guard let url = newValue else { return }

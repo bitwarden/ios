@@ -930,8 +930,6 @@
 "NoEmailGoBackToEditYourEmailAddress" = "メールが届いていませんか？ **[こちら](https://)** でメールアドレスを編集できます。";
 "OrLogInYouMayAlreadyHaveAnAccount." = "既にアカウントを持っている場合は **[ログイン](https://)** してください。";
 "OpenEmailApp" = "メールアプリを開く";
-"SetPassword" = "パスワードを設定";
-"FinishCreatingYourAccountForXBySettingAPassword." = "パスワードを設定して、%1$@ アカウントの作成を完了してください。";
 "VerifyingEmail" = "メールアドレスの確認";
 "EmailVerified" = "メールアドレスを認証しました";
 "AccountSuccessfullyCreated" = "アカウントを作成しました！";
@@ -1209,3 +1207,4 @@
 "EditTextSend" = "Edit text Send";
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
+"LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";

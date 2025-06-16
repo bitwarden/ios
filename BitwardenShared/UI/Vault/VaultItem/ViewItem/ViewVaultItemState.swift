@@ -43,9 +43,6 @@ protocol ViewVaultItemState: Sendable, VaultItemWithDecorativeIcon {
     /// A flag indicating if item was soft deleted.
     var isSoftDeleted: Bool { get }
 
-    /// A flag indicating if master password re-prompt is required.
-    var isMasterPasswordRePromptOn: Bool { get set }
-
     /// The login item state.
     var loginState: LoginItemState { get set }
 

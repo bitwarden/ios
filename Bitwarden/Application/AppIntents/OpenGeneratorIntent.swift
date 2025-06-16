@@ -2,27 +2,28 @@ import AppIntents
 import BitwardenShared
 
 /// App intent that opens the generator view.
-@available(iOS 16.0, *)
-struct OpenGeneratorIntent: AppIntent {
+@available(iOS 16.4, *)
+struct OpenGeneratorIntent: ForegroundContinuableIntent {
     static var title: LocalizedStringResource = "OpenGenerator"
 
     static var description = IntentDescription("OpenGenerator")
 
-    static var openAppWhenRun: Bool = true
+    static var openAppWhenRun: Bool = false
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        let services = ServiceContainer(
-            appContext: .appIntent(.generatePassphrase),
-            errorReporter: ErrorReporterFactory.makeDefaultErrorReporter()
+        let services = ServiceContainer.shared(
+            errorReporter: { ErrorReporterFactory.makeDefaultErrorReporter() }
         )
         let appIntentMediator = services.getAppIntentMediator()
 
         guard try await appIntentMediator.canRunAppIntents() else {
-            return .result()
+            throw BitwardenShared.AppIntentError.notAllowed
         }
 
-        await appIntentMediator.openGenerator()
+        try await requestToContinueInForeground {
+            await appIntentMediator.openGenerator()
+        }
 
         return .result()
     }

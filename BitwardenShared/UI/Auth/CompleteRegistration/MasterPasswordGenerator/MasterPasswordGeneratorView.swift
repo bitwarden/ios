@@ -24,7 +24,7 @@ struct MasterPasswordGeneratorView: View {
 
             instructionsPreventAccountLockView
         }
-        .scrollView(padding: 12)
+        .scrollView()
         .navigationBar(
             title: Localizations.generateMasterPassword,
             titleDisplayMode: .inline

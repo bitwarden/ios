@@ -15,14 +15,6 @@ protocol OrganizationAPIService {
     ///
     func getOrganizationKeys(organizationId: String) async throws -> OrganizationKeysResponseModel
 
-    /// Query the API to determine if the user's email is able to use single sign on and if the organization
-    /// identifier is already known.
-    ///
-    /// - Parameter email: The user's email address.
-    /// - Returns: A `SingleSignOnDetailsResponse`.
-    ///
-    func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse
-
     /// Checks for the verified organization domains of an email for single sign on purposes.
     /// - Parameter email: The user's email address
     /// - Returns: A `SingleSignOnDomainsVerifiedResponse` with the verified domains list.
@@ -45,10 +37,6 @@ extension APIService: OrganizationAPIService {
 
     func getOrganizationKeys(organizationId: String) async throws -> OrganizationKeysResponseModel {
         try await apiService.send(OrganizationKeysRequest(id: organizationId))
-    }
-
-    func getSingleSignOnDetails(email: String) async throws -> SingleSignOnDetailsResponse {
-        try await apiUnauthenticatedService.send(SingleSignOnDetailsRequest(email: email))
     }
 
     func getSingleSignOnVerifiedDomains(email: String) async throws -> SingleSignOnDomainsVerifiedResponse {

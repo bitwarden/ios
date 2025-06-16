@@ -1,23 +1,23 @@
+import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import CryptoKit
 import Foundation
 import XCTest
 
-@testable import AuthenticatorBridgeKit
-
-final class SharedKeychainRepositoryTests: AuthenticatorBridgeKitTestCase {
+final class SharedKeychainStorageTests: BitwardenTestCase {
     // MARK: Properties
 
     let accessGroup = "group.com.example.bitwarden"
-    var keychainService: MockAuthenticatorKeychainService!
-    var subject: DefaultSharedKeychainRepository!
+    var keychainService: MockSharedKeychainService!
+    var subject: SharedKeychainStorage!
 
     // MARK: Setup & Teardown
 
     override func setUp() {
-        keychainService = MockAuthenticatorKeychainService()
-        subject = DefaultSharedKeychainRepository(
-            sharedAppGroupIdentifier: accessGroup,
-            keychainService: keychainService
+        keychainService = MockSharedKeychainService()
+        subject = DefaultSharedKeychainStorage(
+            keychainService: keychainService,
+            sharedAppGroupIdentifier: accessGroup
         )
     }
 
@@ -28,10 +28,10 @@ final class SharedKeychainRepositoryTests: AuthenticatorBridgeKitTestCase {
 
     // MARK: Tests
 
-    /// Verify that `deleteAuthenticatorKey()` issues a delete with the correct search attributes specified.
+    /// Verify that `deleteValue(for:)` issues a delete with the correct search attributes specified.
     ///
-    func test_deleteAuthenticatorKey_success() async throws {
-        try subject.deleteAuthenticatorKey()
+    func test_deleteValue_success() async throws {
+        try await subject.deleteValue(for: .authenticatorKey)
 
         let queries = try XCTUnwrap(keychainService.deleteQueries as? [[CFString: Any]])
         XCTAssertEqual(queries.count, 1)
@@ -46,16 +46,17 @@ final class SharedKeychainRepositoryTests: AuthenticatorBridgeKitTestCase {
                            String(kSecClassGenericPassword))
     }
 
-    /// Verify that `getAuthenticatorKey()` returns a value successfully when one is set. Additionally, verify the
+    /// Verify that `getValue(for:)` returns a value successfully when one is set. Additionally, verify the
     /// search attributes are specified correctly.
     ///
-    func test_getAuthenticatorKey_success() async throws {
+    func test_getValue_success() async throws {
         let key = SymmetricKey(size: .bits256)
         let data = key.withUnsafeBytes { Data(Array($0)) }
+        let encodedData = try JSONEncoder.defaultEncoder.encode(data)
 
-        keychainService.setSearchResultData(data)
+        keychainService.setSearchResultData(encodedData)
 
-        let returnData = try await subject.getAuthenticatorKey()
+        let returnData: Data = try await subject.getValue(for: .authenticatorKey)
         XCTAssertEqual(returnData, data)
 
         let query = try XCTUnwrap(keychainService.searchQuery as? [CFString: Any])
@@ -73,45 +74,48 @@ final class SharedKeychainRepositoryTests: AuthenticatorBridgeKitTestCase {
     /// Verify that `getAuthenticatorKey()` fails with a `keyNotFound` error when an unexpected
     /// result is returned instead of the key data from the keychain
     ///
-    func test_getAuthenticatorKey_badResult() async throws {
-        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+    func test_getValue_badResult() async throws {
+        let key = SharedKeychainItem.accountAutoLogout(userId: "1")
+        let error = SharedKeychainServiceError.keyNotFound(key)
         keychainService.searchResult = .success([kSecValueData as String: NSObject()] as AnyObject)
 
         await assertAsyncThrows(error: error) {
-            _ = try await subject.getAuthenticatorKey()
+            let _: Data = try await subject.getValue(for: key)
         }
     }
 
-    /// Verify that `getAuthenticatorKey()` fails with a `keyNotFound` error when a nil
+    /// Verify that `getValue(for:)` fails with a `keyNotFound` error when a nil
     /// result is returned instead of the key data from the keychain
     ///
-    func test_getAuthenticatorKey_nilResult() async throws {
-        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+    func test_getValue_nilResult() async throws {
+        let key = SharedKeychainItem.accountAutoLogout(userId: "1")
+        let error = SharedKeychainServiceError.keyNotFound(key)
         keychainService.searchResult = .success(nil)
 
         await assertAsyncThrows(error: error) {
-            _ = try await subject.getAuthenticatorKey()
+            let _: Data = try await subject.getValue(for: key)
         }
     }
 
-    /// Verify that `getAuthenticatorKey()` fails with an error when the Authenticator key is not
+    /// Verify that `getValue(for:)` fails with an error when the Authenticator key is not
     /// present in the keychain
     ///
     func test_getAuthenticatorKey_keyNotFound() async throws {
-        let error = AuthenticatorKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
+        let error = SharedKeychainServiceError.keyNotFound(SharedKeychainItem.authenticatorKey)
         keychainService.searchResult = .failure(error)
 
         await assertAsyncThrows(error: error) {
-            _ = try await subject.getAuthenticatorKey()
+            let _: Data = try await subject.getValue(for: .authenticatorKey)
         }
     }
 
-    /// Verify that `setAuthenticatorKey(_:)` sets a value with the correct search attributes specified.
+    /// Verify that `setValue(_:for:)` sets a value with the correct search attributes specified.
     ///
     func test_setAuthenticatorKey_success() async throws {
         let key = SymmetricKey(size: .bits256)
         let data = key.withUnsafeBytes { Data(Array($0)) }
-        try await subject.setAuthenticatorKey(data)
+        let encodedData = try JSONEncoder.defaultEncoder.encode(data)
+        try await subject.setValue(data, for: .authenticatorKey)
 
         let attributes = try XCTUnwrap(keychainService.addAttributes as? [CFString: Any])
         try XCTAssertEqual(XCTUnwrap(attributes[kSecAttrAccessGroup] as? String), accessGroup)
@@ -121,6 +125,6 @@ final class SharedKeychainRepositoryTests: AuthenticatorBridgeKitTestCase {
                            SharedKeychainItem.authenticatorKey.unformattedKey)
         try XCTAssertEqual(XCTUnwrap(attributes[kSecClass] as? String),
                            String(kSecClassGenericPassword))
-        try XCTAssertEqual(XCTUnwrap(attributes[kSecValueData] as? Data), data)
+        try XCTAssertEqual(XCTUnwrap(attributes[kSecValueData] as? Data), encodedData)
     }
 }

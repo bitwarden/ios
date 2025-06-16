@@ -43,7 +43,7 @@ struct PasswordAutoFillView: View {
 
     /// The content view.
     private var contentView: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 24) {
             dynamicStackView {
                 ZStack {
                     gifViewPlaceholder
@@ -52,7 +52,7 @@ struct PasswordAutoFillView: View {
                 }
                 .frame(width: 230, height: 278)
 
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     Text(Localizations.turnOnAutoFill)
                         .styleGuide(.title2, weight: .bold)
 
@@ -61,11 +61,10 @@ struct PasswordAutoFillView: View {
                         .multilineTextAlignment(.center)
                 }
             }
-            .padding(.top, 32)
-            .padding(.horizontal, 16)
+            .padding(.top, 12)
+            .padding(.horizontal, 12)
 
             autofillInstructions
-                .padding(.top, 32)
 
             Text(
                 LocalizedStringKey(
@@ -75,24 +74,23 @@ struct PasswordAutoFillView: View {
             )
             .styleGuide(.subheadline)
             .tint(Asset.Colors.textInteraction.swiftUIColor)
-            .padding(.top, 32)
 
-            Button(Localizations.continue) {
-                if #available(iOS 17, *) {
-                    ASSettingsHelper.openVerificationCodeAppSettings()
-                } else {
-                    openURL(ExternalLinksConstants.passwordOptions)
+            VStack(spacing: 12) {
+                Button(Localizations.continue) {
+                    if #available(iOS 17, *) {
+                        ASSettingsHelper.openVerificationCodeAppSettings()
+                    } else {
+                        openURL(ExternalLinksConstants.passwordOptions)
+                    }
                 }
-            }
-            .buttonStyle(.primary())
-            .padding(.top, 32)
-            .padding(.bottom, 12)
+                .buttonStyle(.primary())
 
-            if store.state.mode == .onboarding {
-                AsyncButton(Localizations.turnOnLater) {
-                    await store.perform(.turnAutoFillOnLaterButtonTapped)
+                if store.state.mode == .onboarding {
+                    AsyncButton(Localizations.turnOnLater) {
+                        await store.perform(.turnAutoFillOnLaterButtonTapped)
+                    }
+                    .buttonStyle(.secondary())
                 }
-                .buttonStyle(.secondary())
             }
         }
         .scrollView(addVerticalPadding: false)
@@ -197,9 +195,9 @@ struct PasswordAutoFillView: View {
     @ViewBuilder
     private func dynamicStackView(@ViewBuilder content: () -> some View) -> some View {
         if verticalSizeClass == .regular {
-            VStack(spacing: 32, content: content)
+            VStack(spacing: 24, content: content)
         } else {
-            HStack(spacing: 32, content: content)
+            HStack(spacing: 24, content: content)
                 .padding(.horizontal, 80)
         }
     }
@@ -227,16 +225,6 @@ struct PasswordAutoFillView: View {
                 state: .init(
                     mode: .onboarding
                 )
-            )
-        )
-    )
-}
-
-#Preview("Settings w/ FF off") {
-    PasswordAutoFillView(
-        store: Store(
-            processor: StateProcessor(
-                state: .init(mode: .settings)
             )
         )
     )

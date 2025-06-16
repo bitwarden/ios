@@ -226,9 +226,13 @@ public class ServiceContainer: Services {
             authenticatorItemDataStore: dataStore
         )
 
+        let sharedKeychainStorage = DefaultSharedKeychainStorage(
+            keychainService: keychainService,
+            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier
+        )
+
         let sharedKeychainRepository = DefaultSharedKeychainRepository(
-            sharedAppGroupIdentifier: Bundle.main.sharedAppGroupIdentifier,
-            keychainService: keychainService
+            storage: sharedKeychainStorage
         )
 
         let sharedCryptographyService = DefaultAuthenticatorCryptographyService(
@@ -241,10 +245,16 @@ public class ServiceContainer: Services {
             storeType: .persisted
         )
 
+        let sharedTimeoutService = DefaultSharedTimeoutService(
+            sharedKeychainRepository: sharedKeychainRepository,
+            timeProvider: timeProvider
+        )
+
         let sharedItemService = DefaultAuthenticatorBridgeItemService(
             cryptoService: sharedCryptographyService,
             dataStore: sharedDataStore,
-            sharedKeychainRepository: sharedKeychainRepository
+            sharedKeychainRepository: sharedKeychainRepository,
+            sharedTimeoutService: sharedTimeoutService
         )
 
         let authenticatorItemRepository = DefaultAuthenticatorItemRepository(
