@@ -761,7 +761,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let items: [VaultListItem]
         switch group {
         case .card:
-            items = activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter { $0.type.isCard }.compactMap(VaultListItem.init)
         case let .collection(id, _, _):
             items = activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case let .folder(id, _):
@@ -914,7 +914,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             )
         }
 
-        let typesCardCount = activeCiphers.lazy.filter { $0.type == .card }.count
+        let typesCardCount = activeCiphers.lazy.filter { $0.type.isCard }.count
         let typesIdentityCount = activeCiphers.lazy.filter { $0.type == .identity }.count
         let typesLoginCount = activeCiphers.lazy.filter(\.type.isLogin).count
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
@@ -1709,7 +1709,7 @@ private extension CipherListView {
     func belongsToGroup(_ group: VaultListGroup) -> Bool {
         return switch group {
         case .card:
-            type == .card
+            type.isCard
         case let .collection(id, _, _):
             collectionIds.contains(id)
         case let .folder(id, _):
