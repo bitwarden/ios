@@ -23,6 +23,7 @@ on:
         type: string
         default: "Bug Fixes."
       skip-screenshots:
+        description: "Skip Screenshots"
         type: boolean
         default: true
       phased-release:
@@ -41,7 +42,7 @@ permissions:
 
 jobs:
     publish:
-      name: Publish build ${{ inputs.build-number }}
+      name: Publish build ${{ inputs.build-number }} version ${{inputs.build-version}}
       runs-on: macos-15
 
       steps:
@@ -135,10 +136,11 @@ jobs:
             PHASED_RELEASE: ${{ inputs.phased-release }}
             PRODUCT: ${{ inputs.product }}
             SKIP_SCREENSHOTS: ${{ inputs.skip-screenshots}}
+            CHANGELOG: ${{ inputs.changelog }}
           run: |
             run: |
             if [ "$PRODUCT" = "Password Manager" ]; then
-              PACKAGE_NAME="com.8bit.bitwarden"
+              PACKAGE_NAME="com.8bit.bitwarden.beta"
             elif [ "$PRODUCT" = "Authenticator" ]; then
               PACKAGE_NAME="com.bitwarden.authenticator"
             else
