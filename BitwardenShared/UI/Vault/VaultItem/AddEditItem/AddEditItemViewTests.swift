@@ -757,7 +757,12 @@ class AddEditItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     @MainActor
     func test_snapshot_add_personalOwnershipPolicy() {
+        processor.state.ownershipOptions.append(.organization(id: "1", name: "Organization"))
+        processor.state.owner = .organization(id: "1", name: "Organization")
         processor.state.isPersonalOwnershipDisabled = true
+        processor.state.allUserCollections = [
+            .fixture(id: "1", name: "Default collection", organizationId: "1"),
+        ]
         assertSnapshot(of: subject.navStackWrapped, as: .defaultPortrait)
     }
 
