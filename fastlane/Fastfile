@@ -433,10 +433,10 @@ platform :ios do |options|
     lane :submit_release do |options|
     # Set release metadata (you can customize more fields if needed)
     deliver(
-      app_identifier: "com.8bit.bitwarden.beta",
+      app_identifier: options[:app_identifier],
       edit_live: false,
-      build_number: "2122",
-      app_version: "2025.5.0",
+      build_number: options[:build_number],
+      app_version: options[:app_version],
       submit_for_review: true,
       skip_binary_upload: true,
       skip_screenshots: true,
