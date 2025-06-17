@@ -3094,6 +3094,50 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertEqual(itemNames, ["Org TOTP"])
     }
 
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items and doesn't
+    /// require a master password reprompt for viewing the TOTP code if the user doesn't have a
+    /// master password.
+    func test_vaultListPublisher_groups_totp_organizationUseTotp_userWithoutMP() async throws {
+        stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.userHasMasterPassword[nonPremiumAccount.profile.userId] = false
+
+        cipherService.ciphersSubject.send([
+            Cipher.fixture(
+                id: "1",
+                login: .fixture(totp: "123"),
+                name: "Org TOTP",
+                organizationUseTotp: true,
+                type: .login
+            ),
+            Cipher.fixture(
+                id: "2",
+                login: .fixture(totp: "123"),
+                name: "Org TOTP w/ MP reprompt",
+                organizationUseTotp: true,
+                reprompt: .password,
+                type: .login
+            ),
+        ])
+
+        var iterator = try await subject.vaultListPublisher(
+            group: .totp,
+            filter: VaultListFilter(filterType: .allVaults)
+        ).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
+        let vaultListItems = try XCTUnwrap(vaultListSections).flatMap(\.items)
+
+        let itemModels: [(name: String, model: VaultListTOTP)] = vaultListItems.compactMap { item in
+            guard case let .totp(name, model) = item.itemType else { return nil }
+            return (name: name, model: model)
+        }
+        XCTAssertEqual(itemModels.count, 2)
+        XCTAssertEqual(itemModels[0].name, "Org TOTP")
+        XCTAssertFalse(itemModels[0].model.requiresMasterPassword)
+        XCTAssertEqual(itemModels[1].name, "Org TOTP w/ MP reprompt")
+        XCTAssertFalse(itemModels[1].model.requiresMasterPassword)
+    }
+
     /// `vaultListPublisher(group:filter:)` filters out TOTP items with keys that
     ///      the SDK cannot parse into TOTP codes.
     func test_vaultListPublisher_groups_totp_invalidCode() async throws {

@@ -377,7 +377,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         collectionIds: [String] = ["1", "2"],
         isFavorite: Bool = false,
         isPasswordVisible: Bool = true,
-        isTOTPCodeVisible: Bool = true,
         hasPremium: Bool = true,
         hasTotp: Bool = true
     ) -> CipherItemState {
@@ -405,7 +404,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         cipherState.loginState.canViewPassword = canViewPassword
         cipherState.loginState.fido2Credentials = [.fixture()]
         cipherState.loginState.isPasswordVisible = isPasswordVisible
-        cipherState.loginState.isTOTPCodeVisible = isTOTPCodeVisible
         cipherState.loginState.password = "Password1234!"
         cipherState.loginState.passwordHistoryCount = 4
         cipherState.loginState.passwordUpdatedDate = Date(year: 2023, month: 11, day: 11, hour: 9, minute: 41)
@@ -516,12 +514,6 @@ class ViewItemViewTests: BitwardenTestCase { // swiftlint:disable:this type_body
         processor.state.loadingState = .data(loginState)
 
         assertSnapshot(of: subject, as: .defaultPortrait)
-    }
-
-    @MainActor
-    func test_snapshot_login_hiddenTotp() {
-        processor.state.loadingState = .data(loginState(isTOTPCodeVisible: false))
-        assertSnapshot(of: subject, as: .tallPortrait)
     }
 
     @MainActor

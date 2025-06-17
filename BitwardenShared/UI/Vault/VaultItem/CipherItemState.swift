@@ -379,7 +379,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
 
     init?(
         existing cipherView: CipherView,
-        hasMasterPassword: Bool = true,
         hasPremium: Bool,
         iconBaseURL: URL? = nil,
         showWebIcons: Bool = true
@@ -398,7 +397,6 @@ struct CipherItemState: Equatable { // swiftlint:disable:this type_body_length
             isMasterPasswordRePromptOn: cipherView.reprompt == .password,
             isPersonalOwnershipDisabled: false,
             loginState: cipherView.loginItemState(
-                isTOTPCodeVisible: !(hasMasterPassword && cipherView.reprompt == .password),
                 showTOTP: hasPremium || cipherView.organizationUseTotp
             ),
             name: cipherView.name,
