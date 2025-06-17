@@ -81,7 +81,7 @@ jobs:
           bundle exec fastlane load_dotenv_file --env $_BW_ENV
 
 
-      - name: Azure Login
+      - name: Log in to Azure
         id: azure-login
         if: env._BUILD_MODE == 'Device'
         uses: bitwarden/gh-actions/azure-login@main
@@ -90,7 +90,7 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Get KV secrets
+      - name: Get Azure Key Vault Secrets
         id: get-kv-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
@@ -144,7 +144,7 @@ jobs:
 
           echo "✅ All secrets downloaded!"
 
-      - name: Azure Logout
+      - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Configure Keychain Access
