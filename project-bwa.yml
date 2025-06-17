@@ -30,7 +30,7 @@ packages:
     exactVersion: 11.12.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.3
+    exactVersion: 1.18.4
   SwiftProtobuf:
     url: https://github.com/apple/swift-protobuf
     exactVersion: 1.29.0
