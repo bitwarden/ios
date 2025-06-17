@@ -708,20 +708,6 @@ extension DefaultAuthRepository: AuthRepository {
             return nil
         }
 
-        guard await configService.getFeatureFlag(.refactorSsoDetailsEndpoint) else {
-            let response = try await organizationAPIService.getSingleSignOnDetails(email: email)
-
-            // If there is already an organization identifier associated with the user's email,
-            // attempt to start the single sign on process with that identifier.
-            guard response.ssoAvailable,
-                  response.verifiedDate != nil,
-                  let organizationIdentifier = response.organizationIdentifier,
-                  !organizationIdentifier.isEmpty else {
-                return nil
-            }
-            return organizationIdentifier
-        }
-
         let verifiedDomainsResponse = try await organizationAPIService.getSingleSignOnVerifiedDomains(email: email)
         return verifiedDomainsResponse.verifiedDomains?.first?.organizationIdentifier?.nilIfEmpty
     }
@@ -737,7 +723,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func isPinUnlockAvailable(userId: String?) async throws -> Bool {
-        try await stateService.pinProtectedUserKey(userId: userId) != nil
+        try await vaultTimeoutService.isPinUnlockAvailable(userId: userId)
     }
 
     func isUserManagedByOrganization() async throws -> Bool {
@@ -798,20 +784,7 @@ extension DefaultAuthRepository: AuthRepository {
     }
 
     func sessionTimeoutAction(userId: String?) async throws -> SessionTimeoutAction {
-        let hasMasterPassword = try await stateService.getUserHasMasterPassword(userId: userId)
-        let timeoutAction = try await stateService.getTimeoutAction(userId: userId)
-        guard hasMasterPassword else {
-            let isBiometricsEnabled = try await biometricsRepository.getBiometricUnlockStatus().isEnabled
-            let isPinEnabled = try await isPinUnlockAvailable()
-            if isPinEnabled || isBiometricsEnabled {
-                return timeoutAction
-            } else {
-                // If the user doesn't have a master password and hasn't enabled a pin or
-                // biometrics, their timeout action needs to be logout.
-                return .logout
-            }
-        }
-        return timeoutAction
+        try await vaultTimeoutService.sessionTimeoutAction(userId: userId)
     }
 
     func requestOtp() async throws {

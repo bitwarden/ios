@@ -1,3 +1,5 @@
+import AuthenticatorBridgeKit
+import AuthenticatorBridgeKitMocks
 import BitwardenKit
 import BitwardenKitMocks
 import BitwardenSdk
@@ -49,6 +51,7 @@ extension ServiceContainer {
         reviewPromptService: ReviewPromptService = MockReviewPromptService(),
         sendRepository: SendRepository = MockSendRepository(),
         settingsRepository: SettingsRepository = MockSettingsRepository(),
+        sharedTimeoutService: SharedTimeoutService = MockSharedTimeoutService(),
         stateService: StateService = MockStateService(),
         syncService: SyncService = MockSyncService(),
         systemDevice: SystemDevice = MockSystemDevice(),
@@ -109,6 +112,7 @@ extension ServiceContainer {
             reviewPromptService: reviewPromptService,
             sendRepository: sendRepository,
             settingsRepository: settingsRepository,
+            sharedTimeoutService: sharedTimeoutService,
             stateService: stateService,
             syncService: syncService,
             systemDevice: systemDevice,
