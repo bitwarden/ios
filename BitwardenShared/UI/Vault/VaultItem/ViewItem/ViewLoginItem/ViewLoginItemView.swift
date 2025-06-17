@@ -150,16 +150,11 @@ struct ViewLoginItemView: View {
             title: Localizations.authenticatorKey,
             titleAccessibilityIdentifier: "ItemName",
             content: {
-                if store.state.isTOTPCodeVisible {
-                    Text(model.displayCode)
-                        .styleGuide(.bodyMonospaced)
-                        .multilineTextAlignment(.leading)
-                        .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
-                        .accessibilityIdentifier("LoginTotpEntry")
-                } else {
-                    PasswordText(password: model.displayCode, isPasswordVisible: false)
-                        .accessibilityIdentifier("LoginTotpEntry")
-                }
+                Text(model.displayCode)
+                    .styleGuide(.bodyMonospaced)
+                    .multilineTextAlignment(.leading)
+                    .foregroundColor(Asset.Colors.textPrimary.swiftUIColor)
+                    .accessibilityIdentifier("LoginTotpEntry")
             },
             accessoryContent: {
                 TOTPCountdownTimerView(
