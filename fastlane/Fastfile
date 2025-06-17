@@ -432,31 +432,31 @@ platform :ios do |options|
     desc "Submit a build to the App Store"
     lane :submit_release do |options|
     # Set release metadata (you can customize more fields if needed)
-    deliver(
-      app_identifier: "com.8bit.bitwarden.beta",
-      edit_live: false,
-      build_number: options[:build_number],
-      app_version: "2025.5.0",
-      submit_for_review: true,
-      skip_binary_upload: true,
-      skip_screenshots: true,
-      skip_metadata: true,
-      automatic_release: true,
-      api_key_path: options[:api_key_path],
-      run_precheck_before_submit: false
-    )
     # deliver(
     #   app_identifier: "com.8bit.bitwarden.beta",
     #   edit_live: false,
     #   build_number: options[:build_number],
-    #   app_version: options[:app_version],
+    #   app_version: "2025.5.0",
     #   submit_for_review: true,
     #   skip_binary_upload: true,
-    #   skip_screenshots: options[:skip_screenshots],
+    #   skip_screenshots: true,
     #   skip_metadata: true,
     #   automatic_release: true,
     #   api_key_path: options[:api_key_path],
     #   run_precheck_before_submit: false
     # )
+    deliver(
+      app_identifier: "com.8bit.bitwarden.beta",
+      edit_live: false,
+      build_number: options[:build_number],
+      app_version: options[:app_version],
+      submit_for_review: true,
+      skip_binary_upload: true,
+      skip_screenshots: options[:skip_screenshots],
+      skip_metadata: true,
+      automatic_release: true,
+      api_key_path: options[:api_key_path],
+      run_precheck_before_submit: false
+    )
   end
 end
