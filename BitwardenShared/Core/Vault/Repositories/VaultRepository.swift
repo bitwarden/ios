@@ -598,6 +598,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
         let hasPremiumFeaturesAccess = await (try? doesActiveAccountHavePremium()) ?? false
+        let userHasMasterPassword = await (try? stateService.getUserHasMasterPassword()) ?? false
 
         // Filter and sort the list.
         let activeCiphers = ciphers
@@ -611,7 +612,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         // Convert the CipherViews into VaultListItem.
         let totpItems: [VaultListItem] = try await activeCiphers
-            .asyncMap { try await totpItem(for: $0) }
+            .asyncMap { try await totpItem(for: $0, userHasMasterPassword: userHasMasterPassword) }
             .compactMap { $0 }
 
         return totpItems
@@ -619,10 +620,15 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     /// A transform to convert a `CipherListView` into a TOTP `VaultListItem`.
     ///
-    /// - Parameter cipherListView: The cipher view that may have a TOTP key.
+    /// - Parameters:
+    ///   - cipherListView: The cipher view that may have a TOTP key.
+    ///   - userHasMasterPassword: Whether the user has a master password.
     /// - Returns: A `VaultListItem` if the cipher supports TOTP.
     ///
-    private func totpItem(for cipherListView: CipherListView) async throws -> VaultListItem? {
+    private func totpItem(
+        for cipherListView: CipherListView,
+        userHasMasterPassword: Bool
+    ) async throws -> VaultListItem? {
         guard let id = cipherListView.id,
               cipherListView.type.loginListView?.totp != nil else {
             return nil
@@ -641,7 +647,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let listModel = VaultListTOTP(
             id: id,
             cipherListView: cipherListView,
-            requiresMasterPassword: cipherListView.reprompt == .password,
+            requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
             totpCode: code
         )
         return VaultListItem(
