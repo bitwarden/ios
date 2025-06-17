@@ -88,4 +88,22 @@ extension VaultListTOTP {
             totpCode: totpCode
         )
     }
+
+    static func fixture(
+        id: String = "123",
+        cipherListView: CipherListView,
+        requiresMasterPassword: Bool = false,
+        totpCode: TOTPCodeModel = .init(
+            code: "123456",
+            codeGenerationDate: Date(),
+            period: 30
+        )
+    ) -> VaultListTOTP {
+        VaultListTOTP(
+            id: id,
+            cipherListView: cipherListView,
+            requiresMasterPassword: requiresMasterPassword,
+            totpCode: totpCode
+        )
+    }
 }
