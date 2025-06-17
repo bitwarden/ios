@@ -435,11 +435,11 @@ platform :ios do |options|
     deliver(
       app_identifier: "com.8bit.bitwarden.beta",
       edit_live: false,
-      build_number: "2122",
-      app_version: "2025.5.0",
+      build_number: options[:build_number],
+      app_version: options[:app_version],
       submit_for_review: true,
       skip_binary_upload: true,
-      skip_screenshots: true,
+      skip_screenshots: options[:skip_screenshots],
       skip_metadata: true,
       automatic_release: true,
       api_key_path: options[:api_key_path],
@@ -447,3 +447,4 @@ platform :ios do |options|
     )
   end
 end
+ 
