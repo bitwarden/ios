@@ -107,6 +107,9 @@ protocol AuthenticatorItemRepository: AnyObject {
 class DefaultAuthenticatorItemRepository {
     // MARK: Properties
 
+    /// Service to interface with the application.
+    private let application: Application?
+
     /// Service from which to fetch locally stored Authenticator items.
     private let authenticatorItemService: AuthenticatorItemService
 
@@ -136,6 +139,7 @@ class DefaultAuthenticatorItemRepository {
     /// Initialize a `DefaultAuthenticatorItemRepository`
     ///
     /// - Parameters:
+    ///   - application: Service to interact with the application.
     ///   - authenticatorItemService: Service to from which to fetch locally stored Authenticator items.
     ///   - configService: Service to determine if the sync feature flag is turned on.
     ///   - cryptographyService: Service to encrypt/decrypt locally stored Authenticator items.
@@ -145,6 +149,7 @@ class DefaultAuthenticatorItemRepository {
     ///   - timeProvider: A protocol wrapping the present time.
     ///   - totpService: A service for refreshing TOTP codes.
     init(
+        application: Application?,
         authenticatorItemService: AuthenticatorItemService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
@@ -153,6 +158,7 @@ class DefaultAuthenticatorItemRepository {
         timeProvider: TimeProvider,
         totpService: TOTPService
     ) {
+        self.application = application
         self.authenticatorItemService = authenticatorItemService
         self.configService = configService
         self.cryptographyService = cryptographyService
@@ -248,13 +254,23 @@ class DefaultAuthenticatorItemRepository {
         .filter { !$0.items.isEmpty }
     }
 
+    private func checkPMInstall() async throws {
+        guard await isPasswordManagerSyncActive(),
+              !(application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) ?? false) else {
+            return
+        }
+
+        try await sharedItemService.deleteAll()
+    }
+
     /// A Publisher that combines all of the locally stored code with the codes shared from the Bitwarden PM app. This
     /// publisher converts all of these into `[ItemListSection]` ready to be displayed in the ItemList.
     ///
     /// - Returns: An array of `ItemListSection` containing both locally stored and shared codes.
     ///
     private func itemListSectionPublisher() async throws -> AnyPublisher<[ItemListSection], Error> {
-        try await authenticatorItemService.authenticatorItemsPublisher()
+        try await checkPMInstall()
+        return try await authenticatorItemService.authenticatorItemsPublisher()
             .combineLatest(
                 sharedItemService.sharedItemsPublisher()
                     .catch { error -> AnyPublisher<[AuthenticatorBridgeItemDataView], any Error> in
