@@ -2,6 +2,9 @@
 
 /// Effects that can be processed by a `TwoFactorAuthProcessor`.
 enum TwoFactorAuthEffect: Equatable {
+    /// The two factor auth view appeared.
+    case appeared
+
     /// Attempts to authenticate via Duo.
     case beginDuoAuth
 
