@@ -14,6 +14,9 @@ extension Constants {
     /// The minimum server version required to have cipher key encryption on.
     static let cipherKeyEncryptionMinServerVersion = "2024.2.0"
 
+    /// The size of the slice to decrypt ciphers in batch using the SDK.
+    static let decryptCiphersBatchSize: Int = 100
+
     /// The default type for a Fido2 public key credential.
     static let defaultFido2PublicKeyCredentialType = "public-key"
 

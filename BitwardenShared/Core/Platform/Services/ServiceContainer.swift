@@ -693,7 +693,67 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
-        let vaultRepository = DefaultVaultRepository(
+//        let vaultRepository = DefaultVaultRepository(
+//            cipherService: cipherService,
+//            clientService: clientService,
+//            collectionService: collectionService,
+//            configService: configService,
+//            environmentService: environmentService,
+//            errorReporter: errorReporter,
+//            folderService: folderService,
+//            organizationService: organizationService,
+//            policyService: policyService,
+//            settingsService: settingsService,
+//            stateService: stateService,
+//            syncService: syncService,
+//            timeProvider: timeProvider,
+//            vaultTimeoutService: vaultTimeoutService
+//        )
+        let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
+            vaultListVBuilderFactory: DefaultVaultListBuilderFactory(
+                clientService: clientService,
+                errorReporter: errorReporter
+            ),
+            cipherService: cipherService,
+            clientService: clientService,
+            collectionService: collectionService,
+            errorReporter: errorReporter,
+            folderService: folderService,
+            stateService: stateService,
+            vaultListDataArranger: DefaultVaultListDataArranger(
+                clientService: clientService,
+                ciphersClientWrapperService: DefaultCiphersClientWrapperService(
+                    clientService: clientService,
+                    errorReporter: errorReporter
+                ),
+                errorReporter: errorReporter,
+                stateService: stateService,
+                vaultListArrangedDataBuilderFactory: DefaultVaultListArrangedDataBuilderFactory(
+                    clientService: clientService,
+                    errorReporter: errorReporter,
+                    stateService: stateService,
+                    timeProvider: timeProvider
+                )
+            )
+        )
+//        (
+//            clientService: clientService,
+//            errorReporter: errorReporter,
+//            stateService: stateService,
+//            vaultListDataArranger: DefaultVaultListDataArranger(
+//                clientService: clientService,
+//                ciphersClientWrapperService: DefaultCiphersClientWrapperService(
+//                    clientService: clientService,
+//                    errorReporter: errorReporter
+//                ),
+//                errorReporter: errorReporter,
+//                stateService: stateService,
+//                vaultListArrangedDataBuilderFactory: DefaultVaultListArrangedDataBuilderFactory(
+//                    stateService: stateService
+//                )
+//            )
+//        )
+        let vaultRepository = FastVaultRepository(
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
@@ -707,6 +767,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             stateService: stateService,
             syncService: syncService,
             timeProvider: timeProvider,
+            vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
             vaultTimeoutService: vaultTimeoutService
         )
 
