@@ -9,6 +9,10 @@ import Foundation
 /// `AuthenticatorBridgeItemData` objects.
 ///
 public protocol AuthenticatorBridgeItemService {
+    /// Removes all items and deletes the authenticator key.
+    ///
+    func deleteAll() async throws
+
     /// Removes all items that are owned by the specific userId
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
@@ -118,6 +122,14 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     }
 
     // MARK: Methods
+
+    public func deleteAll() async throws {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: AuthenticatorBridgeItemData.entityName)
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+        try await dataStore.executeBatchDelete(deleteRequest)
+        try await sharedKeychainRepository.deleteAuthenticatorKey()
+    }
 
     /// Removes all items that are owned by the specific userId
     ///

@@ -10,6 +10,7 @@ import XCTest
 class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_body_length
     // MARK: Properties
 
+    var application: MockApplication!
     var authItemService: MockAuthenticatorItemService!
     var authenticatorItemService: MockAuthenticatorItemService!
     var configService: MockConfigService!
@@ -25,6 +26,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
     override func setUp() {
         super.setUp()
 
+        application = MockApplication()
         authItemService = MockAuthenticatorItemService()
         authenticatorItemService = MockAuthenticatorItemService()
         configService = MockConfigService()
@@ -35,6 +37,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         totpService = MockTOTPService()
 
         subject = DefaultAuthenticatorItemRepository(
+            application: application,
             authenticatorItemService: authItemService,
             configService: configService,
             cryptographyService: cryptographyService,
@@ -48,6 +51,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
     override func tearDown() {
         super.tearDown()
 
+        application = nil
         authItemService = nil
         authenticatorItemService = nil
         cryptographyService = nil
@@ -489,6 +493,7 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
     /// feature flag is enabled and the user has turned on sync.
     @MainActor
     func test_itemListPublisher_syncOn() async throws {
+        application.canOpenUrlResponse = true
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
         let items = [
@@ -525,6 +530,8 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                                 name: "shared@example.com | Domain"),
             ]
         )
+
+        XCTAssertEqual(sharedItemService.storedItems, ["userId": [sharedItem]])
     }
 
     /// `itemListPublisher()` correctly handles the empty/nil cases for different sections of the item list when
@@ -578,6 +585,30 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
                                 name: "shared@example.com | Domain"),
             ]
         )
+    }
+
+    /// `itemListPublisher` confirms that PM is installed. If it is not, then it purges the shared data.
+    @MainActor
+    func test_itemListPublisher_pmUninstalled() async throws {
+        application.canOpenUrlResponse = false
+        configService.featureFlagsBool[.enablePasswordManagerSync] = true
+        sharedItemService.syncOn = true
+        let items = [
+            AuthenticatorItem.fixture(id: "1", name: "One"),
+            AuthenticatorItem.fixture(id: "2", name: "Two"),
+        ]
+        let sharedItem = AuthenticatorBridgeItemDataView.fixture(
+            accountDomain: "Domain",
+            accountEmail: "shared@example.com",
+            totpKey: "totpKey"
+        )
+        sharedItemService.storedItems = ["userId": [sharedItem]]
+
+        authItemService.authenticatorItemsSubject.send(items)
+
+        _ = try await subject.itemListPublisher().makeAsyncIterator()
+
+        XCTAssertEqual(sharedItemService.storedItems, [:])
     }
 
     /// `searchItemListPublisher()` returns search matching name.
