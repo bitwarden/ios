@@ -5,7 +5,7 @@ import Foundation
 import OSLog
 
 class FastVaultRepository: DefaultVaultRepository {
-    let vaultListDirectorStrategy: VaultListDirectorStrategy
+    let vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
 
     init(
         cipherService: CipherService,
@@ -21,10 +21,10 @@ class FastVaultRepository: DefaultVaultRepository {
         stateService: StateService,
         syncService: SyncService,
         timeProvider: TimeProvider,
-        vaultListDirectorStrategy: VaultListDirectorStrategy,
+        vaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory,
         vaultTimeoutService: VaultTimeoutService
     ) {
-        self.vaultListDirectorStrategy = vaultListDirectorStrategy
+        self.vaultListDirectorStrategyFactory = vaultListDirectorStrategyFactory
         super.init(
             cipherService: cipherService,
             clientService: clientService,
@@ -46,23 +46,17 @@ class FastVaultRepository: DefaultVaultRepository {
     override func vaultListPublisher(
         filter: VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], any Error>> {
-        try await Publishers.CombineLatest3(
-            cipherService.ciphersPublisher(),
-            collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
-        )
-        .asyncTryMap { [weak self] ciphers, collections, folders in
-            guard let self else {
-                return []
-            }
-            return try await vaultListDirectorStrategy.build(
-                from: ciphers,
-                collections: collections,
-                folders: folders,
-                filter: filter
-            )
-        }
-        .eraseToAnyPublisher()
-        .values
+        try await vaultListDirectorStrategyFactory
+            .make(filter: filter)
+            .build(filter: filter)
+    }
+
+    override func vaultListPublisher(
+        group: VaultListGroup,
+        filter: VaultListFilter
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], any Error>> {
+        try await vaultListDirectorStrategyFactory
+            .make(filter: filter)
+            .build(filter: filter)
     }
 }

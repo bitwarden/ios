@@ -1000,6 +1000,28 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         .eraseToAnyPublisher()
         .values
     }
+
+    open func vaultListPublisher(
+        group: VaultListGroup,
+        filter: VaultListFilter
+    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
+        try await Publishers.CombineLatest3(
+            cipherService.ciphersPublisher(),
+            collectionService.collectionsPublisher(),
+            folderService.foldersPublisher()
+        )
+        .asyncTryMap { ciphers, collections, folders in
+            try await self.vaultListItems(
+                group: group,
+                filter: filter,
+                ciphers: ciphers,
+                collections: collections,
+                folders: folders
+            )
+        }
+        .eraseToAnyPublisher()
+        .values
+    }
 }
 
 extension DefaultVaultRepository: VaultRepository {
@@ -1452,28 +1474,6 @@ extension DefaultVaultRepository: VaultRepository {
                 return ciphers.compactMap(VaultListItem.init)
             }
             return try await self.totpListItems(from: ciphers, filter: filter.filterType)
-        }
-        .eraseToAnyPublisher()
-        .values
-    }
-
-    func vaultListPublisher(
-        group: VaultListGroup,
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        try await Publishers.CombineLatest3(
-            cipherService.ciphersPublisher(),
-            collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
-        )
-        .asyncTryMap { ciphers, collections, folders in
-            try await self.vaultListItems(
-                group: group,
-                filter: filter,
-                ciphers: ciphers,
-                collections: collections,
-                folders: folders
-            )
         }
         .eraseToAnyPublisher()
         .values
