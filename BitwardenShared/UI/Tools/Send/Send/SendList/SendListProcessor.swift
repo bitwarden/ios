@@ -61,7 +61,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 services.pasteboardService.copy(url.absoluteString)
                 state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.sendLink))
             case let .deletePressed(sendView):
-                let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
+                let alert = Alert.confirmationDestructive(title: Localizations.areYouSureDeleteSend) { [weak self] in
                     await self?.deleteSend(sendView)
                 }
                 coordinator.showAlert(alert)

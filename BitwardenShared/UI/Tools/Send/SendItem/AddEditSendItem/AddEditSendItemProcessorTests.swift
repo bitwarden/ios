@@ -85,7 +85,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
@@ -103,7 +103,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
@@ -160,7 +160,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
@@ -181,7 +181,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 

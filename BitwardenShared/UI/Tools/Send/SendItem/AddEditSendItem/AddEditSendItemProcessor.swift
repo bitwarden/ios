@@ -60,7 +60,7 @@ class AddEditSendItemProcessor:
             await copyLink(to: sendView)
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
+            let alert = Alert.confirmationDestructive(title: Localizations.areYouSureDeleteSend) { [weak self] in
                 await self?.deleteSend(sendView)
             }
             coordinator.showAlert(alert)
@@ -70,8 +70,9 @@ class AddEditSendItemProcessor:
             await handle(profileEffect)
         case .removePassword:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
-                await self?.removePassword(sendView)
+            let alert = Alert.confirmationDestructive(title: Localizations.areYouSureRemoveSendPassword,
+                                                      destructiveTitle: Localizations.remove) {
+                [weak self] in await self?.removePassword(sendView)
             }
             coordinator.showAlert(alert)
         case .savePressed:

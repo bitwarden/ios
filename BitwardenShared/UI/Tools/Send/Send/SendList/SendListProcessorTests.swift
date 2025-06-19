@@ -243,7 +243,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.deletePressed(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
@@ -260,7 +260,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.deletePressed(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
