@@ -1782,14 +1782,42 @@ public struct VaultListFilter: Sendable {
     /// The vault filter type.
     let filterType: VaultFilterType
 
+    /// The vault list group to filter.
+    let group: VaultListGroup?
+
+    /// The mode in which the autofill list is presented.
+    let mode: AutofillListMode?
+
+    /// The relying party identifier of the Fido2 request.
+    let rpID: String?
+
+    /// The URI used to filter ciphers that have a matching URI.
+    let uri: String?
+
     /// Initializes the filter.
     /// - Parameters:
     ///   - addTOTPGroup: Whether to add the TOTP group.
     ///   - addTrashGroup: Whether to add the trash group.
     ///   - filterType: The vault filter type.
-    init(addTOTPGroup: Bool = true, addTrashGroup: Bool = true, filterType: VaultFilterType) {
+    ///   - group: The vault list group to filter.
+    ///   - mode: The mode in which the autofill list is presented.
+    ///   - rpID: The relying party identifier of the Fido2 request.
+    ///   - uri: The URI used to filter ciphers that have a matching URI
+    init(
+        addTOTPGroup: Bool = true,
+        addTrashGroup: Bool = true,
+        filterType: VaultFilterType = .allVaults,
+        group: VaultListGroup? = nil,
+        mode: AutofillListMode? = nil,
+        rpID: String? = nil,
+        uri: String? = nil
+    ) {
         self.addTOTPGroup = addTOTPGroup
         self.addTrashGroup = addTrashGroup
         self.filterType = filterType
+        self.group = group
+        self.mode = mode
+        self.rpID = rpID
+        self.uri = uri
     }
 } // swiftlint:disable:this file_length

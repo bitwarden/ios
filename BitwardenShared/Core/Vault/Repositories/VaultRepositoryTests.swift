@@ -3318,131 +3318,70 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections
     ///   with no TOTP items for accounts without premium.
-    @available(iOS 16.0, *)
     func test_vaultListPublisher_section_nonPremium() async throws { // swiftlint:disable:this function_body_length
-        try await MemorySamplingHelper.measureTimeAndMemory { [weak self] in
-            guard let self else { return }
-            stateService.activeAccount = nonPremiumAccount
-            stateService.doesActiveAccountHavePremiumResult = .success(false)
-            let ciphers: [Cipher] = [
-                .fixture(folderId: "1", id: "1", type: .login),
-                .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
-                .fixture(collectionIds: ["1"], favorite: true, id: "3"),
-                .fixture(deletedDate: Date(), id: "3"),
-            ]
-            let collection = Collection.fixture(id: "1")
-            let folder = Folder.fixture(id: "1")
-            cipherService.ciphersSubject.send(ciphers)
-            collectionService.collectionsSubject.send([collection])
-            folderService.foldersSubject.send([folder])
+        stateService.activeAccount = nonPremiumAccount
+        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        let ciphers: [Cipher] = [
+            .fixture(folderId: "1", id: "1", type: .login),
+            .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
+            .fixture(collectionIds: ["1"], favorite: true, id: "3"),
+            .fixture(deletedDate: Date(), id: "3"),
+        ]
+        let collection = Collection.fixture(id: "1")
+        let folder = Folder.fixture(id: "1")
+        cipherService.ciphersSubject.send(ciphers)
+        collectionService.collectionsSubject.send([collection])
+        folderService.foldersSubject.send([folder])
 
-            var iterator = try await subject.vaultListPublisher(
-                filter: VaultListFilter(filterType: .allVaults)
-            ).makeAsyncIterator()
-            let vaultListSections = try await iterator.next()
+        var iterator = try await subject.vaultListPublisher(
+            filter: VaultListFilter(filterType: .allVaults)
+        ).makeAsyncIterator()
+        let vaultListSections = try await iterator.next()
 
-            let expectedResult: [VaultListSection] = [
-                .init(
-                    id: "Favorites",
-                    items: [.fixture(cipherListView: .init(cipher: ciphers[2]))],
-                    name: Localizations.favorites
-                ),
-                .init(
-                    id: "Types",
-                    items: [
-                        .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
-                        .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
-                        .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
-                        .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
-                        .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
-                    ],
-                    name: Localizations.types
-                ),
-                .init(
-                    id: "Folders",
-                    items: [
-                        .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
-                        .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
-                    ],
-                    name: Localizations.folders
-                ),
-                .init(
-                    id: "Collections",
-                    items: [
-                        .fixtureGroup(
-                            id: "1",
-                            group: .collection(id: "1", name: "", organizationId: ""),
-                            count: 1
-                        ),
-                    ],
-                    name: Localizations.collections
-                ),
-                .init(
-                    id: "Trash",
-                    items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
-                    name: Localizations.trash
-                ),
-            ]
+        let expectedResult: [VaultListSection] = [
+            .init(
+                id: "Favorites",
+                items: [.fixture(cipherListView: .init(cipher: ciphers[2]))],
+                name: Localizations.favorites
+            ),
+            .init(
+                id: "Types",
+                items: [
+                    .fixtureGroup(id: "Types.Logins", group: .login, count: 3),
+                    .fixtureGroup(id: "Types.Cards", group: .card, count: 0),
+                    .fixtureGroup(id: "Types.Identities", group: .identity, count: 0),
+                    .fixtureGroup(id: "Types.SecureNotes", group: .secureNote, count: 0),
+                    .fixtureGroup(id: "Types.SSHKeys", group: .sshKey, count: 0),
+                ],
+                name: Localizations.types
+            ),
+            .init(
+                id: "Folders",
+                items: [
+                    .fixtureGroup(id: "1", group: .folder(id: "1", name: ""), count: 1),
+                    .init(id: "NoFolderFolderItem", itemType: .group(.noFolder, 2)),
+                ],
+                name: Localizations.folders
+            ),
+            .init(
+                id: "Collections",
+                items: [
+                    .fixtureGroup(
+                        id: "1",
+                        group: .collection(id: "1", name: "", organizationId: ""),
+                        count: 1
+                    ),
+                ],
+                name: Localizations.collections
+            ),
+            .init(
+                id: "Trash",
+                items: [.fixtureGroup(id: "Trash", group: .trash, count: 1)],
+                name: Localizations.trash
+            ),
+        ]
 
-            XCTAssertEqual(vaultListSections, expectedResult)
-        }
-    }
-
-    @available(iOS 16.0, *)
-    func test_lalalal() async throws {
-        let repo = FastVaultRepository(
-            cipherService: cipherService,
-            clientService: clientService,
-            collectionService: collectionService,
-            configService: configService,
-            environmentService: environmentService,
-            errorReporter: errorReporter,
-            folderService: folderService,
-            organizationService: organizationService,
-            policyService: policyService,
-            settingsService: MockSettingsService(),
-            stateService: stateService,
-            syncService: syncService,
-            timeProvider: timeProvider,
-            vaultListBuilder: DefaultVaultListBuilder(),
-            vaultTimeoutService: vaultTimeoutService
-        )
-
-        let before = MemorySamplingHelper.reportMemory()
-        let aasdf = Array(repeating: String(repeating: "a", count: 10_000), count: 1_000)
-        let after = MemorySamplingHelper.reportMemory()
-
-        let delta = after > before ? after - before : 0
-        print("Memory delta: \(delta) bytes")
-
-//        let memoryBefore = MemorySamplingHelper.reportMemory()
-//
-//        let aaaa = Array(repeating: "a", count: 100)
-//        let bbb = 100
-//        let ccc = Date.now
-//        let dddd = Cipher.fixture()
-//
-//        let memoryAfter = MemorySamplingHelper.reportMemory()
-//        let delta = memoryAfter > memoryBefore ? memoryAfter - memoryBefore : 0
-
-
-//        print(MemoryLayout<String>.stride) // Usually 16 bytes
-//        print(MemoryLayout<Array<String>>.stride)
-
-//        print(
-//        """
-//        ✅ Complete:
-//           Memory Start:  \(MemorySamplingHelper.humanizeBytes(memoryBefore))
-//           Memory End:    \(MemorySamplingHelper.humanizeBytes(memoryAfter))
-//           Δ Increase:    \(MemorySamplingHelper.humanizeBytes(delta))
-//        """
-//        )
-
-//        try await MemorySamplingHelper.measureTimeAndMemory {'
-//            guard let self else { return }
-
-//            _ = try? await repo.vaultListPublisher(filter: .init(filterType: .allVaults))
-//        }
+        XCTAssertEqual(vaultListSections, expectedResult)
     }
 
     /// `vaultListPublisher(filter:)` returns a publisher for the vault list sections

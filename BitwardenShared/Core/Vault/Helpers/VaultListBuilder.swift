@@ -45,6 +45,10 @@ protocol VaultListBuilder {
         nestedFolderId: String?
     ) async throws -> VaultListBuilder
 
+    func addGroupSection(
+        from tempData: inout VualtListBuilderMetadata
+    ) async throws -> VaultListBuilder
+
     func addTOTPSection(
         from tempData: inout VualtListBuilderMetadata
     ) -> VaultListBuilder
@@ -160,7 +164,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
             return self
         }
 
-        var folderTree = try await clientService.vault().folders()
+        let folderTree = try await clientService.vault().folders()
             .decryptList(folders: tempData.folders)
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
             .asNestedNodes()
@@ -193,7 +197,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
         // Add no folder to folders item if needed.
         let showNoFolderCipherGroup = tempData.collections.isEmpty
             && tempData.noFolderItems.count < Constants.noFolderListSize
-        if !showNoFolderCipherGroup {
+        if !showNoFolderCipherGroup, !tempData.noFolderItems.isEmpty {
             foldersVaultListItems.append(
                 VaultListItem(
                     id: "NoFolderFolderItem",
@@ -202,9 +206,11 @@ class DefaultVaultListBuilder: VaultListBuilder {
             )
         }
 
-        sections.append(VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders))
+        if !foldersVaultListItems.isEmpty {
+            sections.append(VaultListSection(id: "Folders", items: foldersVaultListItems, name: Localizations.folders))
+        }
 
-        if showNoFolderCipherGroup {
+        if showNoFolderCipherGroup, !tempData.noFolderItems.isEmpty {
             sections.append(VaultListSection(
                 id: "NoFolder",
                 items: tempData.noFolderItems,
@@ -212,6 +218,15 @@ class DefaultVaultListBuilder: VaultListBuilder {
             ))
         }
 
+        return self
+    }
+
+    func addGroupSection(
+        from tempData: inout VualtListBuilderMetadata
+    ) async throws -> VaultListBuilder {
+        if !tempData.groupItems.isEmpty {
+            sections.append(VaultListSection(id: "Items", items: tempData.groupItems, name: Localizations.items))
+        }
         return self
     }
 
