@@ -154,10 +154,10 @@ struct SendListItemRowView: View {
                 AsyncButton(Localizations.copyLink) {
                     await store.perform(.copyLinkPressed(sendView))
                 }
+                .accessibilityIdentifier("Copy")
                 AsyncButton(Localizations.shareLink) {
                     await store.perform(.shareLinkPressed(sendView))
                 }
-                .accessibilityIdentifier("Copy")
                 Button(Localizations.edit) {
                     store.send(.editPressed(sendView))
                 }
