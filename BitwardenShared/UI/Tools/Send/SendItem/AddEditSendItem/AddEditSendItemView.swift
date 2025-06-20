@@ -86,11 +86,11 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                                     await store.perform(.removePassword)
                                 }
                             }
-                            AsyncButton(Localizations.shareLink) {
-                                await store.perform(.shareLinkPressed)
-                            }
                             AsyncButton(Localizations.copyLink) {
                                 await store.perform(.copyLinkPressed)
+                            }
+                            AsyncButton(Localizations.shareLink) {
+                                await store.perform(.shareLinkPressed)
                             }
                         }
                     }

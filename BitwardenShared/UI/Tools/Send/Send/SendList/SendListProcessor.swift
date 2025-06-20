@@ -66,7 +66,10 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
                 }
                 coordinator.showAlert(alert)
             case let .removePassword(sendView):
-                let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
+                let alert = Alert.confirmationDestructive(
+                    title: Localizations.areYouSureRemoveSendPassword,
+                    destructiveTitle: Localizations.remove
+                ) { [weak self] in
                     await self?.removePassword(sendView)
                 }
                 coordinator.showAlert(alert)
