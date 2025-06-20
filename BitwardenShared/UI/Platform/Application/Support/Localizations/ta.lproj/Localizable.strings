@@ -264,6 +264,7 @@
 "FileSource" = "கோப்பின் மூலம்";
 "FeatureUnavailable" = "அம்சம் கிடையாது";
 "MaxFileSize" = "அதிகபட்ச கோப்பு அளவு 100 மெ.பை.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "உங்கள் குறியாக்க விசையை புதுப்பிக்கும் வரை இந்த அம்சத்தைப் பயன்படுத்த முடியாது.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "மறையாக்க விசை பெயர்ப்பு தேவை. தயவுசெய்து வலைப் பெட்டகத்தில் உள்நுழைந்து உமது மறையாக்க விசையைப் புதுப்பிக்கவும்.";
 "LearnMore" = "மேலும் அறிக";

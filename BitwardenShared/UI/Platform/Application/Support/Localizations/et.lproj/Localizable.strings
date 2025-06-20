@@ -263,6 +263,7 @@
 "FileSource" = "Faili allikas";
 "FeatureUnavailable" = "Funktsioon pole saadaval";
 "MaxFileSize" = "Maksimaalne faili suurus on 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Seda funktsiooni ei saa enne krüpteerimise võtme uuendamist kasutada.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Krüpteerimisvõtme ühendamine nõutud. Palun logi sisse läbi veebibrauseri, et uuendada enda krüpteerimisvõtit.";
 "LearnMore" = "Rohkem teavet";

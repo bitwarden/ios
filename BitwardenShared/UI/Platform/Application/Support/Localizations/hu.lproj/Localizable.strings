@@ -263,6 +263,7 @@
 "FileSource" = "Fájl forrás";
 "FeatureUnavailable" = "Ez a funkció nem érhető el.";
 "MaxFileSize" = "Maximális fájl méret 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Szükséges. A maximális fájlméret %1$@.";
 "UpdateKey" = "Ez a funkció nem használható, amíg nem frissíted a titkosítási kulcsodat.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Titkosítási kulcs migráció szükséges. Jelentkezzünk be a webes széfen keresztül a titkosítási kulcs frissítéséhez.";
 "LearnMore" = "További információ";

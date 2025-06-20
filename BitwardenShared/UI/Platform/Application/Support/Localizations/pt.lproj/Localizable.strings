@@ -263,6 +263,7 @@
 "FileSource" = "Fonte do ficheiro";
 "FeatureUnavailable" = "Funcionalidade indisponível";
 "MaxFileSize" = "O tamanho máximo do ficheiro é de 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Obrigatório. O tamanho máximo do ficheiro é de %1$@.";
 "UpdateKey" = "Não pode utilizar esta funcionalidade até atualizar a sua chave de encriptação.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "É necessária a migração da chave de encriptação. Inicie sessão através do cofre Web para atualizar a sua chave de encriptação.";
 "LearnMore" = "Saber mais";

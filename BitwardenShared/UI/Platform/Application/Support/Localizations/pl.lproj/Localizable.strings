@@ -94,7 +94,7 @@
 "AppExtension" = "Rozszerzenie aplikacji";
 "AutofillAccessibilityDescription" = "Użyj usługi ułatwienia dostępu Bitwarden, aby korzystać z autouzupełniania danych logowania w aplikacjach i na stronach internetowych.";
 "AutofillService" = "Usługa autouzupełniania";
-"SetBitwardenAsPasskeyManagerDescription" = "Ustaw Bitwarden jako dostawcę passkey w ustawieniach urządzenia.zalu";
+"SetBitwardenAsPasskeyManagerDescription" = "Ustaw Bitwarden jako dostawcę passkey w ustawieniach urządzenia.";
 "AvoidAmbiguousCharacters" = "Unikaj niejednoznacznych znaków";
 "BitwardenAppExtension" = "Rozszerzenie aplikacji Bitwarden";
 "BitwardenAppExtensionAlert2" = "Najprostszym sposobem dodania nowych danych logowania do sejfu jest Rozszerzenie Aplikacji Bitwarden. Więcej informacji o używaniu Rozszerzenia Aplikacji Bitwarden znajdziesz w widoku \"Ustawienia\".";
@@ -263,6 +263,7 @@
 "FileSource" = "Źródło pliku";
 "FeatureUnavailable" = "Funkcja jest niedostępna";
 "MaxFileSize" = "Maksymalny rozmiar pliku to 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Wymagane. Maksymalny rozmiar pliku to %1$@.";
 "UpdateKey" = "Nie możesz używać tej funkcji, dopóki nie zaktualizujesz klucza szyfrowania.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Wymagana jest migracja klucza szyfrowania. Zaloguj się przez sejf internetowy, aby zaktualizować klucz szyfrowania.";
 "LearnMore" = "Dowiedz się więcej";

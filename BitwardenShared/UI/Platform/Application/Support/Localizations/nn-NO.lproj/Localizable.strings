@@ -263,6 +263,7 @@
 "FileSource" = "Filkjelde";
 "FeatureUnavailable" = "Funksjon er utilgjengeleg";
 "MaxFileSize" = "Den høgste tillatne filstorleiken er 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Du kan ikkje bruka denne funksjonen før du rettar enkrypteringsnykelen din.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Ler meir";

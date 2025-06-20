@@ -263,6 +263,7 @@
 "FileSource" = "Sumber Berkas";
 "FeatureUnavailable" = "Fitur Tidak Tersedia";
 "MaxFileSize" = "Ukuran berkas maksimal adalah 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Anda tidak dapat menggunakan fitur ini sampai Anda memperbarui kunci enkripsi Anda.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Diperlukan migrasi kunci enkripsi. Silakan masuk melalui brankas web untuk memperbarui kunci enkripsi Anda.";
 "LearnMore" = "Pelajari Lebih Lanjut";

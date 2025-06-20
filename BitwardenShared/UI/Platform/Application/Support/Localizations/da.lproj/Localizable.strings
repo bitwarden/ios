@@ -263,6 +263,7 @@
 "FileSource" = "Fil kilde";
 "FeatureUnavailable" = "Funktion utilgængelig";
 "MaxFileSize" = "Maksimum filstørrelse er 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Du kan ikke bruge denne funktion, før du opdaterer din krypteringsnøgle.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Krypteringsnøglemigrering nødvendig. Log ind gennem web-boksen for at opdatere krypteringsnøglen.";
 "LearnMore" = "Få mere at vide";

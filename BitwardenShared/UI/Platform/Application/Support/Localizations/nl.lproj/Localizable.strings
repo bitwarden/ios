@@ -263,6 +263,7 @@
 "FileSource" = "Bestandsbron";
 "FeatureUnavailable" = "Functionaliteit niet beschikbaar";
 "MaxFileSize" = "De maximale bestandsgrootte is 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Verplicht. De maximale bestandsgrootte is %1$@.";
 "UpdateKey" = "Je kunt deze functie pas gebruiken als je je encryptiesleutel bijwerkt.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Migratie van de encryptiesleutel vereist. Login via de website om je encryptiesleutel bij te werken.";
 "LearnMore" = "Meer informatie";

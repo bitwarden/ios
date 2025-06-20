@@ -263,6 +263,7 @@
 "FileSource" = "ファイルソース";
 "FeatureUnavailable" = "サービスが利用できません";
 "MaxFileSize" = "最大ファイルサイズは100MBです。";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "暗号キーを更新するまでこの機能は使用できません。";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "暗号化キーの移行が必要です。暗号化キーを更新するには、ウェブ保管庫からログインしてください。";
 "LearnMore" = "詳細情報";

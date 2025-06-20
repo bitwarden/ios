@@ -263,6 +263,7 @@
 "FileSource" = "Source du fichier";
 "FeatureUnavailable" = "Fonctionnalité non disponible";
 "MaxFileSize" = "La taille maximale du fichier est de 100 Mo.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Vous ne pouvez pas utiliser cette fonctionnalité tant que vous ne mettez pas à jour votre clé de chiffrement.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Migration de la clé de chiffrement nécessaire. Veuillez vous connecter sur le coffre web pour mettre à jour votre clé de chiffrement.";
 "LearnMore" = "En savoir plus";

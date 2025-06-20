@@ -263,6 +263,7 @@
 "FileSource" = "ফাইল উৎস";
 "FeatureUnavailable" = "বৈশিষ্ট্য অনুপলব্ধ";
 "MaxFileSize" = "সর্বোচ্চ ফাইলের আকার ১০০ এমবি।";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "আপনি আপনার এনক্রিপশন কী হালনাগাদ না করা পর্যন্ত এই বৈশিষ্ট্যটি ব্যবহার করতে পারবেন না।";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "আরও জানুন";

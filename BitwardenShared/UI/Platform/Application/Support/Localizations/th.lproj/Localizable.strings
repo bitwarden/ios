@@ -265,6 +265,7 @@
 "FileSource" = "แหล่งที่มาของไฟล์";
 "FeatureUnavailable" = "ไม่สามารถใช้คุณสมบัตินี้ได้";
 "MaxFileSize" = "ขนาดไฟล์สูงสุดคือ 100 MB";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "คุณไม่สามารถใช้คุณลักษณะนี้ได้จนกว่าคุณปรับปรุงคีย์การเข้ารหัสลับของคุณ";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "เรียน​รู้​เพิ่ม​เติม";

@@ -263,6 +263,7 @@
 "FileSource" = "Dosya kaynağı";
 "FeatureUnavailable" = "Özellik kullanılamıyor";
 "MaxFileSize" = "Maksimum dosya boyutu 100 MB'dir.";
+"RequiredMaximumFileSizeIsX" = "Gerekli. Maksimum dosya boyutu: %1$@";
 "UpdateKey" = "Şifreleme anahtarınızı güncelleştirene kadar bu özelliği kullanamazsınız.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Şifreleme anahtarınızın güncellenmesi gerekiyor. Şifreleme anahtarınızı güncellemek için lütfen web kasasına giriş yapın.";
 "LearnMore" = "Daha fazla bilgi al";

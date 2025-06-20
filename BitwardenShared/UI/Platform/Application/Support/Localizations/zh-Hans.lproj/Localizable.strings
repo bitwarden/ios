@@ -263,6 +263,7 @@
 "FileSource" = "文件来源";
 "FeatureUnavailable" = "功能不可用";
 "MaxFileSize" = "文件最大为 100 MB。";
+"RequiredMaximumFileSizeIsX" = "必填。文件最大为 %1$@。";
 "UpdateKey" = "在您更新加密密钥前，您不能使用此功能。";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "需要迁移加密密钥。请登录网页版密码库来更新您的加密密钥。";
 "LearnMore" = "进一步了解";
@@ -1101,7 +1102,7 @@
 "AreYouSureYouWantToCancelTheImportProcessQuestionMark" = "确定要取消导入过程吗？";
 "ImportFailed" = "导入失败";
 "ItemsSuccessfullyImported" = "%1$@ 个项目成功导入";
-"ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n没有数据被删除。";
+"ThereWasAnIssueImportingAllOfYourPasswordsNoDataWasDeleted" = "导入您的所有密码时出现问题。\n\n未删除任何数据。";
 "RetryImport" = "重试导入";
 "ShowVault" = "显示密码库";
 "ImportNotAvailable" = "导入不可用";

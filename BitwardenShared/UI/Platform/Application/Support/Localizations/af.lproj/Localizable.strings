@@ -263,6 +263,7 @@
 "FileSource" = "Lêerbron";
 "FeatureUnavailable" = "Funksie Onbeskikbaar";
 "MaxFileSize" = "Maksimumlêergrootte is 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "U kan nie hierdie funksie gebruik tot u u enkripsiesleutel bygewerk het nie.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Leer meer";
