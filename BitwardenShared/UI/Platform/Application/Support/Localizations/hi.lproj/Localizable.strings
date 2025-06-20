@@ -263,6 +263,7 @@
 "FileSource" = "फाइल सोर्स";
 "FeatureUnavailable" = "फीचर मौजूद नहीं";
 "MaxFileSize" = "फाइल साइज़ 100 एमबी से ज़्यादा नहीं हो सकता।";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "एन्क्रिप्शन चाबी अपडेट किए बिना ये फीचर इस्तेमाल नहीं किया जा सकता।";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "एन्क्रिप्शन चाबी को अपडेट करना ज़रूरी है। एन्क्रिप्शन चाबी अपडेट करने के लिए वेब तिजोरी से लॉगइन करें।";
 "LearnMore" = "ज़्यादा जानें";

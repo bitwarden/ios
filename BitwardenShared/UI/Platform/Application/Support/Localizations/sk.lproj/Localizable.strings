@@ -263,6 +263,7 @@
 "FileSource" = "Zdroj súboru";
 "FeatureUnavailable" = "Funkcia nie je k dispozícii";
 "MaxFileSize" = "Maximálna veľkosť súboru je 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Povinné. Maximálna veľkosť súboru je %1$@.";
 "UpdateKey" = "Túto funkciu nemožno použiť, kým neaktualizujete svoj šifrovací kľúč.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Vyžaduje sa migrácia šifrovacieho kľúča. Na aktualizáciu šifrovacieho kľúča sa prihláste cez webový trezor.";
 "LearnMore" = "Zistiť viac";

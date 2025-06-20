@@ -263,6 +263,7 @@
 "FileSource" = "Tiedoston lähde";
 "FeatureUnavailable" = "Ominaisuus ei ole käytettävissä";
 "MaxFileSize" = "Tiedoston enimmäiskoko on 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Et voi käyttää tätä toimintoa ennen kuin päivität salausavaimesi.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Salausavaimen siirto vaaditaan. Päivitä salausavaimesi kirjautumalla verkkoholviin.";
 "LearnMore" = "Lue lisää";
