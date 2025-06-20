@@ -242,6 +242,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
         XCTAssertEqual(reviewPromptService.userActions, [.createdNewSend])
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.newSendCreated)])
     }
 
     /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.
@@ -447,6 +448,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.sendUpdated)])
     }
 
     /// `perform(_:)` with `.savePressed` while editing and valid input and http failure shows an
