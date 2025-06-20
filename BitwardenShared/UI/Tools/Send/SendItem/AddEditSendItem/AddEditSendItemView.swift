@@ -119,7 +119,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             buttonAccessibilityIdentifier: "SendShowHideOptionsButton"
         ) {
             SendItemAccessCountStepper(
-                currentAccessCount: store.state.currentAccessCount,
                 maximumAccessCount: store.binding(
                     get: \.maximumAccessCount,
                     send: AddEditSendItemAction.maximumAccessCountStepperChanged
@@ -386,7 +385,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             store: Store(
                 processor: StateProcessor(
                     state: AddEditSendItemState(
-                        currentAccessCount: 42,
                         customDeletionDate: Date(),
                         deletionDate: .custom(.now),
                         isHideTextByDefaultOn: true,
@@ -408,7 +406,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             store: Store(
                 processor: StateProcessor(
                     state: AddEditSendItemState(
-                        currentAccessCount: 42,
                         customDeletionDate: Date(),
                         deletionDate: .custom(.now),
                         fileName: "example.txt",
@@ -431,7 +428,6 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
             store: Store(
                 processor: StateProcessor(
                     state: AddEditSendItemState(
-                        currentAccessCount: 42,
                         customDeletionDate: Date(),
                         deletionDate: .custom(.now),
                         isHideTextByDefaultOn: true,

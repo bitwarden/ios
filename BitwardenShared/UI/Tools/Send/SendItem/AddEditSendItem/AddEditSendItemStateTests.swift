@@ -125,7 +125,6 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.text, "Text")
         XCTAssertEqual(subject.isHideTextByDefaultOn, false)
         XCTAssertEqual(subject.maximumAccessCount, 420)
-        XCTAssertEqual(subject.currentAccessCount, 42)
         XCTAssertEqual(subject.isDeactivateThisSendOn, false)
         XCTAssertEqual(subject.isHideMyEmailOn, false)
         XCTAssertEqual(subject.customDeletionDate, deletionDate)
@@ -167,7 +166,6 @@ class AddEditSendItemStateTests: BitwardenTestCase {
         XCTAssertEqual(subject.text, "")
         XCTAssertEqual(subject.isHideTextByDefaultOn, false)
         XCTAssertEqual(subject.maximumAccessCount, 420)
-        XCTAssertEqual(subject.currentAccessCount, 42)
         XCTAssertEqual(subject.isDeactivateThisSendOn, false)
         XCTAssertEqual(subject.isHideMyEmailOn, false)
         XCTAssertEqual(

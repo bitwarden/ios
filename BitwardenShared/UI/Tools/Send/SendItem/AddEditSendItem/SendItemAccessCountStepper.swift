@@ -7,9 +7,6 @@ import SwiftUI
 struct SendItemAccessCountStepper: View {
     // MARK: Properties
 
-    /// The number of times the send has been accessed.
-    let currentAccessCount: Int?
-
     /// Whether the maximum access count info text should be displayed in the footer.
     let displayInfoText: Bool
 
@@ -36,18 +33,6 @@ struct SendItemAccessCountStepper: View {
                             .styleGuide(.footnote)
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     }
-
-                    if let currentAccessCount {
-                        // Wrap these texts in a group so that the style guide can be set on
-                        // both of them at once.
-                        Group {
-                            Text("\(Localizations.currentAccessCount): ")
-                                + Text("\(currentAccessCount)")
-                                .fontWeight(.bold)
-                        }
-                        .styleGuide(.footnote)
-                        .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
-                    }
                 }
             }
             .accessibilityIdentifier("SendMaxAccessCountEntry")
@@ -59,12 +44,10 @@ struct SendItemAccessCountStepper: View {
     /// Initialize a `SendItemAccessCountStepper`.
     ///
     /// - Parameters:
-    ///   - currentAccessCount: The number of times the send has been accessed.
     ///   - displayInfoText: Whether the maximum access count info text should be displayed in the footer.
     ///   - maximumAccessCount: A binding for changing the maximum access account for the send in the stepper.
     ///
-    init(currentAccessCount: Int?, displayInfoText: Bool = true, maximumAccessCount: Binding<Int>) {
-        self.currentAccessCount = currentAccessCount
+    init(displayInfoText: Bool = true, maximumAccessCount: Binding<Int>) {
         self.displayInfoText = displayInfoText
         _maximumAccessCount = maximumAccessCount
     }
@@ -77,7 +60,7 @@ struct SendItemAccessCountStepper: View {
 #Preview {
     @Previewable @SwiftUI.State var maximumAccessCount = 5
 
-    SendItemAccessCountStepper(currentAccessCount: 0, maximumAccessCount: $maximumAccessCount)
+    SendItemAccessCountStepper(maximumAccessCount: $maximumAccessCount)
         .padding()
         .background(Asset.Colors.backgroundPrimary.swiftUIColor)
 }

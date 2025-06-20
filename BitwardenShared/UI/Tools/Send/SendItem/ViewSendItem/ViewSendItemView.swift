@@ -78,7 +78,6 @@ struct ViewSendItemView: View {
             ) {
                 if let maxAccessCount = store.state.sendView.maxAccessCount {
                     SendItemAccessCountStepper(
-                        currentAccessCount: Int(store.state.sendView.accessCount),
                         displayInfoText: false,
                         maximumAccessCount: .constant(Int(maxAccessCount))
                     )

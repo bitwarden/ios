@@ -229,7 +229,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.customDeletionDate = deletionDate
         processor.state.maximumAccessCount = 420
         processor.state.maximumAccessCountText = "420"
-        processor.state.currentAccessCount = 42
         processor.state.password = "pa$$w0rd"
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
@@ -299,7 +298,6 @@ class AddEditSendItemViewTests: BitwardenTestCase { // swiftlint:disable:this ty
         processor.state.customDeletionDate = deletionDate
         processor.state.maximumAccessCount = 420
         processor.state.maximumAccessCountText = "420"
-        processor.state.currentAccessCount = 42
         processor.state.password = "pa$$w0rd"
         processor.state.notes = "Notes"
         processor.state.isHideMyEmailOn = true
