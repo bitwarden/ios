@@ -25,6 +25,9 @@ struct AddEditSendItemState: Equatable, Sendable {
     /// The access id for this send.
     var accessId: String?
 
+    /// The number of times this send has been accessed.
+    var currentAccessCount: Int?
+
     /// The custom deletion date.
     var customDeletionDate = Date.midnightOneWeekFromToday() ?? Date()
 
@@ -142,6 +145,7 @@ extension AddEditSendItemState {
     init(sendView: SendView) {
         self.init(
             accessId: sendView.accessId,
+            currentAccessCount: Int(sendView.accessCount),
             customDeletionDate: sendView.deletionDate,
             deletionDate: .custom(sendView.deletionDate),
             expirationDate: sendView.expirationDate,
