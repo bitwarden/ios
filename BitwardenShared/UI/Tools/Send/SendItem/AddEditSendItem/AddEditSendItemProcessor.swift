@@ -321,7 +321,7 @@ class AddEditSendItemProcessor:
         guard let fileData = state.fileData, state.fileName != nil else {
             let alert = Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.sendValidationFieldFileRequired
+                message: Localizations.youMustAttachAFileToSaveThisSend
             )
             coordinator.showAlert(alert)
             return false

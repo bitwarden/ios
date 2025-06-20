@@ -342,7 +342,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.sendValidationFieldFileRequired
+                message: Localizations.youMustAttachAFileToSaveThisSend
             ),
         ])
     }
@@ -364,7 +364,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertEqual(coordinator.alertShown, [
             Alert.defaultAlert(
                 title: Localizations.anErrorHasOccurred,
-                message: Localizations.sendValidationFieldFileRequired
+                message: Localizations.youMustAttachAFileToSaveThisSend
             ),
         ])
     }

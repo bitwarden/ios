@@ -44,14 +44,12 @@ class SendDeletionDateTypeTests: BitwardenTestCase {
         XCTAssertEqual(SendDeletionDateType.thirtyDays.localizedName, Localizations.thirtyDays)
 
         XCTAssertEqual(
-            SendDeletionDateType.custom(Date(year: 2024, month: 1, day: 19)).localizedName
-                .replacingOccurrences(of: "\u{202F}", with: ""),
-            "Jan 19, 2024, 12:00AM"
+            SendDeletionDateType.custom(Date(year: 2024, month: 1, day: 19)).localizedName,
+            "Jan 19, 2024, 12:00\u{202F}AM"
         )
         XCTAssertEqual(
-            SendDeletionDateType.custom(Date(year: 2024, month: 6, day: 10)).localizedName
-                .replacingOccurrences(of: "\u{202F}", with: ""),
-            "Jun 10, 2024, 12:00AM"
+            SendDeletionDateType.custom(Date(year: 2024, month: 6, day: 10)).localizedName,
+            "Jun 10, 2024, 12:00\u{202F}AM"
         )
     }
 }
