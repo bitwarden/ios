@@ -105,7 +105,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -147,7 +147,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -156,7 +156,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -190,7 +190,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -230,7 +230,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "1",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),
@@ -239,7 +239,7 @@ class VaultAutofillListProcessorAutofillModeAllTests: BitwardenTestCase { // swi
                 itemType: .cipher(
                     .fixture(
                         id: "2",
-                        type: .card
+                        type: .card(.init(brand: nil))
                     )
                 )
             ),

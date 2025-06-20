@@ -39,7 +39,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         )
         XCTAssertNil(
             VaultListItem(
-                cipherListView: .fixture(id: ":)", type: .card),
+                cipherListView: .fixture(id: ":)", type: .card(.init(brand: nil))),
                 fido2CredentialAutofillView: .fixture()
             )
         )
@@ -118,7 +118,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `icon` returns the expected value.
     func test_icon() { // swiftlint:disable:this function_body_length
         XCTAssertEqual(
-            VaultListItem(cipherListView: .fixture(type: .card))?.icon.name,
+            VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.icon.name,
             Asset.Images.card24.name
         )
         XCTAssertEqual(
@@ -195,7 +195,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
     /// `getter:iconAccessibilityId` gets the appropriate id for each icon.
     func test_iconAccessibilityId() {
         XCTAssertEqual(
-            VaultListItem(cipherListView: .fixture(type: .card))?.iconAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.iconAccessibilityId,
             "CardCipherIcon"
         )
         XCTAssertEqual(
@@ -240,7 +240,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
             "CipherCell"
         )
         XCTAssertEqual(
-            VaultListItem(cipherListView: .fixture(type: .card))?.vaultItemAccessibilityId,
+            VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil))))?.vaultItemAccessibilityId,
             "CipherCell"
         )
         XCTAssertEqual(
@@ -364,7 +364,7 @@ class VaultListItemTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         XCTAssertEqual(
             VaultListItem(cipherListView: .fixture(
                 subtitle: "Mom's Credit Card, *7890",
-                type: .card
+                type: .card(.init(brand: nil))
             ))?.subtitle,
             "Mom's Credit Card, *7890"
         )

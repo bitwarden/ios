@@ -84,7 +84,7 @@ extension CipherListViewType {
     init(cipher: Cipher) {
         switch cipher.type {
         case .card:
-            self = .card
+            self = .card(.init(brand: nil))
         case .identity:
             self = .identity
         case .login:
