@@ -182,7 +182,7 @@ struct ViewSendItemView: View {
 
             BitwardenTextValueField(
                 title: Localizations.deletionDate,
-                value: store.state.sendView.deletionDate.formatted(date: .abbreviated, time: .shortened),
+                value: store.state.sendView.deletionDate.dateTimeDisplay,
                 valueAccessibilityIdentifier: "ViewSendDeletionDateField"
             )
         }

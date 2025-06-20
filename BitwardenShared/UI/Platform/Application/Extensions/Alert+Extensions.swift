@@ -73,6 +73,39 @@ extension Alert {
         )
     }
 
+    /// A destructive confirmation alert that allows the user to confirm or cancel the action that was
+    /// triggered.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the alert.
+    ///   - message: The message of the alert.
+    ///   - confirmationHandler: The block that is executed when the the action is confirmed.
+    ///
+    static func confirmationDestructive(
+        title: String,
+        message: String? = nil,
+        destructiveTitle: String? = nil,
+        confirmationHandler: @escaping () async -> Void
+    ) -> Alert {
+        Alert(
+            title: title,
+            message: message,
+            alertActions: [
+                AlertAction(
+                    title: Localizations.cancel,
+                    style: .cancel
+                ),
+                AlertAction(
+                    title: destructiveTitle ?? Localizations.delete,
+                    style: .destructive,
+                    handler: { _, _ in
+                        await confirmationHandler()
+                    }
+                ),
+            ]
+        )
+    }
+
     /// An alert to allow the user to add or edit the name of a custom field.
     ///
     /// - Parameters:

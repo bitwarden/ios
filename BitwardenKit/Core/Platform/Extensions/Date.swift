@@ -27,6 +27,21 @@ public extension Date {
         self = dateComponents.date!
     }
 
+    /// A string to display the current datetime in the desired format taking locale into consideration.
+    var dateTimeDisplay: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale.current
+        dateFormatter.setLocalizedDateFormatFromTemplate("MMM d, yyyy")
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.locale = Locale.current
+        timeFormatter.setLocalizedDateFormatFromTemplate("jj:mm")
+
+        let dateString = dateFormatter.string(from: self)
+        let timeString = timeFormatter.string(from: self)
+        return "\(dateString), \(timeString)"
+    }
+
     // MARK: Methods
 
     /// Returns a date that is set to midnight on the day that is seven days in the future.
