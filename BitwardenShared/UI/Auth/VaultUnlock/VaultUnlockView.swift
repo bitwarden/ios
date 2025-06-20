@@ -43,7 +43,7 @@ struct VaultUnlockView: View {
                 } else {
                     optionsToolbarMenu {
                         Button(Localizations.logOut) {
-                            store.send(.morePressed)
+                            store.send(.logOut)
                         }
                     }
                 }

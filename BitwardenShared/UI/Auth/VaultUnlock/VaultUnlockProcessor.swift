@@ -77,21 +77,10 @@ class VaultUnlockProcessor: StateProcessor<
         switch action {
         case .cancelPressed:
             appExtensionDelegate?.didCancel()
+        case .logOut:
+            showLogoutConfirmation()
         case let .masterPasswordChanged(masterPassword):
             state.masterPassword = masterPassword
-        case .morePressed:
-            let alert = Alert(
-                title: Localizations.options,
-                message: nil,
-                preferredStyle: .actionSheet,
-                alertActions: [
-                    AlertAction(title: Localizations.logOut, style: .default) { _ in
-                        self.showLogoutConfirmation()
-                    },
-                    AlertAction(title: Localizations.cancel, style: .cancel),
-                ]
-            )
-            coordinator.showAlert(alert)
         case let .pinChanged(pin):
             state.pin = pin
         case let .profileSwitcher(profileAction):
