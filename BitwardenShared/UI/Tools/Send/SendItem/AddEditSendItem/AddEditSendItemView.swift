@@ -81,16 +81,16 @@ struct AddEditSendItemView: View { // swiftlint:disable:this type_body_length
                 if store.state.mode == .edit {
                     optionsToolbarMenu {
                         if !store.state.isSendDisabled {
+                            if store.state.originalSendView?.hasPassword ?? false {
+                                AsyncButton(Localizations.removePassword) {
+                                    await store.perform(.removePassword)
+                                }
+                            }
                             AsyncButton(Localizations.shareLink) {
                                 await store.perform(.shareLinkPressed)
                             }
                             AsyncButton(Localizations.copyLink) {
                                 await store.perform(.copyLinkPressed)
-                            }
-                            if store.state.originalSendView?.hasPassword ?? false {
-                                AsyncButton(Localizations.removePassword) {
-                                    await store.perform(.removePassword)
-                                }
                             }
                         }
                     }

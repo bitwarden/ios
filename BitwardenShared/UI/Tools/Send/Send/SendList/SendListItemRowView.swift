@@ -158,11 +158,11 @@ struct SendListItemRowView: View {
                     await store.perform(.copyLinkPressed(sendView))
                 }
                 .accessibilityIdentifier("Copy")
-                Button(Localizations.view) {
-                    store.send(.viewSend(sendView))
-                }
                 Button(Localizations.edit) {
                     store.send(.editPressed(sendView))
+                }
+                Button(Localizations.view) {
+                    store.send(.viewSend(sendView))
                 }
                 if sendView.hasPassword {
                     AsyncButton(Localizations.removePassword) {
