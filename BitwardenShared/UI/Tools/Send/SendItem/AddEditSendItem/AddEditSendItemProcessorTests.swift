@@ -340,7 +340,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.file),
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.sendValidationFieldFileRequired
+            ),
         ])
     }
 
@@ -359,7 +362,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.file),
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.sendValidationFieldFileRequired
+            ),
         ])
     }
 

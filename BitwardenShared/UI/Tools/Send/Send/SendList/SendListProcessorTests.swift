@@ -285,7 +285,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.removePassword(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
@@ -305,7 +305,7 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         await subject.perform(.sendListItemRow(.removePassword(sendView)))
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 

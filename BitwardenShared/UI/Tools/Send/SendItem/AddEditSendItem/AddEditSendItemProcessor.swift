@@ -62,8 +62,8 @@ class AddEditSendItemProcessor:
             guard let sendView = state.originalSendView else { return }
             let alert = Alert.confirmationDestructive(
                 title: Localizations.areYouSureDeleteSend) { [weak self] in
-                    await self?.deleteSend(sendView)
-                }
+                await self?.deleteSend(sendView)
+            }
             coordinator.showAlert(alert)
         case .loadData:
             await loadData()
