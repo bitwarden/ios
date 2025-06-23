@@ -143,7 +143,7 @@ public class ServiceContainer: Services {
     ///   - errorReporter: The service used by the application to report non-fatal errors.
     ///
     public convenience init( // swiftlint:disable:this function_body_length
-        application: Application? = nil,
+        application: Application,
         errorReporter: ErrorReporter
     ) {
         let appSettingsStore = DefaultAppSettingsStore(

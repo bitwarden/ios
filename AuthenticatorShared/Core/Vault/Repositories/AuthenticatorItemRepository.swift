@@ -108,7 +108,7 @@ class DefaultAuthenticatorItemRepository {
     // MARK: Properties
 
     /// Service to interface with the application.
-    private let application: Application?
+    private let application: Application
 
     /// Service from which to fetch locally stored Authenticator items.
     private let authenticatorItemService: AuthenticatorItemService
@@ -149,7 +149,7 @@ class DefaultAuthenticatorItemRepository {
     ///   - timeProvider: A protocol wrapping the present time.
     ///   - totpService: A service for refreshing TOTP codes.
     init(
-        application: Application?,
+        application: Application,
         authenticatorItemService: AuthenticatorItemService,
         configService: ConfigService,
         cryptographyService: CryptographyService,
@@ -256,7 +256,7 @@ class DefaultAuthenticatorItemRepository {
 
     private func checkPMInstall() async throws {
         guard await isPasswordManagerSyncActive(),
-              !(application?.canOpenURL(ExternalLinksConstants.passwordManagerScheme) ?? false) else {
+              !(application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)) else {
             return
         }
 
@@ -401,4 +401,4 @@ extension DefaultAuthenticatorItemRepository: AuthenticatorItemRepository {
         .eraseToAnyPublisher()
         .values
     }
-}
+} // swiftlint:disable:this file_length
