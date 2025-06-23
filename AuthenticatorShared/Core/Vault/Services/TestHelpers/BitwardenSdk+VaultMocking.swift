@@ -73,9 +73,12 @@ extension CipherListView {
             permissions: cipher.permissions,
             viewPassword: cipher.viewPassword,
             attachments: UInt32(cipher.attachments?.count ?? 0),
+            hasOldAttachments: false,
             creationDate: cipher.creationDate,
             deletedDate: cipher.deletedDate,
-            revisionDate: cipher.revisionDate
+            revisionDate: cipher.revisionDate,
+            copyableFields: [],
+            localData: cipher.localData.map(LocalDataView.init)
         )
     }
 }
