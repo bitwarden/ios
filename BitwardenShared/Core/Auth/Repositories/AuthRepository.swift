@@ -1102,6 +1102,7 @@ extension DefaultAuthRepository: AuthRepository {
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
                 privateKey: encryptionKeys.encryptedPrivateKey,
+                signingKey: nil,
                 method: method
             )
         )
