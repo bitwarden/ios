@@ -254,6 +254,10 @@ class DefaultAuthenticatorItemRepository {
         .filter { !$0.items.isEmpty }
     }
 
+    /// Checks to make sure the PM app is still installed, as that is required for having items shared
+    /// between the apps. If PM is found to be uninstalled, then this calls the shared item service to
+    /// purge all data in the shared storage.
+    ///
     private func checkPMInstall() async throws {
         guard await isPasswordManagerSyncActive(),
               !(application.canOpenURL(ExternalLinksConstants.passwordManagerScheme)) else {
