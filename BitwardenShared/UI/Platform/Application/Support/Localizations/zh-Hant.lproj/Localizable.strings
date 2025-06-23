@@ -263,6 +263,7 @@
 "FileSource" = "檔案來源";
 "FeatureUnavailable" = "功能不可用";
 "MaxFileSize" = "檔案最大為 100MB。";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "更新加密金鑰前不能使用此功能。";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "需要遷移加密金鑰。請透過網頁版登入密碼庫以更新您的加密金鑰。";
 "LearnMore" = "深入了解";
