@@ -23,7 +23,7 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: 6324c3ab661606ef0ce7dd90ade730615ee9e2c8
+    revision: a9a790f3c0e3631bc625fae3fc28a14d26d7727a
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
@@ -33,7 +33,7 @@ packages:
     exactVersion: 1.3.0
   SnapshotTesting:
     url: https://github.com/pointfreeco/swift-snapshot-testing
-    exactVersion: 1.18.3
+    exactVersion: 1.18.4
   ViewInspector:
     url: https://github.com/nalexn/ViewInspector
     exactVersion: 0.10.1

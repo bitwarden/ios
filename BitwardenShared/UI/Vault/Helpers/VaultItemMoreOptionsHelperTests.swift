@@ -66,7 +66,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         let account = Account.fixture()
         stateService.activeAccount = account
 
-        var item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(type: .card)))
+        var item = try XCTUnwrap(VaultListItem(cipherListView: .fixture(type: .card(.init(brand: nil)))))
 
         // If the card item has no number or code, only the view and add buttons should display.
         vaultRepository.fetchCipherResult = .success(.cardFixture())
