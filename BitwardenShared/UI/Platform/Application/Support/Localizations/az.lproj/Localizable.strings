@@ -263,6 +263,7 @@
 "FileSource" = "Fayl mənbəsi";
 "FeatureUnavailable" = "Özəllik əlçatmazdır";
 "MaxFileSize" = "Maksimal fayl həcmi 100 MB-dır";
+"RequiredMaximumFileSizeIsX" = "Tələb olunur. Maksimal fayl həcmi: %1$@.";
 "UpdateKey" = "Şifrələmə açarınızı güncəlləyənə qədər bu özəlliyi istifadə edə bilməzsiniz.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Şifrələmə açarının daşınması tələb olunur. Şifrələmə açarınızı güncəlləmək üçün lütfən veb seyfinizə giriş edin.";
 "LearnMore" = "Daha ətraflı";

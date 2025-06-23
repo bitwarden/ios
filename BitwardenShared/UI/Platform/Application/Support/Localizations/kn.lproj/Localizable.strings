@@ -264,6 +264,7 @@
 "FileSource" = "ಫೈಲ್ ಮೂಲ";
 "FeatureUnavailable" = "ವೈಶಿಷ್ಟ್ಯ ಲಭ್ಯವಿಲ್ಲ";
 "MaxFileSize" = "ಗರಿಷ್ಠ ಫೈಲ್ ಗಾತ್ರ 100 ಎಂಬಿ.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "ನಿಮ್ಮ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಕೀಲಿಯನ್ನು ನವೀಕರಿಸುವವರೆಗೆ ನೀವು ಈ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ";

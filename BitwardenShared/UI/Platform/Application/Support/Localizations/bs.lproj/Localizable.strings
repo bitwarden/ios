@@ -263,6 +263,7 @@
 "FileSource" = "Izvor datoteke";
 "FeatureUnavailable" = "Funkcija nije dostupna";
 "MaxFileSize" = "Maksimalna veličina datoteke je 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Ovu funkciju ne možete koristiti dok ne ažurirate ključ za šifrovanje.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Saznajte više";
