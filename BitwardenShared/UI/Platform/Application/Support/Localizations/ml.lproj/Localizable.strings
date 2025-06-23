@@ -263,6 +263,7 @@
 "FileSource" = "ഫയലിൻ്റെ ഉറവിടം";
 "FeatureUnavailable" = "ഫീച്ചർ ലഭ്യമല്ല";
 "MaxFileSize" = "പരമാവധി ഫയൽ വലുപ്പം 100 MB ആണ്.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "നിങ്ങളുടെ എൻ‌ക്രിപ്ഷൻ കീ അപ്‌ഡേറ്റ് ചെയ്യുന്നതുവരെ നിങ്ങൾക്ക് ഈ സവിശേഷത ഉപയോഗിക്കാൻ കഴിയില്ല.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "കൂടുതൽ അറിയാൻ";
