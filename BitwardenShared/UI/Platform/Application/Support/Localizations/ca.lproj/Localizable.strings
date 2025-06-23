@@ -11,7 +11,7 @@
 "CopyUsername" = "Copia el nom d'usuari";
 "Credits" = "Crèdits";
 "Delete" = "Suprimeix";
-"DeleteAll" = "Delete all";
+"DeleteAll" = "Suprimeix-ho tot";
 "Deleting" = "S'està suprimint...";
 "DoYouReallyWantToDelete" = "Eseu segur que voleu suprimir? Això no es pot desfer.";
 "Edit" = "Edita";
@@ -263,6 +263,7 @@
 "FileSource" = "Origen del fitxer";
 "FeatureUnavailable" = "Característica no disponible";
 "MaxFileSize" = "La mida màxima del fitxer és de 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "No podeu utilitzar aquesta característica fins que no actualitzeu la vostra clau de xifratge.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Cal migrar la clau de xifratge. Inicieu la sessió a la caixa forta web per actualitzar la clau de xifratge.";
 "LearnMore" = "Més informació";
@@ -1133,7 +1134,7 @@
 "AddWebsite" = "Add website";
 "CannotDeleteAccount" = "Cannot delete account";
 "CannotDeleteAccountDescriptionLong" = "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details.";
-"NewFolder" = "New folder";
+"NewFolder" = "Carpeta nova";
 "SetUpAuthenticatorKey" = "Set up authenticator key";
 "ItemDetails" = "Item details";
 "CardDetails" = "Card details";

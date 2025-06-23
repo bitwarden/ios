@@ -263,6 +263,7 @@
 "FileSource" = "Vir datoteke";
 "FeatureUnavailable" = "Funkcija ni na voljo";
 "MaxFileSize" = "Največja velikost datoteke je 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Te funkcije ne morete koristiti, dokler dokler ne posodobite vašega ključa za šifriranje.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Preberite več";

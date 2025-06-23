@@ -263,6 +263,7 @@
 "FileSource" = "מקור הקובץ";
 "FeatureUnavailable" = "התכונה אינה זמינה";
 "MaxFileSize" = "גודל הקובץ המירבי הוא 100 מגה.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "לא ניתן להשתמש ביכולת זו עד שתעדכן את מפתח ההצפנה שלך.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "נדרשת הגירת מפתח הצפנה. נא להיכנס דרך כספת הרשת כדי לעדכן את מפתח ההצפנה שלך.";
 "LearnMore" = "למד עוד";
