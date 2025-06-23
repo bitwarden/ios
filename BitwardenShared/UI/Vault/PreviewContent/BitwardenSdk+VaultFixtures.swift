@@ -102,9 +102,12 @@ extension CipherListView {
         permissions: CipherPermissions? = nil,
         viewPassword: Bool = false,
         attachments: UInt32 = 0,
+        hasOldAttachments: Bool = false,
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: DateTime? = nil,
-        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        copyableFields: [CopyableCipherFields] = [],
+        localData: LocalDataView? = nil
     ) -> CipherListView {
         .init(
             id: id,
@@ -122,9 +125,12 @@ extension CipherListView {
             permissions: permissions,
             viewPassword: viewPassword,
             attachments: attachments,
+            hasOldAttachments: hasOldAttachments,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            copyableFields: copyableFields,
+            localData: localData
         )
     }
 
@@ -144,9 +150,12 @@ extension CipherListView {
         permissions: CipherPermissions? = nil,
         viewPassword: Bool = false,
         attachments: UInt32 = 0,
+        hasOldAttachments: Bool = false,
         creationDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
         deletedDate: DateTime? = nil,
-        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41)
+        revisionDate: DateTime = Date(year: 2023, month: 11, day: 5, hour: 9, minute: 41),
+        copyableFields: [CopyableCipherFields] = [],
+        localData: LocalDataView? = nil
     ) -> CipherListView {
         .init(
             id: id,
@@ -164,9 +173,12 @@ extension CipherListView {
             permissions: permissions,
             viewPassword: viewPassword,
             attachments: attachments,
+            hasOldAttachments: hasOldAttachments,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            copyableFields: copyableFields,
+            localData: localData
         )
     }
 }

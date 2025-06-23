@@ -350,10 +350,11 @@ struct VaultListView: View {
             }
             profileSwitcher
         }
-        .navigationTitle(store.state.navigationTitle)
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            largeNavigationTitleToolbarItem(store.state.navigationTitle)
+
+            ToolbarItem(placement: .topBarTrailing) {
                 ProfileSwitcherToolbarView(
                     store: store.child(
                         state: { state in

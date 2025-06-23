@@ -263,6 +263,7 @@
 "FileSource" = "Tập tin nguồn";
 "FeatureUnavailable" = "Tính năng không có sẵn";
 "MaxFileSize" = "Kích thước tối đa của tập tin là 100MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Bạn không thể sử dụng tính năng này cho đến khi bạn cập nhật khoá mã hóa.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Cần di chuyển khóa mã hóa. Vui lòng đăng nhập trang web Bitwaden để cập nhật khóa mã hóa của bạn.";
 "LearnMore" = "Tìm hiểu thêm";

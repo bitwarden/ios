@@ -18,9 +18,12 @@ extension CipherListView {
         permissions: BitwardenSdk.CipherPermissions? = nil,
         viewPassword: Bool = true,
         attachments: UInt32 = 0,
+        hasOldAttachments: Bool = false,
         creationDate: Date = Date(),
         deletedDate: Date? = nil,
-        revisionDate: Date = Date()
+        revisionDate: Date = Date(),
+        copyableFields: [CopyableCipherFields] = [],
+        localData: LocalDataView? = nil
     ) -> CipherListView {
         .init(
             id: id,
@@ -38,9 +41,12 @@ extension CipherListView {
             permissions: permissions,
             viewPassword: viewPassword,
             attachments: attachments,
+            hasOldAttachments: hasOldAttachments,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            copyableFields: copyableFields,
+            localData: localData
         )
     }
 
@@ -60,9 +66,12 @@ extension CipherListView {
         permissions: BitwardenSdk.CipherPermissions? = nil,
         viewPassword: Bool = true,
         attachments: UInt32 = 0,
+        hasOldAttachments: Bool = false,
         creationDate: Date = Date(),
         deletedDate: Date? = nil,
-        revisionDate: Date = Date()
+        revisionDate: Date = Date(),
+        copyableFields: [CopyableCipherFields] = [],
+        localData: LocalDataView? = nil
     ) -> CipherListView {
         .init(
             id: id,
@@ -80,9 +89,12 @@ extension CipherListView {
             permissions: permissions,
             viewPassword: viewPassword,
             attachments: attachments,
+            hasOldAttachments: hasOldAttachments,
             creationDate: creationDate,
             deletedDate: deletedDate,
-            revisionDate: revisionDate
+            revisionDate: revisionDate,
+            copyableFields: copyableFields,
+            localData: localData
         )
     }
 }
