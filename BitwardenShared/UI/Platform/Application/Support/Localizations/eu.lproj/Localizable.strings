@@ -263,6 +263,7 @@
 "FileSource" = "Fitxategiaren iturria";
 "FeatureUnavailable" = "Ezaugarria ez dago erabilgarri";
 "MaxFileSize" = "Eranskinaren gehienezko tamaina 100MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Ezin duzu ezaugarri hau erabili zifratze-gakoa eguneratu arte.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Gehiago ezagutu";

@@ -264,6 +264,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "FileSource" = "Filkälla";
 "FeatureUnavailable" = "Funktion ej tillgänglig";
 "MaxFileSize" = "Filen får vara maximalt 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Du kan inte använda denna funktion förrän du uppdaterar din krypteringsnyckel.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Migrering av krypteringsnyckel krävs. Logga in på webbvalvet för att uppdatera din krypteringsnyckel.";
 "LearnMore" = "Läs mer";

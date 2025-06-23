@@ -263,6 +263,7 @@
 "FileSource" = "Zdrojový soubor";
 "FeatureUnavailable" = "Funkce je nedostupná";
 "MaxFileSize" = "Maximální velikost souboru je 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Vyžadováno. Maximální velikost souboru je %1$@.";
 "UpdateKey" = "Dokud neaktualizujete svůj šifrovací klíč, nemůžete tuto funkci použít.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Vyžaduje se migrace šifrovacího klíče. Pro aktualizaci šifrovacího klíče se přihlaste přes webový trezor.";
 "LearnMore" = "Dozvědět se více";
@@ -332,8 +333,8 @@
 "AutofillWithBitwarden" = "Automatické vyplňování aplikací Bitwarden";
 "VaultIsLocked" = "Trezor je uzamčený";
 "GoToMyVault" = "Přejít do trezoru";
-"Collections" = "Kolekce";
-"NoItemsCollection" = "V této kolekci nejsou žádné položky";
+"Collections" = "Sbírky";
+"NoItemsCollection" = "V této sbírce nejsou žádné položky";
 "NoItemsFolder" = "V této složce nejsou žádné položky";
 "NoItemsTrash" = "V koši nejsou žádné položky.";
 "AutofillAccessibilityService" = "Služba přístupnosti automatického vyplňování";
@@ -402,7 +403,7 @@
 "Types" = "Typy";
 "NoPasswordsToList" = "Žádná hesla k zobrazení.";
 "NoItemsToList" = "Žádné položky k zobrazení.";
-"SearchCollection" = "Prohledat kolekci";
+"SearchCollection" = "Prohledat sbírku";
 "SearchFileSends" = "Prohledat soubory Sends";
 "SearchTextSends" = "Prohledat texty Sends";
 "SearchGroup" = "Prohledat %1$@";
@@ -410,10 +411,10 @@
 "MoveDown" = "Přesunout dolů";
 "MoveUp" = "Přesunout nahoru";
 "Miscellaneous" = "Různé";
-"NoCollectionsToList" = "Žádné kolekce k zobrazení.";
+"NoCollectionsToList" = "Žádné sbírky k zobrazení.";
 "MovedItemToOrg" = "Položka %1$@ byla přesunuta do %2$@.";
 "ItemShared" = "Položka byla sdílena.";
-"SelectOneCollection" = "Musíte vybrat alespoň jednu kolekci.";
+"SelectOneCollection" = "Musíte vybrat alespoň jednu sbírku.";
 "Share" = "Sdílet";
 "ShareAll" = "Sdílet vše";
 "ShareItem" = "Sdílet položku";
@@ -552,7 +553,7 @@
 "DrawOverDescription" = "Služba přístupnosti aplikace Bitwarden umožní zobrazovat vyskakovací okno při výběru pole s přihlašovacími údaji.";
 "DrawOverDescription2" = "Pokud je povoleno, služba přístupnosti Bitwardenu zobrazí vyskakovací okno při výběru přihlašovacích polí pro automatické vyplňování přihlašovacích údajů.";
 "DrawOverDescription3" = "Pokud je povoleno, přístupnost zobrazí vyskakovací okno pro rozšíření služby automatického vyplňování pro starší aplikace, které nepodporují Android Autofill Framework.";
-"PersonalOwnershipSubmitError" = "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných kolekcí.";
+"PersonalOwnershipSubmitError" = "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných sbírek.";
 "PersonalOwnershipPolicyInEffect" = "Zásady organizace ovlivňují možnosti vlastnictví.";
 "Send" = "Send";
 "AllSends" = "Všechny Sends";
@@ -935,7 +936,7 @@
 "AccountSuccessfullyCreated" = "Účet byl úspěšně vytvořen!";
 "ByContinuingYouAgreeToTheTermsOfServiceAndPrivacyPolicy" = "Pokračováním souhlasíte s **[Podmínkami služby](%1$@)** a **[Zásadami ochrany osobních údajů](%2$@)**";
 "GetAdviceAnnouncementsAndResearchOpportunitiesFromBitwardenInYourInboxUnsubscribeAtAnyTime." = "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden. **[Odhlásit odběr](%1$@)** můžete kdykoli.";
-"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepřiřazené položky organizace již nejsou viditelné ve Vašem zobrazení všech trezorů a jsou nyní přístupné jen v konzoli správce. Přiřaďte tyto položky do kolekce z konzole pro správce, aby byly viditelné.";
+"OrganizationUnassignedItemsMessageUSEUDescriptionLong" = "Nepřiřazené položky organizace již nejsou viditelné ve Vašem zobrazení všech trezorů a jsou nyní přístupné jen v konzoli správce. Přiřaďte tyto položky do sbírky z konzole pro správce, aby byly viditelné.";
 "UnknownAccount" = "Neznámý účet";
 "UserVerificationForPasskey" = "Ověření uživatele pro přístupový klíč";
 "NewItem" = "Nová položka";
@@ -1162,7 +1163,7 @@
 "ShowLess" = "Zobrazit méně";
 "ItemNameX" = "Název položky, %1$@";
 "OwnerX" = "Vlastník, %1$@";
-"CollectionX" = "Kolekce %1$@";
+"CollectionX" = "Sbírka, %1$@";
 "FolderX" = "Složka, %1$@";
 "ItemXOfY" = "Položka %1$@ z %2$@";
 "ViewRecordedLogs" = "Zobrazit zaznamenané logy";
