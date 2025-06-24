@@ -58,6 +58,11 @@ extension FeatureFlag: @retroactive CaseIterable {
         rawValue: "pm-15493-restrict-item-deletion-to-can-manage-permission"
     )
 
+    /// A feature flag to enable the removal of card item types.
+    static let removeCardPolicy = FeatureFlag(
+        rawValue: "pm-16442-remove-card-item-type-policy"
+    )
+
     /// A feature flag to enable SimpleLogin self-host alias generation
     static let simpleLoginSelfHostAlias = FeatureFlag(rawValue: "simple-login-self-host-alias")
 
@@ -76,6 +81,7 @@ extension FeatureFlag: @retroactive CaseIterable {
             .importLoginsFlow,
             .mobileErrorReporting,
             .preLoginSettings,
+            .removeCardPolicy,
             .restrictCipherItemDeletion,
             .simpleLoginSelfHostAlias,
         ]
