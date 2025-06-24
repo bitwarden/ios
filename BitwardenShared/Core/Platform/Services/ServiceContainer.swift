@@ -710,7 +710,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 //            vaultTimeoutService: vaultTimeoutService
 //        )
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
-            vaultListVBuilderFactory: DefaultVaultListBuilderFactory(
+            vaultListBuilderFactory: DefaultVaultListBuilderFactory(
                 clientService: clientService,
                 errorReporter: errorReporter
             ),

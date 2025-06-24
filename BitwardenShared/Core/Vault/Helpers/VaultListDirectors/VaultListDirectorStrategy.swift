@@ -7,17 +7,17 @@ import Combine
 protocol VaultListDirectorStrategy {
     /// Builds the vault list sections.
     /// - Parameters:
-    ///   - filter: Fitler to be used to build the sections.
+    ///   - filter: Filter to be used to build the sections.
     /// - Returns: Sections to be displayed to the user.
     func build(
         filter: VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
 }
 
-// MARK: - VualtListBuilderMetadata
+// MARK: - VaultListBuilderMetadata
 
 /// Metadata helper object to hold temporary data the builder can then use to build the list sections.
-struct VualtListBuilderMetadata {
+struct VaultListBuilderMetadata {
     var ciphersDeletedCount: Int = 0
     var collections: [Collection] = []
     var collectionsCount: [Uuid: Int] = [:]

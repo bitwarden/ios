@@ -48,7 +48,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     ///   - ciphers: Ciphers to filter and include in the sections.
     ///   - collections: Collections to filter and include in the sections.
     ///   - folders: Folders to filter and include in the sections.
-    ///   - filter: Fitler to be used to build the sections.
+    ///   - filter: Filter to be used to build the sections.
     /// - Returns: Sections to be displayed to the user.
     func build(
         from ciphers: [Cipher],
@@ -76,17 +76,17 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
         var builder = builderFactory.make()
 
         if filter.addTOTPGroup {
-            builder = builder.addTOTPSection(from: &vaultListMetadata)
+            builder = builder.addTOTPSection(from: vaultListMetadata)
         }
 
         builder = try await builder
-            .addFavoritesSection(from: &vaultListMetadata)
-            .addTypesSection(from: &vaultListMetadata)
-            .addFoldersSection(from: &vaultListMetadata)
-            .addCollectionsSection(from: &vaultListMetadata)
+            .addFavoritesSection(from: vaultListMetadata)
+            .addTypesSection(from: vaultListMetadata)
+            .addFoldersSection(from: vaultListMetadata)
+            .addCollectionsSection(from: vaultListMetadata)
 
         if filter.addTrashGroup {
-            builder = builder.addTrashSection(from: &vaultListMetadata)
+            builder = builder.addTrashSection(from: vaultListMetadata)
         }
 
         return builder.build()

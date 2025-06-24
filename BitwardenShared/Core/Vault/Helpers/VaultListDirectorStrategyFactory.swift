@@ -5,7 +5,7 @@ protocol VaultListDirectorStrategyFactory {
 }
 
 struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory {
-    let vaultListVBuilderFactory: VaultListBuilderFactory
+    let vaultListBuilderFactory: VaultListBuilderFactory
     let cipherService: CipherService
     let clientService: ClientService
     let collectionService: CollectionService
@@ -17,7 +17,7 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
     func make(filter: VaultListFilter) -> VaultListDirectorStrategy {
         if filter.group != nil {
             return MainVaultListGroupDirectorStrategy(
-                builderFactory: vaultListVBuilderFactory,
+                builderFactory: vaultListBuilderFactory,
                 cipherService: cipherService,
                 clientService: clientService,
                 collectionService: collectionService,
@@ -29,7 +29,7 @@ struct DefaultVaultListDirectorStrategyFactory: VaultListDirectorStrategyFactory
         }
 
         return MainVaultListDirectorStrategy(
-            builderFactory: vaultListVBuilderFactory,
+            builderFactory: vaultListBuilderFactory,
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,

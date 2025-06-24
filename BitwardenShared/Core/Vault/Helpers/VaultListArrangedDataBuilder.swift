@@ -51,7 +51,7 @@ protocol VaultListArrangedDataBuilder {
     /// Adds a no folder item to the arranged data.
     func addNoFolderItem(cipher: CipherListView) -> VaultListArrangedDataBuilder
     /// Builds the arranged data.
-    func build() -> VualtListBuilderMetadata
+    func build() -> VaultListBuilderMetadata
     /// Increments the cipher type count in the arranged data.
     func incrementCipherTypeCount(cipher: CipherListView) -> VaultListArrangedDataBuilder
     /// Increments the cipher deleted count in the arranged data.
@@ -71,7 +71,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
     let timeProvider: TimeProvider
 
     /// The arranged data to build.
-    var arrangedData = VualtListBuilderMetadata()
+    var arrangedData = VaultListBuilderMetadata()
     /// Cache of whether the account has premium features access.
     var hasPremiumFeaturesAccess: Bool?
     /// Cache of whether the user has master password.
@@ -186,7 +186,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
         return self
     }
 
-    func build() -> VualtListBuilderMetadata {
+    func build() -> VaultListBuilderMetadata {
         arrangedData
     }
 

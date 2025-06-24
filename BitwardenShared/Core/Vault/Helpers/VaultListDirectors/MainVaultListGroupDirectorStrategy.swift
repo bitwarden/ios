@@ -48,7 +48,7 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
     ///   - ciphers: Ciphers to filter and include in the sections.
     ///   - collections: Collections to filter and include in the sections.
     ///   - folders: Folders to filter and include in the sections.
-    ///   - filter: Fitler to be used to build the sections.
+    ///   - filter: Filter to be used to build the sections.
     /// - Returns: Sections to be displayed to the user.
     func build(
         from ciphers: [Cipher],
@@ -64,7 +64,7 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
             os_signpost(.end, log: log, name: StaticString("VaultListSections"))
         }
 
-        guard var vaultListMetadata = try await vaultListDataArranger.arrangeGroupMetadata(
+        guard let vaultListMetadata = try await vaultListDataArranger.arrangeGroupMetadata(
             from: ciphers,
             collections: collections,
             folders: folders,
@@ -75,13 +75,13 @@ struct MainVaultListGroupDirectorStrategy: VaultListDirectorStrategy {
 
         var builder = builderFactory.make()
         if case let .folder(id, _) = filter.group {
-            builder = try await builder.addFoldersSection(from: &vaultListMetadata, nestedFolderId: id)
+            builder = try await builder.addFoldersSection(from: vaultListMetadata, nestedFolderId: id)
         }
         if case let .collection(id, _, _) = filter.group {
-            builder = try await builder.addCollectionsSection(from: &vaultListMetadata, nestedCollectionId: id)
+            builder = try await builder.addCollectionsSection(from: vaultListMetadata, nestedCollectionId: id)
         }
         return try await builder
-            .addGroupSection(from: &vaultListMetadata)
+            .addGroupSection(from: vaultListMetadata)
             .build()
     }
 }

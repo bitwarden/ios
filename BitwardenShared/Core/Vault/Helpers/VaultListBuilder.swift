@@ -28,33 +28,33 @@ struct DefaultVaultListBuilderFactory: VaultListBuilderFactory {
 /// A protocol for a vault list builder which helps build items and sections for the vault lists.
 protocol VaultListBuilder {
     func addTrashSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) -> VaultListBuilder
 
     func addCollectionsSection(
-        from tempData: inout VualtListBuilderMetadata,
+        from tempData: VaultListBuilderMetadata,
         nestedCollectionId: String?
     ) async throws -> VaultListBuilder
 
     func addFavoritesSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) -> VaultListBuilder
 
     func addFoldersSection(
-        from tempData: inout VualtListBuilderMetadata,
+        from tempData: VaultListBuilderMetadata,
         nestedFolderId: String?
     ) async throws -> VaultListBuilder
 
     func addGroupSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) async throws -> VaultListBuilder
 
     func addTOTPSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) -> VaultListBuilder
 
     func addTypesSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) -> VaultListBuilder
 
     func build() -> [VaultListSection]
@@ -62,15 +62,15 @@ protocol VaultListBuilder {
 
 extension VaultListBuilder {
     func addCollectionsSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) async throws -> VaultListBuilder {
-        try await addCollectionsSection(from: &tempData, nestedCollectionId: nil)
+        try await addCollectionsSection(from: tempData, nestedCollectionId: nil)
     }
 
     func addFoldersSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) async throws -> VaultListBuilder {
-        try await addFoldersSection(from: &tempData, nestedFolderId: nil)
+        try await addFoldersSection(from: tempData, nestedFolderId: nil)
     }
 }
 
@@ -95,7 +95,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
     // MARK: Methods
 
     func addTrashSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) -> VaultListBuilder {
         let ciphersTrashItem = VaultListItem(id: "Trash", itemType: .group(.trash, tempData.ciphersDeletedCount))
         sections.append(VaultListSection(id: "Trash", items: [ciphersTrashItem], name: Localizations.trash))
@@ -103,7 +103,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
     }
 
     func addCollectionsSection(
-        from tempData: inout VualtListBuilderMetadata,
+        from tempData: VaultListBuilderMetadata,
         nestedCollectionId: String? = nil
     ) async throws -> VaultListBuilder {
         guard !tempData.collections.isEmpty else {
@@ -145,7 +145,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
     }
 
     func addFavoritesSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) -> VaultListBuilder {
         sections.append(VaultListSection(
             id: "Favorites",
@@ -157,7 +157,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
     }
 
     func addFoldersSection(
-        from tempData: inout VualtListBuilderMetadata,
+        from tempData: VaultListBuilderMetadata,
         nestedFolderId: String? = nil
     ) async throws -> VaultListBuilder {
         guard !tempData.folders.isEmpty else {
@@ -222,7 +222,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
     }
 
     func addGroupSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) async throws -> VaultListBuilder {
         if !tempData.groupItems.isEmpty {
             sections.append(VaultListSection(id: "Items", items: tempData.groupItems, name: Localizations.items))
@@ -231,7 +231,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
     }
 
     func addTOTPSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) -> VaultListBuilder {
         sections.append(VaultListSection(
             id: "TOTP",
@@ -248,7 +248,7 @@ class DefaultVaultListBuilder: VaultListBuilder {
     }
 
     func addTypesSection(
-        from tempData: inout VualtListBuilderMetadata
+        from tempData: VaultListBuilderMetadata
     ) -> VaultListBuilder {
         let types = [
             VaultListItem(

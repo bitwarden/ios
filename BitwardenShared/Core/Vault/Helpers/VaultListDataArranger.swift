@@ -9,13 +9,13 @@ protocol VaultListDataArranger {
     ///   - collections: An array of `Collection` objects to be processed.
     ///   - folders: An array of `Folder` objects to be processed.
     ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
-    /// - Returns: An optional `VualtListBuilderMetadata` object containing the arranged metadata for the vault list.
+    /// - Returns: An optional `VaultListBuilderMetadata` object containing the arranged metadata for the vault list.
     func arrangeMetadata(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> VualtListBuilderMetadata?
+    ) async throws -> VaultListBuilderMetadata?
     
     /// Arranges group metadata for the vault list builder.
     /// - Parameters:
@@ -23,13 +23,13 @@ protocol VaultListDataArranger {
     ///   - collections: An array of `Collection` objects to be processed.
     ///   - folders: An array of `Folder` objects to be processed.
     ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
-    /// - Returns: An optional `VualtListBuilderMetadata` object containing the arranged metadata for the vault list.
+    /// - Returns: An optional `VaultListBuilderMetadata` object containing the arranged metadata for the vault list.
     func arrangeGroupMetadata(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> VualtListBuilderMetadata?
+    ) async throws -> VaultListBuilderMetadata?
 }
 
 /// Default implementation of `VaultListDataArranger`.
@@ -49,7 +49,7 @@ struct DefaultVaultListDataArranger: VaultListDataArranger {
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> VualtListBuilderMetadata? {
+    ) async throws -> VaultListBuilderMetadata? {
         guard !ciphers.isEmpty else {
             return nil
         }
@@ -92,7 +92,7 @@ struct DefaultVaultListDataArranger: VaultListDataArranger {
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> VualtListBuilderMetadata? {
+    ) async throws -> VaultListBuilderMetadata? {
         guard !ciphers.isEmpty, let group = filter.group else {
             return nil
         }
