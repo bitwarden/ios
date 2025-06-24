@@ -37,7 +37,7 @@ struct SendItemAccessCountStepper: View {
                             .foregroundColor(Asset.Colors.textSecondary.swiftUIColor)
                     }
 
-                    if let currentAccessCount {
+                    if let currentAccessCount, maximumAccessCount > 0 {
                         // Wrap these texts in a group so that the style guide can be set on
                         // both of them at once.
                         Group {

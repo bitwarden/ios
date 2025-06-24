@@ -151,29 +151,37 @@ struct SendListItemRowView: View {
     private func optionsMenu(for sendView: SendView) -> some View {
         Menu {
             if !store.state.isSendDisabled {
-                AsyncButton(Localizations.shareLink) {
-                    await store.perform(.shareLinkPressed(sendView))
-                }
                 AsyncButton(Localizations.copyLink) {
                     await store.perform(.copyLinkPressed(sendView))
                 }
                 .accessibilityIdentifier("Copy")
-                Button(Localizations.view) {
-                    store.send(.viewSend(sendView))
+                AsyncButton(Localizations.shareLink) {
+                    await store.perform(.shareLinkPressed(sendView))
                 }
-                Button(Localizations.edit) {
-                    store.send(.editPressed(sendView))
-                }
-                if sendView.hasPassword {
-                    AsyncButton(Localizations.removePassword) {
-                        await store.perform(.removePassword(sendView))
+
+                Section("") {
+                    Button(Localizations.edit) {
+                        store.send(.editPressed(sendView))
                     }
+                    Button(Localizations.view) {
+                        store.send(.viewSend(sendView))
+                    }
+                    if sendView.hasPassword {
+                        AsyncButton(Localizations.removePassword) {
+                            await store.perform(.removePassword(sendView))
+                        }
+                    }
+
+                    AsyncButton(Localizations.delete, role: .destructive) {
+                        await store.perform(.deletePressed(sendView))
+                    }
+                }
+            } else {
+                AsyncButton(Localizations.delete, role: .destructive) {
+                    await store.perform(.deletePressed(sendView))
                 }
             }
 
-            AsyncButton(Localizations.delete, role: .destructive) {
-                await store.perform(.deletePressed(sendView))
-            }
         } label: {
             Asset.Images.ellipsisHorizontal24.swiftUIImage
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
