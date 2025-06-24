@@ -60,9 +60,10 @@ class AddEditSendItemProcessor:
             await copyLink(to: sendView)
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.confirmation(title: Localizations.areYouSureDeleteSend) { [weak self] in
-                await self?.deleteSend(sendView)
-            }
+            let alert = Alert.confirmationDestructive(
+                title: Localizations.areYouSureDeleteSend) { [weak self] in
+                    await self?.deleteSend(sendView)
+                }
             coordinator.showAlert(alert)
         case .loadData:
             await loadData()
@@ -70,7 +71,10 @@ class AddEditSendItemProcessor:
             await handle(profileEffect)
         case .removePassword:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.confirmation(title: Localizations.areYouSureRemoveSendPassword) { [weak self] in
+            let alert = Alert.confirmationDestructive(
+                title: Localizations.areYouSureRemoveSendPassword,
+                destructiveTitle: Localizations.remove
+            ) { [weak self] in
                 await self?.removePassword(sendView)
             }
             coordinator.showAlert(alert)
@@ -248,8 +252,12 @@ class AddEditSendItemProcessor:
             }
             coordinator.hideLoadingOverlay()
             switch state.mode {
-            case .add, .edit:
+            case .add:
                 coordinator.navigate(to: .complete(newSendView))
+                coordinator.showToast(Localizations.newSendCreated)
+            case .edit:
+                coordinator.navigate(to: .complete(newSendView))
+                coordinator.showToast(Localizations.sendUpdated)
             case .shareExtension:
                 onNextToastClear = { [weak self] in
                     self?.coordinator.navigate(to: .complete(newSendView))
@@ -311,7 +319,10 @@ class AddEditSendItemProcessor:
         guard state.mode == .add else { return true }
 
         guard let fileData = state.fileData, state.fileName != nil else {
-            let alert = Alert.validationFieldRequired(fieldName: Localizations.file)
+            let alert = Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustAttachAFileToSaveThisSend
+            )
             coordinator.showAlert(alert)
             return false
         }

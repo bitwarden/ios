@@ -85,7 +85,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
         XCTAssertEqual(coordinator.loadingOverlaysShown.last?.title, Localizations.deleting)
@@ -103,7 +103,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.deletePressed)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.delete)
 
         XCTAssertEqual(sendRepository.deleteSendSendView, sendView)
 
@@ -160,7 +160,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
         XCTAssertEqual(
@@ -181,7 +181,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         await subject.perform(.removePassword)
 
         let alert = try XCTUnwrap(coordinator.alertShown.last)
-        try await alert.tapAction(title: Localizations.yes)
+        try await alert.tapAction(title: Localizations.remove)
 
         XCTAssertEqual(sendRepository.removePasswordFromSendSendView, sendView)
 
@@ -242,6 +242,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
         XCTAssertEqual(reviewPromptService.userActions, [.createdNewSend])
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.newSendCreated)])
     }
 
     /// `perform(_:)` with `.savePressed` and valid input and http failure shows an error alert.
@@ -339,7 +340,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.file),
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustAttachAFileToSaveThisSend
+            ),
         ])
     }
 
@@ -358,7 +362,10 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
         XCTAssertTrue(coordinator.loadingOverlaysShown.isEmpty)
         XCTAssertNil(sendRepository.addTextSendSendView)
         XCTAssertEqual(coordinator.alertShown, [
-            .validationFieldRequired(fieldName: Localizations.file),
+            Alert.defaultAlert(
+                title: Localizations.anErrorHasOccurred,
+                message: Localizations.youMustAttachAFileToSaveThisSend
+            ),
         ])
     }
 
@@ -447,6 +454,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
 
         XCTAssertFalse(coordinator.isLoadingOverlayShowing)
         XCTAssertEqual(coordinator.routes.last, .complete(sendView))
+        XCTAssertEqual(coordinator.toastsShown, [Toast(title: Localizations.sendUpdated)])
     }
 
     /// `perform(_:)` with `.savePressed` while editing and valid input and http failure shows an
