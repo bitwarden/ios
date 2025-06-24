@@ -166,7 +166,7 @@ class AlertVaultTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.publicKey,
                 value: "publicKey",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: nil,
                 cipherId: "123"
             )
@@ -192,7 +192,7 @@ class AlertVaultTests: BitwardenTestCase {
             .copy(
                 toast: Localizations.fingerprint,
                 value: "fingerprint",
-                requiresMasterPasswordReprompt: false,
+                requiresMasterPasswordReprompt: true,
                 logEvent: nil,
                 cipherId: "123"
             )

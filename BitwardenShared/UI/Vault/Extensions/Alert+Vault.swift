@@ -291,7 +291,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.publicKey,
                         value: sshKey.publicKey,
-                        requiresMasterPasswordReprompt: false,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: cipherView.id
                     ))
@@ -311,7 +311,7 @@ extension Alert {
                     await action(.copy(
                         toast: Localizations.fingerprint,
                         value: sshKey.fingerprint,
-                        requiresMasterPasswordReprompt: false,
+                        requiresMasterPasswordReprompt: true,
                         logEvent: nil,
                         cipherId: cipherView.id
                     ))
