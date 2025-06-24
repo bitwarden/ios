@@ -574,4 +574,148 @@ class PolicyServiceTests: BitwardenTestCase { // swiftlint:disable:this type_bod
         policyApplies = await subject.policyAppliesToUser(.twoFactorAuthentication)
         XCTAssertTrue(policyApplies)
     }
+
+    /// `getActiveUserPolicies(_:)` returns the policies that apply to the user.
+    func test_getActiveUserPolicies() async {
+        let result: Policy = .fixture(type: .twoFactorAuthentication)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([result])
+
+        let twoFactorPolicies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertEqual(twoFactorPolicies, [result])
+
+        let onlyOrgPolicies = await subject.getActiveUserPolicies(.onlyOrg)
+        XCTAssertTrue(onlyOrgPolicies.isEmpty)
+    }
+
+    /// `getActiveUserPolicies()` called concurrently doesn't crash.
+    func test_getActiveUserPolicies_calledConcurrently() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        // Calling `policyAppliesToUser(_:)` concurrently shouldn't throw an exception due to
+        // simultaneous access to shared state. Since it's a race condition, running it repeatedly
+        // should expose the failure if it's going to fail.
+        for _ in 0 ..< 5 {
+            async let concurrentTask1 = subject.getActiveUserPolicies(.twoFactorAuthentication)
+            async let concurrentTask2 = subject.getActiveUserPolicies(.twoFactorAuthentication)
+
+            _ = await (concurrentTask1, concurrentTask2)
+        }
+    }
+
+    /// `getActiveUserPolicies(_:)` returns the policies that apply to the user when one
+    /// organization has the policy enabled but not another.
+    func test_getActiveUserPolicies_multipleOrganizations() async {
+        let result: Policy = .fixture(enabled: true, organizationId: "org-2", type: .twoFactorAuthentication)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(id: "org-1"), .fixture(id: "org-2")])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(enabled: false, organizationId: "org-1", type: .twoFactorAuthentication),
+            result,
+        ])
+
+        let policies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertEqual(policies, [result])
+    }
+
+    /// `getActiveUserPolicies(_:)` returns the policies that apply to the user when there's
+    /// multiple policies.
+    func test_getActiveUserPolicies_multiplePolicies() async {
+        let result1: Policy = .fixture(type: .twoFactorAuthentication)
+        let result2: Policy = .fixture(type: .onlyOrg)
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([
+            .fixture(type: .twoFactorAuthentication),
+            .fixture(type: .onlyOrg),
+        ])
+
+        let twoFactorPolicies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertEqual(twoFactorPolicies, [result1])
+
+        let onlyOrgPolicies = await subject.getActiveUserPolicies(.onlyOrg)
+        XCTAssertEqual(onlyOrgPolicies, [result2])
+
+        let disablePersonalVaultExportPolicies = await subject.getActiveUserPolicies(.disablePersonalVaultExport)
+        XCTAssertTrue(disablePersonalVaultExportPolicies.isEmpty)
+    }
+
+    /// `getActiveUserPolicies(_:)` returns the policies that apply to the user when there's no
+    /// organizations.
+    func test_getActiveUserPolicies_noOrganizations() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        let policies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertEqual(policies, [])
+    }
+
+    /// `getActiveUserPolicies_noOrganizations(_:)` returns the policies that apply to the user when there's no
+    /// policies.
+    func test_getActiveUserPolicies_noOrganizations_noPolicies() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture()])
+        policyDataStore.fetchPoliciesResult = .success([])
+
+        let policies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertEqual(policies, [])
+    }
+
+    /// `getActiveUserPolicies(_:)` returns the policies that apply to the user when the
+    /// organization user is exempt from policies.
+    func test_getActiveUserPolicies_organizationExempt() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        let policies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertTrue(policies.isEmpty)
+    }
+
+    /// `getActiveUserPolicies(_:)` returns policy when the policy applies to the user when the
+    /// organization user is `admin`.
+    func test_getActiveUserPolicies_organizationNotExemptWhenPolicyIsRemoveUnlockWithPin() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(type: .admin)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .removeUnlockWithPin)])
+
+        let policies = await subject.getActiveUserPolicies(.removeUnlockWithPin)
+        XCTAssertEqual(policies, [.fixture(type: .removeUnlockWithPin)])
+    }
+
+    /// `getActiveUserPolicies(_:)` returns the policies that apply to the user when the
+    /// organization doesn't use policies.
+    func test_getActiveUserPolicies_organizationDoesNotUsePolicies() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(usePolicies: false)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        let policies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertTrue(policies.isEmpty)
+    }
+
+    /// `getActiveUserPolicies(_:)` returns the policies that apply to the user even if the organization is disabled.
+    func test_getActiveUserPolicies_organizationNotEnabled() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(enabled: false)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        let policies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertEqual(policies, [.fixture(type: .twoFactorAuthentication)])
+    }
+
+    /// `getActiveUserPolicies(_:)` returns whether the policy applies to the user when the user is
+    /// only invited to the organization.
+    func test_getActiveUserPolicies_organizationInvited() async {
+        stateService.activeAccount = .fixture()
+        organizationService.fetchAllOrganizationsResult = .success([.fixture(status: .invited)])
+        policyDataStore.fetchPoliciesResult = .success([.fixture(type: .twoFactorAuthentication)])
+
+        let policies = await subject.getActiveUserPolicies(.twoFactorAuthentication)
+        XCTAssertTrue(policies.isEmpty)
+    }
 } // swiftlint:disable:this file_length
