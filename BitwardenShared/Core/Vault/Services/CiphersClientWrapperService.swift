@@ -62,10 +62,6 @@ struct DefaultCiphersClientWrapperService: CiphersClientWrapperService {
                     ciphers: Array(ciphers[start ..< end])
                 )
 
-                guard !decryptedCiphers.isEmpty else {
-                    continue
-                }
-
                 for decryptedCipher in decryptedCiphers {
                     try await onCipher(decryptedCipher)
                 }
