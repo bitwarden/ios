@@ -158,22 +158,30 @@ struct SendListItemRowView: View {
                 AsyncButton(Localizations.shareLink) {
                     await store.perform(.shareLinkPressed(sendView))
                 }
-                Button(Localizations.edit) {
-                    store.send(.editPressed(sendView))
-                }
-                Button(Localizations.view) {
-                    store.send(.viewSend(sendView))
-                }
-                if sendView.hasPassword {
-                    AsyncButton(Localizations.removePassword) {
-                        await store.perform(.removePassword(sendView))
+
+                Section("") {
+                    Button(Localizations.edit) {
+                        store.send(.editPressed(sendView))
                     }
+                    Button(Localizations.view) {
+                        store.send(.viewSend(sendView))
+                    }
+                    if sendView.hasPassword {
+                        AsyncButton(Localizations.removePassword) {
+                            await store.perform(.removePassword(sendView))
+                        }
+                    }
+
+                    AsyncButton(Localizations.delete, role: .destructive) {
+                        await store.perform(.deletePressed(sendView))
+                    }
+                }
+            } else {
+                AsyncButton(Localizations.delete, role: .destructive) {
+                    await store.perform(.deletePressed(sendView))
                 }
             }
 
-            AsyncButton(Localizations.delete, role: .destructive) {
-                await store.perform(.deletePressed(sendView))
-            }
         } label: {
             Asset.Images.ellipsisHorizontal24.swiftUIImage
                 .foregroundStyle(Asset.Colors.textSecondary.swiftUIColor)
