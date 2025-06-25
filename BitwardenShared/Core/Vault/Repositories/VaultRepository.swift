@@ -551,6 +551,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let isMatchingCipher: (CipherListView) -> Bool = isActive
             ? { $0.deletedDate == nil }
             : { $0.deletedDate != nil }
+        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
 
         return try await cipherService.ciphersPublisher().asyncTryMap { ciphers -> [CipherListView] in
             // Convert the Ciphers to CipherViews and filter appropriately.
@@ -559,6 +560,9 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
                     filter.filterType.cipherFilter(cipher) &&
                         isMatchingCipher(cipher) &&
                         (cipherFilter?(cipher) ?? true)
+                }
+                .filter { cipher in
+                    self.filterBasedOnRestrictItemTypesPolicy(cipher: cipher, restrictItemTypesOrgIds)
                 }
 
             var matchedCiphers: [CipherListView] = []
