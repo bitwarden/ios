@@ -272,6 +272,14 @@ class StateServiceTests: BitwardenTestCase { // swiftlint:disable:this type_body
         XCTAssertFalse(hasPremium)
     }
 
+    /// `doesActiveAccountHavePremium()` with no accounts throws error internally which is logged and returns
+    /// `false` as default.
+    func test_doesActiveAccountHavePremium_throwsNoAccountLogsErrorAndReturnsFalse() async throws {
+        let hasPremium = await subject.doesActiveAccountHavePremium()
+        XCTAssertFalse(hasPremium)
+        XCTAssertEqual(errorReporter.errors as? [StateServiceError], [.noActiveAccount])
+    }
+
     /// `getAccountEncryptionKeys(_:)` returns the encryption keys for the user account.
     func test_getAccountEncryptionKeys() async throws {
         appSettingsStore.encryptedPrivateKeys["1"] = "1:PRIVATE_KEY"
