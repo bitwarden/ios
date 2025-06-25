@@ -69,6 +69,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.tearDown()
 
         authRepository = nil
+        configService = nil
         coordinator = nil
         errorReporter = nil
         masterPasswordRepromptHelper = nil

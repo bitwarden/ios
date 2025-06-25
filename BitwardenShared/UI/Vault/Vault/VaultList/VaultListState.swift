@@ -19,6 +19,9 @@ struct VaultListState: Equatable {
     /// The user's import logins setup progress.
     var importLoginsSetupProgress: AccountSetupProgress?
 
+    /// Whether the policy is enforced to hide card item types.
+    var isRemoveCardPolicyFeatureFlagEnabled: Bool = false
+
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
 
@@ -36,6 +39,9 @@ struct VaultListState: Equatable {
 
     /// The user's current account profile state and alternative accounts.
     var profileSwitcherState: ProfileSwitcherState = .empty()
+
+    /// The active restricted item types policies organization ids.
+    var restrictItemTypesOrgIds: [String]?
 
     /// An array of results matching the `searchText`.
     var searchResults = [VaultListItem]()
@@ -82,6 +88,11 @@ struct VaultListState: Equatable {
     /// Whether the import logins action card should be shown.
     var shouldShowImportLoginsActionCard: Bool {
         importLoginsSetupProgress == .incomplete
+    }
+
+    /// Whether the restrict item policy is enabled.
+    var isRestrictItemPolicyEnabled: Bool {
+        isRemoveCardPolicyFeatureFlagEnabled && !restrictItemTypesOrgIds.isEmptyOrNil
     }
 
     /// The state for showing the vault filter.
