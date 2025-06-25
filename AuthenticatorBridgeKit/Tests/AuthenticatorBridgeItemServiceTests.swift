@@ -6,7 +6,7 @@ import Foundation
 import TestHelpers
 import XCTest
 
-// swiftlint:disable file_length type_body_length function_body_length
+// swiftlint:disable file_length type_body_length
 
 final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
@@ -51,6 +51,56 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     }
 
     // MARK: Tests
+
+    /// `deleteAll()` deletes all items for all users in the shared store,
+    /// and deletes the authenticator key.
+    ///
+    func test_deleteAll_success() async throws {
+        try await subject.insertItems(
+            AuthenticatorBridgeItemDataView.fixtures(),
+            forUserId: "userID 1"
+        )
+
+        try await subject.insertItems(
+            AuthenticatorBridgeItemDataView.fixtures(),
+            forUserId: "userID 2"
+        )
+
+        keychainRepository.authenticatorKey = keychainRepository.generateMockKeyData()
+
+        try await subject.deleteAll()
+
+        // Verify items were deleted
+        let fetchResultOne = try await subject.fetchAllForUserId("userID 1")
+        XCTAssertNotNil(fetchResultOne)
+        XCTAssertEqual(fetchResultOne.count, 0)
+
+        let fetchResultTwo = try await subject.fetchAllForUserId("userID 2")
+        XCTAssertNotNil(fetchResultTwo)
+        XCTAssertEqual(fetchResultTwo.count, 0)
+
+        XCTAssertNil(keychainRepository.authenticatorKey)
+    }
+
+    /// `deleteAll()` rethrows errors.
+    ///
+    func test_deleteAll_error() async throws {
+        try await subject.insertItems(
+            AuthenticatorBridgeItemDataView.fixtures(),
+            forUserId: "userID 1"
+        )
+
+        try await subject.insertItems(
+            AuthenticatorBridgeItemDataView.fixtures(),
+            forUserId: "userID 2"
+        )
+
+        keychainRepository.errorToThrow = BitwardenTestError.example
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.deleteAll()
+        }
+    }
 
     /// Verify that the `deleteAllForUserId` method successfully deletes all of the data for a given
     /// userId from the store. Verify that it does NOT delete the data for a different userId
@@ -406,4 +456,4 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     }
 }
 
-// swiftlint:enable file_length type_body_length function_body_length
+// swiftlint:enable file_length type_body_length

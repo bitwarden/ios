@@ -36,6 +36,14 @@
 		</dict>
 		<dict>
 			<key>File</key>
+			<string>Acknowledgements/google-ads-on-device-conversion-ios-sdk</string>
+			<key>Title</key>
+			<string>GoogleAdsOnDeviceConversion</string>
+			<key>Type</key>
+			<string>PSChildPaneSpecifier</string>
+		</dict>
+		<dict>
+			<key>File</key>
 			<string>Acknowledgements/GoogleAppMeasurement</string>
 			<key>Title</key>
 			<string>GoogleAppMeasurement</string>

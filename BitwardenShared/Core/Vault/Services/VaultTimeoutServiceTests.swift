@@ -543,4 +543,4 @@ final class VaultTimeoutServiceTests: BitwardenTestCase { // swiftlint:disable:t
             ]
         )
     }
-}
+} // swiftlint:disable:this file_length

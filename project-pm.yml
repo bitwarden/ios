@@ -24,11 +24,11 @@ include:
 packages:
   BitwardenSdk:
     url: https://github.com/bitwarden/sdk-swift
-    revision: a9a790f3c0e3631bc625fae3fc28a14d26d7727a
+    revision: 80dd7b284e5cdd09e065675b04f991a8ff7338fe
     branch: unstable
   Firebase:
     url: https://github.com/firebase/firebase-ios-sdk
-    exactVersion: 11.12.0
+    exactVersion: 11.14.0
   SwiftUIIntrospect:
     url: https://github.com/siteline/SwiftUI-Introspect
     exactVersion: 1.3.0

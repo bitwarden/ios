@@ -197,11 +197,11 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             showAddFolder()
         case let .addItem(group, newCipherOptions, organizationId, type):
             Task {
-                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
                 showVaultItem(
                     route: .addItem(
                         group: group,
-                        hasPremium: hasPremium ?? false,
+                        hasPremium: hasPremium,
                         newCipherOptions: newCipherOptions,
                         organizationId: organizationId,
                         type: type
@@ -215,9 +215,9 @@ final class VaultCoordinator: Coordinator, HasStackNavigator { // swiftlint:disa
             showAutofillListForGroup(group)
         case let .editItem(cipher):
             Task {
-                let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
+                let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
                 showVaultItem(
-                    route: .editItem(cipher, hasPremium ?? false),
+                    route: .editItem(cipher, hasPremium),
                     delegate: context as? CipherItemOperationDelegate
                 )
             }
