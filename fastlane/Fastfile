@@ -429,21 +429,55 @@ platform :ios do |options|
         end
     end
 
+    desc "Update release notes for all locales."
+    lane :updateReleaseNotes do |options|
+      changelog = "release notes"
+
+      auth_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl", "en-US", "fi", "fr", "de", "id", "it", "ja", "ko", "nb", "pl", "pt", "pt-BR", "ro", "ru", "sk", "es", "es-MX", "sv", "tr", "uk", "vi"]
+      pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl", "en-US", "fi", "fr", "de", "id", "it", "ja", "ko", "nb", "pl", "pt", "pt-BR", "ro", "ru", "sk", "es", "es-MX", "sv", "tr", "uk", "vi"]
+      directory_names = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
+      corrected_directory_names = [ "ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl", "en-US", "fi", "fr", "de",
+    "id", "it", "ja", "ko", "nb", "pl", "pt", "pt-BR", "ro", "ru", "sk", "es", "es-MX",
+    "sv", "tr", "uk", "vi"]
+      minimal_directory_names = ["en-US"]
+      # if options[:packageName] == "com.bitwarden.authenticator"
+      #   locales = auth_locales
+      # else
+      #   locales = pw_manager_locales
+      # end
+      directory_names.each do |locale|
+        dir = "metadata/#{locale}"
+        FileUtils.mkdir_p(dir)
+        File.write("#{dir}/release_notes.txt", changelog)
+      end
+    end
+
     desc "Submit a build to the App Store"
     lane :submit_release do |options|
-    # Set release metadata (you can customize more fields if needed)
+      locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
+      notes = locales.each_with_object({}) do |locale, hash|
+        file_path = "./metadata/#{locale}/release_notes.txt"
+        if File.exist?(file_path)
+          hash[locale] = File.read(file_path)
+        else
+          UI.important("No release notes found for #{locale} at #{file_path}, skipping.")
+        end
+      end
+
     deliver(
+      force: true,
       app_identifier: "com.8bit.bitwarden.beta",
       edit_live: false,
-      build_number: "2122",
-      app_version: "2025.5.0",
+      build_number: options[:build_number],
+      app_version: options[:app_version],
       submit_for_review: true,
       skip_binary_upload: true,
-      skip_screenshots: true,
+      skip_screenshots: options[:skip_screenshots],
       skip_metadata: true,
       automatic_release: true,
       api_key_path: options[:api_key_path],
-      run_precheck_before_submit: false
+      run_precheck_before_submit: false,
+      release_notes: notes
     )
   end
 end

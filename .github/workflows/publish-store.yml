@@ -15,9 +15,11 @@ on:
       build-version:
         description: "Version Name - e.g. '2024.8.1'"
         type: string
+        default: "2025.5.0" #fixme
       build-number:
         description: "Version Number Override - e.g. '1021'"
         type: string
+        default: "2122" #fixme
       changelog:
         description: "Release Notes"
         type: string
@@ -147,6 +149,8 @@ jobs:
               echo "Unsupported product: $PRODUCT"
               exit 1
             fi
+
+            bundle exec fastlane updateReleaseNotes
 
             bundle exec fastlane submit_release \
               api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
