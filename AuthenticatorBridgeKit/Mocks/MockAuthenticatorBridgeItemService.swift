@@ -11,7 +11,10 @@ public class MockAuthenticatorBridgeItemService: AuthenticatorBridgeItemService 
 
     public init() {}
 
-    public func checkForLogout() async throws {}
+    public func deleteAll() async throws {
+        guard errorToThrow == nil else { throw errorToThrow! }
+        storedItems = [:]
+    }
 
     public func deleteAllForUserId(_ userId: String) async throws {
         guard errorToThrow == nil else { throw errorToThrow! }

@@ -9,6 +9,10 @@ import Foundation
 /// `AuthenticatorBridgeItemData` objects.
 ///
 public protocol AuthenticatorBridgeItemService {
+    /// Removes all items and deletes the authenticator key.
+    ///
+    func deleteAll() async throws
+
     /// Removes all items that are owned by the specific userId
     ///
     /// - Parameter userId: the id of the user for which to delete all items.
@@ -38,9 +42,9 @@ public protocol AuthenticatorBridgeItemService {
                      forUserId userId: String) async throws
 
     /// Inserts a temporary item into the store. This method is for an item that originate in the Authenticator app that
-    /// need to move to the PM app (e.g. the user chooses Move to BW, or manually creates an item and selects
+    /// need to move to the BWPM app (e.g. the user chooses Move to BW, or manually creates an item and selects
     /// Save in BW). When the item originates from the Authenticator, we don't yet know what account it will be stored
-    /// in, so we save it to a temporary account and retrieve it for processing in the PM app.
+    /// in, so we save it to a temporary account and retrieve it for processing in the BWPM app.
     ///
     /// The expectation is that only *one* temporary item will be stored at a time. Each time this method is called, it
     /// will replace the one temporary item. When `fetchTemporaryItem()`is called, it will retrieve only
@@ -118,6 +122,14 @@ public class DefaultAuthenticatorBridgeItemService: AuthenticatorBridgeItemServi
     }
 
     // MARK: Methods
+
+    public func deleteAll() async throws {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: AuthenticatorBridgeItemData.entityName)
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+
+        try await dataStore.executeBatchDelete(deleteRequest)
+        try await sharedKeychainRepository.deleteAuthenticatorKey()
+    }
 
     /// Removes all items that are owned by the specific userId
     ///
