@@ -64,6 +64,9 @@ extension CipherType {
     /// These are the cases of `CipherType` that the user can use to create a cipher.
     static let canCreateCases: [CipherType] = [.login, .card, .identity, .secureNote]
 
+    /// These are the cases of `CipherType` that the user can use to create a cipher based on restrict item type policy.
+    static let canCreateCasesRestricted: [CipherType] = [.login, .identity, .secureNote]
+
     /// The allowed custom field types per cipher type.
     var allowedFieldTypes: [FieldType] {
         switch self {

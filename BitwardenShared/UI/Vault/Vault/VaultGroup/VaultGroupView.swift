@@ -85,17 +85,22 @@ struct VaultGroupView: View {
                 )
 
                 Group {
+                    let restrictItemTypes = store.state.isRestrictItemPolicyEnabled
                     switch newItemButtonType {
                     case .button:
-                        Button {
-                            store.send(.addItemPressed(nil))
-                        } label: {
-                            newItemLabel
+                        if !store.state.isRestrictItemPolicyEnabled {
+                            Button {
+                                store.send(.addItemPressed(nil))
+                            } label: {
+                                newItemLabel
+                            }
+                            .buttonStyle(.primary(shouldFillWidth: false))
                         }
-                        .buttonStyle(.primary(shouldFillWidth: false))
                     case .menu:
+                        let itemTypes = restrictItemTypes
+                            ? CipherType.canCreateCasesRestricted : CipherType.canCreateCases
                         Menu {
-                            ForEach(CipherType.canCreateCases, id: \.hashValue) { type in
+                            ForEach(itemTypes, id: \.hashValue) { type in
                                 Button(type.localizedName) {
                                     store.send(.addItemPressed(type))
                                 }
@@ -125,11 +130,15 @@ struct VaultGroupView: View {
             if let floatingActionButtonType = store.state.newItemButtonType {
                 switch floatingActionButtonType {
                 case .button:
-                    addItemFloatingActionButton {
+                    addItemFloatingActionButton(
+                        hidden: store.state.isRestrictItemPolicyEnabled
+                    ) {
                         store.send(.addItemPressed(nil))
                     }
                 case .menu:
-                    addVaultItemFloatingActionMenu { type in
+                    addVaultItemFloatingActionMenu(
+                        hidden: store.state.isRestrictItemPolicyEnabled,
+                    ) { type in
                         store.send(.addItemPressed(type))
                     }
                 }

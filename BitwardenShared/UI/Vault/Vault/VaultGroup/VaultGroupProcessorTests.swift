@@ -13,6 +13,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     // MARK: Properties
 
     var authRepository: MockAuthRepository!
+    var configService: MockConfigService!
     var coordinator: MockCoordinator<VaultRoute, AuthAction>!
     var errorReporter: MockErrorReporter!
     let fixedDate = Date(year: 2023, month: 12, day: 31, minute: 0, second: 31)
@@ -31,6 +32,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         super.setUp()
 
         authRepository = MockAuthRepository()
+        configService = MockConfigService()
         coordinator = MockCoordinator()
         errorReporter = MockErrorReporter()
         masterPasswordRepromptHelper = MockMasterPasswordRepromptHelper()
@@ -47,6 +49,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
             masterPasswordRepromptHelper: masterPasswordRepromptHelper,
             services: ServiceContainer.withMocks(
                 authRepository: authRepository,
+                configService: configService,
                 errorReporter: errorReporter,
                 pasteboardService: pasteboardService,
                 policyService: policyService,
@@ -152,6 +155,72 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         task.cancel()
 
         XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
+    }
+
+    /// `perform(_:)` with `.appeared` updates the state depending on if the
+    /// restrict item policy and removeCardType feature flag are enabled.
+    @MainActor
+    func test_perform_appeared_restrictItemTypePolicy_removeCardFlag_enable() {
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.restrictItemTypesOrgIds != nil)
+        task.cancel()
+
+        XCTAssertTrue(subject.state.isRemoveCardPolicyFeatureFlagEnabled)
+        XCTAssertEqual(subject.state.restrictItemTypesOrgIds, ["org1"])
+    }
+
+    /// `perform(_:)` with `.appeared` updates restrictItemTypesOrgIds state to empty if the
+    /// restrict item policy is disabled and removeCardType feature flag is enabled.
+    @MainActor
+    func test_perform_appeared_restrictItemTypePolicy_disable_removeCardFlag_enable() {
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                organizationId: "org1",
+                type: .requireSSO,
+            ),
+        ]
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.restrictItemTypesOrgIds != nil)
+        task.cancel()
+
+        XCTAssertTrue(subject.state.isRemoveCardPolicyFeatureFlagEnabled)
+        XCTAssertEqual(subject.state.restrictItemTypesOrgIds, ["org1"])
+    }
+
+    /// `perform(_:)` with `.appeared` updates the state depending on if the
+    /// restrict item policy is enabled but removeCardType feature flag is false.
+    @MainActor
+    func test_perform_appeared_restrictItemTypePolicy_removeCardFlag_false() {
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+        configService.featureFlagsBool[.removeCardPolicy] = false
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+        waitFor(subject.state.loadingState == .data([]))
+        task.cancel()
+
+        XCTAssertFalse(subject.state.isRemoveCardPolicyFeatureFlagEnabled)
+        XCTAssertEqual(subject.state.restrictItemTypesOrgIds, nil)
     }
 
     /// `perform(_:)` with `appeared` determines whether the vault filter can be shown based on

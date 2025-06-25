@@ -142,6 +142,7 @@ extension View {
     ///
     func addVaultItemFloatingActionMenu(
         hidden: Bool = false,
+        restrictItemTypes: Bool = false,
         addItem: @escaping (CipherType) -> Void,
         addFolder: (() -> Void)? = nil
     ) -> some View {
@@ -155,7 +156,8 @@ extension View {
                 Divider()
             }
 
-            ForEach(CipherType.canCreateCases.reversed(), id: \.hashValue) { type in
+            let itemTypes = restrictItemTypes ? CipherType.canCreateCasesRestricted : CipherType.canCreateCases
+            ForEach(itemTypes, id: \.hashValue) { type in
                 Button(type.localizedName) {
                     addItem(type)
                 }
