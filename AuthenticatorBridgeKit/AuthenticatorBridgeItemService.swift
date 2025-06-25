@@ -42,9 +42,9 @@ public protocol AuthenticatorBridgeItemService {
                      forUserId userId: String) async throws
 
     /// Inserts a temporary item into the store. This method is for an item that originate in the Authenticator app that
-    /// need to move to the PM app (e.g. the user chooses Move to BW, or manually creates an item and selects
+    /// need to move to the BWPM app (e.g. the user chooses Move to BW, or manually creates an item and selects
     /// Save in BW). When the item originates from the Authenticator, we don't yet know what account it will be stored
-    /// in, so we save it to a temporary account and retrieve it for processing in the PM app.
+    /// in, so we save it to a temporary account and retrieve it for processing in the BWPM app.
     ///
     /// The expectation is that only *one* temporary item will be stored at a time. Each time this method is called, it
     /// will replace the one temporary item. When `fetchTemporaryItem()`is called, it will retrieve only

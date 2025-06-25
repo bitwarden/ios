@@ -33,7 +33,7 @@ enum ExternalLinksConstants {
     /// A link to the password manager app within the app store.
     static let passwordManagerLink = URL(string: "https://itunes.apple.com/app/id1137397744?mt=8")!
 
-    /// A deeplink to the password manager app to open the PM app and let it know there's a new item to store.
+    /// A deeplink to the password manager app to open the BWPM app and let it know there's a new item to store.
     static let passwordManagerNewItem = URL(string: "bitwarden://authenticator/newItem")!
 
     /// The url scheme used by the password manager app
