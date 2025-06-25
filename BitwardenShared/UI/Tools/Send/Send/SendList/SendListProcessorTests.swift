@@ -66,26 +66,10 @@ class SendListProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     }
 
     /// `perform(_:)` with `.addItemPressed` shows an alert if attempting to add a file send and
-    /// there's an error determining if the user has premium.
-    @MainActor
-    func test_perform_addItemPressed_fileType_error() async throws {
-        sendRepository.doesActivateAccountHavePremiumResult = .failure(BitwardenTestError.example)
-        subject.state.type = .file
-        await subject.perform(.addItemPressed(.file))
-
-        XCTAssertEqual(
-            coordinator.alertShown,
-            [.defaultAlert(title: Localizations.sendFilePremiumRequired)]
-        )
-        XCTAssertTrue(coordinator.routes.isEmpty)
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// `perform(_:)` with `.addItemPressed` shows an alert if attempting to add a file send and
     /// the user doesn't have premium.
     @MainActor
     func test_perform_addItemPressed_fileType_withoutPremium() async throws {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        sendRepository.doesActivateAccountHavePremiumResult = false
         subject.state.type = .file
         await subject.perform(.addItemPressed(.file))
 

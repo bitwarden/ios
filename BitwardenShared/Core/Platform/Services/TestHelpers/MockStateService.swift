@@ -35,7 +35,7 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
     var didAccountSwitchInExtensionResult: Result<Bool, Error> = .success(false)
     var disableAutoTotpCopyByUserId = [String: Bool]()
     var doesActiveAccountHavePremiumCalled = false
-    var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+    var doesActiveAccountHavePremiumResult: Bool = true
     var encryptedPinByUserId = [String: String]()
     var environmentURLs = [String: EnvironmentURLData]()
     var environmentURLsError: Error?
@@ -136,9 +136,9 @@ class MockStateService: StateService { // swiftlint:disable:this type_body_lengt
         try didAccountSwitchInExtensionResult.get()
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
+    func doesActiveAccountHavePremium() async -> Bool {
         doesActiveAccountHavePremiumCalled = true
-        return try doesActiveAccountHavePremiumResult.get()
+        return doesActiveAccountHavePremiumResult
     }
 
     func getAccountEncryptionKeys(userId: String?) async throws -> AccountEncryptionKeys {

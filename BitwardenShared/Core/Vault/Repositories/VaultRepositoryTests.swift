@@ -806,12 +806,12 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
 
     /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
     func test_doesActiveAccountHavePremium() async throws {
-        stateService.doesActiveAccountHavePremiumResult = .success(true)
-        var hasPremium = try await subject.doesActiveAccountHavePremium()
+        stateService.doesActiveAccountHavePremiumResult = true
+        var hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
 
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        hasPremium = try await subject.doesActiveAccountHavePremium()
+        stateService.doesActiveAccountHavePremiumResult = false
+        hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertFalse(hasPremium)
     }
 
@@ -1105,7 +1105,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_getTOTPKeyIfAllowedToCopy_accountHasPremium() async throws {
         stateService.activeAccount = .fixture()
         stateService.disableAutoTotpCopyByUserId["1"] = false
-        stateService.doesActiveAccountHavePremiumResult = .success(true)
+        stateService.doesActiveAccountHavePremiumResult = true
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
             organizationUseTotp: false
@@ -1119,7 +1119,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_getTOTPKeyIfAllowedToCopy_orgUsesTOTPAndAccountHasPremium() async throws {
         stateService.activeAccount = .fixture()
         stateService.disableAutoTotpCopyByUserId["1"] = false
-        stateService.doesActiveAccountHavePremiumResult = .success(true)
+        stateService.doesActiveAccountHavePremiumResult = true
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
             organizationUseTotp: true
@@ -1155,7 +1155,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     func test_getTOTPKeyIfAllowedToCopy_orgDoesntUseTOTPAndAccountDoesntHavePremium() async throws {
         stateService.activeAccount = .fixture()
         stateService.disableAutoTotpCopyByUserId["1"] = false
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
         let totpKey = try await subject.getTOTPKeyIfAllowedToCopy(cipher: .fixture(
             login: .fixture(totp: "123"),
             organizationUseTotp: false
@@ -3045,7 +3045,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// `vaultListPublisher(group:filter:)` does not return TOTP items for non-premium accounts.
     func test_vaultListPublisher_groups_totp_notPremium() async throws {
         stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
         let cipher = Cipher.fixture(id: "1", login: .fixture(totp: "123"), type: .login)
         cipherService.ciphersSubject.send([cipher])
 
@@ -3062,7 +3062,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// accounts if the organization uses TOTP.
     func test_vaultListPublisher_groups_totp_organizationUseTotp() async throws {
         stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
         cipherService.ciphersSubject.send([
             Cipher.fixture(
                 id: "1",
@@ -3099,7 +3099,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     /// master password.
     func test_vaultListPublisher_groups_totp_organizationUseTotp_userWithoutMP() async throws {
         stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
         stateService.userHasMasterPassword[nonPremiumAccount.profile.userId] = false
 
         cipherService.ciphersSubject.send([
@@ -3320,7 +3320,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     ///   with no TOTP items for accounts without premium.
     func test_vaultListPublisher_section_nonPremium() async throws { // swiftlint:disable:this function_body_length
         stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
         let ciphers: [Cipher] = [
             .fixture(folderId: "1", id: "1", type: .login),
             .fixture(id: "2", login: .fixture(totp: "123"), type: .login),
@@ -3388,7 +3388,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     ///  with a TOTP section if the user has ciphers where the organization uses TOTP.
     func test_vaultListPublisher_section_nonPremiumOrganizationUseTotp() async throws {
         stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
         let ciphers: [Cipher] = [
             .fixture(id: "1", login: .fixture(totp: "123"), type: .login),
             .fixture(id: "2", login: .fixture(totp: "123"), organizationUseTotp: true, type: .login),

@@ -293,7 +293,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and no premium shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noPremium() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(false)
+        sendRepository.doesActivateAccountHavePremiumResult = false
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
         subject.state.fileName = "filename"
@@ -310,7 +310,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and an unverified email shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noVerifiedEmail() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(false)
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
@@ -328,7 +328,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and no file data shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noFileData() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = nil
@@ -350,7 +350,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and no file name shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_noFileName() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data("example".utf8)
@@ -372,7 +372,7 @@ class AddEditSendItemProcessorTests: BitwardenTestCase { // swiftlint:disable:th
     /// `perform(_:)` with `.savePressed` and file data that is too large shows a validation alert.
     @MainActor
     func test_perform_savePressed_add_file_fileDataTooLarge() async {
-        sendRepository.doesActivateAccountHavePremiumResult = .success(true)
+        sendRepository.doesActivateAccountHavePremiumResult = true
         sendRepository.doesActiveAccountHaveVerifiedEmailResult = .success(true)
         subject.state.name = "Name"
         subject.state.fileData = Data(String(repeating: "a", count: Constants.maxFileSizeBytes + 1).utf8)
