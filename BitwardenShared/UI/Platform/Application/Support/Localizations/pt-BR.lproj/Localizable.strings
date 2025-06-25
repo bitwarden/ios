@@ -211,7 +211,7 @@
 "On" = "Ligado";
 "Status" = "Estado";
 "BitwardenAutofillServiceAlert2" = "A maneira mais fácil de adicionar novas credenciais ao seu cofre é a partir do Serviço de Autopreenchimento do Bitwarden. Saiba mais sobre como usar o Serviço de Autopreenchimento do Bitwarden navegando até a tela \"Configurações\".";
-"Autofill" = "Autopreencher";
+"Autofill" = "Preencher automaticamente";
 "AutofillOrView" = "Pretende preencher automaticamente ou visualizar este item?";
 "BitwardenAutofillServiceMatchConfirm" = "Tem certeza de que deseja preencher automaticamente este item? Ele não é uma correspondência completa para \"%1$@\".";
 "MatchingItems" = "Itens Correspondentes";
@@ -263,6 +263,7 @@
 "FileSource" = "Fonte do Arquivo";
 "FeatureUnavailable" = "Funcionalidade Indisponível";
 "MaxFileSize" = "O tamanho máximo do arquivo é de 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Você não pode usar esse recurso, até você atualizar sua chave de criptografia.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Migração de chave de criptografia necessária. Faça login através do cofre web para atualizar sua chave de criptografia.";
 "LearnMore" = "Saiba Mais";

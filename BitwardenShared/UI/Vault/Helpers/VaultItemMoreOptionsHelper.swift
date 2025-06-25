@@ -82,7 +82,7 @@ class DefaultVaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper {
             }
 
             let canEdit = cipherView.deletedDate == nil
-            let hasPremium = try await services.vaultRepository.doesActiveAccountHavePremium()
+            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
 
             coordinator.showAlert(.moreOptions(
                 canCopyTotp: hasPremium || cipherView.organizationUseTotp,

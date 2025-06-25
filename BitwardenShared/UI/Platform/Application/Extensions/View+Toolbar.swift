@@ -212,4 +212,34 @@ extension View {
             saveToolbarButton(action: action)
         }
     }
+
+    /// A `ToolbarContent` that adjusts the navigation bar to display a large title on the leading
+    /// edge of the navigation bar and hides the centered title. This has the appearance of a large
+    /// title navigation bar without the extra padding above the title and overall hight similar to
+    /// an inline navigation bar title.
+    ///
+    /// - Parameters:
+    ///   - title: The navigation bar's title.
+    ///   - hidden: Whether the navigation bar updates should be hidden.
+    /// - Returns: A `ToolbarContent` that adjusts the navigation bar to display a large title on
+    ///     the leading edge.
+    ///
+    @ToolbarContentBuilder
+    func largeNavigationTitleToolbarItem(_ title: String, hidden: Bool = false) -> some ToolbarContent {
+        ToolbarItem(placement: .topBarLeading) {
+            if !hidden {
+                Text(title)
+                    .styleGuide(.largeTitle, weight: .semibold)
+                    .accessibilityAddTraits(.isHeader)
+            }
+        }
+
+        ToolbarItem(placement: .principal) {
+            if !hidden {
+                // Hide the centered navigation title view with an empty view.
+                Text("")
+                    .accessibilityHidden(true)
+            }
+        }
+    }
 }

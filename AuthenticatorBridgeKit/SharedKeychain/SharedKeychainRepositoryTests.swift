@@ -60,7 +60,7 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
     }
 
     /// `getAccountAutoLogoutTime()` retrieves the last active time from storage.
-    func test_getPMAccountAutoLogoutTime_success() async throws {
+    func test_getBWPMAccountAutoLogoutTime_success() async throws {
         let date = Date(timeIntervalSince1970: 12345)
         storage.storage[.accountAutoLogout(userId: "1")] = date
         let lastActiveTime = try await subject.getAccountAutoLogoutTime(userId: "1")
@@ -68,7 +68,7 @@ final class SharedKeychainRepositoryTests: BitwardenTestCase {
     }
 
     /// `setAccountAutoLogoutTime()` sets the last active time in storage.
-    func test_setPMAccountAutoLogoutTime_success() async throws {
+    func test_setBWPMAccountAutoLogoutTime_success() async throws {
         let date = Date(timeIntervalSince1970: 12345)
         try await subject.setAccountAutoLogoutTime(date, userId: "1")
         XCTAssertEqual(storage.storage[.accountAutoLogout(userId: "1")] as? Date, date)

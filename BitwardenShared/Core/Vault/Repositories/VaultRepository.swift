@@ -64,7 +64,7 @@ public protocol VaultRepository: AnyObject {
     ///
     /// - Returns: Whether the active account has premium.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Download and decrypt an attachment and save the file to local storage on the device.
     ///
@@ -597,7 +597,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         from ciphers: [CipherListView],
         filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
-        let hasPremiumFeaturesAccess = await (try? doesActiveAccountHavePremium()) ?? false
+        let hasPremiumFeaturesAccess = await doesActiveAccountHavePremium()
         let userHasMasterPassword = await (try? stateService.getUserHasMasterPassword()) ?? false
 
         // Filter and sort the list.
@@ -1112,8 +1112,8 @@ extension DefaultVaultRepository: VaultRepository {
         return nil
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try await stateService.doesActiveAccountHavePremium()
+    func doesActiveAccountHavePremium() async -> Bool {
+        await stateService.doesActiveAccountHavePremium()
     }
 
     func downloadAttachment(_ attachmentView: AttachmentView, cipher: CipherView) async throws -> URL? {
@@ -1170,7 +1170,7 @@ extension DefaultVaultRepository: VaultRepository {
             return nil
         }
 
-        let accountHavePremium = try await doesActiveAccountHavePremium()
+        let accountHavePremium = await doesActiveAccountHavePremium()
         if !cipher.organizationUseTotp, !accountHavePremium {
             return nil
         }

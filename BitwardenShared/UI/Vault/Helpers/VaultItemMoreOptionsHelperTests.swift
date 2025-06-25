@@ -232,7 +232,7 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
     func test_showMoreOptionsAlert_copyTotp_organizationUseTotp() async throws {
         let account = Account.fixture()
         stateService.activeAccount = account
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
+        vaultRepository.doesActiveAccountHavePremiumResult = false
         vaultRepository.refreshTOTPCodeResult = .success(
             LoginTOTPState(
                 authKeyModel: TOTPKeyModel(authenticatorKey: .standardTotpKey),
@@ -310,24 +310,6 @@ class VaultItemMoreOptionsHelperTests: BitwardenTestCase { // swiftlint:disable:
         try await optionsAlert.tapAction(title: Localizations.copyTotp)
 
         XCTAssertEqual(coordinator.alertShown.last, .defaultAlert(title: Localizations.anErrorHasOccurred))
-        XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
-    }
-
-    /// `showMoreOptionsAlert()` logs an error if fetching whether the account has premium fails.
-    @MainActor
-    func test_showMoreOptionsAlert_doesActiveAccountHavePremiumError() async throws {
-        stateService.activeAccount = .fixture()
-        vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
-
-        vaultRepository.fetchCipherResult = .success(.fixture())
-        let item = try XCTUnwrap(VaultListItem(cipherListView: .fixture()))
-        await subject.showMoreOptionsAlert(
-            for: item,
-            handleDisplayToast: { _ in },
-            handleOpenURL: { _ in }
-        )
-
-        XCTAssertEqual(coordinator.alertShown, [.defaultAlert(title: Localizations.anErrorHasOccurred)])
         XCTAssertEqual(errorReporter.errors as? [BitwardenTestError], [.example])
     }
 

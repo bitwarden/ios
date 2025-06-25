@@ -263,6 +263,7 @@
 "FileSource" = "مصدر الملف";
 "FeatureUnavailable" = "الميزة غير متوفرة";
 "MaxFileSize" = "الحد الأقصى لحجم الملف هو 100 ميغابايت.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "لا يمكنك استخدام هذه الميزة حتى تقوم بتحديث مفتاح التشفير الخاص بك.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "مطلوب ترحيل مفتاح التشفير. الرجاء تسجيل الدخول بواسطة خزانة الويب لتحديث مفتاح التشفير الخاص بك.";
 "LearnMore" = "اعرف المزيد";

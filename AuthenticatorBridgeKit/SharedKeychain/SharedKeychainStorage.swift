@@ -8,7 +8,7 @@ public enum SharedKeychainItem: Equatable, Hashable {
     /// The keychain item for the authenticator encryption key.
     case authenticatorKey
 
-    /// A date at which a PM account automatically logs out.
+    /// A date at which a BWPM account automatically logs out.
     case accountAutoLogout(userId: String)
 
     /// The storage key for this keychain item.

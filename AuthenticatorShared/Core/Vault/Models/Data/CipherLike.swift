@@ -49,7 +49,7 @@ struct LoginLike: Codable, Equatable {
 // MARK: VaultLike
 
 /// A data model used to export/import authenticator items in a way that resembles
-/// a full vault export/import from the PM app.
+/// a full vault export/import from the BWPM app.
 ///
 struct VaultLike: Codable, Equatable {
     let encrypted: Bool
