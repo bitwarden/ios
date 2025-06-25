@@ -767,7 +767,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let items: [VaultListItem]
         switch group {
         case .card:
-            items = activeCiphers.filter { $0.type.isCard }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter(\.type.isCard).compactMap(VaultListItem.init)
         case let .collection(id, _, _):
             items = activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case let .folder(id, _):
@@ -809,8 +809,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         collections: [Collection],
         folders: [Folder] = []
     ) async throws -> [VaultListSection] {
+        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
             .filter(filter.filterType.cipherFilter)
+            .filter { filterBasedOnRestrictItemTypesPolicy(cipher: $0, restrictItemTypesOrgIds) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         let activeCiphers = ciphers.filter { $0.deletedDate == nil }
@@ -850,6 +852,33 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         .filter { !$0.items.isEmpty }
     }
 
+    /// Filters ciphers based on the organization's restrictItemTypes policy.
+    ///
+    /// - Parameters:
+    ///  - cipher: The cipher to check against the policy.
+    ///  - restrictItemTypesOrgIds: The list of organization IDs that are restricted by the policy.
+    ///  - Returns: `true` if the cipher is allowed by the policy, `false` otherwise.
+    ///
+    func filterBasedOnRestrictItemTypesPolicy(cipher: CipherListView, _ restrictItemTypesOrgIds: [String]) -> Bool {
+        // If the restriction list is empty or the cipher is not a card, return true.
+        guard !restrictItemTypesOrgIds.isEmpty, cipher.type.isCard else { return true }
+        // If the cipher is not associated with an organization, return true.
+        guard let orgId = cipher.organizationId, !orgId.isEmpty else { return false }
+        // If the cipher's organization ID is not in the restriction list, return true.
+        return !restrictItemTypesOrgIds.contains(orgId)
+    }
+
+    /// If `FeatureFlag.removeCardPolicy` feature flag is enabled, gets the organization IDs that have the
+    /// `PolicyType.restrictItemTypes` policy active.
+    ///
+    /// - Returns: A list of organization IDs that have the restrictItemTypes policy enabled.
+    private func getRestrictItemTypesOrgIds() async -> [String] {
+        guard await configService.getFeatureFlag(.removeCardPolicy) else { return [] }
+        return await policyService
+            .getActiveUserPolicies(.restrictItemTypes)
+            .map(\.organizationId)
+    }
+
     /// Returns a list of the sections in the vault list from a sync response.
     ///
     /// - Parameters:
@@ -865,8 +894,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         folders: [Folder],
         filter: VaultListFilter
     ) async throws -> [VaultListSection] {
+        let restrictItemTypesOrgIds = await getRestrictItemTypesOrgIds()
         let ciphers = try await clientService.vault().ciphers().decryptList(ciphers: ciphers)
             .filter(filter.filterType.cipherFilter)
+            .filter { filterBasedOnRestrictItemTypesPolicy(cipher: $0, restrictItemTypesOrgIds) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
 
         guard !ciphers.isEmpty else { return [] }
@@ -920,19 +951,25 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             )
         }
 
-        let typesCardCount = activeCiphers.lazy.filter { $0.type.isCard }.count
+        let typesCardCount = activeCiphers.lazy.filter(\.type.isCard).count
         let typesIdentityCount = activeCiphers.lazy.filter { $0.type == .identity }.count
         let typesLoginCount = activeCiphers.lazy.filter(\.type.isLogin).count
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
         let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
 
-        let types = [
+        var types = [
             VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount)),
             VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)),
             VaultListItem(id: "Types.Identities", itemType: .group(.identity, typesIdentityCount)),
             VaultListItem(id: "Types.SecureNotes", itemType: .group(.secureNote, typesSecureNoteCount)),
             VaultListItem(id: "Types.SSHKeys", itemType: .group(.sshKey, typesSSHKeyCount)),
         ]
+
+        // Only show the card section if there are cards and restrictItemTypes policy is not enabled.
+        if typesCardCount == 0,
+           !restrictItemTypesOrgIds.isEmpty {
+            types.remove(at: 1)
+        }
 
         sections.append(contentsOf: [
             VaultListSection(id: "Favorites", items: ciphersFavorites, name: Localizations.favorites),
