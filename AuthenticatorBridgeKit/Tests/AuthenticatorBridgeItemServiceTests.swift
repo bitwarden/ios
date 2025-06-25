@@ -6,7 +6,7 @@ import Foundation
 import TestHelpers
 import XCTest
 
-// swiftlint:disable file_length type_body_length function_body_length
+// swiftlint:disable file_length type_body_length
 
 final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase {
     // MARK: Properties
@@ -406,4 +406,4 @@ final class AuthenticatorBridgeItemServiceTests: AuthenticatorBridgeKitTestCase 
     }
 }
 
-// swiftlint:enable file_length type_body_length function_body_length
+// swiftlint:enable file_length type_body_length

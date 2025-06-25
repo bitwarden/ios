@@ -1,4 +1,3 @@
-import AuthenticatorBridgeKit
 import AuthenticatorBridgeKitMocks
 import CryptoKit
 import Foundation

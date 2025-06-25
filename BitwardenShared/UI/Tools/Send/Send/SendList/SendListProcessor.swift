@@ -125,13 +125,7 @@ final class SendListProcessor: StateProcessor<SendListState, SendListAction, Sen
     ///
     private func addNewSend(sendType: SendType) async {
         if sendType.requiresPremium {
-            let hasPremium: Bool
-            do {
-                hasPremium = try await services.sendRepository.doesActiveAccountHavePremium()
-            } catch {
-                hasPremium = false
-                services.errorReporter.log(error: error)
-            }
+            let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
 
             guard hasPremium else {
                 coordinator.showAlert(.defaultAlert(title: Localizations.sendFilePremiumRequired))

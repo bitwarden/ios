@@ -60,10 +60,9 @@ class AddEditSendItemProcessor:
             await copyLink(to: sendView)
         case .deletePressed:
             guard let sendView = state.originalSendView else { return }
-            let alert = Alert.confirmationDestructive(
-                title: Localizations.areYouSureDeleteSend) { [weak self] in
-                    await self?.deleteSend(sendView)
-                }
+            let alert = Alert.confirmationDestructive(title: Localizations.areYouSureDeleteSend) { [weak self] in
+                await self?.deleteSend(sendView)
+            }
             coordinator.showAlert(alert)
         case .loadData:
             await loadData()
@@ -297,8 +296,8 @@ class AddEditSendItemProcessor:
         // Only perform further checks for file sends.
         guard state.type == .file else { return true }
 
-        let hasPremium = try? await services.sendRepository.doesActiveAccountHavePremium()
-        guard hasPremium ?? false else {
+        let hasPremium = await services.sendRepository.doesActiveAccountHavePremium()
+        guard hasPremium else {
             let alert = Alert.defaultAlert(
                 message: Localizations.sendFilePremiumRequired
             )
@@ -400,4 +399,4 @@ extension AddEditSendItemProcessor: ProfileSwitcherHandler {
     func showAlert(_ alert: Alert) {
         coordinator.showAlert(alert)
     }
-}
+} // swiftlint:disable:this file_length

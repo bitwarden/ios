@@ -132,7 +132,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let account = Account.fixture()
         stateService.activeAccount = account
         stateService.showWebIcons = true
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = true
         let collections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
@@ -228,36 +228,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
         let cipherItem = CipherView.loginFixture(
             id: "id"
         )
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
-        vaultRepository.cipherDetailsSubject.send(cipherItem)
-
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-
-        waitFor(subject.state.loadingState != .loading(nil))
-        task.cancel()
-
-        let expectedState = CipherItemState(
-            existing: cipherItem,
-            hasPremium: false,
-            iconBaseURL: URL(string: "https://example.com/icons")!
-        )!
-
-        XCTAssertEqual(subject.state.loadingState, .data(expectedState))
-        XCTAssertFalse(vaultRepository.fetchSyncCalled)
-    }
-
-    /// `perform(_:)` with `.appeared` observe the premium status of a user.
-    @MainActor
-    func test_perform_appeared_unknownPremium() {
-        let account = Account.fixture()
-        stateService.activeAccount = account
-
-        let cipherItem = CipherView.loginFixture(
-            id: "id"
-        )
-        vaultRepository.doesActiveAccountHavePremiumResult = .failure(BitwardenTestError.example)
+        vaultRepository.doesActiveAccountHavePremiumResult = false
         vaultRepository.cipherDetailsSubject.send(cipherItem)
 
         let task = Task {
@@ -283,7 +254,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_appearedWithFolder() {
         let account = Account.fixture()
         stateService.activeAccount = account
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = true
         let collections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
@@ -336,7 +307,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_appearedWithOrganization() {
         let account = Account.fixture()
         stateService.activeAccount = account
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = true
         let collections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
@@ -389,7 +360,7 @@ class ViewItemProcessorTests: BitwardenTestCase { // swiftlint:disable:this type
     func test_perform_appearedWithOrganizationAndCollectionsDisplay() {
         let account = Account.fixture()
         stateService.activeAccount = account
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(true)
+        vaultRepository.doesActiveAccountHavePremiumResult = true
         let collections = [
             CollectionView.fixture(id: "1"),
             CollectionView.fixture(id: "2"),
