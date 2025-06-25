@@ -587,9 +587,9 @@ class AuthenticatorItemRepositoryTests: BitwardenTestCase { // swiftlint:disable
         )
     }
 
-    /// `itemListPublisher` confirms that PM is installed. If it is not, then it purges the shared data.
+    /// `itemListPublisher` confirms that BWPM is installed. If it is not, then it purges the shared data.
     @MainActor
-    func test_itemListPublisher_pmUninstalled() async throws {
+    func test_itemListPublisher_bwpmUninstalled() async throws {
         application.canOpenUrlResponse = false
         configService.featureFlagsBool[.enablePasswordManagerSync] = true
         sharedItemService.syncOn = true
