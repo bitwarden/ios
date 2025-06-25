@@ -55,7 +55,7 @@ struct DefaultTOTPService: TOTPService {
             return
         }
 
-        let accountHasPremium = try await stateService.doesActiveAccountHavePremium()
+        let accountHasPremium = await stateService.doesActiveAccountHavePremium()
         guard cipher.organizationUseTotp || accountHasPremium else {
             return
         }

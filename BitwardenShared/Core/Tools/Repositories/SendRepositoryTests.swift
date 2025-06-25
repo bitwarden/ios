@@ -134,13 +134,13 @@ class SendRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     }
 
     /// `doesActiveAccountHavePremium()` returns whether the active account has access to premium features.
-    func test_doesActiveAccountHavePremium() async throws {
-        stateService.doesActiveAccountHavePremiumResult = .success(true)
-        var hasPremium = try await subject.doesActiveAccountHavePremium()
+    func test_doesActiveAccountHavePremium() async {
+        stateService.doesActiveAccountHavePremiumResult = true
+        var hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertTrue(hasPremium)
 
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
-        hasPremium = try await subject.doesActiveAccountHavePremium()
+        stateService.doesActiveAccountHavePremiumResult = false
+        hasPremium = await subject.doesActiveAccountHavePremium()
         XCTAssertFalse(hasPremium)
     }
 

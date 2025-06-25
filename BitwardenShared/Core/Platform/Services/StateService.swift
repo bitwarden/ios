@@ -41,7 +41,7 @@ protocol StateService: AnyObject {
     ///
     /// - Returns: Whether the active account has access to premium features.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Gets the account for an id.
     ///
@@ -1383,6 +1383,9 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     /// The data store that handles performing data requests.
     private let dataStore: DataStore
 
+    /// The service used by the application to report non-fatal errors.
+    private let errorReporter: ErrorReporter
+
     /// A subject containing the last sync time mapped to user ID.
     private var lastSyncTimeByUserIdSubject = CurrentValueSubject<[String: Date], Never>([:])
 
@@ -1419,6 +1422,7 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
     ) {
         self.appSettingsStore = appSettingsStore
         self.dataStore = dataStore
+        self.errorReporter = errorReporter
         self.keychainRepository = keychainRepository
 
         appThemeSubject = CurrentValueSubject(AppTheme(appSettingsStore.appTheme))
@@ -1464,17 +1468,22 @@ actor DefaultStateService: StateService, ConfigStateService { // swiftlint:disab
         }
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        let account = try await getActiveAccount()
-        let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
-        guard !hasPremiumPersonally else {
-            return true
-        }
+    func doesActiveAccountHavePremium() async -> Bool {
+        do {
+            let account = try await getActiveAccount()
+            let hasPremiumPersonally = account.profile.hasPremiumPersonally ?? false
+            guard !hasPremiumPersonally else {
+                return true
+            }
 
-        let organizations = try await dataStore
-            .fetchAllOrganizations(userId: account.profile.userId)
-            .filter { $0.enabled && $0.usersGetPremium }
-        return !organizations.isEmpty
+            let organizations = try await dataStore
+                .fetchAllOrganizations(userId: account.profile.userId)
+                .filter { $0.enabled && $0.usersGetPremium }
+            return !organizations.isEmpty
+        } catch {
+            errorReporter.log(error: error)
+            return false
+        }
     }
 
     func getAccount(userId: String?) throws -> Account {

@@ -400,4 +400,4 @@ class CipherItemStateTests: BitwardenTestCase { // swiftlint:disable:this type_b
         state.isLearnNewLoginActionCardEligible = false
         XCTAssertFalse(state.shouldShowLearnNewLoginActionCard)
     }
-}
+} // swiftlint:disable:this file_length

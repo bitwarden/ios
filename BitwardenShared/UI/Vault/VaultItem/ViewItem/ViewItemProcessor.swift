@@ -203,7 +203,7 @@ private extension ViewItemProcessor {
     /// - Parameter cipher: The cipher to clone.
     ///
     private func cloneItem(_ cipher: CipherView) async {
-        let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+        let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
         if cipher.login?.fido2Credentials?.isEmpty == false {
             coordinator.showAlert(.confirmCloneExcludesFido2Credential {
                 self.coordinator.navigate(to: .cloneItem(cipher: cipher, hasPremium: hasPremium), context: self)
@@ -291,8 +291,8 @@ private extension ViewItemProcessor {
             return
         }
         Task {
-            let hasPremium = try? await services.vaultRepository.doesActiveAccountHavePremium()
-            coordinator.navigate(to: .editItem(cipher, hasPremium ?? false), context: self)
+            let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
+            coordinator.navigate(to: .editItem(cipher, hasPremium), context: self)
         }
     }
 
@@ -492,7 +492,7 @@ private extension ViewItemProcessor {
             for try await cipher in try await services.vaultRepository.cipherDetailsPublisher(id: itemId) {
                 guard let cipher else { continue }
 
-                let hasPremium = await (try? services.vaultRepository.doesActiveAccountHavePremium()) ?? false
+                let hasPremium = await services.vaultRepository.doesActiveAccountHavePremium()
                 let collections = try await services.vaultRepository.fetchCollections(includeReadOnly: true)
                 var folder: FolderView?
                 if let folderId = cipher.folderId {

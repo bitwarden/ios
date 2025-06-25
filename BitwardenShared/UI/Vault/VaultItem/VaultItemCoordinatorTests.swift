@@ -64,25 +64,7 @@ class VaultItemCoordinatorTests: BitwardenTestCase { // swiftlint:disable:this t
     /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
     @MainActor
     func test_navigateTo_addItem_nonPremium() throws {
-        vaultRepository.doesActiveAccountHavePremiumResult = .success(false)
-        let task = Task {
-            subject.navigate(to: .addItem(type: .login))
-        }
-        waitFor(!stackNavigator.actions.isEmpty)
-        task.cancel()
-
-        let action = try XCTUnwrap(stackNavigator.actions.last)
-        XCTAssertEqual(action.type, .replaced)
-        let view = try XCTUnwrap(action.view as? AddEditItemView)
-        XCTAssertEqual(view.store.state.type, .login)
-        XCTAssertFalse(view.store.state.loginState.isTOTPAvailable)
-    }
-
-    /// `navigate(to:)` with `.addItem` without a group pushes the add item view onto the stack navigator.
-    @MainActor
-    func test_navigateTo_addItem_unknownPremium() throws {
-        struct TestError: Error {}
-        vaultRepository.doesActiveAccountHavePremiumResult = .failure(TestError())
+        vaultRepository.doesActiveAccountHavePremiumResult = false
         let task = Task {
             subject.navigate(to: .addItem(type: .login))
         }
