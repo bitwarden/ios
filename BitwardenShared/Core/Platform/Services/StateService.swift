@@ -1100,14 +1100,6 @@ extension StateService {
         try await pinProtectedUserKey(userId: nil)
     }
 
-    func safeDoesActiveAccountHavePremium() async -> Bool {
-        do {
-            return try await doesActiveAccountHavePremium()
-        } catch {
-            return false
-        }
-    }
-
     /// Sets the account encryption keys for the active account.
     ///
     /// - Parameter encryptionKeys: The account encryption keys.

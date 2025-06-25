@@ -710,17 +710,17 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 //            vaultTimeoutService: vaultTimeoutService
 //        )
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
-            vaultListBuilderFactory: DefaultVaultListBuilderFactory(
-                clientService: clientService,
-                errorReporter: errorReporter
-            ),
             cipherService: cipherService,
             clientService: clientService,
             collectionService: collectionService,
             errorReporter: errorReporter,
             folderService: folderService,
             stateService: stateService,
-            vaultListDataArranger: DefaultVaultListDataArranger(
+            vaultListBuilderFactory: DefaultVaultListSectionsBuilderFactory(
+                clientService: clientService,
+                errorReporter: errorReporter
+            ),
+            vaultListDataPreparator: DefaultVaultListDataPreparator(
                 clientService: clientService,
                 ciphersClientWrapperService: DefaultCiphersClientWrapperService(
                     clientService: clientService,
@@ -728,7 +728,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
                 ),
                 errorReporter: errorReporter,
                 stateService: stateService,
-                vaultListArrangedDataBuilderFactory: DefaultVaultListArrangedDataBuilderFactory(
+                vaultListPreparedDataBuilderFactory: DefaultVaultListPreparedDataBuilderFactory(
                     clientService: clientService,
                     errorReporter: errorReporter,
                     stateService: stateService,
@@ -740,7 +740,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 //            clientService: clientService,
 //            errorReporter: errorReporter,
 //            stateService: stateService,
-//            vaultListDataArranger: DefaultVaultListDataArranger(
+//            vaultListDataPreparator: DefaultVaultListDataPreparator(
 //                clientService: clientService,
 //                ciphersClientWrapperService: DefaultCiphersClientWrapperService(
 //                    clientService: clientService,
@@ -748,7 +748,7 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 //                ),
 //                errorReporter: errorReporter,
 //                stateService: stateService,
-//                vaultListArrangedDataBuilderFactory: DefaultVaultListArrangedDataBuilderFactory(
+//                vaultListArrangedDataBuilderFactory: DefaultVaultListPreparedDataBuilderFactory(
 //                    stateService: stateService
 //                )
 //            )

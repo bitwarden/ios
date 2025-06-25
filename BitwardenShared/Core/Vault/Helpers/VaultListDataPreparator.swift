@@ -1,62 +1,67 @@
-
 import BitwardenKit
 import BitwardenSdk
 
-protocol VaultListDataArranger {
-    /// Arranges metadata for the vault list builder based.
+/// A object that prepares vault list data for the sections builder.
+protocol VaultListDataPreparator {
+    /// Prepares data for the vault list builder based.
     /// - Parameters:
     ///   - ciphers: An array of `Cipher` objects to be processed.
     ///   - collections: An array of `Collection` objects to be processed.
     ///   - folders: An array of `Folder` objects to be processed.
     ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
-    /// - Returns: An optional `VaultListBuilderMetadata` object containing the arranged metadata for the vault list.
-    func arrangeMetadata(
+    /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    func prepareData(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> VaultListBuilderMetadata?
-    
-    /// Arranges group metadata for the vault list builder.
+    ) async throws -> VaultListPreparedData?
+
+    /// Prepares group data for the vault list builder.
     /// - Parameters:
     ///   - ciphers: An array of `Cipher` objects to be processed.
     ///   - collections: An array of `Collection` objects to be processed.
     ///   - folders: An array of `Folder` objects to be processed.
     ///   - filter: A `VaultListFilter` object that defines the filtering criteria for the vault list.
-    /// - Returns: An optional `VaultListBuilderMetadata` object containing the arranged metadata for the vault list.
-    func arrangeGroupMetadata(
+    /// - Returns: An optional `VaultListPreparedData` object containing the prepared data for the vault list.
+    func prepareGroupData(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> VaultListBuilderMetadata?
+    ) async throws -> VaultListPreparedData?
 }
 
-/// Default implementation of `VaultListDataArranger`.
-struct DefaultVaultListDataArranger: VaultListDataArranger {
+/// Default implementation of `VaultListDataPreparator`.
+struct DefaultVaultListDataPreparator: VaultListDataPreparator {
     // MARK: Properties
 
+    /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
+    /// The wrapper of the `CiphersClient` service for extended functionality.
     let ciphersClientWrapperService: CiphersClientWrapperService
+    /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
+    /// The service used by the application to manage account state.
     let stateService: StateService
-    let vaultListArrangedDataBuilderFactory: VaultListArrangedDataBuilderFactory
+    /// The factory to make vault list prepared data builders.
+    let vaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactory
 
     // MARK: Methods
 
-    func arrangeMetadata(
+    func prepareData(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> VaultListBuilderMetadata? {
+    ) async throws -> VaultListPreparedData? {
         guard !ciphers.isEmpty else {
             return nil
         }
 
-        var arrangedDataBuilder = vaultListArrangedDataBuilderFactory.make()
+        var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
-        arrangedDataBuilder = arrangedDataBuilder
+        preparedDataBuilder = preparedDataBuilder
             .addFolders(folders: folders, filterType: filter.filterType)
             .addCollections(collections: collections, filterType: filter.filterType)
 
@@ -68,15 +73,15 @@ struct DefaultVaultListDataArranger: VaultListDataArranger {
             }
 
             guard decryptedCipher.deletedDate == nil else {
-                arrangedDataBuilder = arrangedDataBuilder.incrementCipherDeletedCount()
+                preparedDataBuilder = preparedDataBuilder.incrementCipherDeletedCount()
                 return
             }
 
             if filter.addTOTPGroup {
-                arrangedDataBuilder = await arrangedDataBuilder.incrementTOTPCount(cipher: decryptedCipher)
+                preparedDataBuilder = await preparedDataBuilder.incrementTOTPCount(cipher: decryptedCipher)
             }
 
-            arrangedDataBuilder = arrangedDataBuilder
+            preparedDataBuilder = preparedDataBuilder
                 .addFolderItem(cipher: decryptedCipher, filter: filter, folders: folders)
                 .addFavoriteItem(cipher: decryptedCipher)
                 .addNoFolderItem(cipher: decryptedCipher)
@@ -84,22 +89,22 @@ struct DefaultVaultListDataArranger: VaultListDataArranger {
                 .incrementCollectionCount(cipher: decryptedCipher)
         }
 
-        return arrangedDataBuilder.build()
+        return preparedDataBuilder.build()
     }
 
-    func arrangeGroupMetadata(
+    func prepareGroupData(
         from ciphers: [Cipher],
         collections: [Collection],
         folders: [Folder],
         filter: VaultListFilter
-    ) async throws -> VaultListBuilderMetadata? {
+    ) async throws -> VaultListPreparedData? {
         guard !ciphers.isEmpty, let group = filter.group else {
             return nil
         }
 
-        var arrangedDataBuilder = vaultListArrangedDataBuilderFactory.make()
+        var preparedDataBuilder = vaultListPreparedDataBuilderFactory.make()
 
-        arrangedDataBuilder = arrangedDataBuilder
+        preparedDataBuilder = preparedDataBuilder
             .addFolders(folders: folders, filterType: filter.filterType)
             .addCollections(collections: collections, filterType: filter.filterType)
 
@@ -111,7 +116,7 @@ struct DefaultVaultListDataArranger: VaultListDataArranger {
             }
 
             if case .folder = filter.group {
-                arrangedDataBuilder = arrangedDataBuilder.addFolderItem(
+                preparedDataBuilder = preparedDataBuilder.addFolderItem(
                     cipher: decryptedCipher,
                     filter: filter,
                     folders: folders
@@ -119,12 +124,12 @@ struct DefaultVaultListDataArranger: VaultListDataArranger {
             }
 
             if case .collection = filter.group {
-                arrangedDataBuilder = arrangedDataBuilder.incrementCollectionCount(cipher: decryptedCipher)
+                preparedDataBuilder = preparedDataBuilder.incrementCollectionCount(cipher: decryptedCipher)
             }
 
-            arrangedDataBuilder = await arrangedDataBuilder.addItem(forGroup: group, with: decryptedCipher)
+            preparedDataBuilder = await preparedDataBuilder.addItem(forGroup: group, with: decryptedCipher)
         }
 
-        return arrangedDataBuilder.build()
+        return preparedDataBuilder.build()
     }
 }

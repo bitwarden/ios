@@ -1,27 +1,31 @@
 import BitwardenKit
 import BitwardenSdk
 
-// MARK: - VaultListArrangedDataBuilderFactory
+// MARK: - VaultListPreparedDataBuilderFactory
 
-/// A factory protocol to make vault list arranged data builders.
-protocol VaultListArrangedDataBuilderFactory {
-    /// Makes a arranged data builder.
-    func make() -> VaultListArrangedDataBuilder
+/// A factory protocol to make vault list prepared data builders.
+protocol VaultListPreparedDataBuilderFactory {
+    /// Makes a builder for `VaultListPreparedData`.
+    func make() -> VaultListPreparedDataBuilder
 }
 
-// MARK: - DefaultVaultListArrangedDataBuilderFactory
+// MARK: - DefaultVaultListPreparedDataBuilderFactory
 
-/// The default implemetnation of `VaultListArrangedDataBuilderFactory`.
-struct DefaultVaultListArrangedDataBuilderFactory: VaultListArrangedDataBuilderFactory {
+/// The default implemetnation of `VaultListPreparedDataBuilderFactory`.
+struct DefaultVaultListPreparedDataBuilderFactory: VaultListPreparedDataBuilderFactory {
     // swiftlint:disable:previous type_name
 
+    /// The service used by the application to handle encryption and decryption tasks.
     let clientService: ClientService
+    /// The service used by the application to report non-fatal errors.
     let errorReporter: ErrorReporter
+    /// The service used by the application to manage account state.
     let stateService: StateService
+    /// Provides the present time.
     let timeProvider: TimeProvider
 
-    func make() -> VaultListArrangedDataBuilder {
-        DefaultVaultListArrangedDataBuilder(
+    func make() -> VaultListPreparedDataBuilder {
+        DefaultVaultListPreparedDataBuilder(
             clientService: clientService,
             errorReporter: errorReporter,
             stateService: stateService,
@@ -30,39 +34,42 @@ struct DefaultVaultListArrangedDataBuilderFactory: VaultListArrangedDataBuilderF
     }
 }
 
-// MARK: - VaultListArrangedDataBuilder
+// MARK: - VaultListPreparedDataBuilder
 
-/// Builder to build arranged data for the vault list sections.
-protocol VaultListArrangedDataBuilder {
+/// Builder to build prepared data for the vault list sections.
+protocol VaultListPreparedDataBuilder {
     /// Adds collections to the arranged data.
-    func addCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListArrangedDataBuilder
+    func addCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Adds a favorite item to the arranged data.
-    func addFavoriteItem(cipher: CipherListView) -> VaultListArrangedDataBuilder
+    func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Adds folders to the arranged data.
-    func addFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListArrangedDataBuilder
+    func addFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder
     /// Adds a folder item to the arranged data.
     func addFolderItem(
         cipher: CipherListView,
         filter: VaultListFilter,
         folders: [Folder]
-    ) -> VaultListArrangedDataBuilder
+    ) -> VaultListPreparedDataBuilder
     /// Adds an item for a specific group to the arranged data.
-    func addItem(forGroup group: VaultListGroup, with cipher: CipherListView) async -> VaultListArrangedDataBuilder
+    func addItem(forGroup group: VaultListGroup, with cipher: CipherListView) async -> VaultListPreparedDataBuilder
     /// Adds a no folder item to the arranged data.
-    func addNoFolderItem(cipher: CipherListView) -> VaultListArrangedDataBuilder
+    func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Builds the arranged data.
-    func build() -> VaultListBuilderMetadata
+    func build() -> VaultListPreparedData
     /// Increments the cipher type count in the arranged data.
-    func incrementCipherTypeCount(cipher: CipherListView) -> VaultListArrangedDataBuilder
+    func incrementCipherTypeCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Increments the cipher deleted count in the arranged data.
-    func incrementCipherDeletedCount() -> VaultListArrangedDataBuilder
+    func incrementCipherDeletedCount() -> VaultListPreparedDataBuilder
     /// Increments the collection count in the arranged data.
-    func incrementCollectionCount(cipher: CipherListView) -> VaultListArrangedDataBuilder
+    func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder
     /// Increments the TOTP count in the arranged data.
-    func incrementTOTPCount(cipher: CipherListView) async -> VaultListArrangedDataBuilder
+    func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder
 }
 
-class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
+// MARK: - DefaultVaultListPreparedDataBuilder
+
+/// Default implementation of `VaultListPreparedDataBuilder`.
+class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
     // MARK: Properties
 
     let clientService: ClientService
@@ -71,7 +78,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
     let timeProvider: TimeProvider
 
     /// The arranged data to build.
-    var arrangedData = VaultListBuilderMetadata()
+    var arrangedData = VaultListPreparedData()
     /// Cache of whether the account has premium features access.
     var hasPremiumFeaturesAccess: Bool?
     /// Cache of whether the user has master password.
@@ -93,7 +100,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
 
     // MARK: Methods
 
-    func addCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListArrangedDataBuilder {
+    func addCollections(collections: [Collection], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
         if filterType == .allVaults {
             arrangedData.collections = collections
         } else if case let .organization(organization) = filterType {
@@ -102,7 +109,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
         return self
     }
 
-    func addFavoriteItem(cipher: CipherListView) -> VaultListArrangedDataBuilder {
+    func addFavoriteItem(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if cipher.favorite,
            let favoriteListItem = VaultListItem(cipherListView: cipher) {
             arrangedData.favorites.append(favoriteListItem)
@@ -110,7 +117,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
         return self
     }
 
-    func addFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListArrangedDataBuilder {
+    func addFolders(folders: [Folder], filterType: VaultFilterType) -> VaultListPreparedDataBuilder {
         if filterType == .allVaults {
             arrangedData.folders = folders
         }
@@ -121,7 +128,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
         cipher: CipherListView,
         filter: VaultListFilter,
         folders: [Folder]
-    ) -> VaultListArrangedDataBuilder {
+    ) -> VaultListPreparedDataBuilder {
         if let folderId = cipher.folderId, let folder = folders.first(where: { $0.id == folderId }) {
             arrangedData.foldersCount[folderId, default: 0] += 1
             if filter.filterType != .allVaults, !arrangedData.folders.contains(where: { $0.id == folderId }) {
@@ -135,7 +142,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
     func addItem(
         forGroup group: VaultListGroup,
         with cipher: CipherListView
-    ) async -> any VaultListArrangedDataBuilder {
+    ) async -> any VaultListPreparedDataBuilder {
         guard cipher.deletedDate == nil else {
             if group == .trash, let trashItem = VaultListItem(cipherListView: cipher) {
                 arrangedData.groupItems.append(trashItem)
@@ -178,7 +185,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
         return self
     }
 
-    func addNoFolderItem(cipher: CipherListView) -> VaultListArrangedDataBuilder {
+    func addNoFolderItem(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if cipher.folderId == nil,
            let noFolderItem = VaultListItem(cipherListView: cipher) {
             arrangedData.noFolderItems.append(noFolderItem)
@@ -186,11 +193,11 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
         return self
     }
 
-    func build() -> VaultListBuilderMetadata {
+    func build() -> VaultListPreparedData {
         arrangedData
     }
 
-    func incrementCipherTypeCount(cipher: CipherListView) -> VaultListArrangedDataBuilder {
+    func incrementCipherTypeCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         switch cipher.type {
         case .card:
             arrangedData.countPerCipherType[.card, default: 0] += 1
@@ -207,12 +214,12 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
         return self
     }
 
-    func incrementCipherDeletedCount() -> VaultListArrangedDataBuilder {
+    func incrementCipherDeletedCount() -> VaultListPreparedDataBuilder {
         arrangedData.ciphersDeletedCount += 1
         return self
     }
 
-    func incrementCollectionCount(cipher: CipherListView) -> VaultListArrangedDataBuilder {
+    func incrementCollectionCount(cipher: CipherListView) -> VaultListPreparedDataBuilder {
         if !cipher.collectionIds.isEmpty,
            let tempCollectionForCipher = arrangedData.collections.first(where: { collection in
                guard let colId = collection.id else { return false }
@@ -225,7 +232,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
         return self
     }
 
-    func incrementTOTPCount(cipher: CipherListView) async -> VaultListArrangedDataBuilder {
+    func incrementTOTPCount(cipher: CipherListView) async -> VaultListPreparedDataBuilder {
         if await shouldIncludeTOTP(cipher: cipher) {
             arrangedData.totpItemsCount += 1
         }
@@ -235,9 +242,9 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
 
     // MARK: Private methods
 
-    private func getHasPremiumFeaturesAccesss() async -> Bool {
+    private func getHasPremiumFeaturesAccess() async -> Bool {
         guard let hasPremiumFeaturesAccess else {
-            hasPremiumFeaturesAccess = await stateService.safeDoesActiveAccountHavePremium()
+            hasPremiumFeaturesAccess = await stateService.doesActiveAccountHavePremium()
             return hasPremiumFeaturesAccess ?? false
         }
         return hasPremiumFeaturesAccess
@@ -252,7 +259,7 @@ class DefaultVaultListArrangedDataBuilder: VaultListArrangedDataBuilder {
     }
 
     private func shouldIncludeTOTP(cipher: CipherListView) async -> Bool {
-        let hasPremiumFeaturesAccess = await getHasPremiumFeaturesAccesss()
+        let hasPremiumFeaturesAccess = await getHasPremiumFeaturesAccess()
 
         let hasAccess = hasPremiumFeaturesAccess || cipher.organizationUseTotp
         return hasAccess && cipher.type.loginListView?.totp != nil

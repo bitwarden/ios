@@ -10,7 +10,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     // MARK: Properties
 
     /// The factory for creating vault list builders.
-    let builderFactory: VaultListBuilderFactory
+    let builderFactory: VaultListSectionsBuilderFactory
     /// The service used to manage syncing and updates to the user's ciphers.
     let cipherService: CipherService
     /// The service used by the application to handle encryption and decryption tasks.
@@ -23,8 +23,8 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
     let folderService: FolderService
     /// The service used by the application to manage account state.
     let stateService: StateService
-    /// The helper used to arrange data for the vault list builder.
-    let vaultListDataArranger: VaultListDataArranger
+    /// The helper used to prepare data for the vault list builder.
+    let vaultListDataPreparator: VaultListDataPreparator
 
     func build(
         filter: VaultListFilter
@@ -35,7 +35,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             folderService.foldersPublisher()
         )
         .asyncTryMap { ciphers, collections, folders in
-            try await self.build(from: ciphers, collections: collections, folders: folders, filter: filter)
+            try await build(from: ciphers, collections: collections, folders: folders, filter: filter)
         }
         .eraseToAnyPublisher()
         .values
@@ -64,7 +64,7 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             os_signpost(.end, log: log, name: StaticString("VaultListSections"))
         }
 
-        guard var vaultListMetadata = try await vaultListDataArranger.arrangeMetadata(
+        guard let preparedData = try await vaultListDataPreparator.prepareData(
             from: ciphers,
             collections: collections,
             folders: folders,
@@ -73,20 +73,20 @@ struct MainVaultListDirectorStrategy: VaultListDirectorStrategy {
             return []
         }
 
-        var builder = builderFactory.make()
+        var builder = builderFactory.make(withData: preparedData)
 
         if filter.addTOTPGroup {
-            builder = builder.addTOTPSection(from: vaultListMetadata)
+            builder = builder.addTOTPSection()
         }
 
         builder = try await builder
-            .addFavoritesSection(from: vaultListMetadata)
-            .addTypesSection(from: vaultListMetadata)
-            .addFoldersSection(from: vaultListMetadata)
-            .addCollectionsSection(from: vaultListMetadata)
+            .addFavoritesSection()
+            .addTypesSection()
+            .addFoldersSection()
+            .addCollectionsSection()
 
         if filter.addTrashGroup {
-            builder = builder.addTrashSection(from: vaultListMetadata)
+            builder = builder.addTrashSection()
         }
 
         return builder.build()
