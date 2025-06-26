@@ -180,9 +180,7 @@ final class VaultGroupProcessor: StateProcessor<
         state.isRemoveCardPolicyFeatureFlagEnabled = await services.configService.getFeatureFlag(.removeCardPolicy)
         if state.isRemoveCardPolicyFeatureFlagEnabled {
             state.restrictItemTypesOrgIds = await services.policyService
-                .getActiveUserPolicies(.restrictItemTypes).map { policy in
-                    policy.organizationId
-                }
+                .getOrganizationIdsForRestricItemTypesPolicy()
         }
     }
 

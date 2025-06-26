@@ -156,7 +156,10 @@ extension View {
                 Divider()
             }
 
-            let itemTypes = restrictItemTypes ? CipherType.canCreateCasesRestricted : CipherType.canCreateCases
+            let itemTypes = restrictItemTypes
+                ? CipherType.canCreateRestrictItemTypesPolicyCases.reversed()
+                : CipherType.canCreateCases.reversed()
+
             ForEach(itemTypes, id: \.hashValue) { type in
                 Button(type.localizedName) {
                     addItem(type)

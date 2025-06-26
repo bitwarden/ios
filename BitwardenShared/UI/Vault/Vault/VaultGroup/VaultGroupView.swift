@@ -98,7 +98,7 @@ struct VaultGroupView: View {
                         }
                     case .menu:
                         let itemTypes = restrictItemTypes
-                            ? CipherType.canCreateCasesRestricted : CipherType.canCreateCases
+                            ? CipherType.canCreateRestrictItemTypesPolicyCases : CipherType.canCreateCases
                         Menu {
                             ForEach(itemTypes, id: \.hashValue) { type in
                                 Button(type.localizedName) {

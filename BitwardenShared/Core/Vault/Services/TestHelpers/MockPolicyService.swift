@@ -36,9 +36,8 @@ class MockPolicyService: PolicyService {
         return applyPasswordGenerationOptionsResult
     }
 
-    func getActiveUserPolicies(_ policyType: PolicyType) async -> [Policy] {
-        policyAppliesToUserPoliciesType.append(policyType)
-        return policyAppliesToUserPolicies
+    func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
+        policyAppliesToUserPolicies.map(\.organizationId)
     }
 
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {

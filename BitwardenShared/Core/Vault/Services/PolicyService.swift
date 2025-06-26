@@ -20,12 +20,11 @@ protocol PolicyService: AnyObject {
     ///
     func fetchTimeoutPolicyValues() async throws -> (action: SessionTimeoutAction?, value: Int)?
 
-    /// Get all active policies of a given type that apply to the active user.
+    /// Get all active restricted item types policy organization ids that apply to the active user.
     ///
-    /// - Parameter policyType: The policy to check.
-    /// - Returns: Active policies that apply to the user.
+    /// - Returns: Active policy organization ids that apply to the user.
     ///
-    func getActiveUserPolicies(_ policyType: PolicyType) async -> [Policy]
+    func getOrganizationIdsForRestricItemTypesPolicy() async -> [String]
 
     /// Go through current users policy, filter them and build a master password policy options based on enabled policy.
     /// - Returns: Optional `MasterPasswordPolicyOptions` if it exist.
@@ -267,8 +266,10 @@ extension DefaultPolicyService {
         return (timeoutAction, timeoutValue)
     }
 
-    func getActiveUserPolicies(_ policyType: PolicyType) async -> [Policy] {
-        await policiesApplyingToUser(policyType, filter: nil)
+    func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
+        await policiesApplyingToUser(.restrictItemTypes, filter: nil).map { policy in
+            policy.organizationId
+        }
     }
 
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
