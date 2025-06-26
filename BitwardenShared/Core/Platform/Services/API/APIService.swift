@@ -39,6 +39,8 @@ class APIService {
     /// Initialize an `APIService` used to make API requests.
     ///
     /// - Parameters:
+    ///   - accountTokenProvider: The `AccountTokenProvider` to use. This is helpful for testing.
+    ///   The default will be built by default.
     ///   - client: The underlying `HTTPClient` that performs the network request. Defaults
     ///     to `URLSession.shared`.
     ///   - environmentService: The service used by the application to retrieve the environment settings.
@@ -48,6 +50,7 @@ class APIService {
     ///     account's tokens.
     ///
     init(
+        accountTokenProvider: AccountTokenProvider? = nil,
         client: HTTPClient = URLSession.shared,
         environmentService: EnvironmentService,
         flightRecorder: FlightRecorder,
@@ -70,7 +73,7 @@ class APIService {
             ]
         )
 
-        accountTokenProvider = AccountTokenProvider(
+        self.accountTokenProvider = accountTokenProvider ?? DefaultAccountTokenProvider(
             httpService: httpServiceBuilder.makeService(baseURLGetter: { environmentService.identityURL }),
             tokenService: tokenService
         )
@@ -106,5 +109,11 @@ class APIService {
             baseURLGetter: { baseURL },
             tokenProvider: accountTokenProvider
         )
+    }
+
+    /// Sets up the account token provider delegate.
+    /// - Parameter delegate: The delegate to use.
+    func setupAccountTokenProviderDelegate(delegate: AccountTokenProviderDelegate) async {
+        await accountTokenProvider.setupDelegate(delegate: delegate)
     }
 }

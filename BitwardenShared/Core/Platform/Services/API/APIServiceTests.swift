@@ -6,17 +6,20 @@ import XCTest
 @testable import Networking
 
 class APIServiceTests: BitwardenTestCase {
+    var accountTokenProvider: MockAccountTokenProvider!
     var subject: APIService!
 
     override func setUp() {
         super.setUp()
 
-        subject = APIService(client: MockHTTPClient())
+        accountTokenProvider = MockAccountTokenProvider()
+        subject = APIService(accountTokenProvider: accountTokenProvider, client: MockHTTPClient())
     }
 
     override func tearDown() {
         super.tearDown()
 
+        accountTokenProvider = nil
         subject = nil
     }
 
@@ -67,5 +70,12 @@ class APIServiceTests: BitwardenTestCase {
             subject.identityService.requestHandlers.contains(where: { $0 is DefaultHeadersRequestHandler })
         )
         XCTAssertNil(subject.identityService.tokenProvider)
+    }
+
+    /// `setupAccountTokenProviderDelegate(:)` sets up the delegate in the account token provider.
+    func test_setupAccountTokenProviderDelegate() async {
+        await subject.setupAccountTokenProviderDelegate(delegate: MockAccountTokenProviderDelegate())
+        let delegate = await accountTokenProvider.delegate
+        XCTAssertNotNil(delegate)
     }
 }

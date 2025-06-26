@@ -37,4 +37,14 @@ class ErrorNetworkingTests: BitwardenTestCase {
         XCTAssertTrue(URLError(.networkConnectionLost).isNetworkingError)
         XCTAssertTrue(URLError(.timedOut).isNetworkingError)
     }
+
+    /// `isNetworkingError` returns `true` for custom `NetworkingError`.
+    func test_isNetworkingError_networkingError() throws {
+        XCTAssertTrue(TestNetworkingError.test.isNetworkingError)
+    }
+}
+
+/// Error to be used as test for `NetworkingError`.
+enum TestNetworkingError: NetworkingError {
+    case test
 }

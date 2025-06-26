@@ -7,8 +7,7 @@ public extension Error {
     /// be fixed in the app.
     var isNetworkingError: Bool {
         switch self {
-        case is ResponseValidationError, // Bitwarden Server specific errors.
-             is ServerError, // Any other non-2XX HTTP errors.
+        case is NetworkingError, // Any error marked as `NetworkingError`
              is URLError: // URLSession errors.
             true
         default:
