@@ -440,13 +440,8 @@ platform :ios do |options|
     "id", "it", "ja", "ko", "nb", "pl", "pt", "pt-BR", "ro", "ru", "sk", "es", "es-MX",
     "sv", "tr", "uk", "vi"]
       minimal_directory_names = ["en-US"]
-      # if options[:packageName] == "com.bitwarden.authenticator"
-      #   locales = auth_locales
-      # else
-      #   locales = pw_manager_locales
-      # end
       directory_names.each do |locale|
-        dir = "metadata/#{locale}"
+        dir = "options[:metadata_path]/#{locale}"
         FileUtils.mkdir_p(dir)
         File.write("#{dir}/release_notes.txt", changelog)
       end
@@ -454,9 +449,12 @@ platform :ios do |options|
 
     desc "Submit a build to the App Store"
     lane :submit_release do |options|
+
+      
+
       locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
       notes = locales.each_with_object({}) do |locale, hash|
-        file_path = "./metadata/#{locale}/release_notes.txt"
+        file_path = "#{options[:metadata_path]}/#{locale}/release_notes.txt"
         if File.exist?(file_path)
           hash[locale] = File.read(file_path)
         else
@@ -466,7 +464,8 @@ platform :ios do |options|
 
     deliver(
       force: true,
-      app_identifier: "com.8bit.bitwarden.beta",
+      metadata_path: options[:metadata_path],
+      app_identifier: options[:app_identifier],
       edit_live: false,
       build_number: options[:build_number],
       app_version: options[:app_version],

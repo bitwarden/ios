@@ -134,19 +134,24 @@ jobs:
             VERSION_NAME: ${{inputs.build-version}}
             PHASED_RELEASE: ${{ inputs.phased-release }}
             PRODUCT: ${{ inputs.product }}
-            UPDATE_SCREENSHOTS: ${{ inputs.update-screenshots}}
             CHANGELOG: ${{ inputs.changelog }}
             FASTLANE_ENABLE_BETA_DELIVER_SYNC_SCREENSHOTS: true
           run: |
             run: |
             if [ "$PRODUCT" = "Password Manager" ]; then
-              PACKAGE_NAME="com.8bit.bitwarden.beta"
+              PACKAGE_NAME="com.8bit.bitwarden"
             elif [ "$PRODUCT" = "Authenticator" ]; then
               PACKAGE_NAME="com.bitwarden.authenticator"
             else
               echo "Unsupported product: $PRODUCT"
               exit 1
             fi
+
+            if options[:packageName] == "com.bitwarden.authenticator"
+              metadata_path = "./authenticator_metadata"
+            else
+              metadata_path = "./metadata"
+            end
 
             bundle exec fastlane updateReleaseNotes
 
@@ -157,3 +162,5 @@ jobs:
               phased_release:"$PHASED_RELEASE" \
               app_identifier:"$PACKAGE_NAME" \
               changelog:"$CHANGELOG" \
+              metadata_path:$metadata_path
+              
