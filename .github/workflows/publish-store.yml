@@ -25,10 +25,6 @@ on:
         description: "Release Notes"
         type: string
         default: "Bug Fixes."
-      update-screenshots:
-        description: "Update Screenshots"
-        type: boolean
-        default: false
       phased-release:
         description: "Publish This Release in Phases - e.g. 1%, 3%.."
         type: boolean
@@ -152,22 +148,12 @@ jobs:
               exit 1
             fi
 
-            if [ "$UPDATE_SCREENSHOTS" = true ]; then
-              skip_screenshots=false
-              sync_screenshots=true
-            else
-              skip_screenshots=true
-              sync_screenshots=false
-            fi
-
             bundle exec fastlane updateReleaseNotes
 
             bundle exec fastlane submit_release \
               api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
               build_number:"$VERSION_CODE" \
               app_version:"$VERSION_NAME" \
-              skip_screenshots:$skip_screenshots \
-              sync_screenshots:$sync_screenshots \
               phased_release:"$PHASED_RELEASE" \
               app_identifier:"$PACKAGE_NAME" \
               changelog:"$CHANGELOG" \
