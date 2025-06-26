@@ -1,5 +1,6 @@
 
 name: Publish to iOS App Store
+run-name: Publish build ${{ inputs.build-number }} version ${{inputs.build-version}}
 
 on:
   workflow_dispatch:
@@ -24,10 +25,10 @@ on:
         description: "Release Notes"
         type: string
         default: "Bug Fixes."
-      skip-screenshots:
-        description: "Skip Screenshots"
+      update-screenshots:
+        description: "Update Screenshots"
         type: boolean
-        default: true
+        default: false
       phased-release:
         description: "Publish This Release in Phases - e.g. 1%, 3%.."
         type: boolean
@@ -137,8 +138,9 @@ jobs:
             VERSION_NAME: ${{inputs.build-version}}
             PHASED_RELEASE: ${{ inputs.phased-release }}
             PRODUCT: ${{ inputs.product }}
-            SKIP_SCREENSHOTS: ${{ inputs.skip-screenshots}}
+            UPDATE_SCREENSHOTS: ${{ inputs.update-screenshots}}
             CHANGELOG: ${{ inputs.changelog }}
+            FASTLANE_ENABLE_BETA_DELIVER_SYNC_SCREENSHOTS: true
           run: |
             run: |
             if [ "$PRODUCT" = "Password Manager" ]; then
@@ -150,13 +152,22 @@ jobs:
               exit 1
             fi
 
+            if [ "$UPDATE_SCREENSHOTS" = true ]; then
+              skip_screenshots=false
+              sync_screenshots=true
+            else
+              skip_screenshots=true
+              sync_screenshots=false
+            fi
+
             bundle exec fastlane updateReleaseNotes
 
             bundle exec fastlane submit_release \
               api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
               build_number:"$VERSION_CODE" \
               app_version:"$VERSION_NAME" \
-              skip_screenshots:"$SKIP_SCREENSHOTS" \
+              skip_screenshots:$skip_screenshots \
+              sync_screenshots:$sync_screenshots \
               phased_release:"$PHASED_RELEASE" \
               app_identifier:"$PACKAGE_NAME" \
               changelog:"$CHANGELOG" \
