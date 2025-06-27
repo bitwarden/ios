@@ -56,48 +56,92 @@ function process_project_file() {
     
     cp "$PROJECT_FILE" "$TEMP_FILE"
     
-    while IFS= read -r line; do
-        if [[ "$line" =~ ^[[:space:]]*([^:]+):[[:space:]]*$ ]]; then
-            package_name=$(echo "$line" | sed -E 's/^[[:space:]]*([^:]+):[[:space:]]*$/\1/')
-            
-            if [[ "$package_name" =~ ^(BitwardenSdk|Firebase|SwiftUIIntrospect|SnapshotTesting|ViewInspector)$ ]]; then
-                echo "  Processing package: $package_name"
-                
-                url_line=$(awk -v start="$package_name:" '/^[[:space:]]*'$package_name':/{flag=1; next} flag && /^[[:space:]]*[^[:space:]]/ && !/^[[:space:]]*url:/ && !/^[[:space:]]*exactVersion:/ && !/^[[:space:]]*revision:/ && !/^[[:space:]]*branch:/{flag=0} flag && /url:/{print; exit}' "$PROJECT_FILE")
-                version_line=$(awk -v start="$package_name:" '/^[[:space:]]*'$package_name':/{flag=1; next} flag && /^[[:space:]]*[^[:space:]]/ && !/^[[:space:]]*url:/ && !/^[[:space:]]*exactVersion:/ && !/^[[:space:]]*revision:/ && !/^[[:space:]]*branch:/{flag=0} flag && /exactVersion:/{print; exit}' "$PROJECT_FILE")
-                revision_line=$(awk -v start="$package_name:" '/^[[:space:]]*'$package_name':/{flag=1; next} flag && /^[[:space:]]*[^[:space:]]/ && !/^[[:space:]]*url:/ && !/^[[:space:]]*exactVersion:/ && !/^[[:space:]]*revision:/ && !/^[[:space:]]*branch:/{flag=0} flag && /revision:/{print; exit}' "$PROJECT_FILE")
-                branch_line=$(awk -v start="$package_name:" '/^[[:space:]]*'$package_name':/{flag=1; next} flag && /^[[:space:]]*[^[:space:]]/ && !/^[[:space:]]*url:/ && !/^[[:space:]]*exactVersion:/ && !/^[[:space:]]*revision:/ && !/^[[:space:]]*branch:/{flag=0} flag && /branch:/{print; exit}' "$PROJECT_FILE")
-                
-                if [[ -n "$url_line" ]]; then
-                    repo_url=$(echo "$url_line" | sed -E 's/.*url:[[:space:]]*(.*)/\1/')
-                    
-                    if [[ -n "$version_line" ]]; then
-                        current_version=$(echo "$version_line" | sed -E 's/.*exactVersion:[[:space:]]*(.*)/\1/')
-                        latest_version=$(get_latest_release "$repo_url")
-                        
-                        if [[ -n "$latest_version" ]] && version_compare "$current_version" "$latest_version"; then
-                            echo "    Updating $package_name from $current_version to $latest_version"
-                            sed -i.bak -E "s|(.*exactVersion:[[:space:]]*)[^[:space:]]*(.*)|\1$latest_version\2|" "$TEMP_FILE"
-                        else
-                            echo "    $package_name is up to date ($current_version)"
-                        fi
-                        
-                    elif [[ -n "$revision_line" ]] && [[ -n "$branch_line" ]]; then
-                        current_revision=$(echo "$revision_line" | sed -E 's/.*revision:[[:space:]]*(.*)/\1/')
-                        branch=$(echo "$branch_line" | sed -E 's/.*branch:[[:space:]]*(.*)/\1/')
-                        latest_commit=$(get_latest_commit "$repo_url" "$branch")
-                        
-                        if [[ -n "$latest_commit" ]] && [[ "$current_revision" != "$latest_commit" ]]; then
-                            echo "    Updating $package_name revision from $current_revision to $latest_commit"
-                            sed -i.bak -E "s|(.*revision:[[:space:]]*)[^[:space:]]*(.*)|\1$latest_commit\2|" "$TEMP_FILE"
-                        else
-                            echo "    $package_name revision is up to date ($current_revision)"
-                        fi
-                    fi
-                fi
-            fi
+    # Extract all package names from the packages section
+    package_names=$(awk '/^packages:/{flag=1; next} flag && /^[[:space:]]*[^[:space:]]*:/{print $1; gsub(/:/, "", $1); print $1} flag && /^[^[:space:]]/{flag=0}' "$PROJECT_FILE" | grep -v "^packages:" | sort -u)
+    
+    for package_name in $package_names; do
+        # Clean up package name (remove colon if present)
+        package_name=$(echo "$package_name" | sed 's/:$//')
+        
+        # Skip empty lines
+        [[ -z "$package_name" ]] && continue
+        
+        echo "  Processing package: $package_name"
+        
+        # Extract package info using more robust awk
+        package_info=$(awk -v pkg="$package_name" '
+        /^packages:/{in_packages=1; next}
+        in_packages && /^[[:space:]]*[^[:space:]]*:/ && $1 !~ /^[[:space:]]*'$package_name':$/{if($1 ~ /^[[:space:]]*[^[:space:]]*:$/) current_pkg=""; next}
+        in_packages && /^[[:space:]]*'$package_name':$/{current_pkg=pkg; next}
+        in_packages && current_pkg==pkg && /url:/{url=$2; next}
+        in_packages && current_pkg==pkg && /exactVersion:/{version=$2; next}
+        in_packages && current_pkg==pkg && /revision:/{revision=$2; next}
+        in_packages && current_pkg==pkg && /branch:/{branch=$2; next}
+        in_packages && /^[^[:space:]]/{in_packages=0}
+        END{
+            if(url) print "url=" url
+            if(version) print "version=" version
+            if(revision) print "revision=" revision
+            if(branch) print "branch=" branch
+        }' "$PROJECT_FILE")
+        
+        if [[ -z "$package_info" ]]; then
+            echo "    No package info found for $package_name, skipping..."
+            continue
         fi
-    done < "$PROJECT_FILE"
+        
+        # Parse the package info
+        eval "$package_info"
+        
+        # Only process GitHub URLs
+        if [[ -n "$url" ]] && [[ "$url" =~ ^https://github\.com/ ]]; then
+            if [[ -n "$version" ]]; then
+                latest_version=$(get_latest_release "$url")
+                
+                if [[ -n "$latest_version" ]] && version_compare "$version" "$latest_version"; then
+                    echo "    Updating $package_name from $version to $latest_version"
+                    # Use more specific sed pattern to target this package's version
+                    awk -v pkg="$package_name" -v old_ver="$version" -v new_ver="$latest_version" '
+                    /^packages:/{in_packages=1}
+                    in_packages && /^[[:space:]]*'$package_name':$/{current_pkg=1; print; next}
+                    in_packages && current_pkg && /exactVersion:/{
+                        gsub(old_ver, new_ver); current_pkg=0
+                    }
+                    in_packages && /^[[:space:]]*[^[:space:]]*:$/ && !/^[[:space:]]*'$package_name':$/{current_pkg=0}
+                    in_packages && /^[^[:space:]]/{in_packages=0; current_pkg=0}
+                    {print}' "$TEMP_FILE" > "$TEMP_FILE.tmp" && mv "$TEMP_FILE.tmp" "$TEMP_FILE"
+                else
+                    echo "    $package_name is up to date ($version)"
+                fi
+                
+            elif [[ -n "$revision" ]] && [[ -n "$branch" ]]; then
+                latest_commit=$(get_latest_commit "$url" "$branch")
+                
+                if [[ -n "$latest_commit" ]] && [[ "$revision" != "$latest_commit" ]]; then
+                    echo "    Updating $package_name revision from $revision to $latest_commit"
+                    # Use more specific sed pattern to target this package's revision
+                    awk -v pkg="$package_name" -v old_rev="$revision" -v new_rev="$latest_commit" '
+                    /^packages:/{in_packages=1}
+                    in_packages && /^[[:space:]]*'$package_name':$/{current_pkg=1; print; next}
+                    in_packages && current_pkg && /revision:/{
+                        gsub(old_rev, new_rev); current_pkg=0
+                    }
+                    in_packages && /^[[:space:]]*[^[:space:]]*:$/ && !/^[[:space:]]*'$package_name':$/{current_pkg=0}
+                    in_packages && /^[^[:space:]]/{in_packages=0; current_pkg=0}
+                    {print}' "$TEMP_FILE" > "$TEMP_FILE.tmp" && mv "$TEMP_FILE.tmp" "$TEMP_FILE"
+                else
+                    echo "    $package_name revision is up to date ($revision)"
+                fi
+            else
+                echo "    $package_name: No version or revision info found, skipping..."
+            fi
+        else
+            echo "    $package_name: Not a GitHub URL or no URL found, skipping..."
+        fi
+        
+        # Clear variables for next iteration
+        unset url version revision branch
+    done
     
     if ! diff -q "$PROJECT_FILE" "$TEMP_FILE" > /dev/null; then
         echo "  Updates found. Applying changes to $PROJECT_FILE..."
