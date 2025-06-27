@@ -80,14 +80,14 @@ class APIService {
 
         apiService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.apiURL },
-            tokenProvider: accountTokenProvider
+            tokenProvider: self.accountTokenProvider
         )
         apiUnauthenticatedService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.apiURL }
         )
         eventsService = httpServiceBuilder.makeService(
             baseURLGetter: { environmentService.eventsURL },
-            tokenProvider: accountTokenProvider
+            tokenProvider: self.accountTokenProvider
         )
         hibpService = httpServiceBuilder.makeService(
             baseURLGetter: { URL(string: "https://api.pwnedpasswords.com")! }
