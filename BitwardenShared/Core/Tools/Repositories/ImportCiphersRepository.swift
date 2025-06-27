@@ -11,7 +11,7 @@ protocol ImportCiphersRepository: AnyObject {
     ///   - onProgress: Closure to update progress.
     /// - Returns: A dictionary containing the localized cipher type (key) and count (value) of that type
     /// that was imported, e.g. ["Passwords": 3, "Cards": 2].
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func importCiphers(
         credentialImportToken: UUID,
         onProgress: @MainActor (Double) -> Void
@@ -69,7 +69,7 @@ class DefaultImportCiphersRepository {
 // MARK: ImportCiphersRepository
 
 extension DefaultImportCiphersRepository: ImportCiphersRepository {
-    @available(iOS 18.2, *)
+    @available(iOS 26.0, *)
     func importCiphers(
         credentialImportToken: UUID,
         onProgress: @MainActor (Double) -> Void
