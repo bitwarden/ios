@@ -64,7 +64,7 @@ public protocol VaultRepository: AnyObject {
     ///
     /// - Returns: Whether the active account has premium.
     ///
-    func doesActiveAccountHavePremium() async throws -> Bool
+    func doesActiveAccountHavePremium() async -> Bool
 
     /// Download and decrypt an attachment and save the file to local storage on the device.
     ///
@@ -597,7 +597,8 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         from ciphers: [CipherListView],
         filter: VaultFilterType?
     ) async throws -> [VaultListItem] {
-        let hasPremiumFeaturesAccess = await (try? doesActiveAccountHavePremium()) ?? false
+        let hasPremiumFeaturesAccess = await doesActiveAccountHavePremium()
+        let userHasMasterPassword = await (try? stateService.getUserHasMasterPassword()) ?? false
 
         // Filter and sort the list.
         let activeCiphers = ciphers
@@ -611,7 +612,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         // Convert the CipherViews into VaultListItem.
         let totpItems: [VaultListItem] = try await activeCiphers
-            .asyncMap { try await totpItem(for: $0) }
+            .asyncMap { try await totpItem(for: $0, userHasMasterPassword: userHasMasterPassword) }
             .compactMap { $0 }
 
         return totpItems
@@ -619,10 +620,15 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
     /// A transform to convert a `CipherListView` into a TOTP `VaultListItem`.
     ///
-    /// - Parameter cipherListView: The cipher view that may have a TOTP key.
+    /// - Parameters:
+    ///   - cipherListView: The cipher view that may have a TOTP key.
+    ///   - userHasMasterPassword: Whether the user has a master password.
     /// - Returns: A `VaultListItem` if the cipher supports TOTP.
     ///
-    private func totpItem(for cipherListView: CipherListView) async throws -> VaultListItem? {
+    private func totpItem(
+        for cipherListView: CipherListView,
+        userHasMasterPassword: Bool
+    ) async throws -> VaultListItem? {
         guard let id = cipherListView.id,
               cipherListView.type.loginListView?.totp != nil else {
             return nil
@@ -641,7 +647,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let listModel = VaultListTOTP(
             id: id,
             cipherListView: cipherListView,
-            requiresMasterPassword: cipherListView.reprompt == .password,
+            requiresMasterPassword: cipherListView.reprompt == .password && userHasMasterPassword,
             totpCode: code
         )
         return VaultListItem(
@@ -761,7 +767,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let items: [VaultListItem]
         switch group {
         case .card:
-            items = activeCiphers.filter { $0.type == .card }.compactMap(VaultListItem.init)
+            items = activeCiphers.filter(\.type.isCard).compactMap(VaultListItem.init)
         case let .collection(id, _, _):
             items = activeCiphers.filter { $0.collectionIds.contains(id) }.compactMap(VaultListItem.init)
         case let .folder(id, _):
@@ -914,7 +920,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             )
         }
 
-        let typesCardCount = activeCiphers.lazy.filter { $0.type == .card }.count
+        let typesCardCount = activeCiphers.lazy.filter(\.type.isCard).count
         let typesIdentityCount = activeCiphers.lazy.filter { $0.type == .identity }.count
         let typesLoginCount = activeCiphers.lazy.filter(\.type.isLogin).count
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
@@ -1069,8 +1075,8 @@ extension DefaultVaultRepository: VaultRepository {
         return nil
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
-        try await stateService.doesActiveAccountHavePremium()
+    func doesActiveAccountHavePremium() async -> Bool {
+        await stateService.doesActiveAccountHavePremium()
     }
 
     func downloadAttachment(_ attachmentView: AttachmentView, cipher: CipherView) async throws -> URL? {
@@ -1127,7 +1133,7 @@ extension DefaultVaultRepository: VaultRepository {
             return nil
         }
 
-        let accountHavePremium = try await doesActiveAccountHavePremium()
+        let accountHavePremium = await doesActiveAccountHavePremium()
         if !cipher.organizationUseTotp, !accountHavePremium {
             return nil
         }
@@ -1709,7 +1715,7 @@ private extension CipherListView {
     func belongsToGroup(_ group: VaultListGroup) -> Bool {
         return switch group {
         case .card:
-            type == .card
+            type.isCard
         case let .collection(id, _, _):
             collectionIds.contains(id)
         case let .folder(id, _):

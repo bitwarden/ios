@@ -52,8 +52,9 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     func test_getValue_success() async throws {
         let key = SymmetricKey(size: .bits256)
         let data = key.withUnsafeBytes { Data(Array($0)) }
+        let encodedData = try JSONEncoder.defaultEncoder.encode(data)
 
-        keychainService.setSearchResultData(data)
+        keychainService.setSearchResultData(encodedData)
 
         let returnData: Data = try await subject.getValue(for: .authenticatorKey)
         XCTAssertEqual(returnData, data)
@@ -113,6 +114,7 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
     func test_setAuthenticatorKey_success() async throws {
         let key = SymmetricKey(size: .bits256)
         let data = key.withUnsafeBytes { Data(Array($0)) }
+        let encodedData = try JSONEncoder.defaultEncoder.encode(data)
         try await subject.setValue(data, for: .authenticatorKey)
 
         let attributes = try XCTUnwrap(keychainService.addAttributes as? [CFString: Any])
@@ -123,6 +125,6 @@ final class SharedKeychainStorageTests: BitwardenTestCase {
                            SharedKeychainItem.authenticatorKey.unformattedKey)
         try XCTAssertEqual(XCTUnwrap(attributes[kSecClass] as? String),
                            String(kSecClassGenericPassword))
-        try XCTAssertEqual(XCTUnwrap(attributes[kSecValueData] as? Data), data)
+        try XCTAssertEqual(XCTUnwrap(attributes[kSecValueData] as? Data), encodedData)
     }
 }

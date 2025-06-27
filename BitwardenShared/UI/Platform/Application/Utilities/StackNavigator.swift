@@ -78,21 +78,6 @@ public protocol StackNavigator: Navigator {
         onCompletion: (() -> Void)?
     )
 
-    /// Presents a view controller modally. Supports presenting on top of presented modals if necessary.
-    ///
-    /// - Parameters:
-    ///   - viewController: The view controller to present.
-    ///   - animated: Whether the transition should be animated.
-    ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
-    ///   - onCompletion: A closure to call on completion.
-    ///
-    func present(
-        _ viewController: UIViewController,
-        animated: Bool,
-        overFullscreen: Bool,
-        onCompletion: (() -> Void)?
-    )
-
     /// Replaces the stack with the specified view.
     ///
     /// - Parameters:
@@ -225,27 +210,6 @@ extension StackNavigator {
         )
     }
 
-    /// Presents a view controller modally. Supports presenting on top of presented modals if necessary. Animation is
-    /// controlled by `UI.animated`.
-    ///
-    /// - Parameters:
-    ///   - viewController: The view controller to present.
-    ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
-    ///   - onCompletion: The closure to call after presenting.
-    ///
-    func present(
-        _ viewController: UIViewController,
-        overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil
-    ) {
-        present(
-            viewController,
-            animated: UI.animated,
-            overFullscreen: overFullscreen,
-            onCompletion: onCompletion
-        )
-    }
-
     /// Replaces the stack with the specified view. Animation is controlled by `UI.animated`.
     ///
     /// - Parameter view: The view that will replace the stack.
@@ -317,40 +281,6 @@ extension UINavigationController: StackNavigator {
         }
         let animated = self.view.window != nil ? animated : false
         present(controller, animated: animated, onCompletion: onCompletion)
-    }
-
-    public func present(
-        _ viewController: UIViewController,
-        animated: Bool,
-        overFullscreen: Bool = false,
-        onCompletion: (() -> Void)? = nil
-    ) {
-        var presentedChild = presentedViewController
-        var availablePresenter: UIViewController? = self
-        while presentedChild != nil {
-            availablePresenter = presentedChild
-            presentedChild = presentedChild?.presentedViewController
-        }
-        if overFullscreen {
-            viewController.modalPresentationStyle = .overFullScreen
-        }
-        if let popoverPresentationController = viewController.popoverPresentationController,
-           popoverPresentationController.sourceView == nil,
-           popoverPresentationController.barButtonItem == nil,
-           let parentView = availablePresenter?.view {
-            // Provide a default source view and rect when presenting a popover if one isn't
-            // already specified. This prevents a crash when presenting popovers on iPadOS.
-            popoverPresentationController.sourceView = parentView
-            popoverPresentationController.sourceRect = CGRect(
-                x: parentView.bounds.midX, y: parentView.bounds.midY, width: 0, height: 0
-            )
-            popoverPresentationController.permittedArrowDirections = []
-        }
-        availablePresenter?.present(
-            viewController,
-            animated: animated,
-            completion: onCompletion
-        )
     }
 
     public func replace<Content: View>(_ view: Content, animated: Bool) {

@@ -263,6 +263,7 @@
 "FileSource" = "Vir datoteke";
 "FeatureUnavailable" = "Funkcija ni na voljo";
 "MaxFileSize" = "Največja velikost datoteke je 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Te funkcije ne morete koristiti, dokler dokler ne posodobite vašega ključa za šifriranje.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "Preberite več";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Odstrani geslo";
 "AreYouSureRemoveSendPassword" = "Ste prepričani, da želite odstraniti geslo?";
 "RemovingSendPassword" = "Odstranjevanje gesla";
-"SendPasswordRemoved" = "Geslo je bilo odstranjeno.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Vaš račun ne vsebuje pošiljk.";
 "CopyLink" = "Kopiraj povezavo";
 "ShareLink" = "Deli povezavo";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

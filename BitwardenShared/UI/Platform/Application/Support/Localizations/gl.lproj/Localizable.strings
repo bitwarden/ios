@@ -263,6 +263,7 @@
 "FileSource" = "Fonte do arquivo";
 "FeatureUnavailable" = "Función non dispoñible";
 "MaxFileSize" = "O tamaño máximo é de 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Non podes usar esta función ata que actualices a clave de cifrado.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Requírese mudar a clave de cifrado. Por favor, inicia sesión na aplicación web para actualizala.";
 "LearnMore" = "Saber máis";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Eliminar contrasinal";
 "AreYouSureRemoveSendPassword" = "Seguro que queres eliminar o contrasinal?";
 "RemovingSendPassword" = "Eliminando contrasinal";
-"SendPasswordRemoved" = "O contrasinal foi eliminado.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Non hai Sends na túa conta.";
 "CopyLink" = "Copiar ligazón";
 "ShareLink" = "Compartir ligazón";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

@@ -28,6 +28,9 @@ final class VaultGroupProcessor: StateProcessor<
     /// The `Coordinator` for this processor.
     private var coordinator: any Coordinator<VaultRoute, AuthAction>
 
+    /// The helper to handle master password reprompts.
+    private let masterPasswordRepromptHelper: MasterPasswordRepromptHelper
+
     /// The services for this processor.
     private var services: Services
 
@@ -50,17 +53,20 @@ final class VaultGroupProcessor: StateProcessor<
     ///
     /// - Parameters:
     ///   - coordinator: The `Coordinator` for this processor.
+    ///   - masterPasswordRepromptHelper: The helper to handle master password reprompts.
     ///   - services: The services for this processor.
     ///   - state: The initial state of this processor.
     ///   - vaultItemMoreOptionsHelper: The helper to handle the more options menu for a vault item.
     ///
     init(
         coordinator: any Coordinator<VaultRoute, AuthAction>,
+        masterPasswordRepromptHelper: MasterPasswordRepromptHelper,
         services: Services,
         state: VaultGroupState,
         vaultItemMoreOptionsHelper: VaultItemMoreOptionsHelper
     ) {
         self.coordinator = coordinator
+        self.masterPasswordRepromptHelper = masterPasswordRepromptHelper
         self.services = services
         self.vaultItemMoreOptionsHelper = vaultItemMoreOptionsHelper
 
@@ -134,12 +140,12 @@ final class VaultGroupProcessor: StateProcessor<
             state.toast = Toast(title: Localizations.valueHasBeenCopied(Localizations.verificationCode))
         case let .itemPressed(item):
             switch item.itemType {
-            case .cipher:
-                coordinator.navigate(to: .viewItem(id: item.id), context: self)
+            case let .cipher(cipherListView, _):
+                navigateToViewItem(cipherListView: cipherListView, id: item.id)
             case let .group(group, _):
                 coordinator.navigate(to: .group(group, filter: state.vaultFilterType))
             case let .totp(_, model):
-                coordinator.navigate(to: .viewItem(id: model.id))
+                navigateToViewItem(cipherListView: model.cipherListView, id: model.id)
             }
         case let .searchStateChanged(isSearching):
             if !isSearching {
@@ -165,6 +171,21 @@ final class VaultGroupProcessor: StateProcessor<
         let isPersonalOwnershipDisabled = await services.policyService.policyAppliesToUser(.personalOwnership)
         state.isPersonalOwnershipDisabled = isPersonalOwnershipDisabled
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
+    }
+
+    /// Navigates to the view item view for the specified cipher. If the cipher requires master
+    /// password reprompt, this will prompt the user before navigation.
+    ///
+    /// - Parameters:
+    ///     - cipherListView: The cipher list view item for the cipher that will be shown in the view item view.
+    ///     - id: The cipher's identifier.
+    ///
+    private func navigateToViewItem(cipherListView: CipherListView, id: String) {
+        Task {
+            await masterPasswordRepromptHelper.repromptForMasterPasswordIfNeeded(cipherListView: cipherListView) {
+                self.coordinator.navigate(to: .viewItem(id: id, masterPasswordRepromptCheckCompleted: true))
+            }
+        }
     }
 
     /// Refreshes the vault group's TOTP Codes.

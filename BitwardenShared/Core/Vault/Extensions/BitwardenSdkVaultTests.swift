@@ -78,7 +78,7 @@ class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
     /// `isLogin` returns whether the type is a login.
     func test_isLogin() {
         XCTAssertTrue(CipherListViewType.login(.fixture()).isLogin)
-        XCTAssertFalse(CipherListViewType.card.isLogin)
+        XCTAssertFalse(CipherListViewType.card(.init(brand: nil)).isLogin)
         XCTAssertFalse(CipherListViewType.identity.isLogin)
         XCTAssertFalse(CipherListViewType.secureNote.isLogin)
         XCTAssertFalse(CipherListViewType.sshKey.isLogin)
@@ -91,7 +91,7 @@ class BitwardenSdkCipherListViewTypeTests: BitwardenTestCase {
             CipherListViewType.login(expectedResult).loginListView,
             expectedResult
         )
-        XCTAssertNil(CipherListViewType.card.loginListView)
+        XCTAssertNil(CipherListViewType.card(.init(brand: nil)).loginListView)
         XCTAssertNil(CipherListViewType.identity.loginListView)
         XCTAssertNil(CipherListViewType.secureNote.loginListView)
         XCTAssertNil(CipherListViewType.sshKey.loginListView)

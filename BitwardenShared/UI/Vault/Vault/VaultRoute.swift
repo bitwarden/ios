@@ -79,7 +79,10 @@ public enum VaultRoute: Equatable, Hashable {
 
     /// A route to the view item screen.
     ///
-    /// - Parameter id: The id of the item to display.
+    /// - Parameters:
+    ///   - id: The id of the item to display.
+    ///   - masterPasswordRepromptCheckCompleted: Whether the master password reprompt check has
+    ///     already been completed.
     ///
-    case viewItem(id: String)
+    case viewItem(id: String, masterPasswordRepromptCheckCompleted: Bool = false)
 }

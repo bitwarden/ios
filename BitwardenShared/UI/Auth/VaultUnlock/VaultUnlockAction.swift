@@ -4,11 +4,11 @@ enum VaultUnlockAction: Equatable {
     /// The cancel button was pressed.
     case cancelPressed
 
+    /// The log out button was tapped.
+    case logOut
+
     /// The value for the master password was changed.
     case masterPasswordChanged(String)
-
-    /// The more button was pressed.
-    case morePressed
 
     /// A forwarded profile switcher action.
     case profileSwitcher(ProfileSwitcherAction)

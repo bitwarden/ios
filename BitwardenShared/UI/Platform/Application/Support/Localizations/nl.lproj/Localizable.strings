@@ -263,6 +263,7 @@
 "FileSource" = "Bestandsbron";
 "FeatureUnavailable" = "Functionaliteit niet beschikbaar";
 "MaxFileSize" = "De maximale bestandsgrootte is 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Verplicht. De maximale bestandsgrootte is %1$@.";
 "UpdateKey" = "Je kunt deze functie pas gebruiken als je je encryptiesleutel bijwerkt.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Migratie van de encryptiesleutel vereist. Login via de website om je encryptiesleutel bij te werken.";
 "LearnMore" = "Meer informatie";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Wachtwoord verwijderen";
 "AreYouSureRemoveSendPassword" = "Weet je zeker dat je het wachtwoord wilt verwijderen?";
 "RemovingSendPassword" = "Wachtwoord verwijderen";
-"SendPasswordRemoved" = "Wachtwoord is verwijderd.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Er zijn geen Sends in je account.";
 "CopyLink" = "Link kopiëren";
 "ShareLink" = "Link delen";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log verwijderd";
 "AllLogsDeleted" = "Alle logs verwijderd";
 "LoggingEndsOnDateAtTime" = "Loggen eindigt op %1$@ om %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Je moet een bestand bijvoegen voor het opslaan van deze Send";
+"SendUpdated" = "Send bijgewerkt";

@@ -263,6 +263,7 @@
 "FileSource" = "Tập tin nguồn";
 "FeatureUnavailable" = "Tính năng không có sẵn";
 "MaxFileSize" = "Kích thước tối đa của tập tin là 100MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Bạn không thể sử dụng tính năng này cho đến khi bạn cập nhật khoá mã hóa.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Cần di chuyển khóa mã hóa. Vui lòng đăng nhập trang web Bitwaden để cập nhật khóa mã hóa của bạn.";
 "LearnMore" = "Tìm hiểu thêm";
@@ -580,7 +581,7 @@
 "RemovePassword" = "Xóa mật khẩu";
 "AreYouSureRemoveSendPassword" = "Bạn có chắc muốn xóa mật khẩu này?";
 "RemovingSendPassword" = "Đang xóa mật khẩu";
-"SendPasswordRemoved" = "Mật khẩu đã được xóa.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Không có mục Gửi trong tài khoản của bạn.";
 "CopyLink" = "Sao chép liên kết";
 "ShareLink" = "Chia sẻ liên kết";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

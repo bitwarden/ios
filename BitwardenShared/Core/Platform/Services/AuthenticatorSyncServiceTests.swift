@@ -489,6 +489,20 @@ final class AuthenticatorSyncServiceTests: BitwardenTestCase { // swiftlint:disa
         }
     }
 
+    /// When the sync status updates, and is enabled,
+    /// then the last active time is updated in the shared keychain.
+    ///
+    @MainActor
+    func test_determineSyncForUserId_setLastActiveTime() async throws {
+        setupInitialState()
+        await subject.start()
+        stateService.syncToAuthenticatorSubject.send(("1", true))
+
+        try await waitForAsync {
+            self.vaultTimeoutService.lastActiveTime["1"] != nil
+        }
+    }
+
     /// Verifies that the AuthSyncService stops listening for Cipher updates and removes all data in the shared store
     /// for a user when the user has sync turned off.
     ///

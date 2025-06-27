@@ -276,6 +276,7 @@ actor DefaultAuthenticatorSyncService: NSObject, AuthenticatorSyncService {
             _ = await enableSyncTask?.result
 
             do {
+                try await vaultTimeoutService.setLastActiveTime(userId: userId)
                 guard await !vaultTimeoutService.isLocked(userId: userId) else {
                     let authVaultKey = try? await keychainRepository.getAuthenticatorVaultKey(userId: userId)
                     if authVaultKey != nil {

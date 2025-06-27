@@ -150,7 +150,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     // MARK: Tests
 
-    /// `.canBeLocked(userId:)` shoulr reutrn true when user has face ID.
+    /// `.canBeLocked(userId:)` should return true when user has face ID.
     func test_canBeLocked_hasFaceId() async {
         stateService.userHasMasterPassword["1"] = false
         stateService.pinProtectedUserKeyValue["1"] = "123"
@@ -460,12 +460,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         stateService.activeAccount = beeAccount
         stateService.timeoutAction = [anneAccount.profile.userId: .logout]
         vaultTimeoutService.shouldSessionTimeout[anneAccount.profile.userId] = true
+        vaultTimeoutService.sessionTimeoutAction[anneAccount.profile.userId] = .logout
         await subject.checkSessionTimeouts(handleActiveUser: nil)
         XCTAssertTrue(vaultTimeoutService.removedIds.contains(anneAccount.profile.userId))
         XCTAssertTrue(stateService.accountsLoggedOut.contains(anneAccount.profile.userId))
     }
 
-    /// `checkSessionTimeout()` takes no action to an active  account when the session timeout if the `handleActiveUser`
+    /// `checkSessionTimeout()` takes no action to an active account when the session timeout if the `handleActiveUser`
     /// closure is nil.
     func test_checkSessionTimeout_activeAccount() async {
         stateService.accounts = [anneAccount, beeAccount]
@@ -624,6 +625,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             anneAccount.profile.userId: true,
             beeAccount.profile.userId: true,
         ]
+
         vaultTimeoutService.isClientLocked = [
             anneAccount.profile.userId: true,
             beeAccount.profile.userId: true,
@@ -633,9 +635,9 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
             anneAccount.profile.userId: false,
             beeAccount.profile.userId: false,
         ]
-        stateService.pinProtectedUserKeyValue = [
-            beeAccount.profile.userId: "123",
-        ]
+
+        vaultTimeoutService.pinUnlockAvailabilityResult = .success([beeAccount.profile.userId: true])
+
         let accounts = await subject.getProfilesState(
             allowLockAndLogout: true,
             isVisible: true,
@@ -1020,22 +1022,26 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         }
     }
 
-    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
-    func test_isPinUnlockAvailable_noValue() async throws {
-        stateService.activeAccount = .fixture()
-        let value = try await subject.isPinUnlockAvailable()
+    /// `isPinUnlockAvailable` calls the VaultTimeoutService.
+    func test_isPinUnlockAvailable() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        vaultTimeoutService.pinUnlockAvailabilityResult = .success(["1": false])
+        var value = try await subject.isPinUnlockAvailable(userId: "1")
         XCTAssertFalse(value)
+
+        vaultTimeoutService.pinUnlockAvailabilityResult = .success(["1": true])
+        value = try await subject.isPinUnlockAvailable(userId: "1")
+        XCTAssertTrue(value)
     }
 
-    /// `isPinUnlockAvailable` returns the pin unlock availability for the active user.
-    func test_isPinUnlockAvailable_value() async throws {
-        let active = Account.fixture()
-        stateService.activeAccount = active
-        stateService.pinProtectedUserKeyValue = [
-            active.profile.userId: "123",
-        ]
-        let value = try await subject.isPinUnlockAvailable()
-        XCTAssertTrue(value)
+    /// `isPinUnlockAvailable` throws errors.
+    func test_isPinUnlockAvailable_error() async throws {
+        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
+        vaultTimeoutService.pinUnlockAvailabilityResult = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.isPinUnlockAvailable(userId: "1")
+        }
     }
 
     /// `isUserManagedByOrganization` returns false when the feature flag is off.
@@ -1206,6 +1212,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: account.kdf.sdkKdf,
                 email: account.profile.email,
                 privateKey: "private",
+                signingKey: nil,
                 method: .password(password: "NEW_PASSWORD", userKey: "encryptedUserKey")
             )
         )
@@ -1583,12 +1590,12 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertNil(clientService.mockAuthUserId)
     }
 
-    /// `sessionTimeoutAction()` returns the session timeout action for a user.
+    /// `sessionTimeoutAction()` uses the VaultTimeoutService.
     func test_sessionTimeoutAction() async throws {
         stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
         stateService.accounts = [.fixture(profile: .fixture(userId: "2"))]
-        stateService.timeoutAction["1"] = .lock
-        stateService.timeoutAction["2"] = .logout
+        vaultTimeoutService.sessionTimeoutAction["1"] = .lock
+        vaultTimeoutService.sessionTimeoutAction["2"] = .logout
 
         var timeoutAction = try await subject.sessionTimeoutAction()
         XCTAssertEqual(timeoutAction, .lock)
@@ -1597,49 +1604,13 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         XCTAssertEqual(timeoutAction, .logout)
     }
 
-    /// `sessionTimeoutAction()` defaults to logout if the user doesn't have a master password and
-    /// hasn't enabled pin or biometrics unlock.
-    func test_sessionTimeoutAction_noMasterPassword() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
-        stateService.timeoutAction["1"] = .lock
-        stateService.userHasMasterPassword["1"] = false
+    /// `sessionTimeoutAction()` throws errors.
+    func test_sessionTimeoutAction_error() async throws {
+        vaultTimeoutService.sessionTimeoutActionError = BitwardenTestError.example
 
-        let timeoutAction = try await subject.sessionTimeoutAction()
-        XCTAssertEqual(timeoutAction, .logout)
-    }
-
-    /// `sessionTimeoutAction()` allows lock or logout if the user doesn't have a master password
-    /// and has biometrics unlock enabled.
-    func test_sessionTimeoutAction_noMasterPassword_biometricsEnabled() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
-        stateService.timeoutAction["1"] = .lock
-        stateService.userHasMasterPassword["1"] = false
-        biometricsRepository.biometricUnlockStatus = .success(
-            .available(.faceID, enabled: true)
-        )
-
-        var timeoutAction = try await subject.sessionTimeoutAction()
-        XCTAssertEqual(timeoutAction, .lock)
-
-        stateService.timeoutAction["1"] = .logout
-        timeoutAction = try await subject.sessionTimeoutAction()
-        XCTAssertEqual(timeoutAction, .logout)
-    }
-
-    /// `sessionTimeoutAction()` allows lock or logout if the user doesn't have a master password
-    /// and has pin unlock enabled.
-    func test_sessionTimeoutAction_noMasterPassword_pinEnabled() async throws {
-        stateService.activeAccount = .fixture(profile: .fixture(userId: "1"))
-        stateService.pinProtectedUserKeyValue["1"] = "KEY"
-        stateService.timeoutAction["1"] = .lock
-        stateService.userHasMasterPassword["1"] = false
-
-        var timeoutAction = try await subject.sessionTimeoutAction()
-        XCTAssertEqual(timeoutAction, .lock)
-
-        stateService.timeoutAction["1"] = .logout
-        timeoutAction = try await subject.sessionTimeoutAction()
-        XCTAssertEqual(timeoutAction, .logout)
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            _ = try await subject.sessionTimeoutAction(userId: "1")
+        }
     }
 
     /// `setActiveAccount(userId: )` loads the environment URLs for the active account.
@@ -1758,6 +1729,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
+                signingKey: nil,
                 method: .password(password: "password", userKey: "USER_KEY")
             )
         )
@@ -1934,6 +1906,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: KdfConfig().sdkKdf,
                 email: "user@bitwarden.com",
                 privateKey: "private",
+                signingKey: nil,
                 method: .keyConnector(masterKey: "key", userKey: "user")
             )
         )
@@ -1985,6 +1958,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: KdfConfig().sdkKdf,
                 email: "user@bitwarden.com",
                 privateKey: "private",
+                signingKey: nil,
                 method: .keyConnector(masterKey: "key", userKey: "user")
             )
         )
@@ -2177,6 +2151,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
+                signingKey: nil,
                 method: .authRequest(
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .masterKey(protectedMasterKey: "KEY", authRequestKey: "USER_KEY")
@@ -2207,6 +2182,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
+                signingKey: nil,
                 method: .authRequest(
                     requestPrivateKey: "AUTH_REQUEST_PRIVATE_KEY",
                     method: .userKey(protectedUserKey: "KEY")
@@ -2240,6 +2216,7 @@ class AuthRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_bo
                 kdfParams: .pbkdf2(iterations: UInt32(Constants.pbkdf2Iterations)),
                 email: "user@bitwarden.com",
                 privateKey: "PRIVATE_KEY",
+                signingKey: nil,
                 method: .pin(pin: "123", pinProtectedUserKey: "123")
             )
         )

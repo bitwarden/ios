@@ -263,6 +263,7 @@
 "FileSource" = "Izvor datoteke";
 "FeatureUnavailable" = "Značajka nije dostupna";
 "MaxFileSize" = "Najveća veličina datoteke je 100 MB.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "Ne možeš koristiti ovu značajku dok ne ažuriraš svoj ključ za šifriranje.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Potrebna je migracija ključa za šifriranje. Prijavi se na web trezoru za ažuriranje ključa za šifriranje.";
 "LearnMore" = "Saznaj više";
@@ -581,7 +582,7 @@
 "RemovePassword" = "Ukloni lozinku";
 "AreYouSureRemoveSendPassword" = "Sigurno želiš ukloniti lozinku?";
 "RemovingSendPassword" = "Lozinka uklonjena";
-"SendPasswordRemoved" = "Lozinka uklonjena.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Nema Sendova na tvojem računu.";
 "CopyLink" = "Kopiraj vezu";
 "ShareLink" = "Dijeli vezu";
@@ -1209,3 +1210,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

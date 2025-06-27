@@ -226,12 +226,14 @@ struct SendListView: View {
             .refreshable { [weak store] in
                 await store?.perform(.refresh)
             }
-            .navigationBar(
-                title: store.state.navigationTitle,
-                titleDisplayMode: store.state.type == nil ? .large : .inline
-            )
+            .navigationBar(title: store.state.navigationTitle, titleDisplayMode: .inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+                largeNavigationTitleToolbarItem(
+                    store.state.navigationTitle,
+                    hidden: store.state.type != nil
+                )
+
+                ToolbarItem(placement: .topBarTrailing) {
                     if !store.state.isInfoButtonHidden {
                         Button {
                             store.send(.infoButtonPressed)

@@ -141,7 +141,7 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
 
     /// `perform(.appeared)` with feature flag for .emailVerification set to true
     @MainActor
-    func test_perform_appeared_loadsFeatureFlag_true() async {
+    func test_perform_appeared_loadsFeatureFlag_true() async throws {
         configService.featureFlagsBoolPreAuth[.emailVerification] = true
         configService.featureFlagsBoolPreAuth[.preLoginSettings] = true
         subject.state.emailVerificationFeatureFlag = false
@@ -150,10 +150,15 @@ class LandingProcessorTests: BitwardenTestCase { // swiftlint:disable:this type_
         let task = Task {
             await subject.perform(.appeared)
         }
+        defer { task.cancel() }
         await task.value
+
+        try await waitForAsync { [weak self] in
+            guard let self else { return false }
+            return subject.state.isPreLoginSettingsEnabled
+        }
         XCTAssertEqual(configService.configMocker.invokedParam?.isPreAuth, true)
         XCTAssertTrue(subject.state.emailVerificationFeatureFlag)
-        XCTAssertTrue(subject.state.isPreLoginSettingsEnabled)
     }
 
     /// `perform(.appeared)` with feature flag for .emailVerification set to false

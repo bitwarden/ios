@@ -263,6 +263,7 @@
 "FileSource" = "파일 위치";
 "FeatureUnavailable" = "기능 사용할 수 없음";
 "MaxFileSize" = "최대 파일 크기는 100MB입니다.";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "이 기능을 사용하려면 암호화 키를 업데이트해야 합니다.";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "더 알아보기";
@@ -580,7 +581,7 @@
 "RemovePassword" = "비밀번호 제거";
 "AreYouSureRemoveSendPassword" = "비밀번호를 제거하시겠습니까?";
 "RemovingSendPassword" = "비밀번호 제거 중";
-"SendPasswordRemoved" = "비밀번호가 제거되었습니다.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "계정에 Send가 없습니다.";
 "CopyLink" = "링크 복사";
 "ShareLink" = "링크 공유";
@@ -1208,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

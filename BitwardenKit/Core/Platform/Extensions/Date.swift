@@ -1,6 +1,21 @@
 import Foundation
 
 public extension Date {
+    /// A string to display the current datetime in the desired format taking locale into consideration.
+    var dateTimeDisplay: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale.current
+        dateFormatter.setLocalizedDateFormatFromTemplate("MMM d, yyyy")
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.locale = Locale.current
+        timeFormatter.setLocalizedDateFormatFromTemplate("jj:mm")
+
+        let dateString = dateFormatter.string(from: self)
+        let timeString = timeFormatter.string(from: self)
+        return "\(dateString), \(timeString)"
+    }
+
     /// A convenience initializer for `Date` to specify a specific point in time.
     init(
         year: Int,

@@ -35,7 +35,7 @@ class MockVaultRepository: VaultRepository {
     var deleteCipherResult: Result<Void, Error> = .success(())
 
     var doesActiveAccountHavePremiumCalled = false
-    var doesActiveAccountHavePremiumResult: Result<Bool, Error> = .success(true)
+    var doesActiveAccountHavePremiumResult: Bool = true
 
     var downloadAttachmentAttachment: AttachmentView?
     var downloadAttachmentResult: Result<URL?, Error> = .success(nil)
@@ -174,9 +174,9 @@ class MockVaultRepository: VaultRepository {
         try deleteCipherResult.get()
     }
 
-    func doesActiveAccountHavePremium() async throws -> Bool {
+    func doesActiveAccountHavePremium() async -> Bool {
         doesActiveAccountHavePremiumCalled = true
-        return try doesActiveAccountHavePremiumResult.get()
+        return doesActiveAccountHavePremiumResult
     }
 
     func downloadAttachment(_ attachment: AttachmentView, cipher _: CipherView) async throws -> URL? {

@@ -265,6 +265,7 @@
 "FileSource" = "แหล่งที่มาของไฟล์";
 "FeatureUnavailable" = "ไม่สามารถใช้คุณสมบัตินี้ได้";
 "MaxFileSize" = "ขนาดไฟล์สูงสุดคือ 100 MB";
+"RequiredMaximumFileSizeIsX" = "Required. Maximum file size is %1$@.";
 "UpdateKey" = "คุณไม่สามารถใช้คุณลักษณะนี้ได้จนกว่าคุณปรับปรุงคีย์การเข้ารหัสลับของคุณ";
 "EncryptionKeyMigrationRequiredDescriptionLong" = "Encryption key migration required. Please login through the web vault to update your encryption key.";
 "LearnMore" = "เรียน​รู้​เพิ่ม​เติม";
@@ -584,7 +585,7 @@
 "RemovePassword" = "Remove password";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "Removing password";
-"SendPasswordRemoved" = "Password has been removed.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "Copy link";
 "ShareLink" = "Share link";
@@ -1212,3 +1213,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";
