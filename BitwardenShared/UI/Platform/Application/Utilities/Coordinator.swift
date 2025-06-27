@@ -211,7 +211,7 @@ extension Coordinator where Self: HasErrorAlertServices, Self: HasNavigator {
                         activityItems: [errorReport],
                         applicationActivities: nil
                     )
-                    self.navigator?.rootViewController?.present(viewController, animated: UI.animated)
+                    self.navigator?.present(viewController)
                 },
                 tryAgain: tryAgain
             )
