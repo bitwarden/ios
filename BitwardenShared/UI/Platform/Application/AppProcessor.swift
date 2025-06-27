@@ -670,8 +670,7 @@ public extension AppProcessor {
 
 extension AppProcessor: AccountTokenProviderDelegate {
     func onRefreshTokenError(error: any Error) async throws {
-        if let identityTokenError = error as? IdentityTokenRefreshRequestError,
-           identityTokenError == .invalidGrant {
+        if case IdentityTokenRefreshRequestError.invalidGrant = error {
             await logOutAutomatically()
         }
     }
