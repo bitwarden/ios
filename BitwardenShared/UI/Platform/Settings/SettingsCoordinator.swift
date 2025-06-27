@@ -518,7 +518,7 @@ final class SettingsCoordinator: Coordinator, HasStackNavigator { // swiftlint:d
             state: SettingsState(presentationMode: presentationMode)
         )
         let view = SettingsView(store: Store(processor: processor))
-        stackNavigator?.replace(view)
+        stackNavigator?.replace(view, animated: false)
     }
 
     /// Shows the vault screen.
