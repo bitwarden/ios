@@ -19,6 +19,10 @@ extension APITestData {
     )
     static let identityTokenNoMasterPassword = loadFromJsonBundle(resource: "IdentityTokenNoMasterPassword")
     static let identityTokenRefresh = loadFromJsonBundle(resource: "identityTokenRefresh")
+    static let identityTokenRefreshInvalidGrantError = loadFromJsonBundle(
+        resource: "IdentityTokenRefreshInvalidGrantError"
+    )
+    static let identityTokenRefreshStubError = loadFromJsonBundle(resource: "IdentityTokenRefreshStubError")
     static let identityTokenTrustedDevice = loadFromJsonBundle(resource: "IdentityTokenTrustedDevice")
     static let identityTokenTwoFactorError = loadFromJsonBundle(resource: "IdentityTokenTwoFactorFailure")
     static let preValidateSingleSignOn = loadFromJsonBundle(resource: "preValidateSingleSignOn")

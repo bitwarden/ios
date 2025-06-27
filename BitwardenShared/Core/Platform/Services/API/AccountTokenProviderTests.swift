@@ -8,7 +8,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
     // MARK: Properties
 
     var client: MockHTTPClient!
-    var subject: AccountTokenProvider!
+    var subject: DefaultAccountTokenProvider!
     var tokenService: MockTokenService!
 
     // MARK: Setup & Teardown
@@ -19,7 +19,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
         client = MockHTTPClient()
         tokenService = MockTokenService()
 
-        subject = AccountTokenProvider(
+        subject = DefaultAccountTokenProvider(
             httpService: HTTPService(baseURL: URL(string: "https://example.com")!, client: client),
             tokenService: tokenService
         )
@@ -87,5 +87,35 @@ class AccountTokenProviderTests: BitwardenTestCase {
 
         let refreshTask = await subject.refreshTask
         XCTAssertNil(refreshTask)
+    }
+
+    /// `refreshToken()` throws trying to refresh the access token
+    /// and gets handled by the delegate before throwing it again.
+    func test_refreshToken_handlesErrorInDelegateAndThrows() async throws {
+        let delegate = MockAccountTokenProviderDelegate()
+        await subject.setDelegate(delegate: delegate)
+
+        tokenService.accessToken = "🔑"
+        tokenService.refreshToken = "🔒"
+
+        client.result = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.refreshToken()
+        }
+        XCTAssertTrue(delegate.onRefreshTokenErrorCalled)
+    }
+
+    /// `refreshToken()` throws trying to refresh the access token
+    /// and gets handled by the delegate before throwing it again.
+    func test_refreshToken_throwsWithNoDelegate() async throws {
+        tokenService.accessToken = "🔑"
+        tokenService.refreshToken = "🔒"
+
+        client.result = .failure(BitwardenTestError.example)
+
+        await assertAsyncThrows(error: BitwardenTestError.example) {
+            try await subject.refreshToken()
+        }
     }
 }
