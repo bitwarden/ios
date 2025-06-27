@@ -958,17 +958,10 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
         let typesSecureNoteCount = activeCiphers.lazy.filter { $0.type == .secureNote }.count
         let typesSSHKeyCount = activeCiphers.lazy.filter { $0.type == .sshKey }.count
 
-        var types = [
-            VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount)),
-            VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)),
-            VaultListItem(id: "Types.Identities", itemType: .group(.identity, typesIdentityCount)),
-            VaultListItem(id: "Types.SecureNotes", itemType: .group(.secureNote, typesSecureNoteCount)),
-            VaultListItem(id: "Types.SSHKeys", itemType: .group(.sshKey, typesSSHKeyCount)),
-        ]
+        var types = [VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount))]
 
         // Only show the card section if there are cards and restrictItemTypes policy is not enabled.
-        if typesCardCount == 0,
-           !restrictItemTypesOrgIds.isEmpty {
+        if typesCardCount != 0 || restrictItemTypesOrgIds.isEmpty {
             types.append(VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)))
         }
 

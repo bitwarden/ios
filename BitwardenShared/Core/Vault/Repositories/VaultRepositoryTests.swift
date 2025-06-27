@@ -3455,7 +3455,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
     @MainActor
     func test_vaultListPublisher_section_hide_card_restrictitempolicy_enabled() async throws {
         stateService.activeAccount = nonPremiumAccount
-        stateService.doesActiveAccountHavePremiumResult = .success(false)
+        stateService.doesActiveAccountHavePremiumResult = false
         let ciphers: [Cipher] = [
             .fixture(folderId: "1", id: "1", type: .login),
             .fixture(id: "2", organizationId: "org1", type: .card),
