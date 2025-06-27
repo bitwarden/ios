@@ -581,7 +581,7 @@
 "RemovePassword" = "Fjern adgangskode";
 "AreYouSureRemoveSendPassword" = "Er du sikker på, at du vil fjerne adgangskoden?";
 "RemovingSendPassword" = "Fjerner adgangskode";
-"SendPasswordRemoved" = "Adgangskoden er fjernet.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Der er ingen Sends i din konto.";
 "CopyLink" = "Kopiér link";
 "ShareLink" = "Del link";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

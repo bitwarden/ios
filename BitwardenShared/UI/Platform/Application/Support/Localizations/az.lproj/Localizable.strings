@@ -581,7 +581,7 @@
 "RemovePassword" = "Parolu çıxart";
 "AreYouSureRemoveSendPassword" = "Parolu çıxartmaq istədiyinizə əminsiniz?";
 "RemovingSendPassword" = "Parol çıxarılır";
-"SendPasswordRemoved" = "Parol çıxarıldı.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Hesabınızda heç bir \"Send\" yoxdur.";
 "CopyLink" = "Bağlantını kopyala";
 "ShareLink" = "Bağlantını paylaş";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Jurnal silinib";
 "AllLogsDeleted" = "Bütün jurnallar silinib";
 "LoggingEndsOnDateAtTime" = "%2$@ %1$@ vaxtı üzrə girişlər bitir";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

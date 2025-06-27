@@ -582,7 +582,7 @@
 "RemovePassword" = "Ukloni lozinku";
 "AreYouSureRemoveSendPassword" = "Sigurno želiš ukloniti lozinku?";
 "RemovingSendPassword" = "Lozinka uklonjena";
-"SendPasswordRemoved" = "Lozinka uklonjena.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Nema Sendova na tvojem računu.";
 "CopyLink" = "Kopiraj vezu";
 "ShareLink" = "Dijeli vezu";
@@ -1210,3 +1210,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

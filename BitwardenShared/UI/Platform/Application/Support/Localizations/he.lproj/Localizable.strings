@@ -582,7 +582,7 @@
 "RemovePassword" = "הסר סיסמה";
 "AreYouSureRemoveSendPassword" = "האם אתה בטוח שברצונך להסיר את הסיסמה?";
 "RemovingSendPassword" = "מסיר סיסמה";
-"SendPasswordRemoved" = "הסיסמה הוסרה.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "אין Sendים בחשבון שלך.";
 "CopyLink" = "העתק קישור";
 "ShareLink" = "שתף קישור";
@@ -1211,3 +1211,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

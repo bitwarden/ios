@@ -581,7 +581,7 @@
 "RemovePassword" = "Odebrat heslo";
 "AreYouSureRemoveSendPassword" = "Opravdu chcete odebrat heslo?";
 "RemovingSendPassword" = "Odebírání hesla";
-"SendPasswordRemoved" = "Heslo bylo odebráno.";
+"SendPasswordRemoved" = "Heslo bylo odebráno";
 "NoSends" = "Ve Vašem účtu nejsou žádné Sends.";
 "CopyLink" = "Kopírovat odkaz";
 "ShareLink" = "Sdílet odkaz";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Log byl smazán";
 "AllLogsDeleted" = "Všechny logy byly smazány";
 "LoggingEndsOnDateAtTime" = "Logování končí %1$@ v %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Pro uložení tohoto Send musíte připojit soubor";
+"SendUpdated" = "Send aktualizován";
