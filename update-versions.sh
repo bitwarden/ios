@@ -10,10 +10,12 @@ function get_latest_release() {
     local repo_url="$1"
     local repo_path=$(echo "$repo_url" | sed 's|https://github.com/||')
     
-    local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/releases/latest" | grep '"tag_name":' | sed -E 's/.*"tag_name": "([^"]*)",/\1/')
+    # First try to get the latest stable release (non-prerelease)
+    local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/releases" | grep -A 1 '"prerelease": false' | grep '"tag_name":' | head -1 | sed -E 's/.*"tag_name": "([^"]*)",/\1/')
     
+    # If no stable releases found, fall back to tags but filter out beta/alpha/rc versions
     if [[ -z "$latest_tag" ]]; then
-        local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/tags" | grep '"name":' | head -1 | sed -E 's/.*"name": "([^"]*)",/\1/')
+        local latest_tag=$(curl -s "https://api.github.com/repos/$repo_path/tags" | grep '"name":' | sed -E 's/.*"name": "([^"]*)",/\1/' | grep -v -E '(beta|alpha|rc|pre|dev|snapshot)' | head -1)
     fi
     
     echo "$latest_tag"
