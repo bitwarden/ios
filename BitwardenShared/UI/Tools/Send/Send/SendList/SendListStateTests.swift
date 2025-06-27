@@ -34,7 +34,7 @@ class SendListStateTests: BitwardenTestCase {
     /// `navigationTitle` is `Sends` when `type` is `nil`.
     func test_navigationTitle_nilType() {
         let subject = SendListState(type: nil)
-        XCTAssertEqual(subject.navigationTitle, Localizations.sends)
+        XCTAssertEqual(subject.navigationTitle, Localizations.send)
     }
 
     /// `navigationTitle` is `text` when `type` is `.text`.
