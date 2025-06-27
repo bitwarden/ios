@@ -82,7 +82,7 @@ public class AppProcessor {
         self.services.syncService.delegate = self
 
         Task {
-            await services.apiService.setupAccountTokenProviderDelegate(delegate: self)
+            await services.apiService.setAccountTokenProviderDelegate(delegate: self)
         }
 
         startEventTimer()

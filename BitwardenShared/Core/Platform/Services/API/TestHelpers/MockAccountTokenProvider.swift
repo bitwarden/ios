@@ -18,7 +18,7 @@ class MockAccountTokenProvider: AccountTokenProvider {
         try refreshTokenResult.get()
     }
 
-    func setupDelegate(delegate: AccountTokenProviderDelegate) async {
+    func setDelegate(delegate: AccountTokenProviderDelegate) async {
         self.delegate = delegate
     }
 }

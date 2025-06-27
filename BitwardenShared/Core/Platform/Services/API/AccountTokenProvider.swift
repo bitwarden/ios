@@ -4,9 +4,9 @@ import Networking
 
 /// A more specific `TokenProvider` protocol to use and ease testing.
 protocol AccountTokenProvider: TokenProvider {
-    /// Sets up the delegate to use in this token provider.
+    /// Sets the delegate to use in this token provider.
     /// - Parameter delegate: The delegate to use.
-    func setupDelegate(delegate: AccountTokenProviderDelegate) async
+    func setDelegate(delegate: AccountTokenProviderDelegate) async
 }
 
 // MARK: - DefaultAccountTokenProvider
@@ -91,11 +91,14 @@ actor DefaultAccountTokenProvider: AccountTokenProvider {
         _ = try await refreshTask.value
     }
 
-    func setupDelegate(delegate: AccountTokenProviderDelegate) async {
+    func setDelegate(delegate: AccountTokenProviderDelegate) async {
         accountTokenProviderDelegate = delegate
     }
 }
 
+/// Delegate to be used by the `AccountTokenProvider`.
 protocol AccountTokenProviderDelegate: AnyObject {
+    /// Callbac to be used when an error is thrown when refreshing the access token.
+    /// - Parameter error: `Error` thrown.
     func onRefreshTokenError(error: Error) async throws
 }

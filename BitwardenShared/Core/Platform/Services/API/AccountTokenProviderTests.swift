@@ -93,7 +93,7 @@ class AccountTokenProviderTests: BitwardenTestCase {
     /// and gets handled by the delegate before throwing it again.
     func test_refreshToken_handlesErrorInDelegateAndThrows() async throws {
         let delegate = MockAccountTokenProviderDelegate()
-        await subject.setupDelegate(delegate: delegate)
+        await subject.setDelegate(delegate: delegate)
 
         tokenService.accessToken = "🔑"
         tokenService.refreshToken = "🔒"

@@ -111,9 +111,9 @@ class APIService {
         )
     }
 
-    /// Sets up the account token provider delegate.
+    /// Sets the account token provider delegate.
     /// - Parameter delegate: The delegate to use.
-    func setupAccountTokenProviderDelegate(delegate: AccountTokenProviderDelegate) async {
-        await accountTokenProvider.setupDelegate(delegate: delegate)
+    func setAccountTokenProviderDelegate(delegate: AccountTokenProviderDelegate) async {
+        await accountTokenProvider.setDelegate(delegate: delegate)
     }
 }

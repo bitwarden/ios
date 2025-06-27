@@ -74,7 +74,7 @@ class APIServiceTests: BitwardenTestCase {
 
     /// `setupAccountTokenProviderDelegate(:)` sets up the delegate in the account token provider.
     func test_setupAccountTokenProviderDelegate() async {
-        await subject.setupAccountTokenProviderDelegate(delegate: MockAccountTokenProviderDelegate())
+        await subject.setAccountTokenProviderDelegate(delegate: MockAccountTokenProviderDelegate())
         let delegate = await accountTokenProvider.delegate
         XCTAssertNotNil(delegate)
     }
