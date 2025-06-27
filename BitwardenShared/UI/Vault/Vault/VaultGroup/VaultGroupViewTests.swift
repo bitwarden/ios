@@ -51,6 +51,30 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
 
     /// Tapping an item in the add item menu dispatches the `.addItemPressed` action.
     @MainActor
+    func test_addItemEmptyStateButton_hidden_restrictItemPolicy_enabled() throws {
+        processor.state.loadingState = .data([])
+        processor.state.group = .card
+        processor.state.isRemoveCardPolicyFeatureFlagEnabled = true
+        processor.state.restrictItemTypesOrgIds = ["org1"]
+        XCTAssertThrowsError(try subject.inspect().find(button: Localizations.newCard))
+    }
+
+    /// Add item floating action button is hidden when in card group and restrict item policy is enabled.
+    @MainActor
+    func test_addItemFloatingActionButton_hidden_restrictItemPolicy_enabled() async throws {
+        processor.state.loadingState = .data([])
+        processor.state.group = .card
+        processor.state.isRemoveCardPolicyFeatureFlagEnabled = true
+        processor.state.restrictItemTypesOrgIds = ["org1"]
+
+        let fab = try subject.inspect().find(
+            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+        )
+        XCTAssertTrue(fab.isHidden())
+    }
+
+    /// Tapping an item in the add item menu dispatches the `.addItemPressed` action.
+    @MainActor
     func test_addItemMenuEmptyState_tap() throws {
         processor.state.loadingState = .data([])
         processor.state.group = .folder(id: "1", name: "Folder")

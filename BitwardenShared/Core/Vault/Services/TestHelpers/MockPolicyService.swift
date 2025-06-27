@@ -23,7 +23,8 @@ class MockPolicyService: PolicyService {
     var fetchTimeoutPolicyValuesResult: Result<(SessionTimeoutAction?, Int)?, Error> = .success(nil)
 
     var policyAppliesToUserResult = [PolicyType: Bool]()
-    var policyAppliesToUserPolicies = [PolicyType]()
+    var policyAppliesToUserPoliciesType = [PolicyType]()
+    var policyAppliesToUserPolicies = [Policy]()
 
     var replacePoliciesPolicies = [PolicyResponseModel]()
     var replacePoliciesUserId: String?
@@ -33,6 +34,10 @@ class MockPolicyService: PolicyService {
         applyPasswordGenerationOptionsCalled = true
         applyPasswordGenerationOptionsTransform(&options)
         return applyPasswordGenerationOptionsResult
+    }
+
+    func getOrganizationIdsForRestricItemTypesPolicy() async -> [String] {
+        policyAppliesToUserPolicies.map(\.organizationId)
     }
 
     func getMasterPasswordPolicyOptions() async throws -> MasterPasswordPolicyOptions? {
@@ -51,7 +56,7 @@ class MockPolicyService: PolicyService {
     }
 
     func policyAppliesToUser(_ policyType: PolicyType) async -> Bool {
-        policyAppliesToUserPolicies.append(policyType)
+        policyAppliesToUserPoliciesType.append(policyType)
         return policyAppliesToUserResult[policyType] ?? false
     }
 

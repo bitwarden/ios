@@ -64,6 +64,16 @@ struct VaultGroupState: Equatable, Sendable {
     /// The base url used to fetch icons.
     var iconBaseURL: URL?
 
+    /// Whether the policy is enforced to hide card item types.
+    var isRemoveCardPolicyFeatureFlagEnabled: Bool = false
+
+    /// Whether the restrict item policy is enabled.
+    var isRestrictItemPolicyEnabled: Bool {
+        isRemoveCardPolicyFeatureFlagEnabled &&
+            !restrictItemTypesOrgIds.isEmptyOrNil &&
+            group == .card
+    }
+
     /// Whether the policy is enforced to disable personal vault ownership.
     var isPersonalOwnershipDisabled: Bool = false
 
@@ -99,6 +109,9 @@ struct VaultGroupState: Equatable, Sendable {
 
     /// The list of organizations the user is a member of.
     var organizations = [Organization]()
+
+    /// The active restricted item types policies organization ids.
+    var restrictItemTypesOrgIds: [String]?
 
     /// An array of results matching the `searchText`.
     var searchResults = [VaultListItem]()

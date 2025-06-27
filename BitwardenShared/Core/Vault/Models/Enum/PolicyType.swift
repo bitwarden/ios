@@ -40,6 +40,9 @@ enum PolicyType: Int, Codable {
     /// If enabled, the setting to "Unlock with Pin" is hidden.
     case removeUnlockWithPin = 14
 
+    /// If enabled, restricts the types of items that can be shown in the vault.
+    case restrictItemTypes = 15
+
     /// An unknown policy type.
     case unknown = -1
 
