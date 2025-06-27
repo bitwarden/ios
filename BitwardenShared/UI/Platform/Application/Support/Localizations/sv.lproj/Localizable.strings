@@ -582,7 +582,7 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "RemovePassword" = "Ta bort lösenord";
 "AreYouSureRemoveSendPassword" = "Är du säker på att du vill ta bort lösenordet?";
 "RemovingSendPassword" = "Tar bort lösenord";
-"SendPasswordRemoved" = "Lösenordet har tagits bort.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Det finns inga Send på ditt konto.";
 "CopyLink" = "Kopiera länk";
 "ShareLink" = "Dela länk";
@@ -1210,3 +1210,5 @@ Vänligen använd en enhet som stöds och/eller lägg till fler metoder som har 
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

@@ -581,7 +581,7 @@
 "RemovePassword" = "Suprimeix la contrasenya";
 "AreYouSureRemoveSendPassword" = "Esteu segur que voleu suprimir la contrasenya?";
 "RemovingSendPassword" = "S'està suprimint la contrasenya";
-"SendPasswordRemoved" = "S'ha suprimit la contrasenya";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "No hi ha cap enviament al vostre compte.";
 "CopyLink" = "Copia l'enllaç";
 "ShareLink" = "Comparteix l'enllaç";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

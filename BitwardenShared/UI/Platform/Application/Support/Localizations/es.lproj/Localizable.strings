@@ -581,7 +581,7 @@
 "RemovePassword" = "Eliminar contraseña";
 "AreYouSureRemoveSendPassword" = "¿Está seguro que desea eliminar la contraseña?";
 "RemovingSendPassword" = "Eliminando contraseña";
-"SendPasswordRemoved" = "La contraseña ha sido eliminada.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "No hay Sends en tu cuenta.";
 "CopyLink" = "Copiar enlace";
 "ShareLink" = "Compartir enlace";
@@ -1210,3 +1210,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

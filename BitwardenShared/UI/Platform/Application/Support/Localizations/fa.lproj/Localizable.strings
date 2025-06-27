@@ -582,7 +582,7 @@
 "RemovePassword" = "حذف کلمه عبور";
 "AreYouSureRemoveSendPassword" = "آیا مطمئنید می‌خواهید این کلمه عبور حذف شود؟";
 "RemovingSendPassword" = "حذف کلمه عبور";
-"SendPasswordRemoved" = "کلمه عبور حذف شد.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "هیچ ارسالی در حساب کاربری شما وجود ندارد.";
 "CopyLink" = "کپی پیوند";
 "ShareLink" = "اشتراک‌گذاری پیوند";
@@ -1211,3 +1211,5 @@
 "LogDeleted" = "گزارش‌ حذف شد";
 "AllLogsDeleted" = "تمامی گزارش‌ها حذف شدند";
 "LoggingEndsOnDateAtTime" = "ورود در %1$@ در ساعت %2$@ پایان یافت";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

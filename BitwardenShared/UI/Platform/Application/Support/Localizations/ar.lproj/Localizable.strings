@@ -581,7 +581,7 @@
 "RemovePassword" = "إزالة كلمة المرور";
 "AreYouSureRemoveSendPassword" = "هل أنت متأكد من أنك تريد إزالة كلمة المرور؟";
 "RemovingSendPassword" = "إزالة كلمة المرور";
-"SendPasswordRemoved" = "تم إزالة كلمة المرور";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "لا توجد إرسالات في حسابك.";
 "CopyLink" = "نسخ الرابط";
 "ShareLink" = "مشاركة الرّابط";
@@ -1210,3 +1210,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";
