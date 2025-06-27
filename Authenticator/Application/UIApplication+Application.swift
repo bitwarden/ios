@@ -1,4 +1,4 @@
 import AuthenticatorShared
 import UIKit
 
-extension UIApplication: Application {}
+extension UIApplication: @retroactive Application {}

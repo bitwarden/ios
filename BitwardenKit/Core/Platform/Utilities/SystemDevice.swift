@@ -2,7 +2,7 @@ import UIKit
 
 /// A protocol for an object that can provide information for the current device.
 ///
-public protocol SystemDevice {
+public protocol SystemDevice: Sendable {
     /// The model of the device, e.g. "iPhone" or "iPad".
     var model: String { get }
 
@@ -15,6 +15,8 @@ public protocol SystemDevice {
     /// The version of the operating system on the device, e.g. "17.0".
     var systemVersion: String { get }
 }
+
+extension UIDevice: @retroactive Sendable {}
 
 extension UIDevice: SystemDevice {
     public var modelIdentifier: String {
