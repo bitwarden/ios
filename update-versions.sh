@@ -57,7 +57,7 @@ function process_project_file() {
     cp "$PROJECT_FILE" "$TEMP_FILE"
     
     # Extract all package names from the packages section
-    package_names=$(awk '/^packages:/{flag=1; next} flag && /^[[:space:]]*[^[:space:]]*:/{print $1; gsub(/:/, "", $1); print $1} flag && /^[^[:space:]]/{flag=0}' "$PROJECT_FILE" | grep -v "^packages:" | sort -u)
+    package_names=$(sed -n '/^packages:/,/^[^[:space:]]/p' "$PROJECT_FILE" | grep '^  [^[:space:]].*:$' | sed 's/^  //' | sed 's/:$//' | sort -u)
     
     for package_name in $package_names; do
         # Clean up package name (remove colon if present)
