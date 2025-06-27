@@ -4,7 +4,7 @@ import Networking
 // MARK: - IdentityTokenRefreshRequestError
 
 /// Errors that can occur when sending an `IdentityTokenRefreshRequest`.
-enum IdentityTokenRefreshRequestError: NetworkingError, Equatable {
+enum IdentityTokenRefreshRequestError: NonLoggableError, Equatable {
     /// Not allowed because of invalid grant.
     case invalidGrant
 }

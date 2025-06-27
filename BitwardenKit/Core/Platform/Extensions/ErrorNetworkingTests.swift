@@ -12,7 +12,7 @@ class ErrorNetworkingTests: BitwardenTestCase {
     func test_isNetworkingError_other() {
         struct NonNetworkingError: Error {}
 
-        XCTAssertFalse(NonNetworkingError().isNetworkingError)
+        XCTAssertFalse(NonNetworkingError().isNonLoggableError)
     }
 
     /// `isNetworkingError` returns `true` for `ResponseValidationError`s.
@@ -20,7 +20,7 @@ class ErrorNetworkingTests: BitwardenTestCase {
         let response = HTTPResponse.failure(statusCode: 500)
         let error = ResponseValidationError(response: response)
 
-        XCTAssertTrue(error.isNetworkingError)
+        XCTAssertTrue(error.isNonLoggableError)
     }
 
     /// `isNetworkingError` returns `true` for `ServerError`s.
@@ -28,23 +28,23 @@ class ErrorNetworkingTests: BitwardenTestCase {
         let response = HTTPResponse.failure(statusCode: 400, body: APITestData.bitwardenErrorMessage.data)
         let error = try ServerError.error(errorResponse: ErrorResponseModel(response: response))
 
-        XCTAssertTrue(error.isNetworkingError)
+        XCTAssertTrue(error.isNonLoggableError)
     }
 
     /// `isNetworkingError` returns `true` for `URLError`s.
     func test_isNetworkingError_urlError() throws {
-        XCTAssertTrue(URLError(.cancelled).isNetworkingError)
-        XCTAssertTrue(URLError(.networkConnectionLost).isNetworkingError)
-        XCTAssertTrue(URLError(.timedOut).isNetworkingError)
+        XCTAssertTrue(URLError(.cancelled).isNonLoggableError)
+        XCTAssertTrue(URLError(.networkConnectionLost).isNonLoggableError)
+        XCTAssertTrue(URLError(.timedOut).isNonLoggableError)
     }
 
     /// `isNetworkingError` returns `true` for custom `NetworkingError`.
     func test_isNetworkingError_networkingError() throws {
-        XCTAssertTrue(TestNetworkingError.test.isNetworkingError)
+        XCTAssertTrue(TestNetworkingError.test.isNonLoggableError)
     }
 }
 
 /// Error to be used as test for `NetworkingError`.
-enum TestNetworkingError: NetworkingError {
+enum TestNetworkingError: NonLoggableError {
     case test
 }
