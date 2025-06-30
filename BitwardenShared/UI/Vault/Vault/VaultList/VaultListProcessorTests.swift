@@ -303,16 +303,16 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
-    /// `perform(_:)` with `.appeared` updates the state depending with new values
+    /// `perform(_:)` with `.appeared` updates the state with new values
     @MainActor
-    func test_perform_appeared_itemTypesUserCanCreate() async {
+    func test_perform_appeared_itemTypesUserCanCreate() {
         vaultRepository.getItemTypesUserCanCreate = [.card]
-        await subject.perform(.appeared)
+        let task = Task {
+            await subject.perform(.appeared)
+        }
 
-        XCTAssertEqual(
-            subject.state.itemTypesUserCanCreate,
-            [.card],
-        )
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        task.cancel()
     }
 
     /// `perform(_:)` with `.appeared` updates the state depending on if the
