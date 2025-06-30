@@ -158,75 +158,15 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
         XCTAssertTrue(subject.state.isPersonalOwnershipDisabled)
     }
 
-    /// `perform(_:)` with `.appeared` updates the state depending on if the
-    /// restrict item policy and removeCardType feature flag are enabled.
+    /// `perform(_:)` with `.appeared` updates the state depending with new values
     @MainActor
-    func test_perform_appeared_restrictItemTypePolicy_removeCardFlag_enable() {
-        policyService.policyAppliesToUserPolicies = [
-            .fixture(
-                enabled: true,
-                organizationId: "org1",
-                type: .restrictItemTypes,
-            ),
-        ]
-        configService.featureFlagsBool[.removeCardPolicy] = true
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor(subject.state.loadingState == .data([]))
-        task.cancel()
+    func test_perform_appeared_itemTypesUserCanCreate() async {
+        vaultRepository.getItemTypesUserCanCreate = [.card]
+        await subject.perform(.appeared)
 
         XCTAssertEqual(
             subject.state.itemTypesUserCanCreate,
-            [.login, .identity, .secureNote],
-        )
-    }
-
-    /// `perform(_:)` with `.appeared` updates restrictItemTypesOrgIds state to empty if the
-    /// restrict item policy is disabled and removeCardType feature flag is enabled.
-    @MainActor
-    func test_perform_appeared_restrictItemTypePolicy_disable_removeCardFlag_enable() {
-        policyService.policyAppliesToUserPolicies = [
-            .fixture(
-                enabled: true,
-                organizationId: "org1",
-                type: .requireSSO,
-            ),
-        ]
-        configService.featureFlagsBool[.removeCardPolicy] = true
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor(subject.state.loadingState == .data([]))
-        task.cancel()
-
-        XCTAssertEqual(
-            subject.state.itemTypesUserCanCreate,
-            CipherType.canCreateCases.reversed(),
-        )
-    }
-
-    /// `perform(_:)` with `.appeared` updates the state depending on if the
-    /// restrict item policy is enabled but removeCardType feature flag is false.
-    @MainActor
-    func test_perform_appeared_restrictItemTypePolicy_removeCardFlag_false() {
-        policyService.policyAppliesToUserPolicies = [
-            .fixture(
-                enabled: true,
-                organizationId: "org1",
-                type: .restrictItemTypes,
-            ),
-        ]
-        configService.featureFlagsBool[.removeCardPolicy] = false
-        let task = Task {
-            await subject.perform(.appeared)
-        }
-        waitFor(subject.state.loadingState == .data([]))
-        task.cancel()
-
-        XCTAssertEqual(
-            subject.state.itemTypesUserCanCreate,
-            CipherType.canCreateCases.reversed(),
+            [.card],
         )
     }
 

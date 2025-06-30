@@ -65,10 +65,11 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
         processor.state.group = .card
         processor.state.itemTypesUserCanCreate = [.login, .identity, .secureNote]
 
-        let fab = try subject.inspect().find(
-            floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+        XCTAssertThrowsError(
+            try subject.inspect().find(
+                floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"
+            )
         )
-        XCTAssertTrue(fab.isHidden())
     }
 
     /// Tapping an item in the add item menu dispatches the `.addItemPressed` action.

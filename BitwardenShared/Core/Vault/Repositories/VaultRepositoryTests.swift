@@ -1102,7 +1102,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
 
-        var result = await subject.getItemTypesUserCanCreate()
+        let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(
             result,
             CipherType.canCreateCases.filter { $0 != .card }.reversed(),
@@ -1124,7 +1124,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
             ),
         ]
 
-        var result = await subject.getItemTypesUserCanCreate()
+        let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(result, CipherType.canCreateCases.reversed())
     }
 
@@ -1136,7 +1136,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         configService.featureFlagsBool[.removeCardPolicy] = true
         policyService.policyAppliesToUserPolicies = []
 
-        var result = await subject.getItemTypesUserCanCreate()
+        let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(result, CipherType.canCreateCases.reversed())
     }
 
