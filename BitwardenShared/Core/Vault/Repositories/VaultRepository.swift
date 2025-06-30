@@ -116,6 +116,10 @@ public protocol VaultRepository: AnyObject {
     /// - Returns: The organization with such id or `nil` if not found.
     func fetchOrganization(withId id: String) async throws -> Organization?
 
+    /// Gets a list of item types for the current user can create.
+    ///
+    func getItemTypesUserCanCreate() async -> [CipherType]
+
     /// Get the value of the disable auto-copy TOTP setting for the current user.
     ///
     func getDisableAutoTotpCopy() async throws -> Bool
@@ -1155,6 +1159,17 @@ extension DefaultVaultRepository: VaultRepository {
     func fetchOrganization(withId id: String) async throws -> Organization? {
         let organizations = try await organizationService.fetchAllOrganizations()
         return organizations.first(where: { $0.id == id })
+    }
+
+    func getItemTypesUserCanCreate() async -> [CipherType] {
+        let itemTypes: [CipherType] = CipherType.canCreateCases.reversed()
+        guard await configService.getFeatureFlag(.removeCardPolicy) else { return itemTypes }
+        let restrictItemTypesOrgIds = await policyService.getOrganizationIdsForRestricItemTypesPolicy()
+        if !restrictItemTypesOrgIds.isEmpty {
+            return itemTypes.filter { $0 != .card }
+        }
+
+        return itemTypes
     }
 
     func getDisableAutoTotpCopy() async throws -> Bool {

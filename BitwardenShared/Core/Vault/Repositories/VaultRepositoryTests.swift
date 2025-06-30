@@ -1087,6 +1087,59 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         XCTAssertTrue(isDisabled)
     }
 
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is true and true are policies enabled.
+    @MainActor
+    func test_getItemTypesUserCanCreate() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+
+        var result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(
+            result,
+            CipherType.canCreateCases.filter { $0 != .card }.reversed(),
+        )
+    }
+
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is false.
+    @MainActor
+    func test_getItemTypesUserCanCreate_flag_false() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = false
+        policyService.policyAppliesToUserPolicies = [
+            .fixture(
+                enabled: true,
+                id: "restrict_item_type",
+                organizationId: "org1",
+                type: .restrictItemTypes,
+            ),
+        ]
+
+        var result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(result, CipherType.canCreateCases.reversed())
+    }
+
+    /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
+    /// when feature flag is true and no policies apply to the user.
+    @MainActor
+    func test_getItemTypesUserCanCreate_no_policies() async throws {
+        stateService.activeAccount = .fixture()
+        configService.featureFlagsBool[.removeCardPolicy] = true
+        policyService.policyAppliesToUserPolicies = []
+
+        var result = await subject.getItemTypesUserCanCreate()
+        XCTAssertEqual(result, CipherType.canCreateCases.reversed())
+    }
+
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
     /// is enable to auto copy the TOTP and cipher organization uses TOTP.
     func test_getTOTPKeyIfAllowedToCopy_orgUsesTOTP() async throws {
