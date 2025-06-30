@@ -429,10 +429,10 @@ platform :ios do |options|
       end
   end
 
-  desc "Update release notes for all locales."
-  lane :update_release_notes do |options|
-    changelog = options[:changelog]
+  desc "Submit authenticator build to the App Store"
+  lane :submit_release do |options|
 
+    changelog = options[:changelog]
     auth_locales = ["en-US"]
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
 
@@ -446,19 +446,6 @@ platform :ios do |options|
       dir = "metadata/#{locale}"
       FileUtils.mkdir_p(dir)
       File.write("#{dir}/release_notes.txt", changelog)
-    end
-  end
-
-  desc "Submit authenticator build to the App Store"
-  lane :submit_release do |options|
-
-    auth_locales = ["en-US"]
-    pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
-
-    if options[:packageName] == "com.bitwarden.authenticator"
-      locales = auth_locales
-    else
-      locales = pw_manager_locales
     end
 
     notes = locales.each_with_object({}) do |locale, hash|

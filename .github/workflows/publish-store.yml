@@ -150,10 +150,6 @@ jobs:
               exit 1
             fi
 
-            bundle exec fastlane update_release_notes \
-              metadata_path:"$METADATA_PATH"\
-              changelog:"$CHANGELOG" \
-
             bundle exec fastlane submit_release \
               api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
               build_number:"$VERSION_CODE" \
