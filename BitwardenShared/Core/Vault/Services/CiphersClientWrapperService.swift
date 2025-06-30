@@ -34,7 +34,6 @@ extension CiphersClientWrapperService {
             onCipher: onCipher
         )
     }
-
 }
 
 // MARK: - DefaultCiphersClientWrapperService

@@ -4,7 +4,11 @@ import Combine
 
 // MARK: - VaultListDirectorStrategy
 
-/// A protocol for a strategy for a vault list directo that determines how the vault list sections are built.
+/// A protocol for a strategy for a vault list director that determines how the vault list sections are built.
+///
+/// The strategies conformed by this protocol are built using a `VaultListDirectorStrategyFactory`.
+/// Additionally, typically one strategy goes one-to-one with each vault list representation/view.
+/// Example: `MainVaultListDirectorStrategy` is used to build the sections in the main vault tab of the app.
 protocol VaultListDirectorStrategy {
     /// Builds the vault list sections.
     /// - Parameters:

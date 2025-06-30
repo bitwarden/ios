@@ -272,7 +272,6 @@ final class VaultGroupProcessor: StateProcessor<
     private func streamVaultList() async {
         do {
             for try await vaultList in try await services.vaultRepository.vaultListPublisher(
-                group: state.group,
                 filter: VaultListFilter(filterType: state.vaultFilterType, group: state.group)
             ) {
                 groupTotpExpirationManager?.configureTOTPRefreshScheduling(for: vaultList.flatMap(\.items))

@@ -50,13 +50,4 @@ class FastVaultRepository: DefaultVaultRepository {
             .make(filter: filter)
             .build(filter: filter)
     }
-
-    override func vaultListPublisher(
-        group: VaultListGroup,
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], any Error>> {
-        try await vaultListDirectorStrategyFactory
-            .make(filter: filter)
-            .build(filter: filter)
-    }
 }

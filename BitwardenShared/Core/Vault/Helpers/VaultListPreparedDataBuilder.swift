@@ -139,7 +139,7 @@ class DefaultVaultListPreparedDataBuilder: VaultListPreparedDataBuilder {
         return self
     }
 
-    func addItem(
+    func addItem( // swiftlint:disable:this cyclomatic_complexity
         forGroup group: VaultListGroup,
         with cipher: CipherListView
     ) async -> any VaultListPreparedDataBuilder {

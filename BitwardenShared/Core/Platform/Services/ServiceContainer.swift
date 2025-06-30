@@ -693,22 +693,22 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
             vaultTimeoutService: vaultTimeoutService
         )
 
-//        let vaultRepository = DefaultVaultRepository(
-//            cipherService: cipherService,
-//            clientService: clientService,
-//            collectionService: collectionService,
-//            configService: configService,
-//            environmentService: environmentService,
-//            errorReporter: errorReporter,
-//            folderService: folderService,
-//            organizationService: organizationService,
-//            policyService: policyService,
-//            settingsService: settingsService,
-//            stateService: stateService,
-//            syncService: syncService,
-//            timeProvider: timeProvider,
-//            vaultTimeoutService: vaultTimeoutService
-//        )
+        let vaultRepository = DefaultVaultRepository(
+            cipherService: cipherService,
+            clientService: clientService,
+            collectionService: collectionService,
+            configService: configService,
+            environmentService: environmentService,
+            errorReporter: errorReporter,
+            folderService: folderService,
+            organizationService: organizationService,
+            policyService: policyService,
+            settingsService: settingsService,
+            stateService: stateService,
+            syncService: syncService,
+            timeProvider: timeProvider,
+            vaultTimeoutService: vaultTimeoutService
+        )
         let vaultListDirectorStrategyFactory = DefaultVaultListDirectorStrategyFactory(
             cipherService: cipherService,
             clientService: clientService,
@@ -753,23 +753,23 @@ public class ServiceContainer: Services { // swiftlint:disable:this type_body_le
 //                )
 //            )
 //        )
-        let vaultRepository = FastVaultRepository(
-            cipherService: cipherService,
-            clientService: clientService,
-            collectionService: collectionService,
-            configService: configService,
-            environmentService: environmentService,
-            errorReporter: errorReporter,
-            folderService: folderService,
-            organizationService: organizationService,
-            policyService: policyService,
-            settingsService: settingsService,
-            stateService: stateService,
-            syncService: syncService,
-            timeProvider: timeProvider,
-            vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
-            vaultTimeoutService: vaultTimeoutService
-        )
+//        let vaultRepository = FastVaultRepository(
+//            cipherService: cipherService,
+//            clientService: clientService,
+//            collectionService: collectionService,
+//            configService: configService,
+//            environmentService: environmentService,
+//            errorReporter: errorReporter,
+//            folderService: folderService,
+//            organizationService: organizationService,
+//            policyService: policyService,
+//            settingsService: settingsService,
+//            stateService: stateService,
+//            syncService: syncService,
+//            timeProvider: timeProvider,
+//            vaultListDirectorStrategyFactory: vaultListDirectorStrategyFactory,
+//            vaultTimeoutService: vaultTimeoutService
+//        )
 
         let fido2UserInterfaceHelper = DefaultFido2UserInterfaceHelper(
             fido2UserVerificationMediator: DefaultFido2UserVerificationMediator(

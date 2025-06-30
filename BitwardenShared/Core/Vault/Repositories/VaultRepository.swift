@@ -287,19 +287,6 @@ public protocol VaultRepository: AnyObject {
     func vaultListPublisher(
         filter: VaultListFilter
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
-
-    /// A publisher for the sections within a group of items in the vault list.
-    ///
-    /// - Parameters:
-    ///   - group: The group of items within the vault list to subscribe to.
-    ///   - filter: A filter to apply to the vault items.
-    /// - Returns: A publisher for the sections within a group of items in the vault list which will
-    ///     be notified as the data changes.
-    ///
-    func vaultListPublisher(
-        group: VaultListGroup,
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>>
 }
 
 extension VaultRepository {
@@ -995,28 +982,20 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
             folderService.foldersPublisher()
         )
         .asyncTryMap { ciphers, collections, folders in
-            try await self.vaultListSections(from: ciphers, collections: collections, folders: folders, filter: filter)
-        }
-        .eraseToAnyPublisher()
-        .values
-    }
-
-    open func vaultListPublisher(
-        group: VaultListGroup,
-        filter: VaultListFilter
-    ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
-        try await Publishers.CombineLatest3(
-            cipherService.ciphersPublisher(),
-            collectionService.collectionsPublisher(),
-            folderService.foldersPublisher()
-        )
-        .asyncTryMap { ciphers, collections, folders in
-            try await self.vaultListItems(
-                group: group,
-                filter: filter,
-                ciphers: ciphers,
+            if let group = filter.group {
+                return try await self.vaultListItems(
+                    group: group,
+                    filter: filter,
+                    ciphers: ciphers,
+                    collections: collections,
+                    folders: folders
+                )
+            }
+            return try await self.vaultListSections(
+                from: ciphers,
                 collections: collections,
-                folders: folders
+                folders: folders,
+                filter: filter
             )
         }
         .eraseToAnyPublisher()
@@ -1372,24 +1351,14 @@ extension DefaultVaultRepository: VaultRepository {
     ) async throws -> AsyncThrowingPublisher<AnyPublisher<[VaultListSection], Error>> {
         return switch mode {
         case .all:
-            if let group {
-                try await vaultListPublisher(
-                    group: group,
-                    filter: VaultListFilter(
-                        addTOTPGroup: false,
-                        addTrashGroup: false,
-                        filterType: .allVaults
-                    )
+            try await vaultListPublisher(
+                filter: VaultListFilter(
+                    addTOTPGroup: false,
+                    addTrashGroup: false,
+                    filterType: .allVaults,
+                    group: group
                 )
-            } else {
-                try await vaultListPublisher(
-                    filter: VaultListFilter(
-                        addTOTPGroup: false,
-                        addTrashGroup: false,
-                        filterType: .allVaults
-                    )
-                )
-            }
+            )
         case .totp:
             try await totpCiphersAutofillPublisher()
         default:

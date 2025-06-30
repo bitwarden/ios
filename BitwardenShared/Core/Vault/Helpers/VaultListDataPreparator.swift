@@ -1,7 +1,10 @@
 import BitwardenKit
 import BitwardenSdk
 
-/// A object that prepares vault list data for the sections builder.
+/// A object that prepares vault list data for the sections builder `VaultListSectionsBuilder`.
+///
+/// This decrypts and process data iteratively in batches to improve time and memory on the overall
+/// grouping/filtering/preparation.
 protocol VaultListDataPreparator {
     /// Prepares data for the vault list builder based.
     /// - Parameters:
