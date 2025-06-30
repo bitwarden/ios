@@ -81,6 +81,10 @@ public class AppProcessor {
         self.services.pendingAppIntentActionMediator.setDelegate(self)
         self.services.syncService.delegate = self
 
+        Task {
+            await services.apiService.setAccountTokenProviderDelegate(delegate: self)
+        }
+
         startEventTimer()
 
         UI.initialLanguageCode = services.appSettingsStore.appLocale ?? Bundle.main.preferredLocalizations.first
@@ -495,6 +499,18 @@ extension AppProcessor {
         return AppRoute.tab(.vault(.vaultItemSelection(totpKeyModel)))
     }
 
+    /// Logs out the user automatically, if `nil` is passed as `userId` then it will act on the current user.
+    /// - Parameter userId: The ID of the user to logout, current if `nil`.
+    private func logOutAutomatically(userId: String? = nil) async {
+        coordinator?.hideLoadingOverlay()
+        do {
+            try await services.authRepository.logout(userId: userId, userInitiated: false)
+        } catch {
+            services.errorReporter.log(error: error)
+        }
+        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
+    }
+
     /// Starts timer to send organization events regularly
     private func startEventTimer() {
         sendEventTimer = Timer.scheduledTimer(withTimeInterval: 5 * 60, repeats: true) { _ in
@@ -621,9 +637,7 @@ extension AppProcessor: SyncServiceDelegate {
 
     func securityStampChanged(userId: String) async {
         // Log the user out if their security stamp changes.
-        coordinator?.hideLoadingOverlay()
-        try? await services.authRepository.logout(userId: userId, userInitiated: false)
-        await coordinator?.handleEvent(.didLogout(userId: userId, userInitiated: false))
+        await logOutAutomatically(userId: userId)
     }
 
     func setMasterPassword(orgIdentifier: String) async {
@@ -649,6 +663,16 @@ public extension AppProcessor {
             autofillCredentialServiceDelegate: self,
             fido2UserInterfaceHelperDelegate: self
         )
+    }
+}
+
+// MARK: - AccountTokenProviderDelegate
+
+extension AppProcessor: AccountTokenProviderDelegate {
+    func onRefreshTokenError(error: any Error) async throws {
+        if case IdentityTokenRefreshRequestError.invalidGrant = error {
+            await logOutAutomatically()
+        }
     }
 }
 

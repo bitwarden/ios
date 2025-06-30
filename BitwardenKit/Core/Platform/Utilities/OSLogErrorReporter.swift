@@ -35,8 +35,7 @@ public final class OSLogErrorReporter: ErrorReporter {
             logger.log("Error: \(error as NSError)\n\(callStack)")
         }
 
-        // Don't crash for networking related errors.
-        guard !error.isNetworkingError else { return }
+        guard !error.isNonLoggableError else { return }
 
         // Crash in debug builds to make the error more visible during development.
         assertionFailure("Unexpected error: \(error)")

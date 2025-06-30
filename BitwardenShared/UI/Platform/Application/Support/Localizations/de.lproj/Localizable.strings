@@ -581,7 +581,7 @@
 "RemovePassword" = "Passwort entfernen";
 "AreYouSureRemoveSendPassword" = "Bist du sicher, dass du dieses Passwort entfernen möchtest?";
 "RemovingSendPassword" = "Passwort wird entfernt";
-"SendPasswordRemoved" = "Passwort wurde entfernt.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Es gibt keine Sends in deinem Konto.";
 "CopyLink" = "Link kopieren";
 "ShareLink" = "Link teilen";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Protokoll gelöscht";
 "AllLogsDeleted" = "Alle Protokolle gelöscht";
 "LoggingEndsOnDateAtTime" = "Protokollierung endet am %1$@ um %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Du musst eine Datei anhängen, um dieses Send zu speichern";
+"SendUpdated" = "Send aktualisiert";

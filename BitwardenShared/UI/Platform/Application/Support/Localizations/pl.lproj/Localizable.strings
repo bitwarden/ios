@@ -35,7 +35,7 @@
 "HelpAndFeedback" = "Pomoc i opinie";
 "Hide" = "Ukryj";
 "InternetConnectionRequiredMessage" = "Połącz się z internetem zanim przejdziesz dalej.";
-"InternetConnectionRequiredTitle" = "Połączenie z Internetem jest wymagane";
+"InternetConnectionRequiredTitle" = "Wymagane połączenie z Internetem";
 "InvalidMasterPassword" = "Hasło główne jest nieprawidłowe. Spróbuj ponownie.";
 "InvalidPIN" = "Kod PIN jest nieprawidłowy. Spróbuj ponownie.";
 "Launch" = "Uruchom";
@@ -581,7 +581,7 @@
 "RemovePassword" = "Usuń hasło";
 "AreYouSureRemoveSendPassword" = "Czy na pewno chcesz usunąć hasło?";
 "RemovingSendPassword" = "Usuwanie hasła";
-"SendPasswordRemoved" = "Hasło zostało usunięte.";
+"SendPasswordRemoved" = "Hasło usunięte";
 "NoSends" = "Brak wysyłek na koncie.";
 "CopyLink" = "Kopiuj link";
 "ShareLink" = "Udostępnij link";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Logi usunięte";
 "AllLogsDeleted" = "Usunięto wszystkie logi";
 "LoggingEndsOnDateAtTime" = "Logowanie kończy się %1$@ o %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Musisz załączyć plik, aby zapisać to wysłanie";
+"SendUpdated" = "Wysyłka została zaktualizowana";

@@ -45,8 +45,7 @@ final class CrashlyticsErrorReporter: ErrorReporter {
             logger.log("Error: \(error)\n\(callStack)")
         }
 
-        // Don't log networking related errors to Crashlytics.
-        guard !error.isNetworkingError else { return }
+        guard !error.isNonLoggableError else { return }
 
         Crashlytics.crashlytics().record(error: error)
     }
