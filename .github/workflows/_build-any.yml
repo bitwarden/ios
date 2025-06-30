@@ -82,7 +82,6 @@ jobs:
 
 
       - name: Log in to Azure
-        id: azure-login
         if: env._BUILD_MODE == 'Device'
         uses: bitwarden/gh-actions/azure-login@main
         with:

@@ -101,7 +101,6 @@ jobs:
           echo "last_release_tag=$last_release_tag" >> $GITHUB_OUTPUT
 
       - name: Log in to Azure
-        id: azure-login
         uses: bitwarden/gh-actions/azure-login@main
         with:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
