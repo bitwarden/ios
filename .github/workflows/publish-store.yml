@@ -134,23 +134,21 @@ jobs:
             CHANGELOG: ${{ inputs.changelog }}
             FASTLANE_ENABLE_BETA_DELIVER_SYNC_SCREENSHOTS: true
           run: |
-            run: |
             if [ "$PRODUCT" = "Password Manager" ]; then
               PACKAGE_NAME="com.8bit.bitwarden"
+              METADATA_PATH="metadata"
+              echo "product is Password Manager"
             elif [ "$PRODUCT" = "Authenticator" ]; then
               PACKAGE_NAME="com.bitwarden.authenticator"
+              METADATA_PATH="authenticator_metadata"
             else
               echo "Unsupported product: $PRODUCT"
               exit 1
             fi
 
-            if options[:packageName] == "com.bitwarden.authenticator"
-              metadata_path = "./authenticator_metadata"
-            else
-              metadata_path = "./metadata"
-            end
-
-            bundle exec fastlane updateReleaseNotes
+            bundle exec fastlane update_release_notes \
+              metadata_path:"$METADATA_PATH"\
+              changelog:"$CHANGELOG" \
 
             bundle exec fastlane submit_release \
               api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
@@ -159,5 +157,5 @@ jobs:
               phased_release:"$PHASED_RELEASE" \
               app_identifier:"$PACKAGE_NAME" \
               changelog:"$CHANGELOG" \
-              metadata_path:$metadata_path
+              metadata_path:"$METADATA_PATH"
               
