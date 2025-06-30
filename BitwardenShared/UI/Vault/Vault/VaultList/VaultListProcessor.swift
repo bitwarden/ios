@@ -207,7 +207,7 @@ extension VaultListProcessor {
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
-        await checkRestrictItemTypesPolicy()
+        await checkItemTypesUserCanCreate()
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -242,14 +242,10 @@ extension VaultListProcessor {
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
-    /// Checks if the restrict item types policy is enabled.
+    /// Checks available item types user can create.
     ///
-    private func checkRestrictItemTypesPolicy() async {
-        state.isRemoveCardPolicyFeatureFlagEnabled = await services.configService.getFeatureFlag(.removeCardPolicy)
-        if state.isRemoveCardPolicyFeatureFlagEnabled {
-            state.restrictItemTypesOrgIds = await services.policyService
-                .getOrganizationIdsForRestricItemTypesPolicy()
-        }
+    private func checkItemTypesUserCanCreate() async {
+        state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
     }
 
     /// Dismisses the flight recorder toast banner for the active user.

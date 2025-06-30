@@ -318,11 +318,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let task = Task {
             await subject.perform(.appeared)
         }
-        waitFor(subject.state.restrictItemTypesOrgIds != nil)
+        waitFor(subject.state.loadingState == .data([]))
         task.cancel()
 
-        XCTAssertTrue(subject.state.isRemoveCardPolicyFeatureFlagEnabled)
-        XCTAssertEqual(subject.state.restrictItemTypesOrgIds, ["org1"])
+        XCTAssertEqual(
+            subject.state.itemTypesUserCanCreate,
+            [.login, .identity, .secureNote],
+        )
     }
 
     /// `perform(_:)` with `.appeared` updates restrictItemTypesOrgIds state to empty if the
@@ -340,11 +342,13 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         let task = Task {
             await subject.perform(.appeared)
         }
-        waitFor(subject.state.restrictItemTypesOrgIds != nil)
+        waitFor(subject.state.loadingState == .data([]))
         task.cancel()
 
-        XCTAssertTrue(subject.state.isRemoveCardPolicyFeatureFlagEnabled)
-        XCTAssertEqual(subject.state.restrictItemTypesOrgIds, ["org1"])
+        XCTAssertEqual(
+            subject.state.itemTypesUserCanCreate,
+            CipherType.canCreateCases.reversed(),
+        )
     }
 
     /// `perform(_:)` with `.appeared` updates the state depending on if the
@@ -365,8 +369,10 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         waitFor(subject.state.loadingState == .data([]))
         task.cancel()
 
-        XCTAssertFalse(subject.state.isRemoveCardPolicyFeatureFlagEnabled)
-        XCTAssertEqual(subject.state.restrictItemTypesOrgIds, nil)
+        XCTAssertEqual(
+            subject.state.itemTypesUserCanCreate,
+            CipherType.canCreateCases.reversed(),
+        )
     }
 
     /// `perform(_:)` with `.appeared` updates the state depending on if the
