@@ -102,7 +102,7 @@ final class VaultGroupProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await checkPersonalOwnershipPolicy()
-            await checkRestrictItemTypesPolicy()
+            await checkItemTypesUserCanCreate()
             await streamVaultList()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
@@ -174,14 +174,10 @@ final class VaultGroupProcessor: StateProcessor<
         state.canShowVaultFilter = await services.vaultRepository.canShowVaultFilter()
     }
 
-    /// Checks if the restrict item types policy is enabled.
+    /// Checks available item types user can create.
     ///
-    private func checkRestrictItemTypesPolicy() async {
-        state.isRemoveCardPolicyFeatureFlagEnabled = await services.configService.getFeatureFlag(.removeCardPolicy)
-        if state.isRemoveCardPolicyFeatureFlagEnabled {
-            state.restrictItemTypesOrgIds = await services.policyService
-                .getOrganizationIdsForRestricItemTypesPolicy()
-        }
+    private func checkItemTypesUserCanCreate() async {
+        state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
     }
 
     /// Navigates to the view item view for the specified cipher. If the cipher requires master

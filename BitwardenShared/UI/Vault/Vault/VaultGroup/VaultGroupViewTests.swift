@@ -54,8 +54,7 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_addItemEmptyStateButton_hidden_restrictItemPolicy_enabled() throws {
         processor.state.loadingState = .data([])
         processor.state.group = .card
-        processor.state.isRemoveCardPolicyFeatureFlagEnabled = true
-        processor.state.restrictItemTypesOrgIds = ["org1"]
+        processor.state.itemTypesUserCanCreate = [.login, .identity, .secureNote]
         XCTAssertThrowsError(try subject.inspect().find(button: Localizations.newCard))
     }
 
@@ -64,8 +63,7 @@ class VaultGroupViewTests: BitwardenTestCase { // swiftlint:disable:this type_bo
     func test_addItemFloatingActionButton_hidden_restrictItemPolicy_enabled() async throws {
         processor.state.loadingState = .data([])
         processor.state.group = .card
-        processor.state.isRemoveCardPolicyFeatureFlagEnabled = true
-        processor.state.restrictItemTypesOrgIds = ["org1"]
+        processor.state.itemTypesUserCanCreate = [.login, .identity, .secureNote]
 
         let fab = try subject.inspect().find(
             floatingActionButtonWithAccessibilityIdentifier: "AddItemFloatingActionButton"

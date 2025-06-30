@@ -85,22 +85,17 @@ struct VaultGroupView: View {
                 )
 
                 Group {
-                    let restrictItemTypes = store.state.isRestrictItemPolicyEnabled
                     switch newItemButtonType {
                     case .button:
-                        if !store.state.isRestrictItemPolicyEnabled {
-                            Button {
-                                store.send(.addItemPressed(nil))
-                            } label: {
-                                newItemLabel
-                            }
-                            .buttonStyle(.primary(shouldFillWidth: false))
+                        Button {
+                            store.send(.addItemPressed(nil))
+                        } label: {
+                            newItemLabel
                         }
+                        .buttonStyle(.primary(shouldFillWidth: false))
                     case .menu:
-                        let itemTypes = restrictItemTypes
-                            ? CipherType.canCreateRestrictItemTypesPolicyCases : CipherType.canCreateCases
                         Menu {
-                            ForEach(itemTypes, id: \.hashValue) { type in
+                            ForEach(store.state.itemTypesUserCanCreate, id: \.hashValue) { type in
                                 Button(type.localizedName) {
                                     store.send(.addItemPressed(type))
                                 }
@@ -130,14 +125,12 @@ struct VaultGroupView: View {
             if let floatingActionButtonType = store.state.newItemButtonType {
                 switch floatingActionButtonType {
                 case .button:
-                    addItemFloatingActionButton(
-                        hidden: store.state.isRestrictItemPolicyEnabled
-                    ) {
+                    addItemFloatingActionButton {
                         store.send(.addItemPressed(nil))
                     }
                 case .menu:
                     addVaultItemFloatingActionMenu(
-                        hidden: store.state.isRestrictItemPolicyEnabled,
+                        availableItemTypes: store.state.itemTypesUserCanCreate,
                     ) { type in
                         store.send(.addItemPressed(type))
                     }
