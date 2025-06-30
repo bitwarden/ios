@@ -479,7 +479,7 @@ platform :ios do |options|
       submit_for_review: options[:submit_release],
       skip_binary_upload: true,
       skip_screenshots: true,
-      automatic_release: false,
+      automatic_release: options[:submit_release],
       api_key_path: options[:api_key_path],
       run_precheck_before_submit: false,
       metadata_path: options[:metadata_path],
