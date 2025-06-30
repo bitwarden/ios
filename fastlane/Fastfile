@@ -476,7 +476,7 @@ platform :ios do |options|
       edit_live: false,
       build_number: options[:build_number],
       app_version: options[:app_version],
-      submit_for_review: false,
+      submit_for_review: options[:submit_release],
       skip_binary_upload: true,
       skip_screenshots: true,
       automatic_release: false,
