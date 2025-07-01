@@ -63,7 +63,7 @@ final class TwoFactorAuthProcessor: StateProcessor<TwoFactorAuthState, TwoFactor
     override func perform(_ effect: TwoFactorAuthEffect) async {
         switch effect {
         case .appeared:
-            guard state.authMethod == .email else { return }
+            guard state.authMethod == .email, !state.deviceVerificationRequired else { return }
             await sendVerificationCodeEmail()
         case .beginDuoAuth:
             authenticateWithDuo()
