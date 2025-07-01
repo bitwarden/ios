@@ -150,6 +150,8 @@ actor DefaultClientService: ClientService {
     /// The service used by the application to manage account state.
     private let stateService: StateService
 
+    private let dataStore: DataStore
+
     /// An array of user IDs and their associated client.
     private var userClientArray = [String: BitwardenSdkClient]()
 
@@ -169,13 +171,15 @@ actor DefaultClientService: ClientService {
         configService: ConfigService,
         errorReporter: ErrorReporter,
         settings: ClientSettings? = nil,
-        stateService: StateService
+        stateService: StateService,
+        dataStore: DataStore
     ) {
         self.clientBuilder = clientBuilder
         self.configService = configService
         self.errorReporter = errorReporter
         self.settings = settings
         self.stateService = stateService
+        self.dataStore = dataStore
 
         Task {
             for try await result in try await configService.configPublisher() {
@@ -243,7 +247,7 @@ actor DefaultClientService: ClientService {
         guard !isPreAuth else {
             // If this client is being used for a new user prior to authentication, a user ID doesn't
             // exist for the user to map the client to, so return a new client.
-            return clientBuilder.buildClient()
+            return clientBuilder.buildClient(for: nil, dataStore: dataStore)
         }
 
         do {
@@ -252,7 +256,7 @@ actor DefaultClientService: ClientService {
             // If the user has a client, return it.
             guard let client = userClientArray[userId] else {
                 // If not, create one, map it to the user, then return it.
-                let newClient = await createAndMapClient(for: userId)
+                let newClient = await createAndMapClient(for: userId, dataStore: dataStore)
 
                 // Get the current config and load the flags.
                 let config = await configService.getConfig()
@@ -272,7 +276,7 @@ actor DefaultClientService: ClientService {
                         "set in this scenario."
                 )
             )
-            return clientBuilder.buildClient()
+            return clientBuilder.buildClient(for: nil, dataStore: dataStore)
         }
     }
 
@@ -280,8 +284,8 @@ actor DefaultClientService: ClientService {
     ///
     /// - Parameter userId: A user ID that the new client is being mapped to.
     ///
-    private func createAndMapClient(for userId: String) async -> BitwardenSdkClient {
-        let client = clientBuilder.buildClient()
+    private func createAndMapClient(for userId: String, dataStore: DataStore) async -> BitwardenSdkClient {
+        let client = clientBuilder.buildClient(for: userId, dataStore: dataStore)
 
         userClientArray.updateValue(client, forKey: userId)
         return client
@@ -318,7 +322,7 @@ protocol ClientBuilder {
     ///
     /// - Returns: A new `BitwardenSdkClient`.
     ///
-    func buildClient() -> BitwardenSdkClient
+    func buildClient(for userId: String?, dataStore: DataStore) -> BitwardenSdkClient
 }
 
 // MARK: DefaultClientBuilder
@@ -349,8 +353,19 @@ class DefaultClientBuilder: ClientBuilder {
 
     // MARK: Methods
 
-    func buildClient() -> BitwardenSdkClient {
-        Client(settings: settings)
+    func buildClient(for userId: String?, dataStore: DataStore) -> BitwardenSdkClient {
+        let client = Client(settings: settings)
+        guard let userId else {
+            return client
+        }
+
+        client
+            .platform()
+            .state()
+            .registerCipherRepository(
+                store: CipherRepositoryImpl(cipherDataStore: dataStore, userId: userId)
+            )
+        return client
     }
 }
 
@@ -410,5 +425,65 @@ extension Client: BitwardenSdkClient {
 
     func vault() -> VaultClientService {
         vault() as VaultClient
+    }
+}
+
+// TODO: Move this to a better place?
+final class CipherRepositoryImpl: CipherRepository, Sendable {
+    private let dataStore: CipherDataStoreActor
+
+    init(cipherDataStore: CipherDataStore, userId: String) {
+        dataStore = CipherDataStoreActor(store: cipherDataStore, userId: userId)
+    }
+
+    func get(id: String) async throws -> Cipher? {
+        try await dataStore.fetchCipher(withId: id)
+    }
+
+    func has(id: String) async -> Bool {
+        let cipher = try? await dataStore.fetchCipher(withId: id)
+        return cipher != nil
+    }
+
+    func list() async throws -> [Cipher] {
+        try await dataStore.fetchAllCiphers()
+    }
+
+    func set(id: String, value: Cipher) async throws {
+        try await dataStore.saveCipher(id: id, value: value)
+    }
+
+    func remove(id: String) async throws {
+        try await dataStore.deleteCipher(id: id)
+    }
+}
+
+// I had to create this actor so that swift wouldn't complain about CipherDataStore not being Sendable,
+// which is something that CipherRepository requires, there might be a better way to solve this.
+
+actor CipherDataStoreActor {
+    private let store: CipherDataStore
+    private let userId: String
+
+    init(store: CipherDataStore, userId: String) {
+        self.store = store
+        self.userId = userId
+    }
+
+    func fetchCipher(withId id: String) async throws -> Cipher? {
+        try await store.fetchCipher(withId: id, userId: userId)
+    }
+
+    func fetchAllCiphers() async throws -> [Cipher] {
+        try await store.fetchAllCiphers(userId: userId)
+    }
+
+    func saveCipher(id: String, value: Cipher) async throws {
+        assert(id == value.id)
+        try await store.upsertCipher(value, userId: userId)
+    }
+
+    func deleteCipher(id: String) async throws {
+        try await store.deleteCipher(id: id, userId: userId)
     }
 } // swiftlint:disable:this file_length

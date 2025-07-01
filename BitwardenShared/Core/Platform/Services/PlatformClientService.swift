@@ -21,6 +21,8 @@ protocol PlatformClientService: AnyObject {
     /// - Parameter material: Fingerprint material to use
     /// - Returns: User fingerprint
     func userFingerprint(material fingerprintMaterial: String) throws -> String
+
+    func state() -> StateClientProtocol
 }
 
 // MARK: PlatformClient
@@ -40,5 +42,9 @@ extension PlatformClient: PlatformClientService {
 
     func userFingerprint(material fingerprintMaterial: String) throws -> String {
         try userFingerprint(fingerprintMaterial: fingerprintMaterial)
+    }
+
+    func state() -> StateClientProtocol {
+        state() as StateClient
     }
 }
