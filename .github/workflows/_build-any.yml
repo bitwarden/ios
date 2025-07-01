@@ -39,6 +39,7 @@ jobs:
   build:
     name: Build ${{ inputs.bw-env }}
     runs-on: macos-15
+    timeout-minutes: 30
     permissions:
       contents: read
     env:
@@ -264,7 +265,8 @@ jobs:
           Compiler Flags: $_COMPILER_FLAGS
           $_GITHUB_ACTION_RUN_URL"
 
-          fastlane upload_build \
+          bundle exec fastlane upload_build \
+            --env $_BW_ENV \
             api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
             changelog:"$CHANGELOG" \
             ipa_path:"$_EXPORT_FILEPATH"
