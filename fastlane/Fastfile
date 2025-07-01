@@ -148,12 +148,17 @@ platform :ios do |options|
 
     desc "Push a new build to TestFlight"
     lane :upload_build do |options|
+        ensure_env_vars(
+            env_vars: ['_BUNDLE_ID']
+        )
+
         upload_to_testflight(
             skip_submission: false,
             changelog: options[:changelog],
             skip_waiting_for_build_processing: false,
             api_key_path: options[:api_key_path],
             ipa: options[:ipa_path],
+            app_identifier: ENV["_BUNDLE_ID"],
             localized_build_info: {
                 "default": {
                     whats_new: options[:changelog],
