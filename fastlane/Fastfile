@@ -156,6 +156,7 @@ platform :ios do |options|
             skip_submission: false,
             changelog: options[:changelog],
             skip_waiting_for_build_processing: true,
+            notify_external_testers: false,
             api_key_path: options[:api_key_path],
             ipa: options[:ipa_path],
             app_identifier: ENV["_BUNDLE_ID"],
