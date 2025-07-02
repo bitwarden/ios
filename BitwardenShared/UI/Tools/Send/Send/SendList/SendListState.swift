@@ -21,7 +21,7 @@ struct SendListState: Sendable {
     var loadingState: LoadingState<[SendListSection]> = .loading(nil)
 
     /// The navigation title for this screen.
-    var navigationTitle: String { type?.localizedName ?? Localizations.sends }
+    var navigationTitle: String { type?.localizedName ?? Localizations.send }
 
     /// The text that the user is currently searching for.
     var searchText: String = ""

@@ -581,7 +581,7 @@
 "RemovePassword" = "Parolayı kaldır";
 "AreYouSureRemoveSendPassword" = "Parolayı kaldırmak istediğinizden emin misiniz?";
 "RemovingSendPassword" = "Parola kaldırılıyor";
-"SendPasswordRemoved" = "Parola kaldırıldı.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Hesabınızda hiç Send yok.";
 "CopyLink" = "Bağlantıyı kopyala";
 "ShareLink" = "Bağlantıyı paylaş";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Günlük silindi";
 "AllLogsDeleted" = "Tüm günlükler silindi";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Bu Send'i kaydetmek için bir dosya eklemelisiniz";
+"SendUpdated" = "Send güncellendi";

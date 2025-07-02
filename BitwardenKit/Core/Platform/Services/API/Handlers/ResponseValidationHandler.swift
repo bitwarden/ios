@@ -4,7 +4,7 @@ import Networking
 
 /// An error indicating that the response was invalid and didn't contain a successful HTTP status code.
 ///
-public struct ResponseValidationError: Error, Equatable {
+public struct ResponseValidationError: NonLoggableError, Equatable {
     // MARK: Properties
 
     /// The received HTTP response.

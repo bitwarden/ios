@@ -13,12 +13,46 @@ public protocol Navigator: AlertPresentable, AnyObject {
 
     /// The root view controller of this `Navigator`.
     var rootViewController: UIViewController? { get }
+
+    // MARK: Methods
+
+    /// Presents a view controller modally. Supports presenting on top of presented modals if necessary.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller to present.
+    ///   - animated: Whether the transition should be animated.
+    ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
+    ///   - onCompletion: A closure to call on completion.
+    ///
+    func present(
+        _ viewController: UIViewController,
+        animated: Bool,
+        overFullscreen: Bool,
+        onCompletion: (() -> Void)?
+    )
 }
 
 extension Navigator {
     /// A flag indicating if this navigator is currently presenting a view modally.
     public var isPresenting: Bool {
         rootViewController?.presentedViewController != nil
+    }
+
+    /// Presents a view controller modally. Supports presenting on top of presented modals if necessary.
+    ///
+    /// - Parameters:
+    ///   - viewController: The view controller to present.
+    ///   - animated: Whether the transition should be animated.
+    ///   - overFullscreen: Whether or not the presented modal should cover the full screen.
+    ///   - onCompletion: A closure to call on completion.
+    ///
+    func present(
+        _ viewController: UIViewController,
+        animated: Bool = UI.animated,
+        overFullscreen: Bool = false,
+        onCompletion: (() -> Void)? = nil
+    ) {
+        present(viewController, animated: animated, overFullscreen: overFullscreen, onCompletion: onCompletion)
     }
 
     /// Shows the loading overlay view.

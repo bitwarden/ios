@@ -1,8 +1,8 @@
 import Foundation
 
-extension DispatchTimeInterval: Comparable {
+extension DispatchTimeInterval: @retroactive Comparable {
     /// The total number of nanoseconds in this duration.
-    var totalNanoseconds: Int64 {
+    public var totalNanoseconds: Int64 {
         switch self {
         case let .nanoseconds(value):
             return Int64(value)
@@ -20,7 +20,7 @@ extension DispatchTimeInterval: Comparable {
     }
 
     /// The total number of seconds in this duration.
-    var totalSeconds: Double {
+    public var totalSeconds: Double {
         switch self {
         case let .nanoseconds(value):
             return Double(value) / 1_000_000_000

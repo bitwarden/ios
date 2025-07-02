@@ -581,7 +581,7 @@
 "RemovePassword" = "Jelszó eltávolítása";
 "AreYouSureRemoveSendPassword" = "Biztosan eltávolításra kerüljön ez a jelszó?";
 "RemovingSendPassword" = "Jelszó eltávolítása..";
-"SendPasswordRemoved" = "A jelszó eltávolításra került.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "A fiókban nincsenek Send elemek.";
 "CopyLink" = "Hivatkozás másolása";
 "ShareLink" = "Hivatkozás megosztása";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "A napló törlésre került.";
 "AllLogsDeleted" = "Az öszes napló törlésre került.";
 "LoggingEndsOnDateAtTime" = "A naplózás befejezése: %1$@ - %2$@";
+"YouMustAttachAFileToSaveThisSend" = "A Send elem mentéséhez csatolni kell egy fájlt.";
+"SendUpdated" = "A Send elem frissítésre került.";

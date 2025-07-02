@@ -17,6 +17,13 @@ final class MockTabNavigator: TabNavigator {
         return navigatorForTabReturns
     }
 
+    func present(
+        _ viewController: UIViewController,
+        animated: Bool,
+        overFullscreen: Bool,
+        onCompletion: (() -> Void)?
+    ) {}
+
     func setNavigators<Tab: Hashable & TabRepresentable>(_ tabs: [Tab: Navigator]) {
         navigators = tabs
             .sorted { $0.key.index < $1.key.index }
