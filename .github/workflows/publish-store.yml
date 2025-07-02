@@ -150,7 +150,7 @@ jobs:
               exit 1
             fi
 
-            bundle exec fastlane submit_release \
+            bundle exec fastlane release_to_production \
               api_key_path:"$HOME/secrets/appstoreconnect-fastlane.json" \
               build_number:"$VERSION_CODE" \
               app_version:"$VERSION_NAME" \

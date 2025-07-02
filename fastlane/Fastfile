@@ -429,8 +429,8 @@ platform :ios do |options|
         end
     end
 
-  desc "Submit authenticator build to the App Store"
-  lane :submit_release do |options|
+  desc "Submit iOS app to the App Store"
+  lane :release_to_production do |options|
 
     changelog = options[:changelog]
     auth_locales = ["en-US"]
