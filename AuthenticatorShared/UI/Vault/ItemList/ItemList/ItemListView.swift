@@ -237,7 +237,7 @@ private struct SearchableItemListView: View { // swiftlint:disable:this type_bod
                         await store.perform(.moveToBitwardenPressed(item))
                     } label: {
                         HStack(spacing: 4) {
-                            Text(Localizations.copyToBitwarden)
+                            Text(Localizations.copyToBitwardenVault)
                             Spacer()
                             Image(decorative: Asset.Images.rightArrow)
                                 .imageStyle(.accessoryIcon(scaleWithFont: true))
