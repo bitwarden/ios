@@ -78,22 +78,6 @@ jobs:
             keyvault: "bitwarden-ci"
             secrets: "appcenter-ios-token"
 
-        - name: Retrieve beta provisioning profiles
-          env:
-            ACCOUNT_NAME: bitwardenci
-            CONTAINER_NAME: profiles
-            FILE: dist_beta_bitwarden.mobileprovision
-          run: |
-            mkdir -p $HOME/secrets
-            az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
-                --file $HOME/secrets/$FILE --output none
-
-        - name: Retrieve certificates
-          run: |
-            mkdir -p $HOME/certificates
-            az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/ios-distribution |
-              jq -r .value | base64 -d > $HOME/certificates/ios-distribution.p12
-
         - name: Download Fastlane credentials
           env:
             ACCOUNT_NAME: bitwardenci
@@ -103,19 +87,6 @@ jobs:
             mkdir -p $HOME/secrets
             az storage blob download --account-name $ACCOUNT_NAME --container-name $CONTAINER_NAME --name $FILE \
               --file $HOME/secrets/$FILE --output none
-
-        - name: Configure Keychain Access
-          env:
-            KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
-          run: |
-            security create-keychain -p $KEYCHAIN_PASSWORD build.keychain
-            security default-keychain -s build.keychain
-            security unlock-keychain -p $KEYCHAIN_PASSWORD build.keychain
-            security set-keychain-settings -lut 1200 build.keychain
-
-            security import $HOME/certificates/ios-distribution.p12 -k build.keychain -P "" -T /usr/bin/codesign \
-              -T /usr/bin/security
-            security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
         - name: Set up private auth key
           run: |
