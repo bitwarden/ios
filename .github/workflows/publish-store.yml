@@ -117,10 +117,6 @@ jobs:
               -T /usr/bin/security
             security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PASSWORD build.keychain
 
-        - name: Update beta Fastlane Appfile
-          run: |
-            echo 'app_identifier "com.8bit.bitwarden.beta"' > fastlane/Appfile
-
         - name: Set up private auth key
           run: |
             mkdir ~/private_keys
