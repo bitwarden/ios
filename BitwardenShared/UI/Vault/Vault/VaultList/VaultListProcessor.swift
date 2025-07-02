@@ -207,7 +207,7 @@ extension VaultListProcessor {
         await handleNotifications()
         await checkPendingLoginRequests()
         await checkPersonalOwnershipPolicy()
-        await checkItemTypesUserCanCreate()
+        await loadItemTypesUserCanCreate()
     }
 
     /// Check if there are any pending login requests for the user to deal with.
@@ -244,7 +244,7 @@ extension VaultListProcessor {
 
     /// Checks available item types user can create.
     ///
-    private func checkItemTypesUserCanCreate() async {
+    private func loadItemTypesUserCanCreate() async {
         state.itemTypesUserCanCreate = await services.vaultRepository.getItemTypesUserCanCreate()
     }
 

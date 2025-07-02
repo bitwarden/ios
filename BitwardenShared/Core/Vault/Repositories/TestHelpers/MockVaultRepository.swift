@@ -66,7 +66,7 @@ class MockVaultRepository: VaultRepository {
 
     var getTOTPKeyIfAllowedToCopyResult: Result<String?, Error> = .success(nil)
 
-    var getItemTypesUserCanCreate: [BitwardenShared.CipherType] = CipherType.canCreateCases
+    var getItemTypesUserCanCreateResult: [BitwardenShared.CipherType] = CipherType.canCreateCases
 
     var isVaultEmptyCalled = false
     var isVaultEmptyResult: Result<Bool, Error> = .success(false)
@@ -228,7 +228,7 @@ class MockVaultRepository: VaultRepository {
     }
 
     func getItemTypesUserCanCreate() async -> [BitwardenShared.CipherType] {
-        getItemTypesUserCanCreate
+        getItemTypesUserCanCreateResult
     }
 
     func getTOTPKeyIfAllowedToCopy(cipher: CipherView) async throws -> String? {

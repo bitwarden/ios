@@ -161,7 +161,7 @@ class VaultGroupProcessorTests: BitwardenTestCase { // swiftlint:disable:this ty
     /// `perform(_:)` with `.appeared` updates the state with new values
     @MainActor
     func test_perform_appeared_itemTypesUserCanCreate() {
-        vaultRepository.getItemTypesUserCanCreate = [.card]
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
         let task = Task {
             await subject.perform(.appeared)
         }

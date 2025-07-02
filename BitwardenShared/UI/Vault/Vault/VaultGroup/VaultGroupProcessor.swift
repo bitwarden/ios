@@ -102,7 +102,7 @@ final class VaultGroupProcessor: StateProcessor<
         switch effect {
         case .appeared:
             await checkPersonalOwnershipPolicy()
-            await checkItemTypesUserCanCreate()
+            await loadItemTypesUserCanCreate()
             await streamVaultList()
         case let .morePressed(item):
             await vaultItemMoreOptionsHelper.showMoreOptionsAlert(
@@ -176,7 +176,7 @@ final class VaultGroupProcessor: StateProcessor<
 
     /// Checks available item types user can create.
     ///
-    private func checkItemTypesUserCanCreate() async {
+    private func loadItemTypesUserCanCreate() async {
         state.itemTypesUserCanCreate = await vaultRepository.getItemTypesUserCanCreate()
     }
 

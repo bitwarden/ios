@@ -1105,7 +1105,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(
             result,
-            CipherType.canCreateCases.filter { $0 != .card }.reversed(),
+            [.login, .identity, .secureNote],
         )
     }
 
@@ -1125,7 +1125,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
 
         let result = await subject.getItemTypesUserCanCreate()
-        XCTAssertEqual(result, CipherType.canCreateCases.reversed())
+        XCTAssertEqual(result, [.login, .card, .identity, .secureNote])
     }
 
     /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
@@ -1137,7 +1137,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         policyService.policyAppliesToUserPolicies = []
 
         let result = await subject.getItemTypesUserCanCreate()
-        XCTAssertEqual(result, CipherType.canCreateCases.reversed())
+        XCTAssertEqual(result, [.login, .card, .identity, .secureNote])
     }
 
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
@@ -2912,8 +2912,8 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         )
     }
 
-    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items not filtering cards from
-    /// individual and organizations vaults if restrict item type policy is enabled not enabled.
+    /// `vaultListPublisher(group:filter:)` returns a publisher for the vault list items not excluding cards from
+    /// individual and organizations vaults if restrict item type policy is not enabled .
     @MainActor
     func test_vaultListPublisher_groups_card_restrictItemTypePolicy_disabled() async throws {
         let cipherOrg1 = Cipher.fixture(id: "1", organizationId: "org1", type: .card)

@@ -964,7 +964,7 @@ class DefaultVaultRepository { // swiftlint:disable:this type_body_length
 
         var types = [VaultListItem(id: "Types.Logins", itemType: .group(.login, typesLoginCount))]
 
-        // Only show the card section if there are cards and restrictItemTypes policy is not enabled.
+        // Only show the card section if there are cards or restrictItemTypes policy is not enabled.
         if typesCardCount != 0 || restrictItemTypesOrgIds.isEmpty {
             types.append(VaultListItem(id: "Types.Cards", itemType: .group(.card, typesCardCount)))
         }
