@@ -303,6 +303,18 @@ class VaultListProcessorTests: BitwardenTestCase { // swiftlint:disable:this typ
         XCTAssertEqual(stateService.notificationsLastRegistrationDates["1"], timeProvider.presentTime)
     }
 
+    /// `perform(_:)` with `.appeared` updates the state with new values
+    @MainActor
+    func test_perform_appeared_itemTypesUserCanCreate() {
+        vaultRepository.getItemTypesUserCanCreateResult = [.card]
+        let task = Task {
+            await subject.perform(.appeared)
+        }
+
+        waitFor(subject.state.itemTypesUserCanCreate == [.card])
+        task.cancel()
+    }
+
     /// `perform(_:)` with `.appeared` updates the state depending on if the
     /// personal ownership policy is enabled.
     @MainActor

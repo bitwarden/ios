@@ -136,12 +136,14 @@ extension View {
     ///
     /// - Parameters:
     ///   - hidden: Whether the menu button should be hidden.
+    ///   - availableItemTypes: The list of cipher item types available for creation.
     ///   - addItem: The action to perform when a new cipher item type is tapped in the menu.
     ///   - addFolder: The action to perform when the new folder button is tapped in the menu.
     /// - Returns: A `FloatingActionMenu` configured for adding a vault item for folder.
     ///
     func addVaultItemFloatingActionMenu(
         hidden: Bool = false,
+        availableItemTypes: [CipherType] = CipherType.canCreateCases,
         addItem: @escaping (CipherType) -> Void,
         addFolder: (() -> Void)? = nil
     ) -> some View {
@@ -155,7 +157,7 @@ extension View {
                 Divider()
             }
 
-            ForEach(CipherType.canCreateCases.reversed(), id: \.hashValue) { type in
+            ForEach(availableItemTypes, id: \.hashValue) { type in
                 Button(type.localizedName) {
                     addItem(type)
                 }

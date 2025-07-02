@@ -10,6 +10,9 @@ struct VaultListState: Equatable {
     /// The active flight recorder log metadata, or `nil` if the flight recorder isn't active.
     var activeFlightRecorderLog: FlightRecorderData.LogMetadata?
 
+    /// List of available item type for creation.
+    var itemTypesUserCanCreate: [CipherType] = CipherType.canCreateCases
+
     /// Whether the vault filter can be shown.
     var canShowVaultFilter = true
 
