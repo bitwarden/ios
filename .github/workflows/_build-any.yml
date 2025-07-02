@@ -154,6 +154,7 @@ jobs:
             build_mode:$_BUILD_MODE \
             version_name:$_VERSION_NAME \
             version_number:$_VERSION_NUMBER \
+            compiler_flags:"$_COMPILER_FLAGS"
 
           bundle exec fastlane update_ci_build_info \
             --env $_BW_ENV \
