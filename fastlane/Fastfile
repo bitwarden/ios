@@ -435,6 +435,7 @@ platform :ios do |options|
     changelog = options[:changelog]
     auth_locales = ["en-US"]
     pw_manager_locales = ["ca", "zh-Hans", "zh-Hant", "hr", "cs", "da", "nl-NL", "en-US", "fi", "fr-FR", "de-DE", "id", "it", "ja", "ko", "no", "pl", "pt-PT", "pt-BR", "ro", "ru", "sk", "es-ES", "es-MX", "sv", "tr", "uk", "vi"]
+    metadata_path = options[:metadata_path]
 
     if options[:packageName] == "com.bitwarden.authenticator"
       locales = auth_locales
@@ -443,13 +444,13 @@ platform :ios do |options|
     end
 
     locales.each do |locale|
-      dir = "metadata/#{locale}"
+      dir = "#{metadata_path}/#{locale}"
       FileUtils.mkdir_p(dir)
       File.write("#{dir}/release_notes.txt", changelog)
     end
 
     notes = locales.each_with_object({}) do |locale, hash|
-      file_path = "./metadata/#{locale}/release_notes.txt"
+      file_path = "./#{metadata_path}/#{locale}/release_notes.txt"
       if File.exist?(file_path)
         hash[locale] = File.read(file_path)
       else
