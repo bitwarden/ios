@@ -9,6 +9,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
     // MARK: Properties
 
     var appExtensionDelegate: MockAppExtensionDelegate!
+    var application: MockApplication!
     var authRepository: MockAuthRepository!
     var biometricsRepository: MockBiometricsRepository!
     var errorReporter: MockErrorReporter!
@@ -22,6 +23,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         super.setUp()
 
         appExtensionDelegate = MockAppExtensionDelegate()
+        application = MockApplication()
         authRepository = MockAuthRepository()
         biometricsRepository = MockBiometricsRepository()
         coordinator = MockCoordinator()
@@ -32,6 +34,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             appExtensionDelegate: appExtensionDelegate,
             coordinator: coordinator.asAnyCoordinator(),
             services: ServiceContainer.withMocks(
+                application: application,
                 authRepository: authRepository,
                 biometricsRepository: biometricsRepository,
                 errorReporter: errorReporter,
@@ -45,6 +48,7 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
         super.tearDown()
 
         appExtensionDelegate = nil
+        application = nil
         authRepository = nil
         biometricsRepository = nil
         coordinator = nil
@@ -90,6 +94,23 @@ class VaultUnlockProcessorTests: BitwardenTestCase { // swiftlint:disable:this t
             subject.state.profileSwitcherState,
             ProfileSwitcherState.empty()
         )
+    }
+
+    /// `perform(_:)` with `.appeared` doesn't attempt to unlock the vault with biometrics if the
+    /// app is in the background.
+    @MainActor
+    func test_perform_appeared_loadData_unlockWithBiometrics_background() async throws {
+        application.applicationState = .background
+        stateService.activeAccount = .fixture()
+        biometricsRepository.biometricUnlockStatus = .success(
+            .available(.touchID, enabled: true)
+        )
+        subject.shouldAttemptAutomaticBiometricUnlock = true
+
+        await subject.perform(.appeared)
+
+        XCTAssertFalse(authRepository.unlockVaultWithBiometricsCalled)
+        XCTAssertTrue(coordinator.events.isEmpty)
     }
 
     /// `perform(.appeared)` with no master password but with a biometrics status enabled,
