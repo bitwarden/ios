@@ -581,7 +581,7 @@
 "RemovePassword" = "പാസ്‌വേഡ് നീക്കംചെയ്യുക";
 "AreYouSureRemoveSendPassword" = "Are you sure you want to remove the password?";
 "RemovingSendPassword" = "പാസ്‌വേഡ് നീക്കംചെയ്യുന്നു";
-"SendPasswordRemoved" = "പാസ്‌വേഡ് നീക്കം ചെയ്തു";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "There are no Sends in your account.";
 "CopyLink" = "ലിങ്ക് പകർത്തുക";
 "ShareLink" = "ലിങ്ക് പങ്കിടുക";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";

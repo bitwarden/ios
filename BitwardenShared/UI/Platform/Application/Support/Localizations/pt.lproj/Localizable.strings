@@ -581,7 +581,7 @@
 "RemovePassword" = "Remover palavra-passe";
 "AreYouSureRemoveSendPassword" = "Tem a certeza de que pretende remover a palavra-passe?";
 "RemovingSendPassword" = "A remover palavra-passe";
-"SendPasswordRemoved" = "A palavra-passe foi removida.";
+"SendPasswordRemoved" = "Palavra-passe removida";
 "NoSends" = "Não existem Sends na sua conta.";
 "CopyLink" = "Copiar link";
 "ShareLink" = "Partilhar link";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Registo eliminado";
 "AllLogsDeleted" = "Todos os registos eliminados";
 "LoggingEndsOnDateAtTime" = "O registo termina a %1$@ às %2$@";
+"YouMustAttachAFileToSaveThisSend" = "É necessário anexar um ficheiro para guardar este Send";
+"SendUpdated" = "Send atualizado";

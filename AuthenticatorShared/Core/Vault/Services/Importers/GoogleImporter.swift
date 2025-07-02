@@ -14,7 +14,7 @@ class GoogleImporter {
             return []
         }
 
-        let payload = try GoogleMigrationPayload(serializedData: decodedData)
+        let payload = try GoogleMigrationPayload(serializedBytes: decodedData)
 
         return payload.otpParameters.compactMap { item in
             guard item.type == .otpTotp else { return nil }

@@ -581,7 +581,7 @@
 "RemovePassword" = "Noņemt paroli";
 "AreYouSureRemoveSendPassword" = "Vai tiešām noņemt paroli?";
 "RemovingSendPassword" = "Noņem paroli";
-"SendPasswordRemoved" = "Parole ir noņemta";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Kontā nav neviena Send.";
 "CopyLink" = "Ievietot saiti starpliktuvē";
 "ShareLink" = "Kopīgot saiti";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Žurnāls izdzēsts";
 "AllLogsDeleted" = "Visi žurnāli izdzēsti";
 "LoggingEndsOnDateAtTime" = "Žurnalēšana beigsies %1$@ %2$@";
+"YouMustAttachAFileToSaveThisSend" = "Jāpievieno datne, lai saglabātu šo Send";
+"SendUpdated" = "Send atjaunināts";

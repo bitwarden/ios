@@ -581,7 +581,7 @@
 "RemovePassword" = "Eliminar contrasinal";
 "AreYouSureRemoveSendPassword" = "Seguro que queres eliminar o contrasinal?";
 "RemovingSendPassword" = "Eliminando contrasinal";
-"SendPasswordRemoved" = "O contrasinal foi eliminado.";
+"SendPasswordRemoved" = "Password removed";
 "NoSends" = "Non hai Sends na túa conta.";
 "CopyLink" = "Copiar ligazón";
 "ShareLink" = "Compartir ligazón";
@@ -1209,3 +1209,5 @@
 "LogDeleted" = "Log deleted";
 "AllLogsDeleted" = "All logs deleted";
 "LoggingEndsOnDateAtTime" = "Logging ends on %1$@ at %2$@";
+"YouMustAttachAFileToSaveThisSend" = "You must attach a file to save this send";
+"SendUpdated" = "Send updated";
