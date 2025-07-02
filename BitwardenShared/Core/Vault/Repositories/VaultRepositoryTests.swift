@@ -1105,7 +1105,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         let result = await subject.getItemTypesUserCanCreate()
         XCTAssertEqual(
             result,
-            [.login, .identity, .secureNote],
+            [.secureNote, .identity, .login],
         )
     }
 
@@ -1125,7 +1125,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         ]
 
         let result = await subject.getItemTypesUserCanCreate()
-        XCTAssertEqual(result, [.login, .card, .identity, .secureNote])
+        XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
     }
 
     /// `getItemTypesUserCanCreate()` gets the user's available item types for item creation
@@ -1137,7 +1137,7 @@ class VaultRepositoryTests: BitwardenTestCase { // swiftlint:disable:this type_b
         policyService.policyAppliesToUserPolicies = []
 
         let result = await subject.getItemTypesUserCanCreate()
-        XCTAssertEqual(result, [.login, .card, .identity, .secureNote])
+        XCTAssertEqual(result, [.secureNote, .identity, .card, .login])
     }
 
     /// `getTOTPKeyIfAllowedToCopy(cipher:)` return the TOTP key when cipher has TOTP key,
