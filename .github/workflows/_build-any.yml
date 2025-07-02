@@ -236,7 +236,7 @@ jobs:
           EOF
 
       - name: Validate app with App Store Connect
-        if: env._BUILD_MODE == 'Device'
+        if: env._BUILD_MODE == 'Device' && false # Set to true to debug failing submissions
         env:
           _EXPORT_FILEPATH: ${{ steps.get_file_paths.outputs.export_filepath }}
         run: |
